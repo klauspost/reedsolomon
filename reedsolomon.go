@@ -224,7 +224,10 @@ func (r reedSolomon) checkSomeShardsP(matrixRows, inputs, toCheck [][]byte, outp
 	var wg sync.WaitGroup
 	left := byteCount
 	start := 0
-	failed := make(chan bool)
+
+	same := true
+	var mu sync.RWMutex // For above
+
 	for {
 		do := left
 		if do > splitSize {
@@ -246,21 +249,27 @@ func (r reedSolomon) checkSomeShardsP(matrixRows, inputs, toCheck [][]byte, outp
 						value ^= galMultiply(matrixRow[c], inputs[c][iByte])
 					}
 					if toCheck[iRow][iByte] != value {
-						close(failed)
+						mu.Lock()
+						same = false
+						mu.Unlock()
 						return
 					}
+				}
+				// At regular intervals check if others have failed and return if so
+				if iByte&15 == 15 {
+					mu.RLock()
+					if !same {
+						mu.RUnlock()
+						return
+					}
+					mu.RUnlock()
 				}
 			}
 		}(start, start+do)
 		start += do
 	}
 	wg.Wait()
-	select {
-	case <-failed:
-		return false
-	default:
-	}
-	return true
+	return same
 }
 
 var ErrShardNoData = errors.New("no shard data")
