@@ -21,6 +21,9 @@ type ReedSolomon struct {
 	parity           [][]byte
 }
 
+// New creates a new encoder and initializes it to
+// the number of data shards and parity shards that
+// you want to use. You can reuse this encoder.
 func New(dataShardCount, parityShardCount int) (*ReedSolomon, error) {
 	r := ReedSolomon{
 		DataShardCount:   dataShardCount,
@@ -36,7 +39,7 @@ func New(dataShardCount, parityShardCount int) (*ReedSolomon, error) {
 		return nil, err
 	}
 
-	// Multiple by the inverse of the top square of the matrix.
+	// Multiply by the inverse of the top square of the matrix.
 	// This will make the top square be the identity matrix, but
 	// preserve the property that any square subset of rows  is
 	// invertible.
@@ -55,8 +58,11 @@ func New(dataShardCount, parityShardCount int) (*ReedSolomon, error) {
 var ErrTooFewShards = errors.New("too few shards given to encode")
 
 // Encodes parity for a set of data shards.
-// shards An array containing data shards followed by parity shards.
+// An array 'shards' containing data shards followed by parity shards.
+// The number of shards must match the number given to New.
 // Each shard is a byte array, and they must all be the same size.
+// The parity shards will always be overwritten and the data shards
+// will remain the same.
 func (r ReedSolomon) Encode(shards [][]byte) error {
 	if len(shards) != r.TotalShardCount {
 		return ErrTooFewShards
@@ -76,6 +82,7 @@ func (r ReedSolomon) Encode(shards [][]byte) error {
 }
 
 // Verify returns true if the parity shards contain the right data.
+// The data is the same format as Encode. No data is modified.
 func (r ReedSolomon) Verify(shards [][]byte) (bool, error) {
 	if len(shards) != r.TotalShardCount {
 		return false, ErrTooFewShards
@@ -92,21 +99,15 @@ func (r ReedSolomon) Verify(shards [][]byte) (bool, error) {
 	return r.checkSomeShards(r.parity, shards[0:r.DataShardCount], toCheck, r.ParityShardCount, len(shards[0])), nil
 }
 
-// TODO: Cleanup Doc:
-
 // Multiplies a subset of rows from a coding matrix by a full set of
 // input shards to produce some output shards.
 // 'matrixRows' is The rows from the matrix to use.
 // 'inputs' An array of byte arrays, each of which is one input shard.
-// The inputs array may have extra buffers after the ones
-// that are used.  They will be ignored.  The number of inputs used is
-// determined by the length of each matrix row.
+// The number of inputs used is determined by the length of each matrix row.
 // outputs Byte arrays where the computed shards are stored.
-// The outputs array may also have extra, unused, elements
-// at the end.  The number of outputs computed, and the
-//  number of matrix rows used, is determined by
-// outputCount.
-// outputCount The number of outputs to compute.
+// The number of outputs computed, and the
+// number of matrix rows used, is determined by
+// outputCount, which is the number of outputs to compute.
 func (r ReedSolomon) codeSomeShards(matrixRows, inputs, outputs [][]byte, outputCount, byteCount int) {
 	if runtime.GOMAXPROCS(0) > 1 {
 		r.codeSomeShardsP(matrixRows, inputs, outputs, outputCount, byteCount)
@@ -125,7 +126,7 @@ func (r ReedSolomon) codeSomeShards(matrixRows, inputs, outputs [][]byte, output
 	}
 }
 
-//
+// How many bytes per goroutine.
 const splitSize = 256
 
 // Perform the same as codeSomeShards, but split the workload into
@@ -163,23 +164,9 @@ func (r ReedSolomon) codeSomeShardsP(matrixRows, inputs, outputs [][]byte, outpu
 	wg.Wait()
 }
 
-/* Not really faster
-func (r ReedSolomon) codeSomeShards(matrixRows, inputs, outputs [][]byte, outputCount, byteCount int) {
-	matrixRows = matrixRows[0:outputCount]
-	for iByte := 0; iByte < byteCount; iByte++ {
-		for iRow, matrixRow := range matrixRows {
-			var value byte
-			matrixRow := matrixRow[0:r.DataShardCount]
-			for c, mr := range matrixRow {
-				// note: manual inlining is slower
-				value ^= galMultiply(mr, inputs[c][iByte])
-			}
-			outputs[iRow][iByte] = value
-		}
-	}
-}
-*/
-
+// checkSomeShards is nostly the same as codeSomeShards,
+// except this will check values and return
+// as soon as a difference is found.
 func (r ReedSolomon) checkSomeShards(matrixRows, inputs, toCheck [][]byte, outputCount, byteCount int) bool {
 	if runtime.GOMAXPROCS(0) > 1 {
 		return r.checkSomeShardsP(matrixRows, inputs, toCheck, outputCount, byteCount)
@@ -199,6 +186,8 @@ func (r ReedSolomon) checkSomeShards(matrixRows, inputs, toCheck [][]byte, outpu
 	}
 	return true
 }
+
+// Parallel version of checkSomeShards
 func (r ReedSolomon) checkSomeShardsP(matrixRows, inputs, toCheck [][]byte, outputCount, byteCount int) bool {
 	var wg sync.WaitGroup
 	left := byteCount
@@ -245,11 +234,17 @@ func (r ReedSolomon) checkSomeShardsP(matrixRows, inputs, toCheck [][]byte, outp
 var ErrShardNoData = errors.New("no shard data")
 var ErrShardSize = errors.New("shard sizes does not match")
 
+// checkShards will check if shards are the same size
+// or 0, if allowed. An error is returned if this fails.
+// An error is also returned if all shards are size 0.
 func checkShards(shards [][]byte, nilok bool) error {
 	if len(shards) == 0 {
 		return ErrShardNoData
 	}
 	size := shardSize(shards)
+	if size == 0 {
+		return ErrShardNoData
+	}
 	for _, shard := range shards {
 		if len(shard) != size {
 			if len(shard) != 0 || !nilok {
@@ -260,13 +255,16 @@ func checkShards(shards [][]byte, nilok bool) error {
 	return nil
 }
 
+// shardSize return the size of a single shard.
+// The first non-zero size is returned,
+// or 0 if all shards are size 0.
 func shardSize(shards [][]byte) int {
 	for _, shard := range shards {
 		if len(shard) != 0 {
 			return len(shard)
 		}
 	}
-	panic("No shards are bigger than 0")
+	return 0
 }
 
 // Reconstruct will recreate the missing shards, if possible.
