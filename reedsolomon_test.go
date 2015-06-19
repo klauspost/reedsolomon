@@ -170,6 +170,10 @@ func BenchmarkEncode100_20_10000(b *testing.B) {
 	benchmarkEncode(b, 100, 20, 10000)
 }
 
+func BenchmarkEncode17_3_1M(b *testing.B) {
+	benchmarkEncode(b, 17, 3, 1024*1024)
+}
+
 // Benchmark 10 data shards and 4 parity shards with 16MB each.
 func BenchmarkEncode10_4_16M(b *testing.B) {
 	benchmarkEncode(b, 10, 4, 16*1024*1024)
