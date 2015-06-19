@@ -24,7 +24,7 @@ func TestEncoding(t *testing.T) {
 	}
 
 	rand.Seed(0)
-	for s := 0; s < r.DataShardCount; s++ {
+	for s := 0; s < 13; s++ {
 		fillRandom(shards[s])
 	}
 
@@ -53,7 +53,7 @@ func TestReconstruct(t *testing.T) {
 	}
 
 	rand.Seed(0)
-	for s := 0; s < r.DataShardCount; s++ {
+	for s := 0; s < 13; s++ {
 		fillRandom(shards[s])
 	}
 
@@ -142,13 +142,13 @@ func benchmarkEncode(b *testing.B, dataShards, parityShards, shardSize int) {
 	if err != nil {
 		b.Fatal(err)
 	}
-	shards := make([][]byte, r.TotalShardCount)
+	shards := make([][]byte, dataShards+parityShards)
 	for s := range shards {
 		shards[s] = make([]byte, shardSize)
 	}
 
 	rand.Seed(0)
-	for s := 0; s < r.DataShardCount; s++ {
+	for s := 0; s < dataShards; s++ {
 		fillRandom(shards[s])
 	}
 
@@ -184,13 +184,13 @@ func benchmarkVerify(b *testing.B, dataShards, parityShards, shardSize int) {
 	if err != nil {
 		b.Fatal(err)
 	}
-	shards := make([][]byte, r.TotalShardCount)
+	shards := make([][]byte, parityShards+dataShards)
 	for s := range shards {
 		shards[s] = make([]byte, shardSize)
 	}
 
 	rand.Seed(0)
-	for s := 0; s < r.DataShardCount; s++ {
+	for s := 0; s < dataShards; s++ {
 		fillRandom(shards[s])
 	}
 	err = r.Encode(shards)
