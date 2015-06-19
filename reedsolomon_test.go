@@ -80,6 +80,58 @@ func TestReconstruct(t *testing.T) {
 	}
 }
 
+func TestVerify(t *testing.T) {
+	perShard := 33333
+	r, err := New(10, 4)
+	if err != nil {
+		t.Fatal(err)
+	}
+	shards := make([][]byte, 14)
+	for s := range shards {
+		shards[s] = make([]byte, perShard)
+	}
+
+	rand.Seed(0)
+	for s := 0; s < 10; s++ {
+		fillRandom(shards[s])
+	}
+
+	err = r.Encode(shards)
+	if err != nil {
+		t.Fatal(err)
+	}
+	ok, err := r.Verify(shards)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !ok {
+		t.Fatal("Verification failed")
+	}
+	// Put in random data. Verification should fail
+	fillRandom(shards[10])
+	ok, err = r.Verify(shards)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if ok {
+		t.Fatal("Verification did not fail")
+	}
+	// Re-encode
+	err = r.Encode(shards)
+	if err != nil {
+		t.Fatal(err)
+	}
+	// Fill a data segment with random data
+	fillRandom(shards[0])
+	ok, err = r.Verify(shards)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if ok {
+		t.Fatal("Verification did not fail")
+	}
+}
+
 func TestOneEncode(t *testing.T) {
 	codec, err := New(5, 5)
 	if err != nil {
