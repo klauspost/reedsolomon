@@ -59,6 +59,8 @@ const (
 func main() {
 	t := generateExpTable()
 	fmt.Printf("var expTable = %#v\n", t)
+	t2 := generateMulTableSplit(t)
+	fmt.Printf("var mulTable = %#v\n", t2)
 }
 
 /**
@@ -70,6 +72,38 @@ func generateExpTable() []byte {
 		log := logTable[i]
 		result[log] = byte(i)
 		result[log+fieldSize-1] = byte(i)
+	}
+	return result
+}
+
+func generateMulTable(expTable []byte) []byte {
+	result := make([]byte, 256*256)
+	for v := range result {
+		a := byte(v & 0xff)
+		b := byte(v >> 8)
+		if a == 0 || b == 0 {
+			result[v] = 0
+			continue
+		}
+		logA := int(logTable[a])
+		logB := int(logTable[b])
+		result[v] = expTable[logA+logB]
+	}
+	return result
+}
+
+func generateMulTableSplit(expTable []byte) [256][256]byte {
+	var result [256][256]byte
+	for a := range result {
+		for b := range result[a] {
+			if a == 0 || b == 0 {
+				result[a][b] = 0
+				continue
+			}
+			logA := int(logTable[a])
+			logB := int(logTable[b])
+			result[a][b] = expTable[logA+logB]
+		}
 	}
 	return result
 }
