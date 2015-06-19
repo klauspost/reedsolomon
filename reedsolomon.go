@@ -21,9 +21,6 @@ type ReedSolomon struct {
 	parity           [][]byte
 }
 
-type Shard []byte
-type Shards []Shard
-
 func New(dataShardCount, parityShardCount int) (*ReedSolomon, error) {
 	r := ReedSolomon{
 		DataShardCount:   dataShardCount,
