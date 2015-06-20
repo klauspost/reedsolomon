@@ -271,6 +271,26 @@ func BenchmarkVerify50x5x50000(b *testing.B) {
 	benchmarkVerify(b, 50, 5, 100000)
 }
 
+// Benchmark 10 data slices with 2 parity slices holding 1MB bytes each
+func BenchmarkVerify10x2x1M(b *testing.B) {
+	benchmarkVerify(b, 10, 2, 1024*1024)
+}
+
+// Benchmark 5 data slices with 2 parity slices holding 1MB bytes each
+func BenchmarkVerify5x2x1M(b *testing.B) {
+	benchmarkVerify(b, 5, 2, 1024*1024)
+}
+
+// Benchmark 10 data slices with 4 parity slices holding 1MB bytes each
+func BenchmarkVerify10x4x1M(b *testing.B) {
+	benchmarkVerify(b, 10, 4, 1024*1024)
+}
+
+// Benchmark 5 data slices with 2 parity slices holding 1MB bytes each
+func BenchmarkVerify50x20x1M(b *testing.B) {
+	benchmarkVerify(b, 50, 20, 1024*1024)
+}
+
 // Benchmark 10 data slices with 4 parity slices holding 16MB bytes each
 func BenchmarkVerify10x4x16M(b *testing.B) {
 	benchmarkVerify(b, 10, 4, 16*1024*1024)
