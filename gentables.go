@@ -59,8 +59,11 @@ const (
 func main() {
 	t := generateExpTable()
 	fmt.Printf("var expTable = %#v\n", t)
-	t2 := generateMulTableSplit(t)
-	fmt.Printf("var mulTable = %#v\n", t2)
+	//t2 := generateMulTableSplit(t)
+	//fmt.Printf("var mulTable = %#v\n", t2)
+	low, high := generateMulTableHalf(t)
+	fmt.Printf("var mulTableLow = %#v\n", low)
+	fmt.Printf("var mulTableHigh = %#v\n", high)
 }
 
 /**
@@ -106,4 +109,24 @@ func generateMulTableSplit(expTable []byte) [256][256]byte {
 		}
 	}
 	return result
+}
+
+func generateMulTableHalf(expTable []byte) (low [256][16]byte, high [256][16]byte) {
+	for a := range low {
+		for b := range low {
+			result := 0
+			if !(a == 0 || b == 0) {
+				logA := int(logTable[a])
+				logB := int(logTable[b])
+				result = int(expTable[logA+logB])
+			}
+			if (b & 0xf) == b {
+				low[a][b] = byte(result)
+			}
+			if (b & 0xf0) == b {
+				high[a][b>>4] = byte(result)
+			}
+		}
+	}
+	return
 }

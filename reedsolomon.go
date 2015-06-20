@@ -171,15 +171,20 @@ func (r reedSolomon) codeSomeShards(matrixRows, inputs, outputs [][]byte, output
 		r.codeSomeShardsP(matrixRows, inputs, outputs, outputCount, byteCount)
 		return
 	}
-	for iByte := 0; iByte < byteCount; iByte++ {
+	for c := 0; c < r.DataShards; c++ {
+		in := inputs[c]
 		for iRow := 0; iRow < outputCount; iRow++ {
-			matrixRow := matrixRows[iRow]
-			var value byte
-			for c, in := range inputs {
-				// note: manual inlining is slower
-				value ^= galMultiply(matrixRow[c], in[iByte])
+			o := outputs[iRow]
+			mt := mulTable[matrixRows[iRow][c]]
+			if c == 0 {
+				for iByte, input := range in {
+					o[iByte] = mt[input]
+				}
+			} else {
+				for iByte, input := range in {
+					o[iByte] ^= mt[input]
+				}
 			}
-			outputs[iRow][iByte] = value
 		}
 	}
 }
