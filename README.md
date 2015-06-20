@@ -23,30 +23,28 @@ go get github.com/klauspost/reedsolomon
 # Usage
 
 # Performance
-The library is not heavily optimized at the moment. In the future it is very likely 
-
-Performance depends mainly on the number of data and parity shards. In rough terms, doubling the number of data and parity shards will double the encoding time.
+Performance depends mainly on the number of parity shards. In rough terms, doubling the number of parity shards will double the encoding time.
 
 Here are the throughput numbers with some different selections of data and parity shards. For reference each shard is 1MB random data, and 2 CPU cores are used for encoding.
 
-| Data | Parity | MB/s   | Speed   |
-|------|--------|--------|---------|
-| 5    | 2      | 209.87 | 100.00% |
-| 10   | 2      | 151.96 | 72.41%  |
-| 10   | 4      | 106.72 | 50.85%  |
-| 50   | 20     | 13.59  | 6.48%   |
+| Data | Parity | MB/s   | Parity | Speed   |
+|------|--------|--------|--------|---------|
+| 5    | 2      | 427,62 | 40%    | 100,00% |
+| 10   | 2      | 525,84 | 20%    | 122,97% |
+| 10   | 4      | 265,85 | 40%    | 62,17%  |
+| 50   | 20     | 52,98  | 40%    | 12,39%  |
 
 
 If `runtime.GOMAXPROCS()` is set to a value higher than 1, the encoder will use multiple goroutines to perform the calculations in `Verify`, `Encode` and `Reconstruct`.
 
 Example of performance scaling on Intel(R) Core(TM) i7-2600 CPU @ 3.40GHz - 4 physical cores, 8 logical cores. The example uses 10 blocks with 16MB data each and 4 parity blocks.
 
-| Threads | MB/s  | Speed |
-|---------|-------|-------|
-| 1       | 24.34 | 100%  |
-| 2       | 48.47 | 199%  |
-| 4       | 78.28 | 322%  |
-| 8       | 97.88 | 402%  |
+| Threads | MB/s   | Speed   |
+|---------|--------|---------|
+| 1       | 156,49 | 100,00% |
+| 2       | 287,86 | 199,00% |
+| 4       | 491,83 | 322,00% |
+| 8       | 575,32 | 402,00% |
 
 # License
 

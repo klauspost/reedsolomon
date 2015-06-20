@@ -232,6 +232,26 @@ func BenchmarkEncode10x4x16M(b *testing.B) {
 	benchmarkEncode(b, 10, 4, 16*1024*1024)
 }
 
+// Benchmark 1 data shards and 2 parity shards with 1MB each.
+func BenchmarkEncode5x2x1M(b *testing.B) {
+	benchmarkEncode(b, 5, 2, 1024*1024)
+}
+
+// Benchmark 1 data shards and 2 parity shards with 1MB each.
+func BenchmarkEncode10x2x1M(b *testing.B) {
+	benchmarkEncode(b, 10, 2, 1024*1024)
+}
+
+// Benchmark 1 data shards and 2 parity shards with 1MB each.
+func BenchmarkEncode10x4x1M(b *testing.B) {
+	benchmarkEncode(b, 10, 4, 1024*1024)
+}
+
+// Benchmark 1 data shards and 2 parity shards with 1MB each.
+func BenchmarkEncode50x20x1M(b *testing.B) {
+	benchmarkEncode(b, 50, 20, 1024*1024)
+}
+
 func benchmarkVerify(b *testing.B, dataShards, parityShards, shardSize int) {
 	r, err := New(dataShards, parityShards)
 	if err != nil {
