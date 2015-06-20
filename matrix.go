@@ -20,10 +20,10 @@ type matrix [][]byte
 // newMatrix returns a matrix of zeros.
 func newMatrix(rows, cols int) (matrix, error) {
 	if rows <= 0 {
-		return nil, ErrInvalidRowSize
+		return nil, errInvalidRowSize
 	}
 	if cols <= 0 {
-		return nil, ErrInvalidColSize
+		return nil, errInvalidColSize
 	}
 
 	m := matrix(make([][]byte, rows))
@@ -56,23 +56,28 @@ func identityMatrix(size int) (matrix, error) {
 	return m, nil
 }
 
-var ErrInvalidRowSize = errors.New("Invalid row size")
-var ErrInvalidColSize = errors.New("Invalid column size")
-var ErrColSizeMismatch = errors.New("Column size is not the same for all rows")
+// errInvalidRowSize will be returned if attempting to create a matrix with negative or zero row number.
+var errInvalidRowSize = errors.New("invalid row size")
+
+// errInvalidColSize will be returned if attempting to create a matrix with negative or zero column number.
+var errInvalidColSize = errors.New("invalid column size")
+
+// errColSizeMismatch is returned if the size of matrix columns mismatch.
+var errColSizeMismatch = errors.New("column size is not the same for all rows")
 
 func (m matrix) Check() error {
 	rows := len(m)
 	if rows <= 0 {
-		return ErrInvalidRowSize
+		return errInvalidRowSize
 	}
 	cols := len(m[0])
 	if cols <= 0 {
-		return ErrInvalidColSize
+		return errInvalidColSize
 	}
 
 	for _, col := range m {
 		if len(col) != cols {
-			return ErrColSizeMismatch
+			return errColSizeMismatch
 		}
 	}
 	return nil
@@ -118,7 +123,7 @@ func (m matrix) Multiply(right matrix) (matrix, error) {
 // Augment returns the concatenation of this matrix and the matrix on the right.
 func (m matrix) Augment(right matrix) (matrix, error) {
 	if len(m) != len(right) {
-		return nil, ErrMatrixSize
+		return nil, errMatrixSize
 	}
 
 	result, _ := newMatrix(len(m), len(m[0])+len(right[0]))
@@ -134,15 +139,16 @@ func (m matrix) Augment(right matrix) (matrix, error) {
 	return result, nil
 }
 
-var ErrMatrixSize = errors.New("matrix sizes does not match")
+// errMatrixSize is returned if matrix dimensions are doesn't match.
+var errMatrixSize = errors.New("matrix sizes does not match")
 
 func (m matrix) SameSize(n matrix) error {
 	if len(m) != len(n) {
-		return ErrMatrixSize
+		return errMatrixSize
 	}
 	for i := range m {
 		if len(m[i]) != len(n[i]) {
-			return ErrMatrixSize
+			return errMatrixSize
 		}
 	}
 	return nil
@@ -166,7 +172,7 @@ func (m matrix) SubMatrix(rmin, cmin, rmax, cmax int) (matrix, error) {
 // SwapRows Exchanges two rows in the matrix.
 func (m matrix) SwapRows(r1, r2 int) error {
 	if r1 < 0 || len(m) <= r1 || r2 < 0 || len(m) <= r2 {
-		return ErrInvalidRowSize
+		return errInvalidRowSize
 	}
 	m[r2], m[r1] = m[r1], m[r2]
 	return nil
@@ -181,15 +187,18 @@ func (m matrix) IsSquare() bool {
 	return true
 }
 
-var ErrSingular = errors.New("matrix is singular")
-var ErrNotSquare = errors.New("only square matrices can be inverted")
+// errSingular is returned if the matrix is singular and cannot be inversed
+var errSingular = errors.New("matrix is singular")
+
+// errNotSquare is returned if attempting to inverse a non-square matrix.
+var errNotSquare = errors.New("only square matrices can be inverted")
 
 // Invert returns the inverse of this matrix.
 // Returns ErrSingular when the matrix is singular and doesn't have an inverse.
 // The matrix must be square, otherwise ErrNotSquare is returned.
 func (m matrix) Invert() (matrix, error) {
 	if !m.IsSquare() {
-		return nil, ErrNotSquare
+		return nil, errNotSquare
 	}
 
 	size := len(m)
@@ -228,7 +237,7 @@ func (m matrix) gaussianElimination() error {
 		}
 		// If we couldn't find one, the matrix is singular.
 		if m[r][r] == 0 {
-			return ErrSingular
+			return errSingular
 		}
 		// Scale to 1.
 		if m[r][r] != 1 {

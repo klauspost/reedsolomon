@@ -13,6 +13,7 @@ import (
 	"sync"
 )
 
+// Encoder is an interface to encode Reed-Salomon parity sets for your data.
 type Encoder interface {
 	// Encodes parity for a set of data shards.
 	// An array 'shards' containing data shards followed by parity shards.
@@ -53,6 +54,10 @@ type reedSolomon struct {
 	parity       [][]byte
 }
 
+// ErrInvShardNum will be returned by New, if you attempt to create
+// an Encoder where either data or parity shards is zero or less.
+var ErrInvShardNum = errors.New("cannot create Encoder with zero or less data/parity shards")
+
 // New creates a new encoder and initializes it to
 // the number of data shards and parity shards that
 // you want to use. You can reuse this encoder.
@@ -61,6 +66,10 @@ func New(dataShards, parityShards int) (Encoder, error) {
 		DataShards:   dataShards,
 		ParityShards: parityShards,
 		Shards:       dataShards + parityShards,
+	}
+
+	if dataShards <= 0 || parityShards <= 0 {
+		return nil, ErrInvShardNum
 	}
 
 	// Start with a Vandermonde matrix.  This matrix would work,
@@ -87,7 +96,10 @@ func New(dataShards, parityShards int) (Encoder, error) {
 	return &r, err
 }
 
-var ErrTooFewShards = errors.New("too few shards given to encode")
+// ErrTooFewShards is returned if too few shards where given to
+// Encode/Verify/Reconstruct. It will also be returned from Reconstruct
+// if there were too few shards to reconstruct the missing data.
+var ErrTooFewShards = errors.New("too few shards given")
 
 // Encodes parity for a set of data shards.
 // An array 'shards' containing data shards followed by parity shards.
@@ -272,7 +284,12 @@ func (r reedSolomon) checkSomeShardsP(matrixRows, inputs, toCheck [][]byte, outp
 	return same
 }
 
+// ErrShardNoData will be returned if there are no shards,
+// or if the length of all shards is zero.
 var ErrShardNoData = errors.New("no shard data")
+
+// ErrShardSize is returned if shard length isn't the same for all
+// shards.
 var ErrShardSize = errors.New("shard sizes does not match")
 
 // checkShards will check if shards are the same size
