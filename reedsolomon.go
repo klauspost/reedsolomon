@@ -8,6 +8,7 @@
 package reedsolomon
 
 import (
+	"bytes"
 	"errors"
 	"runtime"
 	"sync"
@@ -209,15 +210,20 @@ func (r reedSolomon) codeSomeShardsP(matrixRows, inputs, outputs [][]byte, outpu
 		left -= do
 		wg.Add(1)
 		go func(start, stop int) {
-			for iByte := start; iByte < stop; iByte++ {
+			for c := 0; c < r.DataShards; c++ {
+				in := inputs[c]
 				for iRow := 0; iRow < outputCount; iRow++ {
-					matrixRow := matrixRows[iRow]
-					var value byte
-					for c, in := range inputs {
-						// note: manual inlining is slower
-						value ^= galMultiply(matrixRow[c], in[iByte])
+					o := outputs[iRow]
+					mt := mulTable[matrixRows[iRow][c]]
+					if c == 0 {
+						for iByte := start; iByte < stop; iByte++ {
+							o[iByte] = mt[in[iByte]]
+						}
+					} else {
+						for iByte := start; iByte < stop; iByte++ {
+							o[iByte] ^= mt[in[iByte]]
+						}
 					}
-					outputs[iRow][iByte] = value
 				}
 			}
 			wg.Done()
@@ -231,23 +237,34 @@ func (r reedSolomon) codeSomeShardsP(matrixRows, inputs, outputs [][]byte, outpu
 // except this will check values and return
 // as soon as a difference is found.
 func (r reedSolomon) checkSomeShards(matrixRows, inputs, toCheck [][]byte, outputCount, byteCount int) bool {
-	if runtime.GOMAXPROCS(0) > 1 {
-		return r.checkSomeShardsP(matrixRows, inputs, toCheck, outputCount, byteCount)
-	}
-	for iByte := 0; iByte < byteCount; iByte++ {
-		for iRow := 0; iRow < outputCount; iRow++ {
-			matrixRow := matrixRows[iRow]
-			var value byte
-			for c, in := range inputs {
-				// note: manual inlining is slower
-				value ^= galMultiply(matrixRow[c], in[iByte])
+	// Always use multiple gorountines, since it returns faster.
+	return r.checkSomeShardsP(matrixRows, inputs, toCheck, outputCount, byteCount)
+	/*	if runtime.GOMAXPROCS(0) > 1 {
+			return r.checkSomeShardsP(matrixRows, inputs, toCheck, outputCount, byteCount)
+		}
+		outputs := make([][]byte, len(toCheck))
+		for i := range outputs {
+			outputs[i] = make([]byte, byteCount)
+		}
+		for c := 0; c < r.DataShards; c++ {
+			in := inputs[c]
+			for iRow := 0; iRow < outputCount; iRow++ {
+				o := outputs[iRow]
+				mt := mulTable[matrixRows[iRow][c]]
+				for iByte, input := range in {
+					o[iByte] ^= mt[input]
+				}
 			}
-			if toCheck[iRow][iByte] != value {
+		}
+
+		for i, calc := range outputs {
+			if bytes.Compare(calc, toCheck[i]) != 0 {
 				return false
 			}
 		}
-	}
-	return true
+
+		return true
+	*/
 }
 
 // Parallel version of checkSomeShards
@@ -269,34 +286,38 @@ func (r reedSolomon) checkSomeShardsP(matrixRows, inputs, toCheck [][]byte, outp
 		}
 		left -= do
 		wg.Add(1)
-		go func(start, stop int) {
+		go func(start, do int) {
 			defer wg.Done()
-			for iByte := start; iByte < stop; iByte++ {
-				for iRow := 0; iRow < outputCount; iRow++ {
-					matrixRow := matrixRows[iRow]
-					var value byte
-					for c, in := range inputs {
-						// note: manual inlining is slower
-						value ^= galMultiply(matrixRow[c], in[iByte])
-					}
-					if toCheck[iRow][iByte] != value {
-						mu.Lock()
-						same = false
-						mu.Unlock()
-						return
-					}
-				}
-				// At regular intervals check if others have failed and return if so
-				if iByte&15 == 15 {
-					mu.RLock()
-					if !same {
-						mu.RUnlock()
-						return
-					}
+			outputs := make([][]byte, len(toCheck))
+			for i := range outputs {
+				outputs[i] = make([]byte, do)
+			}
+			for c := 0; c < r.DataShards; c++ {
+				mu.RLock()
+				if !same {
 					mu.RUnlock()
+					return
+				}
+				mu.RUnlock()
+				in := inputs[c][start : start+do]
+				for iRow := 0; iRow < outputCount; iRow++ {
+					o := outputs[iRow]
+					mt := mulTable[matrixRows[iRow][c]]
+					for iByte := 0; iByte < do; iByte++ {
+						o[iByte] ^= mt[in[iByte]]
+					}
 				}
 			}
-		}(start, start+do)
+
+			for i, calc := range outputs {
+				if bytes.Compare(calc, toCheck[i][start:start+do]) != 0 {
+					mu.Lock()
+					same = false
+					mu.Unlock()
+					return
+				}
+			}
+		}(start, do)
 		start += do
 	}
 	wg.Wait()
