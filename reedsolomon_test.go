@@ -172,7 +172,7 @@ func TestOneEncode(t *testing.T) {
 	if !ok {
 		t.Fatal("did not verify")
 	}
-	shards[8][0] += 1
+	shards[8][0]++
 	ok, err = codec.Verify(shards)
 	if err != nil {
 		t.Fatal(err)
@@ -214,20 +214,20 @@ func benchmarkEncode(b *testing.B, dataShards, parityShards, shardSize int) {
 	}
 }
 
-func BenchmarkEncode10_2_10000(b *testing.B) {
+func BenchmarkEncode10x2x10000(b *testing.B) {
 	benchmarkEncode(b, 10, 2, 10000)
 }
 
-func BenchmarkEncode100_20_10000(b *testing.B) {
+func BenchmarkEncode100x20x10000(b *testing.B) {
 	benchmarkEncode(b, 100, 20, 10000)
 }
 
-func BenchmarkEncode17_3_1M(b *testing.B) {
+func BenchmarkEncode17x3x1M(b *testing.B) {
 	benchmarkEncode(b, 17, 3, 1024*1024)
 }
 
 // Benchmark 10 data shards and 4 parity shards with 16MB each.
-func BenchmarkEncode10_4_16M(b *testing.B) {
+func BenchmarkEncode10x4x16M(b *testing.B) {
 	benchmarkEncode(b, 10, 4, 16*1024*1024)
 }
 
@@ -261,16 +261,16 @@ func benchmarkVerify(b *testing.B, dataShards, parityShards, shardSize int) {
 }
 
 // Benchmark 10 data slices with 2 parity slices holding 10000 bytes each
-func BenchmarkVerify10_2_10000(b *testing.B) {
+func BenchmarkVerify10x2x10000(b *testing.B) {
 	benchmarkVerify(b, 10, 2, 10000)
 }
 
 // Benchmark 50 data slices with 5 parity slices holding 100000 bytes each
-func BenchmarkVerify50_5_50000(b *testing.B) {
+func BenchmarkVerify50x5x50000(b *testing.B) {
 	benchmarkVerify(b, 50, 5, 100000)
 }
 
 // Benchmark 10 data slices with 4 parity slices holding 16MB bytes each
-func BenchmarkVerify10_4_16M(b *testing.B) {
+func BenchmarkVerify10x4x16M(b *testing.B) {
 	benchmarkVerify(b, 10, 4, 16*1024*1024)
 }

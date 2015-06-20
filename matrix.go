@@ -102,7 +102,7 @@ func (m matrix) String() string {
 // matrix (the one on the right) and returns a new matrix with the result.
 func (m matrix) Multiply(right matrix) (matrix, error) {
 	if len(m[0]) != len(right) {
-		return nil, fmt.Errorf("Columns on left (%d) is different than rows on right (%d)", len(m[0]), len(right))
+		return nil, fmt.Errorf("columns on left (%d) is different than rows on right (%d)", len(m[0]), len(right))
 	}
 	result, err := newMatrix(len(m), len(right[0]))
 	if err != nil {

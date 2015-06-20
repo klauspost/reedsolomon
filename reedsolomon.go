@@ -355,7 +355,7 @@ func (r reedSolomon) Reconstruct(shards [][]byte) error {
 	numberPresent := 0
 	for i := 0; i < r.Shards; i++ {
 		if len(shards[i]) != 0 {
-			numberPresent += 1
+			numberPresent++
 		}
 	}
 	if numberPresent == r.Shards {
