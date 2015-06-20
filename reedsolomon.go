@@ -41,6 +41,20 @@ type Encoder interface {
 	// The reconstructed shard set is complete, but integrity is not verified.
 	// Use the Verify function to check if data set is ok.
 	Reconstruct(shards [][]byte) error
+
+	// Split a data slice into the number of shards given to the encoder,
+	// and create empty parity shards.
+	//
+	// The data will be split into equally sized shards.
+	// If the data size isn't dividable by the number of shards,
+	// the last shard will contain extra zeros.
+	//
+	// There must be at least the same number of bytes as there are data shards,
+	// otherwise ErrShortData will be returned.
+	//
+	// The data will not be copied, except for the last shard, so you
+	// should not modify the data of the input slice afterwards.
+	Split(data []byte) ([][]byte, error)
 }
 
 // reedSolomon contains a matrix for a specific
@@ -441,4 +455,42 @@ func (r reedSolomon) Reconstruct(shards [][]byte) error {
 	}
 	r.codeSomeShards(matrixRows, shards[:r.DataShards], outputs[:outputCount], outputCount, shardSize)
 	return nil
+}
+
+// ErrShortData will be returned by split, if there isn't enough data
+// to fill the number of shards.
+var ErrShortData = errors.New("not enough data to fill the number of requested shards")
+
+// Split a data slice into the number of shards given to the encoder,
+// and create empty parity shards.
+//
+// The data will be split into equally sized shards.
+// If the data size isn't dividable by the number of shards,
+// the last shard will contain extra zeros.
+//
+// There must be at least the same number of bytes as there are data shards,
+// otherwise ErrShortData will be returned.
+//
+// The data will not be copied, except for the last shard, so you
+// should not modify the data of the input slice afterwards.
+func (r reedSolomon) Split(data []byte) ([][]byte, error) {
+	if len(data) < r.DataShards {
+		return nil, ErrShortData
+	}
+	perShard := (len(data) + r.DataShards - 1) / r.DataShards
+	dst := make([][]byte, r.Shards)
+	for i := 0; i < r.DataShards; i++ {
+		if i < r.DataShards-1 {
+			dst[i] = data[perShard*i : perShard*i+perShard]
+		} else {
+			dst[i] = make([]byte, perShard)
+			copy(dst[i], data[perShard*i:])
+		}
+	}
+
+	// Create empty parity shards.
+	for i := 0; i < r.ParityShards; i++ {
+		dst[i+r.DataShards] = make([]byte, perShard)
+	}
+	return dst, nil
 }
