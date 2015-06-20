@@ -191,7 +191,7 @@ func (r reedSolomon) codeSomeShards(matrixRows, inputs, outputs [][]byte, output
 }
 
 // How many bytes per goroutine.
-const splitSize = 256
+const splitSize = 512
 
 // Perform the same as codeSomeShards, but split the workload into
 // several goroutines.
