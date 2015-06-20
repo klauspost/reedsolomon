@@ -8,6 +8,7 @@
 package reedsolomon
 
 import (
+	"fmt"
 	"math/rand"
 	"testing"
 )
@@ -273,4 +274,41 @@ func BenchmarkVerify50x5x50000(b *testing.B) {
 // Benchmark 10 data slices with 4 parity slices holding 16MB bytes each
 func BenchmarkVerify10x4x16M(b *testing.B) {
 	benchmarkVerify(b, 10, 4, 16*1024*1024)
+}
+
+// Simple example of how to use all functions of the Encoder.
+// Note that all error checks have been removed to keep it short.
+func ExampleEncoder() {
+	// Create some sample data
+	var data = make([]byte, 250000)
+	fillRandom(data)
+
+	// Create an encoder with 17 data and 3 parity slices.
+	enc, _ := New(17, 3)
+
+	// Split the data into shards
+	shards, _ := enc.Split(data)
+
+	// Encode the parity set
+	_ = enc.Encode(shards)
+
+	// Verify the parity set
+	ok, _ := enc.Verify(shards)
+	if ok {
+		fmt.Println("ok")
+	}
+
+	// Delete two shards
+	shards[10], shards[11] = nil, nil
+
+	// Reconstruct the shards
+	_ = enc.Reconstruct(shards)
+
+	// Verify the data set
+	ok, _ = enc.Verify(shards)
+	if ok {
+		fmt.Println("ok")
+	}
+	// Output: ok
+	// ok
 }
