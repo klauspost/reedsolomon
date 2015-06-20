@@ -175,9 +175,9 @@ func (r reedSolomon) codeSomeShards(matrixRows, inputs, outputs [][]byte, output
 		for iRow := 0; iRow < outputCount; iRow++ {
 			matrixRow := matrixRows[iRow]
 			var value byte
-			for c := 0; c < r.DataShards; c++ {
+			for c, in := range inputs {
 				// note: manual inlining is slower
-				value ^= galMultiply(matrixRow[c], inputs[c][iByte])
+				value ^= galMultiply(matrixRow[c], in[iByte])
 			}
 			outputs[iRow][iByte] = value
 		}
@@ -208,9 +208,9 @@ func (r reedSolomon) codeSomeShardsP(matrixRows, inputs, outputs [][]byte, outpu
 				for iRow := 0; iRow < outputCount; iRow++ {
 					matrixRow := matrixRows[iRow]
 					var value byte
-					for c := 0; c < r.DataShards; c++ {
+					for c, in := range inputs {
 						// note: manual inlining is slower
-						value ^= galMultiply(matrixRow[c], inputs[c][iByte])
+						value ^= galMultiply(matrixRow[c], in[iByte])
 					}
 					outputs[iRow][iByte] = value
 				}
@@ -233,9 +233,9 @@ func (r reedSolomon) checkSomeShards(matrixRows, inputs, toCheck [][]byte, outpu
 		for iRow := 0; iRow < outputCount; iRow++ {
 			matrixRow := matrixRows[iRow]
 			var value byte
-			for c := 0; c < r.DataShards; c++ {
+			for c, in := range inputs {
 				// note: manual inlining is slower
-				value ^= galMultiply(matrixRow[c], inputs[c][iByte])
+				value ^= galMultiply(matrixRow[c], in[iByte])
 			}
 			if toCheck[iRow][iByte] != value {
 				return false
@@ -270,9 +270,9 @@ func (r reedSolomon) checkSomeShardsP(matrixRows, inputs, toCheck [][]byte, outp
 				for iRow := 0; iRow < outputCount; iRow++ {
 					matrixRow := matrixRows[iRow]
 					var value byte
-					for c := 0; c < r.DataShards; c++ {
+					for c, in := range inputs {
 						// note: manual inlining is slower
-						value ^= galMultiply(matrixRow[c], inputs[c][iByte])
+						value ^= galMultiply(matrixRow[c], in[iByte])
 					}
 					if toCheck[iRow][iByte] != value {
 						mu.Lock()
@@ -423,7 +423,6 @@ func (r reedSolomon) Reconstruct(shards [][]byte) error {
 	// The input to the coding is all of the shards we actually
 	// have, and the output is the missing data shards.  The computation
 	// is done using the special decode matrix we just built.
-
 	outputs := make([][]byte, r.ParityShards)
 	matrixRows := make([][]byte, r.ParityShards)
 	outputCount := 0
