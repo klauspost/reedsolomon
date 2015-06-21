@@ -184,16 +184,10 @@ func (r reedSolomon) codeSomeShards(matrixRows, inputs, outputs [][]byte, output
 	for c := 0; c < r.DataShards; c++ {
 		in := inputs[c]
 		for iRow := 0; iRow < outputCount; iRow++ {
-			o := outputs[iRow]
-			mt := mulTable[matrixRows[iRow][c]]
 			if c == 0 {
-				for iByte, input := range in {
-					o[iByte] = mt[input]
-				}
+				galMulSlice(matrixRows[iRow][c], in, outputs[iRow])
 			} else {
-				for iByte, input := range in {
-					o[iByte] ^= mt[input]
-				}
+				galMulSliceXor(matrixRows[iRow][c], in, outputs[iRow])
 			}
 		}
 	}
@@ -222,16 +216,10 @@ func (r reedSolomon) codeSomeShardsP(matrixRows, inputs, outputs [][]byte, outpu
 			for c := 0; c < r.DataShards; c++ {
 				in := inputs[c]
 				for iRow := 0; iRow < outputCount; iRow++ {
-					o := outputs[iRow]
-					mt := mulTable[matrixRows[iRow][c]]
 					if c == 0 {
-						for iByte := start; iByte < stop; iByte++ {
-							o[iByte] = mt[in[iByte]]
-						}
+						galMulSlice(matrixRows[iRow][c], in[start:stop], outputs[iRow][start:stop])
 					} else {
-						for iByte := start; iByte < stop; iByte++ {
-							o[iByte] ^= mt[in[iByte]]
-						}
+						galMulSliceXor(matrixRows[iRow][c], in[start:stop], outputs[iRow][start:stop])
 					}
 				}
 			}
@@ -246,38 +234,6 @@ func (r reedSolomon) codeSomeShardsP(matrixRows, inputs, outputs [][]byte, outpu
 // except this will check values and return
 // as soon as a difference is found.
 func (r reedSolomon) checkSomeShards(matrixRows, inputs, toCheck [][]byte, outputCount, byteCount int) bool {
-	// Always use multiple gorountines, since it returns faster.
-	return r.checkSomeShardsP(matrixRows, inputs, toCheck, outputCount, byteCount)
-	/*	if runtime.GOMAXPROCS(0) > 1 {
-			return r.checkSomeShardsP(matrixRows, inputs, toCheck, outputCount, byteCount)
-		}
-		outputs := make([][]byte, len(toCheck))
-		for i := range outputs {
-			outputs[i] = make([]byte, byteCount)
-		}
-		for c := 0; c < r.DataShards; c++ {
-			in := inputs[c]
-			for iRow := 0; iRow < outputCount; iRow++ {
-				o := outputs[iRow]
-				mt := mulTable[matrixRows[iRow][c]]
-				for iByte, input := range in {
-					o[iByte] ^= mt[input]
-				}
-			}
-		}
-
-		for i, calc := range outputs {
-			if bytes.Compare(calc, toCheck[i]) != 0 {
-				return false
-			}
-		}
-
-		return true
-	*/
-}
-
-// Parallel version of checkSomeShards
-func (r reedSolomon) checkSomeShardsP(matrixRows, inputs, toCheck [][]byte, outputCount, byteCount int) bool {
 	var wg sync.WaitGroup
 	left := byteCount
 	start := 0
@@ -310,11 +266,7 @@ func (r reedSolomon) checkSomeShardsP(matrixRows, inputs, toCheck [][]byte, outp
 				mu.RUnlock()
 				in := inputs[c][start : start+do]
 				for iRow := 0; iRow < outputCount; iRow++ {
-					o := outputs[iRow]
-					mt := mulTable[matrixRows[iRow][c]]
-					for iByte := 0; iByte < do; iByte++ {
-						o[iByte] ^= mt[in[iByte]]
-					}
+					galMulSliceXor(matrixRows[iRow][c], in, outputs[iRow])
 				}
 			}
 
