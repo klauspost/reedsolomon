@@ -10,6 +10,7 @@ package reedsolomon
 import (
 	"bytes"
 	"errors"
+	"io"
 	"runtime"
 	"sync"
 )
@@ -56,6 +57,14 @@ type Encoder interface {
 	// The data will not be copied, except for the last shard, so you
 	// should not modify the data of the input slice afterwards.
 	Split(data []byte) ([][]byte, error)
+
+	// Join the shards and write the data segment to dst.
+	//
+	// Only the data shards are considered.
+	// You must supply the exact output size you want.
+	// If there are to few shards given, ErrTooFewShards will be returned.
+	// If the total data size is less than outSize, ErrShortData will be returned.
+	Join(dst io.Writer, shards [][]byte, outSize int) error
 }
 
 // reedSolomon contains a matrix for a specific
@@ -518,4 +527,45 @@ func (r reedSolomon) Split(data []byte) ([][]byte, error) {
 		dst[i+r.DataShards] = make([]byte, perShard)
 	}
 	return dst, nil
+}
+
+// Join the shards and write the data segment to dst.
+//
+// Only the data shards are considered.
+// You must supply the exact output size you want.
+// If there are to few shards given, ErrTooFewShards will be returned.
+// If the total data size is less than outSize, ErrShortData will be returned.
+func (r reedSolomon) Join(dst io.Writer, shards [][]byte, outSize int) error {
+	// Do we have enough shards?
+	if len(shards) < r.DataShards {
+		return ErrTooFewShards
+	}
+	shards = shards[:r.DataShards]
+
+	// Do we have enough data?
+	size := 0
+	for _, shard := range shards {
+		size += len(shard)
+	}
+	if size < outSize {
+		return ErrShortData
+	}
+
+	// Copy data to dst
+	written := 0
+	for _, shard := range shards {
+		write := len(shard)
+		if written+write > outSize {
+			write = outSize - written
+		}
+		_, err := io.CopyN(dst, bytes.NewBuffer(shard), int64(write))
+		if err != nil {
+			return err
+		}
+		written += write
+		if written == outSize {
+			break
+		}
+	}
+	return nil
 }
