@@ -1,4 +1,4 @@
-//+build !noasm
+//+build !noasm !appengine
 
 // Copyright 2015, Klaus Post, see LICENSE for details.
 
