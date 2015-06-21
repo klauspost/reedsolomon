@@ -27,24 +27,23 @@ Performance depends mainly on the number of parity shards. In rough terms, doubl
 
 Here are the throughput numbers with some different selections of data and parity shards. For reference each shard is 1MB random data, and 2 CPU cores are used for encoding.
 
-| Data | Parity | MB/s   | Parity | Speed   |
-|------|--------|--------|--------|---------|
-| 5    | 2      | 427,62 | 40%    | 100,00% |
-| 10   | 2      | 525,84 | 20%    | 122,97% |
-| 10   | 4      | 265,85 | 40%    | 62,17%  |
-| 50   | 20     | 52,98  | 40%    | 12,39%  |
-
+| Data | Parity | Parity | MB/s   | AMD64 SSE3 | SSE3 Speed | Rel. Speed |
+|------|--------|--------|--------|------------|------------|------------|
+| 5    | 2      | 40%    | 576,11 | 2599,2     | 451%       | 100,00%    |
+| 10   | 2      | 20%    | 587,73 | 3100,28    | 528%       | 102,02%    |
+| 10   | 4      | 40%    | 298,38 | 2470,97    | 828%       | 51,79%     |
+| 50   | 20     | 40%    | 59,81  | 713,28     | 1193%      | 10,38%     |
 
 If `runtime.GOMAXPROCS()` is set to a value higher than 1, the encoder will use multiple goroutines to perform the calculations in `Verify`, `Encode` and `Reconstruct`.
 
 Example of performance scaling on Intel(R) Core(TM) i7-2600 CPU @ 3.40GHz - 4 physical cores, 8 logical cores. The example uses 10 blocks with 16MB data each and 4 parity blocks.
 
-| Threads | MB/s   | Speed   |
-|---------|--------|---------|
-| 1       | 156,49 | 100,00% |
-| 2       | 287,86 | 199,00% |
-| 4       | 491,83 | 322,00% |
-| 8       | 575,32 | 402,00% |
+| Threads | MB/s    | Speed |
+|---------|---------|-------|
+| 1       | 1355,11 | 100%  |
+| 2       | 2339,78 | 172%  |
+| 4       | 3179,33 | 235%  |
+| 8       | 4346,18 | 321%  |
 
 # License
 
