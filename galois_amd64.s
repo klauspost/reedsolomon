@@ -40,7 +40,7 @@ loopback_xor:
     SUBQ    $1, R9
     JNZ     loopback_xor
 done_xor:
-    RET ,
+    RET
 
 // func galMulSSE3(low, high, in, out []byte)
 TEXT ·galMulSSE3(SB), 7, $0
@@ -75,6 +75,6 @@ loopback:
     SUBQ    $1, R9
     JNZ     loopback
 done:
-    RET ,
+    RET
 
 
