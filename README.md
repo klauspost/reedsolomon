@@ -124,7 +124,10 @@ It might seem like a limitation that all data should be in memory, but an import
     for i := range data {
       splitA[i] = data[i][:25000]
       splitB[i] = data[i][25000:]
-      merged[i] = append(data[i], data[i]...)
+      
+      // Concencate it to itself
+	  merged[i] = append(make([]byte, 0, len(data[i])*2), data[i]...)
+	  merged[i] = append(merged[i], data[i]...)
     }
     
     // Each part should still verify as ok.
