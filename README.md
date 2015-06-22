@@ -6,9 +6,9 @@
 [3]: https://travis-ci.org/klauspost/reedsolomon.svg
 [4]: https://travis-ci.org/klauspost/reedsolomon
 
-Reed Solomon Erasure Coding in Go
+Reed-Solomon Erasure Coding in Go, with speeds exceeding 1GB/s/cpu core.
 
-This is a golang port of the [JavaReedSolomon](https://github.com/Backblaze/JavaReedSolomon) library released by [Backblaze](backblaze.com).
+This is a golang port of the [JavaReedSolomon](https://github.com/Backblaze/JavaReedSolomon) library released by [Backblaze](backblaze.com), with some additional optimizations.
 
 For an introduction on erasure coding, see the post on the [Backblaze blog](https://www.backblaze.com/blog/reed-solomon/).
 
@@ -20,7 +20,124 @@ To get the package use the standard:
 ```bash
 go get github.com/klauspost/reedsolomon
 ```
+
 # Usage
+
+This section assumes you know the basics of Reed-Solomon encoding. A good start is this [Backblaze blog post](https://www.backblaze.com/blog/reed-solomon/).
+
+This package performs the calculation of the parity sets. The usage is therefore relatively simple.
+
+First of all, you need to choose your distribution of data and parity shards. A 'good' distribution is very subjective, and will depend a lot on your usage scenario. A good starting point is above 5 and below 100 data shards, and the number of parity shards to be 2 or above, and below the number of data shards.
+
+To create an encoder with 10 data shards and 3 parity shards:
+```Go
+    enc, err := reedsolomon.New(10, 3)
+```
+This encoder will work for all parity sets with this distribution of data and parity shards. The error will only be set if you specify 0 or negative values in any of the parameters.
+
+The you send and receive data  is a simple slice of byte slices; `[][]byte`. In the example above, the top slice must have a length of 13.
+```Go
+    data := make([][]byte, 13)
+```
+You should then fill the 10 first slices with *equally sized* data, and create parity shards that will be populated with parity data. In this case we create the data in memory, but you could for instance also use [mmap](https://github.com/edsrzf/mmap-go) to map files.
+
+```Go
+    // Create all shards, size them at 50000 each
+    for i := range input {
+      data[i] := make([]byte, 50000)
+    }
+    
+    
+  // Fill some data into the data shards
+    for i, in := range data[:10] {
+      for j:= range in {
+         in[j] = byte((i+j)&0xff)
+      }
+    }
+```
+
+To populate the parity shards, you simply call `Encode()` with your data.
+```Go
+    err = enc.Encode(data)
+```
+The only cases where you should get an error is, if the data shards aren't of equal size. The last 3 shards now contain parity data. You can verify this by calling `Verify()`:
+
+```Go
+    ok, err = enc.Verify(data)
+```
+
+The final (and important) part is to be able to reconstruct missing shards. For this to work, you need to know which parts of your data is missing. The encoder *does not know which parts are invalid*, so if data corruption is a likely scenario, you need to implement a hash check for each shard. If a byte has changed in your set, and you don't know which it is, there is no way to reconstruct the data set.
+
+To indicate missing data, you set the shard to nil before calling `Reconstruct()`:
+
+```Go
+    // Delete two data shards
+    data[3] = nil
+    data[7] = nil
+    
+    // Reconstruct the missing shards
+    err := enc.Reconstruct(data)
+```
+The missing data and parity shards will be recreated. If more than 3 shards are missing, the reconstruction will fail.
+
+# Splitting/Joining Data
+
+You might have a large slice of data. To help you split this, there are some helper functions that can split and join a single byte slice.
+
+```Go
+   bigfile, _ := ioutil.Readfile("myfile.data")
+   
+   // Split the file
+   split, err := enc.Split(bigfile)
+```
+This will split the file into the number of data shards set when creating the encoder and create empty parity shards. 
+
+An important thing to note is that you have to *keep track of the exact input size*. If the size of the input isn't diviable by the number of data shards, extra zeros will be inserted in the last shard.
+
+To join a data set, use the `Join()` function, which will join the shards and write it to the `io.Writer` you supply: 
+```Go
+   // Join a data set and write it to io.Discard.
+   err = enc.Join(io.Discard, data, len(bigfile))
+```
+
+# Streaming/Merging
+
+It might seem like a limitation that all data should be in memory, but an important property is that *as long as the number of data/parity shards are the same, you can merge/split data sets*, and they will remain valid as a separate set.
+
+```Go
+    // Split the data set of 50000 elements into two of 25000
+    splitA := make([][]byte, 13)
+    splitB := make([][]byte, 13)
+    
+    // Merge into a 100000 element set
+    merged := make([][]byte, 13)
+    
+    for i := range data {
+      splitA[i] = data[:25000]
+      splitB[i] = data[25000:]
+      merged[i] = append(data, data...)
+    }
+    
+    // Each part should still verify as ok.
+    ok, err := enc.Verify(splitA)
+    if ok && err == nil {
+        log.Println("splitA ok")
+    }
+    
+    ok, err = enc.Verify(splitB)
+    if ok && err == nil {
+        log.Println("splitB ok")
+    }
+    
+    ok, err = enc.Verify(merge)
+    if ok && err == nil {
+        log.Println("merge ok")
+    }
+```
+
+This means that if you have a data set that may not fit into memory, you can split processing into smaller blocks. For the best throughput, don't use too small blocks.
+
+This also means that you can divide big input up into smaller blocks, and do reconstruction on parts of your data. This doesn't give the same flexibility of a higher number of data shards, but it will be much more performant.
 
 # Performance
 Performance depends mainly on the number of parity shards. In rough terms, doubling the number of parity shards will double the encoding time.
@@ -44,6 +161,12 @@ Example of performance scaling on Intel(R) Core(TM) i7-2600 CPU @ 3.40GHz - 4 ph
 | 2       | 2339,78 | 172%  |
 | 4       | 3179,33 | 235%  |
 | 8       | 4346,18 | 321%  |
+
+# Links
+* [Backblaze Open Sources Reed-Solomon Erasure Coding Source Code](https://www.backblaze.com/blog/reed-solomon/).
+* [JavaReedSolomon](https://github.com/Backblaze/JavaReedSolomon). Compatible java library by Backblaze.
+* [go-erasure](https://github.com/somethingnew2-0/go-erasure). A similar library using cgo, slower in my tests.
+* [Screaming Fast Galois Field Arithmetic](http://www.snia.org/sites/default/files2/SDC2013/presentations/NewThinking/EthanMiller_Screaming_Fast_Galois_Field%20Arithmetic_SIMD%20Instructions.pdf). Basis for SSE3 optimizations.
 
 # License
 
