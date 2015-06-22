@@ -22,6 +22,10 @@ go get github.com/klauspost/reedsolomon
 ```
 # Usage
 
+This package only performs the calculation of the parity sets. The usage is therefore really simple.
+
+
+
 # Performance
 Performance depends mainly on the number of parity shards. In rough terms, doubling the number of parity shards will double the encoding time.
 
