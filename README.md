@@ -24,9 +24,9 @@ go get github.com/klauspost/reedsolomon
 
 This section assumes you know the basics of Reed-Solomon encoding. A good start is this [Backblaze blog post](https://www.backblaze.com/blog/reed-solomon/).
 
-This package only performs the calculation of the parity sets. The usage is therefore really simple.
+This package performs the calculation of the parity sets. The usage is therefore relatively simple.
 
-First of all, you need to choose your distribution of data and parity shards. A 'good' distribution is very subjective, and will depend a lot on your usage scenario. A good starting point is above 5 and below 50 data shards, and the number of parity shards to be 2 or above, and below the number of data shards.
+First of all, you need to choose your distribution of data and parity shards. A 'good' distribution is very subjective, and will depend a lot on your usage scenario. A good starting point is above 5 and below 100 data shards, and the number of parity shards to be 2 or above, and below the number of data shards.
 
 To create an encoder with 10 data shards and 3 parity shards:
 ```Go
@@ -101,7 +101,7 @@ To join a data set, use the `Join()` function, which will join the shards and wr
 
 # Streaming/Merging
 
-It might seem like a limitation that all data should be in memory, but an important property is that *as long as the number of data/parity shards are the same, you can merge/split data sets*, and they will remain valid.
+It might seem like a limitation that all data should be in memory, but an important property is that *as long as the number of data/parity shards are the same, you can merge/split data sets*, and they will remain valid as a separate set.
 
 ```Go
     // Split the data set of 50000 elements into two of 25000
@@ -135,6 +135,8 @@ It might seem like a limitation that all data should be in memory, but an import
 ```
 
 This means that if you have a data set that may not fit into memory, you can split processing into smaller blocks. For the best throughput, don't use too small blocks.
+
+This also means that you can divide big input up into smaller blocks, and do reconstruction on parts of your data. This doesn't give the same flexibility of a higher number of data shards, but it will be much more performant.
 
 # Performance
 Performance depends mainly on the number of parity shards. In rough terms, doubling the number of parity shards will double the encoding time.
