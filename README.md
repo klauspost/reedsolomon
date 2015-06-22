@@ -122,9 +122,9 @@ It might seem like a limitation that all data should be in memory, but an import
     merged := make([][]byte, 13)
     
     for i := range data {
-      splitA[i] = data[:25000]
-      splitB[i] = data[25000:]
-      merged[i] = append(data, data...)
+      splitA[i] = data[i][:25000]
+      splitB[i] = data[i][25000:]
+      merged[i] = append(data[i], data[i]...)
     }
     
     // Each part should still verify as ok.
