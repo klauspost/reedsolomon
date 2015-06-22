@@ -86,7 +86,7 @@ So to sum up reconstruction:
 * You may only supply data you know is valid.
 * Invalid shards should be set to nil.
 
-For complete examples of and encoder and decoder see the examples folder.
+For complete examples of and encoder and decoder see the [examples folder](https://github.com/klauspost/reedsolomon/tree/master/examples).
 
 # Splitting/Joining Data
 
