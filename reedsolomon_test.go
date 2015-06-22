@@ -357,3 +357,58 @@ func ExampleEncoder() {
 	// Output: ok
 	// ok
 }
+
+func ExampleEncoderSlicing() {
+	// Create some sample data
+	var data = make([]byte, 250000)
+	fillRandom(data)
+
+	// Create 5 data slices of 50000 elements each
+	enc, _ := New(5, 3)
+	shards, _ := enc.Split(data)
+	err := enc.Encode(shards)
+	if err != nil {
+		panic(err)
+	}
+
+	ok, err := enc.Verify(shards)
+	if ok && err == nil {
+		fmt.Println("encode ok")
+	}
+
+	// Split the data set of 50000 elements into two of 25000
+	splitA := make([][]byte, 8)
+	splitB := make([][]byte, 8)
+
+	// Merge into a 100000 element set
+	merged := make([][]byte, 8)
+
+	for i := range shards {
+		splitA[i] = shards[i][:25000]
+		splitB[i] = shards[i][25000:]
+
+		// Concencate it to itself
+		merged[i] = append(make([]byte, 0, len(shards[i])*2), shards[i]...)
+		merged[i] = append(merged[i], shards[i]...)
+	}
+
+	// Each part should still verify as ok.
+	ok, err = enc.Verify(shards)
+	if ok && err == nil {
+		fmt.Println("splitA ok")
+	}
+
+	ok, err = enc.Verify(splitB)
+	if ok && err == nil {
+		fmt.Println("splitB ok")
+	}
+
+	ok, err = enc.Verify(merged)
+	if ok && err == nil {
+		fmt.Println("merge ok")
+	}
+	// Output: encode ok
+	// splitA ok
+	// splitB ok
+	// merge ok
+}
