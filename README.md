@@ -6,13 +6,14 @@
 [3]: https://travis-ci.org/klauspost/reedsolomon.svg
 [4]: https://travis-ci.org/klauspost/reedsolomon
 
-Reed-Solomon Erasure Coding in Go, with speeds exceeding 1GB/s/cpu core.
+Reed-Solomon Erasure Coding in Go, with speeds exceeding 1GB/s/cpu core implemented in pure Go.
 
-This is a golang port of the [JavaReedSolomon](https://github.com/Backblaze/JavaReedSolomon) library released by [Backblaze](backblaze.com), with some additional optimizations.
+This is a golang port of the [JavaReedSolomon](https://github.com/Backblaze/JavaReedSolomon) library released by [Backblaze](http://backblaze.com), with some additional optimizations.
 
 For an introduction on erasure coding, see the post on the [Backblaze blog](https://www.backblaze.com/blog/reed-solomon/).
 
 Package home: https://github.com/klauspost/reedsolomon
+
 Godoc: https://godoc.org/github.com/klauspost/reedsolomon
 
 # Installation
@@ -121,9 +122,9 @@ It might seem like a limitation that all data should be in memory, but an import
     merged := make([][]byte, 13)
     
     for i := range data {
-      splitA[i] = data[:25000]
-      splitB[i] = data[25000:]
-      merged[i] = append(data, data...)
+      splitA[i] = data[i][:25000]
+      splitB[i] = data[i][25000:]
+      merged[i] = append(data[i], data[i]...)
     }
     
     // Each part should still verify as ok.
