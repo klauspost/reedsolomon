@@ -80,6 +80,14 @@ To indicate missing data, you set the shard to nil before calling `Reconstruct()
 ```
 The missing data and parity shards will be recreated. If more than 3 shards are missing, the reconstruction will fail.
 
+So to sum up reconstruction:
+* The number of data/parity shards must match the numbers used for encoding.
+* The order of shards must be the same as used when encoding.
+* You may only supply data you know is valid.
+* Invalid shards should be set to nil.
+
+For complete examples of and encoder and decoder see the examples folder.
+
 # Splitting/Joining Data
 
 You might have a large slice of data. To help you split this, there are some helper functions that can split and join a single byte slice.
