@@ -30,7 +30,7 @@ This package performs the calculation of the parity sets. The usage is therefore
 
 First of all, you need to choose your distribution of data and parity shards. A 'good' distribution is very subjective, and will depend a lot on your usage scenario. A good starting point is above 5 and below 100 data shards, and the number of parity shards to be 2 or above, and below the number of data shards.
 
-To create an encoder with 10 data shards and 3 parity shards:
+To create an encoder with 10 data shards (where your data goes) and 3 parity shards (calculated):
 ```Go
     enc, err := reedsolomon.New(10, 3)
 ```
