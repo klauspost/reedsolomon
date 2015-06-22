@@ -13,6 +13,7 @@ This is a golang port of the [JavaReedSolomon](https://github.com/Backblaze/Java
 For an introduction on erasure coding, see the post on the [Backblaze blog](https://www.backblaze.com/blog/reed-solomon/).
 
 Package home: https://github.com/klauspost/reedsolomon
+
 Godoc: https://godoc.org/github.com/klauspost/reedsolomon
 
 # Installation
