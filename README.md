@@ -30,33 +30,110 @@ First of all, you need to choose your distribution of data and parity shards. A 
 
 To create an encoder with 10 data shards and 3 parity shards:
 ```Go
-    encoder, err := reedsolomon.New(10, 3)
+    enc, err := reedsolomon.New(10, 3)
 ```
 This encoder will work for all parity sets with this distribution of data and parity shards. The error will only be set if you specify 0 or negative values in any of the parameters.
 
 The you send and receive data  is a simple slice of byte slices; `[][]byte`. In the example above, the top slice must have a length of 13.
 ```Go
-    input := make([][]byte, 13)
+    data := make([][]byte, 13)
 ```
-You should then fill the 10 first slices with *equally sized* data.
+You should then fill the 10 first slices with *equally sized* data, and create parity shards that will be populated with parity data. In this case we create the data in memory, but you could for instance also use [mmap](https://github.com/edsrzf/mmap-go) to map files.
 
 ```Go
     // Create all shards, size them at 50000 each
     for i := range input {
-      input[i] := make([]byte, 50000)
+      data[i] := make([]byte, 50000)
     }
     
     
   // Fill some data into the data shards
-    for i, in := range input[:10] {
+    for i, in := range data[:10] {
       for j:= range in {
-         data[j] = byte((i+j)&0xff)
+         in[j] = byte((i+j)&0xff)
       }
     }
 ```
 
+To populate the parity shards, you simply call `Encode()` with your data.
+```Go
+    err = enc.Encode(data)
+```
+The only cases where you should get an error is, if the data shards aren't of equal size. The last 3 shards now contain parity data. You can verify this by calling `Verify()`:
+
+```Go
+    ok, err = enc.Verify(data)
+```
+
+The final (and important) part is to be able to reconstruct missing shards. For this to work, you need to know which parts of your data is missing. The encoder *does not know which parts are invalid*, so if data corruption is a likely scenario, you need to implement a hash check for each shard. If a byte has changed in your set, and you don't know which it is, there is no way to reconstruct the data set.
+
+To indicate missing data, you set the shard to nil before calling `Reconstruct()`:
+
+```Go
+    // Delete two data shards
+    data[3] = nil
+    data[7] = nil
+    
+    err := enc.Reconstruct(data)
+```
+The missing data and parity shards will be recreated. If more than 3 shards are missing, the reconstruction will fail.
+
+# Splitting/Joining Data
+
+You might have a large slice of data. To help you split this, there are some helper functions that can split and join a single byte slice.
+
+```Go
+   bigfile, _ := ioutil.Readfile("myfile.data")
+   
+   // Split the file
+   split, err := enc.Split(bigfile)
+```
+This will split the file into the number of data shards set when creating the encoder and create empty parity shards. 
+
+An important thing to note is that you have to *keep track of the exact input size*. If the size of the input isn't diviable by the number of data shards, extra zeros will be inserted in the last shard.
+
+To join a data set, use the `Join()` function, which will join the shards and write it to the `io.Writer` you supply: 
+```Go
+   // Join a data set and write it to io.Discard.
+   err = enc.Join(io.Discard, data, len(bigfile))
+```
+
 # Streaming/Merging
 
+It might seem like a limitation that all data should be in memory, but an important property is that *as long as the number of data/parity shards are the same, you can merge/split data sets*, and they will remain valid.
+
+```Go
+    // Split the data set of 50000 elements into two of 25000
+    splitA := make([][]byte, 13)
+    splitB := make([][]byte, 13)
+    
+    // Merge into a 100000 element set
+    merged := make([][]byte, 13)
+    
+    for i := range data {
+      splitA[i] = data[:25000]
+      splitB[i] = data[25000:]
+      merged[i] = append(data, data...)
+    }
+    
+    // Each part should still verify as ok.
+    ok, err := enc.Verify(splitA)
+    if ok && err == nil {
+        log.Println("splitA ok")
+    }
+    
+    ok, err = enc.Verify(splitB)
+    if ok && err == nil {
+        log.Println("splitB ok")
+    }
+    
+    ok, err = enc.Verify(merge)
+    if ok && err == nil {
+        log.Println("merge ok")
+    }
+```
+
+This means that if you have a data set that may not fit into memory, you can split processing into smaller blocks. For the best throughput, don't use too small blocks.
 
 # Performance
 Performance depends mainly on the number of parity shards. In rough terms, doubling the number of parity shards will double the encoding time.
