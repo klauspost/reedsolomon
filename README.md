@@ -22,8 +22,40 @@ go get github.com/klauspost/reedsolomon
 ```
 # Usage
 
+This section assumes you know the basics of Reed-Solomon encoding. A good start is this [Backblaze blog post](https://www.backblaze.com/blog/reed-solomon/).
+
 This package only performs the calculation of the parity sets. The usage is therefore really simple.
 
+First of all, you need to choose your distribution of data and parity shards. A 'good' distribution is very subjective, and will depend a lot on your usage scenario. A good starting point is above 5 and below 50 data shards, and the number of parity shards to be 2 or above, and below the number of data shards.
+
+To create an encoder with 10 data shards and 3 parity shards:
+```Go
+    encoder, err := reedsolomon.New(10, 3)
+```
+This encoder will work for all parity sets with this distribution of data and parity shards. The error will only be set if you specify 0 or negative values in any of the parameters.
+
+The you send and receive data  is a simple slice of byte slices; `[][]byte`. In the example above, the top slice must have a length of 13.
+```Go
+    input := make([][]byte, 13)
+```
+You should then fill the 10 first slices with *equally sized* data.
+
+```Go
+    // Create all shards, size them at 50000 each
+    for i := range input {
+      input[i] := make([]byte, 50000)
+    }
+    
+    
+  // Fill some data into the data shards
+    for i, in := range input[:10] {
+      for j:= range in {
+         data[j] = byte((i+j)&0xff)
+      }
+    }
+```
+
+# Streaming/Merging
 
 
 # Performance
