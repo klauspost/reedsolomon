@@ -358,6 +358,8 @@ func ExampleEncoder() {
 	// ok
 }
 
+// This demonstrates that shards can be arbitrary sliced and
+// merged and still remain valid.
 func ExampleEncoder_slicing() {
 	// Create some sample data
 	var data = make([]byte, 250000)
@@ -371,6 +373,7 @@ func ExampleEncoder_slicing() {
 		panic(err)
 	}
 
+	// Check that it verifies
 	ok, err := enc.Verify(shards)
 	if ok && err == nil {
 		fmt.Println("encode ok")
@@ -383,6 +386,7 @@ func ExampleEncoder_slicing() {
 	// Merge into a 100000 element set
 	merged := make([][]byte, 8)
 
+	// Split/merge the shards
 	for i := range shards {
 		splitA[i] = shards[i][:25000]
 		splitB[i] = shards[i][25000:]
