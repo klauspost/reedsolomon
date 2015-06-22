@@ -12,7 +12,7 @@
 // go build simple-decoder.go
 //
 // Simple Encoder/Decoder Shortcomings:
-// * If the file size of the input isn't diviable by the number of parity shards
+// * If the file size of the input isn't diviable by the number of data shards
 //   the output will contain extra zeroes
 //
 // * If the shard numbers isn't the same for the decoder as in the
