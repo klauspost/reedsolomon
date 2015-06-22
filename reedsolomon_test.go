@@ -358,7 +358,7 @@ func ExampleEncoder() {
 	// ok
 }
 
-func ExampleEncoderSlicing() {
+func ExampleEncoder_slicing() {
 	// Create some sample data
 	var data = make([]byte, 250000)
 	fillRandom(data)
