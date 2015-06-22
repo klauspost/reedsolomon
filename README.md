@@ -6,7 +6,7 @@
 [3]: https://travis-ci.org/klauspost/reedsolomon.svg
 [4]: https://travis-ci.org/klauspost/reedsolomon
 
-Reed-Solomon Erasure Coding in Go, with speeds exceeding 1GB/s/cpu core.
+Reed-Solomon Erasure Coding in Go, with speeds exceeding 1GB/s/cpu core implemented in pure Go.
 
 This is a golang port of the [JavaReedSolomon](https://github.com/Backblaze/JavaReedSolomon) library released by [Backblaze](http://backblaze.com), with some additional optimizations.
 
