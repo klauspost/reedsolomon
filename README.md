@@ -74,6 +74,7 @@ To indicate missing data, you set the shard to nil before calling `Reconstruct()
     data[3] = nil
     data[7] = nil
     
+    // Reconstruct the missing shards
     err := enc.Reconstruct(data)
 ```
 The missing data and parity shards will be recreated. If more than 3 shards are missing, the reconstruction will fail.
