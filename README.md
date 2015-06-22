@@ -6,9 +6,9 @@
 [3]: https://travis-ci.org/klauspost/reedsolomon.svg
 [4]: https://travis-ci.org/klauspost/reedsolomon
 
-Reed Solomon Erasure Coding in Go
+Reed-Solomon Erasure Coding in Go, with speeds exceeding 1GB/s/cpu core.
 
-This is a golang port of the [JavaReedSolomon](https://github.com/Backblaze/JavaReedSolomon) library released by [Backblaze](backblaze.com).
+This is a golang port of the [JavaReedSolomon](https://github.com/Backblaze/JavaReedSolomon) library released by [Backblaze](backblaze.com), with some additional optimizations.
 
 For an introduction on erasure coding, see the post on the [Backblaze blog](https://www.backblaze.com/blog/reed-solomon/).
 
@@ -20,6 +20,7 @@ To get the package use the standard:
 ```bash
 go get github.com/klauspost/reedsolomon
 ```
+
 # Usage
 
 This section assumes you know the basics of Reed-Solomon encoding. A good start is this [Backblaze blog post](https://www.backblaze.com/blog/reed-solomon/).
@@ -160,6 +161,12 @@ Example of performance scaling on Intel(R) Core(TM) i7-2600 CPU @ 3.40GHz - 4 ph
 | 2       | 2339,78 | 172%  |
 | 4       | 3179,33 | 235%  |
 | 8       | 4346,18 | 321%  |
+
+# Links
+* [Backblaze Open Sources Reed-Solomon Erasure Coding Source Code](https://www.backblaze.com/blog/reed-solomon/).
+* [JavaReedSolomon](https://github.com/Backblaze/JavaReedSolomon). Compatible java library by Backblaze.
+* [go-erasure](https://github.com/somethingnew2-0/go-erasure). A similar library using cgo, slower in my tests.
+* [Screaming Fast Galois Field Arithmetic](http://www.snia.org/sites/default/files2/SDC2013/presentations/NewThinking/EthanMiller_Screaming_Fast_Galois_Field%20Arithmetic_SIMD%20Instructions.pdf). Basis for SSE3 optimizations.
 
 # License
 
