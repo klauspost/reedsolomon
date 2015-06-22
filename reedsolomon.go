@@ -5,6 +5,10 @@
  * Copyright 2015, Backblaze, Inc.
  */
 
+// Reed-Solomon Erasure Coding in Go
+//
+// For usage and examples, see https://github.com/klauspost/reedsolomon
+//
 package reedsolomon
 
 import (
@@ -18,23 +22,23 @@ import (
 // Encoder is an interface to encode Reed-Salomon parity sets for your data.
 type Encoder interface {
 	// Encodes parity for a set of data shards.
-	// An array 'shards' containing data shards followed by parity shards.
-	// The number of shards must match the number given to New.
+	// Input is 'shards' containing data shards followed by parity shards.
+	// The number of shards must match the number given to New().
 	// Each shard is a byte array, and they must all be the same size.
 	// The parity shards will always be overwritten and the data shards
 	// will remain the same.
 	Encode(shards [][]byte) error
 
-	// Verify returns true if the parity shards contain the right data.
+	// Verify returns true if the parity shards contain correct data.
 	// The data is the same format as Encode. No data is modified.
 	Verify(shards [][]byte) (bool, error)
 
-	// Reconstruct will recreate the missing shards, if possible.
+	// Reconstruct will recreate the missing shards if possible.
 	//
 	// Given a list of shards, some of which contain data, fills in the
 	// ones that don't have data.
 	//
-	// The length of the array must be equal to Shards.
+	// The length of the array must be equal to the total number of shards.
 	// You indicate that a shard is missing by setting it to nil.
 	//
 	// If there are too few shards to reconstruct the missing
@@ -443,7 +447,7 @@ func (r reedSolomon) Reconstruct(shards [][]byte) error {
 	return nil
 }
 
-// ErrShortData will be returned by split, if there isn't enough data
+// ErrShortData will be returned by Split(), if there isn't enough data
 // to fill the number of shards.
 var ErrShortData = errors.New("not enough data to fill the number of requested shards")
 
