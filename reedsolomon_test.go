@@ -416,3 +416,80 @@ func ExampleEncoder_slicing() {
 	// splitB ok
 	// merge ok
 }
+
+func TestEncoderReconstruct(t *testing.T) {
+	// Create some sample data
+	var data = make([]byte, 250000)
+	fillRandom(data)
+
+	// Create 5 data slices of 50000 elements each
+	enc, _ := New(5, 3)
+	shards, _ := enc.Split(data)
+	err := enc.Encode(shards)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Check that it verifies
+	ok, err := enc.Verify(shards)
+	if !ok || err != nil {
+		t.Fatal("not ok:", ok, "err:", err)
+	}
+
+	// Delete a shard
+	shards[0] = nil
+
+	// Should reconstruct
+	err = enc.Reconstruct(shards)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Check that it verifies
+	ok, err = enc.Verify(shards)
+	if !ok || err != nil {
+		t.Fatal("not ok:", ok, "err:", err)
+	}
+
+	// Delete a shard
+	shards[0] = nil
+	shards[1][0], shards[1][500] = 75, 75
+
+	// Should reconstruct
+	err = enc.Reconstruct(shards)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Check that it verifies
+	ok, err = enc.Verify(shards)
+	if ok || err != nil {
+		t.Fatal("error or ok:", ok, "err:", err)
+	}
+}
+
+func TestMatrices(t *testing.T) {
+	_, err := New(10, 500)
+	if err != nil {
+		t.Fatal("creating matrix size", 10, 500, ":", err)
+	}
+	_, err = New(256, 256)
+	if err != nil {
+		t.Fatal("creating matrix size", 256, 256, ":", err)
+	}
+	_, err = New(257, 10)
+	if err != ErrInvShardNum {
+		t.Fatal("Expected ErrInvShardNum, but got", err)
+	}
+
+}
+
+func TestAllMatrices(t *testing.T) {
+	t.Skip("Skipping slow matrix check")
+	for i := 1; i < 257; i++ {
+		_, err := New(i, i)
+		if err != nil {
+			t.Fatal("creating matrix size", i, i, ":", err)
+		}
+	}
+}

@@ -85,12 +85,14 @@ type reedSolomon struct {
 }
 
 // ErrInvShardNum will be returned by New, if you attempt to create
-// an Encoder where either data or parity shards is zero or less.
+// an Encoder where either data or parity shards is zero or less,
+// or the number of data shards is higher than 256.
 var ErrInvShardNum = errors.New("cannot create Encoder with zero or less data/parity shards")
 
 // New creates a new encoder and initializes it to
 // the number of data shards and parity shards that
 // you want to use. You can reuse this encoder.
+// Note that the maximum number of data shards is 256.
 func New(dataShards, parityShards int) (Encoder, error) {
 	r := reedSolomon{
 		DataShards:   dataShards,
@@ -99,6 +101,10 @@ func New(dataShards, parityShards int) (Encoder, error) {
 	}
 
 	if dataShards <= 0 || parityShards <= 0 {
+		return nil, ErrInvShardNum
+	}
+
+	if dataShards > 256 {
 		return nil, ErrInvShardNum
 	}
 

@@ -28,13 +28,13 @@ This section assumes you know the basics of Reed-Solomon encoding. A good start 
 
 This package performs the calculation of the parity sets. The usage is therefore relatively simple.
 
-First of all, you need to choose your distribution of data and parity shards. A 'good' distribution is very subjective, and will depend a lot on your usage scenario. A good starting point is above 5 and below 100 data shards, and the number of parity shards to be 2 or above, and below the number of data shards.
+First of all, you need to choose your distribution of data and parity shards. A 'good' distribution is very subjective, and will depend a lot on your usage scenario. A good starting point is above 5 and below 257 data shards (the maximum supported number), and the number of parity shards to be 2 or above, and below the number of data shards.
 
 To create an encoder with 10 data shards (where your data goes) and 3 parity shards (calculated):
 ```Go
     enc, err := reedsolomon.New(10, 3)
 ```
-This encoder will work for all parity sets with this distribution of data and parity shards. The error will only be set if you specify 0 or negative values in any of the parameters.
+This encoder will work for all parity sets with this distribution of data and parity shards. The error will only be set if you specify 0 or negative values in any of the parameters, or if you specify more than 256 data shards.
 
 The you send and receive data  is a simple slice of byte slices; `[][]byte`. In the example above, the top slice must have a length of 13.
 ```Go

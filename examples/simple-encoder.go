@@ -45,7 +45,7 @@ import (
 	"github.com/klauspost/reedsolomon"
 )
 
-var dataShards = flag.Int("data", 4, "Number of shards to split the data into")
+var dataShards = flag.Int("data", 4, "Number of shards to split the data into, must be below 257.")
 var parShards = flag.Int("par", 2, "Number of parity shards")
 var outDir = flag.String("out", "", "Alternative output directory")
 
@@ -65,6 +65,10 @@ func main() {
 	if len(args) != 1 {
 		fmt.Fprintf(os.Stderr, "Error: No input filename given\n")
 		flag.Usage()
+		os.Exit(1)
+	}
+	if *data > 257 {
+		fmt.Fprintf(os.Stderr, "Error: Too many data shards\n")
 		os.Exit(1)
 	}
 	fname := args[0]
