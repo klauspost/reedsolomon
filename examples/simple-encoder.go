@@ -67,7 +67,7 @@ func main() {
 		flag.Usage()
 		os.Exit(1)
 	}
-	if *data > 257 {
+	if *dataShards > 257 {
 		fmt.Fprintf(os.Stderr, "Error: Too many data shards\n")
 		os.Exit(1)
 	}
