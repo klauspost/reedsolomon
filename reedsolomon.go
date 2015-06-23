@@ -26,11 +26,13 @@ type Encoder interface {
 	// The number of shards must match the number given to New().
 	// Each shard is a byte array, and they must all be the same size.
 	// The parity shards will always be overwritten and the data shards
-	// will remain the same.
+	// will remain the same, so it is safe for you to read from the
+	// data shards while this is running.
 	Encode(shards [][]byte) error
 
 	// Verify returns true if the parity shards contain correct data.
-	// The data is the same format as Encode. No data is modified.
+	// The data is the same format as Encode. No data is modified, so
+	// you are allowed to read from data while this is running.
 	Verify(shards [][]byte) (bool, error)
 
 	// Reconstruct will recreate the missing shards if possible.
@@ -181,7 +183,7 @@ func (r reedSolomon) Verify(shards [][]byte) (bool, error) {
 // number of matrix rows used, is determined by
 // outputCount, which is the number of outputs to compute.
 func (r reedSolomon) codeSomeShards(matrixRows, inputs, outputs [][]byte, outputCount, byteCount int) {
-	if runtime.GOMAXPROCS(0) > 1 {
+	if runtime.GOMAXPROCS(0) > 1 && len(inputs[0]) > splitSize {
 		r.codeSomeShardsP(matrixRows, inputs, outputs, outputCount, byteCount)
 		return
 	}
