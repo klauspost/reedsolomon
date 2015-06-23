@@ -417,6 +417,50 @@ func ExampleEncoder_slicing() {
 	// merge ok
 }
 
+// This demonstrates that shards can xor'ed and
+// still remain a valid set.
+//
+// The xor value must be the same for element 'n' in each shard,
+// except if you xor with a similar sized encoded shard set.
+func ExampleEncoder_xor() {
+	// Create some sample data
+	var data = make([]byte, 25000)
+	fillRandom(data)
+
+	// Create 5 data slices of 5000 elements each
+	enc, _ := New(5, 3)
+	shards, _ := enc.Split(data)
+	err := enc.Encode(shards)
+	if err != nil {
+		panic(err)
+	}
+
+	// Check that it verifies
+	ok, err := enc.Verify(shards)
+	if !ok || err != nil {
+		fmt.Println("falied initial verify", err)
+	}
+
+	// Create an xor'ed set
+	xored := make([][]byte, 8)
+
+	// We xor by the index, so you can see that the xor can change,
+	// It should however be constant vertically through your slices.
+	for i := range shards {
+		xored[i] = make([]byte, len(shards[i]))
+		for j := range xored[i] {
+			xored[i][j] = shards[i][j] ^ byte(j&0xff)
+		}
+	}
+
+	// Each part should still verify as ok.
+	ok, err = enc.Verify(xored)
+	if ok && err == nil {
+		fmt.Println("verified ok after xor")
+	}
+	// Output: verified ok after xor
+}
+
 func TestEncoderReconstruct(t *testing.T) {
 	// Create some sample data
 	var data = make([]byte, 250000)
