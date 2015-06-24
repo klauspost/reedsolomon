@@ -9,12 +9,12 @@ import (
 	"github.com/klauspost/cpuid"
 )
 
-func galMulSSE3(low, high, in, out []byte)
-func galMulSSE3Xor(low, high, in, out []byte)
+func galMulSSSE3(low, high, in, out []byte)
+func galMulSSSE3Xor(low, high, in, out []byte)
 
 // This is what the assembler rountes does in blocks of 16 bytes:
 /*
-func galMulSSE3(low, high, in, out []byte) {
+func galMulSSSE3(low, high, in, out []byte) {
 	for n, input := range in {
 		l := input & 0xf
 		h := input >> 4
@@ -22,7 +22,7 @@ func galMulSSE3(low, high, in, out []byte) {
 	}
 }
 
-func galMulSSE3Xor(low, high, in, out []byte) {
+func galMulSSSE3Xor(low, high, in, out []byte) {
 	for n, input := range in {
 		l := input & 0xf
 		h := input >> 4
@@ -33,8 +33,8 @@ func galMulSSE3Xor(low, high, in, out []byte) {
 
 func galMulSlice(c byte, in, out []byte) {
 	var done int
-	if cpuid.CPU.SSE3() {
-		galMulSSE3(mulTableLow[c][:], mulTableHigh[c][:], in, out)
+	if cpuid.CPU.SSSE3() {
+		galMulSSSE3(mulTableLow[c][:], mulTableHigh[c][:], in, out)
 		done = (len(in) >> 4) << 4
 	}
 	remain := len(in) - done
@@ -48,8 +48,8 @@ func galMulSlice(c byte, in, out []byte) {
 
 func galMulSliceXor(c byte, in, out []byte) {
 	var done int
-	if cpuid.CPU.SSE3() {
-		galMulSSE3Xor(mulTableLow[c][:], mulTableHigh[c][:], in, out)
+	if cpuid.CPU.SSSE3() {
+		galMulSSSE3Xor(mulTableLow[c][:], mulTableHigh[c][:], in, out)
 		done = (len(in) >> 4) << 4
 	}
 	remain := len(in) - done
