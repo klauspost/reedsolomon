@@ -388,10 +388,7 @@ func (r reedSolomon) Reconstruct(shards [][]byte) error {
 	// correspond to the rows of the submatrix.  These shards
 	// will be the input to the decoding process that re-creates
 	// the missing data shards.
-	subMatrix, err := newMatrix(r.DataShards, r.DataShards)
-	if err != nil {
-		return err
-	}
+	subMatrix, _ := newMatrix(r.DataShards, r.DataShards)
 	subShards := make([][]byte, r.DataShards)
 	subMatrixRow := 0
 	for matrixRow := 0; matrixRow < r.Shards && subMatrixRow < r.DataShards; matrixRow++ {

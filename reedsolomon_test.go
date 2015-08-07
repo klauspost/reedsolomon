@@ -75,6 +75,13 @@ func TestReconstruct(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	// Reconstruct with all shards present
+	err = r.Reconstruct(shards)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Reconstruct with 10 shards present
 	shards[0] = nil
 	shards[7] = nil
 	shards[11] = nil
@@ -90,6 +97,26 @@ func TestReconstruct(t *testing.T) {
 	}
 	if !ok {
 		t.Fatal("Verification failed")
+	}
+
+	// Reconstruct with 9 shards present (should fail)
+	shards[0] = nil
+	shards[4] = nil
+	shards[7] = nil
+	shards[11] = nil
+
+	err = r.Reconstruct(shards)
+	if err != ErrTooFewShards {
+		t.Errorf("expected %v, got %v", ErrTooFewShards, err)
+	}
+
+	err = r.Reconstruct(make([][]byte, 1))
+	if err != ErrTooFewShards {
+		t.Errorf("expected %v, got %v", ErrTooFewShards, err)
+	}
+	err = r.Reconstruct(make([][]byte, 13))
+	if err != ErrShardNoData {
+		t.Errorf("expected %v, got %v", ErrShardNoData, err)
 	}
 }
 
