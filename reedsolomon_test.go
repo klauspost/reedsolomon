@@ -11,6 +11,7 @@ import (
 	"bytes"
 	"fmt"
 	"math/rand"
+	"runtime"
 	"testing"
 )
 
@@ -617,7 +618,24 @@ func TestSplitJoin(t *testing.T) {
 	if err != ErrShortData {
 		t.Errorf("expected %v, got %v", ErrShortData, err)
 	}
+}
 
+func TestCodeSomeShards(t *testing.T) {
+	var data = make([]byte, 250000)
+	fillRandom(data)
+	enc, _ := New(5, 3)
+	r := enc.(*reedSolomon) // need to access private methods
+	shards, _ := enc.Split(data)
+
+	old := runtime.GOMAXPROCS(1)
+	r.codeSomeShards(r.parity, shards[:r.DataShards], shards[r.DataShards:], r.ParityShards, len(shards[0]))
+
+	// hopefully more than 1 CPU
+	runtime.GOMAXPROCS(runtime.NumCPU())
+	r.codeSomeShards(r.parity, shards[:r.DataShards], shards[r.DataShards:], r.ParityShards, len(shards[0]))
+
+	// reset MAXPROCS, otherwise testing complains
+	runtime.GOMAXPROCS(old)
 }
 
 func TestAllMatrices(t *testing.T) {
