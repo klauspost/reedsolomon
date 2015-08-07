@@ -512,28 +512,35 @@ func TestEncoderReconstruct(t *testing.T) {
 	}
 }
 
-func TestMatrices(t *testing.T) {
-	_, err := New(10, 500)
-	if err != nil {
-		t.Fatal("creating matrix size", 10, 500, ":", err)
-	}
-	_, err = New(256, 256)
-	if err != nil {
-		t.Fatal("creating matrix size", 256, 256, ":", err)
-	}
-	_, err = New(257, 10)
-	if err != ErrInvShardNum {
-		t.Fatal("Expected ErrInvShardNum, but got", err)
-	}
-
-}
-
 func TestAllMatrices(t *testing.T) {
 	t.Skip("Skipping slow matrix check")
 	for i := 1; i < 257; i++ {
 		_, err := New(i, i)
 		if err != nil {
 			t.Fatal("creating matrix size", i, i, ":", err)
+		}
+	}
+}
+
+func TestNew(t *testing.T) {
+	tests := []struct {
+		data, parity int
+		err          error
+	}{
+		{10, 500, nil},
+		{256, 256, nil},
+
+		{0, 1, ErrInvShardNum},
+		{1, 0, ErrInvShardNum},
+		{257, 1, ErrInvShardNum},
+
+		// overflow causes r.Shards to be negative
+		{256, int(^uint(0) >> 1), errInvalidRowSize},
+	}
+	for _, test := range tests {
+		_, err := New(test.data, test.parity)
+		if err != test.err {
+			t.Errorf("New(%v, %v): expected %v, got %v", test.data, test.parity, test.err, err)
 		}
 	}
 }
