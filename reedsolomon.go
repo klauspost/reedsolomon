@@ -309,9 +309,6 @@ var ErrShardSize = errors.New("shard sizes does not match")
 // or 0, if allowed. An error is returned if this fails.
 // An error is also returned if all shards are size 0.
 func checkShards(shards [][]byte, nilok bool) error {
-	if len(shards) == 0 {
-		return ErrShardNoData
-	}
 	size := shardSize(shards)
 	if size == 0 {
 		return ErrShardNoData
