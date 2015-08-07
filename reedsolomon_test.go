@@ -120,6 +120,7 @@ func TestVerify(t *testing.T) {
 	if !ok {
 		t.Fatal("Verification failed")
 	}
+
 	// Put in random data. Verification should fail
 	fillRandom(shards[10])
 	ok, err = r.Verify(shards)
@@ -142,6 +143,16 @@ func TestVerify(t *testing.T) {
 	}
 	if ok {
 		t.Fatal("Verification did not fail")
+	}
+
+	_, err = r.Verify(make([][]byte, 1))
+	if err != ErrTooFewShards {
+		t.Errorf("expected %v, got %v", ErrTooFewShards, err)
+	}
+
+	_, err = r.Verify(make([][]byte, 14))
+	if err != ErrShardNoData {
+		t.Errorf("expected %v, got %v", ErrShardNoData, err)
 	}
 }
 
