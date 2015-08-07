@@ -40,6 +40,18 @@ func TestEncoding(t *testing.T) {
 	if !ok {
 		t.Fatal("Verification failed")
 	}
+
+	err = r.Encode(make([][]byte, 1))
+	if err != ErrTooFewShards {
+		t.Errorf("expected %v, got %v", ErrTooFewShards, err)
+	}
+
+	badShards := make([][]byte, 13)
+	badShards[0] = make([]byte, 1)
+	err = r.Encode(badShards)
+	if err != ErrShardSize {
+		t.Errorf("expected %v, got %v", ErrShardSize, err)
+	}
 }
 
 func TestReconstruct(t *testing.T) {
