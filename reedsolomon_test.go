@@ -138,17 +138,18 @@ func TestOneEncode(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	shards := make([][]byte, 10)
-	shards[0] = []byte{0, 1}
-	shards[1] = []byte{4, 5}
-	shards[2] = []byte{2, 3}
-	shards[3] = []byte{6, 7}
-	shards[4] = []byte{8, 9}
-	shards[5] = []byte{0, 0}
-	shards[6] = []byte{0, 0}
-	shards[7] = []byte{0, 0}
-	shards[8] = []byte{0, 0}
-	shards[9] = []byte{0, 0}
+	shards := [][]byte{
+		{0, 1},
+		{4, 5},
+		{2, 3},
+		{6, 7},
+		{8, 9},
+		{0, 0},
+		{0, 0},
+		{0, 0},
+		{0, 0},
+		{0, 0},
+	}
 	codec.Encode(shards)
 	if shards[5][0] != 12 || shards[5][1] != 13 {
 		t.Fatal("shard 5 mismatch")
