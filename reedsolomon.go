@@ -120,19 +120,9 @@ func New(dataShards, parityShards int) (Encoder, error) {
 	// This will make the top square be the identity matrix, but
 	// preserve the property that any square subset of rows  is
 	// invertible.
-	top, err := vm.SubMatrix(0, 0, dataShards, dataShards)
-	if err != nil {
-		return nil, err
-	}
-
-	top, err = top.Invert()
-	if err != nil {
-		return nil, err
-	}
-	r.m, err = vm.Multiply(top)
-	if err != nil {
-		return nil, err
-	}
+	top, _ := vm.SubMatrix(0, 0, dataShards, dataShards)
+	top, _ = top.Invert()
+	r.m, _ = vm.Multiply(top)
 
 	r.parity = make([][]byte, parityShards)
 	for i := range r.parity {
