@@ -120,19 +120,9 @@ func New(dataShards, parityShards int) (Encoder, error) {
 	// This will make the top square be the identity matrix, but
 	// preserve the property that any square subset of rows  is
 	// invertible.
-	top, err := vm.SubMatrix(0, 0, dataShards, dataShards)
-	if err != nil {
-		return nil, err
-	}
-
-	top, err = top.Invert()
-	if err != nil {
-		return nil, err
-	}
-	r.m, err = vm.Multiply(top)
-	if err != nil {
-		return nil, err
-	}
+	top, _ := vm.SubMatrix(0, 0, dataShards, dataShards)
+	top, _ = top.Invert()
+	r.m, _ = vm.Multiply(top)
 
 	r.parity = make([][]byte, parityShards)
 	for i := range r.parity {
@@ -252,7 +242,7 @@ func (r reedSolomon) codeSomeShardsP(matrixRows, inputs, outputs [][]byte, outpu
 	wg.Wait()
 }
 
-// checkSomeShards is nostly the same as codeSomeShards,
+// checkSomeShards is mostly the same as codeSomeShards,
 // except this will check values and return
 // as soon as a difference is found.
 func (r reedSolomon) checkSomeShards(matrixRows, inputs, toCheck [][]byte, outputCount, byteCount int) bool {
@@ -319,9 +309,6 @@ var ErrShardSize = errors.New("shard sizes does not match")
 // or 0, if allowed. An error is returned if this fails.
 // An error is also returned if all shards are size 0.
 func checkShards(shards [][]byte, nilok bool) error {
-	if len(shards) == 0 {
-		return ErrShardNoData
-	}
 	size := shardSize(shards)
 	if size == 0 {
 		return ErrShardNoData
@@ -401,10 +388,7 @@ func (r reedSolomon) Reconstruct(shards [][]byte) error {
 	// correspond to the rows of the submatrix.  These shards
 	// will be the input to the decoding process that re-creates
 	// the missing data shards.
-	subMatrix, err := newMatrix(r.DataShards, r.DataShards)
-	if err != nil {
-		return err
-	}
+	subMatrix, _ := newMatrix(r.DataShards, r.DataShards)
 	subShards := make([][]byte, r.DataShards)
 	subMatrixRow := 0
 	for matrixRow := 0; matrixRow < r.Shards && subMatrixRow < r.DataShards; matrixRow++ {
@@ -420,7 +404,7 @@ func (r reedSolomon) Reconstruct(shards [][]byte) error {
 	// Invert the matrix, so we can go from the encoded shards
 	// back to the original data.  Then pull out the row that
 	// generates the shard that we want to decode.  Note that
-	// since this matrix maps back to the orginal data, it can
+	// since this matrix maps back to the original data, it can
 	// be used to create a data shard, but not a parity shard.
 	dataDecodeMatrix, err := subMatrix.Invert()
 	if err != nil {
@@ -473,7 +457,7 @@ var ErrShortData = errors.New("not enough data to fill the number of requested s
 // and create empty parity shards.
 //
 // The data will be split into equally sized shards.
-// If the data size isn't dividable by the number of shards,
+// If the data size isn't divisible by the number of shards,
 // the last shard will contain extra zeros.
 //
 // There must be at least the same number of bytes as there are data shards,
@@ -486,19 +470,19 @@ func (r reedSolomon) Split(data []byte) ([][]byte, error) {
 		return nil, ErrShortData
 	}
 	perShard := (len(data) + r.DataShards - 1) / r.DataShards
+
+	// Fill data shards.
 	dst := make([][]byte, r.Shards)
-	for i := 0; i < r.DataShards; i++ {
-		if i < r.DataShards-1 {
-			dst[i] = data[perShard*i : perShard*i+perShard]
-		} else {
-			dst[i] = make([]byte, perShard)
-			copy(dst[i], data[perShard*i:])
-		}
+	for i := 0; i < r.DataShards-1; i++ {
+		dst[i] = data[:perShard]
+		data = data[perShard:]
 	}
+	// The last data shard must be zero-padded.
+	dst[r.DataShards-1] = append(data, make([]byte, perShard-len(data))...)
 
 	// Create empty parity shards.
-	for i := 0; i < r.ParityShards; i++ {
-		dst[i+r.DataShards] = make([]byte, perShard)
+	for i := r.DataShards; i < r.Shards; i++ {
+		dst[i] = make([]byte, perShard)
 	}
 	return dst, nil
 }
@@ -526,20 +510,17 @@ func (r reedSolomon) Join(dst io.Writer, shards [][]byte, outSize int) error {
 	}
 
 	// Copy data to dst
-	written := 0
+	write := outSize
 	for _, shard := range shards {
-		write := len(shard)
-		if written+write > outSize {
-			write = outSize - written
+		if write < len(shard) {
+			_, err := dst.Write(shard[:write])
+			return err
 		}
-		_, err := io.CopyN(dst, bytes.NewBuffer(shard), int64(write))
+		n, err := dst.Write(shard)
 		if err != nil {
 			return err
 		}
-		written += write
-		if written == outSize {
-			break
-		}
+		write -= n
 	}
 	return nil
 }

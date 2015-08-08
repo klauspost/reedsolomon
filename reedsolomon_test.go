@@ -8,8 +8,10 @@
 package reedsolomon
 
 import (
+	"bytes"
 	"fmt"
 	"math/rand"
+	"runtime"
 	"testing"
 )
 
@@ -40,6 +42,18 @@ func TestEncoding(t *testing.T) {
 	if !ok {
 		t.Fatal("Verification failed")
 	}
+
+	err = r.Encode(make([][]byte, 1))
+	if err != ErrTooFewShards {
+		t.Errorf("expected %v, got %v", ErrTooFewShards, err)
+	}
+
+	badShards := make([][]byte, 13)
+	badShards[0] = make([]byte, 1)
+	err = r.Encode(badShards)
+	if err != ErrShardSize {
+		t.Errorf("expected %v, got %v", ErrShardSize, err)
+	}
 }
 
 func TestReconstruct(t *testing.T) {
@@ -63,6 +77,13 @@ func TestReconstruct(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	// Reconstruct with all shards present
+	err = r.Reconstruct(shards)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Reconstruct with 10 shards present
 	shards[0] = nil
 	shards[7] = nil
 	shards[11] = nil
@@ -78,6 +99,26 @@ func TestReconstruct(t *testing.T) {
 	}
 	if !ok {
 		t.Fatal("Verification failed")
+	}
+
+	// Reconstruct with 9 shards present (should fail)
+	shards[0] = nil
+	shards[4] = nil
+	shards[7] = nil
+	shards[11] = nil
+
+	err = r.Reconstruct(shards)
+	if err != ErrTooFewShards {
+		t.Errorf("expected %v, got %v", ErrTooFewShards, err)
+	}
+
+	err = r.Reconstruct(make([][]byte, 1))
+	if err != ErrTooFewShards {
+		t.Errorf("expected %v, got %v", ErrTooFewShards, err)
+	}
+	err = r.Reconstruct(make([][]byte, 13))
+	if err != ErrShardNoData {
+		t.Errorf("expected %v, got %v", ErrShardNoData, err)
 	}
 }
 
@@ -108,6 +149,7 @@ func TestVerify(t *testing.T) {
 	if !ok {
 		t.Fatal("Verification failed")
 	}
+
 	// Put in random data. Verification should fail
 	fillRandom(shards[10])
 	ok, err = r.Verify(shards)
@@ -131,6 +173,16 @@ func TestVerify(t *testing.T) {
 	if ok {
 		t.Fatal("Verification did not fail")
 	}
+
+	_, err = r.Verify(make([][]byte, 1))
+	if err != ErrTooFewShards {
+		t.Errorf("expected %v, got %v", ErrTooFewShards, err)
+	}
+
+	_, err = r.Verify(make([][]byte, 14))
+	if err != ErrShardNoData {
+		t.Errorf("expected %v, got %v", ErrShardNoData, err)
+	}
 }
 
 func TestOneEncode(t *testing.T) {
@@ -138,17 +190,18 @@ func TestOneEncode(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	shards := make([][]byte, 10)
-	shards[0] = []byte{0, 1}
-	shards[1] = []byte{4, 5}
-	shards[2] = []byte{2, 3}
-	shards[3] = []byte{6, 7}
-	shards[4] = []byte{8, 9}
-	shards[5] = []byte{0, 0}
-	shards[6] = []byte{0, 0}
-	shards[7] = []byte{0, 0}
-	shards[8] = []byte{0, 0}
-	shards[9] = []byte{0, 0}
+	shards := [][]byte{
+		{0, 1},
+		{4, 5},
+		{2, 3},
+		{6, 7},
+		{8, 9},
+		{0, 0},
+		{0, 0},
+		{0, 0},
+		{0, 0},
+		{0, 0},
+	}
 	codec.Encode(shards)
 	if shards[5][0] != 12 || shards[5][1] != 13 {
 		t.Fatal("shard 5 mismatch")
@@ -495,11 +548,21 @@ func TestEncoderReconstruct(t *testing.T) {
 		t.Fatal("not ok:", ok, "err:", err)
 	}
 
-	// Delete a shard
+	// Recover original bytes
+	buf := new(bytes.Buffer)
+	err = enc.Join(buf, shards, len(data))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !bytes.Equal(buf.Bytes(), data) {
+		t.Fatal("recovered bytes do not match")
+	}
+
+	// Corrupt a shard
 	shards[0] = nil
 	shards[1][0], shards[1][500] = 75, 75
 
-	// Should reconstruct
+	// Should reconstruct (but with corrupted data)
 	err = enc.Reconstruct(shards)
 	if err != nil {
 		t.Fatal(err)
@@ -510,22 +573,69 @@ func TestEncoderReconstruct(t *testing.T) {
 	if ok || err != nil {
 		t.Fatal("error or ok:", ok, "err:", err)
 	}
+
+	// Recovered data should not match original
+	buf.Reset()
+	err = enc.Join(buf, shards, len(data))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if bytes.Equal(buf.Bytes(), data) {
+		t.Fatal("corrupted data matches original")
+	}
 }
 
-func TestMatrices(t *testing.T) {
-	_, err := New(10, 500)
+func TestSplitJoin(t *testing.T) {
+	var data = make([]byte, 250000)
+	fillRandom(data)
+
+	enc, _ := New(5, 3)
+	shards, err := enc.Split(data)
 	if err != nil {
-		t.Fatal("creating matrix size", 10, 500, ":", err)
-	}
-	_, err = New(256, 256)
-	if err != nil {
-		t.Fatal("creating matrix size", 256, 256, ":", err)
-	}
-	_, err = New(257, 10)
-	if err != ErrInvShardNum {
-		t.Fatal("Expected ErrInvShardNum, but got", err)
+		t.Fatal(err)
 	}
 
+	_, err = enc.Split([]byte{})
+	if err != ErrShortData {
+		t.Errorf("expected %v, got %v", ErrShortData, err)
+	}
+
+	buf := new(bytes.Buffer)
+	err = enc.Join(buf, shards, 50)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !bytes.Equal(buf.Bytes(), data[:50]) {
+		t.Fatal("recovered data does match original")
+	}
+
+	err = enc.Join(buf, [][]byte{}, 0)
+	if err != ErrTooFewShards {
+		t.Errorf("expected %v, got %v", ErrTooFewShards, err)
+	}
+
+	err = enc.Join(buf, shards, len(data)+1)
+	if err != ErrShortData {
+		t.Errorf("expected %v, got %v", ErrShortData, err)
+	}
+}
+
+func TestCodeSomeShards(t *testing.T) {
+	var data = make([]byte, 250000)
+	fillRandom(data)
+	enc, _ := New(5, 3)
+	r := enc.(*reedSolomon) // need to access private methods
+	shards, _ := enc.Split(data)
+
+	old := runtime.GOMAXPROCS(1)
+	r.codeSomeShards(r.parity, shards[:r.DataShards], shards[r.DataShards:], r.ParityShards, len(shards[0]))
+
+	// hopefully more than 1 CPU
+	runtime.GOMAXPROCS(runtime.NumCPU())
+	r.codeSomeShards(r.parity, shards[:r.DataShards], shards[r.DataShards:], r.ParityShards, len(shards[0]))
+
+	// reset MAXPROCS, otherwise testing complains
+	runtime.GOMAXPROCS(old)
 }
 
 func TestAllMatrices(t *testing.T) {
@@ -534,6 +644,29 @@ func TestAllMatrices(t *testing.T) {
 		_, err := New(i, i)
 		if err != nil {
 			t.Fatal("creating matrix size", i, i, ":", err)
+		}
+	}
+}
+
+func TestNew(t *testing.T) {
+	tests := []struct {
+		data, parity int
+		err          error
+	}{
+		{10, 500, nil},
+		{256, 256, nil},
+
+		{0, 1, ErrInvShardNum},
+		{1, 0, ErrInvShardNum},
+		{257, 1, ErrInvShardNum},
+
+		// overflow causes r.Shards to be negative
+		{256, int(^uint(0) >> 1), errInvalidRowSize},
+	}
+	for _, test := range tests {
+		_, err := New(test.data, test.parity)
+		if err != test.err {
+			t.Errorf("New(%v, %v): expected %v, got %v", test.data, test.parity, test.err, err)
 		}
 	}
 }

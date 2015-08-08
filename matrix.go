@@ -104,10 +104,7 @@ func (m matrix) Multiply(right matrix) (matrix, error) {
 	if len(m[0]) != len(right) {
 		return nil, fmt.Errorf("columns on left (%d) is different than rows on right (%d)", len(m[0]), len(right))
 	}
-	result, err := newMatrix(len(m), len(right[0]))
-	if err != nil {
-		return nil, err
-	}
+	result, _ := newMatrix(len(m), len(right[0]))
 	for r, row := range result {
 		for c := range row {
 			var value byte
@@ -202,16 +199,10 @@ func (m matrix) Invert() (matrix, error) {
 	}
 
 	size := len(m)
-	work, err := identityMatrix(size)
-	if err != nil {
-		return nil, err
-	}
-	work, err = m.Augment(work)
-	if err != nil {
-		return nil, err
-	}
+	work, _ := identityMatrix(size)
+	work, _ = m.Augment(work)
 
-	err = work.gaussianElimination()
+	err := work.gaussianElimination()
 	if err != nil {
 		return nil, err
 	}
