@@ -469,21 +469,21 @@ func (r reedSolomon) Split(data []byte) ([][]byte, error) {
 	if len(data) < r.DataShards {
 		return nil, ErrShortData
 	}
+
+	// Calculate number of bytes per shard.
 	perShard := (len(data) + r.DataShards - 1) / r.DataShards
 
-	// Fill data shards.
+	// Pad data to r.Shards*perShard.
+	padding := make([]byte, (r.Shards*perShard)-len(data))
+	data = append(data, padding...)
+
+	// Split into equal-length shards.
 	dst := make([][]byte, r.Shards)
-	for i := 0; i < r.DataShards-1; i++ {
+	for i := range dst {
 		dst[i] = data[:perShard]
 		data = data[perShard:]
 	}
-	// The last data shard must be zero-padded.
-	dst[r.DataShards-1] = append(data, make([]byte, perShard-len(data))...)
 
-	// Create empty parity shards.
-	for i := r.DataShards; i < r.Shards; i++ {
-		dst[i] = make([]byte, perShard)
-	}
 	return dst, nil
 }
 
