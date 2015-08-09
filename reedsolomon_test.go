@@ -587,6 +587,7 @@ func TestEncoderReconstruct(t *testing.T) {
 
 func TestSplitJoin(t *testing.T) {
 	var data = make([]byte, 250000)
+	rand.Seed(0)
 	fillRandom(data)
 
 	enc, _ := New(5, 3)
