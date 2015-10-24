@@ -133,6 +133,7 @@ func (r rsStream) Encode(data []io.Reader, parity []io.Writer) error {
 		default:
 			return err
 		}
+		out = trimShards(out, shardSize(in))
 		err = r.r.Encode(all)
 		if err != nil {
 			return err
@@ -142,6 +143,16 @@ func (r rsStream) Encode(data []io.Reader, parity []io.Writer) error {
 			return err
 		}
 	}
+}
+
+// Trim the shards so they are all the same size
+func trimShards(in [][]byte, size int) [][]byte {
+	for i := range in {
+		if in[i] != nil {
+			in[i] = in[i][0:size]
+		}
+	}
+	return in
 }
 
 func readShards(dst [][]byte, in []io.Reader) error {
@@ -164,7 +175,7 @@ func readShards(dst [][]byte, in []io.Reader) error {
 				size = n
 			} else if n != size {
 				// Shard sizes must match.
-				return ErrShortData
+				return ErrShardSize
 			}
 			dst[i] = dst[i][0:n]
 		case nil:
@@ -265,6 +276,8 @@ func (r rsStream) Reconstruct(valid []io.Reader, fill []io.Writer) error {
 		if err != nil {
 			return err
 		}
+		all = trimShards(all, shardSize(all))
+
 		err = r.r.Reconstruct(all)
 		if err != nil {
 			return err
