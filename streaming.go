@@ -123,17 +123,22 @@ func (r rsStream) Encode(data []io.Reader, parity []io.Writer) error {
 	all := createSlice(r.r.Shards, r.bs)
 	in := all[:r.r.DataShards]
 	out := all[r.r.DataShards:]
+	read := 0
 
 	for {
 		err := readShards(in, data)
 		switch err {
 		case nil:
 		case io.EOF:
+			if read == 0 {
+				return ErrShardNoData
+			}
 			return nil
 		default:
 			return err
 		}
 		out = trimShards(out, shardSize(in))
+		read += shardSize(in)
 		err = r.r.Encode(all)
 		if err != nil {
 			return err
@@ -150,6 +155,9 @@ func trimShards(in [][]byte, size int) [][]byte {
 	for i := range in {
 		if in[i] != nil {
 			in[i] = in[i][0:size]
+		}
+		if len(in[i]) < size {
+			in[i] = nil
 		}
 	}
 	return in
@@ -179,6 +187,7 @@ func readShards(dst [][]byte, in []io.Reader) error {
 			}
 			dst[i] = dst[i][0:n]
 		case nil:
+			continue
 		default:
 			return err
 		}
@@ -216,29 +225,32 @@ func (r rsStream) Verify(shards []io.Reader) (bool, error) {
 		return false, ErrTooFewShards
 	}
 
+	read := 0
 	all := createSlice(r.r.Shards, r.bs)
 	for {
 		err := readShards(all, shards)
 		if err == io.EOF {
+			if read == 0 {
+				return false, ErrShardNoData
+			}
 			return true, nil
 		}
 		if err != nil {
 			return false, err
 		}
+		read += shardSize(all)
 		ok, err := r.r.Verify(all)
 		if !ok || err != nil {
 			return ok, err
 		}
 	}
-
-	return false, nil
 }
 
 // This error is returned by the StreamEncoder, if you supply "valid" and "fill" streams
 // on the same index.
 // Therefore it is impossible to see if you consider the shard valid
 // or would like to have it reconstructed.
-var ErrReconstructMismatch = errors.New("valid shards and fill shards are mutully exclusive")
+var ErrReconstructMismatch = errors.New("valid shards and fill shards are mutually exclusive")
 
 // Reconstruct will recreate the missing shards, if possible.
 //
@@ -268,14 +280,19 @@ func (r rsStream) Reconstruct(valid []io.Reader, fill []io.Writer) error {
 		}
 	}
 
+	read := 0
 	for {
 		err := readShards(all, valid)
 		if err == io.EOF {
+			if read == 0 {
+				return ErrShardNoData
+			}
 			return nil
 		}
 		if err != nil {
 			return err
 		}
+		read += shardSize(all)
 		all = trimShards(all, shardSize(all))
 
 		err = r.r.Reconstruct(all)

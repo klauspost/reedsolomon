@@ -8,8 +8,8 @@ go:
 
 script: 
  - go test -v -cpu=1,2,4 .
- - go test -v -cpu=1,2,4 -race .
- - go test -tags=noasm -v -cpu=1,2,4 -race .
+ - go test -v -cpu=1,2,4 -short -race .
+ - go test -tags=noasm -v -cpu=1,2,4 -short -race .
  - go build examples/simple-decoder.go
  - go build examples/simple-encoder.go
  - diff <(gofmt -d .) <("")
