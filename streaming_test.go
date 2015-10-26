@@ -65,6 +65,57 @@ func TestStreamEncoding(t *testing.T) {
 	}
 }
 
+func TestStreamEncodingConcurrent(t *testing.T) {
+	perShard := 10 << 20
+	if testing.Short() {
+		perShard = 50000
+	}
+	r, err := NewStreamC(10, 3, true, true)
+	if err != nil {
+		t.Fatal(err)
+	}
+	rand.Seed(0)
+	input := randomBytes(10, perShard)
+	data := toBuffers(input)
+	par := emptyBuffers(3)
+
+	err = r.Encode(toReaders(data), toWriters(par))
+	if err != nil {
+		t.Fatal(err)
+	}
+	// Reset Data
+	data = toBuffers(input)
+
+	all := append(toReaders(data), toReaders(par)...)
+	ok, err := r.Verify(all)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !ok {
+		t.Fatal("Verification failed")
+	}
+
+	err = r.Encode(toReaders(emptyBuffers(1)), toWriters(emptyBuffers(1)))
+	if err != ErrTooFewShards {
+		t.Errorf("expected %v, got %v", ErrTooFewShards, err)
+	}
+	err = r.Encode(toReaders(emptyBuffers(10)), toWriters(emptyBuffers(1)))
+	if err != ErrTooFewShards {
+		t.Errorf("expected %v, got %v", ErrTooFewShards, err)
+	}
+	err = r.Encode(toReaders(emptyBuffers(10)), toWriters(emptyBuffers(3)))
+	if err != ErrShardNoData {
+		t.Errorf("expected %v, got %v", ErrShardNoData, err)
+	}
+
+	badShards := emptyBuffers(10)
+	badShards[0] = randomBuffer(123)
+	err = r.Encode(toReaders(badShards), toWriters(emptyBuffers(3)))
+	if err != ErrShardSize {
+		t.Errorf("expected %v, got %v", ErrShardSize, err)
+	}
+}
+
 func randomBuffer(length int) *bytes.Buffer {
 	b := make([]byte, length)
 	for i := range b {
