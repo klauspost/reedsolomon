@@ -14,6 +14,7 @@ package reedsolomon
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"io"
 	"sync"
 )
@@ -74,6 +75,25 @@ type StreamEncoder interface {
 	// If there are to few shards given, ErrTooFewShards will be returned.
 	// If the total data size is less than outSize, ErrShortData will be returned.
 	Join(dst io.Writer, shards []io.Reader, outSize int64) error
+}
+
+// StreamReadError is returned when a read error is encountered
+// that relates to a supplied stream. This will allow you to
+// find out which reader/writer has failed.
+type StreamError struct {
+	Err    error  // The error
+	Stream int    // The stream number on which the error occurred
+	Op     string // Will be "read" or "write".
+}
+
+// Error returns the error as a string
+func (s StreamError) Error() string {
+	return fmt.Sprintf("error on %s stream #%d: %s", s.Op, s.Stream, s.Err)
+}
+
+// String returns the error as a string
+func (s StreamError) String() string {
+	return s.Error()
 }
 
 // reedSolomon contains a matrix for a specific
@@ -215,13 +235,13 @@ func readShards(dst [][]byte, in []io.Reader) error {
 				size = n
 			} else if n != size {
 				// Shard sizes must match.
-				return ErrShardSize
+				return StreamError{Err: ErrShardSize, Op: "read", Stream: i}
 			}
 			dst[i] = dst[i][0:n]
 		case nil:
 			continue
 		default:
-			return err
+			return StreamError{Err: err, Op: "read", Stream: i}
 		}
 	}
 	if size == 0 {
@@ -240,17 +260,18 @@ func writeShards(out []io.Writer, in [][]byte) error {
 		}
 		n, err := out[i].Write(in[i])
 		if err != nil {
-			return err
+			return StreamError{Err: err, Op: "write", Stream: i}
 		}
 		//
 		if n != len(in[i]) {
-			return io.ErrShortWrite
+			return StreamError{Err: io.ErrShortWrite, Op: "write", Stream: i}
 		}
 	}
 	return nil
 }
 
 type readResult struct {
+	n    int
 	size int
 	err  error
 }
@@ -275,14 +296,13 @@ func cReadShards(dst [][]byte, in []io.Reader) error {
 			// The error is EOF only if no bytes were read.
 			// If an EOF happens after reading some but not all the bytes,
 			// ReadFull returns ErrUnexpectedEOF.
-			res <- readResult{size: n, err: err}
+			res <- readResult{size: n, err: err, n: i}
 
 		}(i)
 	}
 	wg.Wait()
 	close(res)
 	size := -1
-	i := 0
 	for r := range res {
 		switch r.err {
 		case io.ErrUnexpectedEOF, io.EOF:
@@ -290,14 +310,13 @@ func cReadShards(dst [][]byte, in []io.Reader) error {
 				size = r.size
 			} else if r.size != size {
 				// Shard sizes must match.
-				return ErrShardSize
+				return StreamError{Err: ErrShardSize, Op: "read", Stream: r.n}
 			}
-			dst[i] = dst[i][0:r.size]
+			dst[r.n] = dst[r.n][0:r.size]
 		case nil:
 		default:
-			return r.err
+			return StreamError{Err: r.err, Op: "read", Stream: r.n}
 		}
-		i++
 	}
 	if size == 0 {
 		return io.EOF
@@ -322,11 +341,11 @@ func cWriteShards(out []io.Writer, in [][]byte) error {
 			}
 			n, err := out[i].Write(in[i])
 			if err != nil {
-				errs <- err
+				errs <- StreamError{Err: err, Op: "write", Stream: i}
 				return
 			}
 			if n != len(in[i]) {
-				errs <- io.ErrShortWrite
+				errs <- StreamError{Err: io.ErrShortWrite, Op: "write", Stream: i}
 			}
 		}(i)
 	}
@@ -445,7 +464,7 @@ func (r rsStream) Join(dst io.Writer, shards []io.Reader, outSize int64) error {
 	shards = shards[:r.r.DataShards]
 	for i := range shards {
 		if shards[i] == nil {
-			return ErrShardNoData
+			return StreamError{Err: ErrShardNoData, Op: "read", Stream: i}
 		}
 	}
 	// Join all shards
@@ -485,7 +504,7 @@ func (r rsStream) Split(data io.Reader, dst []io.Writer, size int64) error {
 
 	for i := range dst {
 		if dst[i] == nil {
-			return ErrShardNoData
+			return StreamError{Err: ErrShardNoData, Op: "write", Stream: i}
 		}
 	}
 
@@ -500,7 +519,7 @@ func (r rsStream) Split(data io.Reader, dst []io.Writer, size int64) error {
 	for i := range dst {
 		n, err := io.CopyN(dst[i], data, perShard)
 		if err != io.EOF && err != nil {
-			return err
+			return StreamError{Err: err, Op: "write", Stream: i}
 		}
 		if n != perShard {
 			return ErrShortData
