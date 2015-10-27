@@ -3,7 +3,7 @@
 
 [1]: https://godoc.org/github.com/klauspost/reedsolomon?status.svg
 [2]: https://godoc.org/github.com/klauspost/reedsolomon
-[3]: https://travis-ci.org/klauspost/reedsolomon.svg
+[3]: https://travis-ci.org/klauspost/reedsolomon.svg?branch=master
 [4]: https://travis-ci.org/klauspost/reedsolomon
 
 Reed-Solomon Erasure Coding in Go, with speeds exceeding 1GB/s/cpu core implemented in pure Go.
