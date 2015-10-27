@@ -10,6 +10,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"math/rand"
 	"testing"
 )
@@ -278,7 +279,10 @@ func TestStreamReconstruct(t *testing.T) {
 }
 
 func TestStreamVerify(t *testing.T) {
-	perShard := 33333
+	perShard := 10 << 20
+	if testing.Short() {
+		perShard = 50000
+	}
 	r, err := NewStream(10, 4)
 	if err != nil {
 		t.Fatal(err)
@@ -300,8 +304,9 @@ func TestStreamVerify(t *testing.T) {
 		t.Fatal("Verification failed")
 	}
 
-	// Put in random data. Verification should fail
-	fillRandom(parity[0])
+	// Flip bits in a random byte
+	parity[0][len(parity[0])-20000] = parity[0][len(parity[0])-20000] ^ 0xff
+
 	all = append(toReaders(toBuffers(shards)), toReaders(toBuffers(parity))...)
 	ok, err = r.Verify(all)
 	if err != nil {
@@ -316,7 +321,7 @@ func TestStreamVerify(t *testing.T) {
 		t.Fatal(err)
 	}
 	// Fill a data segment with random data
-	fillRandom(shards[0])
+	shards[0][len(shards[0])-30000] = shards[0][len(shards[0])-30000] ^ 0xff
 	all = append(toReaders(toBuffers(shards)), toReaders(parb)...)
 	ok, err = r.Verify(all)
 	if err != nil {
@@ -388,13 +393,12 @@ func TestStreamOneEncode(t *testing.T) {
 
 }
 
-// FIXME
 func benchmarkStreamEncode(b *testing.B, dataShards, parityShards, shardSize int) {
-	r, err := New(dataShards, parityShards)
+	r, err := NewStream(dataShards, parityShards)
 	if err != nil {
 		b.Fatal(err)
 	}
-	shards := make([][]byte, dataShards+parityShards)
+	shards := make([][]byte, dataShards)
 	for s := range shards {
 		shards[s] = make([]byte, shardSize)
 	}
@@ -406,8 +410,12 @@ func benchmarkStreamEncode(b *testing.B, dataShards, parityShards, shardSize int
 
 	b.SetBytes(int64(shardSize * dataShards))
 	b.ResetTimer()
+	out := make([]io.Writer, parityShards)
+	for i := range out {
+		out[i] = ioutil.Discard
+	}
 	for i := 0; i < b.N; i++ {
-		err = r.Encode(shards)
+		err = r.Encode(toReaders(toBuffers(shards)), out)
 		if err != nil {
 			b.Fatal(err)
 		}
@@ -456,9 +464,8 @@ func BenchmarkStreamEncode17x3x16M(b *testing.B) {
 	benchmarkStreamEncode(b, 17, 3, 16*1024*1024)
 }
 
-// FIXME
 func benchmarkStreamVerify(b *testing.B, dataShards, parityShards, shardSize int) {
-	r, err := New(dataShards, parityShards)
+	r, err := NewStream(dataShards, parityShards)
 	if err != nil {
 		b.Fatal(err)
 	}
@@ -471,7 +478,7 @@ func benchmarkStreamVerify(b *testing.B, dataShards, parityShards, shardSize int
 	for s := 0; s < dataShards; s++ {
 		fillRandom(shards[s])
 	}
-	err = r.Encode(shards)
+	err = r.Encode(toReaders(toBuffers(shards[:dataShards])), toWriters(toBuffers(shards[dataShards:])))
 	if err != nil {
 		b.Fatal(err)
 	}
@@ -479,7 +486,7 @@ func benchmarkStreamVerify(b *testing.B, dataShards, parityShards, shardSize int
 	b.SetBytes(int64(shardSize * dataShards))
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		_, err = r.Verify(shards)
+		_, err = r.Verify(toReaders(toBuffers(shards)))
 		if err != nil {
 			b.Fatal(err)
 		}
