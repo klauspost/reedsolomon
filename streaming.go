@@ -21,6 +21,9 @@ import (
 
 // StreamEncoder is an interface to encode Reed-Salomon parity sets for your data.
 // It provides a fully streaming interface, and processes data in blocks of up to 4MB.
+//
+// For small shard sizes, 10MB and below, it is recommended to use the in-memory interface,
+// since the streaming interface has a start up overhead.
 type StreamEncoder interface {
 	// Encodes parity shards for a set of data shards.
 	// Input is 'shards' containing readers for data shards followed by parity shards
