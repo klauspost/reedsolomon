@@ -599,12 +599,15 @@ func TestStreamSplitJoin(t *testing.T) {
 	bufs := toReaders(emptyBuffers(5))
 	bufs[2] = nil
 	err = enc.Join(buf, bufs, 0)
-	if se, ok := err.(StreamError); ok {
+	if se, ok := err.(StreamReadError); ok {
 		if se.Err != ErrShardNoData {
 			t.Errorf("expected %v, got %v", ErrShardNoData, se.Err)
 		}
+		if se.Stream != 2 {
+			t.Errorf("Expected error on stream 2, got %d", se.Stream)
+		}
 	} else {
-		t.Errorf("expected error type %T, got %T", StreamError{}, err)
+		t.Errorf("expected error type %T, got %T", StreamReadError{}, err)
 	}
 
 	err = enc.Join(buf, toReaders(toBuffers(splits)), int64(len(data)+1))
