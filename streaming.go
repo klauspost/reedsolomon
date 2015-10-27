@@ -235,7 +235,7 @@ func readShards(dst [][]byte, in []io.Reader) error {
 				size = n
 			} else if n != size {
 				// Shard sizes must match.
-				return StreamError{Err: ErrShardSize, Op: "read", Stream: i}
+				return ErrShardSize
 			}
 			dst[i] = dst[i][0:n]
 		case nil:
@@ -310,7 +310,7 @@ func cReadShards(dst [][]byte, in []io.Reader) error {
 				size = r.size
 			} else if r.size != size {
 				// Shard sizes must match.
-				return StreamError{Err: ErrShardSize, Op: "read", Stream: r.n}
+				return ErrShardSize
 			}
 			dst[r.n] = dst[r.n][0:r.size]
 		case nil:

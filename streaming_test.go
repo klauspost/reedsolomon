@@ -59,17 +59,9 @@ func TestStreamEncoding(t *testing.T) {
 
 	badShards := emptyBuffers(10)
 	badShards[0] = randomBuffer(123)
-	badShards[1] = randomBuffer(123)
 	err = r.Encode(toReaders(badShards), toWriters(emptyBuffers(3)))
-	if se, ok := err.(StreamError); ok {
-		if se.Err != ErrShardSize {
-			t.Errorf("expected %v, got %v", ErrShardSize, se.Err)
-		}
-		if se.Stream <= 1 {
-			t.Errorf("expected stream no to be >=2, was %d", se.Stream)
-		}
-	} else {
-		t.Errorf("expected error type %T, got %T", StreamError{}, err)
+	if err != ErrShardSize {
+		t.Errorf("expected %v, got %v", ErrShardSize, err)
 	}
 }
 
@@ -120,15 +112,8 @@ func TestStreamEncodingConcurrent(t *testing.T) {
 	badShards[0] = randomBuffer(123)
 	badShards[1] = randomBuffer(123)
 	err = r.Encode(toReaders(badShards), toWriters(emptyBuffers(3)))
-	if se, ok := err.(StreamError); ok {
-		if se.Err != ErrShardSize {
-			t.Errorf("expected %v, got %v", ErrShardSize, se.Err)
-		}
-		if se.Stream <= 1 {
-			t.Errorf("expected stream no to be >=2, was %d", se.Stream)
-		}
-	} else {
-		t.Errorf("expected error type %T, got %T", StreamError{}, err)
+	if err != ErrShardSize {
+		t.Errorf("expected %v, got %v", ErrShardSize, err)
 	}
 }
 
