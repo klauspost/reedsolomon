@@ -3,7 +3,7 @@
 
 [1]: https://godoc.org/github.com/klauspost/reedsolomon?status.svg
 [2]: https://godoc.org/github.com/klauspost/reedsolomon
-[3]: https://travis-ci.org/klauspost/reedsolomon.svg
+[3]: https://travis-ci.org/klauspost/reedsolomon.svg?branch=master
 [4]: https://travis-ci.org/klauspost/reedsolomon
 
 Reed-Solomon Erasure Coding in Go, with speeds exceeding 1GB/s/cpu core implemented in pure Go.
@@ -87,7 +87,7 @@ So to sum up reconstruction:
 * You may only supply data you know is valid.
 * Invalid shards should be set to nil.
 
-For complete examples of and encoder and decoder see the [examples folder](https://github.com/klauspost/reedsolomon/tree/master/examples).
+For complete examples of an encoder and decoder see the [examples folder](https://github.com/klauspost/reedsolomon/tree/master/examples).
 
 # Splitting/Joining Data
 
@@ -150,6 +150,19 @@ It might seem like a limitation that all data should be in memory, but an import
 This means that if you have a data set that may not fit into memory, you can split processing into smaller blocks. For the best throughput, don't use too small blocks.
 
 This also means that you can divide big input up into smaller blocks, and do reconstruction on parts of your data. This doesn't give the same flexibility of a higher number of data shards, but it will be much more performant.
+
+# Streaming API
+
+There has been added a fully streaming API, to help perform fully streaming operations, which enables you to do the same operations, but on streams.
+
+Input is delivered as `[]io.Reader`, output as `[]io.Writer`, and functionality corresponds to the in-memory API.
+
+If an error occurs in relation to a stream, a `StreamReadError` or `StreamWriteError` will help you determine which stream was the offender.
+
+There is no buffering or timeouts/retry specified. If you want to add that, you need to add it to the Reader/Writer.
+
+For complete examples of a streaming encoder and decoder see the [examples folder](https://github.com/klauspost/reedsolomon/tree/master/examples).
+
 
 # Performance
 Performance depends mainly on the number of parity shards. In rough terms, doubling the number of parity shards will double the encoding time.

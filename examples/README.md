@@ -15,6 +15,17 @@ go build simple-decoder.go
 go build simple-encoder.go
 ```
 
+# Streamin API examples
+
+There are streaming examples of the same functionality, which streams data instead of keeping it in memory.
+
+To build the executables use:
+
+```bash 
+go build stream-decoder.go
+go build stream-encoder.go
+```
+
 ## Shortcomings
 * If the file size of the input isn't diviable by the number of data shards
   the output will contain extra zeroes
