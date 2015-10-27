@@ -22,30 +22,40 @@ import (
 // since the streaming interface has a start up overhead.
 type StreamEncoder interface {
 	// Encodes parity shards for a set of data shards.
+	//
 	// Input is 'shards' containing readers for data shards followed by parity shards
 	// io.Writer.
-	// The number of shards must match the number given to New().
-	// Each shard is a byte array, and they must all be the same size.
-	// The parity shards will always be overwritten and the data shards
-	// will remain the same, so it is safe for you to read from the
-	// data shards while this is running.
+	//
+	// The number of shards must match the number given to NewStream().
+	//
+	// Each reader must supply the same number of bytes.
+	//
+	// The parity shards will be written to the writer.
+	// The number of bytes written will match the input size.
+	//
+	// If a data stream returns an error, a StreamReadError type error
+	// will be returned. If a parity writer returns an error, a
+	// StreamWriteError will be returned.
 	Encode(data []io.Reader, parity []io.Writer) error
 
 	// Verify returns true if the parity shards contain correct data.
-	// The data is the same format as Encode. No data is modified, so
-	// you are allowed to read from data while this is running.
+	//
+	// The number of shards must match the number total data+parity shards
+	// given to NewStream().
+	//
+	// Each reader must supply the same number of bytes.
+	// If a shard stream returns an error, a StreamReadError type error
+	// will be returned.
 	Verify(shards []io.Reader) (bool, error)
 
 	// Reconstruct will recreate the missing shards if possible.
 	//
 	// Given a list of valid shards (to read) and invalid shards (to write)
 	//
-	// The length of each slice must be equal to the total number of shards.
-	// You indicate that a shard is missing by setting it to nil.
-	//
-	// You indicate that you would like to have a shard filled by setting
-	// a non-nil writer in "fill". An index cannot contain both non-nil
-	// 'valid' and 'fill' entry.
+	// You indicate that a shard is missing by setting it to nil in the 'valid'
+	// slice and at the same time setting a non-nil writer in "fill".
+	// An index cannot contain both non-nil 'valid' and 'fill' entry.
+	// If both are provided 'ErrReconstructMismatch' is returned.
 	//
 	// If there are too few shards to reconstruct the missing
 	// ones, ErrTooFewShards will be returned.
@@ -54,16 +64,15 @@ type StreamEncoder interface {
 	// Use the Verify function to check if data set is ok.
 	Reconstruct(valid []io.Reader, fill []io.Writer) error
 
-	// Split a data slice into the number of shards given to the encoder.
-	//
-	// You must supply the total size of your input.
+	// Split a an input stream into the number of shards given to the encoder.
 	//
 	// The data will be split into equally sized shards.
 	// If the data size isn't dividable by the number of shards,
 	// the last shard will contain extra zeros.
 	//
-	// There must be at least the same number of bytes as there are data shards,
-	// otherwise ErrShortData will be returned.
+	// You must supply the total size of your input.
+	// 'ErrShortData' will be returned if it is unable to retrieve the number of bytes
+	// indicated.
 	Split(data io.Reader, dst []io.Writer, size int64) (err error)
 
 	// Join the shards and write the data segment to dst.
@@ -77,8 +86,8 @@ type StreamEncoder interface {
 }
 
 // StreamReadError is returned when a read error is encountered
-// that relates to a supplied stream. This will allow you to
-// find out which reader has failed.
+// that relates to a supplied stream.
+// This will allow you to find out which reader has failed.
 type StreamReadError struct {
 	Err    error // The error
 	Stream int   // The stream number on which the error occurred
@@ -112,9 +121,9 @@ func (s StreamWriteError) String() string {
 	return s.Error()
 }
 
-// reedSolomon contains a matrix for a specific
+// rsStream contains a matrix for a specific
 // distribution of datashards and parity shards.
-// Construct if using New()
+// Construct if using NewStream()
 type rsStream struct {
 	r  *reedSolomon
 	bs int // Block size
@@ -143,10 +152,9 @@ func NewStream(dataShards, parityShards int) (StreamEncoder, error) {
 }
 
 // NewStreamC creates a new encoder and initializes it to
-// the number of data shards and parity shards that
-// you want to use. You can reuse this encoder.
-// Note that the maximum number of data shards is 256.
-// This allows you to enable concurrent reads and writes
+// the number of data shards and parity shards given.
+//
+// This functions as 'NewStream', but allows you to enable CONCURRENT reads and writes.
 func NewStreamC(dataShards, parityShards int, conReads, conWrites bool) (StreamEncoder, error) {
 	enc, err := New(dataShards, parityShards)
 	if err != nil {
@@ -173,12 +181,21 @@ func createSlice(n, length int) [][]byte {
 	return out
 }
 
-// Encodes parity for a set of data shards.
-// An array 'shards' containing data shards followed by parity shards.
-// The number of shards must match the number given to New.
-// Each shard is a byte array, and they must all be the same size.
-// The parity shards will always be overwritten and the data shards
-// will remain the same.
+// Encodes parity shards for a set of data shards.
+//
+// Input is 'shards' containing readers for data shards followed by parity shards
+// io.Writer.
+//
+// The number of shards must match the number given to NewStream().
+//
+// Each reader must supply the same number of bytes.
+//
+// The parity shards will be written to the writer.
+// The number of bytes written will match the input size.
+//
+// If a data stream returns an error, a StreamReadError type error
+// will be returned. If a parity writer returns an error, a
+// StreamWriteError will be returned.
 func (r rsStream) Encode(data []io.Reader, parity []io.Writer) error {
 	if len(data) != r.r.DataShards {
 		return ErrTooFewShards
@@ -376,8 +393,14 @@ func cWriteShards(out []io.Writer, in [][]byte) error {
 	return nil
 }
 
-// Verify returns true if the parity shards contain the right data.
-// The data is the same format as Encode. No data is modified.
+// Verify returns true if the parity shards contain correct data.
+//
+// The number of shards must match the number total data+parity shards
+// given to NewStream().
+//
+// Each reader must supply the same number of bytes.
+// If a shard stream returns an error, a StreamReadError type error
+// will be returned.
 func (r rsStream) Verify(shards []io.Reader) (bool, error) {
 	if len(shards) != r.r.Shards {
 		return false, ErrTooFewShards
@@ -410,13 +433,13 @@ func (r rsStream) Verify(shards []io.Reader) (bool, error) {
 // or would like to have it reconstructed.
 var ErrReconstructMismatch = errors.New("valid shards and fill shards are mutually exclusive")
 
-// Reconstruct will recreate the missing shards, if possible.
+// Reconstruct will recreate the missing shards if possible.
 //
-// Given a list of shards, some of which contain data, fills in the
-// ones that don't have data.
+// Given a list of valid shards (to read) and invalid shards (to write)
 //
-// The length of the array must be equal to Shards.
-// You indicate that a shard is missing by setting it to nil.
+// You indicate that a shard is missing by setting it to nil in the 'valid'
+// slice and at the same time setting a non-nil writer in "fill".
+// An index cannot contain both non-nil 'valid' and 'fill' entry.
 //
 // If there are too few shards to reconstruct the missing
 // ones, ErrTooFewShards will be returned.
@@ -467,6 +490,7 @@ func (r rsStream) Reconstruct(valid []io.Reader, fill []io.Writer) error {
 // Join the shards and write the data segment to dst.
 //
 // Only the data shards are considered.
+//
 // You must supply the exact output size you want.
 // If there are to few shards given, ErrTooFewShards will be returned.
 // If the total data size is less than outSize, ErrShortData will be returned.
@@ -500,15 +524,15 @@ func (r rsStream) Join(dst io.Writer, shards []io.Reader, outSize int64) error {
 	return nil
 }
 
-// Split a data slice into the number of shards given to the encoder,
-// and create empty parity shards.
+// Split a an input stream into the number of shards given to the encoder.
 //
 // The data will be split into equally sized shards.
-// If the data size isn't divisible by the number of shards,
+// If the data size isn't dividable by the number of shards,
 // the last shard will contain extra zeros.
 //
-// There must be at least the same number of bytes as there are data shards,
-// otherwise ErrShortData will be returned.
+// You must supply the total size of your input.
+// 'ErrShortData' will be returned if it is unable to retrieve the number of bytes
+// indicated.
 func (r rsStream) Split(data io.Reader, dst []io.Writer, size int64) error {
 	if size < int64(r.r.DataShards) {
 		return ErrShortData
