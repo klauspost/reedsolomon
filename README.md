@@ -153,11 +153,10 @@ This also means that you can divide big input up into smaller blocks, and do rec
 
 # Streaming API
 
-There has been added a fully streaming API, to help perform fully streaming operations, which enables you to do the same operations, but on streams.
+There has been added a fully streaming API, to help perform fully streaming operations, which enables you to do the same operations, but on streams. To use the stream API, use [`NewStream`](https://godoc.org/github.com/klauspost/reedsolomon#NewStream) function to create the encoding/decoding interfaces. You can use [`NewStreamC`](https://godoc.org/github.com/klauspost/reedsolomon#NewStreamC) to ready an interface that reads/writes concurrently from the streams.
 
-Input is delivered as `[]io.Reader`, output as `[]io.Writer`, and functionality corresponds to the in-memory API.
-
-If an error occurs in relation to a stream, a `StreamReadError` or `StreamWriteError` will help you determine which stream was the offender.
+Input is delivered as `[]io.Reader`, output as `[]io.Writer`, and functionality corresponds to the in-memory API. Each stream must supply the same amount of data, similar to how each slice must be similar size with the in-memory API. 
+If an error occurs in relation to a stream, a [`StreamReadError`](https://godoc.org/github.com/klauspost/reedsolomon#StreamReadError) or [`StreamWriteError`](https://godoc.org/github.com/klauspost/reedsolomon#StreamWriteError) will help you determine which stream was the offender.
 
 There is no buffering or timeouts/retry specified. If you want to add that, you need to add it to the Reader/Writer.
 
