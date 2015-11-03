@@ -20,6 +20,12 @@ import (
 //
 // For small shard sizes, 10MB and below, it is recommended to use the in-memory interface,
 // since the streaming interface has a start up overhead.
+//
+// For all operations, no readers and writers should not assume any order/size of
+// individual reads/writes.
+//
+// For usage examples, see "stream-encoder.go" and "streamdecoder.go" in the examples
+// folder.
 type StreamEncoder interface {
 	// Encodes parity shards for a set of data shards.
 	//
