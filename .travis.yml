@@ -6,7 +6,11 @@ go:
   - 1.5
   - tip
 
+install:
+ - go get -u github.com/golang/lint/golint
+
 script: 
+ - go vet ./...
  - go test -v -cpu=1,2,4 .
  - go test -v -cpu=1,2,4 -short -race .
  - go test -tags=noasm -v -cpu=1,2,4 -short -race .
@@ -15,3 +19,4 @@ script:
  - go build examples/stream-decoder.go
  - go build examples/stream-encoder.go
  - diff <(gofmt -d .) <("")
+ - diff <(golint ./...) <("")
