@@ -433,8 +433,8 @@ func (r rsStream) Verify(shards []io.Reader) (bool, error) {
 	}
 }
 
-// This error is returned by the StreamEncoder, if you supply "valid" and "fill" streams
-// on the same index.
+// ErrReconstructMismatch is returned by the StreamEncoder, if you supply
+// "valid" and "fill" streams on the same index.
 // Therefore it is impossible to see if you consider the shard valid
 // or would like to have it reconstructed.
 var ErrReconstructMismatch = errors.New("valid shards and fill shards are mutually exclusive")
