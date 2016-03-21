@@ -15,7 +15,6 @@ go:
 
 install:
  - go get ./...
- - go get -u github.com/golang/lint/golint
  - go get -u golang.org/x/tools/cmd/goimports
 
 script: 
@@ -28,4 +27,3 @@ script:
  - go build examples/stream-decoder.go
  - go build examples/stream-encoder.go
  - diff <(goimports -d .) <("")
- - diff <(golint ./...) <("")
