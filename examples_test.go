@@ -11,9 +11,13 @@ import (
 	"github.com/klauspost/reedsolomon"
 )
 
-func fillRandom(b []byte) {
-	for i := range b {
-		b[i] = byte(rand.Int() & 0xff)
+func fillRandom(p []byte) {
+	for i := 0; i < len(p); i += 7 {
+		val := rand.Int63()
+		for j := 0; i+j < len(p) && j < 7; j++ {
+			p[i+j] = byte(val)
+			val >>= 8
+		}
 	}
 }
 
