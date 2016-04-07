@@ -119,9 +119,7 @@ func TestStreamEncodingConcurrent(t *testing.T) {
 
 func randomBuffer(length int) *bytes.Buffer {
 	b := make([]byte, length)
-	for i := range b {
-		b[i] = byte(rand.Int() & 0xff)
-	}
+	fillRandom(b)
 	return bytes.NewBuffer(b)
 }
 
@@ -129,9 +127,7 @@ func randomBytes(n, length int) [][]byte {
 	bufs := make([][]byte, n)
 	for j := range bufs {
 		bufs[j] = make([]byte, length)
-		for i := range bufs[j] {
-			bufs[j][i] = byte(rand.Int() & 0xff)
-		}
+		fillRandom(bufs[j])
 	}
 	return bufs
 }
