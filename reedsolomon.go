@@ -280,7 +280,7 @@ func (r reedSolomon) checkSomeShards(matrixRows, inputs, toCheck [][]byte, outpu
 			}
 
 			for i, calc := range outputs {
-				if bytes.Compare(calc, toCheck[i][start:start+do]) != 0 {
+				if !bytes.Equal(calc, toCheck[i][start:start+do]) {
 					mu.Lock()
 					same = false
 					mu.Unlock()
