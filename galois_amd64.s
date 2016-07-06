@@ -175,7 +175,6 @@ VMOVDQU [rdx], YMM4
 	ADDQ $32, DX       // out+=32
 	SUBQ $1, R9
 	JNZ  loopback_avx2
-	JMP  done_avx2
 
 done_avx2:
 	// VZEROUPPER
