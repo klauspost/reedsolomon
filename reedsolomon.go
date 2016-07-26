@@ -50,6 +50,11 @@ type Encoder interface {
 	// Use the Verify function to check if data set is ok.
 	Reconstruct(shards [][]byte) error
 
+	// ReconstructData will recreate the missing data shards if possible.
+	//
+	// Behavior is similar to Reconstruct, but it will not rebuild parity shards.
+	ReconstructData(shards [][]byte) error
+
 	// Split a data slice into the number of shards given to the encoder,
 	// and create empty parity shards.
 	//
@@ -350,6 +355,17 @@ func shardSize(shards [][]byte) int {
 // The reconstructed shard set is complete, but integrity is not verified.
 // Use the Verify function to check if data set is ok.
 func (r reedSolomon) Reconstruct(shards [][]byte) error {
+	return r.reconstruct(shards, true)
+}
+
+// ReconstructData will recreate the missing data shards if possible.
+//
+// Behavior is similar to Reconstruct, but it will not rebuild parity shards.
+func (r reedSolomon) ReconstructData(shards [][]byte) error {
+	return r.reconstruct(shards, false)
+}
+
+func (r reedSolomon) reconstruct(shards [][]byte, parity bool) error {
 	if len(shards) != r.Shards {
 		return ErrTooFewShards
 	}
@@ -364,12 +380,16 @@ func (r reedSolomon) Reconstruct(shards [][]byte) error {
 	// Quick check: are all of the shards present?  If so, there's
 	// nothing to do.
 	numberPresent := 0
+	dataPresent := 0
 	for i := 0; i < r.Shards; i++ {
 		if len(shards[i]) != 0 {
+			if i < r.DataShards {
+				dataPresent++
+			}
 			numberPresent++
 		}
 	}
-	if numberPresent == r.Shards {
+	if numberPresent == r.Shards || (!parity && dataPresent == r.DataShards) {
 		// Cool.  All of the shards data data.  We don't
 		// need to do anything.
 		return nil
@@ -431,6 +451,9 @@ func (r reedSolomon) Reconstruct(shards [][]byte) error {
 	}
 	r.codeSomeShards(matrixRows, subShards, outputs[:outputCount], outputCount, shardSize)
 
+	if !parity {
+		return nil
+	}
 	// Now that we have all of the data shards intact, we can
 	// compute any of the parity that is missing.
 	//
