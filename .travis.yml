@@ -15,7 +15,6 @@ go:
 
 install:
  - go get ./...
- - go get -u golang.org/x/tools/cmd/goimports
 
 script: 
  - go vet ./...
@@ -26,4 +25,4 @@ script:
  - go build examples/simple-encoder.go
  - go build examples/stream-decoder.go
  - go build examples/stream-encoder.go
- - diff <(goimports -d .) <("")
+ - diff <(gofmt -d .) <("")
