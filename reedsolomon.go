@@ -522,5 +522,6 @@ func (r reedSolomon) Join(dst io.Writer, shards [][]byte, outSize int) error {
 		}
 		write -= n
 	}
+	dst.Flush()
 	return nil
 }
