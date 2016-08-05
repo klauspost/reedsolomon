@@ -482,6 +482,12 @@ func TestSplitJoin(t *testing.T) {
 	if err != ErrShortData {
 		t.Errorf("expected %v, got %v", ErrShortData, err)
 	}
+
+	shards[0] = nil
+	err = enc.Join(buf, shards, len(data))
+	if err != ErrReconstructRequired {
+		t.Errorf("expected %v, got %v", ErrReconstructRequired, err)
+	}
 }
 
 func TestCodeSomeShards(t *testing.T) {

@@ -487,12 +487,18 @@ func (r reedSolomon) Split(data []byte) ([][]byte, error) {
 	return dst, nil
 }
 
+// ErrReconstructRequired is returned if too few data shards are intact and a
+// reconstruction is required before you can successfully join the shards.
+var ErrReconstructRequired = errors.New("reconstruction required as one or more required data shards are nil")
+
 // Join the shards and write the data segment to dst.
 //
 // Only the data shards are considered.
 // You must supply the exact output size you want.
+//
 // If there are to few shards given, ErrTooFewShards will be returned.
 // If the total data size is less than outSize, ErrShortData will be returned.
+// If one or more required data shards are nil, ErrReconstructRequired will be returned.
 func (r reedSolomon) Join(dst io.Writer, shards [][]byte, outSize int) error {
 	// Do we have enough shards?
 	if len(shards) < r.DataShards {
@@ -503,7 +509,15 @@ func (r reedSolomon) Join(dst io.Writer, shards [][]byte, outSize int) error {
 	// Do we have enough data?
 	size := 0
 	for _, shard := range shards {
+		if shard == nil {
+			return ErrReconstructRequired
+		}
 		size += len(shard)
+
+		// Do we have enough data already?
+		if size >= outSize {
+			break
+		}
 	}
 	if size < outSize {
 		return ErrShortData
