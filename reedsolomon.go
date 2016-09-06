@@ -133,12 +133,7 @@ func New(dataShards, parityShards int) (Encoder, error) {
 	// of the invalid rows of the data to reconstruct.
 	// The inversion root node will have the identity matrix as
 	// its inversion matrix because it implies there are no errors.
-	identity, _ := identityMatrix(dataShards)
-	r.inversionRoot = inversionNode{
-		matrix:   identity,
-		mutex:    sync.RWMutex{},
-		children: make([]*inversionNode, dataShards+parityShards),
-	}
+	r.inversionRoot = newInversionTree(dataShards, parityShards)
 
 	r.parity = make([][]byte, parityShards)
 	for i := range r.parity {

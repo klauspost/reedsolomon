@@ -10,6 +10,15 @@ type inversionNode struct {
 	children []*inversionNode
 }
 
+func newInversionTree(dataShards, parityShards int) inversionNode {
+	identity, _ := identityMatrix(dataShards)
+	return inversionNode{
+		matrix:   identity,
+		mutex:    sync.RWMutex{},
+		children: make([]*inversionNode, dataShards+parityShards),
+	}
+}
+
 func (n inversionNode) GetInvertedMatrix(invalidIndices []int) matrix {
 	return n.getInvertedMatrix(invalidIndices, 0)
 }
