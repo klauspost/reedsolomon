@@ -133,15 +133,11 @@ func New(dataShards, parityShards int) (Encoder, error) {
 	// of the invalid rows of the data to reconstruct.
 	// The inversion root node will have the identity matrix as
 	// its inversion matrix because it implies there are no errors.
-	// It will have as many node children as the number of parity
-	// shards because when reconstructing if the first error index
-	// is greater than the number of parity rows, then we have too
-	// many invalid rows.
 	identity, _ := identityMatrix(dataShards)
 	r.inversionRoot = inversionNode{
 		matrix:   identity,
 		mutex:    sync.RWMutex{},
-		children: make([]*inversionNode, parityShards),
+		children: make([]*inversionNode, dataShards+parityShards),
 	}
 
 	r.parity = make([][]byte, parityShards)
@@ -404,11 +400,13 @@ func (r reedSolomon) Reconstruct(shards [][]byte) error {
 	// Also, create an array of indices of the invalid rows we don't have
 	// up until we have enough valid rows.
 	subShards := make([][]byte, r.DataShards)
+	validIndices := make([]int, r.DataShards)
 	invalidIndices := make([]int, 0)
 	subMatrixRow := 0
 	for matrixRow := 0; matrixRow < r.Shards && subMatrixRow < r.DataShards; matrixRow++ {
 		if len(shards[matrixRow]) != 0 {
 			subShards[subMatrixRow] = shards[matrixRow]
+			validIndices[subMatrixRow] = matrixRow
 			subMatrixRow++
 		} else {
 			invalidIndices = append(invalidIndices, matrixRow)
@@ -423,12 +421,9 @@ func (r reedSolomon) Reconstruct(shards [][]byte) error {
 		// matrix could be used to generate the shards that we have
 		// from the original data.
 		subMatrix, _ := newMatrix(r.DataShards, r.DataShards)
-		subMatrixRow = 0
-		for matrixRow := 0; matrixRow < r.Shards && subMatrixRow < r.DataShards; matrixRow++ {
-			if len(shards[matrixRow]) != 0 {
-				for c := 0; c < r.DataShards; c++ {
-					subMatrix[subMatrixRow][c] = r.m[matrixRow][c]
-				}
+		for subMatrixRow, validIndex := range validIndices {
+			for c := 0; c < r.DataShards; c++ {
+				subMatrix[subMatrixRow][c] = r.m[validIndex][c]
 			}
 		}
 		// Invert the matrix, so we can go from the encoded shards

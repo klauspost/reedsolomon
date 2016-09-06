@@ -46,7 +46,7 @@ func (n inversionNode) insertInvertedMatrix(invalidIndices []int, matrix matrix,
 	}
 
 	if len(invalidIndices) > 1 {
-		node.insertInvertedMatrix(invalidIndices[1:], matrix, invalidIndices[0]+1, shards)
+		node.insertInvertedMatrix(invalidIndices[1:], matrix, shards, invalidIndices[0]+1)
 	} else {
 		node.mutex.Lock()
 		defer node.mutex.Unlock()
