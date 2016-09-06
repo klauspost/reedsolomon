@@ -77,11 +77,12 @@ type Encoder interface {
 // distribution of datashards and parity shards.
 // Construct if using New()
 type reedSolomon struct {
-	DataShards   int // Number of data shards, should not be modified.
-	ParityShards int // Number of parity shards, should not be modified.
-	Shards       int // Total number of shards. Calculated, and should not be modified.
-	m            matrix
-	parity       [][]byte
+	DataShards    int // Number of data shards, should not be modified.
+	ParityShards  int // Number of parity shards, should not be modified.
+	Shards        int // Total number of shards. Calculated, and should not be modified.
+	m             matrix
+	inversionRoot inversionNode
+	parity        [][]byte
 }
 
 // ErrInvShardNum will be returned by New, if you attempt to create
@@ -127,6 +128,21 @@ func New(dataShards, parityShards int) (Encoder, error) {
 	top, _ := vm.SubMatrix(0, 0, dataShards, dataShards)
 	top, _ = top.Invert()
 	r.m, _ = vm.Multiply(top)
+
+	// Inverted matrices are cached in a tree keyed by the indices
+	// of the invalid rows of the data to reconstruct.
+	// The inversion root node will have the identity matrix as
+	// its inversion matrix because it implies there are no errors.
+	// It will have as many node children as the number of parity
+	// shards because when reconstructing if the first error index
+	// is greater than the number of parity rows, then we have too
+	// many invalid rows.
+	identity, _ := identityMatrix(dataShards)
+	r.inversionRoot = inversionNode{
+		matrix:   identity,
+		mutex:    sync.RWMutex{},
+		children: make([]*inversionNode, parityShards),
+	}
 
 	r.parity = make([][]byte, parityShards)
 	for i := range r.parity {
@@ -380,36 +396,52 @@ func (r reedSolomon) Reconstruct(shards [][]byte) error {
 		return ErrTooFewShards
 	}
 
-	// Pull out the rows of the matrix that correspond to the
-	// shards that we have and build a square matrix.  This
-	// matrix could be used to generate the shards that we have
-	// from the original data.
-	//
-	// Also, pull out an array holding just the shards that
+	// Pull out an array holding just the shards that
 	// correspond to the rows of the submatrix.  These shards
 	// will be the input to the decoding process that re-creates
 	// the missing data shards.
-	subMatrix, _ := newMatrix(r.DataShards, r.DataShards)
+	//
+	// Also, create an array of indices of the invalid rows we don't have
+	// up until we have enough valid rows.
 	subShards := make([][]byte, r.DataShards)
+	invalidIndices := make([]int, 0)
 	subMatrixRow := 0
 	for matrixRow := 0; matrixRow < r.Shards && subMatrixRow < r.DataShards; matrixRow++ {
 		if len(shards[matrixRow]) != 0 {
-			for c := 0; c < r.DataShards; c++ {
-				subMatrix[subMatrixRow][c] = r.m[matrixRow][c]
-			}
 			subShards[subMatrixRow] = shards[matrixRow]
 			subMatrixRow++
+		} else {
+			invalidIndices = append(invalidIndices, matrixRow)
 		}
 	}
 
-	// Invert the matrix, so we can go from the encoded shards
-	// back to the original data.  Then pull out the row that
-	// generates the shard that we want to decode.  Note that
-	// since this matrix maps back to the original data, it can
-	// be used to create a data shard, but not a parity shard.
-	dataDecodeMatrix, err := subMatrix.Invert()
-	if err != nil {
-		return err
+	dataDecodeMatrix := r.inversionRoot.GetInvertedMatrix(invalidIndices)
+
+	if dataDecodeMatrix == nil {
+		// Pull out the rows of the matrix that correspond to the
+		// shards that we have and build a square matrix.  This
+		// matrix could be used to generate the shards that we have
+		// from the original data.
+		subMatrix, _ := newMatrix(r.DataShards, r.DataShards)
+		subMatrixRow = 0
+		for matrixRow := 0; matrixRow < r.Shards && subMatrixRow < r.DataShards; matrixRow++ {
+			if len(shards[matrixRow]) != 0 {
+				for c := 0; c < r.DataShards; c++ {
+					subMatrix[subMatrixRow][c] = r.m[matrixRow][c]
+				}
+			}
+		}
+		// Invert the matrix, so we can go from the encoded shards
+		// back to the original data.  Then pull out the row that
+		// generates the shard that we want to decode.  Note that
+		// since this matrix maps back to the original data, it can
+		// be used to create a data shard, but not a parity shard.
+		dataDecodeMatrix, err = subMatrix.Invert()
+		if err != nil {
+			return err
+		}
+
+		r.inversionRoot.InsertInvertedMatrix(invalidIndices, dataDecodeMatrix, r.Shards)
 	}
 
 	// Re-create any data shards that were missing.
