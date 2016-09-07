@@ -439,7 +439,10 @@ func (r reedSolomon) Reconstruct(shards [][]byte) error {
 
 		// Cache the inverted matrix in the tree for future use keyed on the
 		// indices of the invalid rows.
-		r.tree.InsertInvertedMatrix(invalidIndices, dataDecodeMatrix, r.Shards)
+		err = r.tree.InsertInvertedMatrix(invalidIndices, dataDecodeMatrix, r.Shards)
+		if err != nil {
+			return err
+		}
 	}
 
 	// Re-create any data shards that were missing.

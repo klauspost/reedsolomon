@@ -7,6 +7,7 @@
 package reedsolomon
 
 import (
+	"errors"
 	"sync"
 )
 
@@ -44,16 +45,35 @@ func (t inversionTree) GetInvertedMatrix(invalidIndices []int) matrix {
 	t.mutex.RLock()
 	defer t.mutex.RUnlock()
 
+	// If no invalid indices were give we should return the root
+	// identity matrix.
+	if len(invalidIndices) == 0 {
+		return t.root.matrix
+	}
+
 	// Recursively search for the inverted matrix in the tree, passing in
 	// 0 as the parent index as we start at the root of the tree.
 	return t.root.getInvertedMatrix(invalidIndices, 0)
 }
 
+// errAlreadySet is returned if the root node matrix is overwritten
+var errAlreadySet = errors.New("the root node identity matrix is already set")
+
 // InsertInvertedMatrix inserts a new inverted matrix into the tree
 // keyed by the indices of invalid rows.  The total number of shards
 // is required for creating the proper length lists of child nodes for
 // each node.
-func (t inversionTree) InsertInvertedMatrix(invalidIndices []int, matrix matrix, shards int) {
+func (t inversionTree) InsertInvertedMatrix(invalidIndices []int, matrix matrix, shards int) error {
+	// If no invalid indices were given then we are done because the
+	// root node is already set with the identity matrix.
+	if len(invalidIndices) == 0 {
+		return errAlreadySet
+	}
+
+	if !matrix.IsSquare() {
+		return errNotSquare
+	}
+
 	// Lock the tree for writing and reading before accessing the tree.
 	t.mutex.Lock()
 	defer t.mutex.Unlock()
@@ -62,6 +82,8 @@ func (t inversionTree) InsertInvertedMatrix(invalidIndices []int, matrix matrix,
 	// we reach the node to insert the matrix to.  We start by passing in
 	// 0 as the parent index as we start at the root of the tree.
 	t.root.insertInvertedMatrix(invalidIndices, matrix, shards, 0)
+
+	return nil
 }
 
 func (n inversionNode) getInvertedMatrix(invalidIndices []int, parent int) matrix {
