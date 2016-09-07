@@ -77,12 +77,12 @@ type Encoder interface {
 // distribution of datashards and parity shards.
 // Construct if using New()
 type reedSolomon struct {
-	DataShards    int // Number of data shards, should not be modified.
-	ParityShards  int // Number of parity shards, should not be modified.
-	Shards        int // Total number of shards. Calculated, and should not be modified.
-	m             matrix
-	inversionRoot inversionNode
-	parity        [][]byte
+	DataShards   int // Number of data shards, should not be modified.
+	ParityShards int // Number of parity shards, should not be modified.
+	Shards       int // Total number of shards. Calculated, and should not be modified.
+	m            matrix
+	tree         inversionTree
+	parity       [][]byte
 }
 
 // ErrInvShardNum will be returned by New, if you attempt to create
@@ -132,8 +132,9 @@ func New(dataShards, parityShards int) (Encoder, error) {
 	// Inverted matrices are cached in a tree keyed by the indices
 	// of the invalid rows of the data to reconstruct.
 	// The inversion root node will have the identity matrix as
-	// its inversion matrix because it implies there are no errors.
-	r.inversionRoot = newInversionTree(dataShards, parityShards)
+	// its inversion matrix because it implies there are no errors
+	// with the original data.
+	r.tree = newInversionTree(dataShards, parityShards)
 
 	r.parity = make([][]byte, parityShards)
 	for i := range r.parity {
@@ -392,8 +393,8 @@ func (r reedSolomon) Reconstruct(shards [][]byte) error {
 	// will be the input to the decoding process that re-creates
 	// the missing data shards.
 	//
-	// Also, create an array of indices of the invalid rows we don't have
-	// up until we have enough valid rows.
+	// Also, create an array of indices of the valid rows we do have
+	// and the invalid rows we don't have up until we have enough valid rows.
 	subShards := make([][]byte, r.DataShards)
 	validIndices := make([]int, r.DataShards)
 	invalidIndices := make([]int, 0)
@@ -408,8 +409,13 @@ func (r reedSolomon) Reconstruct(shards [][]byte) error {
 		}
 	}
 
-	dataDecodeMatrix := r.inversionRoot.GetInvertedMatrix(invalidIndices)
+	// Attempt to get the cached inverted matrix out of the tree
+	// based on the indices of the invalid rows.
+	dataDecodeMatrix := r.tree.GetInvertedMatrix(invalidIndices)
 
+	// If the inverted matrix isn't cached in the tree yet we must
+	// construct it ourselves and insert it into the tree for the
+	// future.  In this way the inversion tree is lazily loaded.
 	if dataDecodeMatrix == nil {
 		// Pull out the rows of the matrix that correspond to the
 		// shards that we have and build a square matrix.  This
@@ -431,7 +437,9 @@ func (r reedSolomon) Reconstruct(shards [][]byte) error {
 			return err
 		}
 
-		r.inversionRoot.InsertInvertedMatrix(invalidIndices, dataDecodeMatrix, r.Shards)
+		// Cache the inverted matrix in the tree for future use keyed on the
+		// indices of the invalid rows.
+		r.tree.InsertInvertedMatrix(invalidIndices, dataDecodeMatrix, r.Shards)
 	}
 
 	// Re-create any data shards that were missing.
