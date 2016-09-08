@@ -54,9 +54,12 @@ func TestGetInvertedMatrix(t *testing.T) {
 		t.Fatalf("Failed inserting new Matrix : %s", err)
 	}
 
-	matrix = tree.GetInvertedMatrix([]int{1})
-	if matrix == nil {
-		t.Fatal(matrix, "== nil")
+	cachedMatrix := tree.GetInvertedMatrix([]int{1})
+	if cachedMatrix == nil {
+		t.Fatal(cachedMatrix, "== nil")
+	}
+	if matrix.String() != cachedMatrix.String() {
+		t.Fatal(matrix.String(), "!=", cachedMatrix.String())
 	}
 }
 
@@ -93,5 +96,30 @@ func TestInsertInvertedMatrix(t *testing.T) {
 	err = tree.InsertInvertedMatrix([]int{0, 1}, matrix, 5)
 	if err != nil {
 		t.Fatalf("Failed inserting new Matrix : %s", err)
+	}
+}
+
+func TestDoubleInsertInvertedMatrix(t *testing.T) {
+	tree := newInversionTree(3, 2)
+
+	matrix, err := newMatrix(3, 3)
+	if err != nil {
+		t.Fatalf("Failed initializing new Matrix : %s", err)
+	}
+	err = tree.InsertInvertedMatrix([]int{1}, matrix, 5)
+	if err != nil {
+		t.Fatalf("Failed inserting new Matrix : %s", err)
+	}
+	err = tree.InsertInvertedMatrix([]int{1}, matrix, 5)
+	if err != nil {
+		t.Fatalf("Failed inserting new Matrix : %s", err)
+	}
+
+	cachedMatrix := tree.GetInvertedMatrix([]int{1})
+	if cachedMatrix == nil {
+		t.Fatal(cachedMatrix, "== nil")
+	}
+	if matrix.String() != cachedMatrix.String() {
+		t.Fatal(matrix.String(), "!=", cachedMatrix.String())
 	}
 }

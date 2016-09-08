@@ -114,7 +114,7 @@ func (n inversionNode) getInvertedMatrix(invalidIndices []int, parent int) matri
 	// node.  Return it, however keep in mind that the matrix could still be
 	// nil because intermediary nodes in the tree are created sometimes with
 	// their inversion matrices uninitialized.
-	return n.matrix
+	return node.matrix
 }
 
 func (n inversionNode) insertInvertedMatrix(invalidIndices []int, matrix matrix, shards, parent int) {

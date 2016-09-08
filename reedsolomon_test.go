@@ -412,6 +412,13 @@ func benchmarkReconstruct(b *testing.B, dataShards, parityShards, shardSize int)
 		if err != nil {
 			b.Fatal(err)
 		}
+		ok, err := r.Verify(shards)
+		if err != nil {
+			b.Fatal(err)
+		}
+		if !ok {
+			b.Fatal("Verification failed")
+		}
 	}
 }
 
@@ -475,12 +482,19 @@ func benchmarkReconstructP(b *testing.B, dataShards, parityShards, shardSize int
 			b.Fatal(err)
 		}
 
-		corruptRandom(shards, dataShards, parityShards)
-
 		for pb.Next() {
+			corruptRandom(shards, dataShards, parityShards)
+
 			err = r.Reconstruct(shards)
 			if err != nil {
 				b.Fatal(err)
+			}
+			ok, err := r.Verify(shards)
+			if err != nil {
+				b.Fatal(err)
+			}
+			if !ok {
+				b.Fatal("Verification failed")
 			}
 		}
 	})
