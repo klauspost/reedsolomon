@@ -14,7 +14,7 @@ import (
 // The tree uses a Reader-Writer mutex to make it thread-safe
 // when accessing cached matrices and inserting new ones.
 type inversionTree struct {
-	mutex sync.RWMutex
+	mutex *sync.RWMutex
 	root  inversionNode
 }
 
@@ -33,7 +33,7 @@ func newInversionTree(dataShards, parityShards int) inversionTree {
 		children: make([]*inversionNode, dataShards+parityShards),
 	}
 	return inversionTree{
-		mutex: sync.RWMutex{},
+		mutex: &sync.RWMutex{},
 		root:  root,
 	}
 }
