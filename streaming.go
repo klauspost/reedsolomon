@@ -131,7 +131,7 @@ func (s StreamWriteError) String() string {
 // distribution of datashards and parity shards.
 // Construct if using NewStream()
 type rsStream struct {
-	r  *reedSolomon
+	r  *ReedSolomon
 	bs int // Block size
 	// Shard reader
 	readShards func(dst [][]byte, in []io.Reader) error
@@ -150,8 +150,7 @@ func NewStream(dataShards, parityShards int) (StreamEncoder, error) {
 	if err != nil {
 		return nil, err
 	}
-	rs := enc.(*reedSolomon)
-	r := rsStream{r: rs, bs: 4 << 20}
+	r := rsStream{r: enc, bs: 4 << 20}
 	r.readShards = readShards
 	r.writeShards = writeShards
 	return &r, err
@@ -166,8 +165,7 @@ func NewStreamC(dataShards, parityShards int, conReads, conWrites bool) (StreamE
 	if err != nil {
 		return nil, err
 	}
-	rs := enc.(*reedSolomon)
-	r := rsStream{r: rs, bs: 4 << 20}
+	r := rsStream{r: enc, bs: 4 << 20}
 	r.readShards = readShards
 	r.writeShards = writeShards
 	if conReads {

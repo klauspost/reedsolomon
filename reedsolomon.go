@@ -73,10 +73,10 @@ type Encoder interface {
 	Join(dst io.Writer, shards [][]byte, outSize int) error
 }
 
-// reedSolomon contains a matrix for a specific
+// ReedSolomon contains a matrix for a specific
 // distribution of datashards and parity shards.
 // Construct if using New()
-type reedSolomon struct {
+type ReedSolomon struct {
 	DataShards   int // Number of data shards, should not be modified.
 	ParityShards int // Number of parity shards, should not be modified.
 	Shards       int // Total number of shards. Calculated, and should not be modified.
@@ -98,8 +98,8 @@ var ErrMaxShardNum = errors.New("cannot create Encoder with 255 or more data+par
 // the number of data shards and parity shards that
 // you want to use. You can reuse this encoder.
 // Note that the maximum number of data shards is 256.
-func New(dataShards, parityShards int) (Encoder, error) {
-	r := reedSolomon{
+func New(dataShards, parityShards int) (*ReedSolomon, error) {
+	r := ReedSolomon{
 		DataShards:   dataShards,
 		ParityShards: parityShards,
 		Shards:       dataShards + parityShards,
@@ -155,7 +155,7 @@ var ErrTooFewShards = errors.New("too few shards given")
 // Each shard is a byte array, and they must all be the same size.
 // The parity shards will always be overwritten and the data shards
 // will remain the same.
-func (r reedSolomon) Encode(shards [][]byte) error {
+func (r ReedSolomon) Encode(shards [][]byte) error {
 	if len(shards) != r.Shards {
 		return ErrTooFewShards
 	}
@@ -175,7 +175,7 @@ func (r reedSolomon) Encode(shards [][]byte) error {
 
 // Verify returns true if the parity shards contain the right data.
 // The data is the same format as Encode. No data is modified.
-func (r reedSolomon) Verify(shards [][]byte) (bool, error) {
+func (r ReedSolomon) Verify(shards [][]byte) (bool, error) {
 	if len(shards) != r.Shards {
 		return false, ErrTooFewShards
 	}
@@ -200,7 +200,7 @@ func (r reedSolomon) Verify(shards [][]byte) (bool, error) {
 // The number of outputs computed, and the
 // number of matrix rows used, is determined by
 // outputCount, which is the number of outputs to compute.
-func (r reedSolomon) codeSomeShards(matrixRows, inputs, outputs [][]byte, outputCount, byteCount int) {
+func (r ReedSolomon) codeSomeShards(matrixRows, inputs, outputs [][]byte, outputCount, byteCount int) {
 	if runtime.GOMAXPROCS(0) > 1 && len(inputs[0]) > minSplitSize {
 		r.codeSomeShardsP(matrixRows, inputs, outputs, outputCount, byteCount)
 		return
@@ -224,7 +224,7 @@ const (
 
 // Perform the same as codeSomeShards, but split the workload into
 // several goroutines.
-func (r reedSolomon) codeSomeShardsP(matrixRows, inputs, outputs [][]byte, outputCount, byteCount int) {
+func (r ReedSolomon) codeSomeShardsP(matrixRows, inputs, outputs [][]byte, outputCount, byteCount int) {
 	var wg sync.WaitGroup
 	do := byteCount / maxGoroutines
 	if do < minSplitSize {
@@ -257,7 +257,7 @@ func (r reedSolomon) codeSomeShardsP(matrixRows, inputs, outputs [][]byte, outpu
 // checkSomeShards is mostly the same as codeSomeShards,
 // except this will check values and return
 // as soon as a difference is found.
-func (r reedSolomon) checkSomeShards(matrixRows, inputs, toCheck [][]byte, outputCount, byteCount int) bool {
+func (r ReedSolomon) checkSomeShards(matrixRows, inputs, toCheck [][]byte, outputCount, byteCount int) bool {
 	same := true
 	var mu sync.RWMutex // For above
 
@@ -357,7 +357,7 @@ func shardSize(shards [][]byte) int {
 //
 // The reconstructed shard set is complete, but integrity is not verified.
 // Use the Verify function to check if data set is ok.
-func (r reedSolomon) Reconstruct(shards [][]byte) error {
+func (r ReedSolomon) Reconstruct(shards [][]byte) error {
 	if len(shards) != r.Shards {
 		return ErrTooFewShards
 	}
@@ -499,7 +499,7 @@ var ErrShortData = errors.New("not enough data to fill the number of requested s
 //
 // The data will not be copied, except for the last shard, so you
 // should not modify the data of the input slice afterwards.
-func (r reedSolomon) Split(data []byte) ([][]byte, error) {
+func (r ReedSolomon) Split(data []byte) ([][]byte, error) {
 	if len(data) == 0 {
 		return nil, ErrShortData
 	}
@@ -532,7 +532,7 @@ var ErrReconstructRequired = errors.New("reconstruction required as one or more 
 // If there are to few shards given, ErrTooFewShards will be returned.
 // If the total data size is less than outSize, ErrShortData will be returned.
 // If one or more required data shards are nil, ErrReconstructRequired will be returned.
-func (r reedSolomon) Join(dst io.Writer, shards [][]byte, outSize int) error {
+func (r ReedSolomon) Join(dst io.Writer, shards [][]byte, outSize int) error {
 	// Do we have enough shards?
 	if len(shards) < r.DataShards {
 		return ErrTooFewShards

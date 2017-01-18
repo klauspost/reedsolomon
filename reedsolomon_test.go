@@ -651,9 +651,8 @@ func TestSplitJoin(t *testing.T) {
 func TestCodeSomeShards(t *testing.T) {
 	var data = make([]byte, 250000)
 	fillRandom(data)
-	enc, _ := New(5, 3)
-	r := enc.(*reedSolomon) // need to access private methods
-	shards, _ := enc.Split(data)
+	r, _ := New(5, 3)
+	shards, _ := r.Split(data)
 
 	old := runtime.GOMAXPROCS(1)
 	r.codeSomeShards(r.parity, shards[:r.DataShards], shards[r.DataShards:], r.ParityShards, len(shards[0]))
