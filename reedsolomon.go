@@ -218,8 +218,8 @@ func (r reedSolomon) codeSomeShards(matrixRows, inputs, outputs [][]byte, output
 }
 
 const (
-	minSplitSize  = 512 // min split size per goroutine
-	maxGoroutines = 50  // max goroutines number for encoding & decoding
+	minSplitSize  = 65536 // min split size per goroutine
+	maxGoroutines = 50    // max goroutines number for encoding & decoding
 )
 
 // Perform the same as codeSomeShards, but split the workload into
