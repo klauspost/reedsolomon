@@ -3,23 +3,23 @@ package reedsolomon
 import (
 	"runtime"
 
-	"github.com/klauspost/cpuid"
 	"errors"
+	"github.com/klauspost/cpuid"
 	"sync"
 )
 
 // Options allows to override processing parameters.
 // Options should be based on DefaultOptions and not created from scratch.
 type Options struct {
-	maxGoroutines int
-	minSplitSize  int
+	maxGoroutines     int
+	minSplitSize      int
 	useAVX2, useSSSE3 bool
 
 	// Unsetable
 	valid *struct{}
 }
 
-var defaultOptions = Options {
+var defaultOptions = Options{
 	maxGoroutines: 50,
 	minSplitSize:  512,
 }
