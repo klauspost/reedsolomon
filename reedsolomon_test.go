@@ -14,9 +14,45 @@ import (
 	"testing"
 )
 
+func testOpts() []Options {
+	if !testing.Short() {
+		return []Options{}
+	}
+	opts := []Options{
+		DefaultOptions(),
+		DefaultOptions().MaxGoroutines(1).MinSplitSize(500),
+		DefaultOptions().MaxGoroutines(5000).MinSplitSize(50),
+		DefaultOptions().MaxGoroutines(5000).MinSplitSize(500000),
+		DefaultOptions().MaxGoroutines(1).MinSplitSize(500000),
+	}
+	for i, o := range opts[:] {
+		o.useSSSE3 = false
+		o.useAVX2 = false
+		opts[i] = o
+		if defaultOptions.useSSSE3 {
+			o.useSSSE3 = true
+			opts = append(opts, o)
+			o.useSSSE3 = false
+		}
+		if defaultOptions.useAVX2 {
+			o.useAVX2 = true
+			opts = append(opts, o)
+			o.useAVX2 = false
+		}
+	}
+	return opts
+}
+
 func TestEncoding(t *testing.T) {
+	testEncoding(t)
+	for _, o := range testOpts() {
+		testEncoding(t, o)
+	}
+}
+
+func testEncoding(t *testing.T, o ...Options) {
 	perShard := 50000
-	r, err := New(10, 3)
+	r, err := New(10, 3, o...)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -56,8 +92,15 @@ func TestEncoding(t *testing.T) {
 }
 
 func TestReconstruct(t *testing.T) {
+	testReconstruct(t)
+	for _, o := range testOpts() {
+		testReconstruct(t, o)
+	}
+}
+
+func testReconstruct(t *testing.T, o ...Options) {
 	perShard := 50000
-	r, err := New(10, 3)
+	r, err := New(10, 3, o...)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -122,8 +165,15 @@ func TestReconstruct(t *testing.T) {
 }
 
 func TestVerify(t *testing.T) {
+	testVerify(t)
+	for _, o := range testOpts() {
+		testVerify(t, o)
+	}
+}
+
+func testVerify(t *testing.T, o ...Options) {
 	perShard := 33333
-	r, err := New(10, 4)
+	r, err := New(10, 4, o...)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -536,14 +586,27 @@ func BenchmarkReconstructP10x4x16M(b *testing.B) {
 }
 
 func TestEncoderReconstruct(t *testing.T) {
+	testEncoderReconstruct(t)
+	for _, o := range testOpts() {
+		testEncoderReconstruct(t, o)
+	}
+}
+
+func testEncoderReconstruct(t *testing.T, o ...Options) {
 	// Create some sample data
 	var data = make([]byte, 250000)
 	fillRandom(data)
 
 	// Create 5 data slices of 50000 elements each
-	enc, _ := New(5, 3)
-	shards, _ := enc.Split(data)
-	err := enc.Encode(shards)
+	enc, err := New(5, 3, o...)
+	if err != nil {
+		t.Fatal(err)
+	}
+	shards, err := enc.Split(data)
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = enc.Encode(shards)
 	if err != nil {
 		t.Fatal(err)
 	}
