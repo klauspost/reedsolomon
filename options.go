@@ -1,11 +1,11 @@
 package reedsolomon
 
 import (
-	"runtime"
-
 	"errors"
-	"github.com/klauspost/cpuid"
+	"runtime"
 	"sync"
+
+	"github.com/klauspost/cpuid"
 )
 
 // Options allows to override processing parameters.
