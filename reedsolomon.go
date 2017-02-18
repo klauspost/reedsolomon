@@ -14,7 +14,6 @@ package reedsolomon
 import (
 	"bytes"
 	"errors"
-	"fmt"
 	"io"
 	"sync"
 )
@@ -83,7 +82,7 @@ type reedSolomon struct {
 	m            matrix
 	tree         inversionTree
 	parity       [][]byte
-	o            Options
+	o            options
 }
 
 // ErrInvShardNum will be returned by New, if you attempt to create
@@ -100,23 +99,16 @@ var ErrMaxShardNum = errors.New("cannot create Encoder with 255 or more data+par
 // you want to use. You can reuse this encoder.
 // Note that the maximum number of data shards is 256.
 // If no options are supplied, default options are used.
-func New(dataShards, parityShards int, o ...Options) (Encoder, error) {
+func New(dataShards, parityShards int, opts ...Option) (Encoder, error) {
 	r := reedSolomon{
 		DataShards:   dataShards,
 		ParityShards: parityShards,
 		Shards:       dataShards + parityShards,
-		o:            DefaultOptions(),
+		o:            defaultOptions,
 	}
 
-	if len(o) > 0 {
-		r.o = o[0]
-	}
-	if r.o.valid == nil {
-		fmt.Printf("conf: %#v", r.o)
-		return nil, ErrInvalidOptions
-	}
-	if r.o.maxGoroutines < 1 || r.o.minSplitSize < 1 {
-		return nil, ErrInvalidOptions
+	for _, opt := range opts {
+		opt(&r.o)
 	}
 	if dataShards <= 0 || parityShards <= 0 {
 		return nil, ErrInvShardNum

@@ -1,51 +1,23 @@
 package reedsolomon
 
 import (
-	"errors"
 	"runtime"
-	"sync"
 
 	"github.com/klauspost/cpuid"
 )
 
-// Options allows to override processing parameters.
-// Options should be based on DefaultOptions and not created from scratch.
-type Options struct {
+// Option allows to override processing parameters.
+type Option func(*options)
+
+type options struct {
 	maxGoroutines     int
 	minSplitSize      int
 	useAVX2, useSSSE3 bool
-
-	// Unsetable
-	valid *struct{}
 }
 
-var defaultOptions = Options{
+var defaultOptions = options{
 	maxGoroutines: 50,
 	minSplitSize:  512,
-}
-var defaultOptionsMu sync.RWMutex
-
-// ErrInvalidOptions will be returned, if your options are not based on
-// DefaultOptions.
-var ErrInvalidOptions = errors.New("invalid option set")
-
-// DefaultOptions returns the default options.
-func DefaultOptions() Options {
-	defaultOptionsMu.RLock()
-	o := defaultOptions
-	defaultOptionsMu.RUnlock()
-	return o
-}
-
-// SetDefaultOptions will override the default options.
-func SetDefaultOptions(o Options) error {
-	if o.valid == nil {
-		return ErrInvalidOptions
-	}
-	defaultOptionsMu.Lock()
-	defaultOptions = o
-	defaultOptionsMu.Unlock()
-	return nil
 }
 
 func init() {
@@ -55,30 +27,41 @@ func init() {
 	// Detect CPU capabilities.
 	defaultOptions.useSSSE3 = cpuid.CPU.SSSE3()
 	defaultOptions.useAVX2 = cpuid.CPU.AVX2()
-	defaultOptions.valid = &struct{}{}
 }
 
-// MaxGoroutines is the maximum number of goroutines number for encoding & decoding.
+// WithMaxGoroutines is the maximum number of goroutines number for encoding & decoding.
 // Jobs will be split into this many parts, unless each goroutine would have to process
-// less than minSplitSize bytes (set below).
+// less than minSplitSize bytes (set with WithMinSplitSize).
 // For the best speed, keep this well above the GOMAXPROCS number for more fine grained
 // scheduling.
-// If n < 0, default options will be used.
-func (o Options) MaxGoroutines(n int) Options {
-	if n <= 0 {
-		n = defaultOptions.maxGoroutines
+// If n <= 0, it is ignored.
+func WithMaxGoroutines(n int) Option {
+	return func(o *options) {
+		if n > 0 {
+			o.maxGoroutines = n
+		}
 	}
-	o.maxGoroutines = n
-	return o
 }
 
 // MinSplitSize Is the minimum encoding size in bytes per goroutine.
-// See MaxGoroutines on how jobs are split.
-// If n < 0, default options will be used.
-func (o Options) MinSplitSize(n int) Options {
-	if n <= 0 {
-		n = defaultOptions.maxGoroutines
+// See WithMaxGoroutines on how jobs are split.
+// If n <= 0, it is ignored.
+func WithMinSplitSize(n int) Option {
+	return func(o *options) {
+		if n > 0 {
+			o.maxGoroutines = n
+		}
 	}
-	o.minSplitSize = n
-	return o
+}
+
+func withSSE3(enabled bool) Option {
+	return func(o *options) {
+		o.useSSSE3 = enabled
+	}
+}
+
+func withAVX2(enabled bool) Option {
+	return func(o *options) {
+		o.useAVX2 = enabled
+	}
 }

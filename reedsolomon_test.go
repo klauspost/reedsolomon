@@ -14,30 +14,28 @@ import (
 	"testing"
 )
 
-func testOpts() []Options {
+func testOpts() [][]Option {
 	if !testing.Short() {
-		return []Options{}
+		return [][]Option{}
 	}
-	opts := []Options{
-		DefaultOptions(),
-		DefaultOptions().MaxGoroutines(1).MinSplitSize(500),
-		DefaultOptions().MaxGoroutines(5000).MinSplitSize(50),
-		DefaultOptions().MaxGoroutines(5000).MinSplitSize(500000),
-		DefaultOptions().MaxGoroutines(1).MinSplitSize(500000),
+	opts := [][]Option{
+		{WithMaxGoroutines(1), WithMinSplitSize(500), withSSE3(false), withAVX2(false)},
+		{WithMaxGoroutines(5000), WithMinSplitSize(50), withSSE3(false), withAVX2(false)},
+		{WithMaxGoroutines(5000), WithMinSplitSize(500000), withSSE3(false), withAVX2(false)},
+		{WithMaxGoroutines(1), WithMinSplitSize(500000), withSSE3(false), withAVX2(false)},
 	}
-	for i, o := range opts[:] {
-		o.useSSSE3 = false
-		o.useAVX2 = false
-		opts[i] = o
+	for _, o := range opts[:] {
 		if defaultOptions.useSSSE3 {
-			o.useSSSE3 = true
-			opts = append(opts, o)
-			o.useSSSE3 = false
+			n := make([]Option, len(o), len(o)+1)
+			copy(n, o)
+			n = append(n, withSSE3(true))
+			opts = append(opts, n)
 		}
 		if defaultOptions.useAVX2 {
-			o.useAVX2 = true
-			opts = append(opts, o)
-			o.useAVX2 = false
+			n := make([]Option, len(o), len(o)+1)
+			copy(n, o)
+			n = append(n, withAVX2(true))
+			opts = append(opts, n)
 		}
 	}
 	return opts
@@ -46,11 +44,11 @@ func testOpts() []Options {
 func TestEncoding(t *testing.T) {
 	testEncoding(t)
 	for _, o := range testOpts() {
-		testEncoding(t, o)
+		testEncoding(t, o...)
 	}
 }
 
-func testEncoding(t *testing.T, o ...Options) {
+func testEncoding(t *testing.T, o ...Option) {
 	perShard := 50000
 	r, err := New(10, 3, o...)
 	if err != nil {
@@ -94,11 +92,11 @@ func testEncoding(t *testing.T, o ...Options) {
 func TestReconstruct(t *testing.T) {
 	testReconstruct(t)
 	for _, o := range testOpts() {
-		testReconstruct(t, o)
+		testReconstruct(t, o...)
 	}
 }
 
-func testReconstruct(t *testing.T, o ...Options) {
+func testReconstruct(t *testing.T, o ...Option) {
 	perShard := 50000
 	r, err := New(10, 3, o...)
 	if err != nil {
@@ -167,11 +165,11 @@ func testReconstruct(t *testing.T, o ...Options) {
 func TestVerify(t *testing.T) {
 	testVerify(t)
 	for _, o := range testOpts() {
-		testVerify(t, o)
+		testVerify(t, o...)
 	}
 }
 
-func testVerify(t *testing.T, o ...Options) {
+func testVerify(t *testing.T, o ...Option) {
 	perShard := 33333
 	r, err := New(10, 4, o...)
 	if err != nil {
@@ -588,11 +586,11 @@ func BenchmarkReconstructP10x4x16M(b *testing.B) {
 func TestEncoderReconstruct(t *testing.T) {
 	testEncoderReconstruct(t)
 	for _, o := range testOpts() {
-		testEncoderReconstruct(t, o)
+		testEncoderReconstruct(t, o...)
 	}
 }
 
-func testEncoderReconstruct(t *testing.T, o ...Options) {
+func testEncoderReconstruct(t *testing.T, o ...Option) {
 	// Create some sample data
 	var data = make([]byte, 250000)
 	fillRandom(data)

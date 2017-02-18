@@ -166,11 +166,13 @@ For complete examples of a streaming encoder and decoder see the [examples folde
 
 You can modify internal options which affects how jobs are split between and processed by goroutines.
 
-To modify them, you must acquire the default options using the [`DefaultOptions`](https://godoc.org/github.com/klauspost/reedsolomon#DefaultOptions) function. You can then modify the options by calling functions to modify them. See [`Options`](https://godoc.org/github.com/klauspost/reedsolomon#Options) for available parameters.
+To create options, use the WithXXX functions. You can supply options to `New`, `NewStream` and `NewStreamC`. If no Options are supplied, default options are used.
 
-You can supply options to `New`, `NewStream` and `NewStreamC`. If no Options are supplied, default options are used. Note that only one Options object should be provided.
- 
-Default options can be changed by using [`SetDefaultOptions`](https://godoc.org/github.com/klauspost/reedsolomon#SetDefaultOptions) 
+Example of how to supply options:
+
+ ```Go
+     enc, err := reedsolomon.New(10, 3, WithMaxGoroutines(25))
+ ```
 
 
 # Performance
