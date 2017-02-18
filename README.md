@@ -162,6 +162,16 @@ There is no buffering or timeouts/retry specified. If you want to add that, you 
 
 For complete examples of a streaming encoder and decoder see the [examples folder](https://github.com/klauspost/reedsolomon/tree/master/examples).
 
+#Advanced Options
+
+You can modify internal options which affects how jobs are split between and processed by goroutines.
+
+To modify them, you must acquire the default options using the [`DefaultOptions`](https://godoc.org/github.com/klauspost/reedsolomon#DefaultOptions) function. You can then modify the options by calling functions to modify them. See [`Options`](https://godoc.org/github.com/klauspost/reedsolomon#Options) for available parameters.
+
+You can supply options to `New`, `NewStream` and `NewStreamC`. If no Options are supplied, default options are used. Note that only one Options object should be provided.
+ 
+Default options can be changed by using [`SetDefaultOptions`](https://godoc.org/github.com/klauspost/reedsolomon#SetDefaultOptions) 
+
 
 # Performance
 Performance depends mainly on the number of parity shards. In rough terms, doubling the number of parity shards will double the encoding time.
