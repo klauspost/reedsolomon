@@ -14,6 +14,10 @@ import (
 	"testing"
 )
 
+func init(){
+	runtime.GOMAXPROCS(1)
+}
+
 func TestEncoding(t *testing.T) {
 	perShard := 50000
 	r, err := New(10, 3)
