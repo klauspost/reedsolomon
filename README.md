@@ -162,6 +162,18 @@ There is no buffering or timeouts/retry specified. If you want to add that, you 
 
 For complete examples of a streaming encoder and decoder see the [examples folder](https://github.com/klauspost/reedsolomon/tree/master/examples).
 
+#Advanced Options
+
+You can modify internal options which affects how jobs are split between and processed by goroutines.
+
+To create options, use the WithXXX functions. You can supply options to `New`, `NewStream` and `NewStreamC`. If no Options are supplied, default options are used.
+
+Example of how to supply options:
+
+ ```Go
+     enc, err := reedsolomon.New(10, 3, WithMaxGoroutines(25))
+ ```
+
 
 # Performance
 Performance depends mainly on the number of parity shards. In rough terms, doubling the number of parity shards will double the encoding time.
