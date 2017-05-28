@@ -49,7 +49,7 @@ func WithMaxGoroutines(n int) Option {
 func WithMinSplitSize(n int) Option {
 	return func(o *options) {
 		if n > 0 {
-			o.maxGoroutines = n
+			o.minSplitSize = n
 		}
 	}
 }
