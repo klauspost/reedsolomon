@@ -39,7 +39,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"path/filepath"
 
 	"github.com/klauspost/reedsolomon"
 )
@@ -88,10 +87,9 @@ func main() {
 		out := make([]io.Writer, len(shards))
 		for i := range out {
 			if shards[i] == nil {
-				dir, _ := filepath.Split(fname)
 				outfn := fmt.Sprintf("%s.%d", fname, i)
 				fmt.Println("Creating", outfn)
-				out[i], err = os.Create(filepath.Join(dir, outfn))
+				out[i], err = os.Create(outfn)
 				checkErr(err)
 			}
 		}
