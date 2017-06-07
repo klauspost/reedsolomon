@@ -319,6 +319,30 @@ func benchmarkEncode(b *testing.B, dataShards, parityShards, shardSize int) {
 	}
 }
 
+func BenchmarkEncode28x4x16_M(b *testing.B) {
+	benchmarkEncode(b, 28, 4, 16776168)
+}
+
+func BenchmarkEncode14x10x16_M(b *testing.B) {
+	benchmarkEncode(b, 14, 10, 16776168)
+}
+
+func BenchmarkDecode28x4x16_M(b *testing.B) {
+	benchmarkReconstruct(b, 28, 4, 16776168)
+}
+
+func BenchmarkDecode14x10x16_M(b *testing.B) {
+	benchmarkReconstruct(b, 14, 10, 16776168)
+}
+
+func BenchmarkVerify28x4x16_M(b *testing.B) {
+	benchmarkVerify(b, 28, 4, 16776168)
+}
+
+func BenchmarkVerify14x10x16_M(b *testing.B) {
+	benchmarkVerify(b, 14, 10, 16776168)
+}
+
 func BenchmarkEncode10x2x10000(b *testing.B) {
 	benchmarkEncode(b, 10, 2, 10000)
 }
