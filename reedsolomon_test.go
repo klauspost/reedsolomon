@@ -15,7 +15,7 @@ import (
 )
 
 func testOpts() [][]Option {
-	if !testing.Short() {
+	if testing.Short() {
 		return [][]Option{}
 	}
 	opts := [][]Option{
