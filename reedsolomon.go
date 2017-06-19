@@ -126,6 +126,36 @@ func buildMatrix(dataShards, totalShards int) (matrix, error) {
 	return vm.Multiply(topInv)
 }
 
+// buildMatrixPAR1 creates the matrix to use for encoding according to
+// the PARv1 spec, given the number of data shards and the number of
+// total shards. Note that the method they use is buggy, and may lead
+// to cases where recovery is impossible, even if there are enough
+// parity shards.
+//
+// The top square of the matrix is guaranteed to be an identity
+// matrix, which means that the data shards are unchanged after
+// encoding.
+func buildMatrixPAR1(dataShards, totalShards int) (matrix, error) {
+	result, err := newMatrix(totalShards, dataShards)
+	if err != nil {
+		return nil, err
+	}
+
+	for r, row := range result {
+		// The top portion of the matrix is the identity
+		// matrix, and the bottom is a transposed Vandermonde
+		// matrix starting at 1 instead of 0.
+		if r < dataShards {
+			result[r][r] = 1
+		} else {
+			for c := range row {
+				result[r][c] = galExp(byte(c+1), r-dataShards)
+			}
+		}
+	}
+	return result, nil
+}
+
 // New creates a new encoder and initializes it to
 // the number of data shards and parity shards that
 // you want to use. You can reuse this encoder.
@@ -151,7 +181,11 @@ func New(dataShards, parityShards int, opts ...Option) (Encoder, error) {
 	}
 
 	var err error
-	r.m, err = buildMatrix(dataShards, r.Shards)
+	if r.o.usePAR1Matrix {
+		r.m, err = buildMatrixPAR1(dataShards, r.Shards)
+	} else {
+		r.m, err = buildMatrix(dataShards, r.Shards)
+	}
 	if err != nil {
 		return nil, err
 	}

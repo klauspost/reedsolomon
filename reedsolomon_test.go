@@ -16,9 +16,12 @@ import (
 
 func testOpts() [][]Option {
 	if testing.Short() {
-		return [][]Option{}
+		return [][]Option{
+			{WithPAR1Matrix()},
+		}
 	}
 	opts := [][]Option{
+		{WithPAR1Matrix()},
 		{WithMaxGoroutines(1), WithMinSplitSize(500), withSSE3(false), withAVX2(false)},
 		{WithMaxGoroutines(5000), WithMinSplitSize(50), withSSE3(false), withAVX2(false)},
 		{WithMaxGoroutines(5000), WithMinSplitSize(500000), withSSE3(false), withAVX2(false)},
