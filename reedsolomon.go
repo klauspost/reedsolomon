@@ -128,7 +128,7 @@ func New(dataShards, parityShards int, opts ...Option) (Encoder, error) {
 
 	// Multiply by the inverse of the top square of the matrix.
 	// This will make the top square be the identity matrix, but
-	// preserve the property that any square subset of rows  is
+	// preserve the property that any square subset of rows is
 	// invertible.
 	top, _ := vm.SubMatrix(0, 0, dataShards, dataShards)
 	top, _ = top.Invert()
