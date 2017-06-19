@@ -97,7 +97,7 @@ var ErrMaxShardNum = errors.New("cannot create Encoder with more than 256 data+p
 // New creates a new encoder and initializes it to
 // the number of data shards and parity shards that
 // you want to use. You can reuse this encoder.
-// Note that the maximum number of data shards is 256.
+// Note that the maximum number of total shards is 256.
 // If no options are supplied, default options are used.
 func New(dataShards, parityShards int, opts ...Option) (Encoder, error) {
 	r := reedSolomon{
