@@ -250,6 +250,43 @@ func testReconstruct(t *testing.T, o ...Option) {
 	}
 }
 
+func TestReconstructPAR1Singular(t *testing.T) {
+	perShard := 50
+	r, err := New(4, 4, WithPAR1Matrix())
+	if err != nil {
+		t.Fatal(err)
+	}
+	shards := make([][]byte, 8)
+	for s := range shards {
+		shards[s] = make([]byte, perShard)
+	}
+
+	rand.Seed(0)
+	for s := 0; s < 8; s++ {
+		fillRandom(shards[s])
+	}
+
+	err = r.Encode(shards)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Reconstruct with only the last data shard present, and the
+	// first, second, and fourth parity shard present (based on
+	// the result of TestBuildMatrixPAR1Singular). This should
+	// fail.
+	shards[0] = nil
+	shards[1] = nil
+	shards[2] = nil
+	shards[6] = nil
+
+	err = r.Reconstruct(shards)
+	if err != errSingular {
+		t.Fatal(err)
+		t.Errorf("expected %v, got %v", errSingular, err)
+	}
+}
+
 func TestVerify(t *testing.T) {
 	testVerify(t)
 	for _, o := range testOpts() {
