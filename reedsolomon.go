@@ -92,7 +92,7 @@ var ErrInvShardNum = errors.New("cannot create Encoder with zero or less data/pa
 // ErrMaxShardNum will be returned by New, if you attempt to create
 // an Encoder where data and parity shards cannot be bigger than
 // Galois field GF(2^8) - 1.
-var ErrMaxShardNum = errors.New("cannot create Encoder with 255 or more data+parity shards")
+var ErrMaxShardNum = errors.New("cannot create Encoder with more than 256 data+parity shards")
 
 // New creates a new encoder and initializes it to
 // the number of data shards and parity shards that
@@ -114,7 +114,7 @@ func New(dataShards, parityShards int, opts ...Option) (Encoder, error) {
 		return nil, ErrInvShardNum
 	}
 
-	if dataShards+parityShards > 255 {
+	if dataShards+parityShards > 256 {
 		return nil, ErrMaxShardNum
 	}
 

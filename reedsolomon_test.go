@@ -743,11 +743,13 @@ func TestNew(t *testing.T) {
 		err          error
 	}{
 		{127, 127, nil},
+		{128, 128, nil},
+		{255, 1, nil},
 		{256, 256, ErrMaxShardNum},
 
 		{0, 1, ErrInvShardNum},
 		{1, 0, ErrInvShardNum},
-		{257, 1, ErrMaxShardNum},
+		{256, 1, ErrMaxShardNum},
 
 		// overflow causes r.Shards to be negative
 		{256, int(^uint(0) >> 1), errInvalidRowSize},
