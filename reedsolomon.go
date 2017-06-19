@@ -89,9 +89,9 @@ type reedSolomon struct {
 // an Encoder where either data or parity shards is zero or less.
 var ErrInvShardNum = errors.New("cannot create Encoder with zero or less data/parity shards")
 
-// ErrMaxShardNum will be returned by New, if you attempt to create
-// an Encoder where data and parity shards cannot be bigger than
-// Galois field GF(2^8) - 1.
+// ErrMaxShardNum will be returned by New, if you attempt to create an
+// Encoder where data and parity shards are bigger than the order of
+// GF(2^8).
 var ErrMaxShardNum = errors.New("cannot create Encoder with more than 256 data+parity shards")
 
 // New creates a new encoder and initializes it to
