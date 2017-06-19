@@ -89,15 +89,15 @@ type reedSolomon struct {
 // an Encoder where either data or parity shards is zero or less.
 var ErrInvShardNum = errors.New("cannot create Encoder with zero or less data/parity shards")
 
-// ErrMaxShardNum will be returned by New, if you attempt to create
-// an Encoder where data and parity shards cannot be bigger than
-// Galois field GF(2^8) - 1.
-var ErrMaxShardNum = errors.New("cannot create Encoder with 255 or more data+parity shards")
+// ErrMaxShardNum will be returned by New, if you attempt to create an
+// Encoder where data and parity shards are bigger than the order of
+// GF(2^8).
+var ErrMaxShardNum = errors.New("cannot create Encoder with more than 256 data+parity shards")
 
 // New creates a new encoder and initializes it to
 // the number of data shards and parity shards that
 // you want to use. You can reuse this encoder.
-// Note that the maximum number of data shards is 256.
+// Note that the maximum number of total shards is 256.
 // If no options are supplied, default options are used.
 func New(dataShards, parityShards int, opts ...Option) (Encoder, error) {
 	r := reedSolomon{
@@ -114,7 +114,7 @@ func New(dataShards, parityShards int, opts ...Option) (Encoder, error) {
 		return nil, ErrInvShardNum
 	}
 
-	if dataShards+parityShards > 255 {
+	if dataShards+parityShards > 256 {
 		return nil, ErrMaxShardNum
 	}
 
