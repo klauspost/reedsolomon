@@ -43,7 +43,7 @@ func WithMaxGoroutines(n int) Option {
 	}
 }
 
-// MinSplitSize Is the minimum encoding size in bytes per goroutine.
+// WithMinSplitSize is the minimum encoding size in bytes per goroutine.
 // See WithMaxGoroutines on how jobs are split.
 // If n <= 0, it is ignored.
 func WithMinSplitSize(n int) Option {
