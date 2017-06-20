@@ -13,6 +13,7 @@ type options struct {
 	maxGoroutines     int
 	minSplitSize      int
 	useAVX2, useSSSE3 bool
+	usePAR1Matrix     bool
 }
 
 var defaultOptions = options{
@@ -43,7 +44,7 @@ func WithMaxGoroutines(n int) Option {
 	}
 }
 
-// MinSplitSize Is the minimum encoding size in bytes per goroutine.
+// WithMinSplitSize is the minimum encoding size in bytes per goroutine.
 // See WithMaxGoroutines on how jobs are split.
 // If n <= 0, it is ignored.
 func WithMinSplitSize(n int) Option {
@@ -63,5 +64,15 @@ func withSSE3(enabled bool) Option {
 func withAVX2(enabled bool) Option {
 	return func(o *options) {
 		o.useAVX2 = enabled
+	}
+}
+
+// WithPAR1Matrix causes the encoder to build the matrix how PARv1
+// does. Note that the method they use is buggy, and may lead to cases
+// where recovery is impossible, even if there are enough parity
+// shards.
+func WithPAR1Matrix() Option {
+	return func(o *options) {
+		o.usePAR1Matrix = true
 	}
 }

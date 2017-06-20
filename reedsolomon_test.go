@@ -14,11 +14,99 @@ import (
 	"testing"
 )
 
+func isIncreasingAndContainsDataRow(indices []int) bool {
+	cols := len(indices)
+	for i := 0; i < cols-1; i++ {
+		if indices[i] >= indices[i+1] {
+			return false
+		}
+	}
+	// Data rows are in the upper square portion of the matrix.
+	return indices[0] < cols
+}
+
+func incrementIndices(indices []int, indexBound int) (valid bool) {
+	for i := len(indices) - 1; i >= 0; i-- {
+		indices[i]++
+		if indices[i] < indexBound {
+			break
+		}
+
+		if i == 0 {
+			return false
+		}
+
+		indices[i] = 0
+	}
+
+	return true
+}
+
+func incrementIndicesUntilIncreasingAndContainsDataRow(
+	indices []int, maxIndex int) bool {
+	for {
+		valid := incrementIndices(indices, maxIndex)
+		if !valid {
+			return false
+		}
+
+		if isIncreasingAndContainsDataRow(indices) {
+			return true
+		}
+	}
+}
+
+func findSingularSubMatrix(m matrix) (matrix, error) {
+	rows := len(m)
+	cols := len(m[0])
+	rowIndices := make([]int, cols)
+	for incrementIndicesUntilIncreasingAndContainsDataRow(rowIndices, rows) {
+		subMatrix, _ := newMatrix(cols, cols)
+		for i, r := range rowIndices {
+			for c := 0; c < cols; c++ {
+				subMatrix[i][c] = m[r][c]
+			}
+		}
+
+		_, err := subMatrix.Invert()
+		if err == errSingular {
+			return subMatrix, nil
+		} else if err != nil {
+			return nil, err
+		}
+	}
+
+	return nil, nil
+}
+
+func TestBuildMatrixPAR1Singular(t *testing.T) {
+	totalShards := 8
+	dataShards := 4
+	m, err := buildMatrixPAR1(dataShards, totalShards)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	singularSubMatrix, err := findSingularSubMatrix(m)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if singularSubMatrix == nil {
+		t.Fatal("No singular sub-matrix found")
+	}
+
+	t.Logf("matrix %s has singular sub-matrix %s", m, singularSubMatrix)
+}
+
 func testOpts() [][]Option {
-	if !testing.Short() {
-		return [][]Option{}
+	if testing.Short() {
+		return [][]Option{
+			{WithPAR1Matrix()},
+		}
 	}
 	opts := [][]Option{
+		{WithPAR1Matrix()},
 		{WithMaxGoroutines(1), WithMinSplitSize(500), withSSE3(false), withAVX2(false)},
 		{WithMaxGoroutines(5000), WithMinSplitSize(50), withSSE3(false), withAVX2(false)},
 		{WithMaxGoroutines(5000), WithMinSplitSize(500000), withSSE3(false), withAVX2(false)},
@@ -159,6 +247,43 @@ func testReconstruct(t *testing.T, o ...Option) {
 	err = r.Reconstruct(make([][]byte, 13))
 	if err != ErrShardNoData {
 		t.Errorf("expected %v, got %v", ErrShardNoData, err)
+	}
+}
+
+func TestReconstructPAR1Singular(t *testing.T) {
+	perShard := 50
+	r, err := New(4, 4, WithPAR1Matrix())
+	if err != nil {
+		t.Fatal(err)
+	}
+	shards := make([][]byte, 8)
+	for s := range shards {
+		shards[s] = make([]byte, perShard)
+	}
+
+	rand.Seed(0)
+	for s := 0; s < 8; s++ {
+		fillRandom(shards[s])
+	}
+
+	err = r.Encode(shards)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Reconstruct with only the last data shard present, and the
+	// first, second, and fourth parity shard present (based on
+	// the result of TestBuildMatrixPAR1Singular). This should
+	// fail.
+	shards[0] = nil
+	shards[1] = nil
+	shards[2] = nil
+	shards[6] = nil
+
+	err = r.Reconstruct(shards)
+	if err != errSingular {
+		t.Fatal(err)
+		t.Errorf("expected %v, got %v", errSingular, err)
 	}
 }
 

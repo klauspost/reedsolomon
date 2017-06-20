@@ -94,6 +94,68 @@ var ErrInvShardNum = errors.New("cannot create Encoder with zero or less data/pa
 // GF(2^8).
 var ErrMaxShardNum = errors.New("cannot create Encoder with more than 256 data+parity shards")
 
+// buildMatrix creates the matrix to use for encoding, given the
+// number of data shards and the number of total shards.
+//
+// The top square of the matrix is guaranteed to be an identity
+// matrix, which means that the data shards are unchanged after
+// encoding.
+func buildMatrix(dataShards, totalShards int) (matrix, error) {
+	// Start with a Vandermonde matrix.  This matrix would work,
+	// in theory, but doesn't have the property that the data
+	// shards are unchanged after encoding.
+	vm, err := vandermonde(totalShards, dataShards)
+	if err != nil {
+		return nil, err
+	}
+
+	// Multiply by the inverse of the top square of the matrix.
+	// This will make the top square be the identity matrix, but
+	// preserve the property that any square subset of rows is
+	// invertible.
+	top, err := vm.SubMatrix(0, 0, dataShards, dataShards)
+	if err != nil {
+		return nil, err
+	}
+
+	topInv, err := top.Invert()
+	if err != nil {
+		return nil, err
+	}
+
+	return vm.Multiply(topInv)
+}
+
+// buildMatrixPAR1 creates the matrix to use for encoding according to
+// the PARv1 spec, given the number of data shards and the number of
+// total shards. Note that the method they use is buggy, and may lead
+// to cases where recovery is impossible, even if there are enough
+// parity shards.
+//
+// The top square of the matrix is guaranteed to be an identity
+// matrix, which means that the data shards are unchanged after
+// encoding.
+func buildMatrixPAR1(dataShards, totalShards int) (matrix, error) {
+	result, err := newMatrix(totalShards, dataShards)
+	if err != nil {
+		return nil, err
+	}
+
+	for r, row := range result {
+		// The top portion of the matrix is the identity
+		// matrix, and the bottom is a transposed Vandermonde
+		// matrix starting at 1 instead of 0.
+		if r < dataShards {
+			result[r][r] = 1
+		} else {
+			for c := range row {
+				result[r][c] = galExp(byte(c+1), r-dataShards)
+			}
+		}
+	}
+	return result, nil
+}
+
 // New creates a new encoder and initializes it to
 // the number of data shards and parity shards that
 // you want to use. You can reuse this encoder.
@@ -118,21 +180,15 @@ func New(dataShards, parityShards int, opts ...Option) (Encoder, error) {
 		return nil, ErrMaxShardNum
 	}
 
-	// Start with a Vandermonde matrix.  This matrix would work,
-	// in theory, but doesn't have the property that the data
-	// shards are unchanged after encoding.
-	vm, err := vandermonde(r.Shards, dataShards)
+	var err error
+	if r.o.usePAR1Matrix {
+		r.m, err = buildMatrixPAR1(dataShards, r.Shards)
+	} else {
+		r.m, err = buildMatrix(dataShards, r.Shards)
+	}
 	if err != nil {
 		return nil, err
 	}
-
-	// Multiply by the inverse of the top square of the matrix.
-	// This will make the top square be the identity matrix, but
-	// preserve the property that any square subset of rows  is
-	// invertible.
-	top, _ := vm.SubMatrix(0, 0, dataShards, dataShards)
-	top, _ = top.Invert()
-	r.m, _ = vm.Multiply(top)
 
 	// Inverted matrices are cached in a tree keyed by the indices
 	// of the invalid rows of the data to reconstruct.
