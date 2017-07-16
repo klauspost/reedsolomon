@@ -256,7 +256,7 @@ func trimShards(in [][]byte, size int) [][]byte {
 
 func readShards(dst [][]byte, in []io.Reader) error {
 	if len(in) != len(dst) {
-		panic("internal error: in and dst size does not match")
+		panic("internal error: in and dst size do not match")
 	}
 	size := -1
 	for i := range in {
@@ -291,7 +291,7 @@ func readShards(dst [][]byte, in []io.Reader) error {
 
 func writeShards(out []io.Writer, in [][]byte) error {
 	if len(out) != len(in) {
-		panic("internal error: in and out size does not match")
+		panic("internal error: in and out size do not match")
 	}
 	for i := range in {
 		if out[i] == nil {
@@ -318,7 +318,7 @@ type readResult struct {
 // cReadShards reads shards concurrently
 func cReadShards(dst [][]byte, in []io.Reader) error {
 	if len(in) != len(dst) {
-		panic("internal error: in and dst size does not match")
+		panic("internal error: in and dst size do not match")
 	}
 	var wg sync.WaitGroup
 	wg.Add(len(in))
@@ -366,7 +366,7 @@ func cReadShards(dst [][]byte, in []io.Reader) error {
 // cWriteShards writes shards concurrently
 func cWriteShards(out []io.Writer, in [][]byte) error {
 	if len(out) != len(in) {
-		panic("internal error: in and out size does not match")
+		panic("internal error: in and out size do not match")
 	}
 	var errs = make(chan error, len(out))
 	var wg sync.WaitGroup
