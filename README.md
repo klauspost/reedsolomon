@@ -209,7 +209,7 @@ Example of performance scaling on Intel(R) Core(TM) i7-2600 CPU @ 3.40GHz - 4 ph
 | 4       | 3179,33 | 235%  |
 | 8       | 4346,18 | 321%  |
 
-Benchmarking `Reconstruct()` followed by a `Verify()` (=`all`) versus just callling `ReconstructData()` (=`data`) gives the following result:
+Benchmarking `Reconstruct()` followed by a `Verify()` (=`all`) versus just calling `ReconstructData()` (=`data`) gives the following result:
 ```
 benchmark                            all MB/s     data MB/s    speedup
 BenchmarkReconstruct10x2x10000-8     2011.67      10530.10     5.23x
