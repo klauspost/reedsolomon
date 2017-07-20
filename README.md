@@ -81,6 +81,17 @@ To indicate missing data, you set the shard to nil before calling `Reconstruct()
 ```
 The missing data and parity shards will be recreated. If more than 3 shards are missing, the reconstruction will fail.
 
+If you are only interested in the data shards (for reading purposes) you can call `ReconstructData()`:
+
+```Go
+    // Delete two data shards
+    data[3] = nil
+    data[7] = nil
+    
+    // Reconstruct just the missing data shards
+    err := enc.ReconstructData(data)
+```
+
 So to sum up reconstruction:
 * The number of data/parity shards must match the numbers used for encoding.
 * The order of shards must be the same as used when encoding.
@@ -197,6 +208,18 @@ Example of performance scaling on Intel(R) Core(TM) i7-2600 CPU @ 3.40GHz - 4 ph
 | 2       | 2339,78 | 172%  |
 | 4       | 3179,33 | 235%  |
 | 8       | 4346,18 | 321%  |
+
+Benchmarking `Reconstruct()` followed by a `Verify()` (=`all`) versus just calling `ReconstructData()` (=`data`) gives the following result:
+```
+benchmark                            all MB/s     data MB/s    speedup
+BenchmarkReconstruct10x2x10000-8     2011.67      10530.10     5.23x
+BenchmarkReconstruct50x5x50000-8     4585.41      14301.60     3.12x
+BenchmarkReconstruct10x2x1M-8        8081.15      28216.41     3.49x
+BenchmarkReconstruct5x2x1M-8         5780.07      28015.37     4.85x
+BenchmarkReconstruct10x4x1M-8        4352.56      14367.61     3.30x
+BenchmarkReconstruct50x20x1M-8       1364.35      4189.79      3.07x
+BenchmarkReconstruct10x4x16M-8       1484.35      5779.53      3.89x
+```
 
 # asm2plan9s
 

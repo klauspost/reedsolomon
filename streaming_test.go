@@ -211,7 +211,7 @@ func TestStreamReconstruct(t *testing.T) {
 
 	all = append(toReaders(toBuffers(shards)), toReaders(toBuffers(parity))...)
 
-	// Reconstruct with 10 shards present
+	// Reconstruct with 10 shards present, asking for all shards to be reconstructed
 	all[0] = nil
 	fill[0] = emptyBuffers(1)[0]
 	all[7] = nil
@@ -236,6 +236,25 @@ func TestStreamReconstruct(t *testing.T) {
 	}
 	if !ok {
 		t.Fatal("Verification failed")
+	}
+
+	all = append(toReaders(toBuffers(shards)), toReaders(toBuffers(parity))...)
+
+	// Reconstruct with 10 shards present, asking for just data shards to be reconstructed
+	all[0] = nil
+	fill[0] = emptyBuffers(1)[0]
+	all[7] = nil
+	fill[7] = emptyBuffers(1)[0]
+	all[11] = nil
+	fill[11] = nil
+
+	err = r.Reconstruct(all, fill)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if fill[11] != nil {
+		t.Fatal("Unexpected parity block reconstructed")
 	}
 
 	all = append(toReaders(toBuffers(shards)), toReaders(toBuffers(parity))...)

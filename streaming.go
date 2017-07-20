@@ -450,8 +450,9 @@ var ErrReconstructMismatch = errors.New("valid shards and fill shards are mutual
 // If there are too few shards to reconstruct the missing
 // ones, ErrTooFewShards will be returned.
 //
-// The reconstructed shard set is complete, but integrity is not verified.
-// Use the Verify function to check if data set is ok.
+// The reconstructed shard set is complete when explicitly asked for all missing shards.
+// However its integrity is not automatically verified.
+// Use the Verify function to check in case the data set is complete.
 func (r rsStream) Reconstruct(valid []io.Reader, fill []io.Writer) error {
 	if len(valid) != r.r.Shards {
 		return ErrTooFewShards
@@ -461,9 +462,13 @@ func (r rsStream) Reconstruct(valid []io.Reader, fill []io.Writer) error {
 	}
 
 	all := createSlice(r.r.Shards, r.bs)
+	reconDataOnly := true
 	for i := range valid {
 		if valid[i] != nil && fill[i] != nil {
 			return ErrReconstructMismatch
+		}
+		if i >= r.r.DataShards && fill[i] != nil {
+			reconDataOnly = false
 		}
 	}
 
@@ -482,7 +487,11 @@ func (r rsStream) Reconstruct(valid []io.Reader, fill []io.Writer) error {
 		read += shardSize(all)
 		all = trimShards(all, shardSize(all))
 
-		err = r.r.Reconstruct(all)
+		if reconDataOnly {
+			err = r.r.ReconstructData(all) // just reconstruct missing data shards
+		} else {
+			err = r.r.Reconstruct(all) //  reconstruct all missing shards
+		}
 		if err != nil {
 			return err
 		}
