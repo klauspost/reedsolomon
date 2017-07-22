@@ -860,34 +860,9 @@ func BenchmarkReconstructP10x2x10000(b *testing.B) {
 	benchmarkReconstructP(b, 10, 2, 10000)
 }
 
-// Benchmark 50 data slices with 5 parity slices holding 100000 bytes each
-func BenchmarkReconstructP50x5x50000(b *testing.B) {
-	benchmarkReconstructP(b, 50, 5, 100000)
-}
-
-// Benchmark 10 data slices with 2 parity slices holding 1MB bytes each
-func BenchmarkReconstructP10x2x1M(b *testing.B) {
-	benchmarkReconstructP(b, 10, 2, 1024*1024)
-}
-
-// Benchmark 5 data slices with 2 parity slices holding 1MB bytes each
-func BenchmarkReconstructP5x2x1M(b *testing.B) {
-	benchmarkReconstructP(b, 5, 2, 1024*1024)
-}
-
-// Benchmark 10 data slices with 4 parity slices holding 1MB bytes each
-func BenchmarkReconstructP10x4x1M(b *testing.B) {
-	benchmarkReconstructP(b, 10, 4, 1024*1024)
-}
-
-// Benchmark 5 data slices with 2 parity slices holding 1MB bytes each
-func BenchmarkReconstructP50x20x1M(b *testing.B) {
-	benchmarkReconstructP(b, 50, 20, 1024*1024)
-}
-
-// Benchmark 10 data slices with 4 parity slices holding 16MB bytes each
-func BenchmarkReconstructP10x4x16M(b *testing.B) {
-	benchmarkReconstructP(b, 10, 4, 16*1024*1024)
+// Benchmark 10 data slices with 5 parity slices holding 20000 bytes each
+func BenchmarkReconstructP10x5x20000(b *testing.B) {
+       benchmarkReconstructP(b, 10, 5, 20000)
 }
 
 func TestEncoderReconstruct(t *testing.T) {
