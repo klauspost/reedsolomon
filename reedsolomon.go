@@ -16,6 +16,7 @@ import (
 	"errors"
 	"io"
 	"sync"
+	"unsafe"
 )
 
 // Encoder is an interface to encode Reed-Salomon parity sets for your data.
@@ -63,6 +64,14 @@ type Encoder interface {
 	// As the reconstructed shard set may contain missing parity shards,
 	// calling the Verify function is likely to fail.
 	ReconstructData(shards [][]byte) error
+
+	// Update parity is use for change a few data shards and update it's parity.
+	// Input 'newDatashards' containing data shards changed.
+	// Input 'shards' containing old data shards (if data shard not changed, it can be nil) and old parity shards.
+	// new parity shards will in shards[DataShards:]
+	// Update is very useful if  DataShards much larger than ParityShards and changed data shards is few. It will
+	// faster than Encode and not need read all data shards to encode.
+	Update(shards [][]byte, newDatashards [][]byte) error
 
 	// Split a data slice into the number of shards given to the encoder,
 	// and create empty parity shards.
@@ -221,7 +230,7 @@ func New(dataShards, parityShards int, opts ...Option) (Encoder, error) {
 }
 
 // ErrTooFewShards is returned if too few shards where given to
-// Encode/Verify/Reconstruct. It will also be returned from Reconstruct
+// Encode/Verify/Reconstruct/Update. It will also be returned from Reconstruct
 // if there were too few shards to reconstruct the missing data.
 var ErrTooFewShards = errors.New("too few shards given")
 
@@ -247,6 +256,119 @@ func (r reedSolomon) Encode(shards [][]byte) error {
 	// Do the coding.
 	r.codeSomeShards(r.parity, shards[0:r.DataShards], output, r.ParityShards, len(shards[0]))
 	return nil
+}
+
+// ErrInvalidInput is returned if invalid input parameter of Update.
+var ErrInvalidInput = errors.New("invalid input")
+
+func (r reedSolomon) Update(shards [][]byte, newDatashards [][]byte) error {
+	if len(shards) != r.Shards {
+		return ErrTooFewShards
+	}
+
+	if len(newDatashards) != r.DataShards {
+		return ErrTooFewShards
+	}
+
+	err := checkShards(shards, true)
+	if err != nil {
+		return err
+	}
+
+	err = checkShards(newDatashards, true)
+	if err != nil {
+		return err
+	}
+
+	for i := range newDatashards {
+		if newDatashards[i] != nil && shards[i] == nil {
+			return ErrInvalidInput
+		}
+	}
+	for _, p := range shards[r.DataShards:] {
+		if p == nil {
+			return ErrInvalidInput
+		}
+	}
+
+	shardSize := shardSize(shards)
+
+	// Get the slice of output buffers.
+	output := shards[r.DataShards:]
+
+	// Do the coding.
+	r.updateParityShards(r.parity, shards[0:r.DataShards], newDatashards[0:r.DataShards], output, r.ParityShards, shardSize)
+	return nil
+}
+
+func (r reedSolomon) updateParityShards(matrixRows, oldinputs, newinputs, outputs [][]byte, outputCount, byteCount int) {
+
+	if r.o.maxGoroutines > 1 && byteCount > r.o.minSplitSize {
+		r.updateParityShardsP(matrixRows, oldinputs, newinputs, outputs, outputCount, byteCount)
+		return
+	}
+
+	for c := 0; c < r.DataShards; c++ {
+		in := newinputs[c]
+		if in == nil {
+			continue
+		}
+		oldin := oldinputs[c]
+		// oldinputs data will be change
+		SliceXor(in, oldin)
+		for iRow := 0; iRow < outputCount; iRow++ {
+			galMulSliceXor(matrixRows[iRow][c], oldin, outputs[iRow], r.o.useSSSE3, r.o.useAVX2)
+		}
+	}
+}
+
+func (r reedSolomon) updateParityShardsP(matrixRows, oldinputs, newinputs, outputs [][]byte, outputCount, byteCount int) {
+	var wg sync.WaitGroup
+	do := byteCount / r.o.maxGoroutines
+	if do < r.o.minSplitSize {
+		do = r.o.minSplitSize
+	}
+	start := 0
+	for start < byteCount {
+		if start+do > byteCount {
+			do = byteCount - start
+		}
+		wg.Add(1)
+		go func(start, stop int) {
+			for c := 0; c < r.DataShards; c++ {
+				in := newinputs[c]
+				if in == nil {
+					continue
+				}
+				oldin := oldinputs[c]
+				// oldinputs data will be change
+				SliceXor(in[start:stop], oldin[start:stop])
+				for iRow := 0; iRow < outputCount; iRow++ {
+					galMulSliceXor(matrixRows[iRow][c], oldin[start:stop], outputs[iRow][start:stop], r.o.useSSSE3, r.o.useAVX2)
+				}
+			}
+			wg.Done()
+		}(start, start+do)
+		start += do
+	}
+	wg.Wait()
+}
+
+func SliceXor(src []byte, dst []byte) {
+	size := int(unsafe.Sizeof(uintptr(0)))
+	w := len(dst) / size
+
+	dw := *(*[]uintptr)(unsafe.Pointer(&dst))
+	bw := *(*[]uintptr)(unsafe.Pointer(&src))
+	var i int
+
+	for i = 0; i < w; i++ {
+		dw[i] ^= bw[i]
+	}
+
+	for i = w * size; i < len(dst); i++ {
+		dst[i] ^= src[i]
+	}
 }
 
 // Verify returns true if the parity shards contain the right data.
