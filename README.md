@@ -8,7 +8,7 @@
 
 Reed-Solomon Erasure Coding in Go, with speeds exceeding 1GB/s/cpu core implemented in pure Go.
 
-This is a golang port of the [JavaReedSolomon](https://github.com/Backblaze/JavaReedSolomon) library released by [Backblaze](http://backblaze.com), with some additional optimizations.
+This is a Go port of the [JavaReedSolomon](https://github.com/Backblaze/JavaReedSolomon) library released by [Backblaze](http://backblaze.com), with some additional optimizations.
 
 For an introduction on erasure coding, see the post on the [Backblaze blog](https://www.backblaze.com/blog/reed-solomon/).
 
@@ -19,7 +19,7 @@ Godoc: https://godoc.org/github.com/klauspost/reedsolomon
 # Installation
 To get the package use the standard:
 ```bash
-go get github.com/klauspost/reedsolomon
+go get -u github.com/klauspost/reedsolomon
 ```
 
 # Changes
@@ -186,7 +186,7 @@ There is no buffering or timeouts/retry specified. If you want to add that, you 
 
 For complete examples of a streaming encoder and decoder see the [examples folder](https://github.com/klauspost/reedsolomon/tree/master/examples).
 
-#Advanced Options
+# Advanced Options
 
 You can modify internal options which affects how jobs are split between and processed by goroutines.
 
