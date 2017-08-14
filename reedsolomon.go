@@ -16,7 +16,6 @@ import (
 	"errors"
 	"io"
 	"sync"
-	"unsafe"
 )
 
 // Encoder is an interface to encode Reed-Salomon parity sets for your data.
@@ -315,7 +314,7 @@ func (r reedSolomon) updateParityShards(matrixRows, oldinputs, newinputs, output
 		}
 		oldin := oldinputs[c]
 		// oldinputs data will be change
-		SliceXor(in, oldin)
+		sliceXor(in, oldin, r.o.useSSE2)
 		for iRow := 0; iRow < outputCount; iRow++ {
 			galMulSliceXor(matrixRows[iRow][c], oldin, outputs[iRow], r.o.useSSSE3, r.o.useAVX2)
 		}
@@ -342,7 +341,7 @@ func (r reedSolomon) updateParityShardsP(matrixRows, oldinputs, newinputs, outpu
 				}
 				oldin := oldinputs[c]
 				// oldinputs data will be change
-				SliceXor(in[start:stop], oldin[start:stop])
+				sliceXor(in[start:stop], oldin[start:stop], r.o.useSSE2)
 				for iRow := 0; iRow < outputCount; iRow++ {
 					galMulSliceXor(matrixRows[iRow][c], oldin[start:stop], outputs[iRow][start:stop], r.o.useSSSE3, r.o.useAVX2)
 				}
@@ -352,23 +351,6 @@ func (r reedSolomon) updateParityShardsP(matrixRows, oldinputs, newinputs, outpu
 		start += do
 	}
 	wg.Wait()
-}
-
-func SliceXor(src []byte, dst []byte) {
-	size := int(unsafe.Sizeof(uintptr(0)))
-	w := len(dst) / size
-
-	dw := *(*[]uintptr)(unsafe.Pointer(&dst))
-	bw := *(*[]uintptr)(unsafe.Pointer(&src))
-	var i int
-
-	for i = 0; i < w; i++ {
-		dw[i] ^= bw[i]
-	}
-
-	for i = w * size; i < len(dst); i++ {
-		dst[i] ^= src[i]
-	}
 }
 
 // Verify returns true if the parity shards contain the right data.
