@@ -153,3 +153,41 @@ func TestGalois(t *testing.T) {
 		t.Fatal("galExp(13, 7) != 43")
 	}
 }
+
+func benchmarkGalois(b *testing.B, size int) {
+	in := make([]byte, size)
+	out := make([]byte, size)
+
+	b.SetBytes(int64(size))
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		galMulSlice(25, in[:], out[:], true, false)
+	}
+}
+
+func BenchmarkGalois128K(b *testing.B) {
+	benchmarkGalois(b, 128*1024)
+}
+
+func BenchmarkGalois1M(b *testing.B) {
+	benchmarkGalois(b, 1024*1024)
+}
+
+func benchmarkGaloisXor(b *testing.B, size int) {
+	in := make([]byte, size)
+	out := make([]byte, size)
+
+	b.SetBytes(int64(size))
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		galMulSliceXor(177, in[:], out[:], true, false)
+	}
+}
+
+func BenchmarkGaloisXor128K(b *testing.B) {
+	benchmarkGaloisXor(b, 128*1024)
+}
+
+func BenchmarkGaloisXor1M(b *testing.B) {
+	benchmarkGaloisXor(b, 1024*1024)
+}
