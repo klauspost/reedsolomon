@@ -301,7 +301,6 @@ func (r reedSolomon) Update(shards [][]byte, newDatashards [][]byte) error {
 }
 
 func (r reedSolomon) updateParityShards(matrixRows, oldinputs, newinputs, outputs [][]byte, outputCount, byteCount int) {
-
 	if r.o.maxGoroutines > 1 && byteCount > r.o.minSplitSize {
 		r.updateParityShardsP(matrixRows, oldinputs, newinputs, outputs, outputCount, byteCount)
 		return
