@@ -234,6 +234,16 @@ BenchmarkReconstruct50x20x1M-8       1364.35      4189.79      3.07x
 BenchmarkReconstruct10x4x16M-8       1484.35      5779.53      3.89x
 ```
 
+# Performance on ARM64 NEON
+
+By exploiting NEON instructions the performance for ARM has been accelerated. Below are the performance numbers for a single core on an ARM Cortex-A53 CPU @ 1.2GHz (Debian 8.0 Jessie running Go: 1.7.4):
+
+| Data | Parity | Parity | ARM64 Go MB/s | ARM64 NEON MB/s | NEON Speed |
+|------|--------|--------|---------------|-----------------|------------|
+| 5    | 2      | 40%    |           189 |            1304 |       588% |
+| 10   | 2      | 20%    |           188 |            1738 |       925% |
+| 10   | 4      | 40%    |            96 |             839 |       877% |
+
 # asm2plan9s
 
 [asm2plan9s](https://github.com/fwessels/asm2plan9s) is used for assembling the AVX2 instructions into their BYTE/WORD/LONG equivalents.
