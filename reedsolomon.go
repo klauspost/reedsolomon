@@ -14,6 +14,7 @@ package reedsolomon
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"io"
 	"runtime"
 	"sync"
@@ -54,6 +55,12 @@ type Encoder interface {
 	//
 	// Behavior is similar to Reconstruct, but it will not rebuild parity shards.
 	ReconstructData(shards [][]byte) error
+
+	// ReconstructAtoms will recreate the missing shards if possible.
+	//
+	// Behavior is similar to Reconstruct, but it will rebuild only atoms at idxs
+	// and also all data atoms if any of the requested index is a parity shard index.
+	ReconstructAtoms(shards [][]byte, idxs ...int) error
 
 	// Split a data slice into the number of shards given to the encoder,
 	// and create empty parity shards.
@@ -355,20 +362,46 @@ func shardSize(shards [][]byte) int {
 // The reconstructed shard set is complete, but integrity is not verified.
 // Use the Verify function to check if data set is ok.
 func (r reedSolomon) Reconstruct(shards [][]byte) error {
-	return r.reconstruct(shards, true)
+	return r.reconstructP(shards, true)
 }
 
 // ReconstructData will recreate the missing data shards if possible.
 //
 // Behavior is similar to Reconstruct, but it will not rebuild parity shards.
 func (r reedSolomon) ReconstructData(shards [][]byte) error {
-	return r.reconstruct(shards, false)
+	return r.reconstructP(shards, false)
 }
 
-func (r reedSolomon) reconstruct(shards [][]byte, parity bool) error {
+// ReconstructAtoms will recreate the missing shards if possible.
+//
+// Behavior is similar to Reconstruct, but it will rebuild only atoms at idxs
+// and also all data atoms if any of the requested index is a parity shard index.
+func (r reedSolomon) ReconstructAtoms(shards [][]byte, idxs ...int) error {
+	return r.reconstruct(shards, idxs...)
+}
+
+func (r reedSolomon) reconstructP(shards [][]byte, parity bool) error {
+	if parity {
+		return r.reconstruct(shards)
+	}
+	idxs := make([]int, r.DataShards)
+	for i := 0; i < r.DataShards; i++ {
+		idxs[i] = i
+	}
+	return r.reconstruct(shards, idxs...)
+}
+
+func (r reedSolomon) reconstruct(shards [][]byte, idxs ...int) error {
 	if len(shards) != r.Shards {
 		return ErrTooFewShards
 	}
+	// Check that all indexes are in correct range.
+	for _, idx := range idxs {
+		if idx < 0 || idx >= len(shards) {
+			return fmt.Errorf("reconstruct is not allowed. requested index is out of range. %v", idx)
+		}
+	}
+
 	// Check arguments.
 	err := checkShards(shards, true)
 	if err != nil {
@@ -383,13 +416,13 @@ func (r reedSolomon) reconstruct(shards [][]byte, parity bool) error {
 	dataPresent := 0
 	for i := 0; i < r.Shards; i++ {
 		if len(shards[i]) != 0 {
-			if i < r.DataShards {
+			if len(idxs) > 0 && contains(idxs, i) {
 				dataPresent++
 			}
 			numberPresent++
 		}
 	}
-	if numberPresent == r.Shards || (!parity && dataPresent == r.DataShards) {
+	if numberPresent == r.Shards || (len(idxs) > 0 && len(idxs) == dataPresent) {
 		// Cool.  All of the shards data data.  We don't
 		// need to do anything.
 		return nil
@@ -398,6 +431,15 @@ func (r reedSolomon) reconstruct(shards [][]byte, parity bool) error {
 	// More complete sanity check
 	if numberPresent < r.DataShards {
 		return ErrTooFewShards
+	}
+
+	// Check if any of requested index is in parity range. In that case we will need to reconstruct all data shards.
+	var needAllData bool
+	for _, idx := range idxs {
+		if idx >= r.DataShards {
+			needAllData = true
+			break
+		}
 	}
 
 	// Pull out the rows of the matrix that correspond to the
@@ -443,6 +485,9 @@ func (r reedSolomon) reconstruct(shards [][]byte, parity bool) error {
 
 	for iShard := 0; iShard < r.DataShards; iShard++ {
 		if len(shards[iShard]) == 0 {
+			if !needAllData && len(idxs) > 0 && !contains(idxs, iShard) {
+				continue
+			}
 			shards[iShard] = make([]byte, shardSize)
 			outputs[outputCount] = shards[iShard]
 			matrixRows[outputCount] = dataDecodeMatrix[iShard]
@@ -450,10 +495,6 @@ func (r reedSolomon) reconstruct(shards [][]byte, parity bool) error {
 		}
 	}
 	r.codeSomeShards(matrixRows, subShards, outputs[:outputCount], outputCount, shardSize)
-
-	if !parity {
-		return nil
-	}
 	// Now that we have all of the data shards intact, we can
 	// compute any of the parity that is missing.
 	//
@@ -463,6 +504,9 @@ func (r reedSolomon) reconstruct(shards [][]byte, parity bool) error {
 	outputCount = 0
 	for iShard := r.DataShards; iShard < r.Shards; iShard++ {
 		if len(shards[iShard]) == 0 {
+			if len(idxs) > 0 && !contains(idxs, iShard) {
+				continue
+			}
 			shards[iShard] = make([]byte, shardSize)
 			outputs[outputCount] = shards[iShard]
 			matrixRows[outputCount] = r.parity[iShard-r.DataShards]
@@ -471,6 +515,15 @@ func (r reedSolomon) reconstruct(shards [][]byte, parity bool) error {
 	}
 	r.codeSomeShards(matrixRows, shards[:r.DataShards], outputs[:outputCount], outputCount, shardSize)
 	return nil
+}
+
+func contains(src []int, i int) bool {
+	for _, v := range src {
+		if v == i {
+			return true
+		}
+	}
+	return false
 }
 
 // ErrShortData will be returned by Split(), if there isn't enough data

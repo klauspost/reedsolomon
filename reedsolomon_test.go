@@ -121,6 +121,170 @@ func TestReconstruct(t *testing.T) {
 	}
 }
 
+func TestReconstructData(t *testing.T) {
+	perShard := 50000
+	r, err := New(5, 8)
+	if err != nil {
+		t.Fatal(err)
+	}
+	shards := make([][]byte, 13)
+	for s := range shards {
+		shards[s] = make([]byte, perShard)
+	}
+
+	rand.Seed(0)
+	for s := 0; s < 13; s++ {
+		fillRandom(shards[s])
+	}
+
+	err = r.Encode(shards)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Reconstruct with all shards present
+	err = r.Reconstruct(shards)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Check that only data atom get reconstructed
+	shard0 := shards[0]
+	shard1 := shards[1]
+	shard4 := shards[4]
+
+	shards[0] = nil
+	shards[1] = nil
+	shards[4] = nil
+	shards[5] = nil
+	shards[9] = nil
+	shards[12] = nil
+
+	err = r.ReconstructData(shards)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if bytes.Compare(shard0, shards[0]) != 0 ||
+		bytes.Compare(shard1, shards[1]) != 0 ||
+		bytes.Compare(shard4, shards[4]) != 0 {
+		t.Errorf("Shard content mismatch")
+	}
+
+	if shards[5] != nil ||
+		shards[9] != nil ||
+		shards[12] != nil {
+		t.Errorf("unexpected parity shard reconstructed.")
+	}
+}
+
+func TestReconstructAtoms(t *testing.T) {
+	perShard := 50000
+	dataShards := 10
+	parityShards := 4
+	totalShards := dataShards + parityShards
+	r, err := New(dataShards, parityShards)
+	if err != nil {
+		t.Fatal(err)
+	}
+	shards := make([][]byte, totalShards)
+	for s := range shards {
+		shards[s] = make([]byte, perShard)
+	}
+
+	rand.Seed(0)
+	for s := 0; s < totalShards; s++ {
+		fillRandom(shards[s])
+	}
+
+	err = r.Encode(shards)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Reconstruct with all shards present
+	err = r.ReconstructAtoms(shards)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Reconstruct with 10 shards present
+	shards[0] = nil
+	shards[7] = nil
+	shards[11] = nil
+
+	err = r.ReconstructAtoms(shards, 0, 7, 11)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Check that parity shards do not get reconstructed
+	shard0 := shards[0]
+	shard2 := shards[2]
+	shards[0] = nil
+	shards[2] = nil
+	shards[11] = nil
+	shards[12] = nil
+
+	err = r.ReconstructAtoms(shards, 0, 2)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if bytes.Compare(shard0, shards[0]) != 0 ||
+		bytes.Compare(shard2, shards[2]) != 0 {
+		t.Errorf("Shard content mismatch")
+	}
+
+	if shards[11] != nil ||
+		shards[12] != nil {
+		t.Errorf("unspecified shard reconstructed.")
+	}
+
+	// Reset all shards
+	err = r.ReconstructAtoms(shards)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Check that only required parity shard is reconstructed.
+	shard0 = shards[0]
+	shard2 = shards[2]
+	shard12 := shards[12]
+	shards[0] = nil
+	shards[2] = nil
+	shards[11] = nil
+	shards[12] = nil
+
+	err = r.ReconstructAtoms(shards, 0, 2, 12)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if bytes.Compare(shard0, shards[0]) != 0 ||
+		bytes.Compare(shard2, shards[2]) != 0 ||
+		bytes.Compare(shard12, shards[12]) != 0 {
+		t.Errorf("Shard content mismatch")
+	}
+
+	if shards[11] != nil {
+		t.Errorf("unspecified shard reconstructed. shard11")
+	}
+
+	// Reset all shards
+	err = r.ReconstructAtoms(shards)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Check out of range case
+	err = r.ReconstructAtoms(shards, totalShards)
+	if err == nil {
+		t.Fatal("out of range case. Error expected")
+	}
+
+}
+
 func TestVerify(t *testing.T) {
 	perShard := 33333
 	r, err := New(10, 4)
