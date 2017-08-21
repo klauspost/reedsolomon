@@ -165,6 +165,53 @@ func TestGalois(t *testing.T) {
 	}
 }
 
+func TestSliceGalADD(t *testing.T) {
+
+	lengthList := []int{16, 32, 34}
+	for _, length := range lengthList {
+		in := make([]byte, length)
+		fillRandom(in)
+		out := make([]byte, length)
+		fillRandom(out)
+		expect := make([]byte, length)
+		for i := range expect {
+			expect[i] = in[i] ^ out[i]
+		}
+		sliceXor(in, out, false)
+		if 0 != bytes.Compare(out, expect) {
+			t.Errorf("got %#v, expected %#v", out, expect)
+		}
+		fillRandom(out)
+		for i := range expect {
+			expect[i] = in[i] ^ out[i]
+		}
+		sliceXor(in, out, true)
+		if 0 != bytes.Compare(out, expect) {
+			t.Errorf("got %#v, expected %#v", out, expect)
+		}
+	}
+
+	for i := 0; i < 256; i++ {
+		a := byte(i)
+		for j := 0; j < 256; j++ {
+			b := byte(j)
+			for k := 0; k < 256; k++ {
+				c := byte(k)
+				x := galAdd(a, galAdd(b, c))
+				y := galAdd(galAdd(a, b), c)
+				if x != y {
+					t.Fatal("add does not match:", x, "!=", y)
+				}
+				x = galMultiply(a, galMultiply(b, c))
+				y = galMultiply(galMultiply(a, b), c)
+				if x != y {
+					t.Fatal("multiply does not match:", x, "!=", y)
+				}
+			}
+		}
+	}
+}
+
 func benchmarkGalois(b *testing.B, size int) {
 	in := make([]byte, size)
 	out := make([]byte, size)

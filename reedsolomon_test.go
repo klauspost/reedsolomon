@@ -177,6 +177,108 @@ func testEncoding(t *testing.T, o ...Option) {
 	}
 }
 
+func TestUpdate(t *testing.T) {
+	testEncoding(t)
+	for _, o := range testOpts() {
+		testUpdate(t, o...)
+	}
+}
+
+func testUpdate(t *testing.T, o ...Option) {
+	perShard := 50000
+	r, err := New(10, 3, o...)
+	if err != nil {
+		t.Fatal(err)
+	}
+	shards := make([][]byte, 13)
+	for s := range shards {
+		shards[s] = make([]byte, perShard)
+	}
+
+	rand.Seed(0)
+	for s := 0; s < 13; s++ {
+		fillRandom(shards[s])
+	}
+
+	err = r.Encode(shards)
+	if err != nil {
+		t.Fatal(err)
+	}
+	ok, err := r.Verify(shards)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !ok {
+		t.Fatal("Verification failed")
+	}
+
+	newdatashards := make([][]byte, 10)
+	for s := 0; s < 10; s++ {
+		newdatashards[s] = make([]byte, perShard)
+		fillRandom(newdatashards[s])
+		err = r.Update(shards, newdatashards)
+		if err != nil {
+			t.Fatal(err)
+		}
+		shards[s] = newdatashards[s]
+		ok, err := r.Verify(shards)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if !ok {
+			t.Fatal("Verification failed")
+		}
+		newdatashards[s] = nil
+	}
+	for s := 0; s < 9; s++ {
+		newdatashards[s] = make([]byte, perShard)
+		newdatashards[s+1] = make([]byte, perShard)
+		fillRandom(newdatashards[s])
+		fillRandom(newdatashards[s+1])
+		err = r.Update(shards, newdatashards)
+		if err != nil {
+			t.Fatal(err)
+		}
+		shards[s] = newdatashards[s]
+		shards[s+1] = newdatashards[s+1]
+		ok, err := r.Verify(shards)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if !ok {
+			t.Fatal("Verification failed")
+		}
+		newdatashards[s] = nil
+		newdatashards[s+1] = nil
+	}
+	for newNum := 1; newNum <= 10; newNum++ {
+		for s := 0; s <= 10-newNum; s++ {
+			for i := 0; i < newNum; i++ {
+				newdatashards[s+i] = make([]byte, perShard)
+				fillRandom(newdatashards[s+i])
+			}
+			err = r.Update(shards, newdatashards)
+			if err != nil {
+				t.Fatal(err)
+			}
+			for i := 0; i < newNum; i++ {
+				shards[s+i] = newdatashards[s+i]
+			}
+			ok, err := r.Verify(shards)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if !ok {
+				t.Fatal("Verification failed")
+			}
+			for i := 0; i < newNum; i++ {
+				newdatashards[s+i] = nil
+			}
+		}
+	}
+
+}
+
 func TestReconstruct(t *testing.T) {
 	testReconstruct(t)
 	for _, o := range testOpts() {
