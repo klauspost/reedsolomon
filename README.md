@@ -24,6 +24,12 @@ go get -u github.com/klauspost/reedsolomon
 
 # Changes
 
+## August 26, 2017
+
+*  The[`Encoder()`](https://godoc.org/github.com/klauspost/reedsolomon#Encoder) now contains an `Update` function contributed by [chenzhongtao](https://github.com/chenzhongtao).
+
+* [Frank Wessels](https://github.com/fwessels) kindly contributed ARM 64 bit assembly, which gives a huge performance boost on this platform.
+
 ## July 20, 2017
 
 `ReconstructData` added to [`Encoder`](https://godoc.org/github.com/klauspost/reedsolomon#Encoder) interface. This can cause compatibility issues if you implement your own Encoder. A simple workaround can be added:
