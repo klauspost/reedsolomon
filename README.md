@@ -24,7 +24,7 @@ go get -u github.com/klauspost/reedsolomon
 
 # Changes
 
-## August 20, 2017
+## August 26, 2017
 
 *  The[`Encoder()`](https://godoc.org/github.com/klauspost/reedsolomon#Encoder) now contains an `Update` function contributed by [chenzhongtao](https://github.com/chenzhongtao).
 
