@@ -20,7 +20,7 @@ func galMulAVX2(low, high, in, out []byte)
 //go:noescape
 func sSE2XorSlice(in, out []byte)
 
-// This is what the assembler rountes does in blocks of 16 bytes:
+// This is what the assembler routines do in blocks of 16 bytes:
 /*
 func galMulSSSE3(low, high, in, out []byte) {
 	for n, input := range in {
