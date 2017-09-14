@@ -40,7 +40,9 @@ type Encoder interface {
 	// ones that don't have data.
 	//
 	// The length of the array must be equal to the total number of shards.
-	// You indicate that a shard is missing by setting it to nil.
+	// You indicate that a shard is missing by setting it to nil or its len to 0.
+	// If the capacity of the missing shard is large enough a memory allocation
+	// is avoided.
 	//
 	// If there are too few shards to reconstruct the missing
 	// ones, ErrTooFewShards will be returned.
@@ -682,7 +684,11 @@ func (r reedSolomon) reconstruct(shards [][]byte, dataOnly bool) error {
 
 	for iShard := 0; iShard < r.DataShards; iShard++ {
 		if len(shards[iShard]) == 0 {
-			shards[iShard] = make([]byte, shardSize)
+			if cap(shards[iShard]) >= shardSize { // only allocate shard if necessary
+				shards[iShard] = shards[iShard][:shardSize]
+			} else {
+				shards[iShard] = make([]byte, shardSize)
+			}
 			outputs[outputCount] = shards[iShard]
 			matrixRows[outputCount] = dataDecodeMatrix[iShard]
 			outputCount++
@@ -704,7 +710,11 @@ func (r reedSolomon) reconstruct(shards [][]byte, dataOnly bool) error {
 	outputCount = 0
 	for iShard := r.DataShards; iShard < r.Shards; iShard++ {
 		if len(shards[iShard]) == 0 {
-			shards[iShard] = make([]byte, shardSize)
+			if cap(shards[iShard]) >= shardSize { // only allocate shard if necessary
+				shards[iShard] = shards[iShard][:shardSize]
+			} else {
+				shards[iShard] = make([]byte, shardSize)
+			}
 			outputs[outputCount] = shards[iShard]
 			matrixRows[outputCount] = r.parity[iShard-r.DataShards]
 			outputCount++
