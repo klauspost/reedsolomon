@@ -313,10 +313,12 @@ func testReconstruct(t *testing.T, o ...Option) {
 		t.Fatal(err)
 	}
 
-	// Reconstruct with 10 shards present
+	// Reconstruct with 10 shards present. Use pre-allocated memory for one of them.
 	shards[0] = nil
 	shards[7] = nil
-	shards[11] = nil
+	shard11 := shards[11]
+	shards[11] = shard11[:0]
+	fillRandom(shard11)
 
 	err = r.Reconstruct(shards)
 	if err != nil {
@@ -329,6 +331,10 @@ func testReconstruct(t *testing.T, o ...Option) {
 	}
 	if !ok {
 		t.Fatal("Verification failed")
+	}
+
+	if &shard11[0] != &shards[11][0] {
+		t.Errorf("Shard was not reconstructed into pre-allocated memory")
 	}
 
 	// Reconstruct with 9 shards present (should fail)
@@ -386,10 +392,12 @@ func testReconstructData(t *testing.T, o ...Option) {
 		t.Fatal(err)
 	}
 
-	// Reconstruct with 10 shards present
+	// Reconstruct with 10 shards present. Use pre-allocated memory for one of them.
 	shards[0] = nil
 	shards[2] = nil
-	shards[4] = nil
+	shard4 := shards[4]
+	shards[4] = shard4[:0]
+	fillRandom(shard4)
 
 	err = r.ReconstructData(shards)
 	if err != nil {
@@ -403,6 +411,10 @@ func testReconstructData(t *testing.T, o ...Option) {
 	}
 	if !ok {
 		t.Fatal("Verification failed")
+	}
+
+	if &shard4[0] != &shards[4][0] {
+		t.Errorf("Shard was not reconstructed into pre-allocated memory")
 	}
 
 	// Reconstruct with 6 data and 4 parity shards
