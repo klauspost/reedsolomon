@@ -9,8 +9,10 @@ package reedsolomon
 
 import (
 	"bytes"
+	"fmt"
 	"math/rand"
 	"runtime"
+	"sync"
 	"testing"
 )
 
@@ -102,11 +104,11 @@ func TestBuildMatrixPAR1Singular(t *testing.T) {
 func testOpts() [][]Option {
 	if testing.Short() {
 		return [][]Option{
-			{WithPAR1Matrix()},
+			{WithPAR1Matrix()}, {WithCauchyMatrix()},
 		}
 	}
 	opts := [][]Option{
-		{WithPAR1Matrix()},
+		{WithPAR1Matrix()}, {WithCauchyMatrix()},
 		{WithMaxGoroutines(1), WithMinSplitSize(500), withSSE3(false), withAVX2(false)},
 		{WithMaxGoroutines(5000), WithMinSplitSize(50), withSSE3(false), withAVX2(false)},
 		{WithMaxGoroutines(5000), WithMinSplitSize(500000), withSSE3(false), withAVX2(false)},
@@ -131,8 +133,10 @@ func testOpts() [][]Option {
 
 func TestEncoding(t *testing.T) {
 	testEncoding(t)
-	for _, o := range testOpts() {
-		testEncoding(t, o...)
+	for i, o := range testOpts() {
+		t.Run(fmt.Sprintf("options %d", i), func(t *testing.T) {
+			testEncoding(t, o...)
+		})
 	}
 }
 
@@ -179,8 +183,10 @@ func testEncoding(t *testing.T, o ...Option) {
 
 func TestUpdate(t *testing.T) {
 	testEncoding(t)
-	for _, o := range testOpts() {
-		testUpdate(t, o...)
+	for i, o := range testOpts() {
+		t.Run(fmt.Sprintf("options %d", i), func(t *testing.T) {
+			testUpdate(t, o...)
+		})
 	}
 }
 
@@ -281,8 +287,10 @@ func testUpdate(t *testing.T, o ...Option) {
 
 func TestReconstruct(t *testing.T) {
 	testReconstruct(t)
-	for _, o := range testOpts() {
-		testReconstruct(t, o...)
+	for i, o := range testOpts() {
+		t.Run(fmt.Sprintf("options %d", i), func(t *testing.T) {
+			testReconstruct(t, o...)
+		})
 	}
 }
 
@@ -354,8 +362,10 @@ func testReconstruct(t *testing.T, o ...Option) {
 
 func TestReconstructData(t *testing.T) {
 	testReconstructData(t)
-	for _, o := range testOpts() {
-		testReconstruct(t, o...)
+	for i, o := range testOpts() {
+		t.Run(fmt.Sprintf("options %d", i), func(t *testing.T) {
+			testReconstruct(t, o...)
+		})
 	}
 }
 
@@ -500,8 +510,10 @@ func TestReconstructPAR1Singular(t *testing.T) {
 
 func TestVerify(t *testing.T) {
 	testVerify(t)
-	for _, o := range testOpts() {
-		testVerify(t, o...)
+	for i, o := range testOpts() {
+		t.Run(fmt.Sprintf("options %d", i), func(t *testing.T) {
+			testVerify(t, o...)
+		})
 	}
 }
 
@@ -1111,14 +1123,199 @@ func TestCodeSomeShards(t *testing.T) {
 	runtime.GOMAXPROCS(old)
 }
 
-func TestAllMatrices(t *testing.T) {
-	t.Skip("Skipping slow matrix check")
-	for i := 1; i < 257; i++ {
-		_, err := New(i, i)
-		if err != nil {
-			t.Fatal("creating matrix size", i, i, ":", err)
-		}
+func TestStandardMatrices(t *testing.T) {
+	t.Skip("Skipping slow matrix check (~2 min)")
+	var wg sync.WaitGroup
+	wg.Add(256 - 1)
+	for i := 1; i < 256; i++ {
+		go func(i int) {
+			// i == n.o. datashards
+			defer wg.Done()
+			var shards = make([][]byte, 255)
+			for p := range shards {
+				v := byte(i)
+				shards[p] = []byte{v}
+			}
+			rng := rand.New(rand.NewSource(0))
+			for j := 1; j < 256; j++ {
+				// j == n.o. parity shards
+				if i+j > 255 {
+					continue
+				}
+				sh := shards[:i+j]
+				r, err := New(i, j, WithCauchyMatrix())
+				if err != nil {
+					// We are not supposed to write to t from goroutines.
+					t.Fatal("creating matrix size", i, j, ":", err)
+				}
+				err = r.Encode(sh)
+				if err != nil {
+					t.Fatal("encoding", i, j, ":", err)
+				}
+				for k := 0; k < j; k++ {
+					// Remove random shard.
+					r := int(rng.Int63n(int64(i + j)))
+					sh[r] = sh[r][:0]
+				}
+				err = r.Reconstruct(sh)
+				if err != nil {
+					t.Fatal("reconstructing", i, j, ":", err)
+				}
+				ok, err := r.Verify(sh)
+				if err != nil {
+					t.Fatal("verifying", i, j, ":", err)
+				}
+				if !ok {
+					t.Fatal(i, j, ok)
+				}
+				for k := range sh {
+					if k == i {
+						// Only check data shards
+						break
+					}
+					if sh[k][0] != byte(i) {
+						t.Fatal("does not match", i, j, k, sh[0], sh[k])
+					}
+				}
+			}
+		}(i)
 	}
+	wg.Wait()
+}
+
+func TestCauchyMatrices(t *testing.T) {
+	if testing.Short() || runtime.GOMAXPROCS(0) < 4 {
+		// Runtime ~15s.
+		t.Skip("Skipping slow matrix check")
+	}
+	var wg sync.WaitGroup
+	wg.Add(256 - 1)
+	for i := 1; i < 256; i++ {
+		go func(i int) {
+			// i == n.o. datashards
+			defer wg.Done()
+			var shards = make([][]byte, 255)
+			for p := range shards {
+				v := byte(i)
+				shards[p] = []byte{v}
+			}
+			rng := rand.New(rand.NewSource(0))
+			for j := 1; j < 256; j++ {
+				// j == n.o. parity shards
+				if i+j > 255 {
+					continue
+				}
+				sh := shards[:i+j]
+				r, err := New(i, j, WithCauchyMatrix())
+				if err != nil {
+					// We are not supposed to write to t from goroutines.
+					t.Fatal("creating matrix size", i, j, ":", err)
+				}
+				err = r.Encode(sh)
+				if err != nil {
+					t.Fatal("encoding", i, j, ":", err)
+				}
+				for k := 0; k < j; k++ {
+					// Remove random shard.
+					r := int(rng.Int63n(int64(i + j)))
+					sh[r] = sh[r][:0]
+				}
+				err = r.Reconstruct(sh)
+				if err != nil {
+					t.Fatal("reconstructing", i, j, ":", err)
+				}
+				ok, err := r.Verify(sh)
+				if err != nil {
+					t.Fatal("verifying", i, j, ":", err)
+				}
+				if !ok {
+					t.Fatal(i, j, ok)
+				}
+				for k := range sh {
+					if k == i {
+						// Only check data shards
+						break
+					}
+					if sh[k][0] != byte(i) {
+						t.Fatal("does not match", i, j, k, sh[0], sh[k])
+					}
+				}
+			}
+		}(i)
+	}
+	wg.Wait()
+}
+
+func TestPar1Matrices(t *testing.T) {
+	if testing.Short() || runtime.GOMAXPROCS(0) < 4 {
+		// Runtime ~15s.
+		t.Skip("Skipping slow matrix check")
+	}
+	var wg sync.WaitGroup
+	wg.Add(256 - 1)
+	for i := 1; i < 256; i++ {
+		go func(i int) {
+			// i == n.o. datashards
+			defer wg.Done()
+			var shards = make([][]byte, 255)
+			for p := range shards {
+				v := byte(i)
+				shards[p] = []byte{v}
+			}
+			rng := rand.New(rand.NewSource(0))
+			for j := 1; j < 256; j++ {
+				// j == n.o. parity shards
+				if i+j > 255 {
+					continue
+				}
+				sh := shards[:i+j]
+				r, err := New(i, j, WithPAR1Matrix())
+				if err != nil {
+					// We are not supposed to write to t from goroutines.
+					t.Fatal("creating matrix size", i, j, ":", err)
+				}
+				err = r.Encode(sh)
+				if err != nil {
+					t.Fatal("encoding", i, j, ":", err)
+				}
+				for k := 0; k < j; k++ {
+					// Remove random shard.
+					r := int(rng.Int63n(int64(i + j)))
+					sh[r] = sh[r][:0]
+				}
+				err = r.Reconstruct(sh)
+				if err != nil {
+					if err == errSingular {
+						t.Logf("Singular: %d (data), %d (parity)", i, j)
+						for p := range sh {
+							if len(sh[p]) == 0 {
+								shards[p] = []byte{byte(i)}
+							}
+						}
+						continue
+					}
+					t.Fatal("reconstructing", i, j, ":", err)
+				}
+				ok, err := r.Verify(sh)
+				if err != nil {
+					t.Fatal("verifying", i, j, ":", err)
+				}
+				if !ok {
+					t.Fatal(i, j, ok)
+				}
+				for k := range sh {
+					if k == i {
+						// Only check data shards
+						break
+					}
+					if sh[k][0] != byte(i) {
+						t.Fatal("does not match", i, j, k, sh[0], sh[k])
+					}
+				}
+			}
+		}(i)
+	}
+	wg.Wait()
 }
 
 func TestNew(t *testing.T) {
