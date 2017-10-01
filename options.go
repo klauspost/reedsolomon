@@ -18,7 +18,7 @@ type options struct {
 }
 
 var defaultOptions = options{
-	maxGoroutines: 50,
+	maxGoroutines: 384,
 	minSplitSize:  512,
 }
 
