@@ -28,6 +28,7 @@ go get -u github.com/klauspost/reedsolomon
 
 * [Cauchy Matrix](https://godoc.org/github.com/klauspost/reedsolomon#WithCauchyMatrix) is now an option. Thanks to [templexxx](https://github.com/templexxx) for the basis of this.
 * Default maximum number of [goroutines](https://godoc.org/github.com/klauspost/reedsolomon#WithMaxGoroutines) has been increased for better multi-core scaling.
+* After several requests the Reconstruct and ReconstructData now slices of zero length but sufficient capacityto be used instead of allocating new memory.
 
 ## August 26, 2017
 
