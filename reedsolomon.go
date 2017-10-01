@@ -187,8 +187,7 @@ func buildMatrixCauchy(dataShards, totalShards int) (matrix, error) {
 
 	for r, row := range result {
 		// The top portion of the matrix is the identity
-		// matrix, and the bottom is a transposed Vandermonde
-		// matrix starting at 1 instead of 0.
+		// matrix, and the bottom is a transposed Cauchy matrix.
 		if r < dataShards {
 			result[r][r] = 1
 		} else {
