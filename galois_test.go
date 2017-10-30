@@ -166,7 +166,7 @@ func testGalois(t *testing.T, ssse3, avx2 bool) {
 }
 
 func TestGalois(t *testing.T) {
-	// invoke will all combinations of asm instructions
+	// invoke with all combinations of asm instructions
 	testGalois(t, false, false)
 	testGalois(t, true, false)
 	if defaultOptions.useAVX2 {
