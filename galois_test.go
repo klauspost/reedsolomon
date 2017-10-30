@@ -169,7 +169,9 @@ func TestGalois(t *testing.T) {
 	// invoke will all combinations of asm instructions
 	testGalois(t, false, false)
 	testGalois(t, true, false)
-	testGalois(t, false, true)
+	if defaultOptions.useAVX2 {
+		testGalois(t, false, true)
+	}
 }
 
 func TestSliceGalADD(t *testing.T) {
