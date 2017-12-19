@@ -26,7 +26,7 @@ go get -u github.com/klauspost/reedsolomon
 
 ## November 18, 2017
 
-Added [WithAutoGoroutines](https://godoc.org/github.com/klauspost/reedsolomon#WithAutoGoroutines) which will attempt to calculate the optimal number og goroutines to use based on your expected shard size and detected CPU.
+Added [WithAutoGoroutines](https://godoc.org/github.com/klauspost/reedsolomon#WithAutoGoroutines) which will attempt to calculate the optimal number of goroutines to use based on your expected shard size and detected CPU.
 
 ## October 1, 2017
 
