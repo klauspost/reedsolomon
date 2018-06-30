@@ -266,6 +266,7 @@ By exploiting NEON instructions the performance for ARM has been accelerated. Be
 # Links
 * [Backblaze Open Sources Reed-Solomon Erasure Coding Source Code](https://www.backblaze.com/blog/reed-solomon/).
 * [JavaReedSolomon](https://github.com/Backblaze/JavaReedSolomon). Compatible java library by Backblaze.
+* [ocaml-reed-solomon-erasure](https://gitlab.com/darrenldl/ocaml-reed-solomon-erasure). Compatible OCaml implementation.
 * [reedsolomon-c](https://github.com/jannson/reedsolomon-c). C version, compatible with output from this package.
 * [Reed-Solomon Erasure Coding in Haskell](https://github.com/NicolasT/reedsolomon). Haskell port of the package with similar performance.
 * [reed-solomon-erasure](https://github.com/darrenldl/reed-solomon-erasure). Compatible Rust implementation.
