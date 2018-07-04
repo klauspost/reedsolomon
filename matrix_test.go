@@ -86,7 +86,7 @@ func TestMatrixIdentity(t *testing.T) {
 	}
 }
 
-// Tests validate the output of matix multiplication method.
+// Tests validate the output of matrix multiplication method.
 func TestMatrixMultiply(t *testing.T) {
 	m1, err := newMatrixData(
 		[][]byte{
@@ -144,7 +144,7 @@ func TestMatrixInverse(t *testing.T) {
 		// Test case - 2.
 		// Test case validating inverse of the input Matrix.
 		{
-			// input data to contruct the matrix.
+			// input data to construct the matrix.
 			[][]byte{
 				[]byte{1, 0, 0, 0, 0},
 				[]byte{0, 1, 0, 0, 0},
@@ -210,7 +210,7 @@ func TestMatrixInverse(t *testing.T) {
 		// are verified for correctness here.
 		if actualErr == nil && testCase.shouldPass {
 			if testCase.expectedResult != actualResult.String() {
-				t.Errorf("Test %d: The inverse matrix doesnt't match the expected result", i+1)
+				t.Errorf("Test %d: The inverse matrix doesn't match the expected result", i+1)
 			}
 		}
 	}
