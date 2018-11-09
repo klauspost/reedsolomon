@@ -32,18 +32,9 @@ func galMulPpcXor(low, high, in, out []byte) {
 
 func galMulSlice(c byte, in, out []byte, ssse3, avx2 bool) {
 	done := (len(in) >> 4) << 4
-	galMulPpc(mulTableLow[c][:], mulTableHigh[c][:], in[:done], out)
-	remain := len(in) - done
-	if remain > 0 {
-		mt := mulTable[c]
-		for i := done; i < len(in); i++ {
-			out[i] = mt[in[i]]
-		}
+	if done > 0 {
+		galMulPpc(mulTableLow[c][:], mulTableHigh[c][:], in, out)
 	}
-}
-
-func galMulSlice2(c byte, in, out []byte, ssse3, avx2 bool) {
-	var done int
 	remain := len(in) - done
 	if remain > 0 {
 		mt := mulTable[c]
@@ -54,10 +45,10 @@ func galMulSlice2(c byte, in, out []byte, ssse3, avx2 bool) {
 }
 
 func galMulSliceXor(c byte, in, out []byte, ssse3, avx2 bool) {
-	var done int
-	galMulPpcXor(mulTableLow[c][:], mulTableHigh[c][:], in, out)
-	done = (len(in) >> 5) << 5
-
+	done := (len(in) >> 4) << 4
+	if done > 0 {
+		galMulPpcXor(mulTableLow[c][:], mulTableHigh[c][:], in, out)
+	}
 	remain := len(in) - done
 	if remain > 0 {
 		mt := mulTable[c]
