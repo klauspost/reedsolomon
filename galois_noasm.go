@@ -1,4 +1,5 @@
-//+build !amd64 !arm64 noasm appengine gogcc
+//+build !amd64 noasm appengine gccgo
+//+build !arm64 noasm appengine gccgo
 
 // Copyright 2015, Klaus Post, see LICENSE for details.
 
