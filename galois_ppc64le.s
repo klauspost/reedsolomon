@@ -3,131 +3,117 @@
 // Copyright 2015, Klaus Post, see LICENSE for details.
 // Copyright 2018, Minio, Inc.
 
-#define LOW  R2
-#define HIGH R3
-#define IN   R4
-#define LEN  R5
-#define OUT  R6
+#include "textflag.h"
 
-#define X6 VS34
-#define X7 VS35
-#define MSG VS36
-#define MSG_HI VS37
-#define RESULT VS38
+#define LOW       R3
+#define HIGH      R4
+#define IN        R5
+#define LEN       R6
+#define OUT       R7
+#define CONSTANTS R8
+#define OFFSET    R9
+#define OFFSET1   R10
+#define OFFSET2   R11
 
-#define ROTATE   VS41
-#define ROTATE_  V9
-#define MASK     VS43
-#define MASK_    V11
-#define FLIP     VS44
-#define FLIP_    V12
+#define X6        VS34
+#define X6_       V2
+#define X7        VS35
+#define X7_       V3
+#define MSG       VS36
+#define MSG_      V4
+#define MSG_HI    VS37
+#define MSG_HI_   V5
+#define RESULT    VS38
+#define RESULT_   V6
+#define ROTATE    VS39
+#define ROTATE_   V7
+#define MASK      VS40
+#define MASK_     V8
+#define FLIP      VS41
+#define FLIP_     V9
 
-#define CONSTANTS R11
 
 // func galMulPpc(low, high, in, out []byte)
-TEXT ·galMulPpc(SB), 7, $0
-    MOVD low+0(FP), LOW
-    MOVD high+24(FP), HIGH
+TEXT ·galMulPpc(SB), NOFRAME|NOSPLIT, $0-96
+    MOVD    low+0(FP), LOW
+    MOVD    high+24(FP), HIGH
+    MOVD    in+48(FP), IN
+    MOVD    in_len+56(FP), LEN
+    MOVD    out+72(FP), OUT
 
-    MOVD in+48(FP), IN      // R11: &in
-    MOVD in_len+56(FP), LEN // R9: len(in)
-    MOVD out+72(FP), OUT    // DX: &out
+    MOVD    $16, OFFSET1
+    MOVD    $32, OFFSET2
 
-    LXVD2X   (LOW)(R0), X6
-    LXVD2X   (HIGH)(R0), X7
-    XXPERMDI X6, X6, $2, X6
-    XXPERMDI X7, X7, $2, X7
+    MOVD    $·constants(SB), CONSTANTS
+    LXVD2X  (CONSTANTS)(R0), ROTATE
+    LXVD2X  (CONSTANTS)(OFFSET1), MASK
+    LXVD2X  (CONSTANTS)(OFFSET2), FLIP
 
-    MOVD     $16, R10
-    MOVD     $32, R12
+    LXVD2X  (LOW)(R0), X6
+    LXVD2X  (HIGH)(R0), X7
+    VPERM   X6_, V31, FLIP_, X6_
+    VPERM   X7_, V31, FLIP_, X7_
 
-    MOVD     $·constants(SB), CONSTANTS
-    LXVD2X   (CONSTANTS)(R0), ROTATE
-    XXPERMDI ROTATE, ROTATE, $2, ROTATE
-
-    LXVD2X   (CONSTANTS)(R10), MASK
-    XXPERMDI MASK, MASK, $2, MASK
-
-    LXVD2X   (CONSTANTS)(R12), FLIP
-    XXPERMDI FLIP, FLIP, $2, FLIP
-
-    VPERM    V2, V31, FLIP_, V2
-    VPERM    V3, V31, FLIP_, V3
-
-    MOVD     $0, R10
+    MOVD    $0, OFFSET
 
 loop:
-    LXVD2X   (IN)(R10), MSG
-    XXPERMDI MSG, MSG, $2, MSG
+    LXVD2X  (IN)(OFFSET), MSG
 
-    VSRB     V4, ROTATE_, V5
-    VAND     V4, MASK_, V4
-    VPERM    V2, V31, V4, V4
-    VPERM    V3, V31, V5, V5
+    VSRB    MSG_, ROTATE_, MSG_HI_
+    VAND    MSG_, MASK_, MSG_
+    VPERM   X6_, V31, MSG_, MSG_
+    VPERM   X7_, V31, MSG_HI_, MSG_HI_
 
-    VXOR     V4, V5, V4
+    VXOR    MSG_, MSG_HI_, MSG_
 
-    XXPERMDI MSG, MSG, $2, MSG
-    STXVD2X  MSG, (OUT)(R10)
+    STXVD2X MSG, (OUT)(OFFSET)
 
-    ADD     $16, R10, R10
-    CMP	    LEN, R10
-    BGT	    loop
+    ADD     $16, OFFSET, OFFSET
+    CMP     LEN, OFFSET
+    BGT     loop
     RET
 
-// func galMulPpcXor(c uint64, in, out []byte)
-TEXT ·galMulPpcXor(SB), 7, $0
-    MOVD low+0(FP), LOW
-    MOVD high+24(FP), HIGH
 
-    MOVD in+48(FP), IN      // R11: &in
-    MOVD in_len+56(FP), LEN // R9: len(in)
-    MOVD out+72(FP), OUT    // DX: &out
+// func galMulPpcXorlow, high, in, out []byte)
+TEXT ·galMulPpcXor(SB), NOFRAME|NOSPLIT, $0-96
+    MOVD    low+0(FP), LOW
+    MOVD    high+24(FP), HIGH
+    MOVD    in+48(FP), IN
+    MOVD    in_len+56(FP), LEN
+    MOVD    out+72(FP), OUT
 
-    LXVD2X   (LOW)(R0), X6
-    LXVD2X   (HIGH)(R0), X7
-    XXPERMDI X6, X6, $2, X6
-    XXPERMDI X7, X7, $2, X7
+    MOVD    $16, OFFSET1
+    MOVD    $32, OFFSET2
 
-    MOVD     $16, R10
-    MOVD     $32, R12
+    MOVD    $·constants(SB), CONSTANTS
+    LXVD2X  (CONSTANTS)(R0), ROTATE
+    LXVD2X  (CONSTANTS)(OFFSET1), MASK
+    LXVD2X  (CONSTANTS)(OFFSET2), FLIP
 
-    MOVD     $·constants(SB), CONSTANTS
-    LXVD2X   (CONSTANTS)(R0), ROTATE
-    XXPERMDI ROTATE, ROTATE, $2, ROTATE
+    LXVD2X  (LOW)(R0), X6
+    LXVD2X  (HIGH)(R0), X7
+    VPERM   X6_, V31, FLIP_, X6_
+    VPERM   X7_, V31, FLIP_, X7_
 
-    LXVD2X   (CONSTANTS)(R10), MASK
-    XXPERMDI MASK, MASK, $2, MASK
-
-    LXVD2X   (CONSTANTS)(R12), FLIP
-    XXPERMDI FLIP, FLIP, $2, FLIP
-
-    VPERM    V2, V31, FLIP_, V2
-    VPERM    V3, V31, FLIP_, V3
-
-    MOVD     $0, R10
+    MOVD    $0, OFFSET
 
 loopXor:
-    LXVD2X   (IN)(R10), MSG
-    XXPERMDI MSG, MSG, $2, MSG
+    LXVD2X  (IN)(OFFSET), MSG
+    LXVD2X  (OUT)(OFFSET), RESULT
 
-    LXVD2X   (OUT)(R10), RESULT
-    XXPERMDI RESULT, RESULT, $2, RESULT
+    VSRB    MSG_, ROTATE_, MSG_HI_
+    VAND    MSG_, MASK_, MSG_
+    VPERM   X6_, V31, MSG_, MSG_
+    VPERM   X7_, V31, MSG_HI_, MSG_HI_
 
-    VSRB     V4, ROTATE_, V5
-    VAND     V4, MASK_, V4
-    VPERM    V2, V31, V4, V4
-    VPERM    V3, V31, V5, V5
+    VXOR    MSG_, MSG_HI_, MSG_
+    VXOR    MSG_, RESULT_, RESULT_
 
-    VXOR     V4, V5, V4
-    VXOR     V4, V6, V6
+    STXVD2X RESULT, (OUT)(OFFSET)
 
-    XXPERMDI RESULT, RESULT, $2, RESULT
-    STXVD2X  RESULT, (OUT)(R10)
-
-    ADD      $16, R10, R10
-    CMP	     LEN, R10
-    BGT      loopXor
+    ADD     $16, OFFSET, OFFSET
+    CMP     LEN, OFFSET
+    BGT     loopXor
     RET
 
 DATA ·constants+0x0(SB)/8, $0x0404040404040404
