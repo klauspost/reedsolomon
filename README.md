@@ -24,6 +24,10 @@ go get -u github.com/klauspost/reedsolomon
 
 # Changes
 
+## December 18, 2018
+
+Assembly code for ppc64le has been contributed, this boosts performance by about 10x on this platform.
+
 ## November 18, 2017
 
 Added [WithAutoGoroutines](https://godoc.org/github.com/klauspost/reedsolomon#WithAutoGoroutines) which will attempt to calculate the optimal number of goroutines to use based on your expected shard size and detected CPU.
@@ -258,6 +262,18 @@ By exploiting NEON instructions the performance for ARM has been accelerated. Be
 | 5    | 2      | 40%    |           189 |            1304 |       588% |
 | 10   | 2      | 20%    |           188 |            1738 |       925% |
 | 10   | 4      | 40%    |            96 |             839 |       877% |
+
+# Performance on ppc64le
+
+The performance for ppc64le has been accelerated. This gives roughly a 10x performance improvement on this architecture as can been seen below:
+
+```
+benchmark                      old MB/s     new MB/s     speedup
+BenchmarkGalois128K-160        948.87       8878.85      9.36x
+BenchmarkGalois1M-160          968.85       9041.92      9.33x
+BenchmarkGaloisXor128K-160     862.02       7905.00      9.17x
+BenchmarkGaloisXor1M-160       784.60       6296.65      8.03x
+```
 
 # asm2plan9s
 
