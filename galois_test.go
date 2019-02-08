@@ -116,7 +116,7 @@ func TestExp(t *testing.T) {
 	}
 }
 
-func testGalois(t *testing.T, ssse3, avx2 bool) {
+func testGalois(t *testing.T, o options) {
 	// These values were copied output of the Python code.
 	if galMultiply(3, 4) != 12 {
 		t.Fatal("galMultiply(3, 4) != 12")
@@ -131,25 +131,25 @@ func testGalois(t *testing.T, ssse3, avx2 bool) {
 	// Test slices (>32 entries to test assembler -- AVX2 & NEON)
 	in := []byte{0, 1, 2, 3, 4, 5, 6, 10, 50, 100, 150, 174, 201, 255, 99, 32, 67, 85, 200, 199, 198, 197, 196, 195, 194, 193, 192, 191, 190, 189, 188, 187, 186, 185}
 	out := make([]byte, len(in))
-	galMulSlice(25, in, out, ssse3, avx2)
+	galMulSlice(25, in, out, o)
 	expect := []byte{0x0, 0x19, 0x32, 0x2b, 0x64, 0x7d, 0x56, 0xfa, 0xb8, 0x6d, 0xc7, 0x85, 0xc3, 0x1f, 0x22, 0x7, 0x25, 0xfe, 0xda, 0x5d, 0x44, 0x6f, 0x76, 0x39, 0x20, 0xb, 0x12, 0x11, 0x8, 0x23, 0x3a, 0x75, 0x6c, 0x47}
 	if 0 != bytes.Compare(out, expect) {
 		t.Errorf("got %#v, expected %#v", out, expect)
 	}
 	expectXor := []byte{0x0, 0x2d, 0x5a, 0x77, 0xb4, 0x99, 0xee, 0x2f, 0x79, 0xf2, 0x7, 0x51, 0xd4, 0x19, 0x31, 0xc9, 0xf8, 0xfc, 0xf9, 0x4f, 0x62, 0x15, 0x38, 0xfb, 0xd6, 0xa1, 0x8c, 0x96, 0xbb, 0xcc, 0xe1, 0x22, 0xf, 0x78}
-	galMulSliceXor(52, in, out, ssse3, avx2)
+	galMulSliceXor(52, in, out, o)
 	if 0 != bytes.Compare(out, expectXor) {
 		t.Errorf("got %#v, expected %#v", out, expectXor)
 	}
 
-	galMulSlice(177, in, out, ssse3, avx2)
+	galMulSlice(177, in, out, o)
 	expect = []byte{0x0, 0xb1, 0x7f, 0xce, 0xfe, 0x4f, 0x81, 0x9e, 0x3, 0x6, 0xe8, 0x75, 0xbd, 0x40, 0x36, 0xa3, 0x95, 0xcb, 0xc, 0xdd, 0x6c, 0xa2, 0x13, 0x23, 0x92, 0x5c, 0xed, 0x1b, 0xaa, 0x64, 0xd5, 0xe5, 0x54, 0x9a}
 	if 0 != bytes.Compare(out, expect) {
 		t.Errorf("got %#v, expected %#v", out, expect)
 	}
 
 	expectXor = []byte{0x0, 0xc4, 0x95, 0x51, 0x37, 0xf3, 0xa2, 0xfb, 0xec, 0xc5, 0xd0, 0xc7, 0x53, 0x88, 0xa3, 0xa5, 0x6, 0x78, 0x97, 0x9f, 0x5b, 0xa, 0xce, 0xa8, 0x6c, 0x3d, 0xf9, 0xdf, 0x1b, 0x4a, 0x8e, 0xe8, 0x2c, 0x7d}
-	galMulSliceXor(117, in, out, ssse3, avx2)
+	galMulSliceXor(117, in, out, o)
 	if 0 != bytes.Compare(out, expectXor) {
 		t.Errorf("got %#v, expected %#v", out, expectXor)
 	}
@@ -167,14 +167,18 @@ func testGalois(t *testing.T, ssse3, avx2 bool) {
 
 func TestGalois(t *testing.T) {
 	// invoke with all combinations of asm instructions
-	testGalois(t, false, false)
-	testGalois(t, true, false)
+	o := options{}
+	o.useSSSE3, o.useAVX2 = false, false
+	testGalois(t, o)
+	o.useSSSE3, o.useAVX2 = true, false
+	testGalois(t, o)
 	if defaultOptions.useAVX2 {
-		testGalois(t, false, true)
+		o.useSSSE3, o.useAVX2 = false, true
+		testGalois(t, o)
 	}
 }
 
-func TestSliceGalADD(t *testing.T) {
+func TestSliceGalAdd(t *testing.T) {
 
 	lengthList := []int{16, 32, 34}
 	for _, length := range lengthList {
@@ -225,10 +229,13 @@ func benchmarkGalois(b *testing.B, size int) {
 	in := make([]byte, size)
 	out := make([]byte, size)
 
+	o := options{}
+	o.useSSSE3, o.useAVX2 = false, true
+
 	b.SetBytes(int64(size))
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		galMulSlice(25, in[:], out[:], true, false)
+		galMulSlice(25, in[:], out[:], o)
 	}
 }
 
@@ -244,10 +251,13 @@ func benchmarkGaloisXor(b *testing.B, size int) {
 	in := make([]byte, size)
 	out := make([]byte, size)
 
+	o := options{}
+	o.useSSSE3, o.useAVX2 = true, false
+
 	b.SetBytes(int64(size))
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		galMulSliceXor(177, in[:], out[:], true, false)
+		galMulSliceXor(177, in[:], out[:], o)
 	}
 }
 

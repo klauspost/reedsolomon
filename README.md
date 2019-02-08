@@ -24,6 +24,10 @@ go get -u github.com/klauspost/reedsolomon
 
 # Changes
 
+## February 8, 2019
+
+AVX512 accelerated version added for Intel Skylake CPUs. This can give up to a 4x speed improvement as compared to AVX2. See [here](https://github.com/klauspost/reedsolomon#performance-on-avx512) for more details.
+
 ## December 18, 2018
 
 Assembly code for ppc64le has been contributed, this boosts performance by about 10x on this platform.
@@ -252,6 +256,25 @@ BenchmarkReconstruct10x4x1M-8        4352.56      14367.61     3.30x
 BenchmarkReconstruct50x20x1M-8       1364.35      4189.79      3.07x
 BenchmarkReconstruct10x4x16M-8       1484.35      5779.53      3.89x
 ```
+
+# Performance on AVX512
+
+The performance on AVX512 has been accelerated for Intel CPUs. This gives speedups on a per-core basis of up to 4x compared to AVX2 as can be seen in the following table:
+
+```
+$ benchcmp avx2.txt avx512.txt
+benchmark                      AVX2 MB/s    AVX512 MB/s   speedup
+BenchmarkEncode8x8x1M-72       1681.35      4125.64       2.45x
+BenchmarkEncode8x4x8M-72       1529.36      5507.97       3.60x
+BenchmarkEncode8x8x8M-72        791.16      2952.29       3.73x
+BenchmarkEncode8x8x32M-72       573.26      2168.61       3.78x
+BenchmarkEncode12x4x12M-72     1234.41      4912.37       3.98x
+BenchmarkEncode16x4x16M-72     1189.59      5138.01       4.32x
+BenchmarkEncode24x8x24M-72      690.68      2583.70       3.74x
+BenchmarkEncode24x8x48M-72      674.20      2643.31       3.92x
+```
+
+This speedup has been achieved by computing multiple parity blocks in parallel as opposed to one after the other. In doing so it is possible to minimize the memory bandwidth required for loading all data shards. At the same time the calculations are performed in the 512-bit wide ZMM registers and the surplus of ZMM registers (32 in total) is used to keep more data around (most notably the matrix coefficients).
 
 # Performance on ARM64 NEON
 
