@@ -1,13 +1,17 @@
+//+build !noasm
+//+build !appengine
+//+build !gccgo
+
 // Copyright 2015, Klaus Post, see LICENSE for details.
 // Copyright 2019, Minio, Inc.
 
 package reedsolomon
 
 import (
-	"time"
-	"testing"
-	"math/rand"
 	"bytes"
+	"math/rand"
+	"testing"
+	"time"
 )
 
 func testGaloisAvx512Parallelx2(t *testing.T, inputSize int) {
@@ -35,7 +39,7 @@ func testGaloisAvx512Parallelx2(t *testing.T, inputSize int) {
 	opts := defaultOptions
 	opts.useSSSE3 = true
 
-	matrix := [(16+16)*dimIn*dimOut82]byte{}
+	matrix := [(16 + 16) * dimIn * dimOut82]byte{}
 	coeffs := make([]byte, dimIn*len(out))
 
 	for i := 0; i < dimIn*len(out); i++ {
@@ -89,7 +93,7 @@ func testGaloisAvx512Parallelx2(t *testing.T, inputSize int) {
 		galMulSliceXor(coeffs[i], inToAdd[i], expect[0], options{})
 		galMulSliceXor(coeffs[dimIn+i], inToAdd[i], expect[1], options{})
 	}
-	
+
 	for i := range out {
 		if 0 != bytes.Compare(out[i], expect[i]) {
 			t.Errorf("got [%d]%#v...,\n                  expected [%d]%#v...", i, out[i][:8], i, expect[i][:8])
@@ -131,7 +135,7 @@ func testGaloisAvx512Parallelx4(t *testing.T, inputSize int) {
 	opts := defaultOptions
 	opts.useSSSE3 = true
 
-	matrix := [(16+16)*dimIn*dimOut84]byte{}
+	matrix := [(16 + 16) * dimIn * dimOut84]byte{}
 	coeffs := make([]byte, dimIn*len(out))
 
 	for i := 0; i < dimIn*len(out); i++ {
@@ -202,8 +206,8 @@ func testGaloisAvx512Parallelx4(t *testing.T, inputSize int) {
 func TestGaloisAvx512Parallel14(t *testing.T) { testGaloisAvx512Parallelx4(t, 1) }
 func TestGaloisAvx512Parallel24(t *testing.T) { testGaloisAvx512Parallelx4(t, 2) }
 func TestGaloisAvx512Parallel34(t *testing.T) { testGaloisAvx512Parallelx4(t, 3) }
-func TestGaloisAvx512Parallel44(t *testing.T) {	testGaloisAvx512Parallelx4(t, 4) }
-func TestGaloisAvx512Parallel54(t *testing.T) {	testGaloisAvx512Parallelx4(t, 5) }
+func TestGaloisAvx512Parallel44(t *testing.T) { testGaloisAvx512Parallelx4(t, 4) }
+func TestGaloisAvx512Parallel54(t *testing.T) { testGaloisAvx512Parallelx4(t, 5) }
 func TestGaloisAvx512Parallel64(t *testing.T) { testGaloisAvx512Parallelx4(t, 6) }
 func TestGaloisAvx512Parallel74(t *testing.T) { testGaloisAvx512Parallelx4(t, 7) }
 func TestGaloisAvx512Parallel84(t *testing.T) { testGaloisAvx512Parallelx4(t, 8) }
@@ -213,7 +217,7 @@ func testCodeSomeShardsAvx512WithLength(t *testing.T, ds, ps, l int) {
 	if !defaultOptions.useAVX512 {
 		return
 	}
-	
+
 	var data = make([]byte, l)
 	fillRandom(data)
 	enc, _ := New(ds, ps)
@@ -221,7 +225,7 @@ func testCodeSomeShardsAvx512WithLength(t *testing.T, ds, ps, l int) {
 	shards, _ := enc.Split(data)
 
 	// Fill shards to encode with garbage
-	for i := r.DataShards; i < r.DataShards + r.ParityShards; i++ {
+	for i := r.DataShards; i < r.DataShards+r.ParityShards; i++ {
 		rand.Read(shards[i])
 	}
 
@@ -234,34 +238,34 @@ func testCodeSomeShardsAvx512WithLength(t *testing.T, ds, ps, l int) {
 }
 
 func testCodeSomeShardsAvx512(t *testing.T, ds, ps int) {
-	
+
 	if !defaultOptions.useAVX512 {
 		return
 	}
-	
+
 	for l := 1; l <= 8192; l++ {
 		testCodeSomeShardsAvx512WithLength(t, ds, ps, l)
 	}
 }
 
-func TestCodeSomeShardsAvx512_8x2(t *testing.T) { testCodeSomeShardsAvx512(t, 8, 2) }
-func TestCodeSomeShardsAvx512_1x4(t *testing.T) { testCodeSomeShardsAvx512(t, 1, 4) }
-func TestCodeSomeShardsAvx512_2x4(t *testing.T) { testCodeSomeShardsAvx512(t, 2, 4) }
-func TestCodeSomeShardsAvx512_3x4(t *testing.T) { testCodeSomeShardsAvx512(t, 3, 4) }
-func TestCodeSomeShardsAvx512_4x4(t *testing.T) { testCodeSomeShardsAvx512(t, 4, 4) }
-func TestCodeSomeShardsAvx512_5x4(t *testing.T) { testCodeSomeShardsAvx512(t, 5, 4) }
-func TestCodeSomeShardsAvx512_6x4(t *testing.T) { testCodeSomeShardsAvx512(t, 6, 4) }
-func TestCodeSomeShardsAvx512_7x4(t *testing.T) { testCodeSomeShardsAvx512(t, 7, 4) }
-func TestCodeSomeShardsAvx512_8x4(t *testing.T) { testCodeSomeShardsAvx512(t, 8, 4) }
-func TestCodeSomeShardsAvx512_9x4(t *testing.T) { testCodeSomeShardsAvx512(t, 9, 4) }
+func TestCodeSomeShardsAvx512_8x2(t *testing.T)  { testCodeSomeShardsAvx512(t, 8, 2) }
+func TestCodeSomeShardsAvx512_1x4(t *testing.T)  { testCodeSomeShardsAvx512(t, 1, 4) }
+func TestCodeSomeShardsAvx512_2x4(t *testing.T)  { testCodeSomeShardsAvx512(t, 2, 4) }
+func TestCodeSomeShardsAvx512_3x4(t *testing.T)  { testCodeSomeShardsAvx512(t, 3, 4) }
+func TestCodeSomeShardsAvx512_4x4(t *testing.T)  { testCodeSomeShardsAvx512(t, 4, 4) }
+func TestCodeSomeShardsAvx512_5x4(t *testing.T)  { testCodeSomeShardsAvx512(t, 5, 4) }
+func TestCodeSomeShardsAvx512_6x4(t *testing.T)  { testCodeSomeShardsAvx512(t, 6, 4) }
+func TestCodeSomeShardsAvx512_7x4(t *testing.T)  { testCodeSomeShardsAvx512(t, 7, 4) }
+func TestCodeSomeShardsAvx512_8x4(t *testing.T)  { testCodeSomeShardsAvx512(t, 8, 4) }
+func TestCodeSomeShardsAvx512_9x4(t *testing.T)  { testCodeSomeShardsAvx512(t, 9, 4) }
 func TestCodeSomeShardsAvx512_10x4(t *testing.T) { testCodeSomeShardsAvx512(t, 10, 4) }
 func TestCodeSomeShardsAvx512_12x4(t *testing.T) { testCodeSomeShardsAvx512(t, 12, 4) }
 func TestCodeSomeShardsAvx512_16x4(t *testing.T) { testCodeSomeShardsAvx512(t, 16, 4) }
-func TestCodeSomeShardsAvx512_3x6(t *testing.T) { testCodeSomeShardsAvx512(t, 3, 6) }
-func TestCodeSomeShardsAvx512_8x6(t *testing.T) { testCodeSomeShardsAvx512(t, 8, 6) }
-func TestCodeSomeShardsAvx512_8x7(t *testing.T) { testCodeSomeShardsAvx512(t, 8, 7) }
-func TestCodeSomeShardsAvx512_3x8(t *testing.T) { testCodeSomeShardsAvx512(t, 3, 8) }
-func TestCodeSomeShardsAvx512_8x8(t *testing.T) { testCodeSomeShardsAvx512(t, 8, 8) }
+func TestCodeSomeShardsAvx512_3x6(t *testing.T)  { testCodeSomeShardsAvx512(t, 3, 6) }
+func TestCodeSomeShardsAvx512_8x6(t *testing.T)  { testCodeSomeShardsAvx512(t, 8, 6) }
+func TestCodeSomeShardsAvx512_8x7(t *testing.T)  { testCodeSomeShardsAvx512(t, 8, 7) }
+func TestCodeSomeShardsAvx512_3x8(t *testing.T)  { testCodeSomeShardsAvx512(t, 3, 8) }
+func TestCodeSomeShardsAvx512_8x8(t *testing.T)  { testCodeSomeShardsAvx512(t, 8, 8) }
 func TestCodeSomeShardsAvx512_5x10(t *testing.T) { testCodeSomeShardsAvx512(t, 5, 10) }
 func TestCodeSomeShardsAvx512_8x10(t *testing.T) { testCodeSomeShardsAvx512(t, 8, 10) }
 func TestCodeSomeShardsAvx512_9x10(t *testing.T) { testCodeSomeShardsAvx512(t, 9, 10) }
@@ -271,9 +275,9 @@ func TestCodeSomeShardsAvx512_Manyx4(t *testing.T) {
 	if !defaultOptions.useAVX512 {
 		return
 	}
-	
+
 	for inputs := 1; inputs <= 200; inputs++ {
-		 testCodeSomeShardsAvx512WithLength(t, inputs, 4, 1024+33)
+		testCodeSomeShardsAvx512WithLength(t, inputs, 4, 1024+33)
 	}
 }
 
@@ -282,20 +286,20 @@ func TestCodeSomeShardsAvx512_ManyxMany(t *testing.T) {
 	if !defaultOptions.useAVX512 {
 		return
 	}
-	
+
 	for outputs := 1; outputs <= 32; outputs++ {
 		for inputs := 1; inputs <= 32; inputs++ {
-			 testCodeSomeShardsAvx512WithLength(t, inputs, outputs, 1024+33)
+			testCodeSomeShardsAvx512WithLength(t, inputs, outputs, 1024+33)
 		}
 	}
 }
 
 func benchmarkAvx512Encode(b *testing.B, dataShards, parityShards, shardSize int) {
-	
+
 	if !defaultOptions.useAVX512 {
 		return
 	}
-	
+
 	enc, err := New(dataShards, parityShards)
 	if err != nil {
 		b.Fatal(err)
@@ -320,15 +324,15 @@ func benchmarkAvx512Encode(b *testing.B, dataShards, parityShards, shardSize int
 }
 
 // Benchmark various combination of data shards and parity shards for AVX512 accelerated code
-func BenchmarkEncodeAvx512_8x4x8M(b *testing.B) { benchmarkAvx512Encode(b, 8, 4, 8*1024*1024) }
+func BenchmarkEncodeAvx512_8x4x8M(b *testing.B)   { benchmarkAvx512Encode(b, 8, 4, 8*1024*1024) }
 func BenchmarkEncodeAvx512_12x4x12M(b *testing.B) { benchmarkAvx512Encode(b, 12, 4, 12*1024*1024) }
 func BenchmarkEncodeAvx512_16x4x16M(b *testing.B) { benchmarkAvx512Encode(b, 16, 4, 16*1024*1024) }
 func BenchmarkEncodeAvx512_16x4x32M(b *testing.B) { benchmarkAvx512Encode(b, 16, 4, 32*1024*1024) }
 func BenchmarkEncodeAvx512_16x4x64M(b *testing.B) { benchmarkAvx512Encode(b, 16, 4, 64*1024*1024) }
 
 func BenchmarkEncodeAvx512_8x8x05M(b *testing.B) { benchmarkAvx512Encode(b, 8, 8, 1*1024*1024/2) }
-func BenchmarkEncodeAvx512_8x8x1M(b *testing.B) { benchmarkAvx512Encode(b, 8, 8, 1*1024*1024) }
-func BenchmarkEncodeAvx512_8x8x8M(b *testing.B) { benchmarkAvx512Encode(b, 8, 8, 8*1024*1024) }
+func BenchmarkEncodeAvx512_8x8x1M(b *testing.B)  { benchmarkAvx512Encode(b, 8, 8, 1*1024*1024) }
+func BenchmarkEncodeAvx512_8x8x8M(b *testing.B)  { benchmarkAvx512Encode(b, 8, 8, 8*1024*1024) }
 func BenchmarkEncodeAvx512_8x8x32M(b *testing.B) { benchmarkAvx512Encode(b, 8, 8, 32*1024*1024) }
 
 func BenchmarkEncodeAvx512_24x8x24M(b *testing.B) { benchmarkAvx512Encode(b, 24, 8, 24*1024*1024) }

@@ -66,4 +66,5 @@ func sliceXor(in, out []byte, sse2 bool) {
 	}
 }
 
-func (r reedSolomon) codeSomeShardsAvx512(matrixRows, inputs, outputs [][]byte, outputCount, byteCount int) {}
+func (r reedSolomon) codeSomeShardsAvx512(matrixRows, inputs, outputs [][]byte, outputCount, byteCount int) {
+}

@@ -147,20 +147,20 @@ func galMulAVX512Parallel84(in, out [][]byte, matrixRows [][]byte, inputOffset, 
 	}
 }
 
-// Perform the same as codeSomeShards, but taking advantage of 
+// Perform the same as codeSomeShards, but taking advantage of
 // AVX512 parallelism for up to 4x faster execution as compared to AVX2
 func (r reedSolomon) codeSomeShardsAvx512(matrixRows, inputs, outputs [][]byte, outputCount, byteCount int) {
-	
+
 	outputRow := 0
 	// First process (multiple) batches of 4 output rows in parallel
-	for ; outputRow + dimOut84 <= len(outputs); outputRow += dimOut84 {
+	for ; outputRow+dimOut84 <= len(outputs); outputRow += dimOut84 {
 		for inputRow := 0; inputRow < len(inputs); inputRow += dimIn {
 
 			galMulAVX512Parallel84(inputs, outputs, matrixRows, inputRow, outputRow)
 		}
 	}
 	// Then process a (single) batch of 2 output rows in parallel
-	if outputRow + dimOut82 <= len(outputs) {
+	if outputRow+dimOut82 <= len(outputs) {
 		// fmt.Println(outputRow, len(outputs))
 		for inputRow := 0; inputRow < len(inputs); inputRow += dimIn {
 
