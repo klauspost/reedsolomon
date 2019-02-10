@@ -31,7 +31,7 @@ func galMulPpcXor(low, high, in, out []byte) {
 }
 */
 
-func galMulSlice(c byte, in, out []byte, o options) {
+func galMulSlice(c byte, in, out []byte, o *options) {
 	done := (len(in) >> 4) << 4
 	if done > 0 {
 		galMulPpc(mulTableLow[c][:], mulTableHigh[c][:], in[:done], out)
@@ -45,7 +45,7 @@ func galMulSlice(c byte, in, out []byte, o options) {
 	}
 }
 
-func galMulSliceXor(c byte, in, out []byte, o options) {
+func galMulSliceXor(c byte, in, out []byte, o *options) {
 	done := (len(in) >> 4) << 4
 	if done > 0 {
 		galMulPpcXor(mulTableLow[c][:], mulTableHigh[c][:], in[:done], out)

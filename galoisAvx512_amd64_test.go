@@ -59,11 +59,11 @@ func testGaloisAvx512Parallelx2(t *testing.T, inputSize int) {
 
 	for i := range in {
 		if i == 0 {
-			galMulSlice(coeffs[i], in[i], expect[0], options{})
-			galMulSlice(coeffs[dimIn+i], in[i], expect[1], options{})
+			galMulSlice(coeffs[i], in[i], expect[0], &options{})
+			galMulSlice(coeffs[dimIn+i], in[i], expect[1], &options{})
 		} else {
-			galMulSliceXor(coeffs[i], in[i], expect[0], options{})
-			galMulSliceXor(coeffs[dimIn+i], in[i], expect[1], options{})
+			galMulSliceXor(coeffs[i], in[i], expect[0], &options{})
+			galMulSliceXor(coeffs[dimIn+i], in[i], expect[1], &options{})
 		}
 	}
 
@@ -90,8 +90,8 @@ func testGaloisAvx512Parallelx2(t *testing.T, inputSize int) {
 	_galMulAVX512Parallel82(inToAdd, out, &matrix, true)
 
 	for i := range in {
-		galMulSliceXor(coeffs[i], inToAdd[i], expect[0], options{})
-		galMulSliceXor(coeffs[dimIn+i], inToAdd[i], expect[1], options{})
+		galMulSliceXor(coeffs[i], inToAdd[i], expect[0], &options{})
+		galMulSliceXor(coeffs[dimIn+i], inToAdd[i], expect[1], &options{})
 	}
 
 	for i := range out {
@@ -155,15 +155,15 @@ func testGaloisAvx512Parallelx4(t *testing.T, inputSize int) {
 
 	for i := range in {
 		if i == 0 {
-			galMulSlice(coeffs[i], in[i], expect[0], options{})
-			galMulSlice(coeffs[dimIn+i], in[i], expect[1], options{})
-			galMulSlice(coeffs[dimIn*2+i], in[i], expect[2], options{})
-			galMulSlice(coeffs[dimIn*3+i], in[i], expect[3], options{})
+			galMulSlice(coeffs[i], in[i], expect[0], &options{})
+			galMulSlice(coeffs[dimIn+i], in[i], expect[1], &options{})
+			galMulSlice(coeffs[dimIn*2+i], in[i], expect[2], &options{})
+			galMulSlice(coeffs[dimIn*3+i], in[i], expect[3], &options{})
 		} else {
-			galMulSliceXor(coeffs[i], in[i], expect[0], options{})
-			galMulSliceXor(coeffs[dimIn+i], in[i], expect[1], options{})
-			galMulSliceXor(coeffs[dimIn*2+i], in[i], expect[2], options{})
-			galMulSliceXor(coeffs[dimIn*3+i], in[i], expect[3], options{})
+			galMulSliceXor(coeffs[i], in[i], expect[0], &options{})
+			galMulSliceXor(coeffs[dimIn+i], in[i], expect[1], &options{})
+			galMulSliceXor(coeffs[dimIn*2+i], in[i], expect[2], &options{})
+			galMulSliceXor(coeffs[dimIn*3+i], in[i], expect[3], &options{})
 		}
 	}
 
@@ -190,10 +190,10 @@ func testGaloisAvx512Parallelx4(t *testing.T, inputSize int) {
 	_galMulAVX512Parallel84(inToAdd, out, &matrix, true)
 
 	for i := range in {
-		galMulSliceXor(coeffs[i], inToAdd[i], expect[0], options{})
-		galMulSliceXor(coeffs[dimIn+i], inToAdd[i], expect[1], options{})
-		galMulSliceXor(coeffs[dimIn*2+i], inToAdd[i], expect[2], options{})
-		galMulSliceXor(coeffs[dimIn*3+i], inToAdd[i], expect[3], options{})
+		galMulSliceXor(coeffs[i], inToAdd[i], expect[0], &options{})
+		galMulSliceXor(coeffs[dimIn+i], inToAdd[i], expect[1], &options{})
+		galMulSliceXor(coeffs[dimIn*2+i], inToAdd[i], expect[2], &options{})
+		galMulSliceXor(coeffs[dimIn*3+i], inToAdd[i], expect[3], &options{})
 	}
 
 	for i := range out {
@@ -329,6 +329,13 @@ func BenchmarkEncodeAvx512_12x4x12M(b *testing.B) { benchmarkAvx512Encode(b, 12,
 func BenchmarkEncodeAvx512_16x4x16M(b *testing.B) { benchmarkAvx512Encode(b, 16, 4, 16*1024*1024) }
 func BenchmarkEncodeAvx512_16x4x32M(b *testing.B) { benchmarkAvx512Encode(b, 16, 4, 32*1024*1024) }
 func BenchmarkEncodeAvx512_16x4x64M(b *testing.B) { benchmarkAvx512Encode(b, 16, 4, 64*1024*1024) }
+
+func BenchmarkEncodeAvx512_8x5x8M(b *testing.B)  { benchmarkAvx512Encode(b, 8, 5, 8*1024*1024) }
+func BenchmarkEncodeAvx512_8x6x8M(b *testing.B)  { benchmarkAvx512Encode(b, 8, 6, 8*1024*1024) }
+func BenchmarkEncodeAvx512_8x7x8M(b *testing.B)  { benchmarkAvx512Encode(b, 8, 7, 8*1024*1024) }
+func BenchmarkEncodeAvx512_8x9x8M(b *testing.B)  { benchmarkAvx512Encode(b, 8, 9, 8*1024*1024) }
+func BenchmarkEncodeAvx512_8x10x8M(b *testing.B) { benchmarkAvx512Encode(b, 8, 10, 8*1024*1024) }
+func BenchmarkEncodeAvx512_8x11x8M(b *testing.B) { benchmarkAvx512Encode(b, 8, 11, 8*1024*1024) }
 
 func BenchmarkEncodeAvx512_8x8x05M(b *testing.B) { benchmarkAvx512Encode(b, 8, 8, 1*1024*1024/2) }
 func BenchmarkEncodeAvx512_8x8x1M(b *testing.B)  { benchmarkAvx512Encode(b, 8, 8, 1*1024*1024) }

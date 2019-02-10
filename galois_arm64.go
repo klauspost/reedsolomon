@@ -13,7 +13,7 @@ func galMulNEON(c uint64, in, out []byte)
 //go:noescape
 func galMulXorNEON(c uint64, in, out []byte)
 
-func galMulSlice(c byte, in, out []byte, o options) {
+func galMulSlice(c byte, in, out []byte, o *options) {
 	var done int
 	galMulNEON(uint64(c), in, out)
 	done = (len(in) >> 5) << 5
@@ -27,7 +27,7 @@ func galMulSlice(c byte, in, out []byte, o options) {
 	}
 }
 
-func galMulSliceXor(c byte, in, out []byte, o options) {
+func galMulSliceXor(c byte, in, out []byte, o *options) {
 	var done int
 	galMulXorNEON(uint64(c), in, out)
 	done = (len(in) >> 5) << 5

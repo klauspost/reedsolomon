@@ -6,14 +6,14 @@
 
 package reedsolomon
 
-func galMulSlice(c byte, in, out []byte, o options) {
+func galMulSlice(c byte, in, out []byte, o *options) {
 	mt := mulTable[c]
 	for n, input := range in {
 		out[n] = mt[input]
 	}
 }
 
-func galMulSliceXor(c byte, in, out []byte, o options) {
+func galMulSliceXor(c byte, in, out []byte, o *options) {
 	mt := mulTable[c]
 	for n, input := range in {
 		out[n] ^= mt[input]

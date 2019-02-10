@@ -116,7 +116,7 @@ func TestExp(t *testing.T) {
 	}
 }
 
-func testGalois(t *testing.T, o options) {
+func testGalois(t *testing.T, o *options) {
 	// These values were copied output of the Python code.
 	if galMultiply(3, 4) != 12 {
 		t.Fatal("galMultiply(3, 4) != 12")
@@ -169,12 +169,12 @@ func TestGalois(t *testing.T) {
 	// invoke with all combinations of asm instructions
 	o := options{}
 	o.useSSSE3, o.useAVX2 = false, false
-	testGalois(t, o)
+	testGalois(t, &o)
 	o.useSSSE3, o.useAVX2 = true, false
-	testGalois(t, o)
+	testGalois(t, &o)
 	if defaultOptions.useAVX2 {
 		o.useSSSE3, o.useAVX2 = false, true
-		testGalois(t, o)
+		testGalois(t, &o)
 	}
 }
 
@@ -235,7 +235,7 @@ func benchmarkGalois(b *testing.B, size int) {
 	b.SetBytes(int64(size))
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		galMulSlice(25, in[:], out[:], o)
+		galMulSlice(25, in[:], out[:], &o)
 	}
 }
 
@@ -257,7 +257,7 @@ func benchmarkGaloisXor(b *testing.B, size int) {
 	b.SetBytes(int64(size))
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		galMulSliceXor(177, in[:], out[:], o)
+		galMulSliceXor(177, in[:], out[:], &o)
 	}
 }
 

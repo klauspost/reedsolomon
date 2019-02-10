@@ -372,7 +372,7 @@ func (r reedSolomon) updateParityShards(matrixRows, oldinputs, newinputs, output
 		// oldinputs data will be change
 		sliceXor(in, oldin, r.o.useSSE2)
 		for iRow := 0; iRow < outputCount; iRow++ {
-			galMulSliceXor(matrixRows[iRow][c], oldin, outputs[iRow], r.o)
+			galMulSliceXor(matrixRows[iRow][c], oldin, outputs[iRow], &r.o)
 		}
 	}
 }
@@ -399,7 +399,7 @@ func (r reedSolomon) updateParityShardsP(matrixRows, oldinputs, newinputs, outpu
 				// oldinputs data will be change
 				sliceXor(in[start:stop], oldin[start:stop], r.o.useSSE2)
 				for iRow := 0; iRow < outputCount; iRow++ {
-					galMulSliceXor(matrixRows[iRow][c], oldin[start:stop], outputs[iRow][start:stop], r.o)
+					galMulSliceXor(matrixRows[iRow][c], oldin[start:stop], outputs[iRow][start:stop], &r.o)
 				}
 			}
 			wg.Done()
@@ -448,9 +448,9 @@ func (r reedSolomon) codeSomeShards(matrixRows, inputs, outputs [][]byte, output
 		in := inputs[c]
 		for iRow := 0; iRow < outputCount; iRow++ {
 			if c == 0 {
-				galMulSlice(matrixRows[iRow][c], in, outputs[iRow], r.o)
+				galMulSlice(matrixRows[iRow][c], in, outputs[iRow], &r.o)
 			} else {
-				galMulSliceXor(matrixRows[iRow][c], in, outputs[iRow], r.o)
+				galMulSliceXor(matrixRows[iRow][c], in, outputs[iRow], &r.o)
 			}
 		}
 	}
@@ -477,9 +477,9 @@ func (r reedSolomon) codeSomeShardsP(matrixRows, inputs, outputs [][]byte, outpu
 				in := inputs[c][start:stop]
 				for iRow := 0; iRow < outputCount; iRow++ {
 					if c == 0 {
-						galMulSlice(matrixRows[iRow][c], in, outputs[iRow][start:stop], r.o)
+						galMulSlice(matrixRows[iRow][c], in, outputs[iRow][start:stop], &r.o)
 					} else {
-						galMulSliceXor(matrixRows[iRow][c], in, outputs[iRow][start:stop], r.o)
+						galMulSliceXor(matrixRows[iRow][c], in, outputs[iRow][start:stop], &r.o)
 					}
 				}
 			}
@@ -504,7 +504,7 @@ func (r reedSolomon) checkSomeShards(matrixRows, inputs, toCheck [][]byte, outpu
 	for c := 0; c < r.DataShards; c++ {
 		in := inputs[c]
 		for iRow := 0; iRow < outputCount; iRow++ {
-			galMulSliceXor(matrixRows[iRow][c], in, outputs[iRow], r.o)
+			galMulSliceXor(matrixRows[iRow][c], in, outputs[iRow], &r.o)
 		}
 	}
 
@@ -548,7 +548,7 @@ func (r reedSolomon) checkSomeShardsP(matrixRows, inputs, toCheck [][]byte, outp
 				mu.RUnlock()
 				in := inputs[c][start : start+do]
 				for iRow := 0; iRow < outputCount; iRow++ {
-					galMulSliceXor(matrixRows[iRow][c], in, outputs[iRow], r.o)
+					galMulSliceXor(matrixRows[iRow][c], in, outputs[iRow], &r.o)
 				}
 			}
 

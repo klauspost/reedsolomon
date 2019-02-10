@@ -6,7 +6,7 @@
 //
 // Process 2 output rows in parallel from a total of 8 input rows
 //
-// func _galMulAVX512Parallel82(in, out [][]byte, matrix *[(16 + 16) * dimIn * dimOut82]byte, addTo bool)
+// func _galMulAVX512Parallel82(in, out [][]byte, matrix *[matrixSize82]byte, addTo bool)
 TEXT ·_galMulAVX512Parallel82(SB), 7, $0
 	MOVQ  in+0(FP), SI     //
 	MOVQ  8(SI), R9        // R9: len(in)
@@ -235,7 +235,7 @@ done_avx512_parallel82:
 //
 // Process 4 output rows in parallel from a total of 8 input rows
 //
-// func _galMulAVX512Parallel84(in, out [][]byte, matrix *[(16 + 16) * dimIn * dimOut84]byte, addTo bool)
+// func _galMulAVX512Parallel84(in, out [][]byte, matrix *[matrixSize84]byte, addTo bool)
 TEXT ·_galMulAVX512Parallel84(SB), 7, $0
 	MOVQ  in+0(FP), SI     //
 	MOVQ  8(SI), R9        // R9: len(in)

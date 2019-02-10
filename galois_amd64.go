@@ -40,7 +40,7 @@ func galMulSSSE3Xor(low, high, in, out []byte) {
 }
 */
 
-func galMulSlice(c byte, in, out []byte, o options) {
+func galMulSlice(c byte, in, out []byte, o *options) {
 	var done int
 	if o.useAVX2 {
 		galMulAVX2(mulTableLow[c][:], mulTableHigh[c][:], in, out)
@@ -58,7 +58,7 @@ func galMulSlice(c byte, in, out []byte, o options) {
 	}
 }
 
-func galMulSliceXor(c byte, in, out []byte, o options) {
+func galMulSliceXor(c byte, in, out []byte, o *options) {
 	var done int
 	if o.useAVX2 {
 		galMulAVX2Xor(mulTableLow[c][:], mulTableHigh[c][:], in, out)
