@@ -290,7 +290,7 @@ func New(dataShards, parityShards int, opts ...Option) (Encoder, error) {
 // if there were too few shards to reconstruct the missing data.
 var ErrTooFewShards = errors.New("too few shards given")
 
-// Encodes parity for a set of data shards.
+// Encode: Encodes parity for a set of data shards.
 // An array 'shards' containing data shards followed by parity shards.
 // The number of shards must match the number given to New.
 // Each shard is a byte array, and they must all be the same size.

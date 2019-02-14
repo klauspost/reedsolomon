@@ -187,7 +187,7 @@ func createSlice(n, length int) [][]byte {
 	return out
 }
 
-// Encodes parity shards for a set of data shards.
+// Encode: Encodes parity shards for a set of data shards.
 //
 // Input is 'shards' containing readers for data shards followed by parity shards
 // io.Writer.

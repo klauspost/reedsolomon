@@ -151,7 +151,7 @@ func (m matrix) SameSize(n matrix) error {
 	return nil
 }
 
-// Returns a part of this matrix. Data is copied.
+// SubMatrix returns a part of this matrix. Data is copied.
 func (m matrix) SubMatrix(rmin, cmin, rmax, cmax int) (matrix, error) {
 	result, err := newMatrix(rmax-rmin, cmax-cmin)
 	if err != nil {
