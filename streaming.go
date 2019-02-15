@@ -27,7 +27,7 @@ import (
 // For usage examples, see "stream-encoder.go" and "streamdecoder.go" in the examples
 // folder.
 type StreamEncoder interface {
-	// Encodes parity shards for a set of data shards.
+	// Encode parity shards for a set of data shards.
 	//
 	// Input is 'shards' containing readers for data shards followed by parity shards
 	// io.Writer.
