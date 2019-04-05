@@ -68,8 +68,8 @@ func main() {
 		flag.Usage()
 		os.Exit(1)
 	}
-	if *dataShards > 257 {
-		fmt.Fprintf(os.Stderr, "Error: Too many data shards\n")
+	if (*dataShards + *parShards) > 256 {
+		fmt.Fprintf(os.Stderr, "Error: sum of data and parity shards cannot exceed 256\n")
 		os.Exit(1)
 	}
 	fname := args[0]
