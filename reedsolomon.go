@@ -819,9 +819,7 @@ func (r reedSolomon) Split(data []byte) ([][]byte, error) {
 
 	// Only allocate memory if necessary
 	if len(data) < (r.Shards * perShard) {
-		// Pad data to r.Shards*perShard.
-		padding := make([]byte, (r.Shards*perShard)-len(data))
-		data = append(data, padding...)
+		data = append(data, make([]byte, r.Shards*perShard-len(data))...)
 	}
 
 	// Split into equal-length shards.
