@@ -1355,3 +1355,50 @@ func TestNew(t *testing.T) {
 		}
 	}
 }
+
+// Benchmark 10 data shards and 4 parity shards and 160MB data.
+func BenchmarkSplit10x4x160M(b *testing.B) {
+	benchmarkSplit(b, 10, 4, 160*1024*1024)
+}
+
+// Benchmark 5 data shards and 2 parity shards with 5MB data.
+func BenchmarkSplit5x2x5M(b *testing.B) {
+	benchmarkSplit(b, 5, 2, 5*1024*1024)
+}
+
+// Benchmark 1 data shards and 2 parity shards with 1MB data.
+func BenchmarkSplit10x2x1M(b *testing.B) {
+	benchmarkSplit(b, 10, 2, 1024*1024)
+}
+
+// Benchmark 10 data shards and 4 parity shards with 10MB data.
+func BenchmarkSplit10x4x10M(b *testing.B) {
+	benchmarkSplit(b, 10, 4, 10*1024*1024)
+}
+
+// Benchmark 50 data shards and 20 parity shards with 50MB data.
+func BenchmarkSplit50x20x50M(b *testing.B) {
+	benchmarkSplit(b, 50, 20, 50*1024*1024)
+}
+
+// Benchmark 17 data shards and 3 parity shards with 272MB data.
+func BenchmarkSplit17x3x272M(b *testing.B) {
+	benchmarkSplit(b, 17, 3, 272*1024*1024)
+}
+
+func benchmarkSplit(b *testing.B, shards, parity, dataSize int) {
+	r, err := New(shards, parity)
+	if err != nil {
+		b.Fatal(err)
+	}
+
+	data := make([]byte, dataSize)
+	b.ReportAllocs()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_, err = r.Split(data)
+		if err != nil {
+			b.Fatal(err)
+		}
+	}
+}
