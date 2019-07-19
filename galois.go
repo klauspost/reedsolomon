@@ -901,5 +901,5 @@ func galExp(a byte, n int) byte {
 	for logResult >= 255 {
 		logResult -= 255
 	}
-	return byte(expTable[logResult])
+	return expTable[logResult]
 }
