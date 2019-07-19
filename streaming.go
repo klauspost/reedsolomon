@@ -137,8 +137,6 @@ type rsStream struct {
 	readShards func(dst [][]byte, in []io.Reader) error
 	// Shard writer
 	writeShards func(out []io.Writer, in [][]byte) error
-	creads      bool
-	cwrites     bool
 }
 
 // NewStream creates a new encoder and initializes it to
