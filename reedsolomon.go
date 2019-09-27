@@ -835,12 +835,12 @@ func (r reedSolomon) Split(data []byte) ([][]byte, error) {
 	dst := make([][]byte, r.Shards)
 	i := 0
 	for ; i < len(dst) && len(data) >= perShard; i++ {
-		dst[i] = data[:perShard]
+		dst[i] = data[:perShard:perShard]
 		data = data[perShard:]
 	}
 
 	for j := 0; i+j < len(dst); j++ {
-		dst[i+j] = padding[:perShard]
+		dst[i+j] = padding[:perShard:perShard]
 		padding = padding[perShard:]
 	}
 
