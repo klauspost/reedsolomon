@@ -789,7 +789,7 @@ func BenchmarkVerify10x4x16M(b *testing.B) {
 func corruptRandom(shards [][]byte, dataShards, parityShards int) {
 	shardsToCorrupt := rand.Intn(parityShards)
 	for i := 1; i <= shardsToCorrupt; i++ {
-		shards[rand.Intn(dataShards+parityShards)] = nil
+		shards[rand.Intn(dataShards+parityShards)] = shards[rand.Intn(dataShards+parityShards)][:0]
 	}
 }
 
@@ -820,13 +820,6 @@ func benchmarkReconstruct(b *testing.B, dataShards, parityShards, shardSize int)
 		err = r.Reconstruct(shards)
 		if err != nil {
 			b.Fatal(err)
-		}
-		ok, err := r.Verify(shards)
-		if err != nil {
-			b.Fatal(err)
-		}
-		if !ok {
-			b.Fatal("Verification failed")
 		}
 	}
 }
@@ -869,7 +862,7 @@ func BenchmarkReconstruct10x4x16M(b *testing.B) {
 func corruptRandomData(shards [][]byte, dataShards, parityShards int) {
 	shardsToCorrupt := rand.Intn(parityShards)
 	for i := 1; i <= shardsToCorrupt; i++ {
-		shards[rand.Intn(dataShards)] = nil
+		shards[rand.Intn(dataShards)] = shards[rand.Intn(dataShards)][:0]
 	}
 }
 
@@ -940,13 +933,12 @@ func BenchmarkReconstructData10x4x16M(b *testing.B) {
 }
 
 func benchmarkReconstructP(b *testing.B, dataShards, parityShards, shardSize int) {
-	r, err := New(dataShards, parityShards, WithAutoGoroutines(shardSize))
+	r, err := New(dataShards, parityShards, WithMaxGoroutines(1))
 	if err != nil {
 		b.Fatal(err)
 	}
 
 	b.SetBytes(int64(shardSize * dataShards))
-	runtime.GOMAXPROCS(runtime.NumCPU())
 	b.ResetTimer()
 
 	b.RunParallel(func(pb *testing.PB) {
@@ -970,13 +962,6 @@ func benchmarkReconstructP(b *testing.B, dataShards, parityShards, shardSize int
 			err = r.Reconstruct(shards)
 			if err != nil {
 				b.Fatal(err)
-			}
-			ok, err := r.Verify(shards)
-			if err != nil {
-				b.Fatal(err)
-			}
-			if !ok {
-				b.Fatal("Verification failed")
 			}
 		}
 	})
