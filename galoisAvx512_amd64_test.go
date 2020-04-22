@@ -22,7 +22,10 @@ func testGaloisAvx512Parallelx2(t *testing.T, inputSize int) {
 
 	rand.Seed(time.Now().UnixNano())
 
-	const size = 1024 * 1024
+	var size = 1024 * 1024
+	if testing.Short() {
+		size = 4096
+	}
 
 	in, out := make([][]byte, inputSize), make([][]byte, dimOut82)
 
@@ -118,7 +121,10 @@ func testGaloisAvx512Parallelx4(t *testing.T, inputSize int) {
 
 	rand.Seed(time.Now().UnixNano())
 
-	const size = 1024 * 1024
+	var size = 1024 * 1024
+	if testing.Short() {
+		size = 4096
+	}
 
 	in, out := make([][]byte, inputSize), make([][]byte, dimOut84)
 
@@ -242,8 +248,12 @@ func testCodeSomeShardsAvx512(t *testing.T, ds, ps int) {
 	if !defaultOptions.useAVX512 {
 		t.Skip("AVX512 not detected")
 	}
-
-	for l := 1; l <= 8192; l++ {
+	step := 1
+	if testing.Short() {
+		// A prime for variation
+		step += 29
+	}
+	for l := 1; l <= 8192; l += step {
 		testCodeSomeShardsAvx512WithLength(t, ds, ps, l)
 	}
 }
@@ -276,7 +286,11 @@ func TestCodeSomeShardsAvx512_Manyx4(t *testing.T) {
 		return
 	}
 
-	for inputs := 1; inputs <= 200; inputs++ {
+	step := 1
+	if testing.Short() {
+		step += 7
+	}
+	for inputs := 1; inputs <= 200; inputs += step {
 		testCodeSomeShardsAvx512WithLength(t, inputs, 4, 1024+33)
 	}
 }
@@ -287,8 +301,12 @@ func TestCodeSomeShardsAvx512_ManyxMany(t *testing.T) {
 		return
 	}
 
-	for outputs := 1; outputs <= 32; outputs++ {
-		for inputs := 1; inputs <= 32; inputs++ {
+	step := 1
+	if testing.Short() {
+		step += 5
+	}
+	for outputs := 1; outputs <= 32; outputs += step {
+		for inputs := 1; inputs <= 32; inputs += step {
 			testCodeSomeShardsAvx512WithLength(t, inputs, outputs, 1024+33)
 		}
 	}
