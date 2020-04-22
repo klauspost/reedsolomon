@@ -19,7 +19,7 @@ func TestStreamEncoding(t *testing.T) {
 	if testing.Short() {
 		perShard = 50000
 	}
-	r, err := NewStream(10, 3)
+	r, err := NewStream(10, 3, testOptions()...)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -70,7 +70,7 @@ func TestStreamEncodingConcurrent(t *testing.T) {
 	if testing.Short() {
 		perShard = 50000
 	}
-	r, err := NewStreamC(10, 3, true, true)
+	r, err := NewStreamC(10, 3, true, true, testOptions()...)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -185,7 +185,7 @@ func TestStreamReconstruct(t *testing.T) {
 	if testing.Short() {
 		perShard = 50000
 	}
-	r, err := NewStream(10, 3)
+	r, err := NewStream(10, 3, testOptions()...)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -297,7 +297,7 @@ func TestStreamVerify(t *testing.T) {
 	if testing.Short() {
 		perShard = 50000
 	}
-	r, err := NewStream(10, 4)
+	r, err := NewStream(10, 4, testOptions()...)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -357,7 +357,7 @@ func TestStreamVerify(t *testing.T) {
 }
 
 func TestStreamOneEncode(t *testing.T) {
-	codec, err := NewStream(5, 5)
+	codec, err := NewStream(5, 5, testOptions()...)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -408,7 +408,7 @@ func TestStreamOneEncode(t *testing.T) {
 }
 
 func benchmarkStreamEncode(b *testing.B, dataShards, parityShards, shardSize int) {
-	r, err := NewStream(dataShards, parityShards)
+	r, err := NewStream(dataShards, parityShards, testOptions(WithAutoGoroutines(shardSize))...)
 	if err != nil {
 		b.Fatal(err)
 	}
@@ -479,7 +479,7 @@ func BenchmarkStreamEncode17x3x16M(b *testing.B) {
 }
 
 func benchmarkStreamVerify(b *testing.B, dataShards, parityShards, shardSize int) {
-	r, err := NewStream(dataShards, parityShards)
+	r, err := NewStream(dataShards, parityShards, testOptions(WithAutoGoroutines(shardSize))...)
 	if err != nil {
 		b.Fatal(err)
 	}
@@ -547,7 +547,7 @@ func TestStreamSplitJoin(t *testing.T) {
 	rand.Seed(0)
 	fillRandom(data)
 
-	enc, _ := NewStream(5, 3)
+	enc, _ := NewStream(5, 3, testOptions()...)
 	split := emptyBuffers(5)
 	err := enc.Split(bytes.NewBuffer(data), toWriters(split), int64(len(data)))
 	if err != nil {
@@ -615,7 +615,7 @@ func TestNewStream(t *testing.T) {
 		{256, int(^uint(0) >> 1), errInvalidRowSize},
 	}
 	for _, test := range tests {
-		_, err := NewStream(test.data, test.parity)
+		_, err := NewStream(test.data, test.parity, testOptions()...)
 		if err != test.err {
 			t.Errorf("New(%v, %v): expected %v, got %v", test.data, test.parity, test.err, err)
 		}
