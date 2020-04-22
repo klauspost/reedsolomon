@@ -17,7 +17,7 @@ import (
 func testGaloisAvx512Parallelx2(t *testing.T, inputSize int) {
 
 	if !defaultOptions.useAVX512 {
-		return
+		t.Skip("AVX512 not detected")
 	}
 
 	rand.Seed(time.Now().UnixNano())
@@ -116,7 +116,7 @@ func TestGaloisAvx512Parallel82(t *testing.T) { testGaloisAvx512Parallelx2(t, 8)
 func testGaloisAvx512Parallelx4(t *testing.T, inputSize int) {
 
 	if !defaultOptions.useAVX512 {
-		return
+		t.Skip("AVX512 not detected")
 	}
 
 	rand.Seed(time.Now().UnixNano())
@@ -221,7 +221,7 @@ func TestGaloisAvx512Parallel84(t *testing.T) { testGaloisAvx512Parallelx4(t, 8)
 func testCodeSomeShardsAvx512WithLength(t *testing.T, ds, ps, l int) {
 
 	if !defaultOptions.useAVX512 {
-		return
+		t.Skip("AVX512 not detected")
 	}
 
 	var data = make([]byte, l)
@@ -246,7 +246,7 @@ func testCodeSomeShardsAvx512WithLength(t *testing.T, ds, ps, l int) {
 func testCodeSomeShardsAvx512(t *testing.T, ds, ps int) {
 
 	if !defaultOptions.useAVX512 {
-		return
+		t.Skip("AVX512 not detected")
 	}
 	step := 1
 	if testing.Short() {
@@ -311,54 +311,3 @@ func TestCodeSomeShardsAvx512_ManyxMany(t *testing.T) {
 		}
 	}
 }
-
-func benchmarkAvx512Encode(b *testing.B, dataShards, parityShards, shardSize int) {
-
-	if !defaultOptions.useAVX512 {
-		return
-	}
-
-	enc, err := New(dataShards, parityShards)
-	if err != nil {
-		b.Fatal(err)
-	}
-	r := enc.(*reedSolomon) // need to access private methods
-	shards := make([][]byte, dataShards+parityShards)
-	for s := range shards {
-		shards[s] = make([]byte, shardSize)
-	}
-
-	rand.Seed(0)
-	for s := 0; s < dataShards; s++ {
-		fillRandom(shards[s])
-	}
-
-	b.SetBytes(int64(shardSize * dataShards))
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		// Do the coding.
-		r.codeSomeShardsAvx512(r.parity, shards[0:r.DataShards], shards[r.DataShards:], r.ParityShards, len(shards[0]))
-	}
-}
-
-// Benchmark various combination of data shards and parity shards for AVX512 accelerated code
-func BenchmarkEncodeAvx512_8x4x8M(b *testing.B)   { benchmarkAvx512Encode(b, 8, 4, 8*1024*1024) }
-func BenchmarkEncodeAvx512_12x4x12M(b *testing.B) { benchmarkAvx512Encode(b, 12, 4, 12*1024*1024) }
-func BenchmarkEncodeAvx512_16x4x16M(b *testing.B) { benchmarkAvx512Encode(b, 16, 4, 16*1024*1024) }
-func BenchmarkEncodeAvx512_16x4x32M(b *testing.B) { benchmarkAvx512Encode(b, 16, 4, 32*1024*1024) }
-func BenchmarkEncodeAvx512_16x4x64M(b *testing.B) { benchmarkAvx512Encode(b, 16, 4, 64*1024*1024) }
-
-func BenchmarkEncodeAvx512_8x5x8M(b *testing.B)  { benchmarkAvx512Encode(b, 8, 5, 8*1024*1024) }
-func BenchmarkEncodeAvx512_8x6x8M(b *testing.B)  { benchmarkAvx512Encode(b, 8, 6, 8*1024*1024) }
-func BenchmarkEncodeAvx512_8x7x8M(b *testing.B)  { benchmarkAvx512Encode(b, 8, 7, 8*1024*1024) }
-func BenchmarkEncodeAvx512_8x9x8M(b *testing.B)  { benchmarkAvx512Encode(b, 8, 9, 8*1024*1024) }
-func BenchmarkEncodeAvx512_8x10x8M(b *testing.B) { benchmarkAvx512Encode(b, 8, 10, 8*1024*1024) }
-func BenchmarkEncodeAvx512_8x11x8M(b *testing.B) { benchmarkAvx512Encode(b, 8, 11, 8*1024*1024) }
-
-func BenchmarkEncodeAvx512_8x8x05M(b *testing.B) { benchmarkAvx512Encode(b, 8, 8, 1*1024*1024/2) }
-func BenchmarkEncodeAvx512_8x8x1M(b *testing.B)  { benchmarkAvx512Encode(b, 8, 8, 1*1024*1024) }
-func BenchmarkEncodeAvx512_8x8x8M(b *testing.B)  { benchmarkAvx512Encode(b, 8, 8, 8*1024*1024) }
-func BenchmarkEncodeAvx512_8x8x32M(b *testing.B) { benchmarkAvx512Encode(b, 8, 8, 32*1024*1024) }
-
-func BenchmarkEncodeAvx512_24x8x24M(b *testing.B) { benchmarkAvx512Encode(b, 24, 8, 24*1024*1024) }
-func BenchmarkEncodeAvx512_24x8x48M(b *testing.B) { benchmarkAvx512Encode(b, 24, 8, 48*1024*1024) }

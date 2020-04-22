@@ -9,12 +9,40 @@ package reedsolomon
 
 import (
 	"bytes"
+	"flag"
 	"fmt"
 	"math/rand"
+	"os"
 	"runtime"
 	"sync"
 	"testing"
 )
+
+var noSSE2 = flag.Bool("no-sse2", !defaultOptions.useSSE2, "Disable SSE2")
+var noSSSE3 = flag.Bool("no-ssse3", !defaultOptions.useSSSE3, "Disable SSSE3")
+var noAVX2 = flag.Bool("no-avx2", !defaultOptions.useAVX2, "Disable AVX2")
+var noAVX512 = flag.Bool("no-avx512", !defaultOptions.useAVX512, "Disable AVX512")
+
+func TestMain(m *testing.M) {
+	flag.Parse()
+	os.Exit(m.Run())
+}
+
+func testOptions(o ...Option) []Option {
+	if *noSSSE3 {
+		o = append(o, withSSSE3(false))
+	}
+	if *noSSE2 {
+		o = append(o, withSSE2(false))
+	}
+	if *noAVX2 {
+		o = append(o, withAVX2(false))
+	}
+	if *noAVX512 {
+		o = append(o, withAVX512(false))
+	}
+	return o
+}
 
 func isIncreasingAndContainsDataRow(indices []int) bool {
 	cols := len(indices)
@@ -109,17 +137,17 @@ func testOpts() [][]Option {
 	}
 	opts := [][]Option{
 		{WithPAR1Matrix()}, {WithCauchyMatrix()},
-		{WithMaxGoroutines(1), WithMinSplitSize(500), withSSE3(false), withAVX2(false)},
-		{WithMaxGoroutines(5000), WithMinSplitSize(50), withSSE3(false), withAVX2(false)},
-		{WithMaxGoroutines(5000), WithMinSplitSize(500000), withSSE3(false), withAVX2(false)},
-		{WithMaxGoroutines(1), WithMinSplitSize(500000), withSSE3(false), withAVX2(false)},
+		{WithMaxGoroutines(1), WithMinSplitSize(500), withSSSE3(false), withAVX2(false)},
+		{WithMaxGoroutines(5000), WithMinSplitSize(50), withSSSE3(false), withAVX2(false)},
+		{WithMaxGoroutines(5000), WithMinSplitSize(500000), withSSSE3(false), withAVX2(false)},
+		{WithMaxGoroutines(1), WithMinSplitSize(500000), withSSSE3(false), withAVX2(false)},
 		{WithAutoGoroutines(50000), WithMinSplitSize(500)},
 	}
 	for _, o := range opts[:] {
 		if defaultOptions.useSSSE3 {
 			n := make([]Option, len(o), len(o)+1)
 			copy(n, o)
-			n = append(n, withSSE3(true))
+			n = append(n, withSSSE3(true))
 			opts = append(opts, n)
 		}
 		if defaultOptions.useAVX2 {
@@ -143,7 +171,7 @@ func TestEncoding(t *testing.T) {
 
 func testEncoding(t *testing.T, o ...Option) {
 	perShard := 50000
-	r, err := New(10, 3, o...)
+	r, err := New(10, 3, testOptions(o...)...)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -193,7 +221,7 @@ func TestUpdate(t *testing.T) {
 
 func testUpdate(t *testing.T, o ...Option) {
 	perShard := 50000
-	r, err := New(10, 3, o...)
+	r, err := New(10, 3, testOptions(o...)...)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -297,7 +325,7 @@ func TestReconstruct(t *testing.T) {
 
 func testReconstruct(t *testing.T, o ...Option) {
 	perShard := 50000
-	r, err := New(10, 3, o...)
+	r, err := New(10, 3, testOptions(o...)...)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -378,7 +406,7 @@ func TestReconstructData(t *testing.T) {
 
 func testReconstructData(t *testing.T, o ...Option) {
 	perShard := 100000
-	r, err := New(8, 5, o...)
+	r, err := New(8, 5, testOptions(o...)...)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -486,7 +514,7 @@ func testReconstructData(t *testing.T, o ...Option) {
 
 func TestReconstructPAR1Singular(t *testing.T) {
 	perShard := 50
-	r, err := New(4, 4, WithPAR1Matrix())
+	r, err := New(4, 4, testOptions(WithPAR1Matrix())...)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -532,7 +560,7 @@ func TestVerify(t *testing.T) {
 
 func testVerify(t *testing.T, o ...Option) {
 	perShard := 33333
-	r, err := New(10, 4, o...)
+	r, err := New(10, 4, testOptions(o...)...)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -594,7 +622,7 @@ func testVerify(t *testing.T, o ...Option) {
 }
 
 func TestOneEncode(t *testing.T) {
-	codec, err := New(5, 5)
+	codec, err := New(5, 5, testOptions()...)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -656,7 +684,7 @@ func fillRandom(p []byte) {
 }
 
 func benchmarkEncode(b *testing.B, dataShards, parityShards, shardSize int) {
-	r, err := New(dataShards, parityShards, WithAutoGoroutines(shardSize))
+	r, err := New(dataShards, parityShards, testOptions(WithAutoGoroutines(shardSize))...)
 	if err != nil {
 		b.Fatal(err)
 	}
@@ -722,8 +750,29 @@ func BenchmarkEncode17x3x16M(b *testing.B) {
 	benchmarkEncode(b, 17, 3, 16*1024*1024)
 }
 
+func BenchmarkEncode_8x4x8M(b *testing.B)   { benchmarkEncode(b, 8, 4, 8*1024*1024) }
+func BenchmarkEncode_12x4x12M(b *testing.B) { benchmarkEncode(b, 12, 4, 12*1024*1024) }
+func BenchmarkEncode_16x4x16M(b *testing.B) { benchmarkEncode(b, 16, 4, 16*1024*1024) }
+func BenchmarkEncode_16x4x32M(b *testing.B) { benchmarkEncode(b, 16, 4, 32*1024*1024) }
+func BenchmarkEncode_16x4x64M(b *testing.B) { benchmarkEncode(b, 16, 4, 64*1024*1024) }
+
+func BenchmarkEncode_8x5x8M(b *testing.B)  { benchmarkEncode(b, 8, 5, 8*1024*1024) }
+func BenchmarkEncode_8x6x8M(b *testing.B)  { benchmarkEncode(b, 8, 6, 8*1024*1024) }
+func BenchmarkEncode_8x7x8M(b *testing.B)  { benchmarkEncode(b, 8, 7, 8*1024*1024) }
+func BenchmarkEncode_8x9x8M(b *testing.B)  { benchmarkEncode(b, 8, 9, 8*1024*1024) }
+func BenchmarkEncode_8x10x8M(b *testing.B) { benchmarkEncode(b, 8, 10, 8*1024*1024) }
+func BenchmarkEncode_8x11x8M(b *testing.B) { benchmarkEncode(b, 8, 11, 8*1024*1024) }
+
+func BenchmarkEncode_8x8x05M(b *testing.B) { benchmarkEncode(b, 8, 8, 1*1024*1024/2) }
+func BenchmarkEncode_8x8x1M(b *testing.B)  { benchmarkEncode(b, 8, 8, 1*1024*1024) }
+func BenchmarkEncode_8x8x8M(b *testing.B)  { benchmarkEncode(b, 8, 8, 8*1024*1024) }
+func BenchmarkEncode_8x8x32M(b *testing.B) { benchmarkEncode(b, 8, 8, 32*1024*1024) }
+
+func BenchmarkEncode_24x8x24M(b *testing.B) { benchmarkEncode(b, 24, 8, 24*1024*1024) }
+func BenchmarkEncode_24x8x48M(b *testing.B) { benchmarkEncode(b, 24, 8, 48*1024*1024) }
+
 func benchmarkVerify(b *testing.B, dataShards, parityShards, shardSize int) {
-	r, err := New(dataShards, parityShards, WithAutoGoroutines(shardSize))
+	r, err := New(dataShards, parityShards, testOptions(WithAutoGoroutines(shardSize))...)
 	if err != nil {
 		b.Fatal(err)
 	}
@@ -794,7 +843,7 @@ func corruptRandom(shards [][]byte, dataShards, parityShards int) {
 }
 
 func benchmarkReconstruct(b *testing.B, dataShards, parityShards, shardSize int) {
-	r, err := New(dataShards, parityShards, WithAutoGoroutines(shardSize))
+	r, err := New(dataShards, parityShards, testOptions(WithAutoGoroutines(shardSize))...)
 	if err != nil {
 		b.Fatal(err)
 	}
@@ -867,7 +916,7 @@ func corruptRandomData(shards [][]byte, dataShards, parityShards int) {
 }
 
 func benchmarkReconstructData(b *testing.B, dataShards, parityShards, shardSize int) {
-	r, err := New(dataShards, parityShards, WithAutoGoroutines(shardSize))
+	r, err := New(dataShards, parityShards, testOptions(WithAutoGoroutines(shardSize))...)
 	if err != nil {
 		b.Fatal(err)
 	}
@@ -933,7 +982,7 @@ func BenchmarkReconstructData10x4x16M(b *testing.B) {
 }
 
 func benchmarkReconstructP(b *testing.B, dataShards, parityShards, shardSize int) {
-	r, err := New(dataShards, parityShards, WithMaxGoroutines(1))
+	r, err := New(dataShards, parityShards, testOptions(WithMaxGoroutines(1))...)
 	if err != nil {
 		b.Fatal(err)
 	}
@@ -990,7 +1039,7 @@ func testEncoderReconstruct(t *testing.T, o ...Option) {
 	fillRandom(data)
 
 	// Create 5 data slices of 50000 elements each
-	enc, err := New(5, 3, o...)
+	enc, err := New(5, 3, testOptions(o...)...)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1066,7 +1115,7 @@ func TestSplitJoin(t *testing.T) {
 	rand.Seed(0)
 	fillRandom(data)
 
-	enc, _ := New(5, 3)
+	enc, _ := New(5, 3, testOptions()...)
 	shards, err := enc.Split(data)
 	if err != nil {
 		t.Fatal(err)
@@ -1106,7 +1155,7 @@ func TestSplitJoin(t *testing.T) {
 func TestCodeSomeShards(t *testing.T) {
 	var data = make([]byte, 250000)
 	fillRandom(data)
-	enc, _ := New(5, 3)
+	enc, _ := New(5, 3, testOptions()...)
 	r := enc.(*reedSolomon) // need to access private methods
 	shards, _ := enc.Split(data)
 
@@ -1141,7 +1190,7 @@ func TestStandardMatrices(t *testing.T) {
 					continue
 				}
 				sh := shards[:i+j]
-				r, err := New(i, j, WithCauchyMatrix())
+				r, err := New(i, j, testOptions(WithCauchyMatrix())...)
 				if err != nil {
 					// We are not supposed to write to t from goroutines.
 					t.Fatal("creating matrix size", i, j, ":", err)
@@ -1267,7 +1316,7 @@ func TestPar1Matrices(t *testing.T) {
 					continue
 				}
 				sh := shards[:i+j]
-				r, err := New(i, j, WithPAR1Matrix())
+				r, err := New(i, j, testOptions(WithPAR1Matrix())...)
 				if err != nil {
 					// We are not supposed to write to t from goroutines.
 					t.Fatal("creating matrix size", i, j, ":", err)
@@ -1334,7 +1383,7 @@ func TestNew(t *testing.T) {
 		{256, int(^uint(0) >> 1), errInvalidRowSize},
 	}
 	for _, test := range tests {
-		_, err := New(test.data, test.parity)
+		_, err := New(test.data, test.parity, testOptions()...)
 		if err != test.err {
 			t.Errorf("New(%v, %v): expected %v, got %v", test.data, test.parity, test.err, err)
 		}
@@ -1372,7 +1421,7 @@ func BenchmarkSplit17x3x272M(b *testing.B) {
 }
 
 func benchmarkSplit(b *testing.B, shards, parity, dataSize int) {
-	r, err := New(shards, parity)
+	r, err := New(shards, parity, testOptions(WithAutoGoroutines(dataSize))...)
 	if err != nil {
 		b.Fatal(err)
 	}
