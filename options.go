@@ -20,7 +20,7 @@ type options struct {
 
 var defaultOptions = options{
 	maxGoroutines: 384,
-	minSplitSize:  1024,
+	minSplitSize:  -1,
 
 	// Detect CPU capabilities.
 	useSSSE3:  cpuid.CPU.SSSE3(),
@@ -62,6 +62,7 @@ func WithAutoGoroutines(shardSize int) Option {
 }
 
 // WithMinSplitSize is the minimum encoding size in bytes per goroutine.
+// By default this parameter is determined by CPU cache characteristics.
 // See WithMaxGoroutines on how jobs are split.
 // If n <= 0, it is ignored.
 func WithMinSplitSize(n int) Option {
