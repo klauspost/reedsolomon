@@ -270,6 +270,19 @@ func New(dataShards, parityShards int, opts ...Option) (Encoder, error) {
 		r.o.maxGoroutines = g
 	}
 
+	if r.o.minSplitSize <= 0 {
+		// Set minsplit as high as we can, but still have parity in L1.
+		cacheSize := cpuid.CPU.Cache.L1D
+		if cacheSize <= 0 {
+			cacheSize = 32 << 10
+		}
+		r.o.minSplitSize = cacheSize / (parityShards + 1)
+		// Min 1K
+		if r.o.minSplitSize < 1024 {
+			r.o.minSplitSize = 1024
+		}
+	}
+
 	// Inverted matrices are cached in a tree keyed by the indices
 	// of the invalid rows of the data to reconstruct.
 	// The inversion root node will have the identity matrix as
