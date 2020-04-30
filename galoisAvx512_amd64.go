@@ -7,6 +7,8 @@
 
 package reedsolomon
 
+import "sync"
+
 //go:noescape
 func _galMulAVX512Parallel82(in, out [][]byte, matrix *[matrixSize82]byte, addTo bool)
 
@@ -70,7 +72,7 @@ func setupMatrix84(matrixRows [][]byte, inputOffset, outputOffset int, matrix *[
 }
 
 // Invoke AVX512 routine for 2 output rows in parallel
-func galMulAVX512Parallel82(in, out [][]byte, matrixRows [][]byte, inputOffset, outputOffset int) {
+func galMulAVX512Parallel82(in, out [][]byte, matrixRows [][]byte, inputOffset, outputOffset int, matrix82 *[matrixSize82]byte) {
 	done := len(in[0])
 	if done == 0 {
 		return
@@ -85,10 +87,8 @@ func galMulAVX512Parallel82(in, out [][]byte, matrixRows [][]byte, inputOffset, 
 		outputEnd = len(out)
 	}
 
-	matrix82 := [matrixSize82]byte{}
-	setupMatrix82(matrixRows, inputOffset, outputOffset, &matrix82)
 	addTo := inputOffset != 0 // Except for the first input column, add to previous results
-	_galMulAVX512Parallel82(in[inputOffset:inputEnd], out[outputOffset:outputEnd], &matrix82, addTo)
+	_galMulAVX512Parallel82(in[inputOffset:inputEnd], out[outputOffset:outputEnd], matrix82, addTo)
 
 	done = (done >> 6) << 6
 	if len(in[0])-done == 0 {
@@ -112,7 +112,7 @@ func galMulAVX512Parallel82(in, out [][]byte, matrixRows [][]byte, inputOffset, 
 }
 
 // Invoke AVX512 routine for 4 output rows in parallel
-func galMulAVX512Parallel84(in, out [][]byte, matrixRows [][]byte, inputOffset, outputOffset int) {
+func galMulAVX512Parallel84(in, out [][]byte, matrixRows [][]byte, inputOffset, outputOffset int, matrix84 *[matrixSize84]byte) {
 	done := len(in[0])
 	if done == 0 {
 		return
@@ -127,10 +127,8 @@ func galMulAVX512Parallel84(in, out [][]byte, matrixRows [][]byte, inputOffset, 
 		outputEnd = len(out)
 	}
 
-	matrix84 := [matrixSize84]byte{}
-	setupMatrix84(matrixRows, inputOffset, outputOffset, &matrix84)
 	addTo := inputOffset != 0 // Except for the first input column, add to previous results
-	_galMulAVX512Parallel84(in[inputOffset:inputEnd], out[outputOffset:outputEnd], &matrix84, addTo)
+	_galMulAVX512Parallel84(in[inputOffset:inputEnd], out[outputOffset:outputEnd], matrix84, addTo)
 
 	done = (done >> 6) << 6
 	if len(in[0])-done == 0 {
@@ -157,22 +155,28 @@ func galMulAVX512Parallel84(in, out [][]byte, matrixRows [][]byte, inputOffset, 
 // AVX512 parallelism for up to 4x faster execution as compared to AVX2
 func (r reedSolomon) codeSomeShardsAvx512(matrixRows, inputs, outputs [][]byte, outputCount, byteCount int) {
 	outputRow := 0
+
 	// First process (multiple) batches of 4 output rows in parallel
-	for ; outputRow+dimOut84 <= len(outputs); outputRow += dimOut84 {
-		for inputRow := 0; inputRow < len(inputs); inputRow += dimIn {
-			galMulAVX512Parallel84(inputs, outputs, matrixRows, inputRow, outputRow)
+	if outputRow+dimOut84 <= outputCount {
+		matrix84 := [matrixSize84]byte{}
+		for ; outputRow+dimOut84 <= outputCount; outputRow += dimOut84 {
+			for inputRow := 0; inputRow < len(inputs); inputRow += dimIn {
+				setupMatrix84(matrixRows, inputRow, outputRow, &matrix84)
+				galMulAVX512Parallel84(inputs, outputs, matrixRows, inputRow, outputRow, &matrix84)
+			}
 		}
 	}
 	// Then process a (single) batch of 2 output rows in parallel
-	if outputRow+dimOut82 <= len(outputs) {
-		// fmt.Println(outputRow, len(outputs))
+	if outputRow+dimOut82 <= outputCount {
+		matrix82 := [matrixSize82]byte{}
 		for inputRow := 0; inputRow < len(inputs); inputRow += dimIn {
-			galMulAVX512Parallel82(inputs, outputs, matrixRows, inputRow, outputRow)
+			setupMatrix82(matrixRows, inputRow, outputRow, &matrix82)
+			galMulAVX512Parallel82(inputs, outputs, matrixRows, inputRow, outputRow, &matrix82)
 		}
 		outputRow += dimOut82
 	}
 	// Lastly, we may have a single output row left (for uneven parity)
-	if outputRow < len(outputs) {
+	if outputRow < outputCount {
 		for c := 0; c < r.DataShards; c++ {
 			if c == 0 {
 				galMulSlice(matrixRows[outputRow][c], inputs[c], outputs[outputRow], &r.o)
@@ -181,4 +185,65 @@ func (r reedSolomon) codeSomeShardsAvx512(matrixRows, inputs, outputs [][]byte, 
 			}
 		}
 	}
+}
+
+// Perform the same as codeSomeShards, but taking advantage of
+// AVX512 parallelism for up to 4x faster execution as compared to AVX2
+func (r reedSolomon) codeSomeShardsAvx512P(matrixRows, inputs, outputs [][]byte, outputCount, byteCount int) {
+	var wg sync.WaitGroup
+	do := byteCount / r.o.maxGoroutines
+	if do < r.o.minSplitSize {
+		do = r.o.minSplitSize
+	}
+	// Make sizes divisible by 32
+	do = (do + 63) & (^63)
+	start := 0
+	for start < byteCount {
+		if start+do > byteCount {
+			do = byteCount - start
+		}
+		wg.Add(1)
+		go func(start, stop int) {
+			outputRow := 0
+			// First process (multiple) batches of 4 output rows in parallel
+			if outputRow+dimOut84 <= outputCount {
+				// 1K matrix buffer
+				matrix84 := [matrixSize84]byte{}
+				for ; outputRow+dimOut84 <= outputCount; outputRow += dimOut84 {
+					for inputRow := 0; inputRow < len(inputs); inputRow += dimIn {
+						setupMatrix84(matrixRows, inputRow, outputRow, &matrix84)
+						// FIXME: Only process from start to stop
+						galMulAVX512Parallel84(inputs, outputs, matrixRows, inputRow, outputRow, &matrix84)
+					}
+				}
+			}
+			// Then process a (single) batch of 2 output rows in parallel
+			if outputRow+dimOut82 <= outputCount {
+				// 512B matrix buffer
+				matrix82 := [matrixSize82]byte{}
+				for inputRow := 0; inputRow < len(inputs); inputRow += dimIn {
+					setupMatrix82(matrixRows, inputRow, outputRow, &matrix82)
+					// FIXME: Only process from start to stop
+					galMulAVX512Parallel82(inputs, outputs, matrixRows, inputRow, outputRow, &matrix82)
+				}
+				outputRow += dimOut82
+			}
+			// Lastly, we may have a single output row left (for uneven parity)
+			if outputRow < outputCount {
+				for c := 0; c < r.DataShards; c++ {
+					in := inputs[c][start:stop]
+					for iRow := 0; iRow < outputCount; iRow++ {
+						if c == 0 {
+							galMulSlice(matrixRows[iRow][c], in, outputs[iRow][start:stop], &r.o)
+						} else {
+							galMulSliceXor(matrixRows[iRow][c], in, outputs[iRow][start:stop], &r.o)
+						}
+					}
+				}
+			}
+			wg.Done()
+		}(start, start+do)
+		start += do
+	}
+	wg.Wait()
 }
