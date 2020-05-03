@@ -284,10 +284,7 @@ func New(dataShards, parityShards int, opts ...Option) (Encoder, error) {
 		if cacheSize <= 0 {
 			cacheSize = 32 << 10
 		}
-		if r.o.useAVX512 {
-			// For AVX512, assume cache is 4x larger since we process 4 values per round
-			cacheSize *= 4
-		}
+
 		r.o.minSplitSize = cacheSize / (parityShards + 1)
 		// Min 1K
 		if r.o.minSplitSize < 1024 {
