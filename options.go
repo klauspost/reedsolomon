@@ -16,6 +16,7 @@ type options struct {
 	usePAR1Matrix                         bool
 	useCauchy                             bool
 	shardSize                             int
+	perRound                              int
 }
 
 var defaultOptions = options{
