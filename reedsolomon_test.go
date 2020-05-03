@@ -1436,3 +1436,50 @@ func benchmarkSplit(b *testing.B, shards, parity, dataSize int) {
 		}
 	}
 }
+
+func benchmarkParallel(b *testing.B, dataShards, parityShards, shardSize int) {
+	// Run max 1 goroutine per operation.
+	r, err := New(dataShards, parityShards, testOptions(WithMaxGoroutines(1))...)
+	if err != nil {
+		b.Fatal(err)
+	}
+	c := runtime.GOMAXPROCS(0)
+
+	// Note that concurrency also affects total data size and will make caches less effective.
+	b.Log("Total data:", (c*dataShards*shardSize)>>20, "MiB", "parity:", (c*parityShards*shardSize)>>20, "MiB")
+	// Create independent shards
+	shardsCh := make(chan [][]byte, c)
+	for i := 0; i < c; i++ {
+		rand.Seed(int64(i))
+		shards := make([][]byte, dataShards+parityShards)
+		for s := range shards {
+			shards[s] = make([]byte, shardSize)
+		}
+		for s := 0; s < dataShards; s++ {
+			fillRandom(shards[s])
+		}
+		shardsCh <- shards
+	}
+
+	b.SetBytes(int64(shardSize * dataShards))
+	b.SetParallelism(c)
+	b.ReportAllocs()
+	b.ResetTimer()
+
+	b.RunParallel(func(pb *testing.PB) {
+		for pb.Next() {
+			shards := <-shardsCh
+			err = r.Encode(shards)
+			if err != nil {
+				b.Fatal(err)
+			}
+			shardsCh <- shards
+		}
+	})
+}
+
+func BenchmarkParallel_8x8x05M(b *testing.B)   { benchmarkParallel(b, 8, 8, 512<<10) }
+func BenchmarkParallel_20x10x05M(b *testing.B) { benchmarkParallel(b, 20, 10, 512<<10) }
+func BenchmarkParallel_8x8x1M(b *testing.B)    { benchmarkParallel(b, 8, 8, 1<<20) }
+func BenchmarkParallel_8x8x8M(b *testing.B)    { benchmarkParallel(b, 8, 8, 8<<20) }
+func BenchmarkParallel_8x8x32M(b *testing.B)   { benchmarkParallel(b, 8, 8, 32<<20) }
