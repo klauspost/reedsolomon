@@ -7,9 +7,9 @@ os:
   - osx 
 
 go:
-  - 1.11.x
   - 1.12.x
   - 1.13.x
+  - 1.14.x
   - master
 
 install:
@@ -19,7 +19,9 @@ script:
  - go vet ./...
  - go test -v -cpu=1,2,4 .
  - go test -v -cpu=1,2,4 -short -race .
- - go test -tags=noasm -v -cpu=1,2,4 -short -race .
+ - go test -no-avx512
+ - go test -no-avx512 -no-avx2
+ - go test -tags=noasm -v -cpu=1,4 -short -race .
  - go build examples/simple-decoder.go
  - go build examples/simple-encoder.go
  - go build examples/stream-decoder.go
