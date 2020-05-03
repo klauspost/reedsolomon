@@ -49,12 +49,12 @@ func galMulSlice(c byte, in, out []byte, o *options) {
 		galMulSSSE3(mulTableLow[c][:], mulTableHigh[c][:], in, out)
 		done = (len(in) >> 4) << 4
 	}
-	remain := len(in) - done
-	if remain > 0 {
-		mt := mulTable[c][:256]
-		for i := done; i < len(in); i++ {
-			out[i] = mt[in[i]]
-		}
+	in = in[done:]
+	out = out[done:]
+	out = out[:len(in)]
+	mt := mulTable[c][:256]
+	for i := range in {
+		out[i] = mt[in[i]]
 	}
 }
 
@@ -67,12 +67,12 @@ func galMulSliceXor(c byte, in, out []byte, o *options) {
 		galMulSSSE3Xor(mulTableLow[c][:], mulTableHigh[c][:], in, out)
 		done = (len(in) >> 4) << 4
 	}
-	remain := len(in) - done
-	if remain > 0 {
-		mt := mulTable[c][:256]
-		for i := done; i < len(in); i++ {
-			out[i] ^= mt[in[i]]
-		}
+	in = in[done:]
+	out = out[done:]
+	out = out[:len(in)]
+	mt := mulTable[c][:256]
+	for i := range in {
+		out[i] ^= mt[in[i]]
 	}
 }
 
@@ -83,10 +83,10 @@ func sliceXor(in, out []byte, sse2 bool) {
 		sSE2XorSlice(in, out)
 		done = (len(in) >> 4) << 4
 	}
-	remain := len(in) - done
-	if remain > 0 {
-		for i := done; i < len(in); i++ {
-			out[i] ^= in[i]
-		}
+	in = in[done:]
+	out = out[done:]
+	out = out[:len(in)]
+	for i := range in {
+		out[i] ^= in[i]
 	}
 }
