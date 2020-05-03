@@ -230,7 +230,7 @@ func benchmarkGalois(b *testing.B, size int) {
 	out := make([]byte, size)
 
 	o := options{}
-	o.useSSSE3, o.useAVX2 = false, true
+	o.useSSSE3, o.useAVX2 = !*noSSSE3, !*noAVX2
 
 	b.SetBytes(int64(size))
 	b.ResetTimer()
@@ -252,7 +252,7 @@ func benchmarkGaloisXor(b *testing.B, size int) {
 	out := make([]byte, size)
 
 	o := options{}
-	o.useSSSE3, o.useAVX2 = true, false
+	o.useSSSE3, o.useAVX2 = !*noSSSE3, !*noAVX2
 
 	b.SetBytes(int64(size))
 	b.ResetTimer()
