@@ -311,3 +311,42 @@ func TestCodeSomeShardsAvx512_ManyxMany(t *testing.T) {
 		}
 	}
 }
+
+func benchmarkParallel(b *testing.B, dataShards, parityShards, shardSize int) {
+
+	if !(defaultOptions.useAVX512 || defaultOptions.useAVX2) {
+		return
+	}
+
+	r, err := New(dataShards, parityShards, testOptions(WithAutoGoroutines(shardSize))...)
+	if err != nil {
+		b.Fatal(err)
+	}
+	shards := make([][]byte, dataShards+parityShards)
+	for s := range shards {
+		shards[s] = make([]byte, shardSize)
+	}
+
+	rand.Seed(0)
+	for s := 0; s < dataShards; s++ {
+		fillRandom(shards[s])
+	}
+
+	b.SetBytes(int64(shardSize * dataShards))
+	b.ReportAllocs()
+	b.ResetTimer()
+
+	b.RunParallel(func(pb *testing.PB) {
+		for pb.Next() {
+			err = r.Encode(shards)
+			if err != nil {
+				b.Fatal(err)
+			}
+		}
+	})
+}
+
+func BenchmarkParallel_8x8x05M(b *testing.B) { benchmarkParallel(b, 8, 8, 1*1024*1024/2) }
+func BenchmarkParallel_8x8x1M(b *testing.B)  { benchmarkParallel(b, 8, 8, 1*1024*1024) }
+func BenchmarkParallel_8x8x8M(b *testing.B)  { benchmarkParallel(b, 8, 8, 8*1024*1024) }
+func BenchmarkParallel_8x8x32M(b *testing.B) { benchmarkParallel(b, 8, 8, 32*1024*1024) }
