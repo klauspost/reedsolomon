@@ -284,6 +284,7 @@ func New(dataShards, parityShards int, opts ...Option) (Encoder, error) {
 		if cacheSize <= 0 {
 			cacheSize = 32 << 10
 		}
+
 		r.o.minSplitSize = cacheSize / (parityShards + 1)
 		// Min 1K
 		if r.o.minSplitSize < 1024 {
@@ -458,10 +459,14 @@ func (r reedSolomon) Verify(shards [][]byte) (bool, error) {
 // number of matrix rows used, is determined by
 // outputCount, which is the number of outputs to compute.
 func (r reedSolomon) codeSomeShards(matrixRows, inputs, outputs [][]byte, outputCount, byteCount int) {
-	if r.o.useAVX512 && len(inputs) >= 4 && len(outputs) >= 2 {
+	switch {
+	case r.o.useAVX512 && r.o.maxGoroutines > 1 && byteCount > r.o.minSplitSize && len(inputs) >= 4 && len(outputs) >= 2:
+		r.codeSomeShardsAvx512P(matrixRows, inputs, outputs, outputCount, byteCount)
+		return
+	case r.o.useAVX512 && len(inputs) >= 4 && len(outputs) >= 2:
 		r.codeSomeShardsAvx512(matrixRows, inputs, outputs, outputCount, byteCount)
 		return
-	} else if r.o.maxGoroutines > 1 && byteCount > r.o.minSplitSize {
+	case r.o.maxGoroutines > 1 && byteCount > r.o.minSplitSize:
 		r.codeSomeShardsP(matrixRows, inputs, outputs, outputCount, byteCount)
 		return
 	}

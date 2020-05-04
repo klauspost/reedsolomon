@@ -121,7 +121,7 @@ func testGaloisAvx512Parallelx4(t *testing.T, inputSize int) {
 
 	rand.Seed(time.Now().UnixNano())
 
-	var size = 1024 * 1024
+	var size = 1 << 20
 	if testing.Short() {
 		size = 4096
 	}
