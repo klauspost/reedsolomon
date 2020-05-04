@@ -27,6 +27,9 @@ script:
  - go build examples/stream-decoder.go
  - go build examples/stream-encoder.go
  - diff <(gofmt -d .) <("")
+ - GOARCH=386 GOOS=linux go build .
+ - GOARCH=arm64 GOOS=linux go build .
+ - GOARCH=ppc64le GOOS=linux go build .
 
 matrix:
   allow_failures:

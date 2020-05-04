@@ -229,7 +229,7 @@ func (r reedSolomon) codeSomeShardsAvx512P(matrixRows, inputs, outputs [][]byte,
 	if do < r.o.minSplitSize {
 		do = r.o.minSplitSize
 	}
-	// Make sizes divisible by 32
+	// Make sizes divisible by 64
 	do = (do + 63) & (^63)
 	start := 0
 	for start < byteCount {
