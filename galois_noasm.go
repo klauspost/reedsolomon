@@ -32,11 +32,3 @@ func sliceXor(in, out []byte, sse2 bool) {
 func init() {
 	defaultOptions.useAVX512 = false
 }
-
-func (r reedSolomon) codeSomeShardsAvx512(matrixRows, inputs, outputs [][]byte, outputCount, byteCount int) {
-	panic("codeSomeShardsAvx512 should not be called if built without asm")
-}
-
-func (r reedSolomon) codeSomeShardsAvx512P(matrixRows, inputs, outputs [][]byte, outputCount, byteCount int) {
-	panic("codeSomeShardsAvx512P should not be called if built without asm")
-}
