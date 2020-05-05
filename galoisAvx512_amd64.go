@@ -28,7 +28,31 @@ const (
 	matrixSize84 = (16 + 16) * dimIn * dimOut84 // Dimension of slice of matrix coefficient passed into x4 routine
 )
 
-// Construct block of matrix coefficients for 2 outputs rows in parallel
+// Construct block of matrix coefficients for single output row in parallel
+func setupMatrix81(matrixRows [][]byte, inputOffset, outputOffset int, matrix *[matrixSize81]byte) {
+	offset := 0
+	for c := inputOffset; c < inputOffset+dimIn; c++ {
+		for iRow := outputOffset; iRow < outputOffset+dimOut81; iRow++ {
+			if c < len(matrixRows[iRow]) {
+				coeff := matrixRows[iRow][c]
+				copy(matrix[offset*32:], mulTableLow[coeff][:])
+				copy(matrix[offset*32+16:], mulTableHigh[coeff][:])
+			} else {
+				// coefficients not used for this input shard (so null out)
+				v := matrix[offset*32 : offset*32+32]
+				for i := range v {
+					v[i] = 0
+				}
+			}
+			offset += dimIn
+			if offset >= dimIn*dimOut81 {
+				offset -= dimIn*dimOut81 - 1
+			}
+		}
+	}
+}
+
+// Construct block of matrix coefficients for 2 output rows in parallel
 func setupMatrix82(matrixRows [][]byte, inputOffset, outputOffset int, matrix *[matrixSize82]byte) {
 	offset := 0
 	for c := inputOffset; c < inputOffset+dimIn; c++ {
@@ -52,7 +76,7 @@ func setupMatrix82(matrixRows [][]byte, inputOffset, outputOffset int, matrix *[
 	}
 }
 
-// Construct block of matrix coefficients for 4 outputs rows in parallel
+// Construct block of matrix coefficients for 4 output rows in parallel
 func setupMatrix84(matrixRows [][]byte, inputOffset, outputOffset int, matrix *[matrixSize84]byte) {
 	offset := 0
 	for c := inputOffset; c < inputOffset+dimIn; c++ {
@@ -73,6 +97,41 @@ func setupMatrix84(matrixRows [][]byte, inputOffset, outputOffset int, matrix *[
 				offset -= dimIn*dimOut84 - 1
 			}
 		}
+	}
+}
+
+// Invoke AVX512 routine for single output row in parallel
+func galMulAVX512Parallel81(in, out [][]byte, matrixRows [][]byte, inputOffset, outputOffset, start, stop int, matrix81 *[matrixSize81]byte) {
+	done := stop - start
+	if done <= 0 {
+		return
+	}
+
+	inputEnd := inputOffset + dimIn
+	if inputEnd > len(in) {
+		inputEnd = len(in)
+	}
+	outputEnd := outputOffset + dimOut81
+	if outputEnd > len(out) {
+		outputEnd = len(out)
+	}
+
+	// We know the max size, alloc temp array.
+	var inTmp [dimIn][]byte
+	for i, v := range in[inputOffset:inputEnd] {
+		inTmp[i] = v[start:stop]
+	}
+	var outTmp [dimOut81][]byte
+	for i, v := range out[outputOffset:outputEnd] {
+		outTmp[i] = v[start:stop]
+	}
+
+	addTo := inputOffset != 0 // Except for the first input column, add to previous results
+	_galMulAVX512Parallel81(inTmp[:inputEnd-inputOffset], outTmp[:outputEnd-outputOffset], matrix81, addTo)
+
+	done = start + ((done >> 6) << 6)
+	if done < stop {
+		galMulAVX512LastInput(inputOffset, inputEnd, outputOffset, outputEnd, matrixRows, done, stop, out, in)
 	}
 }
 
@@ -106,23 +165,8 @@ func galMulAVX512Parallel82(in, out [][]byte, matrixRows [][]byte, inputOffset, 
 	_galMulAVX512Parallel82(inTmp[:inputEnd-inputOffset], outTmp[:outputEnd-outputOffset], matrix82, addTo)
 
 	done = start + ((done >> 6) << 6)
-	if done == stop {
-		return
-	}
-
-	for c := inputOffset; c < inputEnd; c++ {
-		for iRow := outputOffset; iRow < outputEnd; iRow++ {
-			if c < len(matrixRows[iRow]) {
-				mt := mulTable[matrixRows[iRow][c]][:256]
-				for i := done; i < stop; i++ {
-					if c == 0 { // only set value for first input column
-						out[iRow][i] = mt[in[c][i]]
-					} else { // and add for all others
-						out[iRow][i] ^= mt[in[c][i]]
-					}
-				}
-			}
-		}
+	if done < stop {
+		galMulAVX512LastInput(inputOffset, inputEnd, outputOffset, outputEnd, matrixRows, done, stop, out, in)
 	}
 }
 
@@ -155,12 +199,13 @@ func galMulAVX512Parallel84(in, out [][]byte, matrixRows [][]byte, inputOffset, 
 	addTo := inputOffset != 0 // Except for the first input column, add to previous results
 	_galMulAVX512Parallel84(inTmp[:inputEnd-inputOffset], outTmp[:outputEnd-outputOffset], matrix84, addTo)
 
-	done = (done >> 6) << 6
-	done += start
-	if done == stop {
-		return
+	done = start + ((done >> 6) << 6)
+	if done < stop {
+		galMulAVX512LastInput(inputOffset, inputEnd, outputOffset, outputEnd, matrixRows, done, stop, out, in)
 	}
+}
 
+func galMulAVX512LastInput(inputOffset int, inputEnd int, outputOffset int, outputEnd int, matrixRows [][]byte, done int, stop int, out [][]byte, in [][]byte) {
 	for c := inputOffset; c < inputEnd; c++ {
 		for iRow := outputOffset; iRow < outputEnd; iRow++ {
 			if c < len(matrixRows[iRow]) {
@@ -188,6 +233,7 @@ func (r reedSolomon) codeSomeShardsAvx512(matrixRows, inputs, outputs [][]byte, 
 	for start < byteCount {
 		matrix84 := [matrixSize84]byte{}
 		matrix82 := [matrixSize82]byte{}
+		matrix81 := [matrixSize81]byte{}
 
 		outputRow := 0
 		// First process (multiple) batches of 4 output rows in parallel
@@ -209,12 +255,9 @@ func (r reedSolomon) codeSomeShardsAvx512(matrixRows, inputs, outputs [][]byte, 
 		}
 		// Lastly, we may have a single output row left (for uneven parity)
 		if outputRow < outputCount {
-			for c := 0; c < r.DataShards; c++ {
-				if c == 0 {
-					galMulSlice(matrixRows[outputRow][c], inputs[c], outputs[outputRow], &r.o)
-				} else {
-					galMulSliceXor(matrixRows[outputRow][c], inputs[c], outputs[outputRow], &r.o)
-				}
+			for inputRow := 0; inputRow < len(inputs); inputRow += dimIn {
+				setupMatrix81(matrixRows, inputRow, outputRow, &matrix81)
+				galMulAVX512Parallel81(inputs, outputs, matrixRows, inputRow, outputRow, start, end, &matrix81)
 			}
 		}
 
@@ -250,6 +293,7 @@ func (r reedSolomon) codeSomeShardsAvx512P(matrixRows, inputs, outputs [][]byte,
 			// Loop for each round.
 			matrix84 := [matrixSize84]byte{}
 			matrix82 := [matrixSize82]byte{}
+			matrix81 := [matrixSize81]byte{}
 			for start < grStop {
 				outputRow := 0
 				// First process (multiple) batches of 4 output rows in parallel
@@ -273,15 +317,9 @@ func (r reedSolomon) codeSomeShardsAvx512P(matrixRows, inputs, outputs [][]byte,
 				}
 				// Lastly, we may have a single output row left (for uneven parity)
 				if outputRow < outputCount {
-					for c := 0; c < r.DataShards; c++ {
-						in := inputs[c][start:stop]
-						for iRow := 0; iRow < outputCount; iRow++ {
-							if c == 0 {
-								galMulSlice(matrixRows[iRow][c], in, outputs[iRow][start:stop], &r.o)
-							} else {
-								galMulSliceXor(matrixRows[iRow][c], in, outputs[iRow][start:stop], &r.o)
-							}
-						}
+					for inputRow := 0; inputRow < len(inputs); inputRow += dimIn {
+						setupMatrix81(matrixRows, inputRow, outputRow, &matrix81)
+						galMulAVX512Parallel81(inputs, outputs, matrixRows, inputRow, outputRow, start, stop, &matrix81)
 					}
 				}
 				start = stop
