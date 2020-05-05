@@ -10,6 +10,9 @@ package reedsolomon
 import "sync"
 
 //go:noescape
+func _galMulAVX512Parallel81(in, out [][]byte, matrix *[matrixSize81]byte, addTo bool)
+
+//go:noescape
 func _galMulAVX512Parallel82(in, out [][]byte, matrix *[matrixSize82]byte, addTo bool)
 
 //go:noescape
@@ -17,8 +20,10 @@ func _galMulAVX512Parallel84(in, out [][]byte, matrix *[matrixSize84]byte, addTo
 
 const (
 	dimIn        = 8                            // Number of input rows processed simultaneously
+	dimOut81     = 1                            // Number of output rows processed simultaneously for x1 routine
 	dimOut82     = 2                            // Number of output rows processed simultaneously for x2 routine
 	dimOut84     = 4                            // Number of output rows processed simultaneously for x4 routine
+	matrixSize81 = (16 + 16) * dimIn * dimOut81 // Dimension of slice of matrix coefficient passed into x1 routine
 	matrixSize82 = (16 + 16) * dimIn * dimOut82 // Dimension of slice of matrix coefficient passed into x2 routine
 	matrixSize84 = (16 + 16) * dimIn * dimOut84 // Dimension of slice of matrix coefficient passed into x4 routine
 )

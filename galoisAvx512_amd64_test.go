@@ -311,3 +311,86 @@ func TestCodeSomeShardsAvx512_ManyxMany(t *testing.T) {
 		}
 	}
 }
+
+func BenchmarkGalois81_1M(b *testing.B) {
+
+	if !defaultOptions.useAVX512 {
+		b.Skip("AVX512 not detected")
+	}
+
+	rand.Seed(time.Now().UnixNano())
+
+	var size = 1024 * 1024
+
+	in, out := make([][]byte, dimIn), make([][]byte, dimOut81)
+
+	for i := range in {
+		in[i] = make([]byte, size)
+		rand.Read(in[i])
+	}
+
+	for i := range out {
+		out[i] = make([]byte, size)
+		rand.Read(out[i])
+	}
+
+	opts := defaultOptions
+	opts.useSSSE3 = true
+
+	matrix := [(16 + 16) * dimIn * dimOut81]byte{}
+	coeffs := make([]byte, dimIn*len(out))
+
+	for i := 0; i < dimIn*len(out); i++ {
+		coeffs[i] = byte(rand.Int31n(256))
+		copy(matrix[i*16:], mulTableLow[coeffs[i]][:])
+		copy(matrix[i*16+8:], mulTableHigh[coeffs[i]][:])
+	}
+
+	b.SetBytes(int64(size * dimIn * dimOut81))
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_galMulAVX512Parallel81(in, out, &matrix, true)
+	}
+}
+
+func BenchmarkGalois82_1M(b *testing.B) {
+
+	if !defaultOptions.useAVX512 {
+		b.Skip("AVX512 not detected")
+	}
+
+	rand.Seed(time.Now().UnixNano())
+
+	var size = 1024 * 1024
+
+	const inputSize = 8
+	in, out := make([][]byte, inputSize), make([][]byte, dimOut82)
+
+	for i := range in {
+		in[i] = make([]byte, size)
+		rand.Read(in[i])
+	}
+
+	for i := range out {
+		out[i] = make([]byte, size)
+		rand.Read(out[i])
+	}
+
+	opts := defaultOptions
+	opts.useSSSE3 = true
+
+	matrix := [(16 + 16) * dimIn * dimOut82]byte{}
+	coeffs := make([]byte, dimIn*len(out))
+
+	for i := 0; i < dimIn*len(out); i++ {
+		coeffs[i] = byte(rand.Int31n(256))
+		copy(matrix[i*32:], mulTableLow[coeffs[i]][:])
+		copy(matrix[i*32+16:], mulTableHigh[coeffs[i]][:])
+	}
+
+	b.SetBytes(int64(size * dimIn * dimOut82))
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_galMulAVX512Parallel82(in, out, &matrix, true)
+	}
+}
