@@ -17,6 +17,11 @@ type options struct {
 	useCauchy                             bool
 	shardSize                             int
 	perRound                              int
+
+	// stream options
+	concReads  bool
+	concWrites bool
+	streamBS   int
 }
 
 var defaultOptions = options{
@@ -71,6 +76,43 @@ func WithMinSplitSize(n int) Option {
 		if n > 0 {
 			o.minSplitSize = n
 		}
+	}
+}
+
+// WithConcurrentStreams will enable concurrent reads and writes on the streams.
+// Default: Disabled, meaning only one stream will be read/written at the time.
+// Ignored if not used on a stream input.
+func WithConcurrentStreams(enabled bool) Option {
+	return func(o *options) {
+		o.concReads, o.concWrites = enabled, enabled
+	}
+}
+
+// WithConcurrentStreamReads will enable concurrent reads from the input streams.
+// Default: Disabled, meaning only one stream will be read at the time.
+// Ignored if not used on a stream input.
+func WithConcurrentStreamReads(enabled bool) Option {
+	return func(o *options) {
+		o.concReads = enabled
+	}
+}
+
+// WithConcurrentStreamWrites will enable concurrent writes to the the output streams.
+// Default: Disabled, meaning only one stream will be written at the time.
+// Ignored if not used on a stream input.
+func WithConcurrentStreamWrites(enabled bool) Option {
+	return func(o *options) {
+		o.concWrites = enabled
+	}
+}
+
+// WithStreamBlockSize allows to set a custom block size per round of reads/writes.
+// If not set, any shard size set with WithAutoGoroutines will be used.
+// If WithAutoGoroutines is also unset, 4MB will be used.
+// Ignored if not used on stream.
+func WithStreamBlockSize(n int) Option {
+	return func(o *options) {
+		o.streamBS = n
 	}
 }
 
