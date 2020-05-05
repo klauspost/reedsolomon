@@ -14,6 +14,10 @@ func galMulNEON(c uint64, in, out []byte)
 func galMulXorNEON(c uint64, in, out []byte)
 
 func galMulSlice(c byte, in, out []byte, o *options) {
+	if c == 1 {
+		copy(out, in)
+		return
+	}
 	var done int
 	galMulNEON(uint64(c), in, out)
 	done = (len(in) >> 5) << 5
@@ -28,6 +32,10 @@ func galMulSlice(c byte, in, out []byte, o *options) {
 }
 
 func galMulSliceXor(c byte, in, out []byte, o *options) {
+	if c == 1 {
+		sliceXor(in, out, o)
+		return
+	}
 	var done int
 	galMulXorNEON(uint64(c), in, out)
 	done = (len(in) >> 5) << 5
@@ -42,7 +50,7 @@ func galMulSliceXor(c byte, in, out []byte, o *options) {
 }
 
 // slice galois add
-func sliceXor(in, out []byte, sse2 bool) {
+func sliceXor(in, out []byte, o *options) {
 	for n, input := range in {
 		out[n] ^= input
 	}
