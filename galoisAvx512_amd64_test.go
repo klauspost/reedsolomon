@@ -14,6 +14,102 @@ import (
 	"time"
 )
 
+func testGaloisAvx512Parallelx1(t *testing.T, inputSize int) {
+
+	if !defaultOptions.useAVX512 {
+		t.Skip("AVX512 not detected")
+	}
+
+	rand.Seed(time.Now().UnixNano())
+
+	var size = 1024 * 1024
+	if testing.Short() {
+		size = 4096
+	}
+
+	in, out := make([][]byte, inputSize), make([][]byte, dimOut81)
+
+	for i := range in {
+		in[i] = make([]byte, size)
+		rand.Read(in[i])
+	}
+
+	for i := range out {
+		out[i] = make([]byte, size)
+		rand.Read(out[i])
+	}
+
+	opts := defaultOptions
+	opts.useSSSE3 = true
+
+	matrix := [(16 + 16) * dimIn * dimOut81]byte{}
+	coeffs := make([]byte, dimIn*len(out))
+
+	for i := 0; i < dimIn*len(out); i++ {
+		coeffs[i] = byte(rand.Int31n(256))
+		copy(matrix[i*32:], mulTableLow[coeffs[i]][:])
+		copy(matrix[i*32+16:], mulTableHigh[coeffs[i]][:])
+	}
+
+	// Do first run with clearing out any existing results
+	_galMulAVX512Parallel81(in, out, &matrix, false)
+
+	expect := make([][]byte, len(out))
+	for i := range expect {
+		expect[i] = make([]byte, size)
+		rand.Read(expect[i])
+	}
+
+	for i := range in {
+		if i == 0 {
+			galMulSlice(coeffs[i], in[i], expect[0], &options{})
+		} else {
+			galMulSliceXor(coeffs[i], in[i], expect[0], &options{})
+		}
+	}
+
+	for i := range out {
+		if 0 != bytes.Compare(out[i], expect[i]) {
+			t.Errorf("got [%d]%#v...,\n                  expected [%d]%#v...", i, out[i][:8], i, expect[i][:8])
+		}
+	}
+
+	inToAdd := make([][]byte, len(in))
+
+	for i := range inToAdd {
+		inToAdd[i] = make([]byte, size)
+		rand.Read(inToAdd[i])
+	}
+
+	for i := 0; i < dimIn*len(out); i++ {
+		coeffs[i] = byte(rand.Int31n(256))
+		copy(matrix[i*32:], mulTableLow[coeffs[i]][:])
+		copy(matrix[i*32+16:], mulTableHigh[coeffs[i]][:])
+	}
+
+	// Do second run by adding to original run
+	_galMulAVX512Parallel81(inToAdd, out, &matrix, true)
+
+	for i := range in {
+		galMulSliceXor(coeffs[i], inToAdd[i], expect[0], &options{})
+	}
+
+	for i := range out {
+		if 0 != bytes.Compare(out[i], expect[i]) {
+			t.Errorf("got [%d]%#v...,\n                  expected [%d]%#v...", i, out[i][:8], i, expect[i][:8])
+		}
+	}
+}
+
+func TestGaloisAvx512Parallel11(t *testing.T) { testGaloisAvx512Parallelx1(t, 1) }
+func TestGaloisAvx512Parallel21(t *testing.T) { testGaloisAvx512Parallelx1(t, 2) }
+func TestGaloisAvx512Parallel31(t *testing.T) { testGaloisAvx512Parallelx1(t, 3) }
+func TestGaloisAvx512Parallel41(t *testing.T) { testGaloisAvx512Parallelx1(t, 4) }
+func TestGaloisAvx512Parallel51(t *testing.T) { testGaloisAvx512Parallelx1(t, 5) }
+func TestGaloisAvx512Parallel61(t *testing.T) { testGaloisAvx512Parallelx1(t, 6) }
+func TestGaloisAvx512Parallel71(t *testing.T) { testGaloisAvx512Parallelx1(t, 7) }
+func TestGaloisAvx512Parallel81(t *testing.T) { testGaloisAvx512Parallelx1(t, 8) }
+
 func testGaloisAvx512Parallelx2(t *testing.T, inputSize int) {
 
 	if !defaultOptions.useAVX512 {

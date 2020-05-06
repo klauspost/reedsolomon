@@ -1486,3 +1486,7 @@ func BenchmarkParallel_20x10x05M(b *testing.B) { benchmarkParallel(b, 20, 10, 51
 func BenchmarkParallel_8x8x1M(b *testing.B)    { benchmarkParallel(b, 8, 8, 1<<20) }
 func BenchmarkParallel_8x8x8M(b *testing.B)    { benchmarkParallel(b, 8, 8, 8<<20) }
 func BenchmarkParallel_8x8x32M(b *testing.B)   { benchmarkParallel(b, 8, 8, 32<<20) }
+
+func BenchmarkParallel_8x3x1M(b *testing.B) { benchmarkParallel(b, 8, 3, 1<<20) }
+func BenchmarkParallel_8x4x1M(b *testing.B) { benchmarkParallel(b, 8, 4, 1<<20) }
+func BenchmarkParallel_8x5x1M(b *testing.B) { benchmarkParallel(b, 8, 5, 1<<20) }
