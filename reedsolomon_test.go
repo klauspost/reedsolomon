@@ -836,9 +836,10 @@ func BenchmarkVerify10x4x16M(b *testing.B) {
 }
 
 func corruptRandom(shards [][]byte, dataShards, parityShards int) {
-	shardsToCorrupt := rand.Intn(parityShards)
-	for i := 1; i <= shardsToCorrupt; i++ {
-		shards[rand.Intn(dataShards+parityShards)] = shards[rand.Intn(dataShards+parityShards)][:0]
+	shardsToCorrupt := rand.Intn(parityShards) + 1
+	for i := 0; i < shardsToCorrupt; i++ {
+		n := rand.Intn(dataShards + parityShards)
+		shards[n] = shards[n][:0]
 	}
 }
 
@@ -909,9 +910,10 @@ func BenchmarkReconstruct10x4x16M(b *testing.B) {
 }
 
 func corruptRandomData(shards [][]byte, dataShards, parityShards int) {
-	shardsToCorrupt := rand.Intn(parityShards)
+	shardsToCorrupt := rand.Intn(parityShards) + 1
 	for i := 1; i <= shardsToCorrupt; i++ {
-		shards[rand.Intn(dataShards)] = shards[rand.Intn(dataShards)][:0]
+		n := rand.Intn(dataShards)
+		shards[n] = shards[n][:0]
 	}
 }
 
