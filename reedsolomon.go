@@ -259,25 +259,6 @@ func New(dataShards, parityShards int, opts ...Option) (Encoder, error) {
 	// Align to 64 bytes.
 	r.o.perRound = ((r.o.perRound + 63) / 64) * 64
 
-	if r.o.perRound < r.o.minSplitSize {
-		r.o.perRound = r.o.minSplitSize
-	}
-
-	if r.o.shardSize > 0 {
-		p := runtime.NumCPU()
-		g := r.o.shardSize / r.o.perRound
-
-		if g < p {
-			g = p
-		}
-
-		// Have g be multiple of p
-		g += p - 1
-		g -= g % p
-
-		r.o.maxGoroutines = g
-	}
-
 	if r.o.minSplitSize <= 0 {
 		// Set minsplit as high as we can, but still have parity in L1.
 		cacheSize := cpuid.CPU.Cache.L1D
@@ -289,6 +270,32 @@ func New(dataShards, parityShards int, opts ...Option) (Encoder, error) {
 		// Min 1K
 		if r.o.minSplitSize < 1024 {
 			r.o.minSplitSize = 1024
+		}
+	}
+
+	if r.o.perRound < r.o.minSplitSize {
+		r.o.perRound = r.o.minSplitSize
+	}
+
+	if r.o.shardSize > 0 {
+		p := runtime.GOMAXPROCS(0)
+		if p == 1 || r.o.shardSize <= r.o.minSplitSize*2 {
+			// Not worth it.
+			r.o.maxGoroutines = 1
+		} else {
+			g := r.o.shardSize / r.o.perRound
+
+			// Overprovision by a factor of 2.
+			if g < p*2 && r.o.perRound > r.o.minSplitSize*2 {
+				g = p * 2
+				r.o.perRound /= 2
+			}
+
+			// Have g be multiple of p
+			g += p - 1
+			g -= g % p
+
+			r.o.maxGoroutines = g
 		}
 	}
 
