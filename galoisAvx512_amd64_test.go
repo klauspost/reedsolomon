@@ -314,7 +314,7 @@ func TestGaloisAvx512Parallel64(t *testing.T) { testGaloisAvx512Parallelx4(t, 6)
 func TestGaloisAvx512Parallel74(t *testing.T) { testGaloisAvx512Parallelx4(t, 7) }
 func TestGaloisAvx512Parallel84(t *testing.T) { testGaloisAvx512Parallelx4(t, 8) }
 
-func testCodeSomeShardsAvx512WithLength(t *testing.T, ds, ps, l int) {
+func testCodeSomeShardsAvx512WithLength(t *testing.T, ds, ps, l int, parallel bool) {
 
 	if !defaultOptions.useAVX512 {
 		t.Skip("AVX512 not detected")
@@ -331,7 +331,11 @@ func testCodeSomeShardsAvx512WithLength(t *testing.T, ds, ps, l int) {
 		rand.Read(shards[i])
 	}
 
-	r.codeSomeShardsAvx512(r.parity, shards[:r.DataShards], shards[r.DataShards:], r.ParityShards, len(shards[0]))
+	if parallel {
+		r.codeSomeShardsAvx512P(r.parity, shards[:r.DataShards], shards[r.DataShards:], r.ParityShards, len(shards[0]))
+	} else {
+		r.codeSomeShardsAvx512(r.parity, shards[:r.DataShards], shards[r.DataShards:], r.ParityShards, len(shards[0]))
+	}
 
 	correct, _ := r.Verify(shards)
 	if !correct {
@@ -350,7 +354,8 @@ func testCodeSomeShardsAvx512(t *testing.T, ds, ps int) {
 		step += 29
 	}
 	for l := 1; l <= 8192; l += step {
-		testCodeSomeShardsAvx512WithLength(t, ds, ps, l)
+		testCodeSomeShardsAvx512WithLength(t, ds, ps, l, false)
+		testCodeSomeShardsAvx512WithLength(t, ds, ps, l, true)
 	}
 }
 
@@ -387,7 +392,8 @@ func TestCodeSomeShardsAvx512_Manyx4(t *testing.T) {
 		step += 7
 	}
 	for inputs := 1; inputs <= 200; inputs += step {
-		testCodeSomeShardsAvx512WithLength(t, inputs, 4, 1024+33)
+		testCodeSomeShardsAvx512WithLength(t, inputs, 4, 1024+33, false)
+		testCodeSomeShardsAvx512WithLength(t, inputs, 4, 1024+33, true)
 	}
 }
 
@@ -403,7 +409,8 @@ func TestCodeSomeShardsAvx512_ManyxMany(t *testing.T) {
 	}
 	for outputs := 1; outputs <= 32; outputs += step {
 		for inputs := 1; inputs <= 32; inputs += step {
-			testCodeSomeShardsAvx512WithLength(t, inputs, outputs, 1024+33)
+			testCodeSomeShardsAvx512WithLength(t, inputs, outputs, 1024+33, false)
+			testCodeSomeShardsAvx512WithLength(t, inputs, outputs, 1024+33, true)
 		}
 	}
 }
