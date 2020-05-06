@@ -1171,7 +1171,10 @@ func TestCodeSomeShards(t *testing.T) {
 }
 
 func TestStandardMatrices(t *testing.T) {
-	t.Skip("Skipping slow matrix check (~2 min)")
+	if testing.Short() || runtime.GOMAXPROCS(0) < 4 {
+		// Runtime ~15s.
+		t.Skip("Skipping slow matrix check")
+	}
 	var wg sync.WaitGroup
 	wg.Add(256 - 1)
 	for i := 1; i < 256; i++ {

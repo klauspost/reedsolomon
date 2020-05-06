@@ -53,6 +53,10 @@ func galMulSSSE3Xor(low, high, in, out []byte) {
 const bigSwitchover = 128
 
 func galMulSlice(c byte, in, out []byte, o *options) {
+	if c == 1 {
+		copy(out, in)
+		return
+	}
 	if o.useAVX2 {
 		if len(in) >= bigSwitchover {
 			galMulAVX2_64(mulTableLow[c][:], mulTableHigh[c][:], in, out)
@@ -80,6 +84,11 @@ func galMulSlice(c byte, in, out []byte, o *options) {
 }
 
 func galMulSliceXor(c byte, in, out []byte, o *options) {
+	if c == 1 {
+		sliceXor(in, out, o)
+		return
+	}
+
 	if o.useAVX2 {
 		if len(in) >= bigSwitchover {
 			galMulAVX2Xor_64(mulTableLow[c][:], mulTableHigh[c][:], in, out)
@@ -107,8 +116,8 @@ func galMulSliceXor(c byte, in, out []byte, o *options) {
 }
 
 // slice galois add
-func sliceXor(in, out []byte, sse2 bool) {
-	if sse2 {
+func sliceXor(in, out []byte, o *options) {
+	if o.useSSE2 {
 		if len(in) >= bigSwitchover {
 			sSE2XorSlice_64(in, out)
 			done := (len(in) >> 6) << 6

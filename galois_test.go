@@ -190,7 +190,9 @@ func TestSliceGalAdd(t *testing.T) {
 		for i := range expect {
 			expect[i] = in[i] ^ out[i]
 		}
-		sliceXor(in, out, false)
+		noSSE2 := defaultOptions
+		noSSE2.useSSE2 = false
+		sliceXor(in, out, &noSSE2)
 		if 0 != bytes.Compare(out, expect) {
 			t.Errorf("got %#v, expected %#v", out, expect)
 		}
@@ -198,7 +200,7 @@ func TestSliceGalAdd(t *testing.T) {
 		for i := range expect {
 			expect[i] = in[i] ^ out[i]
 		}
-		sliceXor(in, out, true)
+		sliceXor(in, out, &defaultOptions)
 		if 0 != bytes.Compare(out, expect) {
 			t.Errorf("got %#v, expected %#v", out, expect)
 		}

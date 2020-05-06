@@ -392,7 +392,7 @@ func (r reedSolomon) updateParityShards(matrixRows, oldinputs, newinputs, output
 		}
 		oldin := oldinputs[c]
 		// oldinputs data will be change
-		sliceXor(in, oldin, r.o.useSSE2)
+		sliceXor(in, oldin, &r.o)
 		for iRow := 0; iRow < outputCount; iRow++ {
 			galMulSliceXor(matrixRows[iRow][c], oldin, outputs[iRow], &r.o)
 		}
@@ -419,7 +419,7 @@ func (r reedSolomon) updateParityShardsP(matrixRows, oldinputs, newinputs, outpu
 				}
 				oldin := oldinputs[c]
 				// oldinputs data will be change
-				sliceXor(in[start:stop], oldin[start:stop], r.o.useSSE2)
+				sliceXor(in[start:stop], oldin[start:stop], &r.o)
 				for iRow := 0; iRow < outputCount; iRow++ {
 					galMulSliceXor(matrixRows[iRow][c], oldin[start:stop], outputs[iRow][start:stop], &r.o)
 				}
