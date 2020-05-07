@@ -2,7 +2,7 @@ language: go
 
 os:
   - linux
-  - os
+  - osx
   - windows
 
 arch:
