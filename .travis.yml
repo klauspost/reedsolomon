@@ -9,6 +9,7 @@ arch:
   - amd64
   - arm64
   - ppc64le
+  - s390x
 
 go:
   - 1.12.x
@@ -21,19 +22,44 @@ install:
 
 script: 
  - go vet ./...
- - go test -v -cpu=1,2,4 .
- - go test -v -cpu=1,2,4 -short -race .
- - go test -no-avx512
- - go test -no-avx512 -no-avx2
- - go test -tags=noasm -v -cpu=1,4 -short -race .
+ - go test -v -cpu=1,2 .
  - go build examples/simple-decoder.go
  - go build examples/simple-encoder.go
  - go build examples/stream-decoder.go
  - go build examples/stream-encoder.go
- - diff <(gofmt -d .) <("")
- - GOARCH=386 GOOS=linux go build .
 
-matrix:
+jobs:
   allow_failures:
     - go: 'master'
   fast_finish: true
+  include:
+    - stage: gofmt
+      go: 1.14.x
+      os: linux
+      arch: amd64
+      script:
+        - diff <(gofmt -d .) <("")
+    - stage: race
+      go: 1.14.x
+      os: linux
+      arch: amd64
+      script:
+        - go test -cpu=1,2 -short -race .
+        - go test -tags=noasm -v -cpu=1,4 -short -race .
+        - go test -no-avx512 -short -race .
+        - go test -no-avx512 -no-avx2 -short -race .
+        - go test -no-avx512 -no-avx2 -no-ssse3 -short -race .
+    - stage: amd64-noasm
+      go: 1.14.x
+      os: linux
+      arch: amd64
+      script:
+        - go test -no-avx512
+        - go test -no-avx512 -no-avx2
+        - go test -no-avx512 -no-avx2 -no-ssse3
+    - stage: i386
+      go: 1.14.x
+      os: linux
+      arch: amd64
+      script:
+        - GOOS=linux GOARCH=386 go test -short .
