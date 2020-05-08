@@ -414,3 +414,85 @@ func TestCodeSomeShardsAvx512_ManyxMany(t *testing.T) {
 		}
 	}
 }
+
+func BenchmarkParallel83(b *testing.B) {
+
+	rand.Seed(time.Now().UnixNano())
+
+	var size = 1 << 20
+
+	in, out := make([][]byte, 8), make([][]byte, dimOut83)
+
+	for i := range in {
+		in[i] = make([]byte, size)
+		rand.Read(in[i])
+	}
+
+	for i := range out {
+		out[i] = make([]byte, size)
+		rand.Read(out[i])
+	}
+
+	matrix := [(16 + 16) * dimIn * dimOut83]byte{}
+	coeffs := make([]byte, dimIn*len(out))
+
+	for i := 0; i < dimIn*len(out); i++ {
+		coeffs[i] = byte(rand.Int31n(256))
+		copy(matrix[i*32:], mulTableLow[coeffs[i]][:])
+		copy(matrix[i*32+16:], mulTableHigh[coeffs[i]][:])
+	}
+
+	b.SetBytes(int64(8 * size))
+	b.ReportAllocs()
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		_galMulAVX512Parallel83(in, out, &matrix, false)
+	}
+}
+
+func BenchmarkParallel82_and_81(b *testing.B) {
+
+	rand.Seed(time.Now().UnixNano())
+
+	var size = 1 << 20
+
+	in, out := make([][]byte, 8), make([][]byte, dimOut82)
+
+	for i := range in {
+		in[i] = make([]byte, size)
+		rand.Read(in[i])
+	}
+
+	for i := range out {
+		out[i] = make([]byte, size)
+		rand.Read(out[i])
+	}
+
+	matrix512 := [(16 + 16) * dimIn * dimOut82]byte{}
+	coeffs512 := make([]byte, dimIn*len(out))
+
+	for i := 0; i < dimIn*len(out); i++ {
+		coeffs512[i] = byte(rand.Int31n(256))
+		copy(matrix512[i*32:], mulTableLow[coeffs512[i]][:])
+		copy(matrix512[i*32+16:], mulTableHigh[coeffs512[i]][:])
+	}
+
+	matrix256 := [(16 + 16) * dimIn * dimOut81]byte{}
+	coeffs256 := make([]byte, dimIn*len(out)/2)
+
+	for i := 0; i < dimIn*len(out)/2; i++ {
+		coeffs256[i] = byte(rand.Int31n(256))
+		copy(matrix256[i*32:], mulTableLow[coeffs256[i]][:])
+		copy(matrix256[i*32+16:], mulTableHigh[coeffs256[i]][:])
+	}
+
+	b.SetBytes(int64(8 * size))
+	b.ReportAllocs()
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		_galMulAVX512Parallel82(in, out, &matrix512, false)
+		_galMulAVX512Parallel81(in, out, &matrix256, false)
+	}
+}
