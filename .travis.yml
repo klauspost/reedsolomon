@@ -23,7 +23,7 @@ install:
 script: 
  - go vet ./...
  - go test -cpu=1,2 .
- - go test -noasm -cpu=1,2 .
+ - go test -tags=noasm -cpu=1,2 .
  - go build examples/simple-decoder.go
  - go build examples/simple-encoder.go
  - go build examples/stream-decoder.go
