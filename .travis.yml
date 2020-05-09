@@ -45,8 +45,10 @@ jobs:
       os: linux
       arch: amd64
       script:
-        - go test -cpu=1,2 -short -race .
-        - go test -tags=noasm -v -cpu=1,4 -short -race .
+        - go test -cpu=1 -short -race .
+        - go test -cpu=2 -short -race .
+        - go test -tags=noasm -cpu=1 -short -race .
+        - go test -tags=noasm -cpu=4 -short -race .
         - go test -no-avx512 -short -race .
         - go test -no-avx512 -no-avx2 -short -race .
         - go test -no-avx512 -no-avx2 -no-ssse3 -short -race .
