@@ -99,3 +99,28 @@ loopXor:
 
 completeXor:
 	RET
+
+// func galXorNEON(in, out []byte)
+TEXT ·galXorNEON(SB), 7, $0
+	MOVD in_base+0(FP),  R1
+	MOVD in_len+8(FP),   R2 // length of message
+	MOVD out_base+24(FP), R5
+	SUBS $32, R2
+	BMI  completeXor
+
+loopXor:
+	// Main loop
+	WORD $0x4cdfa020 // ld1  {v0.16b-v1.16b}, [x1], #32
+	WORD $0x4c40a0b4 // ld1  {v20.16b-v21.16b}, [x5]
+
+	WORD $0x6e341c04 // eor  v4.16b, v0.16b,  v20.16b
+	WORD $0x6e351c25 // eor  v5.16b, v1.16b,  v21.16b
+
+	// Store result
+	WORD $0x4c9faca4 // st1  {v4.2d-v5.2d}, [x5], #32
+
+	SUBS $32, R2
+	BPL  loopXor
+
+completeXor:
+	RET
