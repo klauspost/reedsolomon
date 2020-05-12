@@ -29,6 +29,7 @@ go get -u github.com/klauspost/reedsolomon
 
 Numerous updates:
 
+* Added WithFastOneParityMatrix for faster operation with 1 parity shard.
 * Much better performance when using a limited number of goroutines.
 * AVX512 is now using multiple cores.
 * Stream processing overhaul, big speedups in most cases.
