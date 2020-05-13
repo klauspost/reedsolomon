@@ -8,10 +8,13 @@
 package reedsolomon
 
 //go:noescape
-func galMulNEON(c uint64, in, out []byte)
+func galMulNEON(low, high, in, out []byte)
 
 //go:noescape
-func galMulXorNEON(c uint64, in, out []byte)
+func galMulXorNEON(low, high, in, out []byte)
+
+//go:noescape
+func galXorNEON(in, out []byte)
 
 func galMulSlice(c byte, in, out []byte, o *options) {
 	if c == 1 {
@@ -19,7 +22,7 @@ func galMulSlice(c byte, in, out []byte, o *options) {
 		return
 	}
 	var done int
-	galMulNEON(uint64(c), in, out)
+	galMulNEON(mulTableLow[c][:], mulTableHigh[c][:], in, out)
 	done = (len(in) >> 5) << 5
 
 	remain := len(in) - done
@@ -37,7 +40,7 @@ func galMulSliceXor(c byte, in, out []byte, o *options) {
 		return
 	}
 	var done int
-	galMulXorNEON(uint64(c), in, out)
+	galMulXorNEON(mulTableLow[c][:], mulTableHigh[c][:], in, out)
 	done = (len(in) >> 5) << 5
 
 	remain := len(in) - done
@@ -51,7 +54,14 @@ func galMulSliceXor(c byte, in, out []byte, o *options) {
 
 // slice galois add
 func sliceXor(in, out []byte, o *options) {
-	for n, input := range in {
-		out[n] ^= input
+
+	galXorNEON(in, out)
+	done := (len(in) >> 5) << 5
+
+	remain := len(in) - done
+	if remain > 0 {
+		for i := done; i < len(in); i++ {
+			out[i] ^= in[i]
+		}
 	}
 }
