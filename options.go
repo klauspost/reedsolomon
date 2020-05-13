@@ -10,13 +10,15 @@ import (
 type Option func(*options)
 
 type options struct {
-	maxGoroutines                         int
-	minSplitSize                          int
+	maxGoroutines int
+	minSplitSize  int
+	shardSize     int
+	perRound      int
+
 	useAVX512, useAVX2, useSSSE3, useSSE2 bool
 	usePAR1Matrix                         bool
 	useCauchy                             bool
-	shardSize                             int
-	perRound                              int
+	fastOneParity                         bool
 
 	// stream options
 	concReads  bool
@@ -27,6 +29,7 @@ type options struct {
 var defaultOptions = options{
 	maxGoroutines: 384,
 	minSplitSize:  -1,
+	fastOneParity: false,
 
 	// Detect CPU capabilities.
 	useSSSE3:  cpuid.CPU.SSSE3(),
@@ -159,5 +162,14 @@ func WithCauchyMatrix() Option {
 	return func(o *options) {
 		o.useCauchy = true
 		o.usePAR1Matrix = false
+	}
+}
+
+// WithFastOneParityMatrix will switch the matrix to a simple xor
+// if there is only one parity shard.
+// The PAR1 matrix already has this property so it has little effect there.
+func WithFastOneParityMatrix() Option {
+	return func(o *options) {
+		o.fastOneParity = true
 	}
 }
