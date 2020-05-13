@@ -153,6 +153,27 @@ TEXT ·_galMulAVX512Parallel82(SB), 7, $0
 	VMOVDQU64 0x180(SI), Z22
 	VMOVDQU64 0x1c0(SI), Z23
 
+	// Initialize multiplication constants
+	VSHUFI64X2 $0x55, Z16, Z16, Z24
+	VSHUFI64X2 $0xaa, Z16, Z16, Z25
+	VSHUFI64X2 $0xff, Z16, Z16, Z26
+	VSHUFI64X2 $0x00, Z16, Z16, Z16
+
+	VSHUFI64X2 $0x55, Z20, Z20, Z27
+	VSHUFI64X2 $0xaa, Z20, Z20, Z28
+	VSHUFI64X2 $0xff, Z20, Z20, Z29
+	VSHUFI64X2 $0x00, Z20, Z20, Z20
+
+	VSHUFI64X2 $0x55, Z17, Z17, Z30
+	VSHUFI64X2 $0xaa, Z17, Z17, Z31
+	VSHUFI64X2 $0xff, Z17, Z17, Z11
+	VSHUFI64X2 $0x00, Z17, Z17, Z17
+
+	VSHUFI64X2 $0x55, Z21, Z21, Z8
+	VSHUFI64X2 $0xaa, Z21, Z21, Z9
+	VSHUFI64X2 $0xff, Z21, Z21, Z10
+	VSHUFI64X2 $0x00, Z21, Z21, Z21
+
 	MOVQ         $15, BX
 	VPBROADCASTB BX, Z2
 
@@ -171,29 +192,29 @@ loopback_avx512_parallel82:
 	VMOVDQU64.Z (CX), K1, Z5
 
 	LOAD(0x00)                            // &in[0][0]
-	GALOIS(0x00, 0x55, Z16, Z14, Z15, Z4)
-	GALOIS(0x00, 0x55, Z20, Z12, Z13, Z5)
+	GALOIS_MUL(Z16, Z24, Z14, Z15, Z4)
+	GALOIS_MUL(Z20, Z27, Z12, Z13, Z5)
 
 	CMPQ AX, $1
 	JE   skip_avx512_parallel82
 
 	LOAD(0x18)                            // &in[1][0]
-	GALOIS(0xaa, 0xff, Z16, Z14, Z15, Z4)
-	GALOIS(0xaa, 0xff, Z20, Z12, Z13, Z5)
+	GALOIS_MUL(Z25, Z26, Z14, Z15, Z4)
+	GALOIS_MUL(Z28, Z29, Z12, Z13, Z5)
 
 	CMPQ AX, $2
 	JE   skip_avx512_parallel82
 
 	LOAD(0x30)                            // &in[2][0]
-	GALOIS(0x00, 0x55, Z17, Z14, Z15, Z4)
-	GALOIS(0x00, 0x55, Z21, Z12, Z13, Z5)
+	GALOIS_MUL(Z17, Z30, Z14, Z15, Z4)
+	GALOIS_MUL(Z21, Z8, Z12, Z13, Z5)
 
 	CMPQ AX, $3
 	JE   skip_avx512_parallel82
 
 	LOAD(0x48)                            // &in[3][0]
-	GALOIS(0xaa, 0xff, Z17, Z14, Z15, Z4)
-	GALOIS(0xaa, 0xff, Z21, Z12, Z13, Z5)
+	GALOIS_MUL(Z31, Z11, Z14, Z15, Z4)
+	GALOIS_MUL(Z9, Z10, Z12, Z13, Z5)
 
 	CMPQ AX, $4
 	JE   skip_avx512_parallel82
