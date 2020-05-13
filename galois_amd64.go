@@ -136,3 +136,157 @@ func sliceXor(in, out []byte, o *options) {
 		out[i] ^= in[i]
 	}
 }
+
+const maxAvx2Inputs = 11
+const maxAvx2Outputs = 11
+
+func galMulSlicesAvx2(matrixRows [][]byte, in, out [][]byte) {
+	if len(in) > maxAvx2Inputs {
+		panic("max input exceeded")
+	}
+	if len(out) > maxAvx2Outputs {
+		panic("max output exceeded")
+	}
+	switch len(in) {
+	case 2:
+		switch len(out) {
+		case 2:
+			mulAvxTwo_2x2([4][16]byte{
+				mulTableLow[matrixRows[0][0]],
+				mulTableLow[matrixRows[1][0]],
+				mulTableLow[matrixRows[0][1]],
+				mulTableLow[matrixRows[1][1]],
+			}, [4][16]byte{
+				mulTableHigh[matrixRows[0][0]],
+				mulTableHigh[matrixRows[1][0]],
+				mulTableHigh[matrixRows[0][1]],
+				mulTableHigh[matrixRows[1][1]],
+			},
+				[2][]byte{in[0], in[1]},
+				[2][]byte{out[0], out[1]},
+			)
+		}
+	case 4:
+		switch len(out) {
+		case 2:
+			/*
+				mulAvxTwo_4x2([8][16]byte{
+					mulTableLow[matrixRows[0][0]],
+					mulTableLow[matrixRows[1][0]],
+					mulTableLow[matrixRows[0][1]],
+					mulTableLow[matrixRows[1][1]],
+					mulTableLow[matrixRows[0][2]],
+					mulTableLow[matrixRows[1][2]],
+					mulTableLow[matrixRows[0][3]],
+					mulTableLow[matrixRows[1][3]],
+				}, [8][16]byte{
+					mulTableHigh[matrixRows[0][0]],
+					mulTableHigh[matrixRows[1][0]],
+					mulTableHigh[matrixRows[0][1]],
+					mulTableHigh[matrixRows[1][1]],
+					mulTableHigh[matrixRows[0][2]],
+					mulTableHigh[matrixRows[1][2]],
+					mulTableHigh[matrixRows[0][3]],
+					mulTableHigh[matrixRows[1][3]],
+				},
+					[4][]byte{in[0], in[1], in[2], in[3]},
+					[2][]byte{out[0], out[1]},
+				)
+			*/
+		case 4:
+			/*
+				mulAvx2_4_4([16][16]byte{
+					mulTableLow[matrixRows[0][0]],
+					mulTableLow[matrixRows[1][0]],
+					mulTableLow[matrixRows[2][0]],
+					mulTableLow[matrixRows[3][0]],
+					mulTableLow[matrixRows[0][1]],
+					mulTableLow[matrixRows[1][1]],
+					mulTableLow[matrixRows[2][1]],
+					mulTableLow[matrixRows[3][1]],
+					mulTableLow[matrixRows[0][2]],
+					mulTableLow[matrixRows[1][2]],
+					mulTableLow[matrixRows[2][2]],
+					mulTableLow[matrixRows[3][2]],
+					mulTableLow[matrixRows[0][3]],
+					mulTableLow[matrixRows[1][3]],
+					mulTableLow[matrixRows[2][3]],
+					mulTableLow[matrixRows[3][3]],
+				}, [16][16]byte{
+					mulTableHigh[matrixRows[0][0]],
+					mulTableHigh[matrixRows[1][0]],
+					mulTableHigh[matrixRows[2][0]],
+					mulTableHigh[matrixRows[3][0]],
+					mulTableHigh[matrixRows[0][1]],
+					mulTableHigh[matrixRows[1][1]],
+					mulTableHigh[matrixRows[2][1]],
+					mulTableHigh[matrixRows[3][1]],
+					mulTableHigh[matrixRows[0][2]],
+					mulTableHigh[matrixRows[1][2]],
+					mulTableHigh[matrixRows[2][2]],
+					mulTableHigh[matrixRows[3][2]],
+					mulTableHigh[matrixRows[0][3]],
+					mulTableHigh[matrixRows[1][3]],
+					mulTableHigh[matrixRows[2][3]],
+					mulTableHigh[matrixRows[3][3]],
+				},
+					[4][]byte{in[0], in[1], in[2], in[3]},
+					[4][]byte{out[0], out[1], out[2], out[3]},
+				)
+			*/
+		}
+	case 5:
+		switch len(out) {
+		case 1:
+			mulAvxTwo_5x1([5][16]byte{
+				mulTableLow[matrixRows[0][0]],
+				mulTableLow[matrixRows[0][1]],
+				mulTableLow[matrixRows[0][2]],
+				mulTableLow[matrixRows[0][3]],
+				mulTableLow[matrixRows[0][4]],
+			}, [5][16]byte{
+				mulTableHigh[matrixRows[0][0]],
+				mulTableHigh[matrixRows[0][1]],
+				mulTableHigh[matrixRows[0][2]],
+				mulTableHigh[matrixRows[0][3]],
+				mulTableHigh[matrixRows[0][4]],
+			},
+				[5][]byte{in[0], in[1], in[2], in[3], in[4]},
+				[1][]byte{out[0]},
+			)
+		}
+	case 10:
+		switch len(out) {
+		case 1:
+			/*
+				mulAvxTwo_10x1([10][16]byte{
+					mulTableLow[matrixRows[0][0]],
+					mulTableLow[matrixRows[0][1]],
+					mulTableLow[matrixRows[0][2]],
+					mulTableLow[matrixRows[0][3]],
+					mulTableLow[matrixRows[0][4]],
+					mulTableLow[matrixRows[0][5]],
+					mulTableLow[matrixRows[0][6]],
+					mulTableLow[matrixRows[0][7]],
+					mulTableLow[matrixRows[0][8]],
+					mulTableLow[matrixRows[0][9]],
+				}, [10][16]byte{
+					mulTableHigh[matrixRows[0][0]],
+					mulTableHigh[matrixRows[0][1]],
+					mulTableHigh[matrixRows[0][2]],
+					mulTableHigh[matrixRows[0][3]],
+					mulTableHigh[matrixRows[0][4]],
+					mulTableHigh[matrixRows[0][5]],
+					mulTableHigh[matrixRows[0][6]],
+					mulTableHigh[matrixRows[0][7]],
+					mulTableHigh[matrixRows[0][8]],
+					mulTableHigh[matrixRows[0][9]],
+				},
+					[10][]byte{in[0], in[1], in[2], in[3], in[4], in[5], in[6], in[7], in[8], in[9]},
+					[1][]byte{out[0]},
+				)
+
+			*/
+		}
+	}
+}
