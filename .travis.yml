@@ -45,8 +45,9 @@ jobs:
       arch: amd64
       script:
         - diff <(gofmt -d .) <("")
-        - go install github.com/klauspost/asmfmt/cmd/asmfmt
-        - diff <(asmfmt -d .) <("")
+        - go install github.com/klauspost/asmfmt
+        - go build github.com/klauspost/asmfmt/cmd/asmfmt
+        - diff <(./asmfmt -d .) <("")
     - stage: race
       go: 1.14.x
       os: linux
