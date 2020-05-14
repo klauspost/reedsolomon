@@ -37,6 +37,7 @@ stages:
 jobs:
   allow_failures:
     - go: 'master'
+    - arch: s390x
   fast_finish: true
   include:
     - stage: gofmt

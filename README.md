@@ -2,7 +2,7 @@
 [![GoDoc][1]][2] [![Build Status][3]][4]
 
 [1]: https://godoc.org/github.com/klauspost/reedsolomon?status.svg
-[2]: https://godoc.org/github.com/klauspost/reedsolomon
+[2]: https://pkg.go.dev/github.com/klauspost/reedsolomon?tab=doc
 [3]: https://travis-ci.org/klauspost/reedsolomon.svg?branch=master
 [4]: https://travis-ci.org/klauspost/reedsolomon
 
@@ -15,7 +15,7 @@ For an introduction on erasure coding, see the post on the [Backblaze blog](http
 
 Package home: https://github.com/klauspost/reedsolomon
 
-Godoc: https://godoc.org/github.com/klauspost/reedsolomon
+Godoc: https://pkg.go.dev/github.com/klauspost/reedsolomon?tab=doc
 
 # Installation
 To get the package use the standard:
@@ -27,9 +27,8 @@ go get -u github.com/klauspost/reedsolomon
 
 ## May 2020
 
-Numerous updates:
-
-* Added WithFastOneParityMatrix for faster operation with 1 parity shard.
+* ARM64 optimizations, up to 2.5x faster.
+* Added [WithFastOneParityMatrix](https://pkg.go.dev/github.com/klauspost/reedsolomon?tab=doc#WithFastOneParityMatrix) for faster operation with 1 parity shard.
 * Much better performance when using a limited number of goroutines.
 * AVX512 is now using multiple cores.
 * Stream processing overhaul, big speedups in most cases.
@@ -107,6 +106,11 @@ To create an encoder with 10 data shards (where your data goes) and 3 parity sha
 This encoder will work for all parity sets with this distribution of data and parity shards. 
 The error will only be set if you specify 0 or negative values in any of the parameters, 
 or if you specify more than 256 data shards.
+
+If you will primarily be using it with one shard size it is recommended to use 
+[`WithAutoGoroutines(shardSize)`](https://pkg.go.dev/github.com/klauspost/reedsolomon?tab=doc#WithAutoGoroutines)
+as an additional parameter. This will attempt to calculate the optimal number of goroutines to use for the best speed.
+It is not required that all shards are this size. 
 
 The you send and receive data  is a simple slice of byte slices; `[][]byte`. 
 In the example above, the top slice must have a length of 13.
