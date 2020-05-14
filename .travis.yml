@@ -20,7 +20,7 @@ go:
 install:
  - go get ./...
 
-script: 
+script:
  - go vet ./...
  - go test -cpu=1,2 .
  - go test -tags=noasm -cpu=1,2 .
@@ -29,10 +29,14 @@ script:
  - go build examples/stream-decoder.go
  - go build examples/stream-encoder.go
 
+stages:
+  - gofmt
+  - test
+  - deploy
+
 jobs:
   allow_failures:
     - go: 'master'
-    - arch: s390x
   fast_finish: true
   include:
     - stage: gofmt
@@ -41,6 +45,8 @@ jobs:
       arch: amd64
       script:
         - diff <(gofmt -d .) <("")
+        - go install github.com/klauspost/asmfmt/cmd/asmfmt
+        - diff <(asmfmt -d .) <("")
     - stage: race
       go: 1.14.x
       os: linux
