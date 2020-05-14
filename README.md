@@ -350,13 +350,14 @@ registers (32 in total) is used to keep more data around (most notably the matri
 # Performance on ARM64 NEON
 
 By exploiting NEON instructions the performance for ARM has been accelerated. 
-Below are the performance numbers for a single core on an ARM Cortex-A53 CPU @ 1.2GHz (Debian 8.0 Jessie running Go: 1.7.4):
+Below are the performance numbers for a single core on EC2 a1.2xlarge instance (Amazon Linux 2):
 
-| Data | Parity | Parity | ARM64 Go MB/s | ARM64 NEON MB/s | NEON Speed |
-|------|--------|--------|--------------:|----------------:|-----------:|
-| 5    | 2      | 40%    |           189 |            1304 |       588% |
-| 10   | 2      | 20%    |           188 |            1738 |       925% |
-| 10   | 4      | 40%    |            96 |             839 |       877% |
+```
+BenchmarkGalois128K-8          45001     26651 ns/op        4918.11 MB/s
+BenchmarkGalois1M-8             5595    212740 ns/op        4928.90 MB/s
+BenchmarkGaloisXor128K-8       39079     30709 ns/op        4268.19 MB/s
+BenchmarkGaloisXor1M-8          4112    290005 ns/op        3615.71 MB/s
+```
 
 # Performance on ppc64le
 

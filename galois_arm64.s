@@ -3,9 +3,6 @@
 // Copyright 2015, Klaus Post, see LICENSE for details.
 // Copyright 2017, Minio, Inc.
 
-// Use github.com/minio/asm2plan9s on this file to assemble ARM instructions to
-// the opcodes of their Plan9 equivalents
-
 // func galMulNEON(low, high, in, out []byte)
 TEXT ·galMulNEON(SB), 7, $0
 	MOVD in_base+48(FP),  R1
@@ -16,34 +13,39 @@ TEXT ·galMulNEON(SB), 7, $0
 
 	MOVD low+0(FP),   R10 // R10: &low
 	MOVD high+24(FP), R11 // R11: &high
-	WORD $0x4c407146 // ld1 {v6.16b}, [x10]
-	WORD $0x4c407167 // ld1 {v7.16b}, [x11]
+	VLD1 (R10), [V6.B16]
+	VLD1 (R11), [V7.B16]
 
+	//
+	// Use an extra instruction below since `VDUP R3, V8.B16` generates assembler error
+	// WORD $0x4e010c68 // dup v8.16b, w3
+	//
 	MOVD $0x0f, R3
-	WORD $0x4e010c68 // dup v8.16b, w3
+	VMOV R3, V8.B[0]
+	VDUP V8.B[0], V8.B16	
 
 loop:
 	// Main loop
-	WORD $0x4cdfa020 // ld1  {v0.16b-v1.16b}, [x1], #32
+	VLD1.P 32(R1), [V0.B16, V1.B16]
 
 	// Get low input and high input
-	WORD $0x6f0c040a // ushr v10.16b, v0.16b, #4
-	WORD $0x6f0c042b // ushr v11.16b, v1.16b, #4
-	WORD $0x4e281c00 // and  v0.16b, v0.16b, v8.16b
-	WORD $0x4e281c21 // and  v1.16b, v1.16b, v8.16b
+	VUSHR $4, V0.B16, V10.B16
+	VUSHR $4, V1.B16, V11.B16
+    VAND V8.B16, V0.B16, V0.B16
+    VAND V8.B16, V1.B16, V1.B16
 
 	// Mul low part and mul high part
-	WORD $0x4e0000c4 // tbl  v4.16b, {v6.16b}, v0.16b
-	WORD $0x4e0a00e5 // tbl  v5.16b, {v7.16b}, v10.16b
-	WORD $0x4e0100ce // tbl  v14.16b, {v6.16b}, v1.16b
-	WORD $0x4e0b00ef // tbl  v15.16b, {v7.16b}, v11.16b
+	VTBL V0.B16, [V6.B16], V4.B16
+	VTBL V10.B16, [V7.B16], V5.B16
+	VTBL V1.B16, [V6.B16], V14.B16
+	VTBL V11.B16, [V7.B16], V15.B16
 
 	// Combine results
-	WORD $0x6e251c84 // eor  v4.16b, v4.16b,  v5.16b
-	WORD $0x6e2f1dc5 // eor  v5.16b, v14.16b, v15.16b
+    VEOR V5.B16, V4.B16, V4.B16
+    VEOR V15.B16, V14.B16, V5.B16
 
 	// Store result
-	WORD $0x4c9faca4 // st1  {v4.2d-v5.2d}, [x5], #32
+	VST1.P [V4.D2, V5.D2], 32(R5)
 
 	SUBS $32, R2
 	BPL  loop
@@ -62,37 +64,42 @@ TEXT ·galMulXorNEON(SB), 7, $0
 
 	MOVD low+0(FP),   R10 // R10: &low
 	MOVD high+24(FP), R11 // R11: &high
-	WORD $0x4c407146 // ld1 {v6.16b}, [x10]
-	WORD $0x4c407167 // ld1 {v7.16b}, [x11]
+	VLD1 (R10), [V6.B16]
+	VLD1 (R11), [V7.B16]
 
+	//
+	// Use an extra instruction below since `VDUP R3, V8.B16` generates assembler error
+	// WORD $0x4e010c68 // dup v8.16b, w3
+	//
 	MOVD $0x0f, R3
-	WORD $0x4e010c68 // dup v8.16b, w3
+	VMOV R3, V8.B[0]
+	VDUP V8.B[0], V8.B16	
 
 loopXor:
 	// Main loop
-	WORD $0x4cdfa020 // ld1  {v0.16b-v1.16b}, [x1], #32
-	WORD $0x4c40a0b4 // ld1  {v20.16b-v21.16b}, [x5]
+	VLD1.P 32(R1), [V0.B16, V1.B16]
+	VLD1   (R5), [V20.B16, V21.B16]
 
 	// Get low input and high input
-	WORD $0x6f0c040a // ushr v10.16b, v0.16b, #4
-	WORD $0x6f0c042b // ushr v11.16b, v1.16b, #4
-	WORD $0x4e281c00 // and  v0.16b, v0.16b, v8.16b
-	WORD $0x4e281c21 // and  v1.16b, v1.16b, v8.16b
+	VUSHR $4, V0.B16, V10.B16
+	VUSHR $4, V1.B16, V11.B16
+    VAND V8.B16, V0.B16, V0.B16
+    VAND V8.B16, V1.B16, V1.B16
 
 	// Mul low part and mul high part
-	WORD $0x4e0000c4 // tbl  v4.16b, {v6.16b}, v0.16b
-	WORD $0x4e0a00e5 // tbl  v5.16b, {v7.16b}, v10.16b
-	WORD $0x4e0100ce // tbl  v14.16b, {v6.16b}, v1.16b
-	WORD $0x4e0b00ef // tbl  v15.16b, {v7.16b}, v11.16b
+	VTBL V0.B16, [V6.B16], V4.B16
+	VTBL V10.B16, [V7.B16], V5.B16
+	VTBL V1.B16, [V6.B16], V14.B16
+	VTBL V11.B16, [V7.B16], V15.B16
 
 	// Combine results
-	WORD $0x6e251c84 // eor  v4.16b, v4.16b,  v5.16b
-	WORD $0x6e2f1dc5 // eor  v5.16b, v14.16b, v15.16b
-	WORD $0x6e341c84 // eor  v4.16b, v4.16b,  v20.16b
-	WORD $0x6e351ca5 // eor  v5.16b, v5.16b,  v21.16b
+    VEOR V5.B16, V4.B16, V4.B16
+    VEOR V15.B16, V14.B16, V5.B16
+    VEOR V20.B16, V4.B16, V4.B16
+    VEOR V21.B16, V5.B16, V5.B16
 
 	// Store result
-	WORD $0x4c9faca4 // st1  {v4.2d-v5.2d}, [x5], #32
+	VST1.P [V4.D2, V5.D2], 32(R5)
 
 	SUBS $32, R2
 	BPL  loopXor
@@ -110,14 +117,14 @@ TEXT ·galXorNEON(SB), 7, $0
 
 loopXor:
 	// Main loop
-	WORD $0x4cdfa020 // ld1  {v0.16b-v1.16b}, [x1], #32
-	WORD $0x4c40a0b4 // ld1  {v20.16b-v21.16b}, [x5]
+	VLD1.P 32(R1), [V0.B16, V1.B16]
+	VLD1   (R5), [V20.B16, V21.B16]
 
-	WORD $0x6e341c04 // eor  v4.16b, v0.16b,  v20.16b
-	WORD $0x6e351c25 // eor  v5.16b, v1.16b,  v21.16b
+    VEOR V20.B16, V0.B16, V4.B16
+    VEOR V21.B16, V1.B16, V5.B16
 
 	// Store result
-	WORD $0x4c9faca4 // st1  {v4.2d-v5.2d}, [x5], #32
+	VST1.P [V4.D2, V5.D2], 32(R5)
 
 	SUBS $32, R2
 	BPL  loopXor
