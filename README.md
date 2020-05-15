@@ -354,13 +354,13 @@ registers (32 in total) is used to keep more data around (most notably the matri
 # Performance on ARM64 NEON
 
 By exploiting NEON instructions the performance for ARM has been accelerated. 
-Below are the performance numbers for a single core on EC2 a1.2xlarge instance (Amazon Linux 2):
+Below are the performance numbers for a single core on an EC2 m6g.16xlarge (Graviton2) instance (Amazon Linux 2):
 
 ```
-BenchmarkGalois128K-8          45001     26651 ns/op        4918.11 MB/s
-BenchmarkGalois1M-8             5595    212740 ns/op        4928.90 MB/s
-BenchmarkGaloisXor128K-8       39079     30709 ns/op        4268.19 MB/s
-BenchmarkGaloisXor1M-8          4112    290005 ns/op        3615.71 MB/s
+BenchmarkGalois128K-64        119562     10028 ns/op        13070.78 MB/s
+BenchmarkGalois1M-64           14380     83424 ns/op        12569.22 MB/s
+BenchmarkGaloisXor128K-64      96508     12432 ns/op        10543.29 MB/s
+BenchmarkGaloisXor1M-64        10000    100322 ns/op        10452.13 MB/s
 ```
 
 # Performance on ppc64le
