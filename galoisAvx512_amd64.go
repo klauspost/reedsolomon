@@ -224,20 +224,6 @@ func galMulAVX512LastInput(inputOffset int, inputEnd int, outputOffset int, outp
 	}
 }
 
-func (r reedSolomon) codeSomeShardsAvx2(matrixRows, inputs, outputs [][]byte, outputCount, byteCount int) {
-	// Process using no goroutines
-	outputRow := 0
-	// First process (multiple) batches of 4 output rows in parallel
-	if outputRow+10 <= outputCount {
-		for ; outputRow+1 <= outputCount; outputRow += 1 {
-			for inputRow := 0; inputRow < len(inputs); inputRow += 5 {
-				galMulSlicesAvx2(matrixRows[outputRow:], inputs[inputRow:inputRow+5], outputs[outputRow:outputRow+1])
-			}
-		}
-	}
-
-}
-
 // Perform the same as codeSomeShards, but taking advantage of
 // AVX512 parallelism for up to 4x faster execution as compared to AVX2
 func (r reedSolomon) codeSomeShardsAvx512(matrixRows, inputs, outputs [][]byte, outputCount, byteCount int) {

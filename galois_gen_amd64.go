@@ -6,83 +6,602 @@
 
 package reedsolomon
 
-// mulAvxTwoXor_1x1 takes 1 inputs and produces 1 outputs.
-//go:noescape
-func mulAvxTwoXor_1x1(low [1][16]byte, high [1][16]byte, in [1][]byte, out [1][]byte)
-
 // mulAvxTwo_1x1 takes 1 inputs and produces 1 outputs.
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_1x1(low [1][16]byte, high [1][16]byte, in [1][]byte, out [1][]byte)
-
-// mulAvxTwoXor_1x2 takes 1 inputs and produces 2 outputs.
-//go:noescape
-func mulAvxTwoXor_1x2(low [2][16]byte, high [2][16]byte, in [1][]byte, out [2][]byte)
 
 // mulAvxTwo_1x2 takes 1 inputs and produces 2 outputs.
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_1x2(low [2][16]byte, high [2][16]byte, in [1][]byte, out [2][]byte)
 
-// mulAvxTwoXor_1x3 takes 1 inputs and produces 3 outputs.
-//go:noescape
-func mulAvxTwoXor_1x3(low [3][16]byte, high [3][16]byte, in [1][]byte, out [3][]byte)
-
 // mulAvxTwo_1x3 takes 1 inputs and produces 3 outputs.
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_1x3(low [3][16]byte, high [3][16]byte, in [1][]byte, out [3][]byte)
 
-// mulAvxTwoXor_2x1 takes 2 inputs and produces 1 outputs.
+// mulAvxTwo_1x4 takes 1 inputs and produces 4 outputs.
+// The output is initialized to 0.
 //go:noescape
-func mulAvxTwoXor_2x1(low [2][16]byte, high [2][16]byte, in [2][]byte, out [1][]byte)
+func mulAvxTwo_1x4(low [8][16]byte, high [8][16]byte, in [1][]byte, out [4][]byte)
+
+// mulAvxTwo_1x5 takes 1 inputs and produces 5 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_1x5(low [10][16]byte, high [10][16]byte, in [1][]byte, out [5][]byte)
+
+// mulAvxTwo_1x6 takes 1 inputs and produces 6 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_1x6(low [12][16]byte, high [12][16]byte, in [1][]byte, out [6][]byte)
+
+// mulAvxTwo_1x7 takes 1 inputs and produces 7 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_1x7(low [14][16]byte, high [14][16]byte, in [1][]byte, out [7][]byte)
+
+// mulAvxTwo_1x8 takes 1 inputs and produces 8 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_1x8(low [16][16]byte, high [16][16]byte, in [1][]byte, out [8][]byte)
+
+// mulAvxTwo_1x9 takes 1 inputs and produces 9 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_1x9(low [18][16]byte, high [18][16]byte, in [1][]byte, out [9][]byte)
+
+// mulAvxTwo_1x10 takes 1 inputs and produces 10 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_1x10(low [20][16]byte, high [20][16]byte, in [1][]byte, out [10][]byte)
 
 // mulAvxTwo_2x1 takes 2 inputs and produces 1 outputs.
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_2x1(low [2][16]byte, high [2][16]byte, in [2][]byte, out [1][]byte)
 
-// mulAvxTwoXor_2x2 takes 2 inputs and produces 2 outputs.
-//go:noescape
-func mulAvxTwoXor_2x2(low [4][16]byte, high [4][16]byte, in [2][]byte, out [2][]byte)
-
 // mulAvxTwo_2x2 takes 2 inputs and produces 2 outputs.
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_2x2(low [4][16]byte, high [4][16]byte, in [2][]byte, out [2][]byte)
 
-// mulAvxTwoXor_3x1 takes 3 inputs and produces 1 outputs.
+// mulAvxTwo_2x3 takes 2 inputs and produces 3 outputs.
+// The output is initialized to 0.
 //go:noescape
-func mulAvxTwoXor_3x1(low [3][16]byte, high [3][16]byte, in [3][]byte, out [1][]byte)
+func mulAvxTwo_2x3(low [12][16]byte, high [12][16]byte, in [2][]byte, out [3][]byte)
+
+// mulAvxTwo_2x4 takes 2 inputs and produces 4 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_2x4(low [16][16]byte, high [16][16]byte, in [2][]byte, out [4][]byte)
+
+// mulAvxTwo_2x5 takes 2 inputs and produces 5 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_2x5(low [20][16]byte, high [20][16]byte, in [2][]byte, out [5][]byte)
+
+// mulAvxTwo_2x6 takes 2 inputs and produces 6 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_2x6(low [24][16]byte, high [24][16]byte, in [2][]byte, out [6][]byte)
+
+// mulAvxTwo_2x7 takes 2 inputs and produces 7 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_2x7(low [28][16]byte, high [28][16]byte, in [2][]byte, out [7][]byte)
+
+// mulAvxTwo_2x8 takes 2 inputs and produces 8 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_2x8(low [32][16]byte, high [32][16]byte, in [2][]byte, out [8][]byte)
+
+// mulAvxTwo_2x9 takes 2 inputs and produces 9 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_2x9(low [36][16]byte, high [36][16]byte, in [2][]byte, out [9][]byte)
+
+// mulAvxTwo_2x10 takes 2 inputs and produces 10 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_2x10(low [40][16]byte, high [40][16]byte, in [2][]byte, out [10][]byte)
 
 // mulAvxTwo_3x1 takes 3 inputs and produces 1 outputs.
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_3x1(low [3][16]byte, high [3][16]byte, in [3][]byte, out [1][]byte)
 
-// mulAvxTwoXor_4x1 takes 4 inputs and produces 1 outputs.
+// mulAvxTwo_3x2 takes 3 inputs and produces 2 outputs.
+// The output is initialized to 0.
 //go:noescape
-func mulAvxTwoXor_4x1(low [4][16]byte, high [4][16]byte, in [4][]byte, out [1][]byte)
+func mulAvxTwo_3x2(low [12][16]byte, high [12][16]byte, in [3][]byte, out [2][]byte)
+
+// mulAvxTwo_3x3 takes 3 inputs and produces 3 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_3x3(low [18][16]byte, high [18][16]byte, in [3][]byte, out [3][]byte)
+
+// mulAvxTwo_3x4 takes 3 inputs and produces 4 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_3x4(low [24][16]byte, high [24][16]byte, in [3][]byte, out [4][]byte)
+
+// mulAvxTwo_3x5 takes 3 inputs and produces 5 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_3x5(low [30][16]byte, high [30][16]byte, in [3][]byte, out [5][]byte)
+
+// mulAvxTwo_3x6 takes 3 inputs and produces 6 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_3x6(low [36][16]byte, high [36][16]byte, in [3][]byte, out [6][]byte)
+
+// mulAvxTwo_3x7 takes 3 inputs and produces 7 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_3x7(low [42][16]byte, high [42][16]byte, in [3][]byte, out [7][]byte)
+
+// mulAvxTwo_3x8 takes 3 inputs and produces 8 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_3x8(low [48][16]byte, high [48][16]byte, in [3][]byte, out [8][]byte)
+
+// mulAvxTwo_3x9 takes 3 inputs and produces 9 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_3x9(low [54][16]byte, high [54][16]byte, in [3][]byte, out [9][]byte)
+
+// mulAvxTwo_3x10 takes 3 inputs and produces 10 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_3x10(low [60][16]byte, high [60][16]byte, in [3][]byte, out [10][]byte)
 
 // mulAvxTwo_4x1 takes 4 inputs and produces 1 outputs.
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_4x1(low [4][16]byte, high [4][16]byte, in [4][]byte, out [1][]byte)
 
-// mulAvxTwoXor_5x1 takes 5 inputs and produces 1 outputs.
+// mulAvxTwo_4x2 takes 4 inputs and produces 2 outputs.
+// The output is initialized to 0.
 //go:noescape
-func mulAvxTwoXor_5x1(low [5][16]byte, high [5][16]byte, in [5][]byte, out [1][]byte)
+func mulAvxTwo_4x2(low [16][16]byte, high [16][16]byte, in [4][]byte, out [2][]byte)
+
+// mulAvxTwo_4x3 takes 4 inputs and produces 3 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_4x3(low [24][16]byte, high [24][16]byte, in [4][]byte, out [3][]byte)
+
+// mulAvxTwo_4x4 takes 4 inputs and produces 4 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_4x4(low [32][16]byte, high [32][16]byte, in [4][]byte, out [4][]byte)
+
+// mulAvxTwo_4x5 takes 4 inputs and produces 5 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_4x5(low [40][16]byte, high [40][16]byte, in [4][]byte, out [5][]byte)
+
+// mulAvxTwo_4x6 takes 4 inputs and produces 6 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_4x6(low [48][16]byte, high [48][16]byte, in [4][]byte, out [6][]byte)
+
+// mulAvxTwo_4x7 takes 4 inputs and produces 7 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_4x7(low [56][16]byte, high [56][16]byte, in [4][]byte, out [7][]byte)
+
+// mulAvxTwo_4x8 takes 4 inputs and produces 8 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_4x8(low [64][16]byte, high [64][16]byte, in [4][]byte, out [8][]byte)
+
+// mulAvxTwo_4x9 takes 4 inputs and produces 9 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_4x9(low [72][16]byte, high [72][16]byte, in [4][]byte, out [9][]byte)
+
+// mulAvxTwo_4x10 takes 4 inputs and produces 10 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_4x10(low [80][16]byte, high [80][16]byte, in [4][]byte, out [10][]byte)
 
 // mulAvxTwo_5x1 takes 5 inputs and produces 1 outputs.
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_5x1(low [5][16]byte, high [5][16]byte, in [5][]byte, out [1][]byte)
 
-// mulAvxTwoXor_6x1 takes 6 inputs and produces 1 outputs.
+// mulAvxTwo_5x2 takes 5 inputs and produces 2 outputs.
+// The output is initialized to 0.
 //go:noescape
-func mulAvxTwoXor_6x1(low [6][16]byte, high [6][16]byte, in [6][]byte, out [1][]byte)
+func mulAvxTwo_5x2(low [20][16]byte, high [20][16]byte, in [5][]byte, out [2][]byte)
+
+// mulAvxTwo_5x3 takes 5 inputs and produces 3 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_5x3(low [30][16]byte, high [30][16]byte, in [5][]byte, out [3][]byte)
+
+// mulAvxTwo_5x4 takes 5 inputs and produces 4 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_5x4(low [40][16]byte, high [40][16]byte, in [5][]byte, out [4][]byte)
+
+// mulAvxTwo_5x5 takes 5 inputs and produces 5 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_5x5(low [50][16]byte, high [50][16]byte, in [5][]byte, out [5][]byte)
+
+// mulAvxTwo_5x6 takes 5 inputs and produces 6 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_5x6(low [60][16]byte, high [60][16]byte, in [5][]byte, out [6][]byte)
+
+// mulAvxTwo_5x7 takes 5 inputs and produces 7 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_5x7(low [70][16]byte, high [70][16]byte, in [5][]byte, out [7][]byte)
+
+// mulAvxTwo_5x8 takes 5 inputs and produces 8 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_5x8(low [80][16]byte, high [80][16]byte, in [5][]byte, out [8][]byte)
+
+// mulAvxTwo_5x9 takes 5 inputs and produces 9 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_5x9(low [90][16]byte, high [90][16]byte, in [5][]byte, out [9][]byte)
+
+// mulAvxTwo_5x10 takes 5 inputs and produces 10 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_5x10(low [100][16]byte, high [100][16]byte, in [5][]byte, out [10][]byte)
 
 // mulAvxTwo_6x1 takes 6 inputs and produces 1 outputs.
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_6x1(low [6][16]byte, high [6][16]byte, in [6][]byte, out [1][]byte)
+
+// mulAvxTwo_6x2 takes 6 inputs and produces 2 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_6x2(low [24][16]byte, high [24][16]byte, in [6][]byte, out [2][]byte)
+
+// mulAvxTwo_6x3 takes 6 inputs and produces 3 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_6x3(low [36][16]byte, high [36][16]byte, in [6][]byte, out [3][]byte)
+
+// mulAvxTwo_6x4 takes 6 inputs and produces 4 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_6x4(low [48][16]byte, high [48][16]byte, in [6][]byte, out [4][]byte)
+
+// mulAvxTwo_6x5 takes 6 inputs and produces 5 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_6x5(low [60][16]byte, high [60][16]byte, in [6][]byte, out [5][]byte)
+
+// mulAvxTwo_6x6 takes 6 inputs and produces 6 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_6x6(low [72][16]byte, high [72][16]byte, in [6][]byte, out [6][]byte)
+
+// mulAvxTwo_6x7 takes 6 inputs and produces 7 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_6x7(low [84][16]byte, high [84][16]byte, in [6][]byte, out [7][]byte)
+
+// mulAvxTwo_6x8 takes 6 inputs and produces 8 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_6x8(low [96][16]byte, high [96][16]byte, in [6][]byte, out [8][]byte)
+
+// mulAvxTwo_6x9 takes 6 inputs and produces 9 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_6x9(low [108][16]byte, high [108][16]byte, in [6][]byte, out [9][]byte)
+
+// mulAvxTwo_6x10 takes 6 inputs and produces 10 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_6x10(low [120][16]byte, high [120][16]byte, in [6][]byte, out [10][]byte)
+
+// mulAvxTwo_7x1 takes 7 inputs and produces 1 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_7x1(low [14][16]byte, high [14][16]byte, in [7][]byte, out [1][]byte)
+
+// mulAvxTwo_7x2 takes 7 inputs and produces 2 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_7x2(low [28][16]byte, high [28][16]byte, in [7][]byte, out [2][]byte)
+
+// mulAvxTwo_7x3 takes 7 inputs and produces 3 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_7x3(low [42][16]byte, high [42][16]byte, in [7][]byte, out [3][]byte)
+
+// mulAvxTwo_7x4 takes 7 inputs and produces 4 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_7x4(low [56][16]byte, high [56][16]byte, in [7][]byte, out [4][]byte)
+
+// mulAvxTwo_7x5 takes 7 inputs and produces 5 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_7x5(low [70][16]byte, high [70][16]byte, in [7][]byte, out [5][]byte)
+
+// mulAvxTwo_7x6 takes 7 inputs and produces 6 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_7x6(low [84][16]byte, high [84][16]byte, in [7][]byte, out [6][]byte)
+
+// mulAvxTwo_7x7 takes 7 inputs and produces 7 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_7x7(low [98][16]byte, high [98][16]byte, in [7][]byte, out [7][]byte)
+
+// mulAvxTwo_7x8 takes 7 inputs and produces 8 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_7x8(low [112][16]byte, high [112][16]byte, in [7][]byte, out [8][]byte)
+
+// mulAvxTwo_7x9 takes 7 inputs and produces 9 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_7x9(low [126][16]byte, high [126][16]byte, in [7][]byte, out [9][]byte)
+
+// mulAvxTwo_7x10 takes 7 inputs and produces 10 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_7x10(low [140][16]byte, high [140][16]byte, in [7][]byte, out [10][]byte)
+
+// mulAvxTwo_8x1 takes 8 inputs and produces 1 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_8x1(low [16][16]byte, high [16][16]byte, in [8][]byte, out [1][]byte)
+
+// mulAvxTwo_8x2 takes 8 inputs and produces 2 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_8x2(low [32][16]byte, high [32][16]byte, in [8][]byte, out [2][]byte)
+
+// mulAvxTwo_8x3 takes 8 inputs and produces 3 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_8x3(low [48][16]byte, high [48][16]byte, in [8][]byte, out [3][]byte)
+
+// mulAvxTwo_8x4 takes 8 inputs and produces 4 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_8x4(low [64][16]byte, high [64][16]byte, in [8][]byte, out [4][]byte)
+
+// mulAvxTwo_8x5 takes 8 inputs and produces 5 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_8x5(low [80][16]byte, high [80][16]byte, in [8][]byte, out [5][]byte)
+
+// mulAvxTwo_8x6 takes 8 inputs and produces 6 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_8x6(low [96][16]byte, high [96][16]byte, in [8][]byte, out [6][]byte)
+
+// mulAvxTwo_8x7 takes 8 inputs and produces 7 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_8x7(low [112][16]byte, high [112][16]byte, in [8][]byte, out [7][]byte)
+
+// mulAvxTwo_8x8 takes 8 inputs and produces 8 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_8x8(low [128][16]byte, high [128][16]byte, in [8][]byte, out [8][]byte)
+
+// mulAvxTwo_8x9 takes 8 inputs and produces 9 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_8x9(low [144][16]byte, high [144][16]byte, in [8][]byte, out [9][]byte)
+
+// mulAvxTwo_8x10 takes 8 inputs and produces 10 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_8x10(low [160][16]byte, high [160][16]byte, in [8][]byte, out [10][]byte)
+
+// mulAvxTwo_9x1 takes 9 inputs and produces 1 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_9x1(low [18][16]byte, high [18][16]byte, in [9][]byte, out [1][]byte)
+
+// mulAvxTwo_9x2 takes 9 inputs and produces 2 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_9x2(low [36][16]byte, high [36][16]byte, in [9][]byte, out [2][]byte)
+
+// mulAvxTwo_9x3 takes 9 inputs and produces 3 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_9x3(low [54][16]byte, high [54][16]byte, in [9][]byte, out [3][]byte)
+
+// mulAvxTwo_9x4 takes 9 inputs and produces 4 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_9x4(low [72][16]byte, high [72][16]byte, in [9][]byte, out [4][]byte)
+
+// mulAvxTwo_9x5 takes 9 inputs and produces 5 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_9x5(low [90][16]byte, high [90][16]byte, in [9][]byte, out [5][]byte)
+
+// mulAvxTwo_9x6 takes 9 inputs and produces 6 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_9x6(low [108][16]byte, high [108][16]byte, in [9][]byte, out [6][]byte)
+
+// mulAvxTwo_9x7 takes 9 inputs and produces 7 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_9x7(low [126][16]byte, high [126][16]byte, in [9][]byte, out [7][]byte)
+
+// mulAvxTwo_9x8 takes 9 inputs and produces 8 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_9x8(low [144][16]byte, high [144][16]byte, in [9][]byte, out [8][]byte)
+
+// mulAvxTwo_9x9 takes 9 inputs and produces 9 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_9x9(low [162][16]byte, high [162][16]byte, in [9][]byte, out [9][]byte)
+
+// mulAvxTwo_9x10 takes 9 inputs and produces 10 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_9x10(low [180][16]byte, high [180][16]byte, in [9][]byte, out [10][]byte)
+
+// mulAvxTwo_10x1 takes 10 inputs and produces 1 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_10x1(low [20][16]byte, high [20][16]byte, in [10][]byte, out [1][]byte)
+
+// mulAvxTwo_10x2 takes 10 inputs and produces 2 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_10x2(low [40][16]byte, high [40][16]byte, in [10][]byte, out [2][]byte)
+
+// mulAvxTwo_10x3 takes 10 inputs and produces 3 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_10x3(low [60][16]byte, high [60][16]byte, in [10][]byte, out [3][]byte)
+
+// mulAvxTwo_10x4 takes 10 inputs and produces 4 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_10x4(low [80][16]byte, high [80][16]byte, in [10][]byte, out [4][]byte)
+
+// mulAvxTwo_10x5 takes 10 inputs and produces 5 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_10x5(low [100][16]byte, high [100][16]byte, in [10][]byte, out [5][]byte)
+
+// mulAvxTwo_10x6 takes 10 inputs and produces 6 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_10x6(low [120][16]byte, high [120][16]byte, in [10][]byte, out [6][]byte)
+
+// mulAvxTwo_10x7 takes 10 inputs and produces 7 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_10x7(low [140][16]byte, high [140][16]byte, in [10][]byte, out [7][]byte)
+
+// mulAvxTwo_10x8 takes 10 inputs and produces 8 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_10x8(low [160][16]byte, high [160][16]byte, in [10][]byte, out [8][]byte)
+
+// mulAvxTwo_10x9 takes 10 inputs and produces 9 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_10x9(low [180][16]byte, high [180][16]byte, in [10][]byte, out [9][]byte)
+
+// mulAvxTwo_10x10 takes 10 inputs and produces 10 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_10x10(low [200][16]byte, high [200][16]byte, in [10][]byte, out [10][]byte)
+
+// mulAvxTwo_11x1 takes 11 inputs and produces 1 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_11x1(low [22][16]byte, high [22][16]byte, in [11][]byte, out [1][]byte)
+
+// mulAvxTwo_11x2 takes 11 inputs and produces 2 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_11x2(low [44][16]byte, high [44][16]byte, in [11][]byte, out [2][]byte)
+
+// mulAvxTwo_11x3 takes 11 inputs and produces 3 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_11x3(low [66][16]byte, high [66][16]byte, in [11][]byte, out [3][]byte)
+
+// mulAvxTwo_11x4 takes 11 inputs and produces 4 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_11x4(low [88][16]byte, high [88][16]byte, in [11][]byte, out [4][]byte)
+
+// mulAvxTwo_11x5 takes 11 inputs and produces 5 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_11x5(low [110][16]byte, high [110][16]byte, in [11][]byte, out [5][]byte)
+
+// mulAvxTwo_11x6 takes 11 inputs and produces 6 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_11x6(low [132][16]byte, high [132][16]byte, in [11][]byte, out [6][]byte)
+
+// mulAvxTwo_11x7 takes 11 inputs and produces 7 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_11x7(low [154][16]byte, high [154][16]byte, in [11][]byte, out [7][]byte)
+
+// mulAvxTwo_11x8 takes 11 inputs and produces 8 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_11x8(low [176][16]byte, high [176][16]byte, in [11][]byte, out [8][]byte)
+
+// mulAvxTwo_11x9 takes 11 inputs and produces 9 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_11x9(low [198][16]byte, high [198][16]byte, in [11][]byte, out [9][]byte)
+
+// mulAvxTwo_11x10 takes 11 inputs and produces 10 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_11x10(low [220][16]byte, high [220][16]byte, in [11][]byte, out [10][]byte)
+
+// mulAvxTwo_12x1 takes 12 inputs and produces 1 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_12x1(low [24][16]byte, high [24][16]byte, in [12][]byte, out [1][]byte)
+
+// mulAvxTwo_12x2 takes 12 inputs and produces 2 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_12x2(low [48][16]byte, high [48][16]byte, in [12][]byte, out [2][]byte)
+
+// mulAvxTwo_12x3 takes 12 inputs and produces 3 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_12x3(low [72][16]byte, high [72][16]byte, in [12][]byte, out [3][]byte)
+
+// mulAvxTwo_12x4 takes 12 inputs and produces 4 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_12x4(low [96][16]byte, high [96][16]byte, in [12][]byte, out [4][]byte)
+
+// mulAvxTwo_12x5 takes 12 inputs and produces 5 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_12x5(low [120][16]byte, high [120][16]byte, in [12][]byte, out [5][]byte)
+
+// mulAvxTwo_12x6 takes 12 inputs and produces 6 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_12x6(low [144][16]byte, high [144][16]byte, in [12][]byte, out [6][]byte)
+
+// mulAvxTwo_12x7 takes 12 inputs and produces 7 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_12x7(low [168][16]byte, high [168][16]byte, in [12][]byte, out [7][]byte)
+
+// mulAvxTwo_12x8 takes 12 inputs and produces 8 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_12x8(low [192][16]byte, high [192][16]byte, in [12][]byte, out [8][]byte)
+
+// mulAvxTwo_12x9 takes 12 inputs and produces 9 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_12x9(low [216][16]byte, high [216][16]byte, in [12][]byte, out [9][]byte)
+
+// mulAvxTwo_12x10 takes 12 inputs and produces 10 outputs.
+// The output is initialized to 0.
+//go:noescape
+func mulAvxTwo_12x10(low [240][16]byte, high [240][16]byte, in [12][]byte, out [10][]byte)
