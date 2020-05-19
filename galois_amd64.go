@@ -137,12 +137,10 @@ func sliceXor(in, out []byte, o *options) {
 	}
 }
 
-func genAvx2Matrix(matrixRows [][]byte, dst []byte) []byte {
+func genAvx2Matrix(matrixRows [][]byte, inputs, outputs int, dst []byte) []byte {
 	if !avx2CodeGen {
 		panic("codegen not enabled")
 	}
-	outputs := len(matrixRows)
-	inputs := len(matrixRows[0])
 	total := inputs * outputs
 
 	// Duplicated in+out
@@ -152,8 +150,8 @@ func genAvx2Matrix(matrixRows [][]byte, dst []byte) []byte {
 	} else {
 		dst = dst[:wantBytes]
 	}
-	for i, row := range matrixRows {
-		for j, idx := range row {
+	for i, row := range matrixRows[:outputs] {
+		for j, idx := range row[:inputs] {
 			dstIdx := (j*outputs + i) * 64
 			lo := mulTableLow[idx][:]
 			hi := mulTableHigh[idx][:]

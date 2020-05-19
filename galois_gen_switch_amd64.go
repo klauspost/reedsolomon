@@ -10,354 +10,283 @@ package reedsolomon
 import "fmt"
 
 const avx2CodeGen = true
-const maxAvx2Inputs = 8
+const maxAvx2Inputs = 10
 const maxAvx2Outputs = 8
 
-func galMulSlicesAvx2(matrix []byte, in, out [][]byte, start, stop int) {
+func galMulSlicesAvx2(matrix []byte, in, out [][]byte, start, stop int) int {
+	n := stop - start
+	n = (n >> 5) << 5
+
 	switch len(in) {
 	case 1:
 		switch len(out) {
 		case 1:
-			mulAvxTwo_1x1(matrix, [1][]byte{in[0][start:stop]},
-				[1][]byte{out[0][start:stop]},
-			)
-			return
+			mulAvxTwo_1x1(matrix, in, out, start, n)
+			return n
 		case 2:
-			mulAvxTwo_1x2(matrix, [1][]byte{in[0][start:stop]},
-				[2][]byte{out[0][start:stop], out[1][start:stop]},
-			)
-			return
+			mulAvxTwo_1x2(matrix, in, out, start, n)
+			return n
 		case 3:
-			mulAvxTwo_1x3(matrix, [1][]byte{in[0][start:stop]},
-				[3][]byte{out[0][start:stop], out[1][start:stop], out[2][start:stop]},
-			)
-			return
+			mulAvxTwo_1x3(matrix, in, out, start, n)
+			return n
 		case 4:
-			mulAvxTwo_1x4(matrix, [1][]byte{in[0][start:stop]},
-				[4][]byte{out[0][start:stop], out[1][start:stop], out[2][start:stop], out[3][start:stop]},
-			)
-			return
+			mulAvxTwo_1x4(matrix, in, out, start, n)
+			return n
 		case 5:
-			mulAvxTwo_1x5(matrix, [1][]byte{in[0][start:stop]},
-				[5][]byte{out[0][start:stop], out[1][start:stop], out[2][start:stop], out[3][start:stop], out[4][start:stop]},
-			)
-			return
+			mulAvxTwo_1x5(matrix, in, out, start, n)
+			return n
 		case 6:
-			mulAvxTwo_1x6(matrix, [1][]byte{in[0][start:stop]},
-				[6][]byte{out[0][start:stop], out[1][start:stop], out[2][start:stop], out[3][start:stop], out[4][start:stop], out[5][start:stop]},
-			)
-			return
+			mulAvxTwo_1x6(matrix, in, out, start, n)
+			return n
 		case 7:
-			mulAvxTwo_1x7(matrix, [1][]byte{in[0][start:stop]},
-				[7][]byte{out[0][start:stop], out[1][start:stop], out[2][start:stop], out[3][start:stop], out[4][start:stop], out[5][start:stop], out[6][start:stop]},
-			)
-			return
+			mulAvxTwo_1x7(matrix, in, out, start, n)
+			return n
 		case 8:
-			mulAvxTwo_1x8(matrix, [1][]byte{in[0][start:stop]},
-				[8][]byte{out[0][start:stop], out[1][start:stop], out[2][start:stop], out[3][start:stop], out[4][start:stop], out[5][start:stop], out[6][start:stop], out[7][start:stop]},
-			)
-			return
+			mulAvxTwo_1x8(matrix, in, out, start, n)
+			return n
 		}
 	case 2:
 		switch len(out) {
 		case 1:
-			mulAvxTwo_2x1(matrix, [2][]byte{in[0][start:stop], in[1][start:stop]},
-				[1][]byte{out[0][start:stop]},
-			)
-			return
+			mulAvxTwo_2x1(matrix, in, out, start, n)
+			return n
 		case 2:
-			mulAvxTwo_2x2(matrix, [2][]byte{in[0][start:stop], in[1][start:stop]},
-				[2][]byte{out[0][start:stop], out[1][start:stop]},
-			)
-			return
+			mulAvxTwo_2x2(matrix, in, out, start, n)
+			return n
 		case 3:
-			mulAvxTwo_2x3(matrix, [2][]byte{in[0][start:stop], in[1][start:stop]},
-				[3][]byte{out[0][start:stop], out[1][start:stop], out[2][start:stop]},
-			)
-			return
+			mulAvxTwo_2x3(matrix, in, out, start, n)
+			return n
 		case 4:
-			mulAvxTwo_2x4(matrix, [2][]byte{in[0][start:stop], in[1][start:stop]},
-				[4][]byte{out[0][start:stop], out[1][start:stop], out[2][start:stop], out[3][start:stop]},
-			)
-			return
+			mulAvxTwo_2x4(matrix, in, out, start, n)
+			return n
 		case 5:
-			mulAvxTwo_2x5(matrix, [2][]byte{in[0][start:stop], in[1][start:stop]},
-				[5][]byte{out[0][start:stop], out[1][start:stop], out[2][start:stop], out[3][start:stop], out[4][start:stop]},
-			)
-			return
+			mulAvxTwo_2x5(matrix, in, out, start, n)
+			return n
 		case 6:
-			mulAvxTwo_2x6(matrix, [2][]byte{in[0][start:stop], in[1][start:stop]},
-				[6][]byte{out[0][start:stop], out[1][start:stop], out[2][start:stop], out[3][start:stop], out[4][start:stop], out[5][start:stop]},
-			)
-			return
+			mulAvxTwo_2x6(matrix, in, out, start, n)
+			return n
 		case 7:
-			mulAvxTwo_2x7(matrix, [2][]byte{in[0][start:stop], in[1][start:stop]},
-				[7][]byte{out[0][start:stop], out[1][start:stop], out[2][start:stop], out[3][start:stop], out[4][start:stop], out[5][start:stop], out[6][start:stop]},
-			)
-			return
+			mulAvxTwo_2x7(matrix, in, out, start, n)
+			return n
 		case 8:
-			mulAvxTwo_2x8(matrix, [2][]byte{in[0][start:stop], in[1][start:stop]},
-				[8][]byte{out[0][start:stop], out[1][start:stop], out[2][start:stop], out[3][start:stop], out[4][start:stop], out[5][start:stop], out[6][start:stop], out[7][start:stop]},
-			)
-			return
+			mulAvxTwo_2x8(matrix, in, out, start, n)
+			return n
 		}
 	case 3:
 		switch len(out) {
 		case 1:
-			mulAvxTwo_3x1(matrix, [3][]byte{in[0][start:stop], in[1][start:stop], in[2][start:stop]},
-				[1][]byte{out[0][start:stop]},
-			)
-			return
+			mulAvxTwo_3x1(matrix, in, out, start, n)
+			return n
 		case 2:
-			mulAvxTwo_3x2(matrix, [3][]byte{in[0][start:stop], in[1][start:stop], in[2][start:stop]},
-				[2][]byte{out[0][start:stop], out[1][start:stop]},
-			)
-			return
+			mulAvxTwo_3x2(matrix, in, out, start, n)
+			return n
 		case 3:
-			mulAvxTwo_3x3(matrix, [3][]byte{in[0][start:stop], in[1][start:stop], in[2][start:stop]},
-				[3][]byte{out[0][start:stop], out[1][start:stop], out[2][start:stop]},
-			)
-			return
+			mulAvxTwo_3x3(matrix, in, out, start, n)
+			return n
 		case 4:
-			mulAvxTwo_3x4(matrix, [3][]byte{in[0][start:stop], in[1][start:stop], in[2][start:stop]},
-				[4][]byte{out[0][start:stop], out[1][start:stop], out[2][start:stop], out[3][start:stop]},
-			)
-			return
+			mulAvxTwo_3x4(matrix, in, out, start, n)
+			return n
 		case 5:
-			mulAvxTwo_3x5(matrix, [3][]byte{in[0][start:stop], in[1][start:stop], in[2][start:stop]},
-				[5][]byte{out[0][start:stop], out[1][start:stop], out[2][start:stop], out[3][start:stop], out[4][start:stop]},
-			)
-			return
+			mulAvxTwo_3x5(matrix, in, out, start, n)
+			return n
 		case 6:
-			mulAvxTwo_3x6(matrix, [3][]byte{in[0][start:stop], in[1][start:stop], in[2][start:stop]},
-				[6][]byte{out[0][start:stop], out[1][start:stop], out[2][start:stop], out[3][start:stop], out[4][start:stop], out[5][start:stop]},
-			)
-			return
+			mulAvxTwo_3x6(matrix, in, out, start, n)
+			return n
 		case 7:
-			mulAvxTwo_3x7(matrix, [3][]byte{in[0][start:stop], in[1][start:stop], in[2][start:stop]},
-				[7][]byte{out[0][start:stop], out[1][start:stop], out[2][start:stop], out[3][start:stop], out[4][start:stop], out[5][start:stop], out[6][start:stop]},
-			)
-			return
+			mulAvxTwo_3x7(matrix, in, out, start, n)
+			return n
 		case 8:
-			mulAvxTwo_3x8(matrix, [3][]byte{in[0][start:stop], in[1][start:stop], in[2][start:stop]},
-				[8][]byte{out[0][start:stop], out[1][start:stop], out[2][start:stop], out[3][start:stop], out[4][start:stop], out[5][start:stop], out[6][start:stop], out[7][start:stop]},
-			)
-			return
+			mulAvxTwo_3x8(matrix, in, out, start, n)
+			return n
 		}
 	case 4:
 		switch len(out) {
 		case 1:
-			mulAvxTwo_4x1(matrix, [4][]byte{in[0][start:stop], in[1][start:stop], in[2][start:stop], in[3][start:stop]},
-				[1][]byte{out[0][start:stop]},
-			)
-			return
+			mulAvxTwo_4x1(matrix, in, out, start, n)
+			return n
 		case 2:
-			mulAvxTwo_4x2(matrix, [4][]byte{in[0][start:stop], in[1][start:stop], in[2][start:stop], in[3][start:stop]},
-				[2][]byte{out[0][start:stop], out[1][start:stop]},
-			)
-			return
+			mulAvxTwo_4x2(matrix, in, out, start, n)
+			return n
 		case 3:
-			mulAvxTwo_4x3(matrix, [4][]byte{in[0][start:stop], in[1][start:stop], in[2][start:stop], in[3][start:stop]},
-				[3][]byte{out[0][start:stop], out[1][start:stop], out[2][start:stop]},
-			)
-			return
+			mulAvxTwo_4x3(matrix, in, out, start, n)
+			return n
 		case 4:
-			mulAvxTwo_4x4(matrix, [4][]byte{in[0][start:stop], in[1][start:stop], in[2][start:stop], in[3][start:stop]},
-				[4][]byte{out[0][start:stop], out[1][start:stop], out[2][start:stop], out[3][start:stop]},
-			)
-			return
+			mulAvxTwo_4x4(matrix, in, out, start, n)
+			return n
 		case 5:
-			mulAvxTwo_4x5(matrix, [4][]byte{in[0][start:stop], in[1][start:stop], in[2][start:stop], in[3][start:stop]},
-				[5][]byte{out[0][start:stop], out[1][start:stop], out[2][start:stop], out[3][start:stop], out[4][start:stop]},
-			)
-			return
+			mulAvxTwo_4x5(matrix, in, out, start, n)
+			return n
 		case 6:
-			mulAvxTwo_4x6(matrix, [4][]byte{in[0][start:stop], in[1][start:stop], in[2][start:stop], in[3][start:stop]},
-				[6][]byte{out[0][start:stop], out[1][start:stop], out[2][start:stop], out[3][start:stop], out[4][start:stop], out[5][start:stop]},
-			)
-			return
+			mulAvxTwo_4x6(matrix, in, out, start, n)
+			return n
 		case 7:
-			mulAvxTwo_4x7(matrix, [4][]byte{in[0][start:stop], in[1][start:stop], in[2][start:stop], in[3][start:stop]},
-				[7][]byte{out[0][start:stop], out[1][start:stop], out[2][start:stop], out[3][start:stop], out[4][start:stop], out[5][start:stop], out[6][start:stop]},
-			)
-			return
+			mulAvxTwo_4x7(matrix, in, out, start, n)
+			return n
 		case 8:
-			mulAvxTwo_4x8(matrix, [4][]byte{in[0][start:stop], in[1][start:stop], in[2][start:stop], in[3][start:stop]},
-				[8][]byte{out[0][start:stop], out[1][start:stop], out[2][start:stop], out[3][start:stop], out[4][start:stop], out[5][start:stop], out[6][start:stop], out[7][start:stop]},
-			)
-			return
+			mulAvxTwo_4x8(matrix, in, out, start, n)
+			return n
 		}
 	case 5:
 		switch len(out) {
 		case 1:
-			mulAvxTwo_5x1(matrix, [5][]byte{in[0][start:stop], in[1][start:stop], in[2][start:stop], in[3][start:stop], in[4][start:stop]},
-				[1][]byte{out[0][start:stop]},
-			)
-			return
+			mulAvxTwo_5x1(matrix, in, out, start, n)
+			return n
 		case 2:
-			mulAvxTwo_5x2(matrix, [5][]byte{in[0][start:stop], in[1][start:stop], in[2][start:stop], in[3][start:stop], in[4][start:stop]},
-				[2][]byte{out[0][start:stop], out[1][start:stop]},
-			)
-			return
+			mulAvxTwo_5x2(matrix, in, out, start, n)
+			return n
 		case 3:
-			mulAvxTwo_5x3(matrix, [5][]byte{in[0][start:stop], in[1][start:stop], in[2][start:stop], in[3][start:stop], in[4][start:stop]},
-				[3][]byte{out[0][start:stop], out[1][start:stop], out[2][start:stop]},
-			)
-			return
+			mulAvxTwo_5x3(matrix, in, out, start, n)
+			return n
 		case 4:
-			mulAvxTwo_5x4(matrix, [5][]byte{in[0][start:stop], in[1][start:stop], in[2][start:stop], in[3][start:stop], in[4][start:stop]},
-				[4][]byte{out[0][start:stop], out[1][start:stop], out[2][start:stop], out[3][start:stop]},
-			)
-			return
+			mulAvxTwo_5x4(matrix, in, out, start, n)
+			return n
 		case 5:
-			mulAvxTwo_5x5(matrix, [5][]byte{in[0][start:stop], in[1][start:stop], in[2][start:stop], in[3][start:stop], in[4][start:stop]},
-				[5][]byte{out[0][start:stop], out[1][start:stop], out[2][start:stop], out[3][start:stop], out[4][start:stop]},
-			)
-			return
+			mulAvxTwo_5x5(matrix, in, out, start, n)
+			return n
 		case 6:
-			mulAvxTwo_5x6(matrix, [5][]byte{in[0][start:stop], in[1][start:stop], in[2][start:stop], in[3][start:stop], in[4][start:stop]},
-				[6][]byte{out[0][start:stop], out[1][start:stop], out[2][start:stop], out[3][start:stop], out[4][start:stop], out[5][start:stop]},
-			)
-			return
+			mulAvxTwo_5x6(matrix, in, out, start, n)
+			return n
 		case 7:
-			mulAvxTwo_5x7(matrix, [5][]byte{in[0][start:stop], in[1][start:stop], in[2][start:stop], in[3][start:stop], in[4][start:stop]},
-				[7][]byte{out[0][start:stop], out[1][start:stop], out[2][start:stop], out[3][start:stop], out[4][start:stop], out[5][start:stop], out[6][start:stop]},
-			)
-			return
+			mulAvxTwo_5x7(matrix, in, out, start, n)
+			return n
 		case 8:
-			mulAvxTwo_5x8(matrix, [5][]byte{in[0][start:stop], in[1][start:stop], in[2][start:stop], in[3][start:stop], in[4][start:stop]},
-				[8][]byte{out[0][start:stop], out[1][start:stop], out[2][start:stop], out[3][start:stop], out[4][start:stop], out[5][start:stop], out[6][start:stop], out[7][start:stop]},
-			)
-			return
+			mulAvxTwo_5x8(matrix, in, out, start, n)
+			return n
 		}
 	case 6:
 		switch len(out) {
 		case 1:
-			mulAvxTwo_6x1(matrix, [6][]byte{in[0][start:stop], in[1][start:stop], in[2][start:stop], in[3][start:stop], in[4][start:stop], in[5][start:stop]},
-				[1][]byte{out[0][start:stop]},
-			)
-			return
+			mulAvxTwo_6x1(matrix, in, out, start, n)
+			return n
 		case 2:
-			mulAvxTwo_6x2(matrix, [6][]byte{in[0][start:stop], in[1][start:stop], in[2][start:stop], in[3][start:stop], in[4][start:stop], in[5][start:stop]},
-				[2][]byte{out[0][start:stop], out[1][start:stop]},
-			)
-			return
+			mulAvxTwo_6x2(matrix, in, out, start, n)
+			return n
 		case 3:
-			mulAvxTwo_6x3(matrix, [6][]byte{in[0][start:stop], in[1][start:stop], in[2][start:stop], in[3][start:stop], in[4][start:stop], in[5][start:stop]},
-				[3][]byte{out[0][start:stop], out[1][start:stop], out[2][start:stop]},
-			)
-			return
+			mulAvxTwo_6x3(matrix, in, out, start, n)
+			return n
 		case 4:
-			mulAvxTwo_6x4(matrix, [6][]byte{in[0][start:stop], in[1][start:stop], in[2][start:stop], in[3][start:stop], in[4][start:stop], in[5][start:stop]},
-				[4][]byte{out[0][start:stop], out[1][start:stop], out[2][start:stop], out[3][start:stop]},
-			)
-			return
+			mulAvxTwo_6x4(matrix, in, out, start, n)
+			return n
 		case 5:
-			mulAvxTwo_6x5(matrix, [6][]byte{in[0][start:stop], in[1][start:stop], in[2][start:stop], in[3][start:stop], in[4][start:stop], in[5][start:stop]},
-				[5][]byte{out[0][start:stop], out[1][start:stop], out[2][start:stop], out[3][start:stop], out[4][start:stop]},
-			)
-			return
+			mulAvxTwo_6x5(matrix, in, out, start, n)
+			return n
 		case 6:
-			mulAvxTwo_6x6(matrix, [6][]byte{in[0][start:stop], in[1][start:stop], in[2][start:stop], in[3][start:stop], in[4][start:stop], in[5][start:stop]},
-				[6][]byte{out[0][start:stop], out[1][start:stop], out[2][start:stop], out[3][start:stop], out[4][start:stop], out[5][start:stop]},
-			)
-			return
+			mulAvxTwo_6x6(matrix, in, out, start, n)
+			return n
 		case 7:
-			mulAvxTwo_6x7(matrix, [6][]byte{in[0][start:stop], in[1][start:stop], in[2][start:stop], in[3][start:stop], in[4][start:stop], in[5][start:stop]},
-				[7][]byte{out[0][start:stop], out[1][start:stop], out[2][start:stop], out[3][start:stop], out[4][start:stop], out[5][start:stop], out[6][start:stop]},
-			)
-			return
+			mulAvxTwo_6x7(matrix, in, out, start, n)
+			return n
 		case 8:
-			mulAvxTwo_6x8(matrix, [6][]byte{in[0][start:stop], in[1][start:stop], in[2][start:stop], in[3][start:stop], in[4][start:stop], in[5][start:stop]},
-				[8][]byte{out[0][start:stop], out[1][start:stop], out[2][start:stop], out[3][start:stop], out[4][start:stop], out[5][start:stop], out[6][start:stop], out[7][start:stop]},
-			)
-			return
+			mulAvxTwo_6x8(matrix, in, out, start, n)
+			return n
 		}
 	case 7:
 		switch len(out) {
 		case 1:
-			mulAvxTwo_7x1(matrix, [7][]byte{in[0][start:stop], in[1][start:stop], in[2][start:stop], in[3][start:stop], in[4][start:stop], in[5][start:stop], in[6][start:stop]},
-				[1][]byte{out[0][start:stop]},
-			)
-			return
+			mulAvxTwo_7x1(matrix, in, out, start, n)
+			return n
 		case 2:
-			mulAvxTwo_7x2(matrix, [7][]byte{in[0][start:stop], in[1][start:stop], in[2][start:stop], in[3][start:stop], in[4][start:stop], in[5][start:stop], in[6][start:stop]},
-				[2][]byte{out[0][start:stop], out[1][start:stop]},
-			)
-			return
+			mulAvxTwo_7x2(matrix, in, out, start, n)
+			return n
 		case 3:
-			mulAvxTwo_7x3(matrix, [7][]byte{in[0][start:stop], in[1][start:stop], in[2][start:stop], in[3][start:stop], in[4][start:stop], in[5][start:stop], in[6][start:stop]},
-				[3][]byte{out[0][start:stop], out[1][start:stop], out[2][start:stop]},
-			)
-			return
+			mulAvxTwo_7x3(matrix, in, out, start, n)
+			return n
 		case 4:
-			mulAvxTwo_7x4(matrix, [7][]byte{in[0][start:stop], in[1][start:stop], in[2][start:stop], in[3][start:stop], in[4][start:stop], in[5][start:stop], in[6][start:stop]},
-				[4][]byte{out[0][start:stop], out[1][start:stop], out[2][start:stop], out[3][start:stop]},
-			)
-			return
+			mulAvxTwo_7x4(matrix, in, out, start, n)
+			return n
 		case 5:
-			mulAvxTwo_7x5(matrix, [7][]byte{in[0][start:stop], in[1][start:stop], in[2][start:stop], in[3][start:stop], in[4][start:stop], in[5][start:stop], in[6][start:stop]},
-				[5][]byte{out[0][start:stop], out[1][start:stop], out[2][start:stop], out[3][start:stop], out[4][start:stop]},
-			)
-			return
+			mulAvxTwo_7x5(matrix, in, out, start, n)
+			return n
 		case 6:
-			mulAvxTwo_7x6(matrix, [7][]byte{in[0][start:stop], in[1][start:stop], in[2][start:stop], in[3][start:stop], in[4][start:stop], in[5][start:stop], in[6][start:stop]},
-				[6][]byte{out[0][start:stop], out[1][start:stop], out[2][start:stop], out[3][start:stop], out[4][start:stop], out[5][start:stop]},
-			)
-			return
+			mulAvxTwo_7x6(matrix, in, out, start, n)
+			return n
 		case 7:
-			mulAvxTwo_7x7(matrix, [7][]byte{in[0][start:stop], in[1][start:stop], in[2][start:stop], in[3][start:stop], in[4][start:stop], in[5][start:stop], in[6][start:stop]},
-				[7][]byte{out[0][start:stop], out[1][start:stop], out[2][start:stop], out[3][start:stop], out[4][start:stop], out[5][start:stop], out[6][start:stop]},
-			)
-			return
+			mulAvxTwo_7x7(matrix, in, out, start, n)
+			return n
 		case 8:
-			mulAvxTwo_7x8(matrix, [7][]byte{in[0][start:stop], in[1][start:stop], in[2][start:stop], in[3][start:stop], in[4][start:stop], in[5][start:stop], in[6][start:stop]},
-				[8][]byte{out[0][start:stop], out[1][start:stop], out[2][start:stop], out[3][start:stop], out[4][start:stop], out[5][start:stop], out[6][start:stop], out[7][start:stop]},
-			)
-			return
+			mulAvxTwo_7x8(matrix, in, out, start, n)
+			return n
 		}
 	case 8:
 		switch len(out) {
 		case 1:
-			mulAvxTwo_8x1(matrix, [8][]byte{in[0][start:stop], in[1][start:stop], in[2][start:stop], in[3][start:stop], in[4][start:stop], in[5][start:stop], in[6][start:stop], in[7][start:stop]},
-				[1][]byte{out[0][start:stop]},
-			)
-			return
+			mulAvxTwo_8x1(matrix, in, out, start, n)
+			return n
 		case 2:
-			mulAvxTwo_8x2(matrix, [8][]byte{in[0][start:stop], in[1][start:stop], in[2][start:stop], in[3][start:stop], in[4][start:stop], in[5][start:stop], in[6][start:stop], in[7][start:stop]},
-				[2][]byte{out[0][start:stop], out[1][start:stop]},
-			)
-			return
+			mulAvxTwo_8x2(matrix, in, out, start, n)
+			return n
 		case 3:
-			mulAvxTwo_8x3(matrix, [8][]byte{in[0][start:stop], in[1][start:stop], in[2][start:stop], in[3][start:stop], in[4][start:stop], in[5][start:stop], in[6][start:stop], in[7][start:stop]},
-				[3][]byte{out[0][start:stop], out[1][start:stop], out[2][start:stop]},
-			)
-			return
+			mulAvxTwo_8x3(matrix, in, out, start, n)
+			return n
 		case 4:
-			mulAvxTwo_8x4(matrix, [8][]byte{in[0][start:stop], in[1][start:stop], in[2][start:stop], in[3][start:stop], in[4][start:stop], in[5][start:stop], in[6][start:stop], in[7][start:stop]},
-				[4][]byte{out[0][start:stop], out[1][start:stop], out[2][start:stop], out[3][start:stop]},
-			)
-			return
+			mulAvxTwo_8x4(matrix, in, out, start, n)
+			return n
 		case 5:
-			mulAvxTwo_8x5(matrix, [8][]byte{in[0][start:stop], in[1][start:stop], in[2][start:stop], in[3][start:stop], in[4][start:stop], in[5][start:stop], in[6][start:stop], in[7][start:stop]},
-				[5][]byte{out[0][start:stop], out[1][start:stop], out[2][start:stop], out[3][start:stop], out[4][start:stop]},
-			)
-			return
+			mulAvxTwo_8x5(matrix, in, out, start, n)
+			return n
 		case 6:
-			mulAvxTwo_8x6(matrix, [8][]byte{in[0][start:stop], in[1][start:stop], in[2][start:stop], in[3][start:stop], in[4][start:stop], in[5][start:stop], in[6][start:stop], in[7][start:stop]},
-				[6][]byte{out[0][start:stop], out[1][start:stop], out[2][start:stop], out[3][start:stop], out[4][start:stop], out[5][start:stop]},
-			)
-			return
+			mulAvxTwo_8x6(matrix, in, out, start, n)
+			return n
 		case 7:
-			mulAvxTwo_8x7(matrix, [8][]byte{in[0][start:stop], in[1][start:stop], in[2][start:stop], in[3][start:stop], in[4][start:stop], in[5][start:stop], in[6][start:stop], in[7][start:stop]},
-				[7][]byte{out[0][start:stop], out[1][start:stop], out[2][start:stop], out[3][start:stop], out[4][start:stop], out[5][start:stop], out[6][start:stop]},
-			)
-			return
+			mulAvxTwo_8x7(matrix, in, out, start, n)
+			return n
 		case 8:
-			mulAvxTwo_8x8(matrix, [8][]byte{in[0][start:stop], in[1][start:stop], in[2][start:stop], in[3][start:stop], in[4][start:stop], in[5][start:stop], in[6][start:stop], in[7][start:stop]},
-				[8][]byte{out[0][start:stop], out[1][start:stop], out[2][start:stop], out[3][start:stop], out[4][start:stop], out[5][start:stop], out[6][start:stop], out[7][start:stop]},
-			)
-			return
+			mulAvxTwo_8x8(matrix, in, out, start, n)
+			return n
+		}
+	case 9:
+		switch len(out) {
+		case 1:
+			mulAvxTwo_9x1(matrix, in, out, start, n)
+			return n
+		case 2:
+			mulAvxTwo_9x2(matrix, in, out, start, n)
+			return n
+		case 3:
+			mulAvxTwo_9x3(matrix, in, out, start, n)
+			return n
+		case 4:
+			mulAvxTwo_9x4(matrix, in, out, start, n)
+			return n
+		case 5:
+			mulAvxTwo_9x5(matrix, in, out, start, n)
+			return n
+		case 6:
+			mulAvxTwo_9x6(matrix, in, out, start, n)
+			return n
+		case 7:
+			mulAvxTwo_9x7(matrix, in, out, start, n)
+			return n
+		case 8:
+			mulAvxTwo_9x8(matrix, in, out, start, n)
+			return n
+		}
+	case 10:
+		switch len(out) {
+		case 1:
+			mulAvxTwo_10x1(matrix, in, out, start, n)
+			return n
+		case 2:
+			mulAvxTwo_10x2(matrix, in, out, start, n)
+			return n
+		case 3:
+			mulAvxTwo_10x3(matrix, in, out, start, n)
+			return n
+		case 4:
+			mulAvxTwo_10x4(matrix, in, out, start, n)
+			return n
+		case 5:
+			mulAvxTwo_10x5(matrix, in, out, start, n)
+			return n
+		case 6:
+			mulAvxTwo_10x6(matrix, in, out, start, n)
+			return n
+		case 7:
+			mulAvxTwo_10x7(matrix, in, out, start, n)
+			return n
+		case 8:
+			mulAvxTwo_10x8(matrix, in, out, start, n)
+			return n
 		}
 	}
 	panic(fmt.Sprintf("unhandled size: %dx%d", len(in), len(out)))

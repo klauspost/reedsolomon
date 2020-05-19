@@ -16,12 +16,15 @@ import (
 	"github.com/mmcloughlin/avo/reg"
 )
 
-// Technically we can do 11x11, but we stay "reasonable".
-const inputMax = 8
+// Technically we can do slightly bigger, but we stay reasonable.
+const inputMax = 10
 const outputMax = 8
 
 var switchDefs [inputMax][outputMax]string
 var switchDefsX [inputMax][outputMax]string
+
+const perLoopBits = 5
+const perLoop = 1 << perLoopBits
 
 func main() {
 	Constraint(buildtags.Not("appengine").ToConstraint())
@@ -59,8 +62,12 @@ import "fmt"
 	w.WriteString(fmt.Sprintf("const maxAvx2Inputs = %d\nconst maxAvx2Outputs = %d\n", inputMax, outputMax))
 	w.WriteString(`
 
-func galMulSlicesAvx2(matrix []byte, in, out [][]byte, start, stop int) {
-	switch len(in) {
+func galMulSlicesAvx2(matrix []byte, in, out [][]byte, start, stop int) int {
+	n := stop-start
+`)
+
+	w.WriteString(fmt.Sprintf("n = (n>>%d)<<%d\n\n", perLoopBits, perLoopBits))
+	w.WriteString(`switch len(in) {
 `)
 	for in, defs := range switchDefs[:] {
 		w.WriteString(fmt.Sprintf("		case %d:\n			switch len(out) {\n", in+1))
@@ -79,8 +86,6 @@ func galMulSlicesAvx2(matrix []byte, in, out [][]byte, start, stop int) {
 
 func genMulAvx2(name string, inputs int, outputs int, xor bool) {
 	total := inputs * outputs
-	const perLoopBits = 5
-	const perLoop = 1 << perLoopBits
 
 	doc := []string{
 		fmt.Sprintf("%s takes %d inputs and produces %d outputs.", name, inputs, outputs),
@@ -109,25 +114,11 @@ func genMulAvx2(name string, inputs int, outputs int, xor bool) {
 		}
 	}
 
-	TEXT(name, 0, fmt.Sprintf("func(matrix []byte, in [%d][]byte, out [%d][]byte)", inputs, outputs))
+	TEXT(name, 0, fmt.Sprintf("func(matrix []byte, in [][]byte, out [][]byte, start, n int)"))
 
 	// SWITCH DEFINITION:
-	s := ""
-	s += fmt.Sprintf(`			mulAvxTwo_%dx%d(matrix, [%d][]byte{`, inputs, outputs, inputs)
-	for in := 0; in < inputs; in++ {
-		s += fmt.Sprintf("in[%d][start:stop],", in)
-	}
-	s += fmt.Sprintf(`
-					},
-					[%d][]byte{`, outputs)
-	for out := 0; out < outputs; out++ {
-		s += fmt.Sprintf("out[%d][start:stop],", out)
-	}
-	s += `
-				},
-			)
-			return
-`
+	s := fmt.Sprintf("			mulAvxTwo_%dx%d(matrix, in, out, start, n)\n", inputs, outputs)
+	s += fmt.Sprintf("\t\t\t\treturn n\n")
 	switchDefs[inputs-1][outputs-1] = s
 
 	if loadNone {
@@ -141,7 +132,7 @@ func genMulAvx2(name string, inputs int, outputs int, xor bool) {
 	Pragma("noescape")
 	Commentf("Full registers estimated %d YMM used", est)
 
-	length := Load(Param("in").Index(0).Len(), GP64())
+	length := Load(Param("n"), GP64())
 	matrixBase := GP64()
 	MOVQ(Param("matrix").Base().MustAddr(), matrixBase)
 	SHRQ(U8(perLoopBits), length)
@@ -150,17 +141,16 @@ func genMulAvx2(name string, inputs int, outputs int, xor bool) {
 
 	dst := make([]reg.VecVirtual, outputs)
 	dstPtr := make([]reg.GPVirtual, outputs)
+	outBase := Param("out").Base().MustAddr()
+	outSlicePtr := GP64()
+	MOVQ(outBase, outSlicePtr)
 	for i := range dst {
 		dst[i] = YMM()
 		if !regDst {
 			continue
 		}
 		ptr := GP64()
-		p, err := Param("out").Index(i).Base().Resolve()
-		if err != nil {
-			panic(err)
-		}
-		MOVQ(p.Addr, ptr)
+		MOVQ(Mem{Base: outSlicePtr, Disp: i * 24}, ptr)
 		dstPtr[i] = ptr
 	}
 
@@ -179,15 +169,13 @@ func genMulAvx2(name string, inputs int, outputs int, xor bool) {
 		inHi[i] = tableHi
 	}
 
-	inPtr := make([]reg.GPVirtual, inputs)
-	for i := range inPtr {
+	inPtrs := make([]reg.GPVirtual, inputs)
+	inSlicePtr := GP64()
+	MOVQ(Param("in").Base().MustAddr(), inSlicePtr)
+	for i := range inPtrs {
 		ptr := GP64()
-		p, err := Param("in").Index(i).Base().Resolve()
-		if err != nil {
-			panic(err)
-		}
-		MOVQ(p.Addr, ptr)
-		inPtr[i] = ptr
+		MOVQ(Mem{Base: inSlicePtr, Disp: i * 24}, ptr)
+		inPtrs[i] = ptr
 	}
 
 	tmpMask := GP64()
@@ -197,7 +185,7 @@ func genMulAvx2(name string, inputs int, outputs int, xor bool) {
 	VPBROADCASTB(lowMask.AsX(), lowMask)
 
 	offset := GP64()
-	XORQ(offset, offset)
+	MOVQ(Param("start").MustAddr(), offset)
 	Label(name + "_loop")
 	if xor {
 		Commentf("Load %d outputs", outputs)
@@ -211,11 +199,7 @@ func genMulAvx2(name string, inputs int, outputs int, xor bool) {
 				continue
 			}
 			ptr := GP64()
-			p, err := Param("out").Index(i).Base().Resolve()
-			if err != nil {
-				panic(err)
-			}
-			MOVQ(p.Addr, ptr)
+			MOVQ(outBase, ptr)
 			VMOVDQU(Mem{Base: ptr, Index: offset, Scale: 1}, dst[i])
 		} else {
 			VPXOR(dst[i], dst[i], dst[i])
@@ -224,9 +208,9 @@ func genMulAvx2(name string, inputs int, outputs int, xor bool) {
 
 	lookLow, lookHigh := YMM(), YMM()
 	inLow, inHigh := YMM(), YMM()
-	for i := range inPtr {
+	for i := range inPtrs {
 		Commentf("Load and process 32 bytes from input %d to %d outputs", i, outputs)
-		VMOVDQU(Mem{Base: inPtr[i], Index: offset, Scale: 1}, inLow)
+		VMOVDQU(Mem{Base: inPtrs[i], Index: offset, Scale: 1}, inLow)
 		VPSRLQ(U8(4), inLow, inHigh)
 		VPAND(lowMask, inLow, inLow)
 		VPAND(lowMask, inHigh, inHigh)
@@ -251,7 +235,7 @@ func genMulAvx2(name string, inputs int, outputs int, xor bool) {
 			continue
 		}
 		ptr := GP64()
-		MOVQ(Param("out").Index(i).Base().MustAddr(), ptr)
+		MOVQ(Mem{Base: outSlicePtr, Disp: i * 24}, ptr)
 		VMOVDQU(dst[i], Mem{Base: ptr, Index: offset, Scale: 1})
 	}
 	Comment("Prepare for next loop")

@@ -226,7 +226,7 @@ func galMulAVX512LastInput(inputOffset int, inputEnd int, outputOffset int, outp
 
 // Perform the same as codeSomeShards, but taking advantage of
 // AVX512 parallelism for up to 4x faster execution as compared to AVX2
-func (r reedSolomon) codeSomeShardsAvx512(matrixRows, inputs, outputs [][]byte, outputCount, byteCount int) {
+func (r *reedSolomon) codeSomeShardsAvx512(matrixRows, inputs, outputs [][]byte, outputCount, byteCount int) {
 	// Process using no goroutines
 	start, end := 0, r.o.perRound
 	if end > byteCount {
@@ -273,7 +273,7 @@ func (r reedSolomon) codeSomeShardsAvx512(matrixRows, inputs, outputs [][]byte, 
 
 // Perform the same as codeSomeShards, but taking advantage of
 // AVX512 parallelism for up to 4x faster execution as compared to AVX2
-func (r reedSolomon) codeSomeShardsAvx512P(matrixRows, inputs, outputs [][]byte, outputCount, byteCount int) {
+func (r *reedSolomon) codeSomeShardsAvx512P(matrixRows, inputs, outputs [][]byte, outputCount, byteCount int) {
 	var wg sync.WaitGroup
 	do := byteCount / r.o.maxGoroutines
 	if do < r.o.minSplitSize {
