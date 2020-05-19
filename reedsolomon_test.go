@@ -179,7 +179,7 @@ func TestEncoding(t *testing.T) {
 
 // matrix sizes to test.
 // note that par1 matric will fail on some combinations.
-var testSizes = [][2]int{{1, 1}, {1, 2}, {3, 3}, {3, 1}, {5, 3}, {8, 4}, {10, 30}, {14, 7}, {41, 17}}
+var testSizes = [][2]int{{1, 1}, {1, 2}, {3, 3}, {3, 1}, {12, 10}, {5, 3}, {8, 4}, {10, 30}, {14, 7}, {41, 17}}
 var testDataSizes = []int{10, 100, 1000, 10001, 100003, 1000055}
 var testDataSizesShort = []int{10, 10001, 100003}
 
@@ -1545,6 +1545,7 @@ func benchmarkParallel(b *testing.B, dataShards, parityShards, shardSize int) {
 	})
 }
 
+func BenchmarkParallel_8x8x64K(b *testing.B)   { benchmarkParallel(b, 8, 8, 64<<10) }
 func BenchmarkParallel_8x8x05M(b *testing.B)   { benchmarkParallel(b, 8, 8, 512<<10) }
 func BenchmarkParallel_20x10x05M(b *testing.B) { benchmarkParallel(b, 20, 10, 512<<10) }
 func BenchmarkParallel_8x8x1M(b *testing.B)    { benchmarkParallel(b, 8, 8, 1<<20) }

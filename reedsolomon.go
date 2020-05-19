@@ -476,7 +476,7 @@ func (r reedSolomon) codeSomeShards(matrixRows, inputs, outputs [][]byte, output
 	case r.o.useAVX512 && len(inputs) >= 4 && len(outputs) >= 2:
 		r.codeSomeShardsAvx512(matrixRows, inputs, outputs, outputCount, byteCount)
 		return
-	case false && r.o.maxGoroutines > 1 && byteCount > r.o.minSplitSize:
+	case r.o.maxGoroutines > 1 && byteCount > r.o.minSplitSize:
 		r.codeSomeShardsP(matrixRows, inputs, outputs, outputCount, byteCount)
 		return
 	}
@@ -486,20 +486,21 @@ func (r reedSolomon) codeSomeShards(matrixRows, inputs, outputs [][]byte, output
 	if end > len(inputs[0]) {
 		end = len(inputs[0])
 	}
+	if avx2CodeGen && r.o.useAVX2 && len(inputs[0]) >= 32 && len(inputs) > 1 && len(outputs) > 1 && len(inputs) <= maxAvx2Inputs && len(outputs) <= maxAvx2Outputs {
+		m := genAvx2Matrix(matrixRows, nil)
+		galMulSlicesAvx2(m, inputs, outputs, 0, len(inputs[0]))
+		end = len(inputs[0])
+		start = (end >> 5) << 5
+	}
 
 	for start < len(inputs[0]) {
-		if true && end-start >= 32 && r.o.useAVX2 && len(inputs) <= maxAvx2Inputs && len(outputs) <= maxAvx2Outputs {
-			galMulSlicesAvx2(matrixRows, inputs, outputs, start, end)
-			end = start + (((end - start) >> 5) << 5)
-		} else {
-			for c := 0; c < r.DataShards; c++ {
-				in := inputs[c][start:end]
-				for iRow := 0; iRow < outputCount; iRow++ {
-					if c == 0 {
-						galMulSlice(matrixRows[iRow][c], in, outputs[iRow][start:end], &r.o)
-					} else {
-						galMulSliceXor(matrixRows[iRow][c], in, outputs[iRow][start:end], &r.o)
-					}
+		for c := 0; c < r.DataShards; c++ {
+			in := inputs[c][start:end]
+			for iRow := 0; iRow < outputCount; iRow++ {
+				if c == 0 {
+					galMulSlice(matrixRows[iRow][c], in, outputs[iRow][start:end], &r.o)
+				} else {
+					galMulSliceXor(matrixRows[iRow][c], in, outputs[iRow][start:end], &r.o)
 				}
 			}
 		}
@@ -522,6 +523,10 @@ func (r reedSolomon) codeSomeShardsP(matrixRows, inputs, outputs [][]byte, outpu
 	// Make sizes divisible by 64
 	do = (do + 63) & (^63)
 	start := 0
+	var avx2Matrix []byte
+	if avx2CodeGen && r.o.useAVX2 && do >= 32 && len(inputs) > 1 && len(outputs) > 1 && len(inputs) <= maxAvx2Inputs && len(outputs) <= maxAvx2Outputs {
+		avx2Matrix = genAvx2Matrix(matrixRows, nil)
+	}
 	for start < byteCount {
 		if start+do > byteCount {
 			do = byteCount - start
@@ -529,6 +534,13 @@ func (r reedSolomon) codeSomeShardsP(matrixRows, inputs, outputs [][]byte, outpu
 
 		wg.Add(1)
 		go func(start, stop int) {
+			totalLen := stop - start
+			if avx2CodeGen && r.o.useAVX2 && totalLen >= 32 && len(inputs) > 1 && len(outputs) > 1 && len(inputs) <= maxAvx2Inputs && len(outputs) <= maxAvx2Outputs {
+				galMulSlicesAvx2(avx2Matrix, inputs, outputs, start, stop)
+				totalLen = (totalLen >> 5) << 5
+				start = start + totalLen
+			}
+
 			lstart, lstop := start, start+r.o.perRound
 			if lstop > stop {
 				lstop = stop
