@@ -2,7 +2,7 @@
 [![GoDoc][1]][2] [![Build Status][3]][4]
 
 [1]: https://godoc.org/github.com/klauspost/reedsolomon?status.svg
-[2]: https://godoc.org/github.com/klauspost/reedsolomon
+[2]: https://pkg.go.dev/github.com/klauspost/reedsolomon?tab=doc
 [3]: https://travis-ci.org/klauspost/reedsolomon.svg?branch=master
 [4]: https://travis-ci.org/klauspost/reedsolomon
 
@@ -15,7 +15,7 @@ For an introduction on erasure coding, see the post on the [Backblaze blog](http
 
 Package home: https://github.com/klauspost/reedsolomon
 
-Godoc: https://godoc.org/github.com/klauspost/reedsolomon
+Godoc: https://pkg.go.dev/github.com/klauspost/reedsolomon?tab=doc
 
 # Installation
 To get the package use the standard:
@@ -27,8 +27,8 @@ go get -u github.com/klauspost/reedsolomon
 
 ## May 2020
 
-Numerous updates:
-
+* ARM64 optimizations, up to 2.5x faster.
+* Added [WithFastOneParityMatrix](https://pkg.go.dev/github.com/klauspost/reedsolomon?tab=doc#WithFastOneParityMatrix) for faster operation with 1 parity shard.
 * Much better performance when using a limited number of goroutines.
 * AVX512 is now using multiple cores.
 * Stream processing overhaul, big speedups in most cases.
@@ -106,6 +106,11 @@ To create an encoder with 10 data shards (where your data goes) and 3 parity sha
 This encoder will work for all parity sets with this distribution of data and parity shards. 
 The error will only be set if you specify 0 or negative values in any of the parameters, 
 or if you specify more than 256 data shards.
+
+If you will primarily be using it with one shard size it is recommended to use 
+[`WithAutoGoroutines(shardSize)`](https://pkg.go.dev/github.com/klauspost/reedsolomon?tab=doc#WithAutoGoroutines)
+as an additional parameter. This will attempt to calculate the optimal number of goroutines to use for the best speed.
+It is not required that all shards are this size. 
 
 The you send and receive data  is a simple slice of byte slices; `[][]byte`. 
 In the example above, the top slice must have a length of 13.
@@ -349,13 +354,14 @@ registers (32 in total) is used to keep more data around (most notably the matri
 # Performance on ARM64 NEON
 
 By exploiting NEON instructions the performance for ARM has been accelerated. 
-Below are the performance numbers for a single core on an ARM Cortex-A53 CPU @ 1.2GHz (Debian 8.0 Jessie running Go: 1.7.4):
+Below are the performance numbers for a single core on EC2 a1.2xlarge instance (Amazon Linux 2):
 
-| Data | Parity | Parity | ARM64 Go MB/s | ARM64 NEON MB/s | NEON Speed |
-|------|--------|--------|--------------:|----------------:|-----------:|
-| 5    | 2      | 40%    |           189 |            1304 |       588% |
-| 10   | 2      | 20%    |           188 |            1738 |       925% |
-| 10   | 4      | 40%    |            96 |             839 |       877% |
+```
+BenchmarkGalois128K-8          45001     26651 ns/op        4918.11 MB/s
+BenchmarkGalois1M-8             5595    212740 ns/op        4928.90 MB/s
+BenchmarkGaloisXor128K-8       39079     30709 ns/op        4268.19 MB/s
+BenchmarkGaloisXor1M-8          4112    290005 ns/op        3615.71 MB/s
+```
 
 # Performance on ppc64le
 

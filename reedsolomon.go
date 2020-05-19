@@ -207,6 +207,32 @@ func buildMatrixCauchy(dataShards, totalShards int) (matrix, error) {
 	return result, nil
 }
 
+// buildXorMatrix can be used to build a matrix with pure XOR
+// operations if there is only one parity shard.
+func buildXorMatrix(dataShards, totalShards int) (matrix, error) {
+	if dataShards+1 != totalShards {
+		return nil, errors.New("internal error")
+	}
+	result, err := newMatrix(totalShards, dataShards)
+	if err != nil {
+		return nil, err
+	}
+
+	for r, row := range result {
+		// The top portion of the matrix is the identity
+		// matrix.
+		if r < dataShards {
+			result[r][r] = 1
+		} else {
+			// Set all values to 1 (XOR)
+			for c := range row {
+				result[r][c] = 1
+			}
+		}
+	}
+	return result, nil
+}
+
 // New creates a new encoder and initializes it to
 // the number of data shards and parity shards that
 // you want to use. You can reuse this encoder.
@@ -233,6 +259,8 @@ func New(dataShards, parityShards int, opts ...Option) (Encoder, error) {
 
 	var err error
 	switch {
+	case r.o.fastOneParity && parityShards == 1:
+		r.m, err = buildXorMatrix(dataShards, r.Shards)
 	case r.o.useCauchy:
 		r.m, err = buildMatrixCauchy(dataShards, r.Shards)
 	case r.o.usePAR1Matrix:

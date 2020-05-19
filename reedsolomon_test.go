@@ -137,6 +137,7 @@ func testOpts() [][]Option {
 	}
 	opts := [][]Option{
 		{WithPAR1Matrix()}, {WithCauchyMatrix()},
+		{WithFastOneParityMatrix()}, {WithPAR1Matrix(), WithFastOneParityMatrix()}, {WithCauchyMatrix(), WithFastOneParityMatrix()},
 		{WithMaxGoroutines(1), WithMinSplitSize(500), withSSSE3(false), withAVX2(false), withAVX512(false)},
 		{WithMaxGoroutines(5000), WithMinSplitSize(50), withSSSE3(false), withAVX2(false), withAVX512(false)},
 		{WithMaxGoroutines(5000), WithMinSplitSize(500000), withSSSE3(false), withAVX2(false), withAVX512(false)},
@@ -179,7 +180,7 @@ func TestEncoding(t *testing.T) {
 
 // matrix sizes to test.
 // note that par1 matric will fail on some combinations.
-var testSizes = [][2]int{{1, 1}, {1, 2}, {3, 3}, {3, 1}, {12, 10}, {5, 3}, {8, 4}, {10, 30}, {14, 7}, {41, 17}}
+var testSizes = [][2]int{{1, 1}, {1, 2}, {3, 3}, {3, 1}, {5, 3}, {8, 4}, {10, 30}, {12, 10}, {14, 7}, {41, 17}, {49, 1}}
 var testDataSizes = []int{10, 100, 1000, 10001, 100003, 1000055}
 var testDataSizesShort = []int{10, 10001, 100003}
 
@@ -1257,7 +1258,7 @@ func TestStandardMatrices(t *testing.T) {
 					continue
 				}
 				sh := shards[:i+j]
-				r, err := New(i, j, testOptions()...)
+				r, err := New(i, j, testOptions(WithFastOneParityMatrix())...)
 				if err != nil {
 					// We are not supposed to write to t from goroutines.
 					t.Fatal("creating matrix size", i, j, ":", err)
@@ -1320,7 +1321,7 @@ func TestCauchyMatrices(t *testing.T) {
 					continue
 				}
 				sh := shards[:i+j]
-				r, err := New(i, j, WithCauchyMatrix())
+				r, err := New(i, j, testOptions(WithCauchyMatrix(), WithFastOneParityMatrix())...)
 				if err != nil {
 					// We are not supposed to write to t from goroutines.
 					t.Fatal("creating matrix size", i, j, ":", err)
