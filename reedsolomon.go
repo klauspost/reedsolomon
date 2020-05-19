@@ -380,7 +380,7 @@ func (r *reedSolomon) Encode(shards [][]byte) error {
 // ErrInvalidInput is returned if invalid input parameter of Update.
 var ErrInvalidInput = errors.New("invalid input")
 
-func (r reedSolomon) Update(shards [][]byte, newDatashards [][]byte) error {
+func (r *reedSolomon) Update(shards [][]byte, newDatashards [][]byte) error {
 	if len(shards) != r.Shards {
 		return ErrTooFewShards
 	}
@@ -440,7 +440,7 @@ func (r *reedSolomon) updateParityShards(matrixRows, oldinputs, newinputs, outpu
 	}
 }
 
-func (r reedSolomon) updateParityShardsP(matrixRows, oldinputs, newinputs, outputs [][]byte, outputCount, byteCount int) {
+func (r *reedSolomon) updateParityShardsP(matrixRows, oldinputs, newinputs, outputs [][]byte, outputCount, byteCount int) {
 	var wg sync.WaitGroup
 	do := byteCount / r.o.maxGoroutines
 	if do < r.o.minSplitSize {
@@ -474,7 +474,7 @@ func (r reedSolomon) updateParityShardsP(matrixRows, oldinputs, newinputs, outpu
 
 // Verify returns true if the parity shards contain the right data.
 // The data is the same format as Encode. No data is modified.
-func (r reedSolomon) Verify(shards [][]byte) (bool, error) {
+func (r *reedSolomon) Verify(shards [][]byte) (bool, error) {
 	if len(shards) != r.Shards {
 		return false, ErrTooFewShards
 	}
@@ -750,7 +750,7 @@ func (r *reedSolomon) Reconstruct(shards [][]byte) error {
 //
 // As the reconstructed shard set may contain missing parity shards,
 // calling the Verify function is likely to fail.
-func (r reedSolomon) ReconstructData(shards [][]byte) error {
+func (r *reedSolomon) ReconstructData(shards [][]byte) error {
 	return r.reconstruct(shards, true)
 }
 
