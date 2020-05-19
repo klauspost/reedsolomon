@@ -798,8 +798,8 @@ func BenchmarkEncode10x2x1M(b *testing.B) {
 }
 
 // Benchmark 10 data shards and 4 parity shards with 1MB each.
-func BenchmarkEncode4x4x1M(b *testing.B) {
-	benchmarkEncode(b, 4, 4, 1024*1024)
+func BenchmarkEncode10x4x1M(b *testing.B) {
+	benchmarkEncode(b, 10, 4, 1024*1024)
 }
 
 // Benchmark 50 data shards and 20 parity shards with 1MB each.
