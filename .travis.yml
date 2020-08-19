@@ -12,9 +12,9 @@ arch:
   - s390x
 
 go:
-  - 1.12.x
   - 1.13.x
   - 1.14.x
+  - 1.15.x
   - master
 
 install:
@@ -41,7 +41,7 @@ jobs:
   fast_finish: true
   include:
     - stage: gofmt
-      go: 1.14.x
+      go: 1.15.x
       os: linux
       arch: amd64
       script:
@@ -50,7 +50,7 @@ jobs:
         - go install github.com/klauspost/asmfmt/cmd/asmfmt
         - diff <(asmfmt -d .) <(printf "")
     - stage: race
-      go: 1.14.x
+      go: 1.15.x
       os: linux
       arch: amd64
       script:
@@ -62,7 +62,7 @@ jobs:
         - go test -no-avx512 -no-avx2 -short -race .
         - go test -no-avx512 -no-avx2 -no-ssse3 -short -race .
     - stage: amd64-noasm
-      go: 1.14.x
+      go: 1.15.x
       os: linux
       arch: amd64
       script:
@@ -70,7 +70,7 @@ jobs:
         - go test -no-avx512 -no-avx2
         - go test -no-avx512 -no-avx2 -no-ssse3
     - stage: i386
-      go: 1.14.x
+      go: 1.15.x
       os: linux
       arch: amd64
       script:
