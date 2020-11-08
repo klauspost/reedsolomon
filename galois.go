@@ -917,12 +917,14 @@ func genAvx2Matrix(matrixRows [][]byte, inputs, outputs int, dst []byte) []byte 
 	for i, row := range matrixRows[:outputs] {
 		for j, idx := range row[:inputs] {
 			dstIdx := (j*outputs + i) * 64
+			dstPart := dst[dstIdx:]
+			dstPart = dstPart[:64]
 			lo := mulTableLow[idx][:]
 			hi := mulTableHigh[idx][:]
-			copy(dst[dstIdx:], lo)
-			copy(dst[dstIdx+16:], lo)
-			copy(dst[dstIdx+32:], hi)
-			copy(dst[dstIdx+48:], hi)
+			copy(dstPart[:16], lo)
+			copy(dstPart[16:32], lo)
+			copy(dstPart[32:48], hi)
+			copy(dstPart[48:64], hi)
 		}
 	}
 	return dst

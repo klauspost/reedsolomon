@@ -520,7 +520,7 @@ func (r *reedSolomon) codeSomeShards(matrixRows, inputs, outputs [][]byte, outpu
 	if end > len(inputs[0]) {
 		end = len(inputs[0])
 	}
-	if avx2CodeGen && r.o.useAVX2 && byteCount >= 32 && len(inputs) > 1 && len(outputs) > 1 && len(inputs) <= maxAvx2Inputs && len(outputs) <= maxAvx2Outputs {
+	if avx2CodeGen && r.o.useAVX2 && byteCount >= 32 && len(inputs)+len(outputs) >= 4 && len(inputs) <= maxAvx2Inputs && len(outputs) <= maxAvx2Outputs {
 		m := genAvx2Matrix(matrixRows, len(inputs), len(outputs), r.mPool.Get().([]byte))
 		start += galMulSlicesAvx2(m, inputs, outputs, 0, byteCount)
 		r.mPool.Put(m)
@@ -550,18 +550,23 @@ func (r *reedSolomon) codeSomeShards(matrixRows, inputs, outputs [][]byte, outpu
 // several goroutines.
 func (r *reedSolomon) codeSomeShardsP(matrixRows, inputs, outputs [][]byte, outputCount, byteCount int) {
 	var wg sync.WaitGroup
-	do := byteCount / r.o.maxGoroutines
-	if do < r.o.minSplitSize {
-		do = r.o.minSplitSize
-	}
-	// Make sizes divisible by 64
-	do = (do + 63) & (^63)
-	start := 0
+	gor := r.o.maxGoroutines
+
 	var avx2Matrix []byte
-	if avx2CodeGen && r.o.useAVX2 && byteCount >= 32 && len(inputs) > 1 && len(outputs) > 1 && len(inputs) <= maxAvx2Inputs && len(outputs) <= maxAvx2Outputs {
+	useAvx2 := avx2CodeGen && r.o.useAVX2 && byteCount >= 32 && len(inputs)+len(outputs) >= 4 && len(inputs) <= maxAvx2Inputs && len(outputs) <= maxAvx2Outputs
+	if useAvx2 {
 		avx2Matrix = genAvx2Matrix(matrixRows, len(inputs), len(outputs), r.mPool.Get().([]byte))
 		defer r.mPool.Put(avx2Matrix)
 	}
+
+	do := byteCount / gor
+	if do < r.o.minSplitSize {
+		do = r.o.minSplitSize
+	}
+
+	// Make sizes divisible by 64
+	do = (do + 63) & (^63)
+	start := 0
 	for start < byteCount {
 		if start+do > byteCount {
 			do = byteCount - start
@@ -569,7 +574,7 @@ func (r *reedSolomon) codeSomeShardsP(matrixRows, inputs, outputs [][]byte, outp
 
 		wg.Add(1)
 		go func(start, stop int) {
-			if avx2CodeGen && r.o.useAVX2 && stop-start >= 32 && len(inputs) > 1 && len(outputs) > 1 && len(inputs) <= maxAvx2Inputs && len(outputs) <= maxAvx2Outputs {
+			if useAvx2 && stop-start >= 32 {
 				start += galMulSlicesAvx2(avx2Matrix, inputs, outputs, start, stop)
 			}
 

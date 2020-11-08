@@ -646,7 +646,8 @@ func testVerify(t *testing.T, o ...Option) {
 		t.Fatal(err)
 	}
 	if !ok {
-		t.Fatal("Verification failed")
+		t.Error("Verification failed")
+		return
 	}
 
 	// Put in random data. Verification should fail
