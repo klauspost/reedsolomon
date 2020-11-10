@@ -26,6 +26,11 @@ var switchDefsX [inputMax][outputMax]string
 const perLoopBits = 5
 const perLoop = 1 << perLoopBits
 
+// Prefetch offsets, set to 0 to disable.
+// Disabled since they appear to be consistently slower.
+const prefetchSrc = 0
+const prefetchDst = 0
+
 func main() {
 	Constraint(buildtags.Not("appengine").ToConstraint())
 	Constraint(buildtags.Not("noasm").ToConstraint())
@@ -98,6 +103,7 @@ func genMulAvx2(name string, inputs int, outputs int, xor bool) {
 	var loadNone bool
 	// Use registers for destination registers.
 	var regDst = true
+	var reloadLength = false
 
 	// lo, hi, 1 in, 1 out, 2 tmp, 1 mask
 	est := total*2 + outputs + 5
@@ -109,8 +115,12 @@ func genMulAvx2(name string, inputs int, outputs int, xor bool) {
 	if est > 16 {
 		loadNone = true
 		// We run out of GP registers first, now.
-		if inputs+outputs > 12 {
+		if inputs+outputs > 13 {
 			regDst = false
+		}
+		// Save one register by reloading length.
+		if inputs+outputs > 12 && regDst {
+			reloadLength = true
 		}
 	}
 
@@ -127,6 +137,11 @@ func genMulAvx2(name string, inputs int, outputs int, xor bool) {
 		// loadNone == false
 		Comment("Loading all tables to registers")
 	}
+	if regDst {
+		Comment("Destination kept in GP registers")
+	} else {
+		Comment("Destination kept on stack")
+	}
 
 	Doc(doc...)
 	Pragma("noescape")
@@ -138,21 +153,6 @@ func genMulAvx2(name string, inputs int, outputs int, xor bool) {
 	SHRQ(U8(perLoopBits), length)
 	TESTQ(length, length)
 	JZ(LabelRef(name + "_end"))
-
-	dst := make([]reg.VecVirtual, outputs)
-	dstPtr := make([]reg.GPVirtual, outputs)
-	outBase := Param("out").Base().MustAddr()
-	outSlicePtr := GP64()
-	MOVQ(outBase, outSlicePtr)
-	for i := range dst {
-		dst[i] = YMM()
-		if !regDst {
-			continue
-		}
-		ptr := GP64()
-		MOVQ(Mem{Base: outSlicePtr, Disp: i * 24}, ptr)
-		dstPtr[i] = ptr
-	}
 
 	inLo := make([]reg.VecVirtual, total)
 	inHi := make([]reg.VecVirtual, total)
@@ -177,6 +177,36 @@ func genMulAvx2(name string, inputs int, outputs int, xor bool) {
 		MOVQ(Mem{Base: inSlicePtr, Disp: i * 24}, ptr)
 		inPtrs[i] = ptr
 	}
+	// Destination
+	dst := make([]reg.VecVirtual, outputs)
+	dstPtr := make([]reg.GPVirtual, outputs)
+	outBase := Param("out").Base().MustAddr()
+	outSlicePtr := GP64()
+	MOVQ(outBase, outSlicePtr)
+	for i := range dst {
+		dst[i] = YMM()
+		if !regDst {
+			continue
+		}
+		ptr := GP64()
+		MOVQ(Mem{Base: outSlicePtr, Disp: i * 24}, ptr)
+		dstPtr[i] = ptr
+	}
+
+	offset := GP64()
+	MOVQ(Param("start").MustAddr(), offset)
+	if regDst {
+		Comment("Add start offset to output")
+		for _, ptr := range dstPtr {
+			ADDQ(offset, ptr)
+		}
+	}
+
+	Comment("Add start offset to input")
+	for _, ptr := range inPtrs {
+		ADDQ(offset, ptr)
+	}
+	// Offset no longer needed unless not regdst
 
 	tmpMask := GP64()
 	MOVQ(U32(15), tmpMask)
@@ -184,8 +214,10 @@ func genMulAvx2(name string, inputs int, outputs int, xor bool) {
 	MOVQ(tmpMask, lowMask.AsX())
 	VPBROADCASTB(lowMask.AsX(), lowMask)
 
-	offset := GP64()
-	MOVQ(Param("start").MustAddr(), offset)
+	if reloadLength {
+		length = Load(Param("n"), GP64())
+		SHRQ(U8(perLoopBits), length)
+	}
 	Label(name + "_loop")
 	if xor {
 		Commentf("Load %d outputs", outputs)
@@ -195,12 +227,18 @@ func genMulAvx2(name string, inputs int, outputs int, xor bool) {
 	for i := range dst {
 		if xor {
 			if regDst {
-				VMOVDQU(Mem{Base: dstPtr[i], Index: offset, Scale: 1}, dst[i])
+				VMOVDQU(Mem{Base: dstPtr[i]}, dst[i])
+				if prefetchDst > 0 {
+					PREFETCHT0(Mem{Base: dstPtr[i], Disp: prefetchDst})
+				}
 				continue
 			}
 			ptr := GP64()
 			MOVQ(outBase, ptr)
 			VMOVDQU(Mem{Base: ptr, Index: offset, Scale: 1}, dst[i])
+			if prefetchDst > 0 {
+				PREFETCHT0(Mem{Base: ptr, Disp: prefetchDst, Index: offset, Scale: 1})
+			}
 		} else {
 			VPXOR(dst[i], dst[i], dst[i])
 		}
@@ -210,7 +248,11 @@ func genMulAvx2(name string, inputs int, outputs int, xor bool) {
 	inLow, inHigh := YMM(), YMM()
 	for i := range inPtrs {
 		Commentf("Load and process 32 bytes from input %d to %d outputs", i, outputs)
-		VMOVDQU(Mem{Base: inPtrs[i], Index: offset, Scale: 1}, inLow)
+		VMOVDQU(Mem{Base: inPtrs[i]}, inLow)
+		if prefetchSrc > 0 {
+			PREFETCHT0(Mem{Base: inPtrs[i], Disp: prefetchSrc})
+		}
+		ADDQ(U8(perLoop), inPtrs[i])
 		VPSRLQ(U8(4), inLow, inHigh)
 		VPAND(lowMask, inLow, inLow)
 		VPAND(lowMask, inHigh, inHigh)
@@ -231,15 +273,24 @@ func genMulAvx2(name string, inputs int, outputs int, xor bool) {
 	Commentf("Store %d outputs", outputs)
 	for i := range dst {
 		if regDst {
-			VMOVDQU(dst[i], Mem{Base: dstPtr[i], Index: offset, Scale: 1})
+			VMOVDQU(dst[i], Mem{Base: dstPtr[i]})
+			if prefetchDst > 0 && !xor {
+				PREFETCHT0(Mem{Base: dstPtr[i], Disp: prefetchDst})
+			}
+			ADDQ(U8(perLoop), dstPtr[i])
 			continue
 		}
 		ptr := GP64()
 		MOVQ(Mem{Base: outSlicePtr, Disp: i * 24}, ptr)
 		VMOVDQU(dst[i], Mem{Base: ptr, Index: offset, Scale: 1})
+		if prefetchDst > 0 && !xor {
+			PREFETCHT0(Mem{Base: ptr, Disp: prefetchDst, Index: offset, Scale: 1})
+		}
 	}
 	Comment("Prepare for next loop")
-	ADDQ(U8(perLoop), offset)
+	if !regDst {
+		ADDQ(U8(perLoop), offset)
+	}
 	DECQ(length)
 	JNZ(LabelRef(name + "_loop"))
 	VZEROUPPER()

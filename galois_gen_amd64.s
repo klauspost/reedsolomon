@@ -9,42 +9,50 @@
 // Requires: AVX, AVX2, SSE2
 TEXT ·mulAvxTwo_1x1(SB), $0-88
 	// Loading all tables to registers
+	// Destination kept in GP registers
 	// Full registers estimated 6 YMM used
-	MOVQ         n+80(FP), AX
-	MOVQ         matrix_base+0(FP), CX
-	SHRQ         $0x05, AX
-	TESTQ        AX, AX
-	JZ           mulAvxTwo_1x1_end
-	MOVQ         out_base+48(FP), DX
-	MOVQ         (DX), DX
-	VMOVDQU      (CX), Y1
-	VMOVDQU      32(CX), Y2
-	MOVQ         in_base+24(FP), CX
-	MOVQ         (CX), CX
+	MOVQ    n+80(FP), AX
+	MOVQ    matrix_base+0(FP), CX
+	SHRQ    $0x05, AX
+	TESTQ   AX, AX
+	JZ      mulAvxTwo_1x1_end
+	VMOVDQU (CX), Y0
+	VMOVDQU 32(CX), Y1
+	MOVQ    in_base+24(FP), CX
+	MOVQ    (CX), CX
+	MOVQ    out_base+48(FP), DX
+	MOVQ    (DX), DX
+	MOVQ    start+72(FP), BX
+
+	// Add start offset to output
+	ADDQ BX, DX
+
+	// Add start offset to input
+	ADDQ         BX, CX
 	MOVQ         $0x0000000f, BX
 	MOVQ         BX, X3
 	VPBROADCASTB X3, Y3
-	MOVQ         start+72(FP), BX
 
 mulAvxTwo_1x1_loop:
 	// Clear 1 outputs
-	VPXOR Y0, Y0, Y0
+	VPXOR Y2, Y2, Y2
 
 	// Load and process 32 bytes from input 0 to 1 outputs
-	VMOVDQU (CX)(BX*1), Y4
+	VMOVDQU (CX), Y4
+	ADDQ    $0x20, CX
 	VPSRLQ  $0x04, Y4, Y5
 	VPAND   Y3, Y4, Y4
 	VPAND   Y3, Y5, Y5
-	VPSHUFB Y4, Y1, Y4
-	VPSHUFB Y5, Y2, Y5
+	VPSHUFB Y4, Y0, Y4
+	VPSHUFB Y5, Y1, Y5
 	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y0, Y0
+	VPXOR   Y4, Y2, Y2
 
 	// Store 1 outputs
-	VMOVDQU Y0, (DX)(BX*1)
+	VMOVDQU Y2, (DX)
+	ADDQ    $0x20, DX
 
 	// Prepare for next loop
-	ADDQ $0x20, BX
 	DECQ AX
 	JNZ  mulAvxTwo_1x1_loop
 	VZEROUPPER
@@ -56,51 +64,61 @@ mulAvxTwo_1x1_end:
 // Requires: AVX, AVX2, SSE2
 TEXT ·mulAvxTwo_1x2(SB), $0-88
 	// Loading all tables to registers
+	// Destination kept in GP registers
 	// Full registers estimated 11 YMM used
-	MOVQ         n+80(FP), AX
-	MOVQ         matrix_base+0(FP), CX
-	SHRQ         $0x05, AX
-	TESTQ        AX, AX
-	JZ           mulAvxTwo_1x2_end
-	MOVQ         out_base+48(FP), DX
-	MOVQ         (DX), BX
-	MOVQ         24(DX), DX
-	VMOVDQU      (CX), Y2
-	VMOVDQU      32(CX), Y3
-	VMOVDQU      64(CX), Y4
-	VMOVDQU      96(CX), Y5
-	MOVQ         in_base+24(FP), CX
-	MOVQ         (CX), CX
+	MOVQ    n+80(FP), AX
+	MOVQ    matrix_base+0(FP), CX
+	SHRQ    $0x05, AX
+	TESTQ   AX, AX
+	JZ      mulAvxTwo_1x2_end
+	VMOVDQU (CX), Y0
+	VMOVDQU 32(CX), Y1
+	VMOVDQU 64(CX), Y2
+	VMOVDQU 96(CX), Y3
+	MOVQ    in_base+24(FP), CX
+	MOVQ    (CX), CX
+	MOVQ    out_base+48(FP), DX
+	MOVQ    (DX), BX
+	MOVQ    24(DX), DX
+	MOVQ    start+72(FP), BP
+
+	// Add start offset to output
+	ADDQ BP, BX
+	ADDQ BP, DX
+
+	// Add start offset to input
+	ADDQ         BP, CX
 	MOVQ         $0x0000000f, BP
 	MOVQ         BP, X6
 	VPBROADCASTB X6, Y6
-	MOVQ         start+72(FP), BP
 
 mulAvxTwo_1x2_loop:
 	// Clear 2 outputs
-	VPXOR Y0, Y0, Y0
-	VPXOR Y1, Y1, Y1
+	VPXOR Y4, Y4, Y4
+	VPXOR Y5, Y5, Y5
 
 	// Load and process 32 bytes from input 0 to 2 outputs
-	VMOVDQU (CX)(BP*1), Y9
+	VMOVDQU (CX), Y9
+	ADDQ    $0x20, CX
 	VPSRLQ  $0x04, Y9, Y10
 	VPAND   Y6, Y9, Y9
 	VPAND   Y6, Y10, Y10
+	VPSHUFB Y9, Y0, Y7
+	VPSHUFB Y10, Y1, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y4, Y4
 	VPSHUFB Y9, Y2, Y7
 	VPSHUFB Y10, Y3, Y8
 	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y0, Y0
-	VPSHUFB Y9, Y4, Y7
-	VPSHUFB Y10, Y5, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y1, Y1
+	VPXOR   Y7, Y5, Y5
 
 	// Store 2 outputs
-	VMOVDQU Y0, (BX)(BP*1)
-	VMOVDQU Y1, (DX)(BP*1)
+	VMOVDQU Y4, (BX)
+	ADDQ    $0x20, BX
+	VMOVDQU Y5, (DX)
+	ADDQ    $0x20, DX
 
 	// Prepare for next loop
-	ADDQ $0x20, BP
 	DECQ AX
 	JNZ  mulAvxTwo_1x2_loop
 	VZEROUPPER
@@ -112,60 +130,72 @@ mulAvxTwo_1x2_end:
 // Requires: AVX, AVX2, SSE2
 TEXT ·mulAvxTwo_1x3(SB), $0-88
 	// Loading all tables to registers
+	// Destination kept in GP registers
 	// Full registers estimated 14 YMM used
-	MOVQ         n+80(FP), AX
-	MOVQ         matrix_base+0(FP), CX
-	SHRQ         $0x05, AX
-	TESTQ        AX, AX
-	JZ           mulAvxTwo_1x3_end
-	MOVQ         out_base+48(FP), DX
-	MOVQ         (DX), BX
-	MOVQ         24(DX), BP
-	MOVQ         48(DX), DX
-	VMOVDQU      (CX), Y3
-	VMOVDQU      32(CX), Y4
-	VMOVDQU      64(CX), Y5
-	VMOVDQU      96(CX), Y6
-	VMOVDQU      128(CX), Y7
-	VMOVDQU      160(CX), Y8
-	MOVQ         in_base+24(FP), CX
-	MOVQ         (CX), CX
+	MOVQ    n+80(FP), AX
+	MOVQ    matrix_base+0(FP), CX
+	SHRQ    $0x05, AX
+	TESTQ   AX, AX
+	JZ      mulAvxTwo_1x3_end
+	VMOVDQU (CX), Y0
+	VMOVDQU 32(CX), Y1
+	VMOVDQU 64(CX), Y2
+	VMOVDQU 96(CX), Y3
+	VMOVDQU 128(CX), Y4
+	VMOVDQU 160(CX), Y5
+	MOVQ    in_base+24(FP), CX
+	MOVQ    (CX), CX
+	MOVQ    out_base+48(FP), DX
+	MOVQ    (DX), BX
+	MOVQ    24(DX), BP
+	MOVQ    48(DX), DX
+	MOVQ    start+72(FP), SI
+
+	// Add start offset to output
+	ADDQ SI, BX
+	ADDQ SI, BP
+	ADDQ SI, DX
+
+	// Add start offset to input
+	ADDQ         SI, CX
 	MOVQ         $0x0000000f, SI
 	MOVQ         SI, X9
 	VPBROADCASTB X9, Y9
-	MOVQ         start+72(FP), SI
 
 mulAvxTwo_1x3_loop:
 	// Clear 3 outputs
-	VPXOR Y0, Y0, Y0
-	VPXOR Y1, Y1, Y1
-	VPXOR Y2, Y2, Y2
+	VPXOR Y6, Y6, Y6
+	VPXOR Y7, Y7, Y7
+	VPXOR Y8, Y8, Y8
 
 	// Load and process 32 bytes from input 0 to 3 outputs
-	VMOVDQU (CX)(SI*1), Y12
+	VMOVDQU (CX), Y12
+	ADDQ    $0x20, CX
 	VPSRLQ  $0x04, Y12, Y13
 	VPAND   Y9, Y12, Y12
 	VPAND   Y9, Y13, Y13
-	VPSHUFB Y12, Y3, Y10
-	VPSHUFB Y13, Y4, Y11
+	VPSHUFB Y12, Y0, Y10
+	VPSHUFB Y13, Y1, Y11
 	VPXOR   Y10, Y11, Y10
-	VPXOR   Y10, Y0, Y0
-	VPSHUFB Y12, Y5, Y10
-	VPSHUFB Y13, Y6, Y11
+	VPXOR   Y10, Y6, Y6
+	VPSHUFB Y12, Y2, Y10
+	VPSHUFB Y13, Y3, Y11
 	VPXOR   Y10, Y11, Y10
-	VPXOR   Y10, Y1, Y1
-	VPSHUFB Y12, Y7, Y10
-	VPSHUFB Y13, Y8, Y11
+	VPXOR   Y10, Y7, Y7
+	VPSHUFB Y12, Y4, Y10
+	VPSHUFB Y13, Y5, Y11
 	VPXOR   Y10, Y11, Y10
-	VPXOR   Y10, Y2, Y2
+	VPXOR   Y10, Y8, Y8
 
 	// Store 3 outputs
-	VMOVDQU Y0, (BX)(SI*1)
-	VMOVDQU Y1, (BP)(SI*1)
-	VMOVDQU Y2, (DX)(SI*1)
+	VMOVDQU Y6, (BX)
+	ADDQ    $0x20, BX
+	VMOVDQU Y7, (BP)
+	ADDQ    $0x20, BP
+	VMOVDQU Y8, (DX)
+	ADDQ    $0x20, DX
 
 	// Prepare for next loop
-	ADDQ $0x20, SI
 	DECQ AX
 	JNZ  mulAvxTwo_1x3_loop
 	VZEROUPPER
@@ -177,23 +207,33 @@ mulAvxTwo_1x3_end:
 // Requires: AVX, AVX2, SSE2
 TEXT ·mulAvxTwo_1x4(SB), $0-88
 	// Loading no tables to registers
+	// Destination kept in GP registers
 	// Full registers estimated 17 YMM used
-	MOVQ         n+80(FP), AX
-	MOVQ         matrix_base+0(FP), CX
-	SHRQ         $0x05, AX
-	TESTQ        AX, AX
-	JZ           mulAvxTwo_1x4_end
-	MOVQ         out_base+48(FP), DX
-	MOVQ         (DX), BX
-	MOVQ         24(DX), BP
-	MOVQ         48(DX), SI
-	MOVQ         72(DX), DX
-	MOVQ         in_base+24(FP), DI
-	MOVQ         (DI), DI
+	MOVQ  n+80(FP), AX
+	MOVQ  matrix_base+0(FP), CX
+	SHRQ  $0x05, AX
+	TESTQ AX, AX
+	JZ    mulAvxTwo_1x4_end
+	MOVQ  in_base+24(FP), DX
+	MOVQ  (DX), DX
+	MOVQ  out_base+48(FP), BX
+	MOVQ  (BX), BP
+	MOVQ  24(BX), SI
+	MOVQ  48(BX), DI
+	MOVQ  72(BX), BX
+	MOVQ  start+72(FP), R8
+
+	// Add start offset to output
+	ADDQ R8, BP
+	ADDQ R8, SI
+	ADDQ R8, DI
+	ADDQ R8, BX
+
+	// Add start offset to input
+	ADDQ         R8, DX
 	MOVQ         $0x0000000f, R8
 	MOVQ         R8, X4
 	VPBROADCASTB X4, Y4
-	MOVQ         start+72(FP), R8
 
 mulAvxTwo_1x4_loop:
 	// Clear 4 outputs
@@ -203,7 +243,8 @@ mulAvxTwo_1x4_loop:
 	VPXOR Y3, Y3, Y3
 
 	// Load and process 32 bytes from input 0 to 4 outputs
-	VMOVDQU (DI)(R8*1), Y7
+	VMOVDQU (DX), Y7
+	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y7, Y8
 	VPAND   Y4, Y7, Y7
 	VPAND   Y4, Y8, Y8
@@ -233,13 +274,16 @@ mulAvxTwo_1x4_loop:
 	VPXOR   Y5, Y3, Y3
 
 	// Store 4 outputs
-	VMOVDQU Y0, (BX)(R8*1)
-	VMOVDQU Y1, (BP)(R8*1)
-	VMOVDQU Y2, (SI)(R8*1)
-	VMOVDQU Y3, (DX)(R8*1)
+	VMOVDQU Y0, (BP)
+	ADDQ    $0x20, BP
+	VMOVDQU Y1, (SI)
+	ADDQ    $0x20, SI
+	VMOVDQU Y2, (DI)
+	ADDQ    $0x20, DI
+	VMOVDQU Y3, (BX)
+	ADDQ    $0x20, BX
 
 	// Prepare for next loop
-	ADDQ $0x20, R8
 	DECQ AX
 	JNZ  mulAvxTwo_1x4_loop
 	VZEROUPPER
@@ -251,24 +295,35 @@ mulAvxTwo_1x4_end:
 // Requires: AVX, AVX2, SSE2
 TEXT ·mulAvxTwo_1x5(SB), $0-88
 	// Loading no tables to registers
+	// Destination kept in GP registers
 	// Full registers estimated 20 YMM used
-	MOVQ         n+80(FP), AX
-	MOVQ         matrix_base+0(FP), CX
-	SHRQ         $0x05, AX
-	TESTQ        AX, AX
-	JZ           mulAvxTwo_1x5_end
-	MOVQ         out_base+48(FP), DX
-	MOVQ         (DX), BX
-	MOVQ         24(DX), BP
-	MOVQ         48(DX), SI
-	MOVQ         72(DX), DI
-	MOVQ         96(DX), DX
-	MOVQ         in_base+24(FP), R8
-	MOVQ         (R8), R8
+	MOVQ  n+80(FP), AX
+	MOVQ  matrix_base+0(FP), CX
+	SHRQ  $0x05, AX
+	TESTQ AX, AX
+	JZ    mulAvxTwo_1x5_end
+	MOVQ  in_base+24(FP), DX
+	MOVQ  (DX), DX
+	MOVQ  out_base+48(FP), BX
+	MOVQ  (BX), BP
+	MOVQ  24(BX), SI
+	MOVQ  48(BX), DI
+	MOVQ  72(BX), R8
+	MOVQ  96(BX), BX
+	MOVQ  start+72(FP), R9
+
+	// Add start offset to output
+	ADDQ R9, BP
+	ADDQ R9, SI
+	ADDQ R9, DI
+	ADDQ R9, R8
+	ADDQ R9, BX
+
+	// Add start offset to input
+	ADDQ         R9, DX
 	MOVQ         $0x0000000f, R9
 	MOVQ         R9, X5
 	VPBROADCASTB X5, Y5
-	MOVQ         start+72(FP), R9
 
 mulAvxTwo_1x5_loop:
 	// Clear 5 outputs
@@ -279,7 +334,8 @@ mulAvxTwo_1x5_loop:
 	VPXOR Y4, Y4, Y4
 
 	// Load and process 32 bytes from input 0 to 5 outputs
-	VMOVDQU (R8)(R9*1), Y8
+	VMOVDQU (DX), Y8
+	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y8, Y9
 	VPAND   Y5, Y8, Y8
 	VPAND   Y5, Y9, Y9
@@ -315,14 +371,18 @@ mulAvxTwo_1x5_loop:
 	VPXOR   Y6, Y4, Y4
 
 	// Store 5 outputs
-	VMOVDQU Y0, (BX)(R9*1)
-	VMOVDQU Y1, (BP)(R9*1)
-	VMOVDQU Y2, (SI)(R9*1)
-	VMOVDQU Y3, (DI)(R9*1)
-	VMOVDQU Y4, (DX)(R9*1)
+	VMOVDQU Y0, (BP)
+	ADDQ    $0x20, BP
+	VMOVDQU Y1, (SI)
+	ADDQ    $0x20, SI
+	VMOVDQU Y2, (DI)
+	ADDQ    $0x20, DI
+	VMOVDQU Y3, (R8)
+	ADDQ    $0x20, R8
+	VMOVDQU Y4, (BX)
+	ADDQ    $0x20, BX
 
 	// Prepare for next loop
-	ADDQ $0x20, R9
 	DECQ AX
 	JNZ  mulAvxTwo_1x5_loop
 	VZEROUPPER
@@ -334,25 +394,37 @@ mulAvxTwo_1x5_end:
 // Requires: AVX, AVX2, SSE2
 TEXT ·mulAvxTwo_1x6(SB), $0-88
 	// Loading no tables to registers
+	// Destination kept in GP registers
 	// Full registers estimated 23 YMM used
-	MOVQ         n+80(FP), AX
-	MOVQ         matrix_base+0(FP), CX
-	SHRQ         $0x05, AX
-	TESTQ        AX, AX
-	JZ           mulAvxTwo_1x6_end
-	MOVQ         out_base+48(FP), DX
-	MOVQ         (DX), BX
-	MOVQ         24(DX), BP
-	MOVQ         48(DX), SI
-	MOVQ         72(DX), DI
-	MOVQ         96(DX), R8
-	MOVQ         120(DX), DX
-	MOVQ         in_base+24(FP), R9
-	MOVQ         (R9), R9
+	MOVQ  n+80(FP), AX
+	MOVQ  matrix_base+0(FP), CX
+	SHRQ  $0x05, AX
+	TESTQ AX, AX
+	JZ    mulAvxTwo_1x6_end
+	MOVQ  in_base+24(FP), DX
+	MOVQ  (DX), DX
+	MOVQ  out_base+48(FP), BX
+	MOVQ  (BX), BP
+	MOVQ  24(BX), SI
+	MOVQ  48(BX), DI
+	MOVQ  72(BX), R8
+	MOVQ  96(BX), R9
+	MOVQ  120(BX), BX
+	MOVQ  start+72(FP), R10
+
+	// Add start offset to output
+	ADDQ R10, BP
+	ADDQ R10, SI
+	ADDQ R10, DI
+	ADDQ R10, R8
+	ADDQ R10, R9
+	ADDQ R10, BX
+
+	// Add start offset to input
+	ADDQ         R10, DX
 	MOVQ         $0x0000000f, R10
 	MOVQ         R10, X6
 	VPBROADCASTB X6, Y6
-	MOVQ         start+72(FP), R10
 
 mulAvxTwo_1x6_loop:
 	// Clear 6 outputs
@@ -364,7 +436,8 @@ mulAvxTwo_1x6_loop:
 	VPXOR Y5, Y5, Y5
 
 	// Load and process 32 bytes from input 0 to 6 outputs
-	VMOVDQU (R9)(R10*1), Y9
+	VMOVDQU (DX), Y9
+	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y9, Y10
 	VPAND   Y6, Y9, Y9
 	VPAND   Y6, Y10, Y10
@@ -406,15 +479,20 @@ mulAvxTwo_1x6_loop:
 	VPXOR   Y7, Y5, Y5
 
 	// Store 6 outputs
-	VMOVDQU Y0, (BX)(R10*1)
-	VMOVDQU Y1, (BP)(R10*1)
-	VMOVDQU Y2, (SI)(R10*1)
-	VMOVDQU Y3, (DI)(R10*1)
-	VMOVDQU Y4, (R8)(R10*1)
-	VMOVDQU Y5, (DX)(R10*1)
+	VMOVDQU Y0, (BP)
+	ADDQ    $0x20, BP
+	VMOVDQU Y1, (SI)
+	ADDQ    $0x20, SI
+	VMOVDQU Y2, (DI)
+	ADDQ    $0x20, DI
+	VMOVDQU Y3, (R8)
+	ADDQ    $0x20, R8
+	VMOVDQU Y4, (R9)
+	ADDQ    $0x20, R9
+	VMOVDQU Y5, (BX)
+	ADDQ    $0x20, BX
 
 	// Prepare for next loop
-	ADDQ $0x20, R10
 	DECQ AX
 	JNZ  mulAvxTwo_1x6_loop
 	VZEROUPPER
@@ -426,26 +504,39 @@ mulAvxTwo_1x6_end:
 // Requires: AVX, AVX2, SSE2
 TEXT ·mulAvxTwo_1x7(SB), $0-88
 	// Loading no tables to registers
+	// Destination kept in GP registers
 	// Full registers estimated 26 YMM used
-	MOVQ         n+80(FP), AX
-	MOVQ         matrix_base+0(FP), CX
-	SHRQ         $0x05, AX
-	TESTQ        AX, AX
-	JZ           mulAvxTwo_1x7_end
-	MOVQ         out_base+48(FP), DX
-	MOVQ         (DX), BX
-	MOVQ         24(DX), BP
-	MOVQ         48(DX), SI
-	MOVQ         72(DX), DI
-	MOVQ         96(DX), R8
-	MOVQ         120(DX), R9
-	MOVQ         144(DX), DX
-	MOVQ         in_base+24(FP), R10
-	MOVQ         (R10), R10
+	MOVQ  n+80(FP), AX
+	MOVQ  matrix_base+0(FP), CX
+	SHRQ  $0x05, AX
+	TESTQ AX, AX
+	JZ    mulAvxTwo_1x7_end
+	MOVQ  in_base+24(FP), DX
+	MOVQ  (DX), DX
+	MOVQ  out_base+48(FP), BX
+	MOVQ  (BX), BP
+	MOVQ  24(BX), SI
+	MOVQ  48(BX), DI
+	MOVQ  72(BX), R8
+	MOVQ  96(BX), R9
+	MOVQ  120(BX), R10
+	MOVQ  144(BX), BX
+	MOVQ  start+72(FP), R11
+
+	// Add start offset to output
+	ADDQ R11, BP
+	ADDQ R11, SI
+	ADDQ R11, DI
+	ADDQ R11, R8
+	ADDQ R11, R9
+	ADDQ R11, R10
+	ADDQ R11, BX
+
+	// Add start offset to input
+	ADDQ         R11, DX
 	MOVQ         $0x0000000f, R11
 	MOVQ         R11, X7
 	VPBROADCASTB X7, Y7
-	MOVQ         start+72(FP), R11
 
 mulAvxTwo_1x7_loop:
 	// Clear 7 outputs
@@ -458,7 +549,8 @@ mulAvxTwo_1x7_loop:
 	VPXOR Y6, Y6, Y6
 
 	// Load and process 32 bytes from input 0 to 7 outputs
-	VMOVDQU (R10)(R11*1), Y10
+	VMOVDQU (DX), Y10
+	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y10, Y11
 	VPAND   Y7, Y10, Y10
 	VPAND   Y7, Y11, Y11
@@ -506,16 +598,22 @@ mulAvxTwo_1x7_loop:
 	VPXOR   Y8, Y6, Y6
 
 	// Store 7 outputs
-	VMOVDQU Y0, (BX)(R11*1)
-	VMOVDQU Y1, (BP)(R11*1)
-	VMOVDQU Y2, (SI)(R11*1)
-	VMOVDQU Y3, (DI)(R11*1)
-	VMOVDQU Y4, (R8)(R11*1)
-	VMOVDQU Y5, (R9)(R11*1)
-	VMOVDQU Y6, (DX)(R11*1)
+	VMOVDQU Y0, (BP)
+	ADDQ    $0x20, BP
+	VMOVDQU Y1, (SI)
+	ADDQ    $0x20, SI
+	VMOVDQU Y2, (DI)
+	ADDQ    $0x20, DI
+	VMOVDQU Y3, (R8)
+	ADDQ    $0x20, R8
+	VMOVDQU Y4, (R9)
+	ADDQ    $0x20, R9
+	VMOVDQU Y5, (R10)
+	ADDQ    $0x20, R10
+	VMOVDQU Y6, (BX)
+	ADDQ    $0x20, BX
 
 	// Prepare for next loop
-	ADDQ $0x20, R11
 	DECQ AX
 	JNZ  mulAvxTwo_1x7_loop
 	VZEROUPPER
@@ -527,27 +625,41 @@ mulAvxTwo_1x7_end:
 // Requires: AVX, AVX2, SSE2
 TEXT ·mulAvxTwo_1x8(SB), $0-88
 	// Loading no tables to registers
+	// Destination kept in GP registers
 	// Full registers estimated 29 YMM used
-	MOVQ         n+80(FP), AX
-	MOVQ         matrix_base+0(FP), CX
-	SHRQ         $0x05, AX
-	TESTQ        AX, AX
-	JZ           mulAvxTwo_1x8_end
-	MOVQ         out_base+48(FP), DX
-	MOVQ         (DX), BX
-	MOVQ         24(DX), BP
-	MOVQ         48(DX), SI
-	MOVQ         72(DX), DI
-	MOVQ         96(DX), R8
-	MOVQ         120(DX), R9
-	MOVQ         144(DX), R10
-	MOVQ         168(DX), DX
-	MOVQ         in_base+24(FP), R11
-	MOVQ         (R11), R11
+	MOVQ  n+80(FP), AX
+	MOVQ  matrix_base+0(FP), CX
+	SHRQ  $0x05, AX
+	TESTQ AX, AX
+	JZ    mulAvxTwo_1x8_end
+	MOVQ  in_base+24(FP), DX
+	MOVQ  (DX), DX
+	MOVQ  out_base+48(FP), BX
+	MOVQ  (BX), BP
+	MOVQ  24(BX), SI
+	MOVQ  48(BX), DI
+	MOVQ  72(BX), R8
+	MOVQ  96(BX), R9
+	MOVQ  120(BX), R10
+	MOVQ  144(BX), R11
+	MOVQ  168(BX), BX
+	MOVQ  start+72(FP), R12
+
+	// Add start offset to output
+	ADDQ R12, BP
+	ADDQ R12, SI
+	ADDQ R12, DI
+	ADDQ R12, R8
+	ADDQ R12, R9
+	ADDQ R12, R10
+	ADDQ R12, R11
+	ADDQ R12, BX
+
+	// Add start offset to input
+	ADDQ         R12, DX
 	MOVQ         $0x0000000f, R12
 	MOVQ         R12, X8
 	VPBROADCASTB X8, Y8
-	MOVQ         start+72(FP), R12
 
 mulAvxTwo_1x8_loop:
 	// Clear 8 outputs
@@ -561,7 +673,8 @@ mulAvxTwo_1x8_loop:
 	VPXOR Y7, Y7, Y7
 
 	// Load and process 32 bytes from input 0 to 8 outputs
-	VMOVDQU (R11)(R12*1), Y11
+	VMOVDQU (DX), Y11
+	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y11, Y12
 	VPAND   Y8, Y11, Y11
 	VPAND   Y8, Y12, Y12
@@ -615,17 +728,24 @@ mulAvxTwo_1x8_loop:
 	VPXOR   Y9, Y7, Y7
 
 	// Store 8 outputs
-	VMOVDQU Y0, (BX)(R12*1)
-	VMOVDQU Y1, (BP)(R12*1)
-	VMOVDQU Y2, (SI)(R12*1)
-	VMOVDQU Y3, (DI)(R12*1)
-	VMOVDQU Y4, (R8)(R12*1)
-	VMOVDQU Y5, (R9)(R12*1)
-	VMOVDQU Y6, (R10)(R12*1)
-	VMOVDQU Y7, (DX)(R12*1)
+	VMOVDQU Y0, (BP)
+	ADDQ    $0x20, BP
+	VMOVDQU Y1, (SI)
+	ADDQ    $0x20, SI
+	VMOVDQU Y2, (DI)
+	ADDQ    $0x20, DI
+	VMOVDQU Y3, (R8)
+	ADDQ    $0x20, R8
+	VMOVDQU Y4, (R9)
+	ADDQ    $0x20, R9
+	VMOVDQU Y5, (R10)
+	ADDQ    $0x20, R10
+	VMOVDQU Y6, (R11)
+	ADDQ    $0x20, R11
+	VMOVDQU Y7, (BX)
+	ADDQ    $0x20, BX
 
 	// Prepare for next loop
-	ADDQ $0x20, R12
 	DECQ AX
 	JNZ  mulAvxTwo_1x8_loop
 	VZEROUPPER
@@ -637,55 +757,65 @@ mulAvxTwo_1x8_end:
 // Requires: AVX, AVX2, SSE2
 TEXT ·mulAvxTwo_2x1(SB), $0-88
 	// Loading all tables to registers
+	// Destination kept in GP registers
 	// Full registers estimated 8 YMM used
-	MOVQ         n+80(FP), AX
-	MOVQ         matrix_base+0(FP), CX
-	SHRQ         $0x05, AX
-	TESTQ        AX, AX
-	JZ           mulAvxTwo_2x1_end
-	MOVQ         out_base+48(FP), DX
-	MOVQ         (DX), DX
-	VMOVDQU      (CX), Y1
-	VMOVDQU      32(CX), Y2
-	VMOVDQU      64(CX), Y3
-	VMOVDQU      96(CX), Y4
-	MOVQ         in_base+24(FP), CX
-	MOVQ         (CX), BX
-	MOVQ         24(CX), CX
+	MOVQ    n+80(FP), AX
+	MOVQ    matrix_base+0(FP), CX
+	SHRQ    $0x05, AX
+	TESTQ   AX, AX
+	JZ      mulAvxTwo_2x1_end
+	VMOVDQU (CX), Y0
+	VMOVDQU 32(CX), Y1
+	VMOVDQU 64(CX), Y2
+	VMOVDQU 96(CX), Y3
+	MOVQ    in_base+24(FP), CX
+	MOVQ    (CX), DX
+	MOVQ    24(CX), CX
+	MOVQ    out_base+48(FP), BX
+	MOVQ    (BX), BX
+	MOVQ    start+72(FP), BP
+
+	// Add start offset to output
+	ADDQ BP, BX
+
+	// Add start offset to input
+	ADDQ         BP, DX
+	ADDQ         BP, CX
 	MOVQ         $0x0000000f, BP
 	MOVQ         BP, X5
 	VPBROADCASTB X5, Y5
-	MOVQ         start+72(FP), BP
 
 mulAvxTwo_2x1_loop:
 	// Clear 1 outputs
-	VPXOR Y0, Y0, Y0
+	VPXOR Y4, Y4, Y4
 
 	// Load and process 32 bytes from input 0 to 1 outputs
-	VMOVDQU (BX)(BP*1), Y6
+	VMOVDQU (DX), Y6
+	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y6, Y7
 	VPAND   Y5, Y6, Y6
 	VPAND   Y5, Y7, Y7
-	VPSHUFB Y6, Y1, Y6
-	VPSHUFB Y7, Y2, Y7
+	VPSHUFB Y6, Y0, Y6
+	VPSHUFB Y7, Y1, Y7
 	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y0, Y0
+	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 1 to 1 outputs
-	VMOVDQU (CX)(BP*1), Y6
+	VMOVDQU (CX), Y6
+	ADDQ    $0x20, CX
 	VPSRLQ  $0x04, Y6, Y7
 	VPAND   Y5, Y6, Y6
 	VPAND   Y5, Y7, Y7
-	VPSHUFB Y6, Y3, Y6
-	VPSHUFB Y7, Y4, Y7
+	VPSHUFB Y6, Y2, Y6
+	VPSHUFB Y7, Y3, Y7
 	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y0, Y0
+	VPXOR   Y6, Y4, Y4
 
 	// Store 1 outputs
-	VMOVDQU Y0, (DX)(BP*1)
+	VMOVDQU Y4, (BX)
+	ADDQ    $0x20, BX
 
 	// Prepare for next loop
-	ADDQ $0x20, BP
 	DECQ AX
 	JNZ  mulAvxTwo_2x1_loop
 	VZEROUPPER
@@ -697,70 +827,82 @@ mulAvxTwo_2x1_end:
 // Requires: AVX, AVX2, SSE2
 TEXT ·mulAvxTwo_2x2(SB), $0-88
 	// Loading all tables to registers
+	// Destination kept in GP registers
 	// Full registers estimated 15 YMM used
-	MOVQ         n+80(FP), AX
-	MOVQ         matrix_base+0(FP), CX
-	SHRQ         $0x05, AX
-	TESTQ        AX, AX
-	JZ           mulAvxTwo_2x2_end
-	MOVQ         out_base+48(FP), DX
-	MOVQ         (DX), BX
-	MOVQ         24(DX), DX
-	VMOVDQU      (CX), Y2
-	VMOVDQU      32(CX), Y3
-	VMOVDQU      64(CX), Y4
-	VMOVDQU      96(CX), Y5
-	VMOVDQU      128(CX), Y6
-	VMOVDQU      160(CX), Y7
-	VMOVDQU      192(CX), Y8
-	VMOVDQU      224(CX), Y9
-	MOVQ         in_base+24(FP), CX
-	MOVQ         (CX), BP
-	MOVQ         24(CX), CX
+	MOVQ    n+80(FP), AX
+	MOVQ    matrix_base+0(FP), CX
+	SHRQ    $0x05, AX
+	TESTQ   AX, AX
+	JZ      mulAvxTwo_2x2_end
+	VMOVDQU (CX), Y0
+	VMOVDQU 32(CX), Y1
+	VMOVDQU 64(CX), Y2
+	VMOVDQU 96(CX), Y3
+	VMOVDQU 128(CX), Y4
+	VMOVDQU 160(CX), Y5
+	VMOVDQU 192(CX), Y6
+	VMOVDQU 224(CX), Y7
+	MOVQ    in_base+24(FP), CX
+	MOVQ    (CX), DX
+	MOVQ    24(CX), CX
+	MOVQ    out_base+48(FP), BX
+	MOVQ    (BX), BP
+	MOVQ    24(BX), BX
+	MOVQ    start+72(FP), SI
+
+	// Add start offset to output
+	ADDQ SI, BP
+	ADDQ SI, BX
+
+	// Add start offset to input
+	ADDQ         SI, DX
+	ADDQ         SI, CX
 	MOVQ         $0x0000000f, SI
 	MOVQ         SI, X10
 	VPBROADCASTB X10, Y10
-	MOVQ         start+72(FP), SI
 
 mulAvxTwo_2x2_loop:
 	// Clear 2 outputs
-	VPXOR Y0, Y0, Y0
-	VPXOR Y1, Y1, Y1
+	VPXOR Y8, Y8, Y8
+	VPXOR Y9, Y9, Y9
 
 	// Load and process 32 bytes from input 0 to 2 outputs
-	VMOVDQU (BP)(SI*1), Y13
+	VMOVDQU (DX), Y13
+	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y13, Y14
 	VPAND   Y10, Y13, Y13
 	VPAND   Y10, Y14, Y14
+	VPSHUFB Y13, Y0, Y11
+	VPSHUFB Y14, Y1, Y12
+	VPXOR   Y11, Y12, Y11
+	VPXOR   Y11, Y8, Y8
 	VPSHUFB Y13, Y2, Y11
 	VPSHUFB Y14, Y3, Y12
 	VPXOR   Y11, Y12, Y11
-	VPXOR   Y11, Y0, Y0
-	VPSHUFB Y13, Y4, Y11
-	VPSHUFB Y14, Y5, Y12
-	VPXOR   Y11, Y12, Y11
-	VPXOR   Y11, Y1, Y1
+	VPXOR   Y11, Y9, Y9
 
 	// Load and process 32 bytes from input 1 to 2 outputs
-	VMOVDQU (CX)(SI*1), Y13
+	VMOVDQU (CX), Y13
+	ADDQ    $0x20, CX
 	VPSRLQ  $0x04, Y13, Y14
 	VPAND   Y10, Y13, Y13
 	VPAND   Y10, Y14, Y14
+	VPSHUFB Y13, Y4, Y11
+	VPSHUFB Y14, Y5, Y12
+	VPXOR   Y11, Y12, Y11
+	VPXOR   Y11, Y8, Y8
 	VPSHUFB Y13, Y6, Y11
 	VPSHUFB Y14, Y7, Y12
 	VPXOR   Y11, Y12, Y11
-	VPXOR   Y11, Y0, Y0
-	VPSHUFB Y13, Y8, Y11
-	VPSHUFB Y14, Y9, Y12
-	VPXOR   Y11, Y12, Y11
-	VPXOR   Y11, Y1, Y1
+	VPXOR   Y11, Y9, Y9
 
 	// Store 2 outputs
-	VMOVDQU Y0, (BX)(SI*1)
-	VMOVDQU Y1, (DX)(SI*1)
+	VMOVDQU Y8, (BP)
+	ADDQ    $0x20, BP
+	VMOVDQU Y9, (BX)
+	ADDQ    $0x20, BX
 
 	// Prepare for next loop
-	ADDQ $0x20, SI
 	DECQ AX
 	JNZ  mulAvxTwo_2x2_loop
 	VZEROUPPER
@@ -772,23 +914,33 @@ mulAvxTwo_2x2_end:
 // Requires: AVX, AVX2, SSE2
 TEXT ·mulAvxTwo_2x3(SB), $0-88
 	// Loading no tables to registers
+	// Destination kept in GP registers
 	// Full registers estimated 20 YMM used
-	MOVQ         n+80(FP), AX
-	MOVQ         matrix_base+0(FP), CX
-	SHRQ         $0x05, AX
-	TESTQ        AX, AX
-	JZ           mulAvxTwo_2x3_end
-	MOVQ         out_base+48(FP), DX
-	MOVQ         (DX), BX
-	MOVQ         24(DX), BP
-	MOVQ         48(DX), DX
-	MOVQ         in_base+24(FP), SI
-	MOVQ         (SI), DI
-	MOVQ         24(SI), SI
+	MOVQ  n+80(FP), AX
+	MOVQ  matrix_base+0(FP), CX
+	SHRQ  $0x05, AX
+	TESTQ AX, AX
+	JZ    mulAvxTwo_2x3_end
+	MOVQ  in_base+24(FP), DX
+	MOVQ  (DX), BX
+	MOVQ  24(DX), DX
+	MOVQ  out_base+48(FP), BP
+	MOVQ  (BP), SI
+	MOVQ  24(BP), DI
+	MOVQ  48(BP), BP
+	MOVQ  start+72(FP), R8
+
+	// Add start offset to output
+	ADDQ R8, SI
+	ADDQ R8, DI
+	ADDQ R8, BP
+
+	// Add start offset to input
+	ADDQ         R8, BX
+	ADDQ         R8, DX
 	MOVQ         $0x0000000f, R8
 	MOVQ         R8, X3
 	VPBROADCASTB X3, Y3
-	MOVQ         start+72(FP), R8
 
 mulAvxTwo_2x3_loop:
 	// Clear 3 outputs
@@ -797,7 +949,8 @@ mulAvxTwo_2x3_loop:
 	VPXOR Y2, Y2, Y2
 
 	// Load and process 32 bytes from input 0 to 3 outputs
-	VMOVDQU (DI)(R8*1), Y6
+	VMOVDQU (BX), Y6
+	ADDQ    $0x20, BX
 	VPSRLQ  $0x04, Y6, Y7
 	VPAND   Y3, Y6, Y6
 	VPAND   Y3, Y7, Y7
@@ -821,7 +974,8 @@ mulAvxTwo_2x3_loop:
 	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 1 to 3 outputs
-	VMOVDQU (SI)(R8*1), Y6
+	VMOVDQU (DX), Y6
+	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y6, Y7
 	VPAND   Y3, Y6, Y6
 	VPAND   Y3, Y7, Y7
@@ -845,12 +999,14 @@ mulAvxTwo_2x3_loop:
 	VPXOR   Y4, Y2, Y2
 
 	// Store 3 outputs
-	VMOVDQU Y0, (BX)(R8*1)
-	VMOVDQU Y1, (BP)(R8*1)
-	VMOVDQU Y2, (DX)(R8*1)
+	VMOVDQU Y0, (SI)
+	ADDQ    $0x20, SI
+	VMOVDQU Y1, (DI)
+	ADDQ    $0x20, DI
+	VMOVDQU Y2, (BP)
+	ADDQ    $0x20, BP
 
 	// Prepare for next loop
-	ADDQ $0x20, R8
 	DECQ AX
 	JNZ  mulAvxTwo_2x3_loop
 	VZEROUPPER
@@ -862,24 +1018,35 @@ mulAvxTwo_2x3_end:
 // Requires: AVX, AVX2, SSE2
 TEXT ·mulAvxTwo_2x4(SB), $0-88
 	// Loading no tables to registers
+	// Destination kept in GP registers
 	// Full registers estimated 25 YMM used
-	MOVQ         n+80(FP), AX
-	MOVQ         matrix_base+0(FP), CX
-	SHRQ         $0x05, AX
-	TESTQ        AX, AX
-	JZ           mulAvxTwo_2x4_end
-	MOVQ         out_base+48(FP), DX
-	MOVQ         (DX), BX
-	MOVQ         24(DX), BP
-	MOVQ         48(DX), SI
-	MOVQ         72(DX), DX
-	MOVQ         in_base+24(FP), DI
-	MOVQ         (DI), R8
-	MOVQ         24(DI), DI
+	MOVQ  n+80(FP), AX
+	MOVQ  matrix_base+0(FP), CX
+	SHRQ  $0x05, AX
+	TESTQ AX, AX
+	JZ    mulAvxTwo_2x4_end
+	MOVQ  in_base+24(FP), DX
+	MOVQ  (DX), BX
+	MOVQ  24(DX), DX
+	MOVQ  out_base+48(FP), BP
+	MOVQ  (BP), SI
+	MOVQ  24(BP), DI
+	MOVQ  48(BP), R8
+	MOVQ  72(BP), BP
+	MOVQ  start+72(FP), R9
+
+	// Add start offset to output
+	ADDQ R9, SI
+	ADDQ R9, DI
+	ADDQ R9, R8
+	ADDQ R9, BP
+
+	// Add start offset to input
+	ADDQ         R9, BX
+	ADDQ         R9, DX
 	MOVQ         $0x0000000f, R9
 	MOVQ         R9, X4
 	VPBROADCASTB X4, Y4
-	MOVQ         start+72(FP), R9
 
 mulAvxTwo_2x4_loop:
 	// Clear 4 outputs
@@ -889,7 +1056,8 @@ mulAvxTwo_2x4_loop:
 	VPXOR Y3, Y3, Y3
 
 	// Load and process 32 bytes from input 0 to 4 outputs
-	VMOVDQU (R8)(R9*1), Y7
+	VMOVDQU (BX), Y7
+	ADDQ    $0x20, BX
 	VPSRLQ  $0x04, Y7, Y8
 	VPAND   Y4, Y7, Y7
 	VPAND   Y4, Y8, Y8
@@ -919,7 +1087,8 @@ mulAvxTwo_2x4_loop:
 	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 1 to 4 outputs
-	VMOVDQU (DI)(R9*1), Y7
+	VMOVDQU (DX), Y7
+	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y7, Y8
 	VPAND   Y4, Y7, Y7
 	VPAND   Y4, Y8, Y8
@@ -949,13 +1118,16 @@ mulAvxTwo_2x4_loop:
 	VPXOR   Y5, Y3, Y3
 
 	// Store 4 outputs
-	VMOVDQU Y0, (BX)(R9*1)
-	VMOVDQU Y1, (BP)(R9*1)
-	VMOVDQU Y2, (SI)(R9*1)
-	VMOVDQU Y3, (DX)(R9*1)
+	VMOVDQU Y0, (SI)
+	ADDQ    $0x20, SI
+	VMOVDQU Y1, (DI)
+	ADDQ    $0x20, DI
+	VMOVDQU Y2, (R8)
+	ADDQ    $0x20, R8
+	VMOVDQU Y3, (BP)
+	ADDQ    $0x20, BP
 
 	// Prepare for next loop
-	ADDQ $0x20, R9
 	DECQ AX
 	JNZ  mulAvxTwo_2x4_loop
 	VZEROUPPER
@@ -967,25 +1139,37 @@ mulAvxTwo_2x4_end:
 // Requires: AVX, AVX2, SSE2
 TEXT ·mulAvxTwo_2x5(SB), $0-88
 	// Loading no tables to registers
+	// Destination kept in GP registers
 	// Full registers estimated 30 YMM used
-	MOVQ         n+80(FP), AX
-	MOVQ         matrix_base+0(FP), CX
-	SHRQ         $0x05, AX
-	TESTQ        AX, AX
-	JZ           mulAvxTwo_2x5_end
-	MOVQ         out_base+48(FP), DX
-	MOVQ         (DX), BX
-	MOVQ         24(DX), BP
-	MOVQ         48(DX), SI
-	MOVQ         72(DX), DI
-	MOVQ         96(DX), DX
-	MOVQ         in_base+24(FP), R8
-	MOVQ         (R8), R9
-	MOVQ         24(R8), R8
+	MOVQ  n+80(FP), AX
+	MOVQ  matrix_base+0(FP), CX
+	SHRQ  $0x05, AX
+	TESTQ AX, AX
+	JZ    mulAvxTwo_2x5_end
+	MOVQ  in_base+24(FP), DX
+	MOVQ  (DX), BX
+	MOVQ  24(DX), DX
+	MOVQ  out_base+48(FP), BP
+	MOVQ  (BP), SI
+	MOVQ  24(BP), DI
+	MOVQ  48(BP), R8
+	MOVQ  72(BP), R9
+	MOVQ  96(BP), BP
+	MOVQ  start+72(FP), R10
+
+	// Add start offset to output
+	ADDQ R10, SI
+	ADDQ R10, DI
+	ADDQ R10, R8
+	ADDQ R10, R9
+	ADDQ R10, BP
+
+	// Add start offset to input
+	ADDQ         R10, BX
+	ADDQ         R10, DX
 	MOVQ         $0x0000000f, R10
 	MOVQ         R10, X5
 	VPBROADCASTB X5, Y5
-	MOVQ         start+72(FP), R10
 
 mulAvxTwo_2x5_loop:
 	// Clear 5 outputs
@@ -996,7 +1180,8 @@ mulAvxTwo_2x5_loop:
 	VPXOR Y4, Y4, Y4
 
 	// Load and process 32 bytes from input 0 to 5 outputs
-	VMOVDQU (R9)(R10*1), Y8
+	VMOVDQU (BX), Y8
+	ADDQ    $0x20, BX
 	VPSRLQ  $0x04, Y8, Y9
 	VPAND   Y5, Y8, Y8
 	VPAND   Y5, Y9, Y9
@@ -1032,7 +1217,8 @@ mulAvxTwo_2x5_loop:
 	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 1 to 5 outputs
-	VMOVDQU (R8)(R10*1), Y8
+	VMOVDQU (DX), Y8
+	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y8, Y9
 	VPAND   Y5, Y8, Y8
 	VPAND   Y5, Y9, Y9
@@ -1068,14 +1254,18 @@ mulAvxTwo_2x5_loop:
 	VPXOR   Y6, Y4, Y4
 
 	// Store 5 outputs
-	VMOVDQU Y0, (BX)(R10*1)
-	VMOVDQU Y1, (BP)(R10*1)
-	VMOVDQU Y2, (SI)(R10*1)
-	VMOVDQU Y3, (DI)(R10*1)
-	VMOVDQU Y4, (DX)(R10*1)
+	VMOVDQU Y0, (SI)
+	ADDQ    $0x20, SI
+	VMOVDQU Y1, (DI)
+	ADDQ    $0x20, DI
+	VMOVDQU Y2, (R8)
+	ADDQ    $0x20, R8
+	VMOVDQU Y3, (R9)
+	ADDQ    $0x20, R9
+	VMOVDQU Y4, (BP)
+	ADDQ    $0x20, BP
 
 	// Prepare for next loop
-	ADDQ $0x20, R10
 	DECQ AX
 	JNZ  mulAvxTwo_2x5_loop
 	VZEROUPPER
@@ -1087,26 +1277,39 @@ mulAvxTwo_2x5_end:
 // Requires: AVX, AVX2, SSE2
 TEXT ·mulAvxTwo_2x6(SB), $0-88
 	// Loading no tables to registers
+	// Destination kept in GP registers
 	// Full registers estimated 35 YMM used
-	MOVQ         n+80(FP), AX
-	MOVQ         matrix_base+0(FP), CX
-	SHRQ         $0x05, AX
-	TESTQ        AX, AX
-	JZ           mulAvxTwo_2x6_end
-	MOVQ         out_base+48(FP), DX
-	MOVQ         (DX), BX
-	MOVQ         24(DX), BP
-	MOVQ         48(DX), SI
-	MOVQ         72(DX), DI
-	MOVQ         96(DX), R8
-	MOVQ         120(DX), DX
-	MOVQ         in_base+24(FP), R9
-	MOVQ         (R9), R10
-	MOVQ         24(R9), R9
+	MOVQ  n+80(FP), AX
+	MOVQ  matrix_base+0(FP), CX
+	SHRQ  $0x05, AX
+	TESTQ AX, AX
+	JZ    mulAvxTwo_2x6_end
+	MOVQ  in_base+24(FP), DX
+	MOVQ  (DX), BX
+	MOVQ  24(DX), DX
+	MOVQ  out_base+48(FP), BP
+	MOVQ  (BP), SI
+	MOVQ  24(BP), DI
+	MOVQ  48(BP), R8
+	MOVQ  72(BP), R9
+	MOVQ  96(BP), R10
+	MOVQ  120(BP), BP
+	MOVQ  start+72(FP), R11
+
+	// Add start offset to output
+	ADDQ R11, SI
+	ADDQ R11, DI
+	ADDQ R11, R8
+	ADDQ R11, R9
+	ADDQ R11, R10
+	ADDQ R11, BP
+
+	// Add start offset to input
+	ADDQ         R11, BX
+	ADDQ         R11, DX
 	MOVQ         $0x0000000f, R11
 	MOVQ         R11, X6
 	VPBROADCASTB X6, Y6
-	MOVQ         start+72(FP), R11
 
 mulAvxTwo_2x6_loop:
 	// Clear 6 outputs
@@ -1118,7 +1321,8 @@ mulAvxTwo_2x6_loop:
 	VPXOR Y5, Y5, Y5
 
 	// Load and process 32 bytes from input 0 to 6 outputs
-	VMOVDQU (R10)(R11*1), Y9
+	VMOVDQU (BX), Y9
+	ADDQ    $0x20, BX
 	VPSRLQ  $0x04, Y9, Y10
 	VPAND   Y6, Y9, Y9
 	VPAND   Y6, Y10, Y10
@@ -1160,7 +1364,8 @@ mulAvxTwo_2x6_loop:
 	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 1 to 6 outputs
-	VMOVDQU (R9)(R11*1), Y9
+	VMOVDQU (DX), Y9
+	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y9, Y10
 	VPAND   Y6, Y9, Y9
 	VPAND   Y6, Y10, Y10
@@ -1202,15 +1407,20 @@ mulAvxTwo_2x6_loop:
 	VPXOR   Y7, Y5, Y5
 
 	// Store 6 outputs
-	VMOVDQU Y0, (BX)(R11*1)
-	VMOVDQU Y1, (BP)(R11*1)
-	VMOVDQU Y2, (SI)(R11*1)
-	VMOVDQU Y3, (DI)(R11*1)
-	VMOVDQU Y4, (R8)(R11*1)
-	VMOVDQU Y5, (DX)(R11*1)
+	VMOVDQU Y0, (SI)
+	ADDQ    $0x20, SI
+	VMOVDQU Y1, (DI)
+	ADDQ    $0x20, DI
+	VMOVDQU Y2, (R8)
+	ADDQ    $0x20, R8
+	VMOVDQU Y3, (R9)
+	ADDQ    $0x20, R9
+	VMOVDQU Y4, (R10)
+	ADDQ    $0x20, R10
+	VMOVDQU Y5, (BP)
+	ADDQ    $0x20, BP
 
 	// Prepare for next loop
-	ADDQ $0x20, R11
 	DECQ AX
 	JNZ  mulAvxTwo_2x6_loop
 	VZEROUPPER
@@ -1222,27 +1432,41 @@ mulAvxTwo_2x6_end:
 // Requires: AVX, AVX2, SSE2
 TEXT ·mulAvxTwo_2x7(SB), $0-88
 	// Loading no tables to registers
+	// Destination kept in GP registers
 	// Full registers estimated 40 YMM used
-	MOVQ         n+80(FP), AX
-	MOVQ         matrix_base+0(FP), CX
-	SHRQ         $0x05, AX
-	TESTQ        AX, AX
-	JZ           mulAvxTwo_2x7_end
-	MOVQ         out_base+48(FP), DX
-	MOVQ         (DX), BX
-	MOVQ         24(DX), BP
-	MOVQ         48(DX), SI
-	MOVQ         72(DX), DI
-	MOVQ         96(DX), R8
-	MOVQ         120(DX), R9
-	MOVQ         144(DX), DX
-	MOVQ         in_base+24(FP), R10
-	MOVQ         (R10), R11
-	MOVQ         24(R10), R10
+	MOVQ  n+80(FP), AX
+	MOVQ  matrix_base+0(FP), CX
+	SHRQ  $0x05, AX
+	TESTQ AX, AX
+	JZ    mulAvxTwo_2x7_end
+	MOVQ  in_base+24(FP), DX
+	MOVQ  (DX), BX
+	MOVQ  24(DX), DX
+	MOVQ  out_base+48(FP), BP
+	MOVQ  (BP), SI
+	MOVQ  24(BP), DI
+	MOVQ  48(BP), R8
+	MOVQ  72(BP), R9
+	MOVQ  96(BP), R10
+	MOVQ  120(BP), R11
+	MOVQ  144(BP), BP
+	MOVQ  start+72(FP), R12
+
+	// Add start offset to output
+	ADDQ R12, SI
+	ADDQ R12, DI
+	ADDQ R12, R8
+	ADDQ R12, R9
+	ADDQ R12, R10
+	ADDQ R12, R11
+	ADDQ R12, BP
+
+	// Add start offset to input
+	ADDQ         R12, BX
+	ADDQ         R12, DX
 	MOVQ         $0x0000000f, R12
 	MOVQ         R12, X7
 	VPBROADCASTB X7, Y7
-	MOVQ         start+72(FP), R12
 
 mulAvxTwo_2x7_loop:
 	// Clear 7 outputs
@@ -1255,7 +1479,8 @@ mulAvxTwo_2x7_loop:
 	VPXOR Y6, Y6, Y6
 
 	// Load and process 32 bytes from input 0 to 7 outputs
-	VMOVDQU (R11)(R12*1), Y10
+	VMOVDQU (BX), Y10
+	ADDQ    $0x20, BX
 	VPSRLQ  $0x04, Y10, Y11
 	VPAND   Y7, Y10, Y10
 	VPAND   Y7, Y11, Y11
@@ -1303,7 +1528,8 @@ mulAvxTwo_2x7_loop:
 	VPXOR   Y8, Y6, Y6
 
 	// Load and process 32 bytes from input 1 to 7 outputs
-	VMOVDQU (R10)(R12*1), Y10
+	VMOVDQU (DX), Y10
+	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y10, Y11
 	VPAND   Y7, Y10, Y10
 	VPAND   Y7, Y11, Y11
@@ -1351,16 +1577,22 @@ mulAvxTwo_2x7_loop:
 	VPXOR   Y8, Y6, Y6
 
 	// Store 7 outputs
-	VMOVDQU Y0, (BX)(R12*1)
-	VMOVDQU Y1, (BP)(R12*1)
-	VMOVDQU Y2, (SI)(R12*1)
-	VMOVDQU Y3, (DI)(R12*1)
-	VMOVDQU Y4, (R8)(R12*1)
-	VMOVDQU Y5, (R9)(R12*1)
-	VMOVDQU Y6, (DX)(R12*1)
+	VMOVDQU Y0, (SI)
+	ADDQ    $0x20, SI
+	VMOVDQU Y1, (DI)
+	ADDQ    $0x20, DI
+	VMOVDQU Y2, (R8)
+	ADDQ    $0x20, R8
+	VMOVDQU Y3, (R9)
+	ADDQ    $0x20, R9
+	VMOVDQU Y4, (R10)
+	ADDQ    $0x20, R10
+	VMOVDQU Y5, (R11)
+	ADDQ    $0x20, R11
+	VMOVDQU Y6, (BP)
+	ADDQ    $0x20, BP
 
 	// Prepare for next loop
-	ADDQ $0x20, R12
 	DECQ AX
 	JNZ  mulAvxTwo_2x7_loop
 	VZEROUPPER
@@ -1372,28 +1604,43 @@ mulAvxTwo_2x7_end:
 // Requires: AVX, AVX2, SSE2
 TEXT ·mulAvxTwo_2x8(SB), $0-88
 	// Loading no tables to registers
+	// Destination kept in GP registers
 	// Full registers estimated 45 YMM used
-	MOVQ         n+80(FP), AX
-	MOVQ         matrix_base+0(FP), CX
-	SHRQ         $0x05, AX
-	TESTQ        AX, AX
-	JZ           mulAvxTwo_2x8_end
-	MOVQ         out_base+48(FP), DX
-	MOVQ         (DX), BX
-	MOVQ         24(DX), BP
-	MOVQ         48(DX), SI
-	MOVQ         72(DX), DI
-	MOVQ         96(DX), R8
-	MOVQ         120(DX), R9
-	MOVQ         144(DX), R10
-	MOVQ         168(DX), DX
-	MOVQ         in_base+24(FP), R11
-	MOVQ         (R11), R12
-	MOVQ         24(R11), R11
+	MOVQ  n+80(FP), AX
+	MOVQ  matrix_base+0(FP), CX
+	SHRQ  $0x05, AX
+	TESTQ AX, AX
+	JZ    mulAvxTwo_2x8_end
+	MOVQ  in_base+24(FP), DX
+	MOVQ  (DX), BX
+	MOVQ  24(DX), DX
+	MOVQ  out_base+48(FP), BP
+	MOVQ  (BP), SI
+	MOVQ  24(BP), DI
+	MOVQ  48(BP), R8
+	MOVQ  72(BP), R9
+	MOVQ  96(BP), R10
+	MOVQ  120(BP), R11
+	MOVQ  144(BP), R12
+	MOVQ  168(BP), BP
+	MOVQ  start+72(FP), R13
+
+	// Add start offset to output
+	ADDQ R13, SI
+	ADDQ R13, DI
+	ADDQ R13, R8
+	ADDQ R13, R9
+	ADDQ R13, R10
+	ADDQ R13, R11
+	ADDQ R13, R12
+	ADDQ R13, BP
+
+	// Add start offset to input
+	ADDQ         R13, BX
+	ADDQ         R13, DX
 	MOVQ         $0x0000000f, R13
 	MOVQ         R13, X8
 	VPBROADCASTB X8, Y8
-	MOVQ         start+72(FP), R13
 
 mulAvxTwo_2x8_loop:
 	// Clear 8 outputs
@@ -1407,7 +1654,8 @@ mulAvxTwo_2x8_loop:
 	VPXOR Y7, Y7, Y7
 
 	// Load and process 32 bytes from input 0 to 8 outputs
-	VMOVDQU (R12)(R13*1), Y11
+	VMOVDQU (BX), Y11
+	ADDQ    $0x20, BX
 	VPSRLQ  $0x04, Y11, Y12
 	VPAND   Y8, Y11, Y11
 	VPAND   Y8, Y12, Y12
@@ -1461,7 +1709,8 @@ mulAvxTwo_2x8_loop:
 	VPXOR   Y9, Y7, Y7
 
 	// Load and process 32 bytes from input 1 to 8 outputs
-	VMOVDQU (R11)(R13*1), Y11
+	VMOVDQU (DX), Y11
+	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y11, Y12
 	VPAND   Y8, Y11, Y11
 	VPAND   Y8, Y12, Y12
@@ -1515,17 +1764,24 @@ mulAvxTwo_2x8_loop:
 	VPXOR   Y9, Y7, Y7
 
 	// Store 8 outputs
-	VMOVDQU Y0, (BX)(R13*1)
-	VMOVDQU Y1, (BP)(R13*1)
-	VMOVDQU Y2, (SI)(R13*1)
-	VMOVDQU Y3, (DI)(R13*1)
-	VMOVDQU Y4, (R8)(R13*1)
-	VMOVDQU Y5, (R9)(R13*1)
-	VMOVDQU Y6, (R10)(R13*1)
-	VMOVDQU Y7, (DX)(R13*1)
+	VMOVDQU Y0, (SI)
+	ADDQ    $0x20, SI
+	VMOVDQU Y1, (DI)
+	ADDQ    $0x20, DI
+	VMOVDQU Y2, (R8)
+	ADDQ    $0x20, R8
+	VMOVDQU Y3, (R9)
+	ADDQ    $0x20, R9
+	VMOVDQU Y4, (R10)
+	ADDQ    $0x20, R10
+	VMOVDQU Y5, (R11)
+	ADDQ    $0x20, R11
+	VMOVDQU Y6, (R12)
+	ADDQ    $0x20, R12
+	VMOVDQU Y7, (BP)
+	ADDQ    $0x20, BP
 
 	// Prepare for next loop
-	ADDQ $0x20, R13
 	DECQ AX
 	JNZ  mulAvxTwo_2x8_loop
 	VZEROUPPER
@@ -1537,68 +1793,80 @@ mulAvxTwo_2x8_end:
 // Requires: AVX, AVX2, SSE2
 TEXT ·mulAvxTwo_3x1(SB), $0-88
 	// Loading all tables to registers
+	// Destination kept in GP registers
 	// Full registers estimated 10 YMM used
-	MOVQ         n+80(FP), AX
-	MOVQ         matrix_base+0(FP), CX
-	SHRQ         $0x05, AX
-	TESTQ        AX, AX
-	JZ           mulAvxTwo_3x1_end
-	MOVQ         out_base+48(FP), DX
-	MOVQ         (DX), DX
-	VMOVDQU      (CX), Y1
-	VMOVDQU      32(CX), Y2
-	VMOVDQU      64(CX), Y3
-	VMOVDQU      96(CX), Y4
-	VMOVDQU      128(CX), Y5
-	VMOVDQU      160(CX), Y6
-	MOVQ         in_base+24(FP), CX
-	MOVQ         (CX), BX
-	MOVQ         24(CX), BP
-	MOVQ         48(CX), CX
+	MOVQ    n+80(FP), AX
+	MOVQ    matrix_base+0(FP), CX
+	SHRQ    $0x05, AX
+	TESTQ   AX, AX
+	JZ      mulAvxTwo_3x1_end
+	VMOVDQU (CX), Y0
+	VMOVDQU 32(CX), Y1
+	VMOVDQU 64(CX), Y2
+	VMOVDQU 96(CX), Y3
+	VMOVDQU 128(CX), Y4
+	VMOVDQU 160(CX), Y5
+	MOVQ    in_base+24(FP), CX
+	MOVQ    (CX), DX
+	MOVQ    24(CX), BX
+	MOVQ    48(CX), CX
+	MOVQ    out_base+48(FP), BP
+	MOVQ    (BP), BP
+	MOVQ    start+72(FP), SI
+
+	// Add start offset to output
+	ADDQ SI, BP
+
+	// Add start offset to input
+	ADDQ         SI, DX
+	ADDQ         SI, BX
+	ADDQ         SI, CX
 	MOVQ         $0x0000000f, SI
 	MOVQ         SI, X7
 	VPBROADCASTB X7, Y7
-	MOVQ         start+72(FP), SI
 
 mulAvxTwo_3x1_loop:
 	// Clear 1 outputs
-	VPXOR Y0, Y0, Y0
+	VPXOR Y6, Y6, Y6
 
 	// Load and process 32 bytes from input 0 to 1 outputs
-	VMOVDQU (BX)(SI*1), Y8
+	VMOVDQU (DX), Y8
+	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y8, Y9
 	VPAND   Y7, Y8, Y8
 	VPAND   Y7, Y9, Y9
-	VPSHUFB Y8, Y1, Y8
-	VPSHUFB Y9, Y2, Y9
+	VPSHUFB Y8, Y0, Y8
+	VPSHUFB Y9, Y1, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y0, Y0
+	VPXOR   Y8, Y6, Y6
 
 	// Load and process 32 bytes from input 1 to 1 outputs
-	VMOVDQU (BP)(SI*1), Y8
+	VMOVDQU (BX), Y8
+	ADDQ    $0x20, BX
 	VPSRLQ  $0x04, Y8, Y9
 	VPAND   Y7, Y8, Y8
 	VPAND   Y7, Y9, Y9
-	VPSHUFB Y8, Y3, Y8
-	VPSHUFB Y9, Y4, Y9
+	VPSHUFB Y8, Y2, Y8
+	VPSHUFB Y9, Y3, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y0, Y0
+	VPXOR   Y8, Y6, Y6
 
 	// Load and process 32 bytes from input 2 to 1 outputs
-	VMOVDQU (CX)(SI*1), Y8
+	VMOVDQU (CX), Y8
+	ADDQ    $0x20, CX
 	VPSRLQ  $0x04, Y8, Y9
 	VPAND   Y7, Y8, Y8
 	VPAND   Y7, Y9, Y9
-	VPSHUFB Y8, Y5, Y8
-	VPSHUFB Y9, Y6, Y9
+	VPSHUFB Y8, Y4, Y8
+	VPSHUFB Y9, Y5, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y0, Y0
+	VPXOR   Y8, Y6, Y6
 
 	// Store 1 outputs
-	VMOVDQU Y0, (DX)(SI*1)
+	VMOVDQU Y6, (BP)
+	ADDQ    $0x20, BP
 
 	// Prepare for next loop
-	ADDQ $0x20, SI
 	DECQ AX
 	JNZ  mulAvxTwo_3x1_loop
 	VZEROUPPER
@@ -1610,23 +1878,33 @@ mulAvxTwo_3x1_end:
 // Requires: AVX, AVX2, SSE2
 TEXT ·mulAvxTwo_3x2(SB), $0-88
 	// Loading no tables to registers
+	// Destination kept in GP registers
 	// Full registers estimated 19 YMM used
-	MOVQ         n+80(FP), AX
-	MOVQ         matrix_base+0(FP), CX
-	SHRQ         $0x05, AX
-	TESTQ        AX, AX
-	JZ           mulAvxTwo_3x2_end
-	MOVQ         out_base+48(FP), DX
-	MOVQ         (DX), BX
-	MOVQ         24(DX), DX
-	MOVQ         in_base+24(FP), BP
-	MOVQ         (BP), SI
-	MOVQ         24(BP), DI
-	MOVQ         48(BP), BP
+	MOVQ  n+80(FP), AX
+	MOVQ  matrix_base+0(FP), CX
+	SHRQ  $0x05, AX
+	TESTQ AX, AX
+	JZ    mulAvxTwo_3x2_end
+	MOVQ  in_base+24(FP), DX
+	MOVQ  (DX), BX
+	MOVQ  24(DX), BP
+	MOVQ  48(DX), DX
+	MOVQ  out_base+48(FP), SI
+	MOVQ  (SI), DI
+	MOVQ  24(SI), SI
+	MOVQ  start+72(FP), R8
+
+	// Add start offset to output
+	ADDQ R8, DI
+	ADDQ R8, SI
+
+	// Add start offset to input
+	ADDQ         R8, BX
+	ADDQ         R8, BP
+	ADDQ         R8, DX
 	MOVQ         $0x0000000f, R8
 	MOVQ         R8, X2
 	VPBROADCASTB X2, Y2
-	MOVQ         start+72(FP), R8
 
 mulAvxTwo_3x2_loop:
 	// Clear 2 outputs
@@ -1634,7 +1912,8 @@ mulAvxTwo_3x2_loop:
 	VPXOR Y1, Y1, Y1
 
 	// Load and process 32 bytes from input 0 to 2 outputs
-	VMOVDQU (SI)(R8*1), Y5
+	VMOVDQU (BX), Y5
+	ADDQ    $0x20, BX
 	VPSRLQ  $0x04, Y5, Y6
 	VPAND   Y2, Y5, Y5
 	VPAND   Y2, Y6, Y6
@@ -1652,7 +1931,8 @@ mulAvxTwo_3x2_loop:
 	VPXOR   Y3, Y1, Y1
 
 	// Load and process 32 bytes from input 1 to 2 outputs
-	VMOVDQU (DI)(R8*1), Y5
+	VMOVDQU (BP), Y5
+	ADDQ    $0x20, BP
 	VPSRLQ  $0x04, Y5, Y6
 	VPAND   Y2, Y5, Y5
 	VPAND   Y2, Y6, Y6
@@ -1670,7 +1950,8 @@ mulAvxTwo_3x2_loop:
 	VPXOR   Y3, Y1, Y1
 
 	// Load and process 32 bytes from input 2 to 2 outputs
-	VMOVDQU (BP)(R8*1), Y5
+	VMOVDQU (DX), Y5
+	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y5, Y6
 	VPAND   Y2, Y5, Y5
 	VPAND   Y2, Y6, Y6
@@ -1688,11 +1969,12 @@ mulAvxTwo_3x2_loop:
 	VPXOR   Y3, Y1, Y1
 
 	// Store 2 outputs
-	VMOVDQU Y0, (BX)(R8*1)
-	VMOVDQU Y1, (DX)(R8*1)
+	VMOVDQU Y0, (DI)
+	ADDQ    $0x20, DI
+	VMOVDQU Y1, (SI)
+	ADDQ    $0x20, SI
 
 	// Prepare for next loop
-	ADDQ $0x20, R8
 	DECQ AX
 	JNZ  mulAvxTwo_3x2_loop
 	VZEROUPPER
@@ -1704,24 +1986,35 @@ mulAvxTwo_3x2_end:
 // Requires: AVX, AVX2, SSE2
 TEXT ·mulAvxTwo_3x3(SB), $0-88
 	// Loading no tables to registers
+	// Destination kept in GP registers
 	// Full registers estimated 26 YMM used
-	MOVQ         n+80(FP), AX
-	MOVQ         matrix_base+0(FP), CX
-	SHRQ         $0x05, AX
-	TESTQ        AX, AX
-	JZ           mulAvxTwo_3x3_end
-	MOVQ         out_base+48(FP), DX
-	MOVQ         (DX), BX
-	MOVQ         24(DX), BP
-	MOVQ         48(DX), DX
-	MOVQ         in_base+24(FP), SI
-	MOVQ         (SI), DI
-	MOVQ         24(SI), R8
-	MOVQ         48(SI), SI
+	MOVQ  n+80(FP), AX
+	MOVQ  matrix_base+0(FP), CX
+	SHRQ  $0x05, AX
+	TESTQ AX, AX
+	JZ    mulAvxTwo_3x3_end
+	MOVQ  in_base+24(FP), DX
+	MOVQ  (DX), BX
+	MOVQ  24(DX), BP
+	MOVQ  48(DX), DX
+	MOVQ  out_base+48(FP), SI
+	MOVQ  (SI), DI
+	MOVQ  24(SI), R8
+	MOVQ  48(SI), SI
+	MOVQ  start+72(FP), R9
+
+	// Add start offset to output
+	ADDQ R9, DI
+	ADDQ R9, R8
+	ADDQ R9, SI
+
+	// Add start offset to input
+	ADDQ         R9, BX
+	ADDQ         R9, BP
+	ADDQ         R9, DX
 	MOVQ         $0x0000000f, R9
 	MOVQ         R9, X3
 	VPBROADCASTB X3, Y3
-	MOVQ         start+72(FP), R9
 
 mulAvxTwo_3x3_loop:
 	// Clear 3 outputs
@@ -1730,7 +2023,8 @@ mulAvxTwo_3x3_loop:
 	VPXOR Y2, Y2, Y2
 
 	// Load and process 32 bytes from input 0 to 3 outputs
-	VMOVDQU (DI)(R9*1), Y6
+	VMOVDQU (BX), Y6
+	ADDQ    $0x20, BX
 	VPSRLQ  $0x04, Y6, Y7
 	VPAND   Y3, Y6, Y6
 	VPAND   Y3, Y7, Y7
@@ -1754,7 +2048,8 @@ mulAvxTwo_3x3_loop:
 	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 1 to 3 outputs
-	VMOVDQU (R8)(R9*1), Y6
+	VMOVDQU (BP), Y6
+	ADDQ    $0x20, BP
 	VPSRLQ  $0x04, Y6, Y7
 	VPAND   Y3, Y6, Y6
 	VPAND   Y3, Y7, Y7
@@ -1778,7 +2073,8 @@ mulAvxTwo_3x3_loop:
 	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 2 to 3 outputs
-	VMOVDQU (SI)(R9*1), Y6
+	VMOVDQU (DX), Y6
+	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y6, Y7
 	VPAND   Y3, Y6, Y6
 	VPAND   Y3, Y7, Y7
@@ -1802,12 +2098,14 @@ mulAvxTwo_3x3_loop:
 	VPXOR   Y4, Y2, Y2
 
 	// Store 3 outputs
-	VMOVDQU Y0, (BX)(R9*1)
-	VMOVDQU Y1, (BP)(R9*1)
-	VMOVDQU Y2, (DX)(R9*1)
+	VMOVDQU Y0, (DI)
+	ADDQ    $0x20, DI
+	VMOVDQU Y1, (R8)
+	ADDQ    $0x20, R8
+	VMOVDQU Y2, (SI)
+	ADDQ    $0x20, SI
 
 	// Prepare for next loop
-	ADDQ $0x20, R9
 	DECQ AX
 	JNZ  mulAvxTwo_3x3_loop
 	VZEROUPPER
@@ -1819,25 +2117,37 @@ mulAvxTwo_3x3_end:
 // Requires: AVX, AVX2, SSE2
 TEXT ·mulAvxTwo_3x4(SB), $0-88
 	// Loading no tables to registers
+	// Destination kept in GP registers
 	// Full registers estimated 33 YMM used
-	MOVQ         n+80(FP), AX
-	MOVQ         matrix_base+0(FP), CX
-	SHRQ         $0x05, AX
-	TESTQ        AX, AX
-	JZ           mulAvxTwo_3x4_end
-	MOVQ         out_base+48(FP), DX
-	MOVQ         (DX), BX
-	MOVQ         24(DX), BP
-	MOVQ         48(DX), SI
-	MOVQ         72(DX), DX
-	MOVQ         in_base+24(FP), DI
-	MOVQ         (DI), R8
-	MOVQ         24(DI), R9
-	MOVQ         48(DI), DI
+	MOVQ  n+80(FP), AX
+	MOVQ  matrix_base+0(FP), CX
+	SHRQ  $0x05, AX
+	TESTQ AX, AX
+	JZ    mulAvxTwo_3x4_end
+	MOVQ  in_base+24(FP), DX
+	MOVQ  (DX), BX
+	MOVQ  24(DX), BP
+	MOVQ  48(DX), DX
+	MOVQ  out_base+48(FP), SI
+	MOVQ  (SI), DI
+	MOVQ  24(SI), R8
+	MOVQ  48(SI), R9
+	MOVQ  72(SI), SI
+	MOVQ  start+72(FP), R10
+
+	// Add start offset to output
+	ADDQ R10, DI
+	ADDQ R10, R8
+	ADDQ R10, R9
+	ADDQ R10, SI
+
+	// Add start offset to input
+	ADDQ         R10, BX
+	ADDQ         R10, BP
+	ADDQ         R10, DX
 	MOVQ         $0x0000000f, R10
 	MOVQ         R10, X4
 	VPBROADCASTB X4, Y4
-	MOVQ         start+72(FP), R10
 
 mulAvxTwo_3x4_loop:
 	// Clear 4 outputs
@@ -1847,7 +2157,8 @@ mulAvxTwo_3x4_loop:
 	VPXOR Y3, Y3, Y3
 
 	// Load and process 32 bytes from input 0 to 4 outputs
-	VMOVDQU (R8)(R10*1), Y7
+	VMOVDQU (BX), Y7
+	ADDQ    $0x20, BX
 	VPSRLQ  $0x04, Y7, Y8
 	VPAND   Y4, Y7, Y7
 	VPAND   Y4, Y8, Y8
@@ -1877,7 +2188,8 @@ mulAvxTwo_3x4_loop:
 	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 1 to 4 outputs
-	VMOVDQU (R9)(R10*1), Y7
+	VMOVDQU (BP), Y7
+	ADDQ    $0x20, BP
 	VPSRLQ  $0x04, Y7, Y8
 	VPAND   Y4, Y7, Y7
 	VPAND   Y4, Y8, Y8
@@ -1907,7 +2219,8 @@ mulAvxTwo_3x4_loop:
 	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 2 to 4 outputs
-	VMOVDQU (DI)(R10*1), Y7
+	VMOVDQU (DX), Y7
+	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y7, Y8
 	VPAND   Y4, Y7, Y7
 	VPAND   Y4, Y8, Y8
@@ -1937,13 +2250,16 @@ mulAvxTwo_3x4_loop:
 	VPXOR   Y5, Y3, Y3
 
 	// Store 4 outputs
-	VMOVDQU Y0, (BX)(R10*1)
-	VMOVDQU Y1, (BP)(R10*1)
-	VMOVDQU Y2, (SI)(R10*1)
-	VMOVDQU Y3, (DX)(R10*1)
+	VMOVDQU Y0, (DI)
+	ADDQ    $0x20, DI
+	VMOVDQU Y1, (R8)
+	ADDQ    $0x20, R8
+	VMOVDQU Y2, (R9)
+	ADDQ    $0x20, R9
+	VMOVDQU Y3, (SI)
+	ADDQ    $0x20, SI
 
 	// Prepare for next loop
-	ADDQ $0x20, R10
 	DECQ AX
 	JNZ  mulAvxTwo_3x4_loop
 	VZEROUPPER
@@ -1955,26 +2271,39 @@ mulAvxTwo_3x4_end:
 // Requires: AVX, AVX2, SSE2
 TEXT ·mulAvxTwo_3x5(SB), $0-88
 	// Loading no tables to registers
+	// Destination kept in GP registers
 	// Full registers estimated 40 YMM used
-	MOVQ         n+80(FP), AX
-	MOVQ         matrix_base+0(FP), CX
-	SHRQ         $0x05, AX
-	TESTQ        AX, AX
-	JZ           mulAvxTwo_3x5_end
-	MOVQ         out_base+48(FP), DX
-	MOVQ         (DX), BX
-	MOVQ         24(DX), BP
-	MOVQ         48(DX), SI
-	MOVQ         72(DX), DI
-	MOVQ         96(DX), DX
-	MOVQ         in_base+24(FP), R8
-	MOVQ         (R8), R9
-	MOVQ         24(R8), R10
-	MOVQ         48(R8), R8
+	MOVQ  n+80(FP), AX
+	MOVQ  matrix_base+0(FP), CX
+	SHRQ  $0x05, AX
+	TESTQ AX, AX
+	JZ    mulAvxTwo_3x5_end
+	MOVQ  in_base+24(FP), DX
+	MOVQ  (DX), BX
+	MOVQ  24(DX), BP
+	MOVQ  48(DX), DX
+	MOVQ  out_base+48(FP), SI
+	MOVQ  (SI), DI
+	MOVQ  24(SI), R8
+	MOVQ  48(SI), R9
+	MOVQ  72(SI), R10
+	MOVQ  96(SI), SI
+	MOVQ  start+72(FP), R11
+
+	// Add start offset to output
+	ADDQ R11, DI
+	ADDQ R11, R8
+	ADDQ R11, R9
+	ADDQ R11, R10
+	ADDQ R11, SI
+
+	// Add start offset to input
+	ADDQ         R11, BX
+	ADDQ         R11, BP
+	ADDQ         R11, DX
 	MOVQ         $0x0000000f, R11
 	MOVQ         R11, X5
 	VPBROADCASTB X5, Y5
-	MOVQ         start+72(FP), R11
 
 mulAvxTwo_3x5_loop:
 	// Clear 5 outputs
@@ -1985,7 +2314,8 @@ mulAvxTwo_3x5_loop:
 	VPXOR Y4, Y4, Y4
 
 	// Load and process 32 bytes from input 0 to 5 outputs
-	VMOVDQU (R9)(R11*1), Y8
+	VMOVDQU (BX), Y8
+	ADDQ    $0x20, BX
 	VPSRLQ  $0x04, Y8, Y9
 	VPAND   Y5, Y8, Y8
 	VPAND   Y5, Y9, Y9
@@ -2021,7 +2351,8 @@ mulAvxTwo_3x5_loop:
 	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 1 to 5 outputs
-	VMOVDQU (R10)(R11*1), Y8
+	VMOVDQU (BP), Y8
+	ADDQ    $0x20, BP
 	VPSRLQ  $0x04, Y8, Y9
 	VPAND   Y5, Y8, Y8
 	VPAND   Y5, Y9, Y9
@@ -2057,7 +2388,8 @@ mulAvxTwo_3x5_loop:
 	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 2 to 5 outputs
-	VMOVDQU (R8)(R11*1), Y8
+	VMOVDQU (DX), Y8
+	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y8, Y9
 	VPAND   Y5, Y8, Y8
 	VPAND   Y5, Y9, Y9
@@ -2093,14 +2425,18 @@ mulAvxTwo_3x5_loop:
 	VPXOR   Y6, Y4, Y4
 
 	// Store 5 outputs
-	VMOVDQU Y0, (BX)(R11*1)
-	VMOVDQU Y1, (BP)(R11*1)
-	VMOVDQU Y2, (SI)(R11*1)
-	VMOVDQU Y3, (DI)(R11*1)
-	VMOVDQU Y4, (DX)(R11*1)
+	VMOVDQU Y0, (DI)
+	ADDQ    $0x20, DI
+	VMOVDQU Y1, (R8)
+	ADDQ    $0x20, R8
+	VMOVDQU Y2, (R9)
+	ADDQ    $0x20, R9
+	VMOVDQU Y3, (R10)
+	ADDQ    $0x20, R10
+	VMOVDQU Y4, (SI)
+	ADDQ    $0x20, SI
 
 	// Prepare for next loop
-	ADDQ $0x20, R11
 	DECQ AX
 	JNZ  mulAvxTwo_3x5_loop
 	VZEROUPPER
@@ -2112,27 +2448,41 @@ mulAvxTwo_3x5_end:
 // Requires: AVX, AVX2, SSE2
 TEXT ·mulAvxTwo_3x6(SB), $0-88
 	// Loading no tables to registers
+	// Destination kept in GP registers
 	// Full registers estimated 47 YMM used
-	MOVQ         n+80(FP), AX
-	MOVQ         matrix_base+0(FP), CX
-	SHRQ         $0x05, AX
-	TESTQ        AX, AX
-	JZ           mulAvxTwo_3x6_end
-	MOVQ         out_base+48(FP), DX
-	MOVQ         (DX), BX
-	MOVQ         24(DX), BP
-	MOVQ         48(DX), SI
-	MOVQ         72(DX), DI
-	MOVQ         96(DX), R8
-	MOVQ         120(DX), DX
-	MOVQ         in_base+24(FP), R9
-	MOVQ         (R9), R10
-	MOVQ         24(R9), R11
-	MOVQ         48(R9), R9
+	MOVQ  n+80(FP), AX
+	MOVQ  matrix_base+0(FP), CX
+	SHRQ  $0x05, AX
+	TESTQ AX, AX
+	JZ    mulAvxTwo_3x6_end
+	MOVQ  in_base+24(FP), DX
+	MOVQ  (DX), BX
+	MOVQ  24(DX), BP
+	MOVQ  48(DX), DX
+	MOVQ  out_base+48(FP), SI
+	MOVQ  (SI), DI
+	MOVQ  24(SI), R8
+	MOVQ  48(SI), R9
+	MOVQ  72(SI), R10
+	MOVQ  96(SI), R11
+	MOVQ  120(SI), SI
+	MOVQ  start+72(FP), R12
+
+	// Add start offset to output
+	ADDQ R12, DI
+	ADDQ R12, R8
+	ADDQ R12, R9
+	ADDQ R12, R10
+	ADDQ R12, R11
+	ADDQ R12, SI
+
+	// Add start offset to input
+	ADDQ         R12, BX
+	ADDQ         R12, BP
+	ADDQ         R12, DX
 	MOVQ         $0x0000000f, R12
 	MOVQ         R12, X6
 	VPBROADCASTB X6, Y6
-	MOVQ         start+72(FP), R12
 
 mulAvxTwo_3x6_loop:
 	// Clear 6 outputs
@@ -2144,7 +2494,8 @@ mulAvxTwo_3x6_loop:
 	VPXOR Y5, Y5, Y5
 
 	// Load and process 32 bytes from input 0 to 6 outputs
-	VMOVDQU (R10)(R12*1), Y9
+	VMOVDQU (BX), Y9
+	ADDQ    $0x20, BX
 	VPSRLQ  $0x04, Y9, Y10
 	VPAND   Y6, Y9, Y9
 	VPAND   Y6, Y10, Y10
@@ -2186,7 +2537,8 @@ mulAvxTwo_3x6_loop:
 	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 1 to 6 outputs
-	VMOVDQU (R11)(R12*1), Y9
+	VMOVDQU (BP), Y9
+	ADDQ    $0x20, BP
 	VPSRLQ  $0x04, Y9, Y10
 	VPAND   Y6, Y9, Y9
 	VPAND   Y6, Y10, Y10
@@ -2228,7 +2580,8 @@ mulAvxTwo_3x6_loop:
 	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 2 to 6 outputs
-	VMOVDQU (R9)(R12*1), Y9
+	VMOVDQU (DX), Y9
+	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y9, Y10
 	VPAND   Y6, Y9, Y9
 	VPAND   Y6, Y10, Y10
@@ -2270,15 +2623,20 @@ mulAvxTwo_3x6_loop:
 	VPXOR   Y7, Y5, Y5
 
 	// Store 6 outputs
-	VMOVDQU Y0, (BX)(R12*1)
-	VMOVDQU Y1, (BP)(R12*1)
-	VMOVDQU Y2, (SI)(R12*1)
-	VMOVDQU Y3, (DI)(R12*1)
-	VMOVDQU Y4, (R8)(R12*1)
-	VMOVDQU Y5, (DX)(R12*1)
+	VMOVDQU Y0, (DI)
+	ADDQ    $0x20, DI
+	VMOVDQU Y1, (R8)
+	ADDQ    $0x20, R8
+	VMOVDQU Y2, (R9)
+	ADDQ    $0x20, R9
+	VMOVDQU Y3, (R10)
+	ADDQ    $0x20, R10
+	VMOVDQU Y4, (R11)
+	ADDQ    $0x20, R11
+	VMOVDQU Y5, (SI)
+	ADDQ    $0x20, SI
 
 	// Prepare for next loop
-	ADDQ $0x20, R12
 	DECQ AX
 	JNZ  mulAvxTwo_3x6_loop
 	VZEROUPPER
@@ -2290,28 +2648,43 @@ mulAvxTwo_3x6_end:
 // Requires: AVX, AVX2, SSE2
 TEXT ·mulAvxTwo_3x7(SB), $0-88
 	// Loading no tables to registers
+	// Destination kept in GP registers
 	// Full registers estimated 54 YMM used
-	MOVQ         n+80(FP), AX
-	MOVQ         matrix_base+0(FP), CX
-	SHRQ         $0x05, AX
-	TESTQ        AX, AX
-	JZ           mulAvxTwo_3x7_end
-	MOVQ         out_base+48(FP), DX
-	MOVQ         (DX), BX
-	MOVQ         24(DX), BP
-	MOVQ         48(DX), SI
-	MOVQ         72(DX), DI
-	MOVQ         96(DX), R8
-	MOVQ         120(DX), R9
-	MOVQ         144(DX), DX
-	MOVQ         in_base+24(FP), R10
-	MOVQ         (R10), R11
-	MOVQ         24(R10), R12
-	MOVQ         48(R10), R10
+	MOVQ  n+80(FP), AX
+	MOVQ  matrix_base+0(FP), CX
+	SHRQ  $0x05, AX
+	TESTQ AX, AX
+	JZ    mulAvxTwo_3x7_end
+	MOVQ  in_base+24(FP), DX
+	MOVQ  (DX), BX
+	MOVQ  24(DX), BP
+	MOVQ  48(DX), DX
+	MOVQ  out_base+48(FP), SI
+	MOVQ  (SI), DI
+	MOVQ  24(SI), R8
+	MOVQ  48(SI), R9
+	MOVQ  72(SI), R10
+	MOVQ  96(SI), R11
+	MOVQ  120(SI), R12
+	MOVQ  144(SI), SI
+	MOVQ  start+72(FP), R13
+
+	// Add start offset to output
+	ADDQ R13, DI
+	ADDQ R13, R8
+	ADDQ R13, R9
+	ADDQ R13, R10
+	ADDQ R13, R11
+	ADDQ R13, R12
+	ADDQ R13, SI
+
+	// Add start offset to input
+	ADDQ         R13, BX
+	ADDQ         R13, BP
+	ADDQ         R13, DX
 	MOVQ         $0x0000000f, R13
 	MOVQ         R13, X7
 	VPBROADCASTB X7, Y7
-	MOVQ         start+72(FP), R13
 
 mulAvxTwo_3x7_loop:
 	// Clear 7 outputs
@@ -2324,7 +2697,8 @@ mulAvxTwo_3x7_loop:
 	VPXOR Y6, Y6, Y6
 
 	// Load and process 32 bytes from input 0 to 7 outputs
-	VMOVDQU (R11)(R13*1), Y10
+	VMOVDQU (BX), Y10
+	ADDQ    $0x20, BX
 	VPSRLQ  $0x04, Y10, Y11
 	VPAND   Y7, Y10, Y10
 	VPAND   Y7, Y11, Y11
@@ -2372,7 +2746,8 @@ mulAvxTwo_3x7_loop:
 	VPXOR   Y8, Y6, Y6
 
 	// Load and process 32 bytes from input 1 to 7 outputs
-	VMOVDQU (R12)(R13*1), Y10
+	VMOVDQU (BP), Y10
+	ADDQ    $0x20, BP
 	VPSRLQ  $0x04, Y10, Y11
 	VPAND   Y7, Y10, Y10
 	VPAND   Y7, Y11, Y11
@@ -2420,7 +2795,8 @@ mulAvxTwo_3x7_loop:
 	VPXOR   Y8, Y6, Y6
 
 	// Load and process 32 bytes from input 2 to 7 outputs
-	VMOVDQU (R10)(R13*1), Y10
+	VMOVDQU (DX), Y10
+	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y10, Y11
 	VPAND   Y7, Y10, Y10
 	VPAND   Y7, Y11, Y11
@@ -2468,16 +2844,22 @@ mulAvxTwo_3x7_loop:
 	VPXOR   Y8, Y6, Y6
 
 	// Store 7 outputs
-	VMOVDQU Y0, (BX)(R13*1)
-	VMOVDQU Y1, (BP)(R13*1)
-	VMOVDQU Y2, (SI)(R13*1)
-	VMOVDQU Y3, (DI)(R13*1)
-	VMOVDQU Y4, (R8)(R13*1)
-	VMOVDQU Y5, (R9)(R13*1)
-	VMOVDQU Y6, (DX)(R13*1)
+	VMOVDQU Y0, (DI)
+	ADDQ    $0x20, DI
+	VMOVDQU Y1, (R8)
+	ADDQ    $0x20, R8
+	VMOVDQU Y2, (R9)
+	ADDQ    $0x20, R9
+	VMOVDQU Y3, (R10)
+	ADDQ    $0x20, R10
+	VMOVDQU Y4, (R11)
+	ADDQ    $0x20, R11
+	VMOVDQU Y5, (R12)
+	ADDQ    $0x20, R12
+	VMOVDQU Y6, (SI)
+	ADDQ    $0x20, SI
 
 	// Prepare for next loop
-	ADDQ $0x20, R13
 	DECQ AX
 	JNZ  mulAvxTwo_3x7_loop
 	VZEROUPPER
@@ -2489,29 +2871,45 @@ mulAvxTwo_3x7_end:
 // Requires: AVX, AVX2, SSE2
 TEXT ·mulAvxTwo_3x8(SB), $0-88
 	// Loading no tables to registers
+	// Destination kept in GP registers
 	// Full registers estimated 61 YMM used
-	MOVQ         n+80(FP), AX
-	MOVQ         matrix_base+0(FP), CX
-	SHRQ         $0x05, AX
-	TESTQ        AX, AX
-	JZ           mulAvxTwo_3x8_end
-	MOVQ         out_base+48(FP), DX
-	MOVQ         (DX), BX
-	MOVQ         24(DX), BP
-	MOVQ         48(DX), SI
-	MOVQ         72(DX), DI
-	MOVQ         96(DX), R8
-	MOVQ         120(DX), R9
-	MOVQ         144(DX), R10
-	MOVQ         168(DX), DX
-	MOVQ         in_base+24(FP), R11
-	MOVQ         (R11), R12
-	MOVQ         24(R11), R13
-	MOVQ         48(R11), R11
+	MOVQ  n+80(FP), AX
+	MOVQ  matrix_base+0(FP), CX
+	SHRQ  $0x05, AX
+	TESTQ AX, AX
+	JZ    mulAvxTwo_3x8_end
+	MOVQ  in_base+24(FP), DX
+	MOVQ  (DX), BX
+	MOVQ  24(DX), BP
+	MOVQ  48(DX), DX
+	MOVQ  out_base+48(FP), SI
+	MOVQ  (SI), DI
+	MOVQ  24(SI), R8
+	MOVQ  48(SI), R9
+	MOVQ  72(SI), R10
+	MOVQ  96(SI), R11
+	MOVQ  120(SI), R12
+	MOVQ  144(SI), R13
+	MOVQ  168(SI), SI
+	MOVQ  start+72(FP), R14
+
+	// Add start offset to output
+	ADDQ R14, DI
+	ADDQ R14, R8
+	ADDQ R14, R9
+	ADDQ R14, R10
+	ADDQ R14, R11
+	ADDQ R14, R12
+	ADDQ R14, R13
+	ADDQ R14, SI
+
+	// Add start offset to input
+	ADDQ         R14, BX
+	ADDQ         R14, BP
+	ADDQ         R14, DX
 	MOVQ         $0x0000000f, R14
 	MOVQ         R14, X8
 	VPBROADCASTB X8, Y8
-	MOVQ         start+72(FP), R14
 
 mulAvxTwo_3x8_loop:
 	// Clear 8 outputs
@@ -2525,7 +2923,8 @@ mulAvxTwo_3x8_loop:
 	VPXOR Y7, Y7, Y7
 
 	// Load and process 32 bytes from input 0 to 8 outputs
-	VMOVDQU (R12)(R14*1), Y11
+	VMOVDQU (BX), Y11
+	ADDQ    $0x20, BX
 	VPSRLQ  $0x04, Y11, Y12
 	VPAND   Y8, Y11, Y11
 	VPAND   Y8, Y12, Y12
@@ -2579,7 +2978,8 @@ mulAvxTwo_3x8_loop:
 	VPXOR   Y9, Y7, Y7
 
 	// Load and process 32 bytes from input 1 to 8 outputs
-	VMOVDQU (R13)(R14*1), Y11
+	VMOVDQU (BP), Y11
+	ADDQ    $0x20, BP
 	VPSRLQ  $0x04, Y11, Y12
 	VPAND   Y8, Y11, Y11
 	VPAND   Y8, Y12, Y12
@@ -2633,7 +3033,8 @@ mulAvxTwo_3x8_loop:
 	VPXOR   Y9, Y7, Y7
 
 	// Load and process 32 bytes from input 2 to 8 outputs
-	VMOVDQU (R11)(R14*1), Y11
+	VMOVDQU (DX), Y11
+	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y11, Y12
 	VPAND   Y8, Y11, Y11
 	VPAND   Y8, Y12, Y12
@@ -2687,17 +3088,24 @@ mulAvxTwo_3x8_loop:
 	VPXOR   Y9, Y7, Y7
 
 	// Store 8 outputs
-	VMOVDQU Y0, (BX)(R14*1)
-	VMOVDQU Y1, (BP)(R14*1)
-	VMOVDQU Y2, (SI)(R14*1)
-	VMOVDQU Y3, (DI)(R14*1)
-	VMOVDQU Y4, (R8)(R14*1)
-	VMOVDQU Y5, (R9)(R14*1)
-	VMOVDQU Y6, (R10)(R14*1)
-	VMOVDQU Y7, (DX)(R14*1)
+	VMOVDQU Y0, (DI)
+	ADDQ    $0x20, DI
+	VMOVDQU Y1, (R8)
+	ADDQ    $0x20, R8
+	VMOVDQU Y2, (R9)
+	ADDQ    $0x20, R9
+	VMOVDQU Y3, (R10)
+	ADDQ    $0x20, R10
+	VMOVDQU Y4, (R11)
+	ADDQ    $0x20, R11
+	VMOVDQU Y5, (R12)
+	ADDQ    $0x20, R12
+	VMOVDQU Y6, (R13)
+	ADDQ    $0x20, R13
+	VMOVDQU Y7, (SI)
+	ADDQ    $0x20, SI
 
 	// Prepare for next loop
-	ADDQ $0x20, R14
 	DECQ AX
 	JNZ  mulAvxTwo_3x8_loop
 	VZEROUPPER
@@ -2709,81 +3117,95 @@ mulAvxTwo_3x8_end:
 // Requires: AVX, AVX2, SSE2
 TEXT ·mulAvxTwo_4x1(SB), $0-88
 	// Loading all tables to registers
+	// Destination kept in GP registers
 	// Full registers estimated 12 YMM used
-	MOVQ         n+80(FP), AX
-	MOVQ         matrix_base+0(FP), CX
-	SHRQ         $0x05, AX
-	TESTQ        AX, AX
-	JZ           mulAvxTwo_4x1_end
-	MOVQ         out_base+48(FP), DX
-	MOVQ         (DX), DX
-	VMOVDQU      (CX), Y1
-	VMOVDQU      32(CX), Y2
-	VMOVDQU      64(CX), Y3
-	VMOVDQU      96(CX), Y4
-	VMOVDQU      128(CX), Y5
-	VMOVDQU      160(CX), Y6
-	VMOVDQU      192(CX), Y7
-	VMOVDQU      224(CX), Y8
-	MOVQ         in_base+24(FP), CX
-	MOVQ         (CX), BX
-	MOVQ         24(CX), BP
-	MOVQ         48(CX), SI
-	MOVQ         72(CX), CX
+	MOVQ    n+80(FP), AX
+	MOVQ    matrix_base+0(FP), CX
+	SHRQ    $0x05, AX
+	TESTQ   AX, AX
+	JZ      mulAvxTwo_4x1_end
+	VMOVDQU (CX), Y0
+	VMOVDQU 32(CX), Y1
+	VMOVDQU 64(CX), Y2
+	VMOVDQU 96(CX), Y3
+	VMOVDQU 128(CX), Y4
+	VMOVDQU 160(CX), Y5
+	VMOVDQU 192(CX), Y6
+	VMOVDQU 224(CX), Y7
+	MOVQ    in_base+24(FP), CX
+	MOVQ    (CX), DX
+	MOVQ    24(CX), BX
+	MOVQ    48(CX), BP
+	MOVQ    72(CX), CX
+	MOVQ    out_base+48(FP), SI
+	MOVQ    (SI), SI
+	MOVQ    start+72(FP), DI
+
+	// Add start offset to output
+	ADDQ DI, SI
+
+	// Add start offset to input
+	ADDQ         DI, DX
+	ADDQ         DI, BX
+	ADDQ         DI, BP
+	ADDQ         DI, CX
 	MOVQ         $0x0000000f, DI
 	MOVQ         DI, X9
 	VPBROADCASTB X9, Y9
-	MOVQ         start+72(FP), DI
 
 mulAvxTwo_4x1_loop:
 	// Clear 1 outputs
-	VPXOR Y0, Y0, Y0
+	VPXOR Y8, Y8, Y8
 
 	// Load and process 32 bytes from input 0 to 1 outputs
-	VMOVDQU (BX)(DI*1), Y10
+	VMOVDQU (DX), Y10
+	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y10, Y11
 	VPAND   Y9, Y10, Y10
 	VPAND   Y9, Y11, Y11
-	VPSHUFB Y10, Y1, Y10
-	VPSHUFB Y11, Y2, Y11
+	VPSHUFB Y10, Y0, Y10
+	VPSHUFB Y11, Y1, Y11
 	VPXOR   Y10, Y11, Y10
-	VPXOR   Y10, Y0, Y0
+	VPXOR   Y10, Y8, Y8
 
 	// Load and process 32 bytes from input 1 to 1 outputs
-	VMOVDQU (BP)(DI*1), Y10
+	VMOVDQU (BX), Y10
+	ADDQ    $0x20, BX
 	VPSRLQ  $0x04, Y10, Y11
 	VPAND   Y9, Y10, Y10
 	VPAND   Y9, Y11, Y11
-	VPSHUFB Y10, Y3, Y10
-	VPSHUFB Y11, Y4, Y11
+	VPSHUFB Y10, Y2, Y10
+	VPSHUFB Y11, Y3, Y11
 	VPXOR   Y10, Y11, Y10
-	VPXOR   Y10, Y0, Y0
+	VPXOR   Y10, Y8, Y8
 
 	// Load and process 32 bytes from input 2 to 1 outputs
-	VMOVDQU (SI)(DI*1), Y10
+	VMOVDQU (BP), Y10
+	ADDQ    $0x20, BP
 	VPSRLQ  $0x04, Y10, Y11
 	VPAND   Y9, Y10, Y10
 	VPAND   Y9, Y11, Y11
-	VPSHUFB Y10, Y5, Y10
-	VPSHUFB Y11, Y6, Y11
+	VPSHUFB Y10, Y4, Y10
+	VPSHUFB Y11, Y5, Y11
 	VPXOR   Y10, Y11, Y10
-	VPXOR   Y10, Y0, Y0
+	VPXOR   Y10, Y8, Y8
 
 	// Load and process 32 bytes from input 3 to 1 outputs
-	VMOVDQU (CX)(DI*1), Y10
+	VMOVDQU (CX), Y10
+	ADDQ    $0x20, CX
 	VPSRLQ  $0x04, Y10, Y11
 	VPAND   Y9, Y10, Y10
 	VPAND   Y9, Y11, Y11
-	VPSHUFB Y10, Y7, Y10
-	VPSHUFB Y11, Y8, Y11
+	VPSHUFB Y10, Y6, Y10
+	VPSHUFB Y11, Y7, Y11
 	VPXOR   Y10, Y11, Y10
-	VPXOR   Y10, Y0, Y0
+	VPXOR   Y10, Y8, Y8
 
 	// Store 1 outputs
-	VMOVDQU Y0, (DX)(DI*1)
+	VMOVDQU Y8, (SI)
+	ADDQ    $0x20, SI
 
 	// Prepare for next loop
-	ADDQ $0x20, DI
 	DECQ AX
 	JNZ  mulAvxTwo_4x1_loop
 	VZEROUPPER
@@ -2795,24 +3217,35 @@ mulAvxTwo_4x1_end:
 // Requires: AVX, AVX2, SSE2
 TEXT ·mulAvxTwo_4x2(SB), $0-88
 	// Loading no tables to registers
+	// Destination kept in GP registers
 	// Full registers estimated 23 YMM used
-	MOVQ         n+80(FP), AX
-	MOVQ         matrix_base+0(FP), CX
-	SHRQ         $0x05, AX
-	TESTQ        AX, AX
-	JZ           mulAvxTwo_4x2_end
-	MOVQ         out_base+48(FP), DX
-	MOVQ         (DX), BX
-	MOVQ         24(DX), DX
-	MOVQ         in_base+24(FP), BP
-	MOVQ         (BP), SI
-	MOVQ         24(BP), DI
-	MOVQ         48(BP), R8
-	MOVQ         72(BP), BP
+	MOVQ  n+80(FP), AX
+	MOVQ  matrix_base+0(FP), CX
+	SHRQ  $0x05, AX
+	TESTQ AX, AX
+	JZ    mulAvxTwo_4x2_end
+	MOVQ  in_base+24(FP), DX
+	MOVQ  (DX), BX
+	MOVQ  24(DX), BP
+	MOVQ  48(DX), SI
+	MOVQ  72(DX), DX
+	MOVQ  out_base+48(FP), DI
+	MOVQ  (DI), R8
+	MOVQ  24(DI), DI
+	MOVQ  start+72(FP), R9
+
+	// Add start offset to output
+	ADDQ R9, R8
+	ADDQ R9, DI
+
+	// Add start offset to input
+	ADDQ         R9, BX
+	ADDQ         R9, BP
+	ADDQ         R9, SI
+	ADDQ         R9, DX
 	MOVQ         $0x0000000f, R9
 	MOVQ         R9, X2
 	VPBROADCASTB X2, Y2
-	MOVQ         start+72(FP), R9
 
 mulAvxTwo_4x2_loop:
 	// Clear 2 outputs
@@ -2820,7 +3253,8 @@ mulAvxTwo_4x2_loop:
 	VPXOR Y1, Y1, Y1
 
 	// Load and process 32 bytes from input 0 to 2 outputs
-	VMOVDQU (SI)(R9*1), Y5
+	VMOVDQU (BX), Y5
+	ADDQ    $0x20, BX
 	VPSRLQ  $0x04, Y5, Y6
 	VPAND   Y2, Y5, Y5
 	VPAND   Y2, Y6, Y6
@@ -2838,7 +3272,8 @@ mulAvxTwo_4x2_loop:
 	VPXOR   Y3, Y1, Y1
 
 	// Load and process 32 bytes from input 1 to 2 outputs
-	VMOVDQU (DI)(R9*1), Y5
+	VMOVDQU (BP), Y5
+	ADDQ    $0x20, BP
 	VPSRLQ  $0x04, Y5, Y6
 	VPAND   Y2, Y5, Y5
 	VPAND   Y2, Y6, Y6
@@ -2856,7 +3291,8 @@ mulAvxTwo_4x2_loop:
 	VPXOR   Y3, Y1, Y1
 
 	// Load and process 32 bytes from input 2 to 2 outputs
-	VMOVDQU (R8)(R9*1), Y5
+	VMOVDQU (SI), Y5
+	ADDQ    $0x20, SI
 	VPSRLQ  $0x04, Y5, Y6
 	VPAND   Y2, Y5, Y5
 	VPAND   Y2, Y6, Y6
@@ -2874,7 +3310,8 @@ mulAvxTwo_4x2_loop:
 	VPXOR   Y3, Y1, Y1
 
 	// Load and process 32 bytes from input 3 to 2 outputs
-	VMOVDQU (BP)(R9*1), Y5
+	VMOVDQU (DX), Y5
+	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y5, Y6
 	VPAND   Y2, Y5, Y5
 	VPAND   Y2, Y6, Y6
@@ -2892,11 +3329,12 @@ mulAvxTwo_4x2_loop:
 	VPXOR   Y3, Y1, Y1
 
 	// Store 2 outputs
-	VMOVDQU Y0, (BX)(R9*1)
-	VMOVDQU Y1, (DX)(R9*1)
+	VMOVDQU Y0, (R8)
+	ADDQ    $0x20, R8
+	VMOVDQU Y1, (DI)
+	ADDQ    $0x20, DI
 
 	// Prepare for next loop
-	ADDQ $0x20, R9
 	DECQ AX
 	JNZ  mulAvxTwo_4x2_loop
 	VZEROUPPER
@@ -2908,25 +3346,37 @@ mulAvxTwo_4x2_end:
 // Requires: AVX, AVX2, SSE2
 TEXT ·mulAvxTwo_4x3(SB), $0-88
 	// Loading no tables to registers
+	// Destination kept in GP registers
 	// Full registers estimated 32 YMM used
-	MOVQ         n+80(FP), AX
-	MOVQ         matrix_base+0(FP), CX
-	SHRQ         $0x05, AX
-	TESTQ        AX, AX
-	JZ           mulAvxTwo_4x3_end
-	MOVQ         out_base+48(FP), DX
-	MOVQ         (DX), BX
-	MOVQ         24(DX), BP
-	MOVQ         48(DX), DX
-	MOVQ         in_base+24(FP), SI
-	MOVQ         (SI), DI
-	MOVQ         24(SI), R8
-	MOVQ         48(SI), R9
-	MOVQ         72(SI), SI
+	MOVQ  n+80(FP), AX
+	MOVQ  matrix_base+0(FP), CX
+	SHRQ  $0x05, AX
+	TESTQ AX, AX
+	JZ    mulAvxTwo_4x3_end
+	MOVQ  in_base+24(FP), DX
+	MOVQ  (DX), BX
+	MOVQ  24(DX), BP
+	MOVQ  48(DX), SI
+	MOVQ  72(DX), DX
+	MOVQ  out_base+48(FP), DI
+	MOVQ  (DI), R8
+	MOVQ  24(DI), R9
+	MOVQ  48(DI), DI
+	MOVQ  start+72(FP), R10
+
+	// Add start offset to output
+	ADDQ R10, R8
+	ADDQ R10, R9
+	ADDQ R10, DI
+
+	// Add start offset to input
+	ADDQ         R10, BX
+	ADDQ         R10, BP
+	ADDQ         R10, SI
+	ADDQ         R10, DX
 	MOVQ         $0x0000000f, R10
 	MOVQ         R10, X3
 	VPBROADCASTB X3, Y3
-	MOVQ         start+72(FP), R10
 
 mulAvxTwo_4x3_loop:
 	// Clear 3 outputs
@@ -2935,7 +3385,8 @@ mulAvxTwo_4x3_loop:
 	VPXOR Y2, Y2, Y2
 
 	// Load and process 32 bytes from input 0 to 3 outputs
-	VMOVDQU (DI)(R10*1), Y6
+	VMOVDQU (BX), Y6
+	ADDQ    $0x20, BX
 	VPSRLQ  $0x04, Y6, Y7
 	VPAND   Y3, Y6, Y6
 	VPAND   Y3, Y7, Y7
@@ -2959,7 +3410,8 @@ mulAvxTwo_4x3_loop:
 	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 1 to 3 outputs
-	VMOVDQU (R8)(R10*1), Y6
+	VMOVDQU (BP), Y6
+	ADDQ    $0x20, BP
 	VPSRLQ  $0x04, Y6, Y7
 	VPAND   Y3, Y6, Y6
 	VPAND   Y3, Y7, Y7
@@ -2983,7 +3435,8 @@ mulAvxTwo_4x3_loop:
 	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 2 to 3 outputs
-	VMOVDQU (R9)(R10*1), Y6
+	VMOVDQU (SI), Y6
+	ADDQ    $0x20, SI
 	VPSRLQ  $0x04, Y6, Y7
 	VPAND   Y3, Y6, Y6
 	VPAND   Y3, Y7, Y7
@@ -3007,7 +3460,8 @@ mulAvxTwo_4x3_loop:
 	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 3 to 3 outputs
-	VMOVDQU (SI)(R10*1), Y6
+	VMOVDQU (DX), Y6
+	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y6, Y7
 	VPAND   Y3, Y6, Y6
 	VPAND   Y3, Y7, Y7
@@ -3031,12 +3485,14 @@ mulAvxTwo_4x3_loop:
 	VPXOR   Y4, Y2, Y2
 
 	// Store 3 outputs
-	VMOVDQU Y0, (BX)(R10*1)
-	VMOVDQU Y1, (BP)(R10*1)
-	VMOVDQU Y2, (DX)(R10*1)
+	VMOVDQU Y0, (R8)
+	ADDQ    $0x20, R8
+	VMOVDQU Y1, (R9)
+	ADDQ    $0x20, R9
+	VMOVDQU Y2, (DI)
+	ADDQ    $0x20, DI
 
 	// Prepare for next loop
-	ADDQ $0x20, R10
 	DECQ AX
 	JNZ  mulAvxTwo_4x3_loop
 	VZEROUPPER
@@ -3048,26 +3504,39 @@ mulAvxTwo_4x3_end:
 // Requires: AVX, AVX2, SSE2
 TEXT ·mulAvxTwo_4x4(SB), $0-88
 	// Loading no tables to registers
+	// Destination kept in GP registers
 	// Full registers estimated 41 YMM used
-	MOVQ         n+80(FP), AX
-	MOVQ         matrix_base+0(FP), CX
-	SHRQ         $0x05, AX
-	TESTQ        AX, AX
-	JZ           mulAvxTwo_4x4_end
-	MOVQ         out_base+48(FP), DX
-	MOVQ         (DX), BX
-	MOVQ         24(DX), BP
-	MOVQ         48(DX), SI
-	MOVQ         72(DX), DX
-	MOVQ         in_base+24(FP), DI
-	MOVQ         (DI), R8
-	MOVQ         24(DI), R9
-	MOVQ         48(DI), R10
-	MOVQ         72(DI), DI
+	MOVQ  n+80(FP), AX
+	MOVQ  matrix_base+0(FP), CX
+	SHRQ  $0x05, AX
+	TESTQ AX, AX
+	JZ    mulAvxTwo_4x4_end
+	MOVQ  in_base+24(FP), DX
+	MOVQ  (DX), BX
+	MOVQ  24(DX), BP
+	MOVQ  48(DX), SI
+	MOVQ  72(DX), DX
+	MOVQ  out_base+48(FP), DI
+	MOVQ  (DI), R8
+	MOVQ  24(DI), R9
+	MOVQ  48(DI), R10
+	MOVQ  72(DI), DI
+	MOVQ  start+72(FP), R11
+
+	// Add start offset to output
+	ADDQ R11, R8
+	ADDQ R11, R9
+	ADDQ R11, R10
+	ADDQ R11, DI
+
+	// Add start offset to input
+	ADDQ         R11, BX
+	ADDQ         R11, BP
+	ADDQ         R11, SI
+	ADDQ         R11, DX
 	MOVQ         $0x0000000f, R11
 	MOVQ         R11, X4
 	VPBROADCASTB X4, Y4
-	MOVQ         start+72(FP), R11
 
 mulAvxTwo_4x4_loop:
 	// Clear 4 outputs
@@ -3077,7 +3546,8 @@ mulAvxTwo_4x4_loop:
 	VPXOR Y3, Y3, Y3
 
 	// Load and process 32 bytes from input 0 to 4 outputs
-	VMOVDQU (R8)(R11*1), Y7
+	VMOVDQU (BX), Y7
+	ADDQ    $0x20, BX
 	VPSRLQ  $0x04, Y7, Y8
 	VPAND   Y4, Y7, Y7
 	VPAND   Y4, Y8, Y8
@@ -3107,7 +3577,8 @@ mulAvxTwo_4x4_loop:
 	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 1 to 4 outputs
-	VMOVDQU (R9)(R11*1), Y7
+	VMOVDQU (BP), Y7
+	ADDQ    $0x20, BP
 	VPSRLQ  $0x04, Y7, Y8
 	VPAND   Y4, Y7, Y7
 	VPAND   Y4, Y8, Y8
@@ -3137,7 +3608,8 @@ mulAvxTwo_4x4_loop:
 	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 2 to 4 outputs
-	VMOVDQU (R10)(R11*1), Y7
+	VMOVDQU (SI), Y7
+	ADDQ    $0x20, SI
 	VPSRLQ  $0x04, Y7, Y8
 	VPAND   Y4, Y7, Y7
 	VPAND   Y4, Y8, Y8
@@ -3167,7 +3639,8 @@ mulAvxTwo_4x4_loop:
 	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 3 to 4 outputs
-	VMOVDQU (DI)(R11*1), Y7
+	VMOVDQU (DX), Y7
+	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y7, Y8
 	VPAND   Y4, Y7, Y7
 	VPAND   Y4, Y8, Y8
@@ -3197,13 +3670,16 @@ mulAvxTwo_4x4_loop:
 	VPXOR   Y5, Y3, Y3
 
 	// Store 4 outputs
-	VMOVDQU Y0, (BX)(R11*1)
-	VMOVDQU Y1, (BP)(R11*1)
-	VMOVDQU Y2, (SI)(R11*1)
-	VMOVDQU Y3, (DX)(R11*1)
+	VMOVDQU Y0, (R8)
+	ADDQ    $0x20, R8
+	VMOVDQU Y1, (R9)
+	ADDQ    $0x20, R9
+	VMOVDQU Y2, (R10)
+	ADDQ    $0x20, R10
+	VMOVDQU Y3, (DI)
+	ADDQ    $0x20, DI
 
 	// Prepare for next loop
-	ADDQ $0x20, R11
 	DECQ AX
 	JNZ  mulAvxTwo_4x4_loop
 	VZEROUPPER
@@ -3215,27 +3691,41 @@ mulAvxTwo_4x4_end:
 // Requires: AVX, AVX2, SSE2
 TEXT ·mulAvxTwo_4x5(SB), $0-88
 	// Loading no tables to registers
+	// Destination kept in GP registers
 	// Full registers estimated 50 YMM used
-	MOVQ         n+80(FP), AX
-	MOVQ         matrix_base+0(FP), CX
-	SHRQ         $0x05, AX
-	TESTQ        AX, AX
-	JZ           mulAvxTwo_4x5_end
-	MOVQ         out_base+48(FP), DX
-	MOVQ         (DX), BX
-	MOVQ         24(DX), BP
-	MOVQ         48(DX), SI
-	MOVQ         72(DX), DI
-	MOVQ         96(DX), DX
-	MOVQ         in_base+24(FP), R8
-	MOVQ         (R8), R9
-	MOVQ         24(R8), R10
-	MOVQ         48(R8), R11
-	MOVQ         72(R8), R8
+	MOVQ  n+80(FP), AX
+	MOVQ  matrix_base+0(FP), CX
+	SHRQ  $0x05, AX
+	TESTQ AX, AX
+	JZ    mulAvxTwo_4x5_end
+	MOVQ  in_base+24(FP), DX
+	MOVQ  (DX), BX
+	MOVQ  24(DX), BP
+	MOVQ  48(DX), SI
+	MOVQ  72(DX), DX
+	MOVQ  out_base+48(FP), DI
+	MOVQ  (DI), R8
+	MOVQ  24(DI), R9
+	MOVQ  48(DI), R10
+	MOVQ  72(DI), R11
+	MOVQ  96(DI), DI
+	MOVQ  start+72(FP), R12
+
+	// Add start offset to output
+	ADDQ R12, R8
+	ADDQ R12, R9
+	ADDQ R12, R10
+	ADDQ R12, R11
+	ADDQ R12, DI
+
+	// Add start offset to input
+	ADDQ         R12, BX
+	ADDQ         R12, BP
+	ADDQ         R12, SI
+	ADDQ         R12, DX
 	MOVQ         $0x0000000f, R12
 	MOVQ         R12, X5
 	VPBROADCASTB X5, Y5
-	MOVQ         start+72(FP), R12
 
 mulAvxTwo_4x5_loop:
 	// Clear 5 outputs
@@ -3246,7 +3736,8 @@ mulAvxTwo_4x5_loop:
 	VPXOR Y4, Y4, Y4
 
 	// Load and process 32 bytes from input 0 to 5 outputs
-	VMOVDQU (R9)(R12*1), Y8
+	VMOVDQU (BX), Y8
+	ADDQ    $0x20, BX
 	VPSRLQ  $0x04, Y8, Y9
 	VPAND   Y5, Y8, Y8
 	VPAND   Y5, Y9, Y9
@@ -3282,7 +3773,8 @@ mulAvxTwo_4x5_loop:
 	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 1 to 5 outputs
-	VMOVDQU (R10)(R12*1), Y8
+	VMOVDQU (BP), Y8
+	ADDQ    $0x20, BP
 	VPSRLQ  $0x04, Y8, Y9
 	VPAND   Y5, Y8, Y8
 	VPAND   Y5, Y9, Y9
@@ -3318,7 +3810,8 @@ mulAvxTwo_4x5_loop:
 	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 2 to 5 outputs
-	VMOVDQU (R11)(R12*1), Y8
+	VMOVDQU (SI), Y8
+	ADDQ    $0x20, SI
 	VPSRLQ  $0x04, Y8, Y9
 	VPAND   Y5, Y8, Y8
 	VPAND   Y5, Y9, Y9
@@ -3354,7 +3847,8 @@ mulAvxTwo_4x5_loop:
 	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 3 to 5 outputs
-	VMOVDQU (R8)(R12*1), Y8
+	VMOVDQU (DX), Y8
+	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y8, Y9
 	VPAND   Y5, Y8, Y8
 	VPAND   Y5, Y9, Y9
@@ -3390,14 +3884,18 @@ mulAvxTwo_4x5_loop:
 	VPXOR   Y6, Y4, Y4
 
 	// Store 5 outputs
-	VMOVDQU Y0, (BX)(R12*1)
-	VMOVDQU Y1, (BP)(R12*1)
-	VMOVDQU Y2, (SI)(R12*1)
-	VMOVDQU Y3, (DI)(R12*1)
-	VMOVDQU Y4, (DX)(R12*1)
+	VMOVDQU Y0, (R8)
+	ADDQ    $0x20, R8
+	VMOVDQU Y1, (R9)
+	ADDQ    $0x20, R9
+	VMOVDQU Y2, (R10)
+	ADDQ    $0x20, R10
+	VMOVDQU Y3, (R11)
+	ADDQ    $0x20, R11
+	VMOVDQU Y4, (DI)
+	ADDQ    $0x20, DI
 
 	// Prepare for next loop
-	ADDQ $0x20, R12
 	DECQ AX
 	JNZ  mulAvxTwo_4x5_loop
 	VZEROUPPER
@@ -3409,28 +3907,43 @@ mulAvxTwo_4x5_end:
 // Requires: AVX, AVX2, SSE2
 TEXT ·mulAvxTwo_4x6(SB), $0-88
 	// Loading no tables to registers
+	// Destination kept in GP registers
 	// Full registers estimated 59 YMM used
-	MOVQ         n+80(FP), AX
-	MOVQ         matrix_base+0(FP), CX
-	SHRQ         $0x05, AX
-	TESTQ        AX, AX
-	JZ           mulAvxTwo_4x6_end
-	MOVQ         out_base+48(FP), DX
-	MOVQ         (DX), BX
-	MOVQ         24(DX), BP
-	MOVQ         48(DX), SI
-	MOVQ         72(DX), DI
-	MOVQ         96(DX), R8
-	MOVQ         120(DX), DX
-	MOVQ         in_base+24(FP), R9
-	MOVQ         (R9), R10
-	MOVQ         24(R9), R11
-	MOVQ         48(R9), R12
-	MOVQ         72(R9), R9
+	MOVQ  n+80(FP), AX
+	MOVQ  matrix_base+0(FP), CX
+	SHRQ  $0x05, AX
+	TESTQ AX, AX
+	JZ    mulAvxTwo_4x6_end
+	MOVQ  in_base+24(FP), DX
+	MOVQ  (DX), BX
+	MOVQ  24(DX), BP
+	MOVQ  48(DX), SI
+	MOVQ  72(DX), DX
+	MOVQ  out_base+48(FP), DI
+	MOVQ  (DI), R8
+	MOVQ  24(DI), R9
+	MOVQ  48(DI), R10
+	MOVQ  72(DI), R11
+	MOVQ  96(DI), R12
+	MOVQ  120(DI), DI
+	MOVQ  start+72(FP), R13
+
+	// Add start offset to output
+	ADDQ R13, R8
+	ADDQ R13, R9
+	ADDQ R13, R10
+	ADDQ R13, R11
+	ADDQ R13, R12
+	ADDQ R13, DI
+
+	// Add start offset to input
+	ADDQ         R13, BX
+	ADDQ         R13, BP
+	ADDQ         R13, SI
+	ADDQ         R13, DX
 	MOVQ         $0x0000000f, R13
 	MOVQ         R13, X6
 	VPBROADCASTB X6, Y6
-	MOVQ         start+72(FP), R13
 
 mulAvxTwo_4x6_loop:
 	// Clear 6 outputs
@@ -3442,7 +3955,8 @@ mulAvxTwo_4x6_loop:
 	VPXOR Y5, Y5, Y5
 
 	// Load and process 32 bytes from input 0 to 6 outputs
-	VMOVDQU (R10)(R13*1), Y9
+	VMOVDQU (BX), Y9
+	ADDQ    $0x20, BX
 	VPSRLQ  $0x04, Y9, Y10
 	VPAND   Y6, Y9, Y9
 	VPAND   Y6, Y10, Y10
@@ -3484,7 +3998,8 @@ mulAvxTwo_4x6_loop:
 	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 1 to 6 outputs
-	VMOVDQU (R11)(R13*1), Y9
+	VMOVDQU (BP), Y9
+	ADDQ    $0x20, BP
 	VPSRLQ  $0x04, Y9, Y10
 	VPAND   Y6, Y9, Y9
 	VPAND   Y6, Y10, Y10
@@ -3526,7 +4041,8 @@ mulAvxTwo_4x6_loop:
 	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 2 to 6 outputs
-	VMOVDQU (R12)(R13*1), Y9
+	VMOVDQU (SI), Y9
+	ADDQ    $0x20, SI
 	VPSRLQ  $0x04, Y9, Y10
 	VPAND   Y6, Y9, Y9
 	VPAND   Y6, Y10, Y10
@@ -3568,7 +4084,8 @@ mulAvxTwo_4x6_loop:
 	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 3 to 6 outputs
-	VMOVDQU (R9)(R13*1), Y9
+	VMOVDQU (DX), Y9
+	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y9, Y10
 	VPAND   Y6, Y9, Y9
 	VPAND   Y6, Y10, Y10
@@ -3610,15 +4127,20 @@ mulAvxTwo_4x6_loop:
 	VPXOR   Y7, Y5, Y5
 
 	// Store 6 outputs
-	VMOVDQU Y0, (BX)(R13*1)
-	VMOVDQU Y1, (BP)(R13*1)
-	VMOVDQU Y2, (SI)(R13*1)
-	VMOVDQU Y3, (DI)(R13*1)
-	VMOVDQU Y4, (R8)(R13*1)
-	VMOVDQU Y5, (DX)(R13*1)
+	VMOVDQU Y0, (R8)
+	ADDQ    $0x20, R8
+	VMOVDQU Y1, (R9)
+	ADDQ    $0x20, R9
+	VMOVDQU Y2, (R10)
+	ADDQ    $0x20, R10
+	VMOVDQU Y3, (R11)
+	ADDQ    $0x20, R11
+	VMOVDQU Y4, (R12)
+	ADDQ    $0x20, R12
+	VMOVDQU Y5, (DI)
+	ADDQ    $0x20, DI
 
 	// Prepare for next loop
-	ADDQ $0x20, R13
 	DECQ AX
 	JNZ  mulAvxTwo_4x6_loop
 	VZEROUPPER
@@ -3630,29 +4152,45 @@ mulAvxTwo_4x6_end:
 // Requires: AVX, AVX2, SSE2
 TEXT ·mulAvxTwo_4x7(SB), $0-88
 	// Loading no tables to registers
+	// Destination kept in GP registers
 	// Full registers estimated 68 YMM used
-	MOVQ         n+80(FP), AX
-	MOVQ         matrix_base+0(FP), CX
-	SHRQ         $0x05, AX
-	TESTQ        AX, AX
-	JZ           mulAvxTwo_4x7_end
-	MOVQ         out_base+48(FP), DX
-	MOVQ         (DX), BX
-	MOVQ         24(DX), BP
-	MOVQ         48(DX), SI
-	MOVQ         72(DX), DI
-	MOVQ         96(DX), R8
-	MOVQ         120(DX), R9
-	MOVQ         144(DX), DX
-	MOVQ         in_base+24(FP), R10
-	MOVQ         (R10), R11
-	MOVQ         24(R10), R12
-	MOVQ         48(R10), R13
-	MOVQ         72(R10), R10
+	MOVQ  n+80(FP), AX
+	MOVQ  matrix_base+0(FP), CX
+	SHRQ  $0x05, AX
+	TESTQ AX, AX
+	JZ    mulAvxTwo_4x7_end
+	MOVQ  in_base+24(FP), DX
+	MOVQ  (DX), BX
+	MOVQ  24(DX), BP
+	MOVQ  48(DX), SI
+	MOVQ  72(DX), DX
+	MOVQ  out_base+48(FP), DI
+	MOVQ  (DI), R8
+	MOVQ  24(DI), R9
+	MOVQ  48(DI), R10
+	MOVQ  72(DI), R11
+	MOVQ  96(DI), R12
+	MOVQ  120(DI), R13
+	MOVQ  144(DI), DI
+	MOVQ  start+72(FP), R14
+
+	// Add start offset to output
+	ADDQ R14, R8
+	ADDQ R14, R9
+	ADDQ R14, R10
+	ADDQ R14, R11
+	ADDQ R14, R12
+	ADDQ R14, R13
+	ADDQ R14, DI
+
+	// Add start offset to input
+	ADDQ         R14, BX
+	ADDQ         R14, BP
+	ADDQ         R14, SI
+	ADDQ         R14, DX
 	MOVQ         $0x0000000f, R14
 	MOVQ         R14, X7
 	VPBROADCASTB X7, Y7
-	MOVQ         start+72(FP), R14
 
 mulAvxTwo_4x7_loop:
 	// Clear 7 outputs
@@ -3665,7 +4203,8 @@ mulAvxTwo_4x7_loop:
 	VPXOR Y6, Y6, Y6
 
 	// Load and process 32 bytes from input 0 to 7 outputs
-	VMOVDQU (R11)(R14*1), Y10
+	VMOVDQU (BX), Y10
+	ADDQ    $0x20, BX
 	VPSRLQ  $0x04, Y10, Y11
 	VPAND   Y7, Y10, Y10
 	VPAND   Y7, Y11, Y11
@@ -3713,7 +4252,8 @@ mulAvxTwo_4x7_loop:
 	VPXOR   Y8, Y6, Y6
 
 	// Load and process 32 bytes from input 1 to 7 outputs
-	VMOVDQU (R12)(R14*1), Y10
+	VMOVDQU (BP), Y10
+	ADDQ    $0x20, BP
 	VPSRLQ  $0x04, Y10, Y11
 	VPAND   Y7, Y10, Y10
 	VPAND   Y7, Y11, Y11
@@ -3761,7 +4301,8 @@ mulAvxTwo_4x7_loop:
 	VPXOR   Y8, Y6, Y6
 
 	// Load and process 32 bytes from input 2 to 7 outputs
-	VMOVDQU (R13)(R14*1), Y10
+	VMOVDQU (SI), Y10
+	ADDQ    $0x20, SI
 	VPSRLQ  $0x04, Y10, Y11
 	VPAND   Y7, Y10, Y10
 	VPAND   Y7, Y11, Y11
@@ -3809,7 +4350,8 @@ mulAvxTwo_4x7_loop:
 	VPXOR   Y8, Y6, Y6
 
 	// Load and process 32 bytes from input 3 to 7 outputs
-	VMOVDQU (R10)(R14*1), Y10
+	VMOVDQU (DX), Y10
+	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y10, Y11
 	VPAND   Y7, Y10, Y10
 	VPAND   Y7, Y11, Y11
@@ -3857,16 +4399,22 @@ mulAvxTwo_4x7_loop:
 	VPXOR   Y8, Y6, Y6
 
 	// Store 7 outputs
-	VMOVDQU Y0, (BX)(R14*1)
-	VMOVDQU Y1, (BP)(R14*1)
-	VMOVDQU Y2, (SI)(R14*1)
-	VMOVDQU Y3, (DI)(R14*1)
-	VMOVDQU Y4, (R8)(R14*1)
-	VMOVDQU Y5, (R9)(R14*1)
-	VMOVDQU Y6, (DX)(R14*1)
+	VMOVDQU Y0, (R8)
+	ADDQ    $0x20, R8
+	VMOVDQU Y1, (R9)
+	ADDQ    $0x20, R9
+	VMOVDQU Y2, (R10)
+	ADDQ    $0x20, R10
+	VMOVDQU Y3, (R11)
+	ADDQ    $0x20, R11
+	VMOVDQU Y4, (R12)
+	ADDQ    $0x20, R12
+	VMOVDQU Y5, (R13)
+	ADDQ    $0x20, R13
+	VMOVDQU Y6, (DI)
+	ADDQ    $0x20, DI
 
 	// Prepare for next loop
-	ADDQ $0x20, R14
 	DECQ AX
 	JNZ  mulAvxTwo_4x7_loop
 	VZEROUPPER
@@ -3878,30 +4426,47 @@ mulAvxTwo_4x7_end:
 // Requires: AVX, AVX2, SSE2
 TEXT ·mulAvxTwo_4x8(SB), $0-88
 	// Loading no tables to registers
+	// Destination kept in GP registers
 	// Full registers estimated 77 YMM used
-	MOVQ         n+80(FP), AX
-	MOVQ         matrix_base+0(FP), CX
-	SHRQ         $0x05, AX
-	TESTQ        AX, AX
-	JZ           mulAvxTwo_4x8_end
-	MOVQ         out_base+48(FP), DX
-	MOVQ         (DX), BX
-	MOVQ         24(DX), BP
-	MOVQ         48(DX), SI
-	MOVQ         72(DX), DI
-	MOVQ         96(DX), R8
-	MOVQ         120(DX), R9
-	MOVQ         144(DX), R10
-	MOVQ         168(DX), DX
-	MOVQ         in_base+24(FP), R11
-	MOVQ         (R11), R12
-	MOVQ         24(R11), R13
-	MOVQ         48(R11), R14
-	MOVQ         72(R11), R11
+	MOVQ  n+80(FP), AX
+	MOVQ  matrix_base+0(FP), CX
+	SHRQ  $0x05, AX
+	TESTQ AX, AX
+	JZ    mulAvxTwo_4x8_end
+	MOVQ  in_base+24(FP), DX
+	MOVQ  (DX), BX
+	MOVQ  24(DX), BP
+	MOVQ  48(DX), SI
+	MOVQ  72(DX), DX
+	MOVQ  out_base+48(FP), DI
+	MOVQ  (DI), R8
+	MOVQ  24(DI), R9
+	MOVQ  48(DI), R10
+	MOVQ  72(DI), R11
+	MOVQ  96(DI), R12
+	MOVQ  120(DI), R13
+	MOVQ  144(DI), R14
+	MOVQ  168(DI), DI
+	MOVQ  start+72(FP), R15
+
+	// Add start offset to output
+	ADDQ R15, R8
+	ADDQ R15, R9
+	ADDQ R15, R10
+	ADDQ R15, R11
+	ADDQ R15, R12
+	ADDQ R15, R13
+	ADDQ R15, R14
+	ADDQ R15, DI
+
+	// Add start offset to input
+	ADDQ         R15, BX
+	ADDQ         R15, BP
+	ADDQ         R15, SI
+	ADDQ         R15, DX
 	MOVQ         $0x0000000f, R15
 	MOVQ         R15, X8
 	VPBROADCASTB X8, Y8
-	MOVQ         start+72(FP), R15
 
 mulAvxTwo_4x8_loop:
 	// Clear 8 outputs
@@ -3915,7 +4480,8 @@ mulAvxTwo_4x8_loop:
 	VPXOR Y7, Y7, Y7
 
 	// Load and process 32 bytes from input 0 to 8 outputs
-	VMOVDQU (R12)(R15*1), Y11
+	VMOVDQU (BX), Y11
+	ADDQ    $0x20, BX
 	VPSRLQ  $0x04, Y11, Y12
 	VPAND   Y8, Y11, Y11
 	VPAND   Y8, Y12, Y12
@@ -3969,7 +4535,8 @@ mulAvxTwo_4x8_loop:
 	VPXOR   Y9, Y7, Y7
 
 	// Load and process 32 bytes from input 1 to 8 outputs
-	VMOVDQU (R13)(R15*1), Y11
+	VMOVDQU (BP), Y11
+	ADDQ    $0x20, BP
 	VPSRLQ  $0x04, Y11, Y12
 	VPAND   Y8, Y11, Y11
 	VPAND   Y8, Y12, Y12
@@ -4023,7 +4590,8 @@ mulAvxTwo_4x8_loop:
 	VPXOR   Y9, Y7, Y7
 
 	// Load and process 32 bytes from input 2 to 8 outputs
-	VMOVDQU (R14)(R15*1), Y11
+	VMOVDQU (SI), Y11
+	ADDQ    $0x20, SI
 	VPSRLQ  $0x04, Y11, Y12
 	VPAND   Y8, Y11, Y11
 	VPAND   Y8, Y12, Y12
@@ -4077,7 +4645,8 @@ mulAvxTwo_4x8_loop:
 	VPXOR   Y9, Y7, Y7
 
 	// Load and process 32 bytes from input 3 to 8 outputs
-	VMOVDQU (R11)(R15*1), Y11
+	VMOVDQU (DX), Y11
+	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y11, Y12
 	VPAND   Y8, Y11, Y11
 	VPAND   Y8, Y12, Y12
@@ -4131,17 +4700,24 @@ mulAvxTwo_4x8_loop:
 	VPXOR   Y9, Y7, Y7
 
 	// Store 8 outputs
-	VMOVDQU Y0, (BX)(R15*1)
-	VMOVDQU Y1, (BP)(R15*1)
-	VMOVDQU Y2, (SI)(R15*1)
-	VMOVDQU Y3, (DI)(R15*1)
-	VMOVDQU Y4, (R8)(R15*1)
-	VMOVDQU Y5, (R9)(R15*1)
-	VMOVDQU Y6, (R10)(R15*1)
-	VMOVDQU Y7, (DX)(R15*1)
+	VMOVDQU Y0, (R8)
+	ADDQ    $0x20, R8
+	VMOVDQU Y1, (R9)
+	ADDQ    $0x20, R9
+	VMOVDQU Y2, (R10)
+	ADDQ    $0x20, R10
+	VMOVDQU Y3, (R11)
+	ADDQ    $0x20, R11
+	VMOVDQU Y4, (R12)
+	ADDQ    $0x20, R12
+	VMOVDQU Y5, (R13)
+	ADDQ    $0x20, R13
+	VMOVDQU Y6, (R14)
+	ADDQ    $0x20, R14
+	VMOVDQU Y7, (DI)
+	ADDQ    $0x20, DI
 
 	// Prepare for next loop
-	ADDQ $0x20, R15
 	DECQ AX
 	JNZ  mulAvxTwo_4x8_loop
 	VZEROUPPER
@@ -4153,94 +4729,110 @@ mulAvxTwo_4x8_end:
 // Requires: AVX, AVX2, SSE2
 TEXT ·mulAvxTwo_5x1(SB), $0-88
 	// Loading all tables to registers
+	// Destination kept in GP registers
 	// Full registers estimated 14 YMM used
-	MOVQ         n+80(FP), AX
-	MOVQ         matrix_base+0(FP), CX
-	SHRQ         $0x05, AX
-	TESTQ        AX, AX
-	JZ           mulAvxTwo_5x1_end
-	MOVQ         out_base+48(FP), DX
-	MOVQ         (DX), DX
-	VMOVDQU      (CX), Y1
-	VMOVDQU      32(CX), Y2
-	VMOVDQU      64(CX), Y3
-	VMOVDQU      96(CX), Y4
-	VMOVDQU      128(CX), Y5
-	VMOVDQU      160(CX), Y6
-	VMOVDQU      192(CX), Y7
-	VMOVDQU      224(CX), Y8
-	VMOVDQU      256(CX), Y9
-	VMOVDQU      288(CX), Y10
-	MOVQ         in_base+24(FP), CX
-	MOVQ         (CX), BX
-	MOVQ         24(CX), BP
-	MOVQ         48(CX), SI
-	MOVQ         72(CX), DI
-	MOVQ         96(CX), CX
+	MOVQ    n+80(FP), AX
+	MOVQ    matrix_base+0(FP), CX
+	SHRQ    $0x05, AX
+	TESTQ   AX, AX
+	JZ      mulAvxTwo_5x1_end
+	VMOVDQU (CX), Y0
+	VMOVDQU 32(CX), Y1
+	VMOVDQU 64(CX), Y2
+	VMOVDQU 96(CX), Y3
+	VMOVDQU 128(CX), Y4
+	VMOVDQU 160(CX), Y5
+	VMOVDQU 192(CX), Y6
+	VMOVDQU 224(CX), Y7
+	VMOVDQU 256(CX), Y8
+	VMOVDQU 288(CX), Y9
+	MOVQ    in_base+24(FP), CX
+	MOVQ    (CX), DX
+	MOVQ    24(CX), BX
+	MOVQ    48(CX), BP
+	MOVQ    72(CX), SI
+	MOVQ    96(CX), CX
+	MOVQ    out_base+48(FP), DI
+	MOVQ    (DI), DI
+	MOVQ    start+72(FP), R8
+
+	// Add start offset to output
+	ADDQ R8, DI
+
+	// Add start offset to input
+	ADDQ         R8, DX
+	ADDQ         R8, BX
+	ADDQ         R8, BP
+	ADDQ         R8, SI
+	ADDQ         R8, CX
 	MOVQ         $0x0000000f, R8
 	MOVQ         R8, X11
 	VPBROADCASTB X11, Y11
-	MOVQ         start+72(FP), R8
 
 mulAvxTwo_5x1_loop:
 	// Clear 1 outputs
-	VPXOR Y0, Y0, Y0
+	VPXOR Y10, Y10, Y10
 
 	// Load and process 32 bytes from input 0 to 1 outputs
-	VMOVDQU (BX)(R8*1), Y12
+	VMOVDQU (DX), Y12
+	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y12, Y13
 	VPAND   Y11, Y12, Y12
 	VPAND   Y11, Y13, Y13
-	VPSHUFB Y12, Y1, Y12
-	VPSHUFB Y13, Y2, Y13
+	VPSHUFB Y12, Y0, Y12
+	VPSHUFB Y13, Y1, Y13
 	VPXOR   Y12, Y13, Y12
-	VPXOR   Y12, Y0, Y0
+	VPXOR   Y12, Y10, Y10
 
 	// Load and process 32 bytes from input 1 to 1 outputs
-	VMOVDQU (BP)(R8*1), Y12
+	VMOVDQU (BX), Y12
+	ADDQ    $0x20, BX
 	VPSRLQ  $0x04, Y12, Y13
 	VPAND   Y11, Y12, Y12
 	VPAND   Y11, Y13, Y13
-	VPSHUFB Y12, Y3, Y12
-	VPSHUFB Y13, Y4, Y13
+	VPSHUFB Y12, Y2, Y12
+	VPSHUFB Y13, Y3, Y13
 	VPXOR   Y12, Y13, Y12
-	VPXOR   Y12, Y0, Y0
+	VPXOR   Y12, Y10, Y10
 
 	// Load and process 32 bytes from input 2 to 1 outputs
-	VMOVDQU (SI)(R8*1), Y12
+	VMOVDQU (BP), Y12
+	ADDQ    $0x20, BP
 	VPSRLQ  $0x04, Y12, Y13
 	VPAND   Y11, Y12, Y12
 	VPAND   Y11, Y13, Y13
-	VPSHUFB Y12, Y5, Y12
-	VPSHUFB Y13, Y6, Y13
+	VPSHUFB Y12, Y4, Y12
+	VPSHUFB Y13, Y5, Y13
 	VPXOR   Y12, Y13, Y12
-	VPXOR   Y12, Y0, Y0
+	VPXOR   Y12, Y10, Y10
 
 	// Load and process 32 bytes from input 3 to 1 outputs
-	VMOVDQU (DI)(R8*1), Y12
+	VMOVDQU (SI), Y12
+	ADDQ    $0x20, SI
 	VPSRLQ  $0x04, Y12, Y13
 	VPAND   Y11, Y12, Y12
 	VPAND   Y11, Y13, Y13
-	VPSHUFB Y12, Y7, Y12
-	VPSHUFB Y13, Y8, Y13
+	VPSHUFB Y12, Y6, Y12
+	VPSHUFB Y13, Y7, Y13
 	VPXOR   Y12, Y13, Y12
-	VPXOR   Y12, Y0, Y0
+	VPXOR   Y12, Y10, Y10
 
 	// Load and process 32 bytes from input 4 to 1 outputs
-	VMOVDQU (CX)(R8*1), Y12
+	VMOVDQU (CX), Y12
+	ADDQ    $0x20, CX
 	VPSRLQ  $0x04, Y12, Y13
 	VPAND   Y11, Y12, Y12
 	VPAND   Y11, Y13, Y13
-	VPSHUFB Y12, Y9, Y12
-	VPSHUFB Y13, Y10, Y13
+	VPSHUFB Y12, Y8, Y12
+	VPSHUFB Y13, Y9, Y13
 	VPXOR   Y12, Y13, Y12
-	VPXOR   Y12, Y0, Y0
+	VPXOR   Y12, Y10, Y10
 
 	// Store 1 outputs
-	VMOVDQU Y0, (DX)(R8*1)
+	VMOVDQU Y10, (DI)
+	ADDQ    $0x20, DI
 
 	// Prepare for next loop
-	ADDQ $0x20, R8
 	DECQ AX
 	JNZ  mulAvxTwo_5x1_loop
 	VZEROUPPER
@@ -4252,25 +4844,37 @@ mulAvxTwo_5x1_end:
 // Requires: AVX, AVX2, SSE2
 TEXT ·mulAvxTwo_5x2(SB), $0-88
 	// Loading no tables to registers
+	// Destination kept in GP registers
 	// Full registers estimated 27 YMM used
-	MOVQ         n+80(FP), AX
-	MOVQ         matrix_base+0(FP), CX
-	SHRQ         $0x05, AX
-	TESTQ        AX, AX
-	JZ           mulAvxTwo_5x2_end
-	MOVQ         out_base+48(FP), DX
-	MOVQ         (DX), BX
-	MOVQ         24(DX), DX
-	MOVQ         in_base+24(FP), BP
-	MOVQ         (BP), SI
-	MOVQ         24(BP), DI
-	MOVQ         48(BP), R8
-	MOVQ         72(BP), R9
-	MOVQ         96(BP), BP
+	MOVQ  n+80(FP), AX
+	MOVQ  matrix_base+0(FP), CX
+	SHRQ  $0x05, AX
+	TESTQ AX, AX
+	JZ    mulAvxTwo_5x2_end
+	MOVQ  in_base+24(FP), DX
+	MOVQ  (DX), BX
+	MOVQ  24(DX), BP
+	MOVQ  48(DX), SI
+	MOVQ  72(DX), DI
+	MOVQ  96(DX), DX
+	MOVQ  out_base+48(FP), R8
+	MOVQ  (R8), R9
+	MOVQ  24(R8), R8
+	MOVQ  start+72(FP), R10
+
+	// Add start offset to output
+	ADDQ R10, R9
+	ADDQ R10, R8
+
+	// Add start offset to input
+	ADDQ         R10, BX
+	ADDQ         R10, BP
+	ADDQ         R10, SI
+	ADDQ         R10, DI
+	ADDQ         R10, DX
 	MOVQ         $0x0000000f, R10
 	MOVQ         R10, X2
 	VPBROADCASTB X2, Y2
-	MOVQ         start+72(FP), R10
 
 mulAvxTwo_5x2_loop:
 	// Clear 2 outputs
@@ -4278,7 +4882,8 @@ mulAvxTwo_5x2_loop:
 	VPXOR Y1, Y1, Y1
 
 	// Load and process 32 bytes from input 0 to 2 outputs
-	VMOVDQU (SI)(R10*1), Y5
+	VMOVDQU (BX), Y5
+	ADDQ    $0x20, BX
 	VPSRLQ  $0x04, Y5, Y6
 	VPAND   Y2, Y5, Y5
 	VPAND   Y2, Y6, Y6
@@ -4296,7 +4901,8 @@ mulAvxTwo_5x2_loop:
 	VPXOR   Y3, Y1, Y1
 
 	// Load and process 32 bytes from input 1 to 2 outputs
-	VMOVDQU (DI)(R10*1), Y5
+	VMOVDQU (BP), Y5
+	ADDQ    $0x20, BP
 	VPSRLQ  $0x04, Y5, Y6
 	VPAND   Y2, Y5, Y5
 	VPAND   Y2, Y6, Y6
@@ -4314,7 +4920,8 @@ mulAvxTwo_5x2_loop:
 	VPXOR   Y3, Y1, Y1
 
 	// Load and process 32 bytes from input 2 to 2 outputs
-	VMOVDQU (R8)(R10*1), Y5
+	VMOVDQU (SI), Y5
+	ADDQ    $0x20, SI
 	VPSRLQ  $0x04, Y5, Y6
 	VPAND   Y2, Y5, Y5
 	VPAND   Y2, Y6, Y6
@@ -4332,7 +4939,8 @@ mulAvxTwo_5x2_loop:
 	VPXOR   Y3, Y1, Y1
 
 	// Load and process 32 bytes from input 3 to 2 outputs
-	VMOVDQU (R9)(R10*1), Y5
+	VMOVDQU (DI), Y5
+	ADDQ    $0x20, DI
 	VPSRLQ  $0x04, Y5, Y6
 	VPAND   Y2, Y5, Y5
 	VPAND   Y2, Y6, Y6
@@ -4350,7 +4958,8 @@ mulAvxTwo_5x2_loop:
 	VPXOR   Y3, Y1, Y1
 
 	// Load and process 32 bytes from input 4 to 2 outputs
-	VMOVDQU (BP)(R10*1), Y5
+	VMOVDQU (DX), Y5
+	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y5, Y6
 	VPAND   Y2, Y5, Y5
 	VPAND   Y2, Y6, Y6
@@ -4368,11 +4977,12 @@ mulAvxTwo_5x2_loop:
 	VPXOR   Y3, Y1, Y1
 
 	// Store 2 outputs
-	VMOVDQU Y0, (BX)(R10*1)
-	VMOVDQU Y1, (DX)(R10*1)
+	VMOVDQU Y0, (R9)
+	ADDQ    $0x20, R9
+	VMOVDQU Y1, (R8)
+	ADDQ    $0x20, R8
 
 	// Prepare for next loop
-	ADDQ $0x20, R10
 	DECQ AX
 	JNZ  mulAvxTwo_5x2_loop
 	VZEROUPPER
@@ -4384,26 +4994,39 @@ mulAvxTwo_5x2_end:
 // Requires: AVX, AVX2, SSE2
 TEXT ·mulAvxTwo_5x3(SB), $0-88
 	// Loading no tables to registers
+	// Destination kept in GP registers
 	// Full registers estimated 38 YMM used
-	MOVQ         n+80(FP), AX
-	MOVQ         matrix_base+0(FP), CX
-	SHRQ         $0x05, AX
-	TESTQ        AX, AX
-	JZ           mulAvxTwo_5x3_end
-	MOVQ         out_base+48(FP), DX
-	MOVQ         (DX), BX
-	MOVQ         24(DX), BP
-	MOVQ         48(DX), DX
-	MOVQ         in_base+24(FP), SI
-	MOVQ         (SI), DI
-	MOVQ         24(SI), R8
-	MOVQ         48(SI), R9
-	MOVQ         72(SI), R10
-	MOVQ         96(SI), SI
+	MOVQ  n+80(FP), AX
+	MOVQ  matrix_base+0(FP), CX
+	SHRQ  $0x05, AX
+	TESTQ AX, AX
+	JZ    mulAvxTwo_5x3_end
+	MOVQ  in_base+24(FP), DX
+	MOVQ  (DX), BX
+	MOVQ  24(DX), BP
+	MOVQ  48(DX), SI
+	MOVQ  72(DX), DI
+	MOVQ  96(DX), DX
+	MOVQ  out_base+48(FP), R8
+	MOVQ  (R8), R9
+	MOVQ  24(R8), R10
+	MOVQ  48(R8), R8
+	MOVQ  start+72(FP), R11
+
+	// Add start offset to output
+	ADDQ R11, R9
+	ADDQ R11, R10
+	ADDQ R11, R8
+
+	// Add start offset to input
+	ADDQ         R11, BX
+	ADDQ         R11, BP
+	ADDQ         R11, SI
+	ADDQ         R11, DI
+	ADDQ         R11, DX
 	MOVQ         $0x0000000f, R11
 	MOVQ         R11, X3
 	VPBROADCASTB X3, Y3
-	MOVQ         start+72(FP), R11
 
 mulAvxTwo_5x3_loop:
 	// Clear 3 outputs
@@ -4412,7 +5035,8 @@ mulAvxTwo_5x3_loop:
 	VPXOR Y2, Y2, Y2
 
 	// Load and process 32 bytes from input 0 to 3 outputs
-	VMOVDQU (DI)(R11*1), Y6
+	VMOVDQU (BX), Y6
+	ADDQ    $0x20, BX
 	VPSRLQ  $0x04, Y6, Y7
 	VPAND   Y3, Y6, Y6
 	VPAND   Y3, Y7, Y7
@@ -4436,7 +5060,8 @@ mulAvxTwo_5x3_loop:
 	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 1 to 3 outputs
-	VMOVDQU (R8)(R11*1), Y6
+	VMOVDQU (BP), Y6
+	ADDQ    $0x20, BP
 	VPSRLQ  $0x04, Y6, Y7
 	VPAND   Y3, Y6, Y6
 	VPAND   Y3, Y7, Y7
@@ -4460,7 +5085,8 @@ mulAvxTwo_5x3_loop:
 	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 2 to 3 outputs
-	VMOVDQU (R9)(R11*1), Y6
+	VMOVDQU (SI), Y6
+	ADDQ    $0x20, SI
 	VPSRLQ  $0x04, Y6, Y7
 	VPAND   Y3, Y6, Y6
 	VPAND   Y3, Y7, Y7
@@ -4484,7 +5110,8 @@ mulAvxTwo_5x3_loop:
 	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 3 to 3 outputs
-	VMOVDQU (R10)(R11*1), Y6
+	VMOVDQU (DI), Y6
+	ADDQ    $0x20, DI
 	VPSRLQ  $0x04, Y6, Y7
 	VPAND   Y3, Y6, Y6
 	VPAND   Y3, Y7, Y7
@@ -4508,7 +5135,8 @@ mulAvxTwo_5x3_loop:
 	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 4 to 3 outputs
-	VMOVDQU (SI)(R11*1), Y6
+	VMOVDQU (DX), Y6
+	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y6, Y7
 	VPAND   Y3, Y6, Y6
 	VPAND   Y3, Y7, Y7
@@ -4532,12 +5160,14 @@ mulAvxTwo_5x3_loop:
 	VPXOR   Y4, Y2, Y2
 
 	// Store 3 outputs
-	VMOVDQU Y0, (BX)(R11*1)
-	VMOVDQU Y1, (BP)(R11*1)
-	VMOVDQU Y2, (DX)(R11*1)
+	VMOVDQU Y0, (R9)
+	ADDQ    $0x20, R9
+	VMOVDQU Y1, (R10)
+	ADDQ    $0x20, R10
+	VMOVDQU Y2, (R8)
+	ADDQ    $0x20, R8
 
 	// Prepare for next loop
-	ADDQ $0x20, R11
 	DECQ AX
 	JNZ  mulAvxTwo_5x3_loop
 	VZEROUPPER
@@ -4549,27 +5179,41 @@ mulAvxTwo_5x3_end:
 // Requires: AVX, AVX2, SSE2
 TEXT ·mulAvxTwo_5x4(SB), $0-88
 	// Loading no tables to registers
+	// Destination kept in GP registers
 	// Full registers estimated 49 YMM used
-	MOVQ         n+80(FP), AX
-	MOVQ         matrix_base+0(FP), CX
-	SHRQ         $0x05, AX
-	TESTQ        AX, AX
-	JZ           mulAvxTwo_5x4_end
-	MOVQ         out_base+48(FP), DX
-	MOVQ         (DX), BX
-	MOVQ         24(DX), BP
-	MOVQ         48(DX), SI
-	MOVQ         72(DX), DX
-	MOVQ         in_base+24(FP), DI
-	MOVQ         (DI), R8
-	MOVQ         24(DI), R9
-	MOVQ         48(DI), R10
-	MOVQ         72(DI), R11
-	MOVQ         96(DI), DI
+	MOVQ  n+80(FP), AX
+	MOVQ  matrix_base+0(FP), CX
+	SHRQ  $0x05, AX
+	TESTQ AX, AX
+	JZ    mulAvxTwo_5x4_end
+	MOVQ  in_base+24(FP), DX
+	MOVQ  (DX), BX
+	MOVQ  24(DX), BP
+	MOVQ  48(DX), SI
+	MOVQ  72(DX), DI
+	MOVQ  96(DX), DX
+	MOVQ  out_base+48(FP), R8
+	MOVQ  (R8), R9
+	MOVQ  24(R8), R10
+	MOVQ  48(R8), R11
+	MOVQ  72(R8), R8
+	MOVQ  start+72(FP), R12
+
+	// Add start offset to output
+	ADDQ R12, R9
+	ADDQ R12, R10
+	ADDQ R12, R11
+	ADDQ R12, R8
+
+	// Add start offset to input
+	ADDQ         R12, BX
+	ADDQ         R12, BP
+	ADDQ         R12, SI
+	ADDQ         R12, DI
+	ADDQ         R12, DX
 	MOVQ         $0x0000000f, R12
 	MOVQ         R12, X4
 	VPBROADCASTB X4, Y4
-	MOVQ         start+72(FP), R12
 
 mulAvxTwo_5x4_loop:
 	// Clear 4 outputs
@@ -4579,7 +5223,8 @@ mulAvxTwo_5x4_loop:
 	VPXOR Y3, Y3, Y3
 
 	// Load and process 32 bytes from input 0 to 4 outputs
-	VMOVDQU (R8)(R12*1), Y7
+	VMOVDQU (BX), Y7
+	ADDQ    $0x20, BX
 	VPSRLQ  $0x04, Y7, Y8
 	VPAND   Y4, Y7, Y7
 	VPAND   Y4, Y8, Y8
@@ -4609,7 +5254,8 @@ mulAvxTwo_5x4_loop:
 	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 1 to 4 outputs
-	VMOVDQU (R9)(R12*1), Y7
+	VMOVDQU (BP), Y7
+	ADDQ    $0x20, BP
 	VPSRLQ  $0x04, Y7, Y8
 	VPAND   Y4, Y7, Y7
 	VPAND   Y4, Y8, Y8
@@ -4639,7 +5285,8 @@ mulAvxTwo_5x4_loop:
 	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 2 to 4 outputs
-	VMOVDQU (R10)(R12*1), Y7
+	VMOVDQU (SI), Y7
+	ADDQ    $0x20, SI
 	VPSRLQ  $0x04, Y7, Y8
 	VPAND   Y4, Y7, Y7
 	VPAND   Y4, Y8, Y8
@@ -4669,7 +5316,8 @@ mulAvxTwo_5x4_loop:
 	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 3 to 4 outputs
-	VMOVDQU (R11)(R12*1), Y7
+	VMOVDQU (DI), Y7
+	ADDQ    $0x20, DI
 	VPSRLQ  $0x04, Y7, Y8
 	VPAND   Y4, Y7, Y7
 	VPAND   Y4, Y8, Y8
@@ -4699,7 +5347,8 @@ mulAvxTwo_5x4_loop:
 	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 4 to 4 outputs
-	VMOVDQU (DI)(R12*1), Y7
+	VMOVDQU (DX), Y7
+	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y7, Y8
 	VPAND   Y4, Y7, Y7
 	VPAND   Y4, Y8, Y8
@@ -4729,13 +5378,16 @@ mulAvxTwo_5x4_loop:
 	VPXOR   Y5, Y3, Y3
 
 	// Store 4 outputs
-	VMOVDQU Y0, (BX)(R12*1)
-	VMOVDQU Y1, (BP)(R12*1)
-	VMOVDQU Y2, (SI)(R12*1)
-	VMOVDQU Y3, (DX)(R12*1)
+	VMOVDQU Y0, (R9)
+	ADDQ    $0x20, R9
+	VMOVDQU Y1, (R10)
+	ADDQ    $0x20, R10
+	VMOVDQU Y2, (R11)
+	ADDQ    $0x20, R11
+	VMOVDQU Y3, (R8)
+	ADDQ    $0x20, R8
 
 	// Prepare for next loop
-	ADDQ $0x20, R12
 	DECQ AX
 	JNZ  mulAvxTwo_5x4_loop
 	VZEROUPPER
@@ -4747,28 +5399,43 @@ mulAvxTwo_5x4_end:
 // Requires: AVX, AVX2, SSE2
 TEXT ·mulAvxTwo_5x5(SB), $0-88
 	// Loading no tables to registers
+	// Destination kept in GP registers
 	// Full registers estimated 60 YMM used
-	MOVQ         n+80(FP), AX
-	MOVQ         matrix_base+0(FP), CX
-	SHRQ         $0x05, AX
-	TESTQ        AX, AX
-	JZ           mulAvxTwo_5x5_end
-	MOVQ         out_base+48(FP), DX
-	MOVQ         (DX), BX
-	MOVQ         24(DX), BP
-	MOVQ         48(DX), SI
-	MOVQ         72(DX), DI
-	MOVQ         96(DX), DX
-	MOVQ         in_base+24(FP), R8
-	MOVQ         (R8), R9
-	MOVQ         24(R8), R10
-	MOVQ         48(R8), R11
-	MOVQ         72(R8), R12
-	MOVQ         96(R8), R8
+	MOVQ  n+80(FP), AX
+	MOVQ  matrix_base+0(FP), CX
+	SHRQ  $0x05, AX
+	TESTQ AX, AX
+	JZ    mulAvxTwo_5x5_end
+	MOVQ  in_base+24(FP), DX
+	MOVQ  (DX), BX
+	MOVQ  24(DX), BP
+	MOVQ  48(DX), SI
+	MOVQ  72(DX), DI
+	MOVQ  96(DX), DX
+	MOVQ  out_base+48(FP), R8
+	MOVQ  (R8), R9
+	MOVQ  24(R8), R10
+	MOVQ  48(R8), R11
+	MOVQ  72(R8), R12
+	MOVQ  96(R8), R8
+	MOVQ  start+72(FP), R13
+
+	// Add start offset to output
+	ADDQ R13, R9
+	ADDQ R13, R10
+	ADDQ R13, R11
+	ADDQ R13, R12
+	ADDQ R13, R8
+
+	// Add start offset to input
+	ADDQ         R13, BX
+	ADDQ         R13, BP
+	ADDQ         R13, SI
+	ADDQ         R13, DI
+	ADDQ         R13, DX
 	MOVQ         $0x0000000f, R13
 	MOVQ         R13, X5
 	VPBROADCASTB X5, Y5
-	MOVQ         start+72(FP), R13
 
 mulAvxTwo_5x5_loop:
 	// Clear 5 outputs
@@ -4779,7 +5446,8 @@ mulAvxTwo_5x5_loop:
 	VPXOR Y4, Y4, Y4
 
 	// Load and process 32 bytes from input 0 to 5 outputs
-	VMOVDQU (R9)(R13*1), Y8
+	VMOVDQU (BX), Y8
+	ADDQ    $0x20, BX
 	VPSRLQ  $0x04, Y8, Y9
 	VPAND   Y5, Y8, Y8
 	VPAND   Y5, Y9, Y9
@@ -4815,7 +5483,8 @@ mulAvxTwo_5x5_loop:
 	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 1 to 5 outputs
-	VMOVDQU (R10)(R13*1), Y8
+	VMOVDQU (BP), Y8
+	ADDQ    $0x20, BP
 	VPSRLQ  $0x04, Y8, Y9
 	VPAND   Y5, Y8, Y8
 	VPAND   Y5, Y9, Y9
@@ -4851,7 +5520,8 @@ mulAvxTwo_5x5_loop:
 	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 2 to 5 outputs
-	VMOVDQU (R11)(R13*1), Y8
+	VMOVDQU (SI), Y8
+	ADDQ    $0x20, SI
 	VPSRLQ  $0x04, Y8, Y9
 	VPAND   Y5, Y8, Y8
 	VPAND   Y5, Y9, Y9
@@ -4887,7 +5557,8 @@ mulAvxTwo_5x5_loop:
 	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 3 to 5 outputs
-	VMOVDQU (R12)(R13*1), Y8
+	VMOVDQU (DI), Y8
+	ADDQ    $0x20, DI
 	VPSRLQ  $0x04, Y8, Y9
 	VPAND   Y5, Y8, Y8
 	VPAND   Y5, Y9, Y9
@@ -4923,7 +5594,8 @@ mulAvxTwo_5x5_loop:
 	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 4 to 5 outputs
-	VMOVDQU (R8)(R13*1), Y8
+	VMOVDQU (DX), Y8
+	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y8, Y9
 	VPAND   Y5, Y8, Y8
 	VPAND   Y5, Y9, Y9
@@ -4959,14 +5631,18 @@ mulAvxTwo_5x5_loop:
 	VPXOR   Y6, Y4, Y4
 
 	// Store 5 outputs
-	VMOVDQU Y0, (BX)(R13*1)
-	VMOVDQU Y1, (BP)(R13*1)
-	VMOVDQU Y2, (SI)(R13*1)
-	VMOVDQU Y3, (DI)(R13*1)
-	VMOVDQU Y4, (DX)(R13*1)
+	VMOVDQU Y0, (R9)
+	ADDQ    $0x20, R9
+	VMOVDQU Y1, (R10)
+	ADDQ    $0x20, R10
+	VMOVDQU Y2, (R11)
+	ADDQ    $0x20, R11
+	VMOVDQU Y3, (R12)
+	ADDQ    $0x20, R12
+	VMOVDQU Y4, (R8)
+	ADDQ    $0x20, R8
 
 	// Prepare for next loop
-	ADDQ $0x20, R13
 	DECQ AX
 	JNZ  mulAvxTwo_5x5_loop
 	VZEROUPPER
@@ -4978,29 +5654,45 @@ mulAvxTwo_5x5_end:
 // Requires: AVX, AVX2, SSE2
 TEXT ·mulAvxTwo_5x6(SB), $0-88
 	// Loading no tables to registers
+	// Destination kept in GP registers
 	// Full registers estimated 71 YMM used
-	MOVQ         n+80(FP), AX
-	MOVQ         matrix_base+0(FP), CX
-	SHRQ         $0x05, AX
-	TESTQ        AX, AX
-	JZ           mulAvxTwo_5x6_end
-	MOVQ         out_base+48(FP), DX
-	MOVQ         (DX), BX
-	MOVQ         24(DX), BP
-	MOVQ         48(DX), SI
-	MOVQ         72(DX), DI
-	MOVQ         96(DX), R8
-	MOVQ         120(DX), DX
-	MOVQ         in_base+24(FP), R9
-	MOVQ         (R9), R10
-	MOVQ         24(R9), R11
-	MOVQ         48(R9), R12
-	MOVQ         72(R9), R13
-	MOVQ         96(R9), R9
+	MOVQ  n+80(FP), AX
+	MOVQ  matrix_base+0(FP), CX
+	SHRQ  $0x05, AX
+	TESTQ AX, AX
+	JZ    mulAvxTwo_5x6_end
+	MOVQ  in_base+24(FP), DX
+	MOVQ  (DX), BX
+	MOVQ  24(DX), BP
+	MOVQ  48(DX), SI
+	MOVQ  72(DX), DI
+	MOVQ  96(DX), DX
+	MOVQ  out_base+48(FP), R8
+	MOVQ  (R8), R9
+	MOVQ  24(R8), R10
+	MOVQ  48(R8), R11
+	MOVQ  72(R8), R12
+	MOVQ  96(R8), R13
+	MOVQ  120(R8), R8
+	MOVQ  start+72(FP), R14
+
+	// Add start offset to output
+	ADDQ R14, R9
+	ADDQ R14, R10
+	ADDQ R14, R11
+	ADDQ R14, R12
+	ADDQ R14, R13
+	ADDQ R14, R8
+
+	// Add start offset to input
+	ADDQ         R14, BX
+	ADDQ         R14, BP
+	ADDQ         R14, SI
+	ADDQ         R14, DI
+	ADDQ         R14, DX
 	MOVQ         $0x0000000f, R14
 	MOVQ         R14, X6
 	VPBROADCASTB X6, Y6
-	MOVQ         start+72(FP), R14
 
 mulAvxTwo_5x6_loop:
 	// Clear 6 outputs
@@ -5012,7 +5704,8 @@ mulAvxTwo_5x6_loop:
 	VPXOR Y5, Y5, Y5
 
 	// Load and process 32 bytes from input 0 to 6 outputs
-	VMOVDQU (R10)(R14*1), Y9
+	VMOVDQU (BX), Y9
+	ADDQ    $0x20, BX
 	VPSRLQ  $0x04, Y9, Y10
 	VPAND   Y6, Y9, Y9
 	VPAND   Y6, Y10, Y10
@@ -5054,7 +5747,8 @@ mulAvxTwo_5x6_loop:
 	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 1 to 6 outputs
-	VMOVDQU (R11)(R14*1), Y9
+	VMOVDQU (BP), Y9
+	ADDQ    $0x20, BP
 	VPSRLQ  $0x04, Y9, Y10
 	VPAND   Y6, Y9, Y9
 	VPAND   Y6, Y10, Y10
@@ -5096,7 +5790,8 @@ mulAvxTwo_5x6_loop:
 	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 2 to 6 outputs
-	VMOVDQU (R12)(R14*1), Y9
+	VMOVDQU (SI), Y9
+	ADDQ    $0x20, SI
 	VPSRLQ  $0x04, Y9, Y10
 	VPAND   Y6, Y9, Y9
 	VPAND   Y6, Y10, Y10
@@ -5138,7 +5833,8 @@ mulAvxTwo_5x6_loop:
 	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 3 to 6 outputs
-	VMOVDQU (R13)(R14*1), Y9
+	VMOVDQU (DI), Y9
+	ADDQ    $0x20, DI
 	VPSRLQ  $0x04, Y9, Y10
 	VPAND   Y6, Y9, Y9
 	VPAND   Y6, Y10, Y10
@@ -5180,7 +5876,8 @@ mulAvxTwo_5x6_loop:
 	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 4 to 6 outputs
-	VMOVDQU (R9)(R14*1), Y9
+	VMOVDQU (DX), Y9
+	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y9, Y10
 	VPAND   Y6, Y9, Y9
 	VPAND   Y6, Y10, Y10
@@ -5222,15 +5919,20 @@ mulAvxTwo_5x6_loop:
 	VPXOR   Y7, Y5, Y5
 
 	// Store 6 outputs
-	VMOVDQU Y0, (BX)(R14*1)
-	VMOVDQU Y1, (BP)(R14*1)
-	VMOVDQU Y2, (SI)(R14*1)
-	VMOVDQU Y3, (DI)(R14*1)
-	VMOVDQU Y4, (R8)(R14*1)
-	VMOVDQU Y5, (DX)(R14*1)
+	VMOVDQU Y0, (R9)
+	ADDQ    $0x20, R9
+	VMOVDQU Y1, (R10)
+	ADDQ    $0x20, R10
+	VMOVDQU Y2, (R11)
+	ADDQ    $0x20, R11
+	VMOVDQU Y3, (R12)
+	ADDQ    $0x20, R12
+	VMOVDQU Y4, (R13)
+	ADDQ    $0x20, R13
+	VMOVDQU Y5, (R8)
+	ADDQ    $0x20, R8
 
 	// Prepare for next loop
-	ADDQ $0x20, R14
 	DECQ AX
 	JNZ  mulAvxTwo_5x6_loop
 	VZEROUPPER
@@ -5242,30 +5944,47 @@ mulAvxTwo_5x6_end:
 // Requires: AVX, AVX2, SSE2
 TEXT ·mulAvxTwo_5x7(SB), $0-88
 	// Loading no tables to registers
+	// Destination kept in GP registers
 	// Full registers estimated 82 YMM used
-	MOVQ         n+80(FP), AX
-	MOVQ         matrix_base+0(FP), CX
-	SHRQ         $0x05, AX
-	TESTQ        AX, AX
-	JZ           mulAvxTwo_5x7_end
-	MOVQ         out_base+48(FP), DX
-	MOVQ         (DX), BX
-	MOVQ         24(DX), BP
-	MOVQ         48(DX), SI
-	MOVQ         72(DX), DI
-	MOVQ         96(DX), R8
-	MOVQ         120(DX), R9
-	MOVQ         144(DX), DX
-	MOVQ         in_base+24(FP), R10
-	MOVQ         (R10), R11
-	MOVQ         24(R10), R12
-	MOVQ         48(R10), R13
-	MOVQ         72(R10), R14
-	MOVQ         96(R10), R10
+	MOVQ  n+80(FP), AX
+	MOVQ  matrix_base+0(FP), CX
+	SHRQ  $0x05, AX
+	TESTQ AX, AX
+	JZ    mulAvxTwo_5x7_end
+	MOVQ  in_base+24(FP), DX
+	MOVQ  (DX), BX
+	MOVQ  24(DX), BP
+	MOVQ  48(DX), SI
+	MOVQ  72(DX), DI
+	MOVQ  96(DX), DX
+	MOVQ  out_base+48(FP), R8
+	MOVQ  (R8), R9
+	MOVQ  24(R8), R10
+	MOVQ  48(R8), R11
+	MOVQ  72(R8), R12
+	MOVQ  96(R8), R13
+	MOVQ  120(R8), R14
+	MOVQ  144(R8), R8
+	MOVQ  start+72(FP), R15
+
+	// Add start offset to output
+	ADDQ R15, R9
+	ADDQ R15, R10
+	ADDQ R15, R11
+	ADDQ R15, R12
+	ADDQ R15, R13
+	ADDQ R15, R14
+	ADDQ R15, R8
+
+	// Add start offset to input
+	ADDQ         R15, BX
+	ADDQ         R15, BP
+	ADDQ         R15, SI
+	ADDQ         R15, DI
+	ADDQ         R15, DX
 	MOVQ         $0x0000000f, R15
 	MOVQ         R15, X7
 	VPBROADCASTB X7, Y7
-	MOVQ         start+72(FP), R15
 
 mulAvxTwo_5x7_loop:
 	// Clear 7 outputs
@@ -5278,7 +5997,8 @@ mulAvxTwo_5x7_loop:
 	VPXOR Y6, Y6, Y6
 
 	// Load and process 32 bytes from input 0 to 7 outputs
-	VMOVDQU (R11)(R15*1), Y10
+	VMOVDQU (BX), Y10
+	ADDQ    $0x20, BX
 	VPSRLQ  $0x04, Y10, Y11
 	VPAND   Y7, Y10, Y10
 	VPAND   Y7, Y11, Y11
@@ -5326,7 +6046,8 @@ mulAvxTwo_5x7_loop:
 	VPXOR   Y8, Y6, Y6
 
 	// Load and process 32 bytes from input 1 to 7 outputs
-	VMOVDQU (R12)(R15*1), Y10
+	VMOVDQU (BP), Y10
+	ADDQ    $0x20, BP
 	VPSRLQ  $0x04, Y10, Y11
 	VPAND   Y7, Y10, Y10
 	VPAND   Y7, Y11, Y11
@@ -5374,7 +6095,8 @@ mulAvxTwo_5x7_loop:
 	VPXOR   Y8, Y6, Y6
 
 	// Load and process 32 bytes from input 2 to 7 outputs
-	VMOVDQU (R13)(R15*1), Y10
+	VMOVDQU (SI), Y10
+	ADDQ    $0x20, SI
 	VPSRLQ  $0x04, Y10, Y11
 	VPAND   Y7, Y10, Y10
 	VPAND   Y7, Y11, Y11
@@ -5422,7 +6144,8 @@ mulAvxTwo_5x7_loop:
 	VPXOR   Y8, Y6, Y6
 
 	// Load and process 32 bytes from input 3 to 7 outputs
-	VMOVDQU (R14)(R15*1), Y10
+	VMOVDQU (DI), Y10
+	ADDQ    $0x20, DI
 	VPSRLQ  $0x04, Y10, Y11
 	VPAND   Y7, Y10, Y10
 	VPAND   Y7, Y11, Y11
@@ -5470,7 +6193,8 @@ mulAvxTwo_5x7_loop:
 	VPXOR   Y8, Y6, Y6
 
 	// Load and process 32 bytes from input 4 to 7 outputs
-	VMOVDQU (R10)(R15*1), Y10
+	VMOVDQU (DX), Y10
+	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y10, Y11
 	VPAND   Y7, Y10, Y10
 	VPAND   Y7, Y11, Y11
@@ -5518,16 +6242,22 @@ mulAvxTwo_5x7_loop:
 	VPXOR   Y8, Y6, Y6
 
 	// Store 7 outputs
-	VMOVDQU Y0, (BX)(R15*1)
-	VMOVDQU Y1, (BP)(R15*1)
-	VMOVDQU Y2, (SI)(R15*1)
-	VMOVDQU Y3, (DI)(R15*1)
-	VMOVDQU Y4, (R8)(R15*1)
-	VMOVDQU Y5, (R9)(R15*1)
-	VMOVDQU Y6, (DX)(R15*1)
+	VMOVDQU Y0, (R9)
+	ADDQ    $0x20, R9
+	VMOVDQU Y1, (R10)
+	ADDQ    $0x20, R10
+	VMOVDQU Y2, (R11)
+	ADDQ    $0x20, R11
+	VMOVDQU Y3, (R12)
+	ADDQ    $0x20, R12
+	VMOVDQU Y4, (R13)
+	ADDQ    $0x20, R13
+	VMOVDQU Y5, (R14)
+	ADDQ    $0x20, R14
+	VMOVDQU Y6, (R8)
+	ADDQ    $0x20, R8
 
 	// Prepare for next loop
-	ADDQ $0x20, R15
 	DECQ AX
 	JNZ  mulAvxTwo_5x7_loop
 	VZEROUPPER
@@ -5539,23 +6269,51 @@ mulAvxTwo_5x7_end:
 // Requires: AVX, AVX2, SSE2
 TEXT ·mulAvxTwo_5x8(SB), $0-88
 	// Loading no tables to registers
+	// Destination kept in GP registers
 	// Full registers estimated 93 YMM used
-	MOVQ         n+80(FP), AX
-	MOVQ         matrix_base+0(FP), CX
-	SHRQ         $0x05, AX
-	TESTQ        AX, AX
-	JZ           mulAvxTwo_5x8_end
-	MOVQ         out_base+48(FP), DX
-	MOVQ         in_base+24(FP), BX
-	MOVQ         (BX), BP
-	MOVQ         24(BX), SI
-	MOVQ         48(BX), DI
-	MOVQ         72(BX), R8
-	MOVQ         96(BX), BX
-	MOVQ         $0x0000000f, R9
-	MOVQ         R9, X8
+	MOVQ  n+80(FP), AX
+	MOVQ  matrix_base+0(FP), CX
+	SHRQ  $0x05, AX
+	TESTQ AX, AX
+	JZ    mulAvxTwo_5x8_end
+	MOVQ  in_base+24(FP), AX
+	MOVQ  (AX), DX
+	MOVQ  24(AX), BX
+	MOVQ  48(AX), BP
+	MOVQ  72(AX), SI
+	MOVQ  96(AX), AX
+	MOVQ  out_base+48(FP), DI
+	MOVQ  (DI), R8
+	MOVQ  24(DI), R9
+	MOVQ  48(DI), R10
+	MOVQ  72(DI), R11
+	MOVQ  96(DI), R12
+	MOVQ  120(DI), R13
+	MOVQ  144(DI), R14
+	MOVQ  168(DI), DI
+	MOVQ  start+72(FP), R15
+
+	// Add start offset to output
+	ADDQ R15, R8
+	ADDQ R15, R9
+	ADDQ R15, R10
+	ADDQ R15, R11
+	ADDQ R15, R12
+	ADDQ R15, R13
+	ADDQ R15, R14
+	ADDQ R15, DI
+
+	// Add start offset to input
+	ADDQ         R15, DX
+	ADDQ         R15, BX
+	ADDQ         R15, BP
+	ADDQ         R15, SI
+	ADDQ         R15, AX
+	MOVQ         $0x0000000f, R15
+	MOVQ         R15, X8
 	VPBROADCASTB X8, Y8
-	MOVQ         start+72(FP), R9
+	MOVQ         n+80(FP), R15
+	SHRQ         $0x05, R15
 
 mulAvxTwo_5x8_loop:
 	// Clear 8 outputs
@@ -5569,7 +6327,8 @@ mulAvxTwo_5x8_loop:
 	VPXOR Y7, Y7, Y7
 
 	// Load and process 32 bytes from input 0 to 8 outputs
-	VMOVDQU (BP)(R9*1), Y11
+	VMOVDQU (DX), Y11
+	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y11, Y12
 	VPAND   Y8, Y11, Y11
 	VPAND   Y8, Y12, Y12
@@ -5623,7 +6382,8 @@ mulAvxTwo_5x8_loop:
 	VPXOR   Y9, Y7, Y7
 
 	// Load and process 32 bytes from input 1 to 8 outputs
-	VMOVDQU (SI)(R9*1), Y11
+	VMOVDQU (BX), Y11
+	ADDQ    $0x20, BX
 	VPSRLQ  $0x04, Y11, Y12
 	VPAND   Y8, Y11, Y11
 	VPAND   Y8, Y12, Y12
@@ -5677,7 +6437,8 @@ mulAvxTwo_5x8_loop:
 	VPXOR   Y9, Y7, Y7
 
 	// Load and process 32 bytes from input 2 to 8 outputs
-	VMOVDQU (DI)(R9*1), Y11
+	VMOVDQU (BP), Y11
+	ADDQ    $0x20, BP
 	VPSRLQ  $0x04, Y11, Y12
 	VPAND   Y8, Y11, Y11
 	VPAND   Y8, Y12, Y12
@@ -5731,7 +6492,8 @@ mulAvxTwo_5x8_loop:
 	VPXOR   Y9, Y7, Y7
 
 	// Load and process 32 bytes from input 3 to 8 outputs
-	VMOVDQU (R8)(R9*1), Y11
+	VMOVDQU (SI), Y11
+	ADDQ    $0x20, SI
 	VPSRLQ  $0x04, Y11, Y12
 	VPAND   Y8, Y11, Y11
 	VPAND   Y8, Y12, Y12
@@ -5785,7 +6547,8 @@ mulAvxTwo_5x8_loop:
 	VPXOR   Y9, Y7, Y7
 
 	// Load and process 32 bytes from input 4 to 8 outputs
-	VMOVDQU (BX)(R9*1), Y11
+	VMOVDQU (AX), Y11
+	ADDQ    $0x20, AX
 	VPSRLQ  $0x04, Y11, Y12
 	VPAND   Y8, Y11, Y11
 	VPAND   Y8, Y12, Y12
@@ -5839,26 +6602,25 @@ mulAvxTwo_5x8_loop:
 	VPXOR   Y9, Y7, Y7
 
 	// Store 8 outputs
-	MOVQ    (DX), R10
-	VMOVDQU Y0, (R10)(R9*1)
-	MOVQ    24(DX), R10
-	VMOVDQU Y1, (R10)(R9*1)
-	MOVQ    48(DX), R10
-	VMOVDQU Y2, (R10)(R9*1)
-	MOVQ    72(DX), R10
-	VMOVDQU Y3, (R10)(R9*1)
-	MOVQ    96(DX), R10
-	VMOVDQU Y4, (R10)(R9*1)
-	MOVQ    120(DX), R10
-	VMOVDQU Y5, (R10)(R9*1)
-	MOVQ    144(DX), R10
-	VMOVDQU Y6, (R10)(R9*1)
-	MOVQ    168(DX), R10
-	VMOVDQU Y7, (R10)(R9*1)
+	VMOVDQU Y0, (R8)
+	ADDQ    $0x20, R8
+	VMOVDQU Y1, (R9)
+	ADDQ    $0x20, R9
+	VMOVDQU Y2, (R10)
+	ADDQ    $0x20, R10
+	VMOVDQU Y3, (R11)
+	ADDQ    $0x20, R11
+	VMOVDQU Y4, (R12)
+	ADDQ    $0x20, R12
+	VMOVDQU Y5, (R13)
+	ADDQ    $0x20, R13
+	VMOVDQU Y6, (R14)
+	ADDQ    $0x20, R14
+	VMOVDQU Y7, (DI)
+	ADDQ    $0x20, DI
 
 	// Prepare for next loop
-	ADDQ $0x20, R9
-	DECQ AX
+	DECQ R15
 	JNZ  mulAvxTwo_5x8_loop
 	VZEROUPPER
 
@@ -5869,107 +6631,125 @@ mulAvxTwo_5x8_end:
 // Requires: AVX, AVX2, SSE2
 TEXT ·mulAvxTwo_6x1(SB), $0-88
 	// Loading all tables to registers
+	// Destination kept in GP registers
 	// Full registers estimated 16 YMM used
-	MOVQ         n+80(FP), AX
-	MOVQ         matrix_base+0(FP), CX
-	SHRQ         $0x05, AX
-	TESTQ        AX, AX
-	JZ           mulAvxTwo_6x1_end
-	MOVQ         out_base+48(FP), DX
-	MOVQ         (DX), DX
-	VMOVDQU      (CX), Y1
-	VMOVDQU      32(CX), Y2
-	VMOVDQU      64(CX), Y3
-	VMOVDQU      96(CX), Y4
-	VMOVDQU      128(CX), Y5
-	VMOVDQU      160(CX), Y6
-	VMOVDQU      192(CX), Y7
-	VMOVDQU      224(CX), Y8
-	VMOVDQU      256(CX), Y9
-	VMOVDQU      288(CX), Y10
-	VMOVDQU      320(CX), Y11
-	VMOVDQU      352(CX), Y12
-	MOVQ         in_base+24(FP), CX
-	MOVQ         (CX), BX
-	MOVQ         24(CX), BP
-	MOVQ         48(CX), SI
-	MOVQ         72(CX), DI
-	MOVQ         96(CX), R8
-	MOVQ         120(CX), CX
+	MOVQ    n+80(FP), AX
+	MOVQ    matrix_base+0(FP), CX
+	SHRQ    $0x05, AX
+	TESTQ   AX, AX
+	JZ      mulAvxTwo_6x1_end
+	VMOVDQU (CX), Y0
+	VMOVDQU 32(CX), Y1
+	VMOVDQU 64(CX), Y2
+	VMOVDQU 96(CX), Y3
+	VMOVDQU 128(CX), Y4
+	VMOVDQU 160(CX), Y5
+	VMOVDQU 192(CX), Y6
+	VMOVDQU 224(CX), Y7
+	VMOVDQU 256(CX), Y8
+	VMOVDQU 288(CX), Y9
+	VMOVDQU 320(CX), Y10
+	VMOVDQU 352(CX), Y11
+	MOVQ    in_base+24(FP), CX
+	MOVQ    (CX), DX
+	MOVQ    24(CX), BX
+	MOVQ    48(CX), BP
+	MOVQ    72(CX), SI
+	MOVQ    96(CX), DI
+	MOVQ    120(CX), CX
+	MOVQ    out_base+48(FP), R8
+	MOVQ    (R8), R8
+	MOVQ    start+72(FP), R9
+
+	// Add start offset to output
+	ADDQ R9, R8
+
+	// Add start offset to input
+	ADDQ         R9, DX
+	ADDQ         R9, BX
+	ADDQ         R9, BP
+	ADDQ         R9, SI
+	ADDQ         R9, DI
+	ADDQ         R9, CX
 	MOVQ         $0x0000000f, R9
 	MOVQ         R9, X13
 	VPBROADCASTB X13, Y13
-	MOVQ         start+72(FP), R9
 
 mulAvxTwo_6x1_loop:
 	// Clear 1 outputs
-	VPXOR Y0, Y0, Y0
+	VPXOR Y12, Y12, Y12
 
 	// Load and process 32 bytes from input 0 to 1 outputs
-	VMOVDQU (BX)(R9*1), Y14
+	VMOVDQU (DX), Y14
+	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y14, Y15
 	VPAND   Y13, Y14, Y14
 	VPAND   Y13, Y15, Y15
-	VPSHUFB Y14, Y1, Y14
-	VPSHUFB Y15, Y2, Y15
+	VPSHUFB Y14, Y0, Y14
+	VPSHUFB Y15, Y1, Y15
 	VPXOR   Y14, Y15, Y14
-	VPXOR   Y14, Y0, Y0
+	VPXOR   Y14, Y12, Y12
 
 	// Load and process 32 bytes from input 1 to 1 outputs
-	VMOVDQU (BP)(R9*1), Y14
+	VMOVDQU (BX), Y14
+	ADDQ    $0x20, BX
 	VPSRLQ  $0x04, Y14, Y15
 	VPAND   Y13, Y14, Y14
 	VPAND   Y13, Y15, Y15
-	VPSHUFB Y14, Y3, Y14
-	VPSHUFB Y15, Y4, Y15
+	VPSHUFB Y14, Y2, Y14
+	VPSHUFB Y15, Y3, Y15
 	VPXOR   Y14, Y15, Y14
-	VPXOR   Y14, Y0, Y0
+	VPXOR   Y14, Y12, Y12
 
 	// Load and process 32 bytes from input 2 to 1 outputs
-	VMOVDQU (SI)(R9*1), Y14
+	VMOVDQU (BP), Y14
+	ADDQ    $0x20, BP
 	VPSRLQ  $0x04, Y14, Y15
 	VPAND   Y13, Y14, Y14
 	VPAND   Y13, Y15, Y15
-	VPSHUFB Y14, Y5, Y14
-	VPSHUFB Y15, Y6, Y15
+	VPSHUFB Y14, Y4, Y14
+	VPSHUFB Y15, Y5, Y15
 	VPXOR   Y14, Y15, Y14
-	VPXOR   Y14, Y0, Y0
+	VPXOR   Y14, Y12, Y12
 
 	// Load and process 32 bytes from input 3 to 1 outputs
-	VMOVDQU (DI)(R9*1), Y14
+	VMOVDQU (SI), Y14
+	ADDQ    $0x20, SI
 	VPSRLQ  $0x04, Y14, Y15
 	VPAND   Y13, Y14, Y14
 	VPAND   Y13, Y15, Y15
-	VPSHUFB Y14, Y7, Y14
-	VPSHUFB Y15, Y8, Y15
+	VPSHUFB Y14, Y6, Y14
+	VPSHUFB Y15, Y7, Y15
 	VPXOR   Y14, Y15, Y14
-	VPXOR   Y14, Y0, Y0
+	VPXOR   Y14, Y12, Y12
 
 	// Load and process 32 bytes from input 4 to 1 outputs
-	VMOVDQU (R8)(R9*1), Y14
+	VMOVDQU (DI), Y14
+	ADDQ    $0x20, DI
 	VPSRLQ  $0x04, Y14, Y15
 	VPAND   Y13, Y14, Y14
 	VPAND   Y13, Y15, Y15
-	VPSHUFB Y14, Y9, Y14
-	VPSHUFB Y15, Y10, Y15
+	VPSHUFB Y14, Y8, Y14
+	VPSHUFB Y15, Y9, Y15
 	VPXOR   Y14, Y15, Y14
-	VPXOR   Y14, Y0, Y0
+	VPXOR   Y14, Y12, Y12
 
 	// Load and process 32 bytes from input 5 to 1 outputs
-	VMOVDQU (CX)(R9*1), Y14
+	VMOVDQU (CX), Y14
+	ADDQ    $0x20, CX
 	VPSRLQ  $0x04, Y14, Y15
 	VPAND   Y13, Y14, Y14
 	VPAND   Y13, Y15, Y15
-	VPSHUFB Y14, Y11, Y14
-	VPSHUFB Y15, Y12, Y15
+	VPSHUFB Y14, Y10, Y14
+	VPSHUFB Y15, Y11, Y15
 	VPXOR   Y14, Y15, Y14
-	VPXOR   Y14, Y0, Y0
+	VPXOR   Y14, Y12, Y12
 
 	// Store 1 outputs
-	VMOVDQU Y0, (DX)(R9*1)
+	VMOVDQU Y12, (R8)
+	ADDQ    $0x20, R8
 
 	// Prepare for next loop
-	ADDQ $0x20, R9
 	DECQ AX
 	JNZ  mulAvxTwo_6x1_loop
 	VZEROUPPER
@@ -5981,26 +6761,39 @@ mulAvxTwo_6x1_end:
 // Requires: AVX, AVX2, SSE2
 TEXT ·mulAvxTwo_6x2(SB), $0-88
 	// Loading no tables to registers
+	// Destination kept in GP registers
 	// Full registers estimated 31 YMM used
-	MOVQ         n+80(FP), AX
-	MOVQ         matrix_base+0(FP), CX
-	SHRQ         $0x05, AX
-	TESTQ        AX, AX
-	JZ           mulAvxTwo_6x2_end
-	MOVQ         out_base+48(FP), DX
-	MOVQ         (DX), BX
-	MOVQ         24(DX), DX
-	MOVQ         in_base+24(FP), BP
-	MOVQ         (BP), SI
-	MOVQ         24(BP), DI
-	MOVQ         48(BP), R8
-	MOVQ         72(BP), R9
-	MOVQ         96(BP), R10
-	MOVQ         120(BP), BP
+	MOVQ  n+80(FP), AX
+	MOVQ  matrix_base+0(FP), CX
+	SHRQ  $0x05, AX
+	TESTQ AX, AX
+	JZ    mulAvxTwo_6x2_end
+	MOVQ  in_base+24(FP), DX
+	MOVQ  (DX), BX
+	MOVQ  24(DX), BP
+	MOVQ  48(DX), SI
+	MOVQ  72(DX), DI
+	MOVQ  96(DX), R8
+	MOVQ  120(DX), DX
+	MOVQ  out_base+48(FP), R9
+	MOVQ  (R9), R10
+	MOVQ  24(R9), R9
+	MOVQ  start+72(FP), R11
+
+	// Add start offset to output
+	ADDQ R11, R10
+	ADDQ R11, R9
+
+	// Add start offset to input
+	ADDQ         R11, BX
+	ADDQ         R11, BP
+	ADDQ         R11, SI
+	ADDQ         R11, DI
+	ADDQ         R11, R8
+	ADDQ         R11, DX
 	MOVQ         $0x0000000f, R11
 	MOVQ         R11, X2
 	VPBROADCASTB X2, Y2
-	MOVQ         start+72(FP), R11
 
 mulAvxTwo_6x2_loop:
 	// Clear 2 outputs
@@ -6008,7 +6801,8 @@ mulAvxTwo_6x2_loop:
 	VPXOR Y1, Y1, Y1
 
 	// Load and process 32 bytes from input 0 to 2 outputs
-	VMOVDQU (SI)(R11*1), Y5
+	VMOVDQU (BX), Y5
+	ADDQ    $0x20, BX
 	VPSRLQ  $0x04, Y5, Y6
 	VPAND   Y2, Y5, Y5
 	VPAND   Y2, Y6, Y6
@@ -6026,7 +6820,8 @@ mulAvxTwo_6x2_loop:
 	VPXOR   Y3, Y1, Y1
 
 	// Load and process 32 bytes from input 1 to 2 outputs
-	VMOVDQU (DI)(R11*1), Y5
+	VMOVDQU (BP), Y5
+	ADDQ    $0x20, BP
 	VPSRLQ  $0x04, Y5, Y6
 	VPAND   Y2, Y5, Y5
 	VPAND   Y2, Y6, Y6
@@ -6044,7 +6839,8 @@ mulAvxTwo_6x2_loop:
 	VPXOR   Y3, Y1, Y1
 
 	// Load and process 32 bytes from input 2 to 2 outputs
-	VMOVDQU (R8)(R11*1), Y5
+	VMOVDQU (SI), Y5
+	ADDQ    $0x20, SI
 	VPSRLQ  $0x04, Y5, Y6
 	VPAND   Y2, Y5, Y5
 	VPAND   Y2, Y6, Y6
@@ -6062,7 +6858,8 @@ mulAvxTwo_6x2_loop:
 	VPXOR   Y3, Y1, Y1
 
 	// Load and process 32 bytes from input 3 to 2 outputs
-	VMOVDQU (R9)(R11*1), Y5
+	VMOVDQU (DI), Y5
+	ADDQ    $0x20, DI
 	VPSRLQ  $0x04, Y5, Y6
 	VPAND   Y2, Y5, Y5
 	VPAND   Y2, Y6, Y6
@@ -6080,7 +6877,8 @@ mulAvxTwo_6x2_loop:
 	VPXOR   Y3, Y1, Y1
 
 	// Load and process 32 bytes from input 4 to 2 outputs
-	VMOVDQU (R10)(R11*1), Y5
+	VMOVDQU (R8), Y5
+	ADDQ    $0x20, R8
 	VPSRLQ  $0x04, Y5, Y6
 	VPAND   Y2, Y5, Y5
 	VPAND   Y2, Y6, Y6
@@ -6098,7 +6896,8 @@ mulAvxTwo_6x2_loop:
 	VPXOR   Y3, Y1, Y1
 
 	// Load and process 32 bytes from input 5 to 2 outputs
-	VMOVDQU (BP)(R11*1), Y5
+	VMOVDQU (DX), Y5
+	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y5, Y6
 	VPAND   Y2, Y5, Y5
 	VPAND   Y2, Y6, Y6
@@ -6116,11 +6915,12 @@ mulAvxTwo_6x2_loop:
 	VPXOR   Y3, Y1, Y1
 
 	// Store 2 outputs
-	VMOVDQU Y0, (BX)(R11*1)
-	VMOVDQU Y1, (DX)(R11*1)
+	VMOVDQU Y0, (R10)
+	ADDQ    $0x20, R10
+	VMOVDQU Y1, (R9)
+	ADDQ    $0x20, R9
 
 	// Prepare for next loop
-	ADDQ $0x20, R11
 	DECQ AX
 	JNZ  mulAvxTwo_6x2_loop
 	VZEROUPPER
@@ -6132,27 +6932,41 @@ mulAvxTwo_6x2_end:
 // Requires: AVX, AVX2, SSE2
 TEXT ·mulAvxTwo_6x3(SB), $0-88
 	// Loading no tables to registers
+	// Destination kept in GP registers
 	// Full registers estimated 44 YMM used
-	MOVQ         n+80(FP), AX
-	MOVQ         matrix_base+0(FP), CX
-	SHRQ         $0x05, AX
-	TESTQ        AX, AX
-	JZ           mulAvxTwo_6x3_end
-	MOVQ         out_base+48(FP), DX
-	MOVQ         (DX), BX
-	MOVQ         24(DX), BP
-	MOVQ         48(DX), DX
-	MOVQ         in_base+24(FP), SI
-	MOVQ         (SI), DI
-	MOVQ         24(SI), R8
-	MOVQ         48(SI), R9
-	MOVQ         72(SI), R10
-	MOVQ         96(SI), R11
-	MOVQ         120(SI), SI
+	MOVQ  n+80(FP), AX
+	MOVQ  matrix_base+0(FP), CX
+	SHRQ  $0x05, AX
+	TESTQ AX, AX
+	JZ    mulAvxTwo_6x3_end
+	MOVQ  in_base+24(FP), DX
+	MOVQ  (DX), BX
+	MOVQ  24(DX), BP
+	MOVQ  48(DX), SI
+	MOVQ  72(DX), DI
+	MOVQ  96(DX), R8
+	MOVQ  120(DX), DX
+	MOVQ  out_base+48(FP), R9
+	MOVQ  (R9), R10
+	MOVQ  24(R9), R11
+	MOVQ  48(R9), R9
+	MOVQ  start+72(FP), R12
+
+	// Add start offset to output
+	ADDQ R12, R10
+	ADDQ R12, R11
+	ADDQ R12, R9
+
+	// Add start offset to input
+	ADDQ         R12, BX
+	ADDQ         R12, BP
+	ADDQ         R12, SI
+	ADDQ         R12, DI
+	ADDQ         R12, R8
+	ADDQ         R12, DX
 	MOVQ         $0x0000000f, R12
 	MOVQ         R12, X3
 	VPBROADCASTB X3, Y3
-	MOVQ         start+72(FP), R12
 
 mulAvxTwo_6x3_loop:
 	// Clear 3 outputs
@@ -6161,7 +6975,8 @@ mulAvxTwo_6x3_loop:
 	VPXOR Y2, Y2, Y2
 
 	// Load and process 32 bytes from input 0 to 3 outputs
-	VMOVDQU (DI)(R12*1), Y6
+	VMOVDQU (BX), Y6
+	ADDQ    $0x20, BX
 	VPSRLQ  $0x04, Y6, Y7
 	VPAND   Y3, Y6, Y6
 	VPAND   Y3, Y7, Y7
@@ -6185,7 +7000,8 @@ mulAvxTwo_6x3_loop:
 	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 1 to 3 outputs
-	VMOVDQU (R8)(R12*1), Y6
+	VMOVDQU (BP), Y6
+	ADDQ    $0x20, BP
 	VPSRLQ  $0x04, Y6, Y7
 	VPAND   Y3, Y6, Y6
 	VPAND   Y3, Y7, Y7
@@ -6209,7 +7025,8 @@ mulAvxTwo_6x3_loop:
 	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 2 to 3 outputs
-	VMOVDQU (R9)(R12*1), Y6
+	VMOVDQU (SI), Y6
+	ADDQ    $0x20, SI
 	VPSRLQ  $0x04, Y6, Y7
 	VPAND   Y3, Y6, Y6
 	VPAND   Y3, Y7, Y7
@@ -6233,7 +7050,8 @@ mulAvxTwo_6x3_loop:
 	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 3 to 3 outputs
-	VMOVDQU (R10)(R12*1), Y6
+	VMOVDQU (DI), Y6
+	ADDQ    $0x20, DI
 	VPSRLQ  $0x04, Y6, Y7
 	VPAND   Y3, Y6, Y6
 	VPAND   Y3, Y7, Y7
@@ -6257,7 +7075,8 @@ mulAvxTwo_6x3_loop:
 	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 4 to 3 outputs
-	VMOVDQU (R11)(R12*1), Y6
+	VMOVDQU (R8), Y6
+	ADDQ    $0x20, R8
 	VPSRLQ  $0x04, Y6, Y7
 	VPAND   Y3, Y6, Y6
 	VPAND   Y3, Y7, Y7
@@ -6281,7 +7100,8 @@ mulAvxTwo_6x3_loop:
 	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 5 to 3 outputs
-	VMOVDQU (SI)(R12*1), Y6
+	VMOVDQU (DX), Y6
+	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y6, Y7
 	VPAND   Y3, Y6, Y6
 	VPAND   Y3, Y7, Y7
@@ -6305,12 +7125,14 @@ mulAvxTwo_6x3_loop:
 	VPXOR   Y4, Y2, Y2
 
 	// Store 3 outputs
-	VMOVDQU Y0, (BX)(R12*1)
-	VMOVDQU Y1, (BP)(R12*1)
-	VMOVDQU Y2, (DX)(R12*1)
+	VMOVDQU Y0, (R10)
+	ADDQ    $0x20, R10
+	VMOVDQU Y1, (R11)
+	ADDQ    $0x20, R11
+	VMOVDQU Y2, (R9)
+	ADDQ    $0x20, R9
 
 	// Prepare for next loop
-	ADDQ $0x20, R12
 	DECQ AX
 	JNZ  mulAvxTwo_6x3_loop
 	VZEROUPPER
@@ -6322,28 +7144,43 @@ mulAvxTwo_6x3_end:
 // Requires: AVX, AVX2, SSE2
 TEXT ·mulAvxTwo_6x4(SB), $0-88
 	// Loading no tables to registers
+	// Destination kept in GP registers
 	// Full registers estimated 57 YMM used
-	MOVQ         n+80(FP), AX
-	MOVQ         matrix_base+0(FP), CX
-	SHRQ         $0x05, AX
-	TESTQ        AX, AX
-	JZ           mulAvxTwo_6x4_end
-	MOVQ         out_base+48(FP), DX
-	MOVQ         (DX), BX
-	MOVQ         24(DX), BP
-	MOVQ         48(DX), SI
-	MOVQ         72(DX), DX
-	MOVQ         in_base+24(FP), DI
-	MOVQ         (DI), R8
-	MOVQ         24(DI), R9
-	MOVQ         48(DI), R10
-	MOVQ         72(DI), R11
-	MOVQ         96(DI), R12
-	MOVQ         120(DI), DI
+	MOVQ  n+80(FP), AX
+	MOVQ  matrix_base+0(FP), CX
+	SHRQ  $0x05, AX
+	TESTQ AX, AX
+	JZ    mulAvxTwo_6x4_end
+	MOVQ  in_base+24(FP), DX
+	MOVQ  (DX), BX
+	MOVQ  24(DX), BP
+	MOVQ  48(DX), SI
+	MOVQ  72(DX), DI
+	MOVQ  96(DX), R8
+	MOVQ  120(DX), DX
+	MOVQ  out_base+48(FP), R9
+	MOVQ  (R9), R10
+	MOVQ  24(R9), R11
+	MOVQ  48(R9), R12
+	MOVQ  72(R9), R9
+	MOVQ  start+72(FP), R13
+
+	// Add start offset to output
+	ADDQ R13, R10
+	ADDQ R13, R11
+	ADDQ R13, R12
+	ADDQ R13, R9
+
+	// Add start offset to input
+	ADDQ         R13, BX
+	ADDQ         R13, BP
+	ADDQ         R13, SI
+	ADDQ         R13, DI
+	ADDQ         R13, R8
+	ADDQ         R13, DX
 	MOVQ         $0x0000000f, R13
 	MOVQ         R13, X4
 	VPBROADCASTB X4, Y4
-	MOVQ         start+72(FP), R13
 
 mulAvxTwo_6x4_loop:
 	// Clear 4 outputs
@@ -6353,7 +7190,8 @@ mulAvxTwo_6x4_loop:
 	VPXOR Y3, Y3, Y3
 
 	// Load and process 32 bytes from input 0 to 4 outputs
-	VMOVDQU (R8)(R13*1), Y7
+	VMOVDQU (BX), Y7
+	ADDQ    $0x20, BX
 	VPSRLQ  $0x04, Y7, Y8
 	VPAND   Y4, Y7, Y7
 	VPAND   Y4, Y8, Y8
@@ -6383,7 +7221,8 @@ mulAvxTwo_6x4_loop:
 	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 1 to 4 outputs
-	VMOVDQU (R9)(R13*1), Y7
+	VMOVDQU (BP), Y7
+	ADDQ    $0x20, BP
 	VPSRLQ  $0x04, Y7, Y8
 	VPAND   Y4, Y7, Y7
 	VPAND   Y4, Y8, Y8
@@ -6413,7 +7252,8 @@ mulAvxTwo_6x4_loop:
 	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 2 to 4 outputs
-	VMOVDQU (R10)(R13*1), Y7
+	VMOVDQU (SI), Y7
+	ADDQ    $0x20, SI
 	VPSRLQ  $0x04, Y7, Y8
 	VPAND   Y4, Y7, Y7
 	VPAND   Y4, Y8, Y8
@@ -6443,7 +7283,8 @@ mulAvxTwo_6x4_loop:
 	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 3 to 4 outputs
-	VMOVDQU (R11)(R13*1), Y7
+	VMOVDQU (DI), Y7
+	ADDQ    $0x20, DI
 	VPSRLQ  $0x04, Y7, Y8
 	VPAND   Y4, Y7, Y7
 	VPAND   Y4, Y8, Y8
@@ -6473,7 +7314,8 @@ mulAvxTwo_6x4_loop:
 	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 4 to 4 outputs
-	VMOVDQU (R12)(R13*1), Y7
+	VMOVDQU (R8), Y7
+	ADDQ    $0x20, R8
 	VPSRLQ  $0x04, Y7, Y8
 	VPAND   Y4, Y7, Y7
 	VPAND   Y4, Y8, Y8
@@ -6503,7 +7345,8 @@ mulAvxTwo_6x4_loop:
 	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 5 to 4 outputs
-	VMOVDQU (DI)(R13*1), Y7
+	VMOVDQU (DX), Y7
+	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y7, Y8
 	VPAND   Y4, Y7, Y7
 	VPAND   Y4, Y8, Y8
@@ -6533,13 +7376,16 @@ mulAvxTwo_6x4_loop:
 	VPXOR   Y5, Y3, Y3
 
 	// Store 4 outputs
-	VMOVDQU Y0, (BX)(R13*1)
-	VMOVDQU Y1, (BP)(R13*1)
-	VMOVDQU Y2, (SI)(R13*1)
-	VMOVDQU Y3, (DX)(R13*1)
+	VMOVDQU Y0, (R10)
+	ADDQ    $0x20, R10
+	VMOVDQU Y1, (R11)
+	ADDQ    $0x20, R11
+	VMOVDQU Y2, (R12)
+	ADDQ    $0x20, R12
+	VMOVDQU Y3, (R9)
+	ADDQ    $0x20, R9
 
 	// Prepare for next loop
-	ADDQ $0x20, R13
 	DECQ AX
 	JNZ  mulAvxTwo_6x4_loop
 	VZEROUPPER
@@ -6551,29 +7397,45 @@ mulAvxTwo_6x4_end:
 // Requires: AVX, AVX2, SSE2
 TEXT ·mulAvxTwo_6x5(SB), $0-88
 	// Loading no tables to registers
+	// Destination kept in GP registers
 	// Full registers estimated 70 YMM used
-	MOVQ         n+80(FP), AX
-	MOVQ         matrix_base+0(FP), CX
-	SHRQ         $0x05, AX
-	TESTQ        AX, AX
-	JZ           mulAvxTwo_6x5_end
-	MOVQ         out_base+48(FP), DX
-	MOVQ         (DX), BX
-	MOVQ         24(DX), BP
-	MOVQ         48(DX), SI
-	MOVQ         72(DX), DI
-	MOVQ         96(DX), DX
-	MOVQ         in_base+24(FP), R8
-	MOVQ         (R8), R9
-	MOVQ         24(R8), R10
-	MOVQ         48(R8), R11
-	MOVQ         72(R8), R12
-	MOVQ         96(R8), R13
-	MOVQ         120(R8), R8
+	MOVQ  n+80(FP), AX
+	MOVQ  matrix_base+0(FP), CX
+	SHRQ  $0x05, AX
+	TESTQ AX, AX
+	JZ    mulAvxTwo_6x5_end
+	MOVQ  in_base+24(FP), DX
+	MOVQ  (DX), BX
+	MOVQ  24(DX), BP
+	MOVQ  48(DX), SI
+	MOVQ  72(DX), DI
+	MOVQ  96(DX), R8
+	MOVQ  120(DX), DX
+	MOVQ  out_base+48(FP), R9
+	MOVQ  (R9), R10
+	MOVQ  24(R9), R11
+	MOVQ  48(R9), R12
+	MOVQ  72(R9), R13
+	MOVQ  96(R9), R9
+	MOVQ  start+72(FP), R14
+
+	// Add start offset to output
+	ADDQ R14, R10
+	ADDQ R14, R11
+	ADDQ R14, R12
+	ADDQ R14, R13
+	ADDQ R14, R9
+
+	// Add start offset to input
+	ADDQ         R14, BX
+	ADDQ         R14, BP
+	ADDQ         R14, SI
+	ADDQ         R14, DI
+	ADDQ         R14, R8
+	ADDQ         R14, DX
 	MOVQ         $0x0000000f, R14
 	MOVQ         R14, X5
 	VPBROADCASTB X5, Y5
-	MOVQ         start+72(FP), R14
 
 mulAvxTwo_6x5_loop:
 	// Clear 5 outputs
@@ -6584,7 +7446,8 @@ mulAvxTwo_6x5_loop:
 	VPXOR Y4, Y4, Y4
 
 	// Load and process 32 bytes from input 0 to 5 outputs
-	VMOVDQU (R9)(R14*1), Y8
+	VMOVDQU (BX), Y8
+	ADDQ    $0x20, BX
 	VPSRLQ  $0x04, Y8, Y9
 	VPAND   Y5, Y8, Y8
 	VPAND   Y5, Y9, Y9
@@ -6620,7 +7483,8 @@ mulAvxTwo_6x5_loop:
 	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 1 to 5 outputs
-	VMOVDQU (R10)(R14*1), Y8
+	VMOVDQU (BP), Y8
+	ADDQ    $0x20, BP
 	VPSRLQ  $0x04, Y8, Y9
 	VPAND   Y5, Y8, Y8
 	VPAND   Y5, Y9, Y9
@@ -6656,7 +7520,8 @@ mulAvxTwo_6x5_loop:
 	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 2 to 5 outputs
-	VMOVDQU (R11)(R14*1), Y8
+	VMOVDQU (SI), Y8
+	ADDQ    $0x20, SI
 	VPSRLQ  $0x04, Y8, Y9
 	VPAND   Y5, Y8, Y8
 	VPAND   Y5, Y9, Y9
@@ -6692,7 +7557,8 @@ mulAvxTwo_6x5_loop:
 	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 3 to 5 outputs
-	VMOVDQU (R12)(R14*1), Y8
+	VMOVDQU (DI), Y8
+	ADDQ    $0x20, DI
 	VPSRLQ  $0x04, Y8, Y9
 	VPAND   Y5, Y8, Y8
 	VPAND   Y5, Y9, Y9
@@ -6728,7 +7594,8 @@ mulAvxTwo_6x5_loop:
 	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 4 to 5 outputs
-	VMOVDQU (R13)(R14*1), Y8
+	VMOVDQU (R8), Y8
+	ADDQ    $0x20, R8
 	VPSRLQ  $0x04, Y8, Y9
 	VPAND   Y5, Y8, Y8
 	VPAND   Y5, Y9, Y9
@@ -6764,7 +7631,8 @@ mulAvxTwo_6x5_loop:
 	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 5 to 5 outputs
-	VMOVDQU (R8)(R14*1), Y8
+	VMOVDQU (DX), Y8
+	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y8, Y9
 	VPAND   Y5, Y8, Y8
 	VPAND   Y5, Y9, Y9
@@ -6800,14 +7668,18 @@ mulAvxTwo_6x5_loop:
 	VPXOR   Y6, Y4, Y4
 
 	// Store 5 outputs
-	VMOVDQU Y0, (BX)(R14*1)
-	VMOVDQU Y1, (BP)(R14*1)
-	VMOVDQU Y2, (SI)(R14*1)
-	VMOVDQU Y3, (DI)(R14*1)
-	VMOVDQU Y4, (DX)(R14*1)
+	VMOVDQU Y0, (R10)
+	ADDQ    $0x20, R10
+	VMOVDQU Y1, (R11)
+	ADDQ    $0x20, R11
+	VMOVDQU Y2, (R12)
+	ADDQ    $0x20, R12
+	VMOVDQU Y3, (R13)
+	ADDQ    $0x20, R13
+	VMOVDQU Y4, (R9)
+	ADDQ    $0x20, R9
 
 	// Prepare for next loop
-	ADDQ $0x20, R14
 	DECQ AX
 	JNZ  mulAvxTwo_6x5_loop
 	VZEROUPPER
@@ -6819,30 +7691,47 @@ mulAvxTwo_6x5_end:
 // Requires: AVX, AVX2, SSE2
 TEXT ·mulAvxTwo_6x6(SB), $0-88
 	// Loading no tables to registers
+	// Destination kept in GP registers
 	// Full registers estimated 83 YMM used
-	MOVQ         n+80(FP), AX
-	MOVQ         matrix_base+0(FP), CX
-	SHRQ         $0x05, AX
-	TESTQ        AX, AX
-	JZ           mulAvxTwo_6x6_end
-	MOVQ         out_base+48(FP), DX
-	MOVQ         (DX), BX
-	MOVQ         24(DX), BP
-	MOVQ         48(DX), SI
-	MOVQ         72(DX), DI
-	MOVQ         96(DX), R8
-	MOVQ         120(DX), DX
-	MOVQ         in_base+24(FP), R9
-	MOVQ         (R9), R10
-	MOVQ         24(R9), R11
-	MOVQ         48(R9), R12
-	MOVQ         72(R9), R13
-	MOVQ         96(R9), R14
-	MOVQ         120(R9), R9
+	MOVQ  n+80(FP), AX
+	MOVQ  matrix_base+0(FP), CX
+	SHRQ  $0x05, AX
+	TESTQ AX, AX
+	JZ    mulAvxTwo_6x6_end
+	MOVQ  in_base+24(FP), DX
+	MOVQ  (DX), BX
+	MOVQ  24(DX), BP
+	MOVQ  48(DX), SI
+	MOVQ  72(DX), DI
+	MOVQ  96(DX), R8
+	MOVQ  120(DX), DX
+	MOVQ  out_base+48(FP), R9
+	MOVQ  (R9), R10
+	MOVQ  24(R9), R11
+	MOVQ  48(R9), R12
+	MOVQ  72(R9), R13
+	MOVQ  96(R9), R14
+	MOVQ  120(R9), R9
+	MOVQ  start+72(FP), R15
+
+	// Add start offset to output
+	ADDQ R15, R10
+	ADDQ R15, R11
+	ADDQ R15, R12
+	ADDQ R15, R13
+	ADDQ R15, R14
+	ADDQ R15, R9
+
+	// Add start offset to input
+	ADDQ         R15, BX
+	ADDQ         R15, BP
+	ADDQ         R15, SI
+	ADDQ         R15, DI
+	ADDQ         R15, R8
+	ADDQ         R15, DX
 	MOVQ         $0x0000000f, R15
 	MOVQ         R15, X6
 	VPBROADCASTB X6, Y6
-	MOVQ         start+72(FP), R15
 
 mulAvxTwo_6x6_loop:
 	// Clear 6 outputs
@@ -6854,7 +7743,8 @@ mulAvxTwo_6x6_loop:
 	VPXOR Y5, Y5, Y5
 
 	// Load and process 32 bytes from input 0 to 6 outputs
-	VMOVDQU (R10)(R15*1), Y9
+	VMOVDQU (BX), Y9
+	ADDQ    $0x20, BX
 	VPSRLQ  $0x04, Y9, Y10
 	VPAND   Y6, Y9, Y9
 	VPAND   Y6, Y10, Y10
@@ -6896,7 +7786,8 @@ mulAvxTwo_6x6_loop:
 	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 1 to 6 outputs
-	VMOVDQU (R11)(R15*1), Y9
+	VMOVDQU (BP), Y9
+	ADDQ    $0x20, BP
 	VPSRLQ  $0x04, Y9, Y10
 	VPAND   Y6, Y9, Y9
 	VPAND   Y6, Y10, Y10
@@ -6938,7 +7829,8 @@ mulAvxTwo_6x6_loop:
 	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 2 to 6 outputs
-	VMOVDQU (R12)(R15*1), Y9
+	VMOVDQU (SI), Y9
+	ADDQ    $0x20, SI
 	VPSRLQ  $0x04, Y9, Y10
 	VPAND   Y6, Y9, Y9
 	VPAND   Y6, Y10, Y10
@@ -6980,7 +7872,8 @@ mulAvxTwo_6x6_loop:
 	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 3 to 6 outputs
-	VMOVDQU (R13)(R15*1), Y9
+	VMOVDQU (DI), Y9
+	ADDQ    $0x20, DI
 	VPSRLQ  $0x04, Y9, Y10
 	VPAND   Y6, Y9, Y9
 	VPAND   Y6, Y10, Y10
@@ -7022,7 +7915,8 @@ mulAvxTwo_6x6_loop:
 	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 4 to 6 outputs
-	VMOVDQU (R14)(R15*1), Y9
+	VMOVDQU (R8), Y9
+	ADDQ    $0x20, R8
 	VPSRLQ  $0x04, Y9, Y10
 	VPAND   Y6, Y9, Y9
 	VPAND   Y6, Y10, Y10
@@ -7064,7 +7958,8 @@ mulAvxTwo_6x6_loop:
 	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 5 to 6 outputs
-	VMOVDQU (R9)(R15*1), Y9
+	VMOVDQU (DX), Y9
+	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y9, Y10
 	VPAND   Y6, Y9, Y9
 	VPAND   Y6, Y10, Y10
@@ -7106,15 +8001,20 @@ mulAvxTwo_6x6_loop:
 	VPXOR   Y7, Y5, Y5
 
 	// Store 6 outputs
-	VMOVDQU Y0, (BX)(R15*1)
-	VMOVDQU Y1, (BP)(R15*1)
-	VMOVDQU Y2, (SI)(R15*1)
-	VMOVDQU Y3, (DI)(R15*1)
-	VMOVDQU Y4, (R8)(R15*1)
-	VMOVDQU Y5, (DX)(R15*1)
+	VMOVDQU Y0, (R10)
+	ADDQ    $0x20, R10
+	VMOVDQU Y1, (R11)
+	ADDQ    $0x20, R11
+	VMOVDQU Y2, (R12)
+	ADDQ    $0x20, R12
+	VMOVDQU Y3, (R13)
+	ADDQ    $0x20, R13
+	VMOVDQU Y4, (R14)
+	ADDQ    $0x20, R14
+	VMOVDQU Y5, (R9)
+	ADDQ    $0x20, R9
 
 	// Prepare for next loop
-	ADDQ $0x20, R15
 	DECQ AX
 	JNZ  mulAvxTwo_6x6_loop
 	VZEROUPPER
@@ -7126,24 +8026,51 @@ mulAvxTwo_6x6_end:
 // Requires: AVX, AVX2, SSE2
 TEXT ·mulAvxTwo_6x7(SB), $0-88
 	// Loading no tables to registers
+	// Destination kept in GP registers
 	// Full registers estimated 96 YMM used
-	MOVQ         n+80(FP), AX
-	MOVQ         matrix_base+0(FP), CX
-	SHRQ         $0x05, AX
-	TESTQ        AX, AX
-	JZ           mulAvxTwo_6x7_end
-	MOVQ         out_base+48(FP), DX
-	MOVQ         in_base+24(FP), BX
-	MOVQ         (BX), BP
-	MOVQ         24(BX), SI
-	MOVQ         48(BX), DI
-	MOVQ         72(BX), R8
-	MOVQ         96(BX), R9
-	MOVQ         120(BX), BX
-	MOVQ         $0x0000000f, R10
-	MOVQ         R10, X7
+	MOVQ  n+80(FP), AX
+	MOVQ  matrix_base+0(FP), CX
+	SHRQ  $0x05, AX
+	TESTQ AX, AX
+	JZ    mulAvxTwo_6x7_end
+	MOVQ  in_base+24(FP), AX
+	MOVQ  (AX), DX
+	MOVQ  24(AX), BX
+	MOVQ  48(AX), BP
+	MOVQ  72(AX), SI
+	MOVQ  96(AX), DI
+	MOVQ  120(AX), AX
+	MOVQ  out_base+48(FP), R8
+	MOVQ  (R8), R9
+	MOVQ  24(R8), R10
+	MOVQ  48(R8), R11
+	MOVQ  72(R8), R12
+	MOVQ  96(R8), R13
+	MOVQ  120(R8), R14
+	MOVQ  144(R8), R8
+	MOVQ  start+72(FP), R15
+
+	// Add start offset to output
+	ADDQ R15, R9
+	ADDQ R15, R10
+	ADDQ R15, R11
+	ADDQ R15, R12
+	ADDQ R15, R13
+	ADDQ R15, R14
+	ADDQ R15, R8
+
+	// Add start offset to input
+	ADDQ         R15, DX
+	ADDQ         R15, BX
+	ADDQ         R15, BP
+	ADDQ         R15, SI
+	ADDQ         R15, DI
+	ADDQ         R15, AX
+	MOVQ         $0x0000000f, R15
+	MOVQ         R15, X7
 	VPBROADCASTB X7, Y7
-	MOVQ         start+72(FP), R10
+	MOVQ         n+80(FP), R15
+	SHRQ         $0x05, R15
 
 mulAvxTwo_6x7_loop:
 	// Clear 7 outputs
@@ -7156,7 +8083,8 @@ mulAvxTwo_6x7_loop:
 	VPXOR Y6, Y6, Y6
 
 	// Load and process 32 bytes from input 0 to 7 outputs
-	VMOVDQU (BP)(R10*1), Y10
+	VMOVDQU (DX), Y10
+	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y10, Y11
 	VPAND   Y7, Y10, Y10
 	VPAND   Y7, Y11, Y11
@@ -7204,7 +8132,8 @@ mulAvxTwo_6x7_loop:
 	VPXOR   Y8, Y6, Y6
 
 	// Load and process 32 bytes from input 1 to 7 outputs
-	VMOVDQU (SI)(R10*1), Y10
+	VMOVDQU (BX), Y10
+	ADDQ    $0x20, BX
 	VPSRLQ  $0x04, Y10, Y11
 	VPAND   Y7, Y10, Y10
 	VPAND   Y7, Y11, Y11
@@ -7252,7 +8181,8 @@ mulAvxTwo_6x7_loop:
 	VPXOR   Y8, Y6, Y6
 
 	// Load and process 32 bytes from input 2 to 7 outputs
-	VMOVDQU (DI)(R10*1), Y10
+	VMOVDQU (BP), Y10
+	ADDQ    $0x20, BP
 	VPSRLQ  $0x04, Y10, Y11
 	VPAND   Y7, Y10, Y10
 	VPAND   Y7, Y11, Y11
@@ -7300,7 +8230,8 @@ mulAvxTwo_6x7_loop:
 	VPXOR   Y8, Y6, Y6
 
 	// Load and process 32 bytes from input 3 to 7 outputs
-	VMOVDQU (R8)(R10*1), Y10
+	VMOVDQU (SI), Y10
+	ADDQ    $0x20, SI
 	VPSRLQ  $0x04, Y10, Y11
 	VPAND   Y7, Y10, Y10
 	VPAND   Y7, Y11, Y11
@@ -7348,7 +8279,8 @@ mulAvxTwo_6x7_loop:
 	VPXOR   Y8, Y6, Y6
 
 	// Load and process 32 bytes from input 4 to 7 outputs
-	VMOVDQU (R9)(R10*1), Y10
+	VMOVDQU (DI), Y10
+	ADDQ    $0x20, DI
 	VPSRLQ  $0x04, Y10, Y11
 	VPAND   Y7, Y10, Y10
 	VPAND   Y7, Y11, Y11
@@ -7396,7 +8328,8 @@ mulAvxTwo_6x7_loop:
 	VPXOR   Y8, Y6, Y6
 
 	// Load and process 32 bytes from input 5 to 7 outputs
-	VMOVDQU (BX)(R10*1), Y10
+	VMOVDQU (AX), Y10
+	ADDQ    $0x20, AX
 	VPSRLQ  $0x04, Y10, Y11
 	VPAND   Y7, Y10, Y10
 	VPAND   Y7, Y11, Y11
@@ -7444,24 +8377,23 @@ mulAvxTwo_6x7_loop:
 	VPXOR   Y8, Y6, Y6
 
 	// Store 7 outputs
-	MOVQ    (DX), R11
-	VMOVDQU Y0, (R11)(R10*1)
-	MOVQ    24(DX), R11
-	VMOVDQU Y1, (R11)(R10*1)
-	MOVQ    48(DX), R11
-	VMOVDQU Y2, (R11)(R10*1)
-	MOVQ    72(DX), R11
-	VMOVDQU Y3, (R11)(R10*1)
-	MOVQ    96(DX), R11
-	VMOVDQU Y4, (R11)(R10*1)
-	MOVQ    120(DX), R11
-	VMOVDQU Y5, (R11)(R10*1)
-	MOVQ    144(DX), R11
-	VMOVDQU Y6, (R11)(R10*1)
+	VMOVDQU Y0, (R9)
+	ADDQ    $0x20, R9
+	VMOVDQU Y1, (R10)
+	ADDQ    $0x20, R10
+	VMOVDQU Y2, (R11)
+	ADDQ    $0x20, R11
+	VMOVDQU Y3, (R12)
+	ADDQ    $0x20, R12
+	VMOVDQU Y4, (R13)
+	ADDQ    $0x20, R13
+	VMOVDQU Y5, (R14)
+	ADDQ    $0x20, R14
+	VMOVDQU Y6, (R8)
+	ADDQ    $0x20, R8
 
 	// Prepare for next loop
-	ADDQ $0x20, R10
-	DECQ AX
+	DECQ R15
 	JNZ  mulAvxTwo_6x7_loop
 	VZEROUPPER
 
@@ -7472,24 +8404,33 @@ mulAvxTwo_6x7_end:
 // Requires: AVX, AVX2, SSE2
 TEXT ·mulAvxTwo_6x8(SB), $0-88
 	// Loading no tables to registers
+	// Destination kept on stack
 	// Full registers estimated 109 YMM used
-	MOVQ         n+80(FP), AX
-	MOVQ         matrix_base+0(FP), CX
-	SHRQ         $0x05, AX
-	TESTQ        AX, AX
-	JZ           mulAvxTwo_6x8_end
-	MOVQ         out_base+48(FP), DX
-	MOVQ         in_base+24(FP), BX
-	MOVQ         (BX), BP
-	MOVQ         24(BX), SI
-	MOVQ         48(BX), DI
-	MOVQ         72(BX), R8
-	MOVQ         96(BX), R9
-	MOVQ         120(BX), BX
-	MOVQ         $0x0000000f, R10
-	MOVQ         R10, X8
+	MOVQ  n+80(FP), AX
+	MOVQ  matrix_base+0(FP), CX
+	SHRQ  $0x05, AX
+	TESTQ AX, AX
+	JZ    mulAvxTwo_6x8_end
+	MOVQ  in_base+24(FP), DX
+	MOVQ  (DX), BX
+	MOVQ  24(DX), BP
+	MOVQ  48(DX), SI
+	MOVQ  72(DX), DI
+	MOVQ  96(DX), R8
+	MOVQ  120(DX), DX
+	MOVQ  out_base+48(FP), R9
+	MOVQ  start+72(FP), R10
+
+	// Add start offset to input
+	ADDQ         R10, BX
+	ADDQ         R10, BP
+	ADDQ         R10, SI
+	ADDQ         R10, DI
+	ADDQ         R10, R8
+	ADDQ         R10, DX
+	MOVQ         $0x0000000f, R11
+	MOVQ         R11, X8
 	VPBROADCASTB X8, Y8
-	MOVQ         start+72(FP), R10
 
 mulAvxTwo_6x8_loop:
 	// Clear 8 outputs
@@ -7503,7 +8444,8 @@ mulAvxTwo_6x8_loop:
 	VPXOR Y7, Y7, Y7
 
 	// Load and process 32 bytes from input 0 to 8 outputs
-	VMOVDQU (BP)(R10*1), Y11
+	VMOVDQU (BX), Y11
+	ADDQ    $0x20, BX
 	VPSRLQ  $0x04, Y11, Y12
 	VPAND   Y8, Y11, Y11
 	VPAND   Y8, Y12, Y12
@@ -7557,7 +8499,8 @@ mulAvxTwo_6x8_loop:
 	VPXOR   Y9, Y7, Y7
 
 	// Load and process 32 bytes from input 1 to 8 outputs
-	VMOVDQU (SI)(R10*1), Y11
+	VMOVDQU (BP), Y11
+	ADDQ    $0x20, BP
 	VPSRLQ  $0x04, Y11, Y12
 	VPAND   Y8, Y11, Y11
 	VPAND   Y8, Y12, Y12
@@ -7611,7 +8554,8 @@ mulAvxTwo_6x8_loop:
 	VPXOR   Y9, Y7, Y7
 
 	// Load and process 32 bytes from input 2 to 8 outputs
-	VMOVDQU (DI)(R10*1), Y11
+	VMOVDQU (SI), Y11
+	ADDQ    $0x20, SI
 	VPSRLQ  $0x04, Y11, Y12
 	VPAND   Y8, Y11, Y11
 	VPAND   Y8, Y12, Y12
@@ -7665,7 +8609,8 @@ mulAvxTwo_6x8_loop:
 	VPXOR   Y9, Y7, Y7
 
 	// Load and process 32 bytes from input 3 to 8 outputs
-	VMOVDQU (R8)(R10*1), Y11
+	VMOVDQU (DI), Y11
+	ADDQ    $0x20, DI
 	VPSRLQ  $0x04, Y11, Y12
 	VPAND   Y8, Y11, Y11
 	VPAND   Y8, Y12, Y12
@@ -7719,7 +8664,8 @@ mulAvxTwo_6x8_loop:
 	VPXOR   Y9, Y7, Y7
 
 	// Load and process 32 bytes from input 4 to 8 outputs
-	VMOVDQU (R9)(R10*1), Y11
+	VMOVDQU (R8), Y11
+	ADDQ    $0x20, R8
 	VPSRLQ  $0x04, Y11, Y12
 	VPAND   Y8, Y11, Y11
 	VPAND   Y8, Y12, Y12
@@ -7773,7 +8719,8 @@ mulAvxTwo_6x8_loop:
 	VPXOR   Y9, Y7, Y7
 
 	// Load and process 32 bytes from input 5 to 8 outputs
-	VMOVDQU (BX)(R10*1), Y11
+	VMOVDQU (DX), Y11
+	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y11, Y12
 	VPAND   Y8, Y11, Y11
 	VPAND   Y8, Y12, Y12
@@ -7827,21 +8774,21 @@ mulAvxTwo_6x8_loop:
 	VPXOR   Y9, Y7, Y7
 
 	// Store 8 outputs
-	MOVQ    (DX), R11
+	MOVQ    (R9), R11
 	VMOVDQU Y0, (R11)(R10*1)
-	MOVQ    24(DX), R11
+	MOVQ    24(R9), R11
 	VMOVDQU Y1, (R11)(R10*1)
-	MOVQ    48(DX), R11
+	MOVQ    48(R9), R11
 	VMOVDQU Y2, (R11)(R10*1)
-	MOVQ    72(DX), R11
+	MOVQ    72(R9), R11
 	VMOVDQU Y3, (R11)(R10*1)
-	MOVQ    96(DX), R11
+	MOVQ    96(R9), R11
 	VMOVDQU Y4, (R11)(R10*1)
-	MOVQ    120(DX), R11
+	MOVQ    120(R9), R11
 	VMOVDQU Y5, (R11)(R10*1)
-	MOVQ    144(DX), R11
+	MOVQ    144(R9), R11
 	VMOVDQU Y6, (R11)(R10*1)
-	MOVQ    168(DX), R11
+	MOVQ    168(R9), R11
 	VMOVDQU Y7, (R11)(R10*1)
 
 	// Prepare for next loop
@@ -7857,33 +8804,47 @@ mulAvxTwo_6x8_end:
 // Requires: AVX, AVX2, SSE2
 TEXT ·mulAvxTwo_7x1(SB), $0-88
 	// Loading no tables to registers
+	// Destination kept in GP registers
 	// Full registers estimated 18 YMM used
-	MOVQ         n+80(FP), AX
-	MOVQ         matrix_base+0(FP), CX
-	SHRQ         $0x05, AX
-	TESTQ        AX, AX
-	JZ           mulAvxTwo_7x1_end
-	MOVQ         out_base+48(FP), DX
-	MOVQ         (DX), DX
-	MOVQ         in_base+24(FP), BX
-	MOVQ         (BX), BP
-	MOVQ         24(BX), SI
-	MOVQ         48(BX), DI
-	MOVQ         72(BX), R8
-	MOVQ         96(BX), R9
-	MOVQ         120(BX), R10
-	MOVQ         144(BX), BX
+	MOVQ  n+80(FP), AX
+	MOVQ  matrix_base+0(FP), CX
+	SHRQ  $0x05, AX
+	TESTQ AX, AX
+	JZ    mulAvxTwo_7x1_end
+	MOVQ  in_base+24(FP), DX
+	MOVQ  (DX), BX
+	MOVQ  24(DX), BP
+	MOVQ  48(DX), SI
+	MOVQ  72(DX), DI
+	MOVQ  96(DX), R8
+	MOVQ  120(DX), R9
+	MOVQ  144(DX), DX
+	MOVQ  out_base+48(FP), R10
+	MOVQ  (R10), R10
+	MOVQ  start+72(FP), R11
+
+	// Add start offset to output
+	ADDQ R11, R10
+
+	// Add start offset to input
+	ADDQ         R11, BX
+	ADDQ         R11, BP
+	ADDQ         R11, SI
+	ADDQ         R11, DI
+	ADDQ         R11, R8
+	ADDQ         R11, R9
+	ADDQ         R11, DX
 	MOVQ         $0x0000000f, R11
 	MOVQ         R11, X1
 	VPBROADCASTB X1, Y1
-	MOVQ         start+72(FP), R11
 
 mulAvxTwo_7x1_loop:
 	// Clear 1 outputs
 	VPXOR Y0, Y0, Y0
 
 	// Load and process 32 bytes from input 0 to 1 outputs
-	VMOVDQU (BP)(R11*1), Y4
+	VMOVDQU (BX), Y4
+	ADDQ    $0x20, BX
 	VPSRLQ  $0x04, Y4, Y5
 	VPAND   Y1, Y4, Y4
 	VPAND   Y1, Y5, Y5
@@ -7895,7 +8856,8 @@ mulAvxTwo_7x1_loop:
 	VPXOR   Y2, Y0, Y0
 
 	// Load and process 32 bytes from input 1 to 1 outputs
-	VMOVDQU (SI)(R11*1), Y4
+	VMOVDQU (BP), Y4
+	ADDQ    $0x20, BP
 	VPSRLQ  $0x04, Y4, Y5
 	VPAND   Y1, Y4, Y4
 	VPAND   Y1, Y5, Y5
@@ -7907,7 +8869,8 @@ mulAvxTwo_7x1_loop:
 	VPXOR   Y2, Y0, Y0
 
 	// Load and process 32 bytes from input 2 to 1 outputs
-	VMOVDQU (DI)(R11*1), Y4
+	VMOVDQU (SI), Y4
+	ADDQ    $0x20, SI
 	VPSRLQ  $0x04, Y4, Y5
 	VPAND   Y1, Y4, Y4
 	VPAND   Y1, Y5, Y5
@@ -7919,7 +8882,8 @@ mulAvxTwo_7x1_loop:
 	VPXOR   Y2, Y0, Y0
 
 	// Load and process 32 bytes from input 3 to 1 outputs
-	VMOVDQU (R8)(R11*1), Y4
+	VMOVDQU (DI), Y4
+	ADDQ    $0x20, DI
 	VPSRLQ  $0x04, Y4, Y5
 	VPAND   Y1, Y4, Y4
 	VPAND   Y1, Y5, Y5
@@ -7931,7 +8895,8 @@ mulAvxTwo_7x1_loop:
 	VPXOR   Y2, Y0, Y0
 
 	// Load and process 32 bytes from input 4 to 1 outputs
-	VMOVDQU (R9)(R11*1), Y4
+	VMOVDQU (R8), Y4
+	ADDQ    $0x20, R8
 	VPSRLQ  $0x04, Y4, Y5
 	VPAND   Y1, Y4, Y4
 	VPAND   Y1, Y5, Y5
@@ -7943,7 +8908,8 @@ mulAvxTwo_7x1_loop:
 	VPXOR   Y2, Y0, Y0
 
 	// Load and process 32 bytes from input 5 to 1 outputs
-	VMOVDQU (R10)(R11*1), Y4
+	VMOVDQU (R9), Y4
+	ADDQ    $0x20, R9
 	VPSRLQ  $0x04, Y4, Y5
 	VPAND   Y1, Y4, Y4
 	VPAND   Y1, Y5, Y5
@@ -7955,7 +8921,8 @@ mulAvxTwo_7x1_loop:
 	VPXOR   Y2, Y0, Y0
 
 	// Load and process 32 bytes from input 6 to 1 outputs
-	VMOVDQU (BX)(R11*1), Y4
+	VMOVDQU (DX), Y4
+	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y4, Y5
 	VPAND   Y1, Y4, Y4
 	VPAND   Y1, Y5, Y5
@@ -7967,10 +8934,10 @@ mulAvxTwo_7x1_loop:
 	VPXOR   Y2, Y0, Y0
 
 	// Store 1 outputs
-	VMOVDQU Y0, (DX)(R11*1)
+	VMOVDQU Y0, (R10)
+	ADDQ    $0x20, R10
 
 	// Prepare for next loop
-	ADDQ $0x20, R11
 	DECQ AX
 	JNZ  mulAvxTwo_7x1_loop
 	VZEROUPPER
@@ -7982,27 +8949,41 @@ mulAvxTwo_7x1_end:
 // Requires: AVX, AVX2, SSE2
 TEXT ·mulAvxTwo_7x2(SB), $0-88
 	// Loading no tables to registers
+	// Destination kept in GP registers
 	// Full registers estimated 35 YMM used
-	MOVQ         n+80(FP), AX
-	MOVQ         matrix_base+0(FP), CX
-	SHRQ         $0x05, AX
-	TESTQ        AX, AX
-	JZ           mulAvxTwo_7x2_end
-	MOVQ         out_base+48(FP), DX
-	MOVQ         (DX), BX
-	MOVQ         24(DX), DX
-	MOVQ         in_base+24(FP), BP
-	MOVQ         (BP), SI
-	MOVQ         24(BP), DI
-	MOVQ         48(BP), R8
-	MOVQ         72(BP), R9
-	MOVQ         96(BP), R10
-	MOVQ         120(BP), R11
-	MOVQ         144(BP), BP
+	MOVQ  n+80(FP), AX
+	MOVQ  matrix_base+0(FP), CX
+	SHRQ  $0x05, AX
+	TESTQ AX, AX
+	JZ    mulAvxTwo_7x2_end
+	MOVQ  in_base+24(FP), DX
+	MOVQ  (DX), BX
+	MOVQ  24(DX), BP
+	MOVQ  48(DX), SI
+	MOVQ  72(DX), DI
+	MOVQ  96(DX), R8
+	MOVQ  120(DX), R9
+	MOVQ  144(DX), DX
+	MOVQ  out_base+48(FP), R10
+	MOVQ  (R10), R11
+	MOVQ  24(R10), R10
+	MOVQ  start+72(FP), R12
+
+	// Add start offset to output
+	ADDQ R12, R11
+	ADDQ R12, R10
+
+	// Add start offset to input
+	ADDQ         R12, BX
+	ADDQ         R12, BP
+	ADDQ         R12, SI
+	ADDQ         R12, DI
+	ADDQ         R12, R8
+	ADDQ         R12, R9
+	ADDQ         R12, DX
 	MOVQ         $0x0000000f, R12
 	MOVQ         R12, X2
 	VPBROADCASTB X2, Y2
-	MOVQ         start+72(FP), R12
 
 mulAvxTwo_7x2_loop:
 	// Clear 2 outputs
@@ -8010,7 +8991,8 @@ mulAvxTwo_7x2_loop:
 	VPXOR Y1, Y1, Y1
 
 	// Load and process 32 bytes from input 0 to 2 outputs
-	VMOVDQU (SI)(R12*1), Y5
+	VMOVDQU (BX), Y5
+	ADDQ    $0x20, BX
 	VPSRLQ  $0x04, Y5, Y6
 	VPAND   Y2, Y5, Y5
 	VPAND   Y2, Y6, Y6
@@ -8028,7 +9010,8 @@ mulAvxTwo_7x2_loop:
 	VPXOR   Y3, Y1, Y1
 
 	// Load and process 32 bytes from input 1 to 2 outputs
-	VMOVDQU (DI)(R12*1), Y5
+	VMOVDQU (BP), Y5
+	ADDQ    $0x20, BP
 	VPSRLQ  $0x04, Y5, Y6
 	VPAND   Y2, Y5, Y5
 	VPAND   Y2, Y6, Y6
@@ -8046,7 +9029,8 @@ mulAvxTwo_7x2_loop:
 	VPXOR   Y3, Y1, Y1
 
 	// Load and process 32 bytes from input 2 to 2 outputs
-	VMOVDQU (R8)(R12*1), Y5
+	VMOVDQU (SI), Y5
+	ADDQ    $0x20, SI
 	VPSRLQ  $0x04, Y5, Y6
 	VPAND   Y2, Y5, Y5
 	VPAND   Y2, Y6, Y6
@@ -8064,7 +9048,8 @@ mulAvxTwo_7x2_loop:
 	VPXOR   Y3, Y1, Y1
 
 	// Load and process 32 bytes from input 3 to 2 outputs
-	VMOVDQU (R9)(R12*1), Y5
+	VMOVDQU (DI), Y5
+	ADDQ    $0x20, DI
 	VPSRLQ  $0x04, Y5, Y6
 	VPAND   Y2, Y5, Y5
 	VPAND   Y2, Y6, Y6
@@ -8082,7 +9067,8 @@ mulAvxTwo_7x2_loop:
 	VPXOR   Y3, Y1, Y1
 
 	// Load and process 32 bytes from input 4 to 2 outputs
-	VMOVDQU (R10)(R12*1), Y5
+	VMOVDQU (R8), Y5
+	ADDQ    $0x20, R8
 	VPSRLQ  $0x04, Y5, Y6
 	VPAND   Y2, Y5, Y5
 	VPAND   Y2, Y6, Y6
@@ -8100,7 +9086,8 @@ mulAvxTwo_7x2_loop:
 	VPXOR   Y3, Y1, Y1
 
 	// Load and process 32 bytes from input 5 to 2 outputs
-	VMOVDQU (R11)(R12*1), Y5
+	VMOVDQU (R9), Y5
+	ADDQ    $0x20, R9
 	VPSRLQ  $0x04, Y5, Y6
 	VPAND   Y2, Y5, Y5
 	VPAND   Y2, Y6, Y6
@@ -8118,7 +9105,8 @@ mulAvxTwo_7x2_loop:
 	VPXOR   Y3, Y1, Y1
 
 	// Load and process 32 bytes from input 6 to 2 outputs
-	VMOVDQU (BP)(R12*1), Y5
+	VMOVDQU (DX), Y5
+	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y5, Y6
 	VPAND   Y2, Y5, Y5
 	VPAND   Y2, Y6, Y6
@@ -8136,11 +9124,12 @@ mulAvxTwo_7x2_loop:
 	VPXOR   Y3, Y1, Y1
 
 	// Store 2 outputs
-	VMOVDQU Y0, (BX)(R12*1)
-	VMOVDQU Y1, (DX)(R12*1)
+	VMOVDQU Y0, (R11)
+	ADDQ    $0x20, R11
+	VMOVDQU Y1, (R10)
+	ADDQ    $0x20, R10
 
 	// Prepare for next loop
-	ADDQ $0x20, R12
 	DECQ AX
 	JNZ  mulAvxTwo_7x2_loop
 	VZEROUPPER
@@ -8152,28 +9141,43 @@ mulAvxTwo_7x2_end:
 // Requires: AVX, AVX2, SSE2
 TEXT ·mulAvxTwo_7x3(SB), $0-88
 	// Loading no tables to registers
+	// Destination kept in GP registers
 	// Full registers estimated 50 YMM used
-	MOVQ         n+80(FP), AX
-	MOVQ         matrix_base+0(FP), CX
-	SHRQ         $0x05, AX
-	TESTQ        AX, AX
-	JZ           mulAvxTwo_7x3_end
-	MOVQ         out_base+48(FP), DX
-	MOVQ         (DX), BX
-	MOVQ         24(DX), BP
-	MOVQ         48(DX), DX
-	MOVQ         in_base+24(FP), SI
-	MOVQ         (SI), DI
-	MOVQ         24(SI), R8
-	MOVQ         48(SI), R9
-	MOVQ         72(SI), R10
-	MOVQ         96(SI), R11
-	MOVQ         120(SI), R12
-	MOVQ         144(SI), SI
+	MOVQ  n+80(FP), AX
+	MOVQ  matrix_base+0(FP), CX
+	SHRQ  $0x05, AX
+	TESTQ AX, AX
+	JZ    mulAvxTwo_7x3_end
+	MOVQ  in_base+24(FP), DX
+	MOVQ  (DX), BX
+	MOVQ  24(DX), BP
+	MOVQ  48(DX), SI
+	MOVQ  72(DX), DI
+	MOVQ  96(DX), R8
+	MOVQ  120(DX), R9
+	MOVQ  144(DX), DX
+	MOVQ  out_base+48(FP), R10
+	MOVQ  (R10), R11
+	MOVQ  24(R10), R12
+	MOVQ  48(R10), R10
+	MOVQ  start+72(FP), R13
+
+	// Add start offset to output
+	ADDQ R13, R11
+	ADDQ R13, R12
+	ADDQ R13, R10
+
+	// Add start offset to input
+	ADDQ         R13, BX
+	ADDQ         R13, BP
+	ADDQ         R13, SI
+	ADDQ         R13, DI
+	ADDQ         R13, R8
+	ADDQ         R13, R9
+	ADDQ         R13, DX
 	MOVQ         $0x0000000f, R13
 	MOVQ         R13, X3
 	VPBROADCASTB X3, Y3
-	MOVQ         start+72(FP), R13
 
 mulAvxTwo_7x3_loop:
 	// Clear 3 outputs
@@ -8182,7 +9186,8 @@ mulAvxTwo_7x3_loop:
 	VPXOR Y2, Y2, Y2
 
 	// Load and process 32 bytes from input 0 to 3 outputs
-	VMOVDQU (DI)(R13*1), Y6
+	VMOVDQU (BX), Y6
+	ADDQ    $0x20, BX
 	VPSRLQ  $0x04, Y6, Y7
 	VPAND   Y3, Y6, Y6
 	VPAND   Y3, Y7, Y7
@@ -8206,7 +9211,8 @@ mulAvxTwo_7x3_loop:
 	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 1 to 3 outputs
-	VMOVDQU (R8)(R13*1), Y6
+	VMOVDQU (BP), Y6
+	ADDQ    $0x20, BP
 	VPSRLQ  $0x04, Y6, Y7
 	VPAND   Y3, Y6, Y6
 	VPAND   Y3, Y7, Y7
@@ -8230,7 +9236,8 @@ mulAvxTwo_7x3_loop:
 	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 2 to 3 outputs
-	VMOVDQU (R9)(R13*1), Y6
+	VMOVDQU (SI), Y6
+	ADDQ    $0x20, SI
 	VPSRLQ  $0x04, Y6, Y7
 	VPAND   Y3, Y6, Y6
 	VPAND   Y3, Y7, Y7
@@ -8254,7 +9261,8 @@ mulAvxTwo_7x3_loop:
 	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 3 to 3 outputs
-	VMOVDQU (R10)(R13*1), Y6
+	VMOVDQU (DI), Y6
+	ADDQ    $0x20, DI
 	VPSRLQ  $0x04, Y6, Y7
 	VPAND   Y3, Y6, Y6
 	VPAND   Y3, Y7, Y7
@@ -8278,7 +9286,8 @@ mulAvxTwo_7x3_loop:
 	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 4 to 3 outputs
-	VMOVDQU (R11)(R13*1), Y6
+	VMOVDQU (R8), Y6
+	ADDQ    $0x20, R8
 	VPSRLQ  $0x04, Y6, Y7
 	VPAND   Y3, Y6, Y6
 	VPAND   Y3, Y7, Y7
@@ -8302,7 +9311,8 @@ mulAvxTwo_7x3_loop:
 	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 5 to 3 outputs
-	VMOVDQU (R12)(R13*1), Y6
+	VMOVDQU (R9), Y6
+	ADDQ    $0x20, R9
 	VPSRLQ  $0x04, Y6, Y7
 	VPAND   Y3, Y6, Y6
 	VPAND   Y3, Y7, Y7
@@ -8326,7 +9336,8 @@ mulAvxTwo_7x3_loop:
 	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 6 to 3 outputs
-	VMOVDQU (SI)(R13*1), Y6
+	VMOVDQU (DX), Y6
+	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y6, Y7
 	VPAND   Y3, Y6, Y6
 	VPAND   Y3, Y7, Y7
@@ -8350,12 +9361,14 @@ mulAvxTwo_7x3_loop:
 	VPXOR   Y4, Y2, Y2
 
 	// Store 3 outputs
-	VMOVDQU Y0, (BX)(R13*1)
-	VMOVDQU Y1, (BP)(R13*1)
-	VMOVDQU Y2, (DX)(R13*1)
+	VMOVDQU Y0, (R11)
+	ADDQ    $0x20, R11
+	VMOVDQU Y1, (R12)
+	ADDQ    $0x20, R12
+	VMOVDQU Y2, (R10)
+	ADDQ    $0x20, R10
 
 	// Prepare for next loop
-	ADDQ $0x20, R13
 	DECQ AX
 	JNZ  mulAvxTwo_7x3_loop
 	VZEROUPPER
@@ -8367,29 +9380,45 @@ mulAvxTwo_7x3_end:
 // Requires: AVX, AVX2, SSE2
 TEXT ·mulAvxTwo_7x4(SB), $0-88
 	// Loading no tables to registers
+	// Destination kept in GP registers
 	// Full registers estimated 65 YMM used
-	MOVQ         n+80(FP), AX
-	MOVQ         matrix_base+0(FP), CX
-	SHRQ         $0x05, AX
-	TESTQ        AX, AX
-	JZ           mulAvxTwo_7x4_end
-	MOVQ         out_base+48(FP), DX
-	MOVQ         (DX), BX
-	MOVQ         24(DX), BP
-	MOVQ         48(DX), SI
-	MOVQ         72(DX), DX
-	MOVQ         in_base+24(FP), DI
-	MOVQ         (DI), R8
-	MOVQ         24(DI), R9
-	MOVQ         48(DI), R10
-	MOVQ         72(DI), R11
-	MOVQ         96(DI), R12
-	MOVQ         120(DI), R13
-	MOVQ         144(DI), DI
+	MOVQ  n+80(FP), AX
+	MOVQ  matrix_base+0(FP), CX
+	SHRQ  $0x05, AX
+	TESTQ AX, AX
+	JZ    mulAvxTwo_7x4_end
+	MOVQ  in_base+24(FP), DX
+	MOVQ  (DX), BX
+	MOVQ  24(DX), BP
+	MOVQ  48(DX), SI
+	MOVQ  72(DX), DI
+	MOVQ  96(DX), R8
+	MOVQ  120(DX), R9
+	MOVQ  144(DX), DX
+	MOVQ  out_base+48(FP), R10
+	MOVQ  (R10), R11
+	MOVQ  24(R10), R12
+	MOVQ  48(R10), R13
+	MOVQ  72(R10), R10
+	MOVQ  start+72(FP), R14
+
+	// Add start offset to output
+	ADDQ R14, R11
+	ADDQ R14, R12
+	ADDQ R14, R13
+	ADDQ R14, R10
+
+	// Add start offset to input
+	ADDQ         R14, BX
+	ADDQ         R14, BP
+	ADDQ         R14, SI
+	ADDQ         R14, DI
+	ADDQ         R14, R8
+	ADDQ         R14, R9
+	ADDQ         R14, DX
 	MOVQ         $0x0000000f, R14
 	MOVQ         R14, X4
 	VPBROADCASTB X4, Y4
-	MOVQ         start+72(FP), R14
 
 mulAvxTwo_7x4_loop:
 	// Clear 4 outputs
@@ -8399,7 +9428,8 @@ mulAvxTwo_7x4_loop:
 	VPXOR Y3, Y3, Y3
 
 	// Load and process 32 bytes from input 0 to 4 outputs
-	VMOVDQU (R8)(R14*1), Y7
+	VMOVDQU (BX), Y7
+	ADDQ    $0x20, BX
 	VPSRLQ  $0x04, Y7, Y8
 	VPAND   Y4, Y7, Y7
 	VPAND   Y4, Y8, Y8
@@ -8429,7 +9459,8 @@ mulAvxTwo_7x4_loop:
 	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 1 to 4 outputs
-	VMOVDQU (R9)(R14*1), Y7
+	VMOVDQU (BP), Y7
+	ADDQ    $0x20, BP
 	VPSRLQ  $0x04, Y7, Y8
 	VPAND   Y4, Y7, Y7
 	VPAND   Y4, Y8, Y8
@@ -8459,7 +9490,8 @@ mulAvxTwo_7x4_loop:
 	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 2 to 4 outputs
-	VMOVDQU (R10)(R14*1), Y7
+	VMOVDQU (SI), Y7
+	ADDQ    $0x20, SI
 	VPSRLQ  $0x04, Y7, Y8
 	VPAND   Y4, Y7, Y7
 	VPAND   Y4, Y8, Y8
@@ -8489,7 +9521,8 @@ mulAvxTwo_7x4_loop:
 	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 3 to 4 outputs
-	VMOVDQU (R11)(R14*1), Y7
+	VMOVDQU (DI), Y7
+	ADDQ    $0x20, DI
 	VPSRLQ  $0x04, Y7, Y8
 	VPAND   Y4, Y7, Y7
 	VPAND   Y4, Y8, Y8
@@ -8519,7 +9552,8 @@ mulAvxTwo_7x4_loop:
 	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 4 to 4 outputs
-	VMOVDQU (R12)(R14*1), Y7
+	VMOVDQU (R8), Y7
+	ADDQ    $0x20, R8
 	VPSRLQ  $0x04, Y7, Y8
 	VPAND   Y4, Y7, Y7
 	VPAND   Y4, Y8, Y8
@@ -8549,7 +9583,8 @@ mulAvxTwo_7x4_loop:
 	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 5 to 4 outputs
-	VMOVDQU (R13)(R14*1), Y7
+	VMOVDQU (R9), Y7
+	ADDQ    $0x20, R9
 	VPSRLQ  $0x04, Y7, Y8
 	VPAND   Y4, Y7, Y7
 	VPAND   Y4, Y8, Y8
@@ -8579,7 +9614,8 @@ mulAvxTwo_7x4_loop:
 	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 6 to 4 outputs
-	VMOVDQU (DI)(R14*1), Y7
+	VMOVDQU (DX), Y7
+	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y7, Y8
 	VPAND   Y4, Y7, Y7
 	VPAND   Y4, Y8, Y8
@@ -8609,13 +9645,16 @@ mulAvxTwo_7x4_loop:
 	VPXOR   Y5, Y3, Y3
 
 	// Store 4 outputs
-	VMOVDQU Y0, (BX)(R14*1)
-	VMOVDQU Y1, (BP)(R14*1)
-	VMOVDQU Y2, (SI)(R14*1)
-	VMOVDQU Y3, (DX)(R14*1)
+	VMOVDQU Y0, (R11)
+	ADDQ    $0x20, R11
+	VMOVDQU Y1, (R12)
+	ADDQ    $0x20, R12
+	VMOVDQU Y2, (R13)
+	ADDQ    $0x20, R13
+	VMOVDQU Y3, (R10)
+	ADDQ    $0x20, R10
 
 	// Prepare for next loop
-	ADDQ $0x20, R14
 	DECQ AX
 	JNZ  mulAvxTwo_7x4_loop
 	VZEROUPPER
@@ -8627,30 +9666,47 @@ mulAvxTwo_7x4_end:
 // Requires: AVX, AVX2, SSE2
 TEXT ·mulAvxTwo_7x5(SB), $0-88
 	// Loading no tables to registers
+	// Destination kept in GP registers
 	// Full registers estimated 80 YMM used
-	MOVQ         n+80(FP), AX
-	MOVQ         matrix_base+0(FP), CX
-	SHRQ         $0x05, AX
-	TESTQ        AX, AX
-	JZ           mulAvxTwo_7x5_end
-	MOVQ         out_base+48(FP), DX
-	MOVQ         (DX), BX
-	MOVQ         24(DX), BP
-	MOVQ         48(DX), SI
-	MOVQ         72(DX), DI
-	MOVQ         96(DX), DX
-	MOVQ         in_base+24(FP), R8
-	MOVQ         (R8), R9
-	MOVQ         24(R8), R10
-	MOVQ         48(R8), R11
-	MOVQ         72(R8), R12
-	MOVQ         96(R8), R13
-	MOVQ         120(R8), R14
-	MOVQ         144(R8), R8
+	MOVQ  n+80(FP), AX
+	MOVQ  matrix_base+0(FP), CX
+	SHRQ  $0x05, AX
+	TESTQ AX, AX
+	JZ    mulAvxTwo_7x5_end
+	MOVQ  in_base+24(FP), DX
+	MOVQ  (DX), BX
+	MOVQ  24(DX), BP
+	MOVQ  48(DX), SI
+	MOVQ  72(DX), DI
+	MOVQ  96(DX), R8
+	MOVQ  120(DX), R9
+	MOVQ  144(DX), DX
+	MOVQ  out_base+48(FP), R10
+	MOVQ  (R10), R11
+	MOVQ  24(R10), R12
+	MOVQ  48(R10), R13
+	MOVQ  72(R10), R14
+	MOVQ  96(R10), R10
+	MOVQ  start+72(FP), R15
+
+	// Add start offset to output
+	ADDQ R15, R11
+	ADDQ R15, R12
+	ADDQ R15, R13
+	ADDQ R15, R14
+	ADDQ R15, R10
+
+	// Add start offset to input
+	ADDQ         R15, BX
+	ADDQ         R15, BP
+	ADDQ         R15, SI
+	ADDQ         R15, DI
+	ADDQ         R15, R8
+	ADDQ         R15, R9
+	ADDQ         R15, DX
 	MOVQ         $0x0000000f, R15
 	MOVQ         R15, X5
 	VPBROADCASTB X5, Y5
-	MOVQ         start+72(FP), R15
 
 mulAvxTwo_7x5_loop:
 	// Clear 5 outputs
@@ -8661,7 +9717,8 @@ mulAvxTwo_7x5_loop:
 	VPXOR Y4, Y4, Y4
 
 	// Load and process 32 bytes from input 0 to 5 outputs
-	VMOVDQU (R9)(R15*1), Y8
+	VMOVDQU (BX), Y8
+	ADDQ    $0x20, BX
 	VPSRLQ  $0x04, Y8, Y9
 	VPAND   Y5, Y8, Y8
 	VPAND   Y5, Y9, Y9
@@ -8697,7 +9754,8 @@ mulAvxTwo_7x5_loop:
 	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 1 to 5 outputs
-	VMOVDQU (R10)(R15*1), Y8
+	VMOVDQU (BP), Y8
+	ADDQ    $0x20, BP
 	VPSRLQ  $0x04, Y8, Y9
 	VPAND   Y5, Y8, Y8
 	VPAND   Y5, Y9, Y9
@@ -8733,7 +9791,8 @@ mulAvxTwo_7x5_loop:
 	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 2 to 5 outputs
-	VMOVDQU (R11)(R15*1), Y8
+	VMOVDQU (SI), Y8
+	ADDQ    $0x20, SI
 	VPSRLQ  $0x04, Y8, Y9
 	VPAND   Y5, Y8, Y8
 	VPAND   Y5, Y9, Y9
@@ -8769,7 +9828,8 @@ mulAvxTwo_7x5_loop:
 	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 3 to 5 outputs
-	VMOVDQU (R12)(R15*1), Y8
+	VMOVDQU (DI), Y8
+	ADDQ    $0x20, DI
 	VPSRLQ  $0x04, Y8, Y9
 	VPAND   Y5, Y8, Y8
 	VPAND   Y5, Y9, Y9
@@ -8805,7 +9865,8 @@ mulAvxTwo_7x5_loop:
 	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 4 to 5 outputs
-	VMOVDQU (R13)(R15*1), Y8
+	VMOVDQU (R8), Y8
+	ADDQ    $0x20, R8
 	VPSRLQ  $0x04, Y8, Y9
 	VPAND   Y5, Y8, Y8
 	VPAND   Y5, Y9, Y9
@@ -8841,7 +9902,8 @@ mulAvxTwo_7x5_loop:
 	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 5 to 5 outputs
-	VMOVDQU (R14)(R15*1), Y8
+	VMOVDQU (R9), Y8
+	ADDQ    $0x20, R9
 	VPSRLQ  $0x04, Y8, Y9
 	VPAND   Y5, Y8, Y8
 	VPAND   Y5, Y9, Y9
@@ -8877,7 +9939,8 @@ mulAvxTwo_7x5_loop:
 	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 6 to 5 outputs
-	VMOVDQU (R8)(R15*1), Y8
+	VMOVDQU (DX), Y8
+	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y8, Y9
 	VPAND   Y5, Y8, Y8
 	VPAND   Y5, Y9, Y9
@@ -8913,14 +9976,18 @@ mulAvxTwo_7x5_loop:
 	VPXOR   Y6, Y4, Y4
 
 	// Store 5 outputs
-	VMOVDQU Y0, (BX)(R15*1)
-	VMOVDQU Y1, (BP)(R15*1)
-	VMOVDQU Y2, (SI)(R15*1)
-	VMOVDQU Y3, (DI)(R15*1)
-	VMOVDQU Y4, (DX)(R15*1)
+	VMOVDQU Y0, (R11)
+	ADDQ    $0x20, R11
+	VMOVDQU Y1, (R12)
+	ADDQ    $0x20, R12
+	VMOVDQU Y2, (R13)
+	ADDQ    $0x20, R13
+	VMOVDQU Y3, (R14)
+	ADDQ    $0x20, R14
+	VMOVDQU Y4, (R10)
+	ADDQ    $0x20, R10
 
 	// Prepare for next loop
-	ADDQ $0x20, R15
 	DECQ AX
 	JNZ  mulAvxTwo_7x5_loop
 	VZEROUPPER
@@ -8932,25 +9999,51 @@ mulAvxTwo_7x5_end:
 // Requires: AVX, AVX2, SSE2
 TEXT ·mulAvxTwo_7x6(SB), $0-88
 	// Loading no tables to registers
+	// Destination kept in GP registers
 	// Full registers estimated 95 YMM used
-	MOVQ         n+80(FP), AX
-	MOVQ         matrix_base+0(FP), CX
-	SHRQ         $0x05, AX
-	TESTQ        AX, AX
-	JZ           mulAvxTwo_7x6_end
-	MOVQ         out_base+48(FP), DX
-	MOVQ         in_base+24(FP), BX
-	MOVQ         (BX), BP
-	MOVQ         24(BX), SI
-	MOVQ         48(BX), DI
-	MOVQ         72(BX), R8
-	MOVQ         96(BX), R9
-	MOVQ         120(BX), R10
-	MOVQ         144(BX), BX
-	MOVQ         $0x0000000f, R11
-	MOVQ         R11, X6
+	MOVQ  n+80(FP), AX
+	MOVQ  matrix_base+0(FP), CX
+	SHRQ  $0x05, AX
+	TESTQ AX, AX
+	JZ    mulAvxTwo_7x6_end
+	MOVQ  in_base+24(FP), AX
+	MOVQ  (AX), DX
+	MOVQ  24(AX), BX
+	MOVQ  48(AX), BP
+	MOVQ  72(AX), SI
+	MOVQ  96(AX), DI
+	MOVQ  120(AX), R8
+	MOVQ  144(AX), AX
+	MOVQ  out_base+48(FP), R9
+	MOVQ  (R9), R10
+	MOVQ  24(R9), R11
+	MOVQ  48(R9), R12
+	MOVQ  72(R9), R13
+	MOVQ  96(R9), R14
+	MOVQ  120(R9), R9
+	MOVQ  start+72(FP), R15
+
+	// Add start offset to output
+	ADDQ R15, R10
+	ADDQ R15, R11
+	ADDQ R15, R12
+	ADDQ R15, R13
+	ADDQ R15, R14
+	ADDQ R15, R9
+
+	// Add start offset to input
+	ADDQ         R15, DX
+	ADDQ         R15, BX
+	ADDQ         R15, BP
+	ADDQ         R15, SI
+	ADDQ         R15, DI
+	ADDQ         R15, R8
+	ADDQ         R15, AX
+	MOVQ         $0x0000000f, R15
+	MOVQ         R15, X6
 	VPBROADCASTB X6, Y6
-	MOVQ         start+72(FP), R11
+	MOVQ         n+80(FP), R15
+	SHRQ         $0x05, R15
 
 mulAvxTwo_7x6_loop:
 	// Clear 6 outputs
@@ -8962,7 +10055,8 @@ mulAvxTwo_7x6_loop:
 	VPXOR Y5, Y5, Y5
 
 	// Load and process 32 bytes from input 0 to 6 outputs
-	VMOVDQU (BP)(R11*1), Y9
+	VMOVDQU (DX), Y9
+	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y9, Y10
 	VPAND   Y6, Y9, Y9
 	VPAND   Y6, Y10, Y10
@@ -9004,7 +10098,8 @@ mulAvxTwo_7x6_loop:
 	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 1 to 6 outputs
-	VMOVDQU (SI)(R11*1), Y9
+	VMOVDQU (BX), Y9
+	ADDQ    $0x20, BX
 	VPSRLQ  $0x04, Y9, Y10
 	VPAND   Y6, Y9, Y9
 	VPAND   Y6, Y10, Y10
@@ -9046,7 +10141,8 @@ mulAvxTwo_7x6_loop:
 	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 2 to 6 outputs
-	VMOVDQU (DI)(R11*1), Y9
+	VMOVDQU (BP), Y9
+	ADDQ    $0x20, BP
 	VPSRLQ  $0x04, Y9, Y10
 	VPAND   Y6, Y9, Y9
 	VPAND   Y6, Y10, Y10
@@ -9088,7 +10184,8 @@ mulAvxTwo_7x6_loop:
 	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 3 to 6 outputs
-	VMOVDQU (R8)(R11*1), Y9
+	VMOVDQU (SI), Y9
+	ADDQ    $0x20, SI
 	VPSRLQ  $0x04, Y9, Y10
 	VPAND   Y6, Y9, Y9
 	VPAND   Y6, Y10, Y10
@@ -9130,7 +10227,8 @@ mulAvxTwo_7x6_loop:
 	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 4 to 6 outputs
-	VMOVDQU (R9)(R11*1), Y9
+	VMOVDQU (DI), Y9
+	ADDQ    $0x20, DI
 	VPSRLQ  $0x04, Y9, Y10
 	VPAND   Y6, Y9, Y9
 	VPAND   Y6, Y10, Y10
@@ -9172,7 +10270,8 @@ mulAvxTwo_7x6_loop:
 	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 5 to 6 outputs
-	VMOVDQU (R10)(R11*1), Y9
+	VMOVDQU (R8), Y9
+	ADDQ    $0x20, R8
 	VPSRLQ  $0x04, Y9, Y10
 	VPAND   Y6, Y9, Y9
 	VPAND   Y6, Y10, Y10
@@ -9214,7 +10313,8 @@ mulAvxTwo_7x6_loop:
 	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 6 to 6 outputs
-	VMOVDQU (BX)(R11*1), Y9
+	VMOVDQU (AX), Y9
+	ADDQ    $0x20, AX
 	VPSRLQ  $0x04, Y9, Y10
 	VPAND   Y6, Y9, Y9
 	VPAND   Y6, Y10, Y10
@@ -9256,22 +10356,21 @@ mulAvxTwo_7x6_loop:
 	VPXOR   Y7, Y5, Y5
 
 	// Store 6 outputs
-	MOVQ    (DX), R12
-	VMOVDQU Y0, (R12)(R11*1)
-	MOVQ    24(DX), R12
-	VMOVDQU Y1, (R12)(R11*1)
-	MOVQ    48(DX), R12
-	VMOVDQU Y2, (R12)(R11*1)
-	MOVQ    72(DX), R12
-	VMOVDQU Y3, (R12)(R11*1)
-	MOVQ    96(DX), R12
-	VMOVDQU Y4, (R12)(R11*1)
-	MOVQ    120(DX), R12
-	VMOVDQU Y5, (R12)(R11*1)
+	VMOVDQU Y0, (R10)
+	ADDQ    $0x20, R10
+	VMOVDQU Y1, (R11)
+	ADDQ    $0x20, R11
+	VMOVDQU Y2, (R12)
+	ADDQ    $0x20, R12
+	VMOVDQU Y3, (R13)
+	ADDQ    $0x20, R13
+	VMOVDQU Y4, (R14)
+	ADDQ    $0x20, R14
+	VMOVDQU Y5, (R9)
+	ADDQ    $0x20, R9
 
 	// Prepare for next loop
-	ADDQ $0x20, R11
-	DECQ AX
+	DECQ R15
 	JNZ  mulAvxTwo_7x6_loop
 	VZEROUPPER
 
@@ -9282,25 +10381,35 @@ mulAvxTwo_7x6_end:
 // Requires: AVX, AVX2, SSE2
 TEXT ·mulAvxTwo_7x7(SB), $0-88
 	// Loading no tables to registers
+	// Destination kept on stack
 	// Full registers estimated 110 YMM used
-	MOVQ         n+80(FP), AX
-	MOVQ         matrix_base+0(FP), CX
-	SHRQ         $0x05, AX
-	TESTQ        AX, AX
-	JZ           mulAvxTwo_7x7_end
-	MOVQ         out_base+48(FP), DX
-	MOVQ         in_base+24(FP), BX
-	MOVQ         (BX), BP
-	MOVQ         24(BX), SI
-	MOVQ         48(BX), DI
-	MOVQ         72(BX), R8
-	MOVQ         96(BX), R9
-	MOVQ         120(BX), R10
-	MOVQ         144(BX), BX
-	MOVQ         $0x0000000f, R11
-	MOVQ         R11, X7
+	MOVQ  n+80(FP), AX
+	MOVQ  matrix_base+0(FP), CX
+	SHRQ  $0x05, AX
+	TESTQ AX, AX
+	JZ    mulAvxTwo_7x7_end
+	MOVQ  in_base+24(FP), DX
+	MOVQ  (DX), BX
+	MOVQ  24(DX), BP
+	MOVQ  48(DX), SI
+	MOVQ  72(DX), DI
+	MOVQ  96(DX), R8
+	MOVQ  120(DX), R9
+	MOVQ  144(DX), DX
+	MOVQ  out_base+48(FP), R10
+	MOVQ  start+72(FP), R11
+
+	// Add start offset to input
+	ADDQ         R11, BX
+	ADDQ         R11, BP
+	ADDQ         R11, SI
+	ADDQ         R11, DI
+	ADDQ         R11, R8
+	ADDQ         R11, R9
+	ADDQ         R11, DX
+	MOVQ         $0x0000000f, R12
+	MOVQ         R12, X7
 	VPBROADCASTB X7, Y7
-	MOVQ         start+72(FP), R11
 
 mulAvxTwo_7x7_loop:
 	// Clear 7 outputs
@@ -9313,7 +10422,8 @@ mulAvxTwo_7x7_loop:
 	VPXOR Y6, Y6, Y6
 
 	// Load and process 32 bytes from input 0 to 7 outputs
-	VMOVDQU (BP)(R11*1), Y10
+	VMOVDQU (BX), Y10
+	ADDQ    $0x20, BX
 	VPSRLQ  $0x04, Y10, Y11
 	VPAND   Y7, Y10, Y10
 	VPAND   Y7, Y11, Y11
@@ -9361,7 +10471,8 @@ mulAvxTwo_7x7_loop:
 	VPXOR   Y8, Y6, Y6
 
 	// Load and process 32 bytes from input 1 to 7 outputs
-	VMOVDQU (SI)(R11*1), Y10
+	VMOVDQU (BP), Y10
+	ADDQ    $0x20, BP
 	VPSRLQ  $0x04, Y10, Y11
 	VPAND   Y7, Y10, Y10
 	VPAND   Y7, Y11, Y11
@@ -9409,7 +10520,8 @@ mulAvxTwo_7x7_loop:
 	VPXOR   Y8, Y6, Y6
 
 	// Load and process 32 bytes from input 2 to 7 outputs
-	VMOVDQU (DI)(R11*1), Y10
+	VMOVDQU (SI), Y10
+	ADDQ    $0x20, SI
 	VPSRLQ  $0x04, Y10, Y11
 	VPAND   Y7, Y10, Y10
 	VPAND   Y7, Y11, Y11
@@ -9457,7 +10569,8 @@ mulAvxTwo_7x7_loop:
 	VPXOR   Y8, Y6, Y6
 
 	// Load and process 32 bytes from input 3 to 7 outputs
-	VMOVDQU (R8)(R11*1), Y10
+	VMOVDQU (DI), Y10
+	ADDQ    $0x20, DI
 	VPSRLQ  $0x04, Y10, Y11
 	VPAND   Y7, Y10, Y10
 	VPAND   Y7, Y11, Y11
@@ -9505,7 +10618,8 @@ mulAvxTwo_7x7_loop:
 	VPXOR   Y8, Y6, Y6
 
 	// Load and process 32 bytes from input 4 to 7 outputs
-	VMOVDQU (R9)(R11*1), Y10
+	VMOVDQU (R8), Y10
+	ADDQ    $0x20, R8
 	VPSRLQ  $0x04, Y10, Y11
 	VPAND   Y7, Y10, Y10
 	VPAND   Y7, Y11, Y11
@@ -9553,7 +10667,8 @@ mulAvxTwo_7x7_loop:
 	VPXOR   Y8, Y6, Y6
 
 	// Load and process 32 bytes from input 5 to 7 outputs
-	VMOVDQU (R10)(R11*1), Y10
+	VMOVDQU (R9), Y10
+	ADDQ    $0x20, R9
 	VPSRLQ  $0x04, Y10, Y11
 	VPAND   Y7, Y10, Y10
 	VPAND   Y7, Y11, Y11
@@ -9601,7 +10716,8 @@ mulAvxTwo_7x7_loop:
 	VPXOR   Y8, Y6, Y6
 
 	// Load and process 32 bytes from input 6 to 7 outputs
-	VMOVDQU (BX)(R11*1), Y10
+	VMOVDQU (DX), Y10
+	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y10, Y11
 	VPAND   Y7, Y10, Y10
 	VPAND   Y7, Y11, Y11
@@ -9649,19 +10765,19 @@ mulAvxTwo_7x7_loop:
 	VPXOR   Y8, Y6, Y6
 
 	// Store 7 outputs
-	MOVQ    (DX), R12
+	MOVQ    (R10), R12
 	VMOVDQU Y0, (R12)(R11*1)
-	MOVQ    24(DX), R12
+	MOVQ    24(R10), R12
 	VMOVDQU Y1, (R12)(R11*1)
-	MOVQ    48(DX), R12
+	MOVQ    48(R10), R12
 	VMOVDQU Y2, (R12)(R11*1)
-	MOVQ    72(DX), R12
+	MOVQ    72(R10), R12
 	VMOVDQU Y3, (R12)(R11*1)
-	MOVQ    96(DX), R12
+	MOVQ    96(R10), R12
 	VMOVDQU Y4, (R12)(R11*1)
-	MOVQ    120(DX), R12
+	MOVQ    120(R10), R12
 	VMOVDQU Y5, (R12)(R11*1)
-	MOVQ    144(DX), R12
+	MOVQ    144(R10), R12
 	VMOVDQU Y6, (R12)(R11*1)
 
 	// Prepare for next loop
@@ -9677,25 +10793,35 @@ mulAvxTwo_7x7_end:
 // Requires: AVX, AVX2, SSE2
 TEXT ·mulAvxTwo_7x8(SB), $0-88
 	// Loading no tables to registers
+	// Destination kept on stack
 	// Full registers estimated 125 YMM used
-	MOVQ         n+80(FP), AX
-	MOVQ         matrix_base+0(FP), CX
-	SHRQ         $0x05, AX
-	TESTQ        AX, AX
-	JZ           mulAvxTwo_7x8_end
-	MOVQ         out_base+48(FP), DX
-	MOVQ         in_base+24(FP), BX
-	MOVQ         (BX), BP
-	MOVQ         24(BX), SI
-	MOVQ         48(BX), DI
-	MOVQ         72(BX), R8
-	MOVQ         96(BX), R9
-	MOVQ         120(BX), R10
-	MOVQ         144(BX), BX
-	MOVQ         $0x0000000f, R11
-	MOVQ         R11, X8
+	MOVQ  n+80(FP), AX
+	MOVQ  matrix_base+0(FP), CX
+	SHRQ  $0x05, AX
+	TESTQ AX, AX
+	JZ    mulAvxTwo_7x8_end
+	MOVQ  in_base+24(FP), DX
+	MOVQ  (DX), BX
+	MOVQ  24(DX), BP
+	MOVQ  48(DX), SI
+	MOVQ  72(DX), DI
+	MOVQ  96(DX), R8
+	MOVQ  120(DX), R9
+	MOVQ  144(DX), DX
+	MOVQ  out_base+48(FP), R10
+	MOVQ  start+72(FP), R11
+
+	// Add start offset to input
+	ADDQ         R11, BX
+	ADDQ         R11, BP
+	ADDQ         R11, SI
+	ADDQ         R11, DI
+	ADDQ         R11, R8
+	ADDQ         R11, R9
+	ADDQ         R11, DX
+	MOVQ         $0x0000000f, R12
+	MOVQ         R12, X8
 	VPBROADCASTB X8, Y8
-	MOVQ         start+72(FP), R11
 
 mulAvxTwo_7x8_loop:
 	// Clear 8 outputs
@@ -9709,7 +10835,8 @@ mulAvxTwo_7x8_loop:
 	VPXOR Y7, Y7, Y7
 
 	// Load and process 32 bytes from input 0 to 8 outputs
-	VMOVDQU (BP)(R11*1), Y11
+	VMOVDQU (BX), Y11
+	ADDQ    $0x20, BX
 	VPSRLQ  $0x04, Y11, Y12
 	VPAND   Y8, Y11, Y11
 	VPAND   Y8, Y12, Y12
@@ -9763,7 +10890,8 @@ mulAvxTwo_7x8_loop:
 	VPXOR   Y9, Y7, Y7
 
 	// Load and process 32 bytes from input 1 to 8 outputs
-	VMOVDQU (SI)(R11*1), Y11
+	VMOVDQU (BP), Y11
+	ADDQ    $0x20, BP
 	VPSRLQ  $0x04, Y11, Y12
 	VPAND   Y8, Y11, Y11
 	VPAND   Y8, Y12, Y12
@@ -9817,7 +10945,8 @@ mulAvxTwo_7x8_loop:
 	VPXOR   Y9, Y7, Y7
 
 	// Load and process 32 bytes from input 2 to 8 outputs
-	VMOVDQU (DI)(R11*1), Y11
+	VMOVDQU (SI), Y11
+	ADDQ    $0x20, SI
 	VPSRLQ  $0x04, Y11, Y12
 	VPAND   Y8, Y11, Y11
 	VPAND   Y8, Y12, Y12
@@ -9871,7 +11000,8 @@ mulAvxTwo_7x8_loop:
 	VPXOR   Y9, Y7, Y7
 
 	// Load and process 32 bytes from input 3 to 8 outputs
-	VMOVDQU (R8)(R11*1), Y11
+	VMOVDQU (DI), Y11
+	ADDQ    $0x20, DI
 	VPSRLQ  $0x04, Y11, Y12
 	VPAND   Y8, Y11, Y11
 	VPAND   Y8, Y12, Y12
@@ -9925,7 +11055,8 @@ mulAvxTwo_7x8_loop:
 	VPXOR   Y9, Y7, Y7
 
 	// Load and process 32 bytes from input 4 to 8 outputs
-	VMOVDQU (R9)(R11*1), Y11
+	VMOVDQU (R8), Y11
+	ADDQ    $0x20, R8
 	VPSRLQ  $0x04, Y11, Y12
 	VPAND   Y8, Y11, Y11
 	VPAND   Y8, Y12, Y12
@@ -9979,7 +11110,8 @@ mulAvxTwo_7x8_loop:
 	VPXOR   Y9, Y7, Y7
 
 	// Load and process 32 bytes from input 5 to 8 outputs
-	VMOVDQU (R10)(R11*1), Y11
+	VMOVDQU (R9), Y11
+	ADDQ    $0x20, R9
 	VPSRLQ  $0x04, Y11, Y12
 	VPAND   Y8, Y11, Y11
 	VPAND   Y8, Y12, Y12
@@ -10033,7 +11165,8 @@ mulAvxTwo_7x8_loop:
 	VPXOR   Y9, Y7, Y7
 
 	// Load and process 32 bytes from input 6 to 8 outputs
-	VMOVDQU (BX)(R11*1), Y11
+	VMOVDQU (DX), Y11
+	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y11, Y12
 	VPAND   Y8, Y11, Y11
 	VPAND   Y8, Y12, Y12
@@ -10087,21 +11220,21 @@ mulAvxTwo_7x8_loop:
 	VPXOR   Y9, Y7, Y7
 
 	// Store 8 outputs
-	MOVQ    (DX), R12
+	MOVQ    (R10), R12
 	VMOVDQU Y0, (R12)(R11*1)
-	MOVQ    24(DX), R12
+	MOVQ    24(R10), R12
 	VMOVDQU Y1, (R12)(R11*1)
-	MOVQ    48(DX), R12
+	MOVQ    48(R10), R12
 	VMOVDQU Y2, (R12)(R11*1)
-	MOVQ    72(DX), R12
+	MOVQ    72(R10), R12
 	VMOVDQU Y3, (R12)(R11*1)
-	MOVQ    96(DX), R12
+	MOVQ    96(R10), R12
 	VMOVDQU Y4, (R12)(R11*1)
-	MOVQ    120(DX), R12
+	MOVQ    120(R10), R12
 	VMOVDQU Y5, (R12)(R11*1)
-	MOVQ    144(DX), R12
+	MOVQ    144(R10), R12
 	VMOVDQU Y6, (R12)(R11*1)
-	MOVQ    168(DX), R12
+	MOVQ    168(R10), R12
 	VMOVDQU Y7, (R12)(R11*1)
 
 	// Prepare for next loop
@@ -10117,34 +11250,49 @@ mulAvxTwo_7x8_end:
 // Requires: AVX, AVX2, SSE2
 TEXT ·mulAvxTwo_8x1(SB), $0-88
 	// Loading no tables to registers
+	// Destination kept in GP registers
 	// Full registers estimated 20 YMM used
-	MOVQ         n+80(FP), AX
-	MOVQ         matrix_base+0(FP), CX
-	SHRQ         $0x05, AX
-	TESTQ        AX, AX
-	JZ           mulAvxTwo_8x1_end
-	MOVQ         out_base+48(FP), DX
-	MOVQ         (DX), DX
-	MOVQ         in_base+24(FP), BX
-	MOVQ         (BX), BP
-	MOVQ         24(BX), SI
-	MOVQ         48(BX), DI
-	MOVQ         72(BX), R8
-	MOVQ         96(BX), R9
-	MOVQ         120(BX), R10
-	MOVQ         144(BX), R11
-	MOVQ         168(BX), BX
+	MOVQ  n+80(FP), AX
+	MOVQ  matrix_base+0(FP), CX
+	SHRQ  $0x05, AX
+	TESTQ AX, AX
+	JZ    mulAvxTwo_8x1_end
+	MOVQ  in_base+24(FP), DX
+	MOVQ  (DX), BX
+	MOVQ  24(DX), BP
+	MOVQ  48(DX), SI
+	MOVQ  72(DX), DI
+	MOVQ  96(DX), R8
+	MOVQ  120(DX), R9
+	MOVQ  144(DX), R10
+	MOVQ  168(DX), DX
+	MOVQ  out_base+48(FP), R11
+	MOVQ  (R11), R11
+	MOVQ  start+72(FP), R12
+
+	// Add start offset to output
+	ADDQ R12, R11
+
+	// Add start offset to input
+	ADDQ         R12, BX
+	ADDQ         R12, BP
+	ADDQ         R12, SI
+	ADDQ         R12, DI
+	ADDQ         R12, R8
+	ADDQ         R12, R9
+	ADDQ         R12, R10
+	ADDQ         R12, DX
 	MOVQ         $0x0000000f, R12
 	MOVQ         R12, X1
 	VPBROADCASTB X1, Y1
-	MOVQ         start+72(FP), R12
 
 mulAvxTwo_8x1_loop:
 	// Clear 1 outputs
 	VPXOR Y0, Y0, Y0
 
 	// Load and process 32 bytes from input 0 to 1 outputs
-	VMOVDQU (BP)(R12*1), Y4
+	VMOVDQU (BX), Y4
+	ADDQ    $0x20, BX
 	VPSRLQ  $0x04, Y4, Y5
 	VPAND   Y1, Y4, Y4
 	VPAND   Y1, Y5, Y5
@@ -10156,7 +11304,8 @@ mulAvxTwo_8x1_loop:
 	VPXOR   Y2, Y0, Y0
 
 	// Load and process 32 bytes from input 1 to 1 outputs
-	VMOVDQU (SI)(R12*1), Y4
+	VMOVDQU (BP), Y4
+	ADDQ    $0x20, BP
 	VPSRLQ  $0x04, Y4, Y5
 	VPAND   Y1, Y4, Y4
 	VPAND   Y1, Y5, Y5
@@ -10168,7 +11317,8 @@ mulAvxTwo_8x1_loop:
 	VPXOR   Y2, Y0, Y0
 
 	// Load and process 32 bytes from input 2 to 1 outputs
-	VMOVDQU (DI)(R12*1), Y4
+	VMOVDQU (SI), Y4
+	ADDQ    $0x20, SI
 	VPSRLQ  $0x04, Y4, Y5
 	VPAND   Y1, Y4, Y4
 	VPAND   Y1, Y5, Y5
@@ -10180,7 +11330,8 @@ mulAvxTwo_8x1_loop:
 	VPXOR   Y2, Y0, Y0
 
 	// Load and process 32 bytes from input 3 to 1 outputs
-	VMOVDQU (R8)(R12*1), Y4
+	VMOVDQU (DI), Y4
+	ADDQ    $0x20, DI
 	VPSRLQ  $0x04, Y4, Y5
 	VPAND   Y1, Y4, Y4
 	VPAND   Y1, Y5, Y5
@@ -10192,7 +11343,8 @@ mulAvxTwo_8x1_loop:
 	VPXOR   Y2, Y0, Y0
 
 	// Load and process 32 bytes from input 4 to 1 outputs
-	VMOVDQU (R9)(R12*1), Y4
+	VMOVDQU (R8), Y4
+	ADDQ    $0x20, R8
 	VPSRLQ  $0x04, Y4, Y5
 	VPAND   Y1, Y4, Y4
 	VPAND   Y1, Y5, Y5
@@ -10204,7 +11356,8 @@ mulAvxTwo_8x1_loop:
 	VPXOR   Y2, Y0, Y0
 
 	// Load and process 32 bytes from input 5 to 1 outputs
-	VMOVDQU (R10)(R12*1), Y4
+	VMOVDQU (R9), Y4
+	ADDQ    $0x20, R9
 	VPSRLQ  $0x04, Y4, Y5
 	VPAND   Y1, Y4, Y4
 	VPAND   Y1, Y5, Y5
@@ -10216,7 +11369,8 @@ mulAvxTwo_8x1_loop:
 	VPXOR   Y2, Y0, Y0
 
 	// Load and process 32 bytes from input 6 to 1 outputs
-	VMOVDQU (R11)(R12*1), Y4
+	VMOVDQU (R10), Y4
+	ADDQ    $0x20, R10
 	VPSRLQ  $0x04, Y4, Y5
 	VPAND   Y1, Y4, Y4
 	VPAND   Y1, Y5, Y5
@@ -10228,7 +11382,8 @@ mulAvxTwo_8x1_loop:
 	VPXOR   Y2, Y0, Y0
 
 	// Load and process 32 bytes from input 7 to 1 outputs
-	VMOVDQU (BX)(R12*1), Y4
+	VMOVDQU (DX), Y4
+	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y4, Y5
 	VPAND   Y1, Y4, Y4
 	VPAND   Y1, Y5, Y5
@@ -10240,10 +11395,10 @@ mulAvxTwo_8x1_loop:
 	VPXOR   Y2, Y0, Y0
 
 	// Store 1 outputs
-	VMOVDQU Y0, (DX)(R12*1)
+	VMOVDQU Y0, (R11)
+	ADDQ    $0x20, R11
 
 	// Prepare for next loop
-	ADDQ $0x20, R12
 	DECQ AX
 	JNZ  mulAvxTwo_8x1_loop
 	VZEROUPPER
@@ -10255,28 +11410,43 @@ mulAvxTwo_8x1_end:
 // Requires: AVX, AVX2, SSE2
 TEXT ·mulAvxTwo_8x2(SB), $0-88
 	// Loading no tables to registers
+	// Destination kept in GP registers
 	// Full registers estimated 39 YMM used
-	MOVQ         n+80(FP), AX
-	MOVQ         matrix_base+0(FP), CX
-	SHRQ         $0x05, AX
-	TESTQ        AX, AX
-	JZ           mulAvxTwo_8x2_end
-	MOVQ         out_base+48(FP), DX
-	MOVQ         (DX), BX
-	MOVQ         24(DX), DX
-	MOVQ         in_base+24(FP), BP
-	MOVQ         (BP), SI
-	MOVQ         24(BP), DI
-	MOVQ         48(BP), R8
-	MOVQ         72(BP), R9
-	MOVQ         96(BP), R10
-	MOVQ         120(BP), R11
-	MOVQ         144(BP), R12
-	MOVQ         168(BP), BP
+	MOVQ  n+80(FP), AX
+	MOVQ  matrix_base+0(FP), CX
+	SHRQ  $0x05, AX
+	TESTQ AX, AX
+	JZ    mulAvxTwo_8x2_end
+	MOVQ  in_base+24(FP), DX
+	MOVQ  (DX), BX
+	MOVQ  24(DX), BP
+	MOVQ  48(DX), SI
+	MOVQ  72(DX), DI
+	MOVQ  96(DX), R8
+	MOVQ  120(DX), R9
+	MOVQ  144(DX), R10
+	MOVQ  168(DX), DX
+	MOVQ  out_base+48(FP), R11
+	MOVQ  (R11), R12
+	MOVQ  24(R11), R11
+	MOVQ  start+72(FP), R13
+
+	// Add start offset to output
+	ADDQ R13, R12
+	ADDQ R13, R11
+
+	// Add start offset to input
+	ADDQ         R13, BX
+	ADDQ         R13, BP
+	ADDQ         R13, SI
+	ADDQ         R13, DI
+	ADDQ         R13, R8
+	ADDQ         R13, R9
+	ADDQ         R13, R10
+	ADDQ         R13, DX
 	MOVQ         $0x0000000f, R13
 	MOVQ         R13, X2
 	VPBROADCASTB X2, Y2
-	MOVQ         start+72(FP), R13
 
 mulAvxTwo_8x2_loop:
 	// Clear 2 outputs
@@ -10284,7 +11454,8 @@ mulAvxTwo_8x2_loop:
 	VPXOR Y1, Y1, Y1
 
 	// Load and process 32 bytes from input 0 to 2 outputs
-	VMOVDQU (SI)(R13*1), Y5
+	VMOVDQU (BX), Y5
+	ADDQ    $0x20, BX
 	VPSRLQ  $0x04, Y5, Y6
 	VPAND   Y2, Y5, Y5
 	VPAND   Y2, Y6, Y6
@@ -10302,7 +11473,8 @@ mulAvxTwo_8x2_loop:
 	VPXOR   Y3, Y1, Y1
 
 	// Load and process 32 bytes from input 1 to 2 outputs
-	VMOVDQU (DI)(R13*1), Y5
+	VMOVDQU (BP), Y5
+	ADDQ    $0x20, BP
 	VPSRLQ  $0x04, Y5, Y6
 	VPAND   Y2, Y5, Y5
 	VPAND   Y2, Y6, Y6
@@ -10320,7 +11492,8 @@ mulAvxTwo_8x2_loop:
 	VPXOR   Y3, Y1, Y1
 
 	// Load and process 32 bytes from input 2 to 2 outputs
-	VMOVDQU (R8)(R13*1), Y5
+	VMOVDQU (SI), Y5
+	ADDQ    $0x20, SI
 	VPSRLQ  $0x04, Y5, Y6
 	VPAND   Y2, Y5, Y5
 	VPAND   Y2, Y6, Y6
@@ -10338,7 +11511,8 @@ mulAvxTwo_8x2_loop:
 	VPXOR   Y3, Y1, Y1
 
 	// Load and process 32 bytes from input 3 to 2 outputs
-	VMOVDQU (R9)(R13*1), Y5
+	VMOVDQU (DI), Y5
+	ADDQ    $0x20, DI
 	VPSRLQ  $0x04, Y5, Y6
 	VPAND   Y2, Y5, Y5
 	VPAND   Y2, Y6, Y6
@@ -10356,7 +11530,8 @@ mulAvxTwo_8x2_loop:
 	VPXOR   Y3, Y1, Y1
 
 	// Load and process 32 bytes from input 4 to 2 outputs
-	VMOVDQU (R10)(R13*1), Y5
+	VMOVDQU (R8), Y5
+	ADDQ    $0x20, R8
 	VPSRLQ  $0x04, Y5, Y6
 	VPAND   Y2, Y5, Y5
 	VPAND   Y2, Y6, Y6
@@ -10374,7 +11549,8 @@ mulAvxTwo_8x2_loop:
 	VPXOR   Y3, Y1, Y1
 
 	// Load and process 32 bytes from input 5 to 2 outputs
-	VMOVDQU (R11)(R13*1), Y5
+	VMOVDQU (R9), Y5
+	ADDQ    $0x20, R9
 	VPSRLQ  $0x04, Y5, Y6
 	VPAND   Y2, Y5, Y5
 	VPAND   Y2, Y6, Y6
@@ -10392,7 +11568,8 @@ mulAvxTwo_8x2_loop:
 	VPXOR   Y3, Y1, Y1
 
 	// Load and process 32 bytes from input 6 to 2 outputs
-	VMOVDQU (R12)(R13*1), Y5
+	VMOVDQU (R10), Y5
+	ADDQ    $0x20, R10
 	VPSRLQ  $0x04, Y5, Y6
 	VPAND   Y2, Y5, Y5
 	VPAND   Y2, Y6, Y6
@@ -10410,7 +11587,8 @@ mulAvxTwo_8x2_loop:
 	VPXOR   Y3, Y1, Y1
 
 	// Load and process 32 bytes from input 7 to 2 outputs
-	VMOVDQU (BP)(R13*1), Y5
+	VMOVDQU (DX), Y5
+	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y5, Y6
 	VPAND   Y2, Y5, Y5
 	VPAND   Y2, Y6, Y6
@@ -10428,11 +11606,12 @@ mulAvxTwo_8x2_loop:
 	VPXOR   Y3, Y1, Y1
 
 	// Store 2 outputs
-	VMOVDQU Y0, (BX)(R13*1)
-	VMOVDQU Y1, (DX)(R13*1)
+	VMOVDQU Y0, (R12)
+	ADDQ    $0x20, R12
+	VMOVDQU Y1, (R11)
+	ADDQ    $0x20, R11
 
 	// Prepare for next loop
-	ADDQ $0x20, R13
 	DECQ AX
 	JNZ  mulAvxTwo_8x2_loop
 	VZEROUPPER
@@ -10444,29 +11623,45 @@ mulAvxTwo_8x2_end:
 // Requires: AVX, AVX2, SSE2
 TEXT ·mulAvxTwo_8x3(SB), $0-88
 	// Loading no tables to registers
+	// Destination kept in GP registers
 	// Full registers estimated 56 YMM used
-	MOVQ         n+80(FP), AX
-	MOVQ         matrix_base+0(FP), CX
-	SHRQ         $0x05, AX
-	TESTQ        AX, AX
-	JZ           mulAvxTwo_8x3_end
-	MOVQ         out_base+48(FP), DX
-	MOVQ         (DX), BX
-	MOVQ         24(DX), BP
-	MOVQ         48(DX), DX
-	MOVQ         in_base+24(FP), SI
-	MOVQ         (SI), DI
-	MOVQ         24(SI), R8
-	MOVQ         48(SI), R9
-	MOVQ         72(SI), R10
-	MOVQ         96(SI), R11
-	MOVQ         120(SI), R12
-	MOVQ         144(SI), R13
-	MOVQ         168(SI), SI
+	MOVQ  n+80(FP), AX
+	MOVQ  matrix_base+0(FP), CX
+	SHRQ  $0x05, AX
+	TESTQ AX, AX
+	JZ    mulAvxTwo_8x3_end
+	MOVQ  in_base+24(FP), DX
+	MOVQ  (DX), BX
+	MOVQ  24(DX), BP
+	MOVQ  48(DX), SI
+	MOVQ  72(DX), DI
+	MOVQ  96(DX), R8
+	MOVQ  120(DX), R9
+	MOVQ  144(DX), R10
+	MOVQ  168(DX), DX
+	MOVQ  out_base+48(FP), R11
+	MOVQ  (R11), R12
+	MOVQ  24(R11), R13
+	MOVQ  48(R11), R11
+	MOVQ  start+72(FP), R14
+
+	// Add start offset to output
+	ADDQ R14, R12
+	ADDQ R14, R13
+	ADDQ R14, R11
+
+	// Add start offset to input
+	ADDQ         R14, BX
+	ADDQ         R14, BP
+	ADDQ         R14, SI
+	ADDQ         R14, DI
+	ADDQ         R14, R8
+	ADDQ         R14, R9
+	ADDQ         R14, R10
+	ADDQ         R14, DX
 	MOVQ         $0x0000000f, R14
 	MOVQ         R14, X3
 	VPBROADCASTB X3, Y3
-	MOVQ         start+72(FP), R14
 
 mulAvxTwo_8x3_loop:
 	// Clear 3 outputs
@@ -10475,7 +11670,8 @@ mulAvxTwo_8x3_loop:
 	VPXOR Y2, Y2, Y2
 
 	// Load and process 32 bytes from input 0 to 3 outputs
-	VMOVDQU (DI)(R14*1), Y6
+	VMOVDQU (BX), Y6
+	ADDQ    $0x20, BX
 	VPSRLQ  $0x04, Y6, Y7
 	VPAND   Y3, Y6, Y6
 	VPAND   Y3, Y7, Y7
@@ -10499,7 +11695,8 @@ mulAvxTwo_8x3_loop:
 	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 1 to 3 outputs
-	VMOVDQU (R8)(R14*1), Y6
+	VMOVDQU (BP), Y6
+	ADDQ    $0x20, BP
 	VPSRLQ  $0x04, Y6, Y7
 	VPAND   Y3, Y6, Y6
 	VPAND   Y3, Y7, Y7
@@ -10523,7 +11720,8 @@ mulAvxTwo_8x3_loop:
 	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 2 to 3 outputs
-	VMOVDQU (R9)(R14*1), Y6
+	VMOVDQU (SI), Y6
+	ADDQ    $0x20, SI
 	VPSRLQ  $0x04, Y6, Y7
 	VPAND   Y3, Y6, Y6
 	VPAND   Y3, Y7, Y7
@@ -10547,7 +11745,8 @@ mulAvxTwo_8x3_loop:
 	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 3 to 3 outputs
-	VMOVDQU (R10)(R14*1), Y6
+	VMOVDQU (DI), Y6
+	ADDQ    $0x20, DI
 	VPSRLQ  $0x04, Y6, Y7
 	VPAND   Y3, Y6, Y6
 	VPAND   Y3, Y7, Y7
@@ -10571,7 +11770,8 @@ mulAvxTwo_8x3_loop:
 	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 4 to 3 outputs
-	VMOVDQU (R11)(R14*1), Y6
+	VMOVDQU (R8), Y6
+	ADDQ    $0x20, R8
 	VPSRLQ  $0x04, Y6, Y7
 	VPAND   Y3, Y6, Y6
 	VPAND   Y3, Y7, Y7
@@ -10595,7 +11795,8 @@ mulAvxTwo_8x3_loop:
 	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 5 to 3 outputs
-	VMOVDQU (R12)(R14*1), Y6
+	VMOVDQU (R9), Y6
+	ADDQ    $0x20, R9
 	VPSRLQ  $0x04, Y6, Y7
 	VPAND   Y3, Y6, Y6
 	VPAND   Y3, Y7, Y7
@@ -10619,7 +11820,8 @@ mulAvxTwo_8x3_loop:
 	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 6 to 3 outputs
-	VMOVDQU (R13)(R14*1), Y6
+	VMOVDQU (R10), Y6
+	ADDQ    $0x20, R10
 	VPSRLQ  $0x04, Y6, Y7
 	VPAND   Y3, Y6, Y6
 	VPAND   Y3, Y7, Y7
@@ -10643,7 +11845,8 @@ mulAvxTwo_8x3_loop:
 	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 7 to 3 outputs
-	VMOVDQU (SI)(R14*1), Y6
+	VMOVDQU (DX), Y6
+	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y6, Y7
 	VPAND   Y3, Y6, Y6
 	VPAND   Y3, Y7, Y7
@@ -10667,12 +11870,14 @@ mulAvxTwo_8x3_loop:
 	VPXOR   Y4, Y2, Y2
 
 	// Store 3 outputs
-	VMOVDQU Y0, (BX)(R14*1)
-	VMOVDQU Y1, (BP)(R14*1)
-	VMOVDQU Y2, (DX)(R14*1)
+	VMOVDQU Y0, (R12)
+	ADDQ    $0x20, R12
+	VMOVDQU Y1, (R13)
+	ADDQ    $0x20, R13
+	VMOVDQU Y2, (R11)
+	ADDQ    $0x20, R11
 
 	// Prepare for next loop
-	ADDQ $0x20, R14
 	DECQ AX
 	JNZ  mulAvxTwo_8x3_loop
 	VZEROUPPER
@@ -10684,30 +11889,47 @@ mulAvxTwo_8x3_end:
 // Requires: AVX, AVX2, SSE2
 TEXT ·mulAvxTwo_8x4(SB), $0-88
 	// Loading no tables to registers
+	// Destination kept in GP registers
 	// Full registers estimated 73 YMM used
-	MOVQ         n+80(FP), AX
-	MOVQ         matrix_base+0(FP), CX
-	SHRQ         $0x05, AX
-	TESTQ        AX, AX
-	JZ           mulAvxTwo_8x4_end
-	MOVQ         out_base+48(FP), DX
-	MOVQ         (DX), BX
-	MOVQ         24(DX), BP
-	MOVQ         48(DX), SI
-	MOVQ         72(DX), DX
-	MOVQ         in_base+24(FP), DI
-	MOVQ         (DI), R8
-	MOVQ         24(DI), R9
-	MOVQ         48(DI), R10
-	MOVQ         72(DI), R11
-	MOVQ         96(DI), R12
-	MOVQ         120(DI), R13
-	MOVQ         144(DI), R14
-	MOVQ         168(DI), DI
+	MOVQ  n+80(FP), AX
+	MOVQ  matrix_base+0(FP), CX
+	SHRQ  $0x05, AX
+	TESTQ AX, AX
+	JZ    mulAvxTwo_8x4_end
+	MOVQ  in_base+24(FP), DX
+	MOVQ  (DX), BX
+	MOVQ  24(DX), BP
+	MOVQ  48(DX), SI
+	MOVQ  72(DX), DI
+	MOVQ  96(DX), R8
+	MOVQ  120(DX), R9
+	MOVQ  144(DX), R10
+	MOVQ  168(DX), DX
+	MOVQ  out_base+48(FP), R11
+	MOVQ  (R11), R12
+	MOVQ  24(R11), R13
+	MOVQ  48(R11), R14
+	MOVQ  72(R11), R11
+	MOVQ  start+72(FP), R15
+
+	// Add start offset to output
+	ADDQ R15, R12
+	ADDQ R15, R13
+	ADDQ R15, R14
+	ADDQ R15, R11
+
+	// Add start offset to input
+	ADDQ         R15, BX
+	ADDQ         R15, BP
+	ADDQ         R15, SI
+	ADDQ         R15, DI
+	ADDQ         R15, R8
+	ADDQ         R15, R9
+	ADDQ         R15, R10
+	ADDQ         R15, DX
 	MOVQ         $0x0000000f, R15
 	MOVQ         R15, X4
 	VPBROADCASTB X4, Y4
-	MOVQ         start+72(FP), R15
 
 mulAvxTwo_8x4_loop:
 	// Clear 4 outputs
@@ -10717,7 +11939,8 @@ mulAvxTwo_8x4_loop:
 	VPXOR Y3, Y3, Y3
 
 	// Load and process 32 bytes from input 0 to 4 outputs
-	VMOVDQU (R8)(R15*1), Y7
+	VMOVDQU (BX), Y7
+	ADDQ    $0x20, BX
 	VPSRLQ  $0x04, Y7, Y8
 	VPAND   Y4, Y7, Y7
 	VPAND   Y4, Y8, Y8
@@ -10747,7 +11970,8 @@ mulAvxTwo_8x4_loop:
 	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 1 to 4 outputs
-	VMOVDQU (R9)(R15*1), Y7
+	VMOVDQU (BP), Y7
+	ADDQ    $0x20, BP
 	VPSRLQ  $0x04, Y7, Y8
 	VPAND   Y4, Y7, Y7
 	VPAND   Y4, Y8, Y8
@@ -10777,7 +12001,8 @@ mulAvxTwo_8x4_loop:
 	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 2 to 4 outputs
-	VMOVDQU (R10)(R15*1), Y7
+	VMOVDQU (SI), Y7
+	ADDQ    $0x20, SI
 	VPSRLQ  $0x04, Y7, Y8
 	VPAND   Y4, Y7, Y7
 	VPAND   Y4, Y8, Y8
@@ -10807,7 +12032,8 @@ mulAvxTwo_8x4_loop:
 	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 3 to 4 outputs
-	VMOVDQU (R11)(R15*1), Y7
+	VMOVDQU (DI), Y7
+	ADDQ    $0x20, DI
 	VPSRLQ  $0x04, Y7, Y8
 	VPAND   Y4, Y7, Y7
 	VPAND   Y4, Y8, Y8
@@ -10837,7 +12063,8 @@ mulAvxTwo_8x4_loop:
 	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 4 to 4 outputs
-	VMOVDQU (R12)(R15*1), Y7
+	VMOVDQU (R8), Y7
+	ADDQ    $0x20, R8
 	VPSRLQ  $0x04, Y7, Y8
 	VPAND   Y4, Y7, Y7
 	VPAND   Y4, Y8, Y8
@@ -10867,7 +12094,8 @@ mulAvxTwo_8x4_loop:
 	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 5 to 4 outputs
-	VMOVDQU (R13)(R15*1), Y7
+	VMOVDQU (R9), Y7
+	ADDQ    $0x20, R9
 	VPSRLQ  $0x04, Y7, Y8
 	VPAND   Y4, Y7, Y7
 	VPAND   Y4, Y8, Y8
@@ -10897,7 +12125,8 @@ mulAvxTwo_8x4_loop:
 	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 6 to 4 outputs
-	VMOVDQU (R14)(R15*1), Y7
+	VMOVDQU (R10), Y7
+	ADDQ    $0x20, R10
 	VPSRLQ  $0x04, Y7, Y8
 	VPAND   Y4, Y7, Y7
 	VPAND   Y4, Y8, Y8
@@ -10927,7 +12156,8 @@ mulAvxTwo_8x4_loop:
 	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 7 to 4 outputs
-	VMOVDQU (DI)(R15*1), Y7
+	VMOVDQU (DX), Y7
+	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y7, Y8
 	VPAND   Y4, Y7, Y7
 	VPAND   Y4, Y8, Y8
@@ -10957,13 +12187,16 @@ mulAvxTwo_8x4_loop:
 	VPXOR   Y5, Y3, Y3
 
 	// Store 4 outputs
-	VMOVDQU Y0, (BX)(R15*1)
-	VMOVDQU Y1, (BP)(R15*1)
-	VMOVDQU Y2, (SI)(R15*1)
-	VMOVDQU Y3, (DX)(R15*1)
+	VMOVDQU Y0, (R12)
+	ADDQ    $0x20, R12
+	VMOVDQU Y1, (R13)
+	ADDQ    $0x20, R13
+	VMOVDQU Y2, (R14)
+	ADDQ    $0x20, R14
+	VMOVDQU Y3, (R11)
+	ADDQ    $0x20, R11
 
 	// Prepare for next loop
-	ADDQ $0x20, R15
 	DECQ AX
 	JNZ  mulAvxTwo_8x4_loop
 	VZEROUPPER
@@ -10975,26 +12208,51 @@ mulAvxTwo_8x4_end:
 // Requires: AVX, AVX2, SSE2
 TEXT ·mulAvxTwo_8x5(SB), $0-88
 	// Loading no tables to registers
+	// Destination kept in GP registers
 	// Full registers estimated 90 YMM used
-	MOVQ         n+80(FP), AX
-	MOVQ         matrix_base+0(FP), CX
-	SHRQ         $0x05, AX
-	TESTQ        AX, AX
-	JZ           mulAvxTwo_8x5_end
-	MOVQ         out_base+48(FP), DX
-	MOVQ         in_base+24(FP), BX
-	MOVQ         (BX), BP
-	MOVQ         24(BX), SI
-	MOVQ         48(BX), DI
-	MOVQ         72(BX), R8
-	MOVQ         96(BX), R9
-	MOVQ         120(BX), R10
-	MOVQ         144(BX), R11
-	MOVQ         168(BX), BX
-	MOVQ         $0x0000000f, R12
-	MOVQ         R12, X5
+	MOVQ  n+80(FP), AX
+	MOVQ  matrix_base+0(FP), CX
+	SHRQ  $0x05, AX
+	TESTQ AX, AX
+	JZ    mulAvxTwo_8x5_end
+	MOVQ  in_base+24(FP), AX
+	MOVQ  (AX), DX
+	MOVQ  24(AX), BX
+	MOVQ  48(AX), BP
+	MOVQ  72(AX), SI
+	MOVQ  96(AX), DI
+	MOVQ  120(AX), R8
+	MOVQ  144(AX), R9
+	MOVQ  168(AX), AX
+	MOVQ  out_base+48(FP), R10
+	MOVQ  (R10), R11
+	MOVQ  24(R10), R12
+	MOVQ  48(R10), R13
+	MOVQ  72(R10), R14
+	MOVQ  96(R10), R10
+	MOVQ  start+72(FP), R15
+
+	// Add start offset to output
+	ADDQ R15, R11
+	ADDQ R15, R12
+	ADDQ R15, R13
+	ADDQ R15, R14
+	ADDQ R15, R10
+
+	// Add start offset to input
+	ADDQ         R15, DX
+	ADDQ         R15, BX
+	ADDQ         R15, BP
+	ADDQ         R15, SI
+	ADDQ         R15, DI
+	ADDQ         R15, R8
+	ADDQ         R15, R9
+	ADDQ         R15, AX
+	MOVQ         $0x0000000f, R15
+	MOVQ         R15, X5
 	VPBROADCASTB X5, Y5
-	MOVQ         start+72(FP), R12
+	MOVQ         n+80(FP), R15
+	SHRQ         $0x05, R15
 
 mulAvxTwo_8x5_loop:
 	// Clear 5 outputs
@@ -11005,7 +12263,8 @@ mulAvxTwo_8x5_loop:
 	VPXOR Y4, Y4, Y4
 
 	// Load and process 32 bytes from input 0 to 5 outputs
-	VMOVDQU (BP)(R12*1), Y8
+	VMOVDQU (DX), Y8
+	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y8, Y9
 	VPAND   Y5, Y8, Y8
 	VPAND   Y5, Y9, Y9
@@ -11041,7 +12300,8 @@ mulAvxTwo_8x5_loop:
 	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 1 to 5 outputs
-	VMOVDQU (SI)(R12*1), Y8
+	VMOVDQU (BX), Y8
+	ADDQ    $0x20, BX
 	VPSRLQ  $0x04, Y8, Y9
 	VPAND   Y5, Y8, Y8
 	VPAND   Y5, Y9, Y9
@@ -11077,7 +12337,8 @@ mulAvxTwo_8x5_loop:
 	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 2 to 5 outputs
-	VMOVDQU (DI)(R12*1), Y8
+	VMOVDQU (BP), Y8
+	ADDQ    $0x20, BP
 	VPSRLQ  $0x04, Y8, Y9
 	VPAND   Y5, Y8, Y8
 	VPAND   Y5, Y9, Y9
@@ -11113,7 +12374,8 @@ mulAvxTwo_8x5_loop:
 	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 3 to 5 outputs
-	VMOVDQU (R8)(R12*1), Y8
+	VMOVDQU (SI), Y8
+	ADDQ    $0x20, SI
 	VPSRLQ  $0x04, Y8, Y9
 	VPAND   Y5, Y8, Y8
 	VPAND   Y5, Y9, Y9
@@ -11149,7 +12411,8 @@ mulAvxTwo_8x5_loop:
 	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 4 to 5 outputs
-	VMOVDQU (R9)(R12*1), Y8
+	VMOVDQU (DI), Y8
+	ADDQ    $0x20, DI
 	VPSRLQ  $0x04, Y8, Y9
 	VPAND   Y5, Y8, Y8
 	VPAND   Y5, Y9, Y9
@@ -11185,7 +12448,8 @@ mulAvxTwo_8x5_loop:
 	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 5 to 5 outputs
-	VMOVDQU (R10)(R12*1), Y8
+	VMOVDQU (R8), Y8
+	ADDQ    $0x20, R8
 	VPSRLQ  $0x04, Y8, Y9
 	VPAND   Y5, Y8, Y8
 	VPAND   Y5, Y9, Y9
@@ -11221,7 +12485,8 @@ mulAvxTwo_8x5_loop:
 	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 6 to 5 outputs
-	VMOVDQU (R11)(R12*1), Y8
+	VMOVDQU (R9), Y8
+	ADDQ    $0x20, R9
 	VPSRLQ  $0x04, Y8, Y9
 	VPAND   Y5, Y8, Y8
 	VPAND   Y5, Y9, Y9
@@ -11257,7 +12522,8 @@ mulAvxTwo_8x5_loop:
 	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 7 to 5 outputs
-	VMOVDQU (BX)(R12*1), Y8
+	VMOVDQU (AX), Y8
+	ADDQ    $0x20, AX
 	VPSRLQ  $0x04, Y8, Y9
 	VPAND   Y5, Y8, Y8
 	VPAND   Y5, Y9, Y9
@@ -11293,20 +12559,19 @@ mulAvxTwo_8x5_loop:
 	VPXOR   Y6, Y4, Y4
 
 	// Store 5 outputs
-	MOVQ    (DX), R13
-	VMOVDQU Y0, (R13)(R12*1)
-	MOVQ    24(DX), R13
-	VMOVDQU Y1, (R13)(R12*1)
-	MOVQ    48(DX), R13
-	VMOVDQU Y2, (R13)(R12*1)
-	MOVQ    72(DX), R13
-	VMOVDQU Y3, (R13)(R12*1)
-	MOVQ    96(DX), R13
-	VMOVDQU Y4, (R13)(R12*1)
+	VMOVDQU Y0, (R11)
+	ADDQ    $0x20, R11
+	VMOVDQU Y1, (R12)
+	ADDQ    $0x20, R12
+	VMOVDQU Y2, (R13)
+	ADDQ    $0x20, R13
+	VMOVDQU Y3, (R14)
+	ADDQ    $0x20, R14
+	VMOVDQU Y4, (R10)
+	ADDQ    $0x20, R10
 
 	// Prepare for next loop
-	ADDQ $0x20, R12
-	DECQ AX
+	DECQ R15
 	JNZ  mulAvxTwo_8x5_loop
 	VZEROUPPER
 
@@ -11317,26 +12582,37 @@ mulAvxTwo_8x5_end:
 // Requires: AVX, AVX2, SSE2
 TEXT ·mulAvxTwo_8x6(SB), $0-88
 	// Loading no tables to registers
+	// Destination kept on stack
 	// Full registers estimated 107 YMM used
-	MOVQ         n+80(FP), AX
-	MOVQ         matrix_base+0(FP), CX
-	SHRQ         $0x05, AX
-	TESTQ        AX, AX
-	JZ           mulAvxTwo_8x6_end
-	MOVQ         out_base+48(FP), DX
-	MOVQ         in_base+24(FP), BX
-	MOVQ         (BX), BP
-	MOVQ         24(BX), SI
-	MOVQ         48(BX), DI
-	MOVQ         72(BX), R8
-	MOVQ         96(BX), R9
-	MOVQ         120(BX), R10
-	MOVQ         144(BX), R11
-	MOVQ         168(BX), BX
-	MOVQ         $0x0000000f, R12
-	MOVQ         R12, X6
+	MOVQ  n+80(FP), AX
+	MOVQ  matrix_base+0(FP), CX
+	SHRQ  $0x05, AX
+	TESTQ AX, AX
+	JZ    mulAvxTwo_8x6_end
+	MOVQ  in_base+24(FP), DX
+	MOVQ  (DX), BX
+	MOVQ  24(DX), BP
+	MOVQ  48(DX), SI
+	MOVQ  72(DX), DI
+	MOVQ  96(DX), R8
+	MOVQ  120(DX), R9
+	MOVQ  144(DX), R10
+	MOVQ  168(DX), DX
+	MOVQ  out_base+48(FP), R11
+	MOVQ  start+72(FP), R12
+
+	// Add start offset to input
+	ADDQ         R12, BX
+	ADDQ         R12, BP
+	ADDQ         R12, SI
+	ADDQ         R12, DI
+	ADDQ         R12, R8
+	ADDQ         R12, R9
+	ADDQ         R12, R10
+	ADDQ         R12, DX
+	MOVQ         $0x0000000f, R13
+	MOVQ         R13, X6
 	VPBROADCASTB X6, Y6
-	MOVQ         start+72(FP), R12
 
 mulAvxTwo_8x6_loop:
 	// Clear 6 outputs
@@ -11348,7 +12624,8 @@ mulAvxTwo_8x6_loop:
 	VPXOR Y5, Y5, Y5
 
 	// Load and process 32 bytes from input 0 to 6 outputs
-	VMOVDQU (BP)(R12*1), Y9
+	VMOVDQU (BX), Y9
+	ADDQ    $0x20, BX
 	VPSRLQ  $0x04, Y9, Y10
 	VPAND   Y6, Y9, Y9
 	VPAND   Y6, Y10, Y10
@@ -11390,7 +12667,8 @@ mulAvxTwo_8x6_loop:
 	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 1 to 6 outputs
-	VMOVDQU (SI)(R12*1), Y9
+	VMOVDQU (BP), Y9
+	ADDQ    $0x20, BP
 	VPSRLQ  $0x04, Y9, Y10
 	VPAND   Y6, Y9, Y9
 	VPAND   Y6, Y10, Y10
@@ -11432,7 +12710,8 @@ mulAvxTwo_8x6_loop:
 	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 2 to 6 outputs
-	VMOVDQU (DI)(R12*1), Y9
+	VMOVDQU (SI), Y9
+	ADDQ    $0x20, SI
 	VPSRLQ  $0x04, Y9, Y10
 	VPAND   Y6, Y9, Y9
 	VPAND   Y6, Y10, Y10
@@ -11474,7 +12753,8 @@ mulAvxTwo_8x6_loop:
 	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 3 to 6 outputs
-	VMOVDQU (R8)(R12*1), Y9
+	VMOVDQU (DI), Y9
+	ADDQ    $0x20, DI
 	VPSRLQ  $0x04, Y9, Y10
 	VPAND   Y6, Y9, Y9
 	VPAND   Y6, Y10, Y10
@@ -11516,7 +12796,8 @@ mulAvxTwo_8x6_loop:
 	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 4 to 6 outputs
-	VMOVDQU (R9)(R12*1), Y9
+	VMOVDQU (R8), Y9
+	ADDQ    $0x20, R8
 	VPSRLQ  $0x04, Y9, Y10
 	VPAND   Y6, Y9, Y9
 	VPAND   Y6, Y10, Y10
@@ -11558,7 +12839,8 @@ mulAvxTwo_8x6_loop:
 	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 5 to 6 outputs
-	VMOVDQU (R10)(R12*1), Y9
+	VMOVDQU (R9), Y9
+	ADDQ    $0x20, R9
 	VPSRLQ  $0x04, Y9, Y10
 	VPAND   Y6, Y9, Y9
 	VPAND   Y6, Y10, Y10
@@ -11600,7 +12882,8 @@ mulAvxTwo_8x6_loop:
 	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 6 to 6 outputs
-	VMOVDQU (R11)(R12*1), Y9
+	VMOVDQU (R10), Y9
+	ADDQ    $0x20, R10
 	VPSRLQ  $0x04, Y9, Y10
 	VPAND   Y6, Y9, Y9
 	VPAND   Y6, Y10, Y10
@@ -11642,7 +12925,8 @@ mulAvxTwo_8x6_loop:
 	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 7 to 6 outputs
-	VMOVDQU (BX)(R12*1), Y9
+	VMOVDQU (DX), Y9
+	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y9, Y10
 	VPAND   Y6, Y9, Y9
 	VPAND   Y6, Y10, Y10
@@ -11684,17 +12968,17 @@ mulAvxTwo_8x6_loop:
 	VPXOR   Y7, Y5, Y5
 
 	// Store 6 outputs
-	MOVQ    (DX), R13
+	MOVQ    (R11), R13
 	VMOVDQU Y0, (R13)(R12*1)
-	MOVQ    24(DX), R13
+	MOVQ    24(R11), R13
 	VMOVDQU Y1, (R13)(R12*1)
-	MOVQ    48(DX), R13
+	MOVQ    48(R11), R13
 	VMOVDQU Y2, (R13)(R12*1)
-	MOVQ    72(DX), R13
+	MOVQ    72(R11), R13
 	VMOVDQU Y3, (R13)(R12*1)
-	MOVQ    96(DX), R13
+	MOVQ    96(R11), R13
 	VMOVDQU Y4, (R13)(R12*1)
-	MOVQ    120(DX), R13
+	MOVQ    120(R11), R13
 	VMOVDQU Y5, (R13)(R12*1)
 
 	// Prepare for next loop
@@ -11710,26 +12994,37 @@ mulAvxTwo_8x6_end:
 // Requires: AVX, AVX2, SSE2
 TEXT ·mulAvxTwo_8x7(SB), $0-88
 	// Loading no tables to registers
+	// Destination kept on stack
 	// Full registers estimated 124 YMM used
-	MOVQ         n+80(FP), AX
-	MOVQ         matrix_base+0(FP), CX
-	SHRQ         $0x05, AX
-	TESTQ        AX, AX
-	JZ           mulAvxTwo_8x7_end
-	MOVQ         out_base+48(FP), DX
-	MOVQ         in_base+24(FP), BX
-	MOVQ         (BX), BP
-	MOVQ         24(BX), SI
-	MOVQ         48(BX), DI
-	MOVQ         72(BX), R8
-	MOVQ         96(BX), R9
-	MOVQ         120(BX), R10
-	MOVQ         144(BX), R11
-	MOVQ         168(BX), BX
-	MOVQ         $0x0000000f, R12
-	MOVQ         R12, X7
+	MOVQ  n+80(FP), AX
+	MOVQ  matrix_base+0(FP), CX
+	SHRQ  $0x05, AX
+	TESTQ AX, AX
+	JZ    mulAvxTwo_8x7_end
+	MOVQ  in_base+24(FP), DX
+	MOVQ  (DX), BX
+	MOVQ  24(DX), BP
+	MOVQ  48(DX), SI
+	MOVQ  72(DX), DI
+	MOVQ  96(DX), R8
+	MOVQ  120(DX), R9
+	MOVQ  144(DX), R10
+	MOVQ  168(DX), DX
+	MOVQ  out_base+48(FP), R11
+	MOVQ  start+72(FP), R12
+
+	// Add start offset to input
+	ADDQ         R12, BX
+	ADDQ         R12, BP
+	ADDQ         R12, SI
+	ADDQ         R12, DI
+	ADDQ         R12, R8
+	ADDQ         R12, R9
+	ADDQ         R12, R10
+	ADDQ         R12, DX
+	MOVQ         $0x0000000f, R13
+	MOVQ         R13, X7
 	VPBROADCASTB X7, Y7
-	MOVQ         start+72(FP), R12
 
 mulAvxTwo_8x7_loop:
 	// Clear 7 outputs
@@ -11742,7 +13037,8 @@ mulAvxTwo_8x7_loop:
 	VPXOR Y6, Y6, Y6
 
 	// Load and process 32 bytes from input 0 to 7 outputs
-	VMOVDQU (BP)(R12*1), Y10
+	VMOVDQU (BX), Y10
+	ADDQ    $0x20, BX
 	VPSRLQ  $0x04, Y10, Y11
 	VPAND   Y7, Y10, Y10
 	VPAND   Y7, Y11, Y11
@@ -11790,7 +13086,8 @@ mulAvxTwo_8x7_loop:
 	VPXOR   Y8, Y6, Y6
 
 	// Load and process 32 bytes from input 1 to 7 outputs
-	VMOVDQU (SI)(R12*1), Y10
+	VMOVDQU (BP), Y10
+	ADDQ    $0x20, BP
 	VPSRLQ  $0x04, Y10, Y11
 	VPAND   Y7, Y10, Y10
 	VPAND   Y7, Y11, Y11
@@ -11838,7 +13135,8 @@ mulAvxTwo_8x7_loop:
 	VPXOR   Y8, Y6, Y6
 
 	// Load and process 32 bytes from input 2 to 7 outputs
-	VMOVDQU (DI)(R12*1), Y10
+	VMOVDQU (SI), Y10
+	ADDQ    $0x20, SI
 	VPSRLQ  $0x04, Y10, Y11
 	VPAND   Y7, Y10, Y10
 	VPAND   Y7, Y11, Y11
@@ -11886,7 +13184,8 @@ mulAvxTwo_8x7_loop:
 	VPXOR   Y8, Y6, Y6
 
 	// Load and process 32 bytes from input 3 to 7 outputs
-	VMOVDQU (R8)(R12*1), Y10
+	VMOVDQU (DI), Y10
+	ADDQ    $0x20, DI
 	VPSRLQ  $0x04, Y10, Y11
 	VPAND   Y7, Y10, Y10
 	VPAND   Y7, Y11, Y11
@@ -11934,7 +13233,8 @@ mulAvxTwo_8x7_loop:
 	VPXOR   Y8, Y6, Y6
 
 	// Load and process 32 bytes from input 4 to 7 outputs
-	VMOVDQU (R9)(R12*1), Y10
+	VMOVDQU (R8), Y10
+	ADDQ    $0x20, R8
 	VPSRLQ  $0x04, Y10, Y11
 	VPAND   Y7, Y10, Y10
 	VPAND   Y7, Y11, Y11
@@ -11982,7 +13282,8 @@ mulAvxTwo_8x7_loop:
 	VPXOR   Y8, Y6, Y6
 
 	// Load and process 32 bytes from input 5 to 7 outputs
-	VMOVDQU (R10)(R12*1), Y10
+	VMOVDQU (R9), Y10
+	ADDQ    $0x20, R9
 	VPSRLQ  $0x04, Y10, Y11
 	VPAND   Y7, Y10, Y10
 	VPAND   Y7, Y11, Y11
@@ -12030,7 +13331,8 @@ mulAvxTwo_8x7_loop:
 	VPXOR   Y8, Y6, Y6
 
 	// Load and process 32 bytes from input 6 to 7 outputs
-	VMOVDQU (R11)(R12*1), Y10
+	VMOVDQU (R10), Y10
+	ADDQ    $0x20, R10
 	VPSRLQ  $0x04, Y10, Y11
 	VPAND   Y7, Y10, Y10
 	VPAND   Y7, Y11, Y11
@@ -12078,7 +13380,8 @@ mulAvxTwo_8x7_loop:
 	VPXOR   Y8, Y6, Y6
 
 	// Load and process 32 bytes from input 7 to 7 outputs
-	VMOVDQU (BX)(R12*1), Y10
+	VMOVDQU (DX), Y10
+	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y10, Y11
 	VPAND   Y7, Y10, Y10
 	VPAND   Y7, Y11, Y11
@@ -12126,19 +13429,19 @@ mulAvxTwo_8x7_loop:
 	VPXOR   Y8, Y6, Y6
 
 	// Store 7 outputs
-	MOVQ    (DX), R13
+	MOVQ    (R11), R13
 	VMOVDQU Y0, (R13)(R12*1)
-	MOVQ    24(DX), R13
+	MOVQ    24(R11), R13
 	VMOVDQU Y1, (R13)(R12*1)
-	MOVQ    48(DX), R13
+	MOVQ    48(R11), R13
 	VMOVDQU Y2, (R13)(R12*1)
-	MOVQ    72(DX), R13
+	MOVQ    72(R11), R13
 	VMOVDQU Y3, (R13)(R12*1)
-	MOVQ    96(DX), R13
+	MOVQ    96(R11), R13
 	VMOVDQU Y4, (R13)(R12*1)
-	MOVQ    120(DX), R13
+	MOVQ    120(R11), R13
 	VMOVDQU Y5, (R13)(R12*1)
-	MOVQ    144(DX), R13
+	MOVQ    144(R11), R13
 	VMOVDQU Y6, (R13)(R12*1)
 
 	// Prepare for next loop
@@ -12154,26 +13457,37 @@ mulAvxTwo_8x7_end:
 // Requires: AVX, AVX2, SSE2
 TEXT ·mulAvxTwo_8x8(SB), $0-88
 	// Loading no tables to registers
+	// Destination kept on stack
 	// Full registers estimated 141 YMM used
-	MOVQ         n+80(FP), AX
-	MOVQ         matrix_base+0(FP), CX
-	SHRQ         $0x05, AX
-	TESTQ        AX, AX
-	JZ           mulAvxTwo_8x8_end
-	MOVQ         out_base+48(FP), DX
-	MOVQ         in_base+24(FP), BX
-	MOVQ         (BX), BP
-	MOVQ         24(BX), SI
-	MOVQ         48(BX), DI
-	MOVQ         72(BX), R8
-	MOVQ         96(BX), R9
-	MOVQ         120(BX), R10
-	MOVQ         144(BX), R11
-	MOVQ         168(BX), BX
-	MOVQ         $0x0000000f, R12
-	MOVQ         R12, X8
+	MOVQ  n+80(FP), AX
+	MOVQ  matrix_base+0(FP), CX
+	SHRQ  $0x05, AX
+	TESTQ AX, AX
+	JZ    mulAvxTwo_8x8_end
+	MOVQ  in_base+24(FP), DX
+	MOVQ  (DX), BX
+	MOVQ  24(DX), BP
+	MOVQ  48(DX), SI
+	MOVQ  72(DX), DI
+	MOVQ  96(DX), R8
+	MOVQ  120(DX), R9
+	MOVQ  144(DX), R10
+	MOVQ  168(DX), DX
+	MOVQ  out_base+48(FP), R11
+	MOVQ  start+72(FP), R12
+
+	// Add start offset to input
+	ADDQ         R12, BX
+	ADDQ         R12, BP
+	ADDQ         R12, SI
+	ADDQ         R12, DI
+	ADDQ         R12, R8
+	ADDQ         R12, R9
+	ADDQ         R12, R10
+	ADDQ         R12, DX
+	MOVQ         $0x0000000f, R13
+	MOVQ         R13, X8
 	VPBROADCASTB X8, Y8
-	MOVQ         start+72(FP), R12
 
 mulAvxTwo_8x8_loop:
 	// Clear 8 outputs
@@ -12187,7 +13501,8 @@ mulAvxTwo_8x8_loop:
 	VPXOR Y7, Y7, Y7
 
 	// Load and process 32 bytes from input 0 to 8 outputs
-	VMOVDQU (BP)(R12*1), Y11
+	VMOVDQU (BX), Y11
+	ADDQ    $0x20, BX
 	VPSRLQ  $0x04, Y11, Y12
 	VPAND   Y8, Y11, Y11
 	VPAND   Y8, Y12, Y12
@@ -12241,7 +13556,8 @@ mulAvxTwo_8x8_loop:
 	VPXOR   Y9, Y7, Y7
 
 	// Load and process 32 bytes from input 1 to 8 outputs
-	VMOVDQU (SI)(R12*1), Y11
+	VMOVDQU (BP), Y11
+	ADDQ    $0x20, BP
 	VPSRLQ  $0x04, Y11, Y12
 	VPAND   Y8, Y11, Y11
 	VPAND   Y8, Y12, Y12
@@ -12295,7 +13611,8 @@ mulAvxTwo_8x8_loop:
 	VPXOR   Y9, Y7, Y7
 
 	// Load and process 32 bytes from input 2 to 8 outputs
-	VMOVDQU (DI)(R12*1), Y11
+	VMOVDQU (SI), Y11
+	ADDQ    $0x20, SI
 	VPSRLQ  $0x04, Y11, Y12
 	VPAND   Y8, Y11, Y11
 	VPAND   Y8, Y12, Y12
@@ -12349,7 +13666,8 @@ mulAvxTwo_8x8_loop:
 	VPXOR   Y9, Y7, Y7
 
 	// Load and process 32 bytes from input 3 to 8 outputs
-	VMOVDQU (R8)(R12*1), Y11
+	VMOVDQU (DI), Y11
+	ADDQ    $0x20, DI
 	VPSRLQ  $0x04, Y11, Y12
 	VPAND   Y8, Y11, Y11
 	VPAND   Y8, Y12, Y12
@@ -12403,7 +13721,8 @@ mulAvxTwo_8x8_loop:
 	VPXOR   Y9, Y7, Y7
 
 	// Load and process 32 bytes from input 4 to 8 outputs
-	VMOVDQU (R9)(R12*1), Y11
+	VMOVDQU (R8), Y11
+	ADDQ    $0x20, R8
 	VPSRLQ  $0x04, Y11, Y12
 	VPAND   Y8, Y11, Y11
 	VPAND   Y8, Y12, Y12
@@ -12457,7 +13776,8 @@ mulAvxTwo_8x8_loop:
 	VPXOR   Y9, Y7, Y7
 
 	// Load and process 32 bytes from input 5 to 8 outputs
-	VMOVDQU (R10)(R12*1), Y11
+	VMOVDQU (R9), Y11
+	ADDQ    $0x20, R9
 	VPSRLQ  $0x04, Y11, Y12
 	VPAND   Y8, Y11, Y11
 	VPAND   Y8, Y12, Y12
@@ -12511,7 +13831,8 @@ mulAvxTwo_8x8_loop:
 	VPXOR   Y9, Y7, Y7
 
 	// Load and process 32 bytes from input 6 to 8 outputs
-	VMOVDQU (R11)(R12*1), Y11
+	VMOVDQU (R10), Y11
+	ADDQ    $0x20, R10
 	VPSRLQ  $0x04, Y11, Y12
 	VPAND   Y8, Y11, Y11
 	VPAND   Y8, Y12, Y12
@@ -12565,7 +13886,8 @@ mulAvxTwo_8x8_loop:
 	VPXOR   Y9, Y7, Y7
 
 	// Load and process 32 bytes from input 7 to 8 outputs
-	VMOVDQU (BX)(R12*1), Y11
+	VMOVDQU (DX), Y11
+	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y11, Y12
 	VPAND   Y8, Y11, Y11
 	VPAND   Y8, Y12, Y12
@@ -12619,21 +13941,21 @@ mulAvxTwo_8x8_loop:
 	VPXOR   Y9, Y7, Y7
 
 	// Store 8 outputs
-	MOVQ    (DX), R13
+	MOVQ    (R11), R13
 	VMOVDQU Y0, (R13)(R12*1)
-	MOVQ    24(DX), R13
+	MOVQ    24(R11), R13
 	VMOVDQU Y1, (R13)(R12*1)
-	MOVQ    48(DX), R13
+	MOVQ    48(R11), R13
 	VMOVDQU Y2, (R13)(R12*1)
-	MOVQ    72(DX), R13
+	MOVQ    72(R11), R13
 	VMOVDQU Y3, (R13)(R12*1)
-	MOVQ    96(DX), R13
+	MOVQ    96(R11), R13
 	VMOVDQU Y4, (R13)(R12*1)
-	MOVQ    120(DX), R13
+	MOVQ    120(R11), R13
 	VMOVDQU Y5, (R13)(R12*1)
-	MOVQ    144(DX), R13
+	MOVQ    144(R11), R13
 	VMOVDQU Y6, (R13)(R12*1)
-	MOVQ    168(DX), R13
+	MOVQ    168(R11), R13
 	VMOVDQU Y7, (R13)(R12*1)
 
 	// Prepare for next loop
@@ -12649,35 +13971,51 @@ mulAvxTwo_8x8_end:
 // Requires: AVX, AVX2, SSE2
 TEXT ·mulAvxTwo_9x1(SB), $0-88
 	// Loading no tables to registers
+	// Destination kept in GP registers
 	// Full registers estimated 22 YMM used
-	MOVQ         n+80(FP), AX
-	MOVQ         matrix_base+0(FP), CX
-	SHRQ         $0x05, AX
-	TESTQ        AX, AX
-	JZ           mulAvxTwo_9x1_end
-	MOVQ         out_base+48(FP), DX
-	MOVQ         (DX), DX
-	MOVQ         in_base+24(FP), BX
-	MOVQ         (BX), BP
-	MOVQ         24(BX), SI
-	MOVQ         48(BX), DI
-	MOVQ         72(BX), R8
-	MOVQ         96(BX), R9
-	MOVQ         120(BX), R10
-	MOVQ         144(BX), R11
-	MOVQ         168(BX), R12
-	MOVQ         192(BX), BX
+	MOVQ  n+80(FP), AX
+	MOVQ  matrix_base+0(FP), CX
+	SHRQ  $0x05, AX
+	TESTQ AX, AX
+	JZ    mulAvxTwo_9x1_end
+	MOVQ  in_base+24(FP), DX
+	MOVQ  (DX), BX
+	MOVQ  24(DX), BP
+	MOVQ  48(DX), SI
+	MOVQ  72(DX), DI
+	MOVQ  96(DX), R8
+	MOVQ  120(DX), R9
+	MOVQ  144(DX), R10
+	MOVQ  168(DX), R11
+	MOVQ  192(DX), DX
+	MOVQ  out_base+48(FP), R12
+	MOVQ  (R12), R12
+	MOVQ  start+72(FP), R13
+
+	// Add start offset to output
+	ADDQ R13, R12
+
+	// Add start offset to input
+	ADDQ         R13, BX
+	ADDQ         R13, BP
+	ADDQ         R13, SI
+	ADDQ         R13, DI
+	ADDQ         R13, R8
+	ADDQ         R13, R9
+	ADDQ         R13, R10
+	ADDQ         R13, R11
+	ADDQ         R13, DX
 	MOVQ         $0x0000000f, R13
 	MOVQ         R13, X1
 	VPBROADCASTB X1, Y1
-	MOVQ         start+72(FP), R13
 
 mulAvxTwo_9x1_loop:
 	// Clear 1 outputs
 	VPXOR Y0, Y0, Y0
 
 	// Load and process 32 bytes from input 0 to 1 outputs
-	VMOVDQU (BP)(R13*1), Y4
+	VMOVDQU (BX), Y4
+	ADDQ    $0x20, BX
 	VPSRLQ  $0x04, Y4, Y5
 	VPAND   Y1, Y4, Y4
 	VPAND   Y1, Y5, Y5
@@ -12689,7 +14027,8 @@ mulAvxTwo_9x1_loop:
 	VPXOR   Y2, Y0, Y0
 
 	// Load and process 32 bytes from input 1 to 1 outputs
-	VMOVDQU (SI)(R13*1), Y4
+	VMOVDQU (BP), Y4
+	ADDQ    $0x20, BP
 	VPSRLQ  $0x04, Y4, Y5
 	VPAND   Y1, Y4, Y4
 	VPAND   Y1, Y5, Y5
@@ -12701,7 +14040,8 @@ mulAvxTwo_9x1_loop:
 	VPXOR   Y2, Y0, Y0
 
 	// Load and process 32 bytes from input 2 to 1 outputs
-	VMOVDQU (DI)(R13*1), Y4
+	VMOVDQU (SI), Y4
+	ADDQ    $0x20, SI
 	VPSRLQ  $0x04, Y4, Y5
 	VPAND   Y1, Y4, Y4
 	VPAND   Y1, Y5, Y5
@@ -12713,7 +14053,8 @@ mulAvxTwo_9x1_loop:
 	VPXOR   Y2, Y0, Y0
 
 	// Load and process 32 bytes from input 3 to 1 outputs
-	VMOVDQU (R8)(R13*1), Y4
+	VMOVDQU (DI), Y4
+	ADDQ    $0x20, DI
 	VPSRLQ  $0x04, Y4, Y5
 	VPAND   Y1, Y4, Y4
 	VPAND   Y1, Y5, Y5
@@ -12725,7 +14066,8 @@ mulAvxTwo_9x1_loop:
 	VPXOR   Y2, Y0, Y0
 
 	// Load and process 32 bytes from input 4 to 1 outputs
-	VMOVDQU (R9)(R13*1), Y4
+	VMOVDQU (R8), Y4
+	ADDQ    $0x20, R8
 	VPSRLQ  $0x04, Y4, Y5
 	VPAND   Y1, Y4, Y4
 	VPAND   Y1, Y5, Y5
@@ -12737,7 +14079,8 @@ mulAvxTwo_9x1_loop:
 	VPXOR   Y2, Y0, Y0
 
 	// Load and process 32 bytes from input 5 to 1 outputs
-	VMOVDQU (R10)(R13*1), Y4
+	VMOVDQU (R9), Y4
+	ADDQ    $0x20, R9
 	VPSRLQ  $0x04, Y4, Y5
 	VPAND   Y1, Y4, Y4
 	VPAND   Y1, Y5, Y5
@@ -12749,7 +14092,8 @@ mulAvxTwo_9x1_loop:
 	VPXOR   Y2, Y0, Y0
 
 	// Load and process 32 bytes from input 6 to 1 outputs
-	VMOVDQU (R11)(R13*1), Y4
+	VMOVDQU (R10), Y4
+	ADDQ    $0x20, R10
 	VPSRLQ  $0x04, Y4, Y5
 	VPAND   Y1, Y4, Y4
 	VPAND   Y1, Y5, Y5
@@ -12761,7 +14105,8 @@ mulAvxTwo_9x1_loop:
 	VPXOR   Y2, Y0, Y0
 
 	// Load and process 32 bytes from input 7 to 1 outputs
-	VMOVDQU (R12)(R13*1), Y4
+	VMOVDQU (R11), Y4
+	ADDQ    $0x20, R11
 	VPSRLQ  $0x04, Y4, Y5
 	VPAND   Y1, Y4, Y4
 	VPAND   Y1, Y5, Y5
@@ -12773,7 +14118,8 @@ mulAvxTwo_9x1_loop:
 	VPXOR   Y2, Y0, Y0
 
 	// Load and process 32 bytes from input 8 to 1 outputs
-	VMOVDQU (BX)(R13*1), Y4
+	VMOVDQU (DX), Y4
+	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y4, Y5
 	VPAND   Y1, Y4, Y4
 	VPAND   Y1, Y5, Y5
@@ -12785,10 +14131,10 @@ mulAvxTwo_9x1_loop:
 	VPXOR   Y2, Y0, Y0
 
 	// Store 1 outputs
-	VMOVDQU Y0, (DX)(R13*1)
+	VMOVDQU Y0, (R12)
+	ADDQ    $0x20, R12
 
 	// Prepare for next loop
-	ADDQ $0x20, R13
 	DECQ AX
 	JNZ  mulAvxTwo_9x1_loop
 	VZEROUPPER
@@ -12800,29 +14146,45 @@ mulAvxTwo_9x1_end:
 // Requires: AVX, AVX2, SSE2
 TEXT ·mulAvxTwo_9x2(SB), $0-88
 	// Loading no tables to registers
+	// Destination kept in GP registers
 	// Full registers estimated 43 YMM used
-	MOVQ         n+80(FP), AX
-	MOVQ         matrix_base+0(FP), CX
-	SHRQ         $0x05, AX
-	TESTQ        AX, AX
-	JZ           mulAvxTwo_9x2_end
-	MOVQ         out_base+48(FP), DX
-	MOVQ         (DX), BX
-	MOVQ         24(DX), DX
-	MOVQ         in_base+24(FP), BP
-	MOVQ         (BP), SI
-	MOVQ         24(BP), DI
-	MOVQ         48(BP), R8
-	MOVQ         72(BP), R9
-	MOVQ         96(BP), R10
-	MOVQ         120(BP), R11
-	MOVQ         144(BP), R12
-	MOVQ         168(BP), R13
-	MOVQ         192(BP), BP
+	MOVQ  n+80(FP), AX
+	MOVQ  matrix_base+0(FP), CX
+	SHRQ  $0x05, AX
+	TESTQ AX, AX
+	JZ    mulAvxTwo_9x2_end
+	MOVQ  in_base+24(FP), DX
+	MOVQ  (DX), BX
+	MOVQ  24(DX), BP
+	MOVQ  48(DX), SI
+	MOVQ  72(DX), DI
+	MOVQ  96(DX), R8
+	MOVQ  120(DX), R9
+	MOVQ  144(DX), R10
+	MOVQ  168(DX), R11
+	MOVQ  192(DX), DX
+	MOVQ  out_base+48(FP), R12
+	MOVQ  (R12), R13
+	MOVQ  24(R12), R12
+	MOVQ  start+72(FP), R14
+
+	// Add start offset to output
+	ADDQ R14, R13
+	ADDQ R14, R12
+
+	// Add start offset to input
+	ADDQ         R14, BX
+	ADDQ         R14, BP
+	ADDQ         R14, SI
+	ADDQ         R14, DI
+	ADDQ         R14, R8
+	ADDQ         R14, R9
+	ADDQ         R14, R10
+	ADDQ         R14, R11
+	ADDQ         R14, DX
 	MOVQ         $0x0000000f, R14
 	MOVQ         R14, X2
 	VPBROADCASTB X2, Y2
-	MOVQ         start+72(FP), R14
 
 mulAvxTwo_9x2_loop:
 	// Clear 2 outputs
@@ -12830,7 +14192,8 @@ mulAvxTwo_9x2_loop:
 	VPXOR Y1, Y1, Y1
 
 	// Load and process 32 bytes from input 0 to 2 outputs
-	VMOVDQU (SI)(R14*1), Y5
+	VMOVDQU (BX), Y5
+	ADDQ    $0x20, BX
 	VPSRLQ  $0x04, Y5, Y6
 	VPAND   Y2, Y5, Y5
 	VPAND   Y2, Y6, Y6
@@ -12848,7 +14211,8 @@ mulAvxTwo_9x2_loop:
 	VPXOR   Y3, Y1, Y1
 
 	// Load and process 32 bytes from input 1 to 2 outputs
-	VMOVDQU (DI)(R14*1), Y5
+	VMOVDQU (BP), Y5
+	ADDQ    $0x20, BP
 	VPSRLQ  $0x04, Y5, Y6
 	VPAND   Y2, Y5, Y5
 	VPAND   Y2, Y6, Y6
@@ -12866,7 +14230,8 @@ mulAvxTwo_9x2_loop:
 	VPXOR   Y3, Y1, Y1
 
 	// Load and process 32 bytes from input 2 to 2 outputs
-	VMOVDQU (R8)(R14*1), Y5
+	VMOVDQU (SI), Y5
+	ADDQ    $0x20, SI
 	VPSRLQ  $0x04, Y5, Y6
 	VPAND   Y2, Y5, Y5
 	VPAND   Y2, Y6, Y6
@@ -12884,7 +14249,8 @@ mulAvxTwo_9x2_loop:
 	VPXOR   Y3, Y1, Y1
 
 	// Load and process 32 bytes from input 3 to 2 outputs
-	VMOVDQU (R9)(R14*1), Y5
+	VMOVDQU (DI), Y5
+	ADDQ    $0x20, DI
 	VPSRLQ  $0x04, Y5, Y6
 	VPAND   Y2, Y5, Y5
 	VPAND   Y2, Y6, Y6
@@ -12902,7 +14268,8 @@ mulAvxTwo_9x2_loop:
 	VPXOR   Y3, Y1, Y1
 
 	// Load and process 32 bytes from input 4 to 2 outputs
-	VMOVDQU (R10)(R14*1), Y5
+	VMOVDQU (R8), Y5
+	ADDQ    $0x20, R8
 	VPSRLQ  $0x04, Y5, Y6
 	VPAND   Y2, Y5, Y5
 	VPAND   Y2, Y6, Y6
@@ -12920,7 +14287,8 @@ mulAvxTwo_9x2_loop:
 	VPXOR   Y3, Y1, Y1
 
 	// Load and process 32 bytes from input 5 to 2 outputs
-	VMOVDQU (R11)(R14*1), Y5
+	VMOVDQU (R9), Y5
+	ADDQ    $0x20, R9
 	VPSRLQ  $0x04, Y5, Y6
 	VPAND   Y2, Y5, Y5
 	VPAND   Y2, Y6, Y6
@@ -12938,7 +14306,8 @@ mulAvxTwo_9x2_loop:
 	VPXOR   Y3, Y1, Y1
 
 	// Load and process 32 bytes from input 6 to 2 outputs
-	VMOVDQU (R12)(R14*1), Y5
+	VMOVDQU (R10), Y5
+	ADDQ    $0x20, R10
 	VPSRLQ  $0x04, Y5, Y6
 	VPAND   Y2, Y5, Y5
 	VPAND   Y2, Y6, Y6
@@ -12956,7 +14325,8 @@ mulAvxTwo_9x2_loop:
 	VPXOR   Y3, Y1, Y1
 
 	// Load and process 32 bytes from input 7 to 2 outputs
-	VMOVDQU (R13)(R14*1), Y5
+	VMOVDQU (R11), Y5
+	ADDQ    $0x20, R11
 	VPSRLQ  $0x04, Y5, Y6
 	VPAND   Y2, Y5, Y5
 	VPAND   Y2, Y6, Y6
@@ -12974,7 +14344,8 @@ mulAvxTwo_9x2_loop:
 	VPXOR   Y3, Y1, Y1
 
 	// Load and process 32 bytes from input 8 to 2 outputs
-	VMOVDQU (BP)(R14*1), Y5
+	VMOVDQU (DX), Y5
+	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y5, Y6
 	VPAND   Y2, Y5, Y5
 	VPAND   Y2, Y6, Y6
@@ -12992,11 +14363,12 @@ mulAvxTwo_9x2_loop:
 	VPXOR   Y3, Y1, Y1
 
 	// Store 2 outputs
-	VMOVDQU Y0, (BX)(R14*1)
-	VMOVDQU Y1, (DX)(R14*1)
+	VMOVDQU Y0, (R13)
+	ADDQ    $0x20, R13
+	VMOVDQU Y1, (R12)
+	ADDQ    $0x20, R12
 
 	// Prepare for next loop
-	ADDQ $0x20, R14
 	DECQ AX
 	JNZ  mulAvxTwo_9x2_loop
 	VZEROUPPER
@@ -13008,30 +14380,47 @@ mulAvxTwo_9x2_end:
 // Requires: AVX, AVX2, SSE2
 TEXT ·mulAvxTwo_9x3(SB), $0-88
 	// Loading no tables to registers
+	// Destination kept in GP registers
 	// Full registers estimated 62 YMM used
-	MOVQ         n+80(FP), AX
-	MOVQ         matrix_base+0(FP), CX
-	SHRQ         $0x05, AX
-	TESTQ        AX, AX
-	JZ           mulAvxTwo_9x3_end
-	MOVQ         out_base+48(FP), DX
-	MOVQ         (DX), BX
-	MOVQ         24(DX), BP
-	MOVQ         48(DX), DX
-	MOVQ         in_base+24(FP), SI
-	MOVQ         (SI), DI
-	MOVQ         24(SI), R8
-	MOVQ         48(SI), R9
-	MOVQ         72(SI), R10
-	MOVQ         96(SI), R11
-	MOVQ         120(SI), R12
-	MOVQ         144(SI), R13
-	MOVQ         168(SI), R14
-	MOVQ         192(SI), SI
+	MOVQ  n+80(FP), AX
+	MOVQ  matrix_base+0(FP), CX
+	SHRQ  $0x05, AX
+	TESTQ AX, AX
+	JZ    mulAvxTwo_9x3_end
+	MOVQ  in_base+24(FP), DX
+	MOVQ  (DX), BX
+	MOVQ  24(DX), BP
+	MOVQ  48(DX), SI
+	MOVQ  72(DX), DI
+	MOVQ  96(DX), R8
+	MOVQ  120(DX), R9
+	MOVQ  144(DX), R10
+	MOVQ  168(DX), R11
+	MOVQ  192(DX), DX
+	MOVQ  out_base+48(FP), R12
+	MOVQ  (R12), R13
+	MOVQ  24(R12), R14
+	MOVQ  48(R12), R12
+	MOVQ  start+72(FP), R15
+
+	// Add start offset to output
+	ADDQ R15, R13
+	ADDQ R15, R14
+	ADDQ R15, R12
+
+	// Add start offset to input
+	ADDQ         R15, BX
+	ADDQ         R15, BP
+	ADDQ         R15, SI
+	ADDQ         R15, DI
+	ADDQ         R15, R8
+	ADDQ         R15, R9
+	ADDQ         R15, R10
+	ADDQ         R15, R11
+	ADDQ         R15, DX
 	MOVQ         $0x0000000f, R15
 	MOVQ         R15, X3
 	VPBROADCASTB X3, Y3
-	MOVQ         start+72(FP), R15
 
 mulAvxTwo_9x3_loop:
 	// Clear 3 outputs
@@ -13040,7 +14429,8 @@ mulAvxTwo_9x3_loop:
 	VPXOR Y2, Y2, Y2
 
 	// Load and process 32 bytes from input 0 to 3 outputs
-	VMOVDQU (DI)(R15*1), Y6
+	VMOVDQU (BX), Y6
+	ADDQ    $0x20, BX
 	VPSRLQ  $0x04, Y6, Y7
 	VPAND   Y3, Y6, Y6
 	VPAND   Y3, Y7, Y7
@@ -13064,7 +14454,8 @@ mulAvxTwo_9x3_loop:
 	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 1 to 3 outputs
-	VMOVDQU (R8)(R15*1), Y6
+	VMOVDQU (BP), Y6
+	ADDQ    $0x20, BP
 	VPSRLQ  $0x04, Y6, Y7
 	VPAND   Y3, Y6, Y6
 	VPAND   Y3, Y7, Y7
@@ -13088,7 +14479,8 @@ mulAvxTwo_9x3_loop:
 	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 2 to 3 outputs
-	VMOVDQU (R9)(R15*1), Y6
+	VMOVDQU (SI), Y6
+	ADDQ    $0x20, SI
 	VPSRLQ  $0x04, Y6, Y7
 	VPAND   Y3, Y6, Y6
 	VPAND   Y3, Y7, Y7
@@ -13112,7 +14504,8 @@ mulAvxTwo_9x3_loop:
 	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 3 to 3 outputs
-	VMOVDQU (R10)(R15*1), Y6
+	VMOVDQU (DI), Y6
+	ADDQ    $0x20, DI
 	VPSRLQ  $0x04, Y6, Y7
 	VPAND   Y3, Y6, Y6
 	VPAND   Y3, Y7, Y7
@@ -13136,7 +14529,8 @@ mulAvxTwo_9x3_loop:
 	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 4 to 3 outputs
-	VMOVDQU (R11)(R15*1), Y6
+	VMOVDQU (R8), Y6
+	ADDQ    $0x20, R8
 	VPSRLQ  $0x04, Y6, Y7
 	VPAND   Y3, Y6, Y6
 	VPAND   Y3, Y7, Y7
@@ -13160,7 +14554,8 @@ mulAvxTwo_9x3_loop:
 	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 5 to 3 outputs
-	VMOVDQU (R12)(R15*1), Y6
+	VMOVDQU (R9), Y6
+	ADDQ    $0x20, R9
 	VPSRLQ  $0x04, Y6, Y7
 	VPAND   Y3, Y6, Y6
 	VPAND   Y3, Y7, Y7
@@ -13184,7 +14579,8 @@ mulAvxTwo_9x3_loop:
 	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 6 to 3 outputs
-	VMOVDQU (R13)(R15*1), Y6
+	VMOVDQU (R10), Y6
+	ADDQ    $0x20, R10
 	VPSRLQ  $0x04, Y6, Y7
 	VPAND   Y3, Y6, Y6
 	VPAND   Y3, Y7, Y7
@@ -13208,7 +14604,8 @@ mulAvxTwo_9x3_loop:
 	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 7 to 3 outputs
-	VMOVDQU (R14)(R15*1), Y6
+	VMOVDQU (R11), Y6
+	ADDQ    $0x20, R11
 	VPSRLQ  $0x04, Y6, Y7
 	VPAND   Y3, Y6, Y6
 	VPAND   Y3, Y7, Y7
@@ -13232,7 +14629,8 @@ mulAvxTwo_9x3_loop:
 	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 8 to 3 outputs
-	VMOVDQU (SI)(R15*1), Y6
+	VMOVDQU (DX), Y6
+	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y6, Y7
 	VPAND   Y3, Y6, Y6
 	VPAND   Y3, Y7, Y7
@@ -13256,12 +14654,14 @@ mulAvxTwo_9x3_loop:
 	VPXOR   Y4, Y2, Y2
 
 	// Store 3 outputs
-	VMOVDQU Y0, (BX)(R15*1)
-	VMOVDQU Y1, (BP)(R15*1)
-	VMOVDQU Y2, (DX)(R15*1)
+	VMOVDQU Y0, (R13)
+	ADDQ    $0x20, R13
+	VMOVDQU Y1, (R14)
+	ADDQ    $0x20, R14
+	VMOVDQU Y2, (R12)
+	ADDQ    $0x20, R12
 
 	// Prepare for next loop
-	ADDQ $0x20, R15
 	DECQ AX
 	JNZ  mulAvxTwo_9x3_loop
 	VZEROUPPER
@@ -13273,27 +14673,51 @@ mulAvxTwo_9x3_end:
 // Requires: AVX, AVX2, SSE2
 TEXT ·mulAvxTwo_9x4(SB), $0-88
 	// Loading no tables to registers
+	// Destination kept in GP registers
 	// Full registers estimated 81 YMM used
-	MOVQ         n+80(FP), AX
-	MOVQ         matrix_base+0(FP), CX
-	SHRQ         $0x05, AX
-	TESTQ        AX, AX
-	JZ           mulAvxTwo_9x4_end
-	MOVQ         out_base+48(FP), DX
-	MOVQ         in_base+24(FP), BX
-	MOVQ         (BX), BP
-	MOVQ         24(BX), SI
-	MOVQ         48(BX), DI
-	MOVQ         72(BX), R8
-	MOVQ         96(BX), R9
-	MOVQ         120(BX), R10
-	MOVQ         144(BX), R11
-	MOVQ         168(BX), R12
-	MOVQ         192(BX), BX
-	MOVQ         $0x0000000f, R13
-	MOVQ         R13, X4
+	MOVQ  n+80(FP), AX
+	MOVQ  matrix_base+0(FP), CX
+	SHRQ  $0x05, AX
+	TESTQ AX, AX
+	JZ    mulAvxTwo_9x4_end
+	MOVQ  in_base+24(FP), AX
+	MOVQ  (AX), DX
+	MOVQ  24(AX), BX
+	MOVQ  48(AX), BP
+	MOVQ  72(AX), SI
+	MOVQ  96(AX), DI
+	MOVQ  120(AX), R8
+	MOVQ  144(AX), R9
+	MOVQ  168(AX), R10
+	MOVQ  192(AX), AX
+	MOVQ  out_base+48(FP), R11
+	MOVQ  (R11), R12
+	MOVQ  24(R11), R13
+	MOVQ  48(R11), R14
+	MOVQ  72(R11), R11
+	MOVQ  start+72(FP), R15
+
+	// Add start offset to output
+	ADDQ R15, R12
+	ADDQ R15, R13
+	ADDQ R15, R14
+	ADDQ R15, R11
+
+	// Add start offset to input
+	ADDQ         R15, DX
+	ADDQ         R15, BX
+	ADDQ         R15, BP
+	ADDQ         R15, SI
+	ADDQ         R15, DI
+	ADDQ         R15, R8
+	ADDQ         R15, R9
+	ADDQ         R15, R10
+	ADDQ         R15, AX
+	MOVQ         $0x0000000f, R15
+	MOVQ         R15, X4
 	VPBROADCASTB X4, Y4
-	MOVQ         start+72(FP), R13
+	MOVQ         n+80(FP), R15
+	SHRQ         $0x05, R15
 
 mulAvxTwo_9x4_loop:
 	// Clear 4 outputs
@@ -13303,7 +14727,8 @@ mulAvxTwo_9x4_loop:
 	VPXOR Y3, Y3, Y3
 
 	// Load and process 32 bytes from input 0 to 4 outputs
-	VMOVDQU (BP)(R13*1), Y7
+	VMOVDQU (DX), Y7
+	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y7, Y8
 	VPAND   Y4, Y7, Y7
 	VPAND   Y4, Y8, Y8
@@ -13333,7 +14758,8 @@ mulAvxTwo_9x4_loop:
 	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 1 to 4 outputs
-	VMOVDQU (SI)(R13*1), Y7
+	VMOVDQU (BX), Y7
+	ADDQ    $0x20, BX
 	VPSRLQ  $0x04, Y7, Y8
 	VPAND   Y4, Y7, Y7
 	VPAND   Y4, Y8, Y8
@@ -13363,7 +14789,8 @@ mulAvxTwo_9x4_loop:
 	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 2 to 4 outputs
-	VMOVDQU (DI)(R13*1), Y7
+	VMOVDQU (BP), Y7
+	ADDQ    $0x20, BP
 	VPSRLQ  $0x04, Y7, Y8
 	VPAND   Y4, Y7, Y7
 	VPAND   Y4, Y8, Y8
@@ -13393,7 +14820,8 @@ mulAvxTwo_9x4_loop:
 	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 3 to 4 outputs
-	VMOVDQU (R8)(R13*1), Y7
+	VMOVDQU (SI), Y7
+	ADDQ    $0x20, SI
 	VPSRLQ  $0x04, Y7, Y8
 	VPAND   Y4, Y7, Y7
 	VPAND   Y4, Y8, Y8
@@ -13423,7 +14851,8 @@ mulAvxTwo_9x4_loop:
 	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 4 to 4 outputs
-	VMOVDQU (R9)(R13*1), Y7
+	VMOVDQU (DI), Y7
+	ADDQ    $0x20, DI
 	VPSRLQ  $0x04, Y7, Y8
 	VPAND   Y4, Y7, Y7
 	VPAND   Y4, Y8, Y8
@@ -13453,7 +14882,8 @@ mulAvxTwo_9x4_loop:
 	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 5 to 4 outputs
-	VMOVDQU (R10)(R13*1), Y7
+	VMOVDQU (R8), Y7
+	ADDQ    $0x20, R8
 	VPSRLQ  $0x04, Y7, Y8
 	VPAND   Y4, Y7, Y7
 	VPAND   Y4, Y8, Y8
@@ -13483,7 +14913,8 @@ mulAvxTwo_9x4_loop:
 	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 6 to 4 outputs
-	VMOVDQU (R11)(R13*1), Y7
+	VMOVDQU (R9), Y7
+	ADDQ    $0x20, R9
 	VPSRLQ  $0x04, Y7, Y8
 	VPAND   Y4, Y7, Y7
 	VPAND   Y4, Y8, Y8
@@ -13513,7 +14944,8 @@ mulAvxTwo_9x4_loop:
 	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 7 to 4 outputs
-	VMOVDQU (R12)(R13*1), Y7
+	VMOVDQU (R10), Y7
+	ADDQ    $0x20, R10
 	VPSRLQ  $0x04, Y7, Y8
 	VPAND   Y4, Y7, Y7
 	VPAND   Y4, Y8, Y8
@@ -13543,7 +14975,8 @@ mulAvxTwo_9x4_loop:
 	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 8 to 4 outputs
-	VMOVDQU (BX)(R13*1), Y7
+	VMOVDQU (AX), Y7
+	ADDQ    $0x20, AX
 	VPSRLQ  $0x04, Y7, Y8
 	VPAND   Y4, Y7, Y7
 	VPAND   Y4, Y8, Y8
@@ -13573,18 +15006,17 @@ mulAvxTwo_9x4_loop:
 	VPXOR   Y5, Y3, Y3
 
 	// Store 4 outputs
-	MOVQ    (DX), R14
-	VMOVDQU Y0, (R14)(R13*1)
-	MOVQ    24(DX), R14
-	VMOVDQU Y1, (R14)(R13*1)
-	MOVQ    48(DX), R14
-	VMOVDQU Y2, (R14)(R13*1)
-	MOVQ    72(DX), R14
-	VMOVDQU Y3, (R14)(R13*1)
+	VMOVDQU Y0, (R12)
+	ADDQ    $0x20, R12
+	VMOVDQU Y1, (R13)
+	ADDQ    $0x20, R13
+	VMOVDQU Y2, (R14)
+	ADDQ    $0x20, R14
+	VMOVDQU Y3, (R11)
+	ADDQ    $0x20, R11
 
 	// Prepare for next loop
-	ADDQ $0x20, R13
-	DECQ AX
+	DECQ R15
 	JNZ  mulAvxTwo_9x4_loop
 	VZEROUPPER
 
@@ -13595,27 +15027,39 @@ mulAvxTwo_9x4_end:
 // Requires: AVX, AVX2, SSE2
 TEXT ·mulAvxTwo_9x5(SB), $0-88
 	// Loading no tables to registers
+	// Destination kept on stack
 	// Full registers estimated 100 YMM used
-	MOVQ         n+80(FP), AX
-	MOVQ         matrix_base+0(FP), CX
-	SHRQ         $0x05, AX
-	TESTQ        AX, AX
-	JZ           mulAvxTwo_9x5_end
-	MOVQ         out_base+48(FP), DX
-	MOVQ         in_base+24(FP), BX
-	MOVQ         (BX), BP
-	MOVQ         24(BX), SI
-	MOVQ         48(BX), DI
-	MOVQ         72(BX), R8
-	MOVQ         96(BX), R9
-	MOVQ         120(BX), R10
-	MOVQ         144(BX), R11
-	MOVQ         168(BX), R12
-	MOVQ         192(BX), BX
-	MOVQ         $0x0000000f, R13
-	MOVQ         R13, X5
+	MOVQ  n+80(FP), AX
+	MOVQ  matrix_base+0(FP), CX
+	SHRQ  $0x05, AX
+	TESTQ AX, AX
+	JZ    mulAvxTwo_9x5_end
+	MOVQ  in_base+24(FP), DX
+	MOVQ  (DX), BX
+	MOVQ  24(DX), BP
+	MOVQ  48(DX), SI
+	MOVQ  72(DX), DI
+	MOVQ  96(DX), R8
+	MOVQ  120(DX), R9
+	MOVQ  144(DX), R10
+	MOVQ  168(DX), R11
+	MOVQ  192(DX), DX
+	MOVQ  out_base+48(FP), R12
+	MOVQ  start+72(FP), R13
+
+	// Add start offset to input
+	ADDQ         R13, BX
+	ADDQ         R13, BP
+	ADDQ         R13, SI
+	ADDQ         R13, DI
+	ADDQ         R13, R8
+	ADDQ         R13, R9
+	ADDQ         R13, R10
+	ADDQ         R13, R11
+	ADDQ         R13, DX
+	MOVQ         $0x0000000f, R14
+	MOVQ         R14, X5
 	VPBROADCASTB X5, Y5
-	MOVQ         start+72(FP), R13
 
 mulAvxTwo_9x5_loop:
 	// Clear 5 outputs
@@ -13626,7 +15070,8 @@ mulAvxTwo_9x5_loop:
 	VPXOR Y4, Y4, Y4
 
 	// Load and process 32 bytes from input 0 to 5 outputs
-	VMOVDQU (BP)(R13*1), Y8
+	VMOVDQU (BX), Y8
+	ADDQ    $0x20, BX
 	VPSRLQ  $0x04, Y8, Y9
 	VPAND   Y5, Y8, Y8
 	VPAND   Y5, Y9, Y9
@@ -13662,7 +15107,8 @@ mulAvxTwo_9x5_loop:
 	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 1 to 5 outputs
-	VMOVDQU (SI)(R13*1), Y8
+	VMOVDQU (BP), Y8
+	ADDQ    $0x20, BP
 	VPSRLQ  $0x04, Y8, Y9
 	VPAND   Y5, Y8, Y8
 	VPAND   Y5, Y9, Y9
@@ -13698,7 +15144,8 @@ mulAvxTwo_9x5_loop:
 	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 2 to 5 outputs
-	VMOVDQU (DI)(R13*1), Y8
+	VMOVDQU (SI), Y8
+	ADDQ    $0x20, SI
 	VPSRLQ  $0x04, Y8, Y9
 	VPAND   Y5, Y8, Y8
 	VPAND   Y5, Y9, Y9
@@ -13734,7 +15181,8 @@ mulAvxTwo_9x5_loop:
 	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 3 to 5 outputs
-	VMOVDQU (R8)(R13*1), Y8
+	VMOVDQU (DI), Y8
+	ADDQ    $0x20, DI
 	VPSRLQ  $0x04, Y8, Y9
 	VPAND   Y5, Y8, Y8
 	VPAND   Y5, Y9, Y9
@@ -13770,7 +15218,8 @@ mulAvxTwo_9x5_loop:
 	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 4 to 5 outputs
-	VMOVDQU (R9)(R13*1), Y8
+	VMOVDQU (R8), Y8
+	ADDQ    $0x20, R8
 	VPSRLQ  $0x04, Y8, Y9
 	VPAND   Y5, Y8, Y8
 	VPAND   Y5, Y9, Y9
@@ -13806,7 +15255,8 @@ mulAvxTwo_9x5_loop:
 	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 5 to 5 outputs
-	VMOVDQU (R10)(R13*1), Y8
+	VMOVDQU (R9), Y8
+	ADDQ    $0x20, R9
 	VPSRLQ  $0x04, Y8, Y9
 	VPAND   Y5, Y8, Y8
 	VPAND   Y5, Y9, Y9
@@ -13842,7 +15292,8 @@ mulAvxTwo_9x5_loop:
 	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 6 to 5 outputs
-	VMOVDQU (R11)(R13*1), Y8
+	VMOVDQU (R10), Y8
+	ADDQ    $0x20, R10
 	VPSRLQ  $0x04, Y8, Y9
 	VPAND   Y5, Y8, Y8
 	VPAND   Y5, Y9, Y9
@@ -13878,7 +15329,8 @@ mulAvxTwo_9x5_loop:
 	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 7 to 5 outputs
-	VMOVDQU (R12)(R13*1), Y8
+	VMOVDQU (R11), Y8
+	ADDQ    $0x20, R11
 	VPSRLQ  $0x04, Y8, Y9
 	VPAND   Y5, Y8, Y8
 	VPAND   Y5, Y9, Y9
@@ -13914,7 +15366,8 @@ mulAvxTwo_9x5_loop:
 	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 8 to 5 outputs
-	VMOVDQU (BX)(R13*1), Y8
+	VMOVDQU (DX), Y8
+	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y8, Y9
 	VPAND   Y5, Y8, Y8
 	VPAND   Y5, Y9, Y9
@@ -13950,15 +15403,15 @@ mulAvxTwo_9x5_loop:
 	VPXOR   Y6, Y4, Y4
 
 	// Store 5 outputs
-	MOVQ    (DX), R14
+	MOVQ    (R12), R14
 	VMOVDQU Y0, (R14)(R13*1)
-	MOVQ    24(DX), R14
+	MOVQ    24(R12), R14
 	VMOVDQU Y1, (R14)(R13*1)
-	MOVQ    48(DX), R14
+	MOVQ    48(R12), R14
 	VMOVDQU Y2, (R14)(R13*1)
-	MOVQ    72(DX), R14
+	MOVQ    72(R12), R14
 	VMOVDQU Y3, (R14)(R13*1)
-	MOVQ    96(DX), R14
+	MOVQ    96(R12), R14
 	VMOVDQU Y4, (R14)(R13*1)
 
 	// Prepare for next loop
@@ -13974,27 +15427,39 @@ mulAvxTwo_9x5_end:
 // Requires: AVX, AVX2, SSE2
 TEXT ·mulAvxTwo_9x6(SB), $0-88
 	// Loading no tables to registers
+	// Destination kept on stack
 	// Full registers estimated 119 YMM used
-	MOVQ         n+80(FP), AX
-	MOVQ         matrix_base+0(FP), CX
-	SHRQ         $0x05, AX
-	TESTQ        AX, AX
-	JZ           mulAvxTwo_9x6_end
-	MOVQ         out_base+48(FP), DX
-	MOVQ         in_base+24(FP), BX
-	MOVQ         (BX), BP
-	MOVQ         24(BX), SI
-	MOVQ         48(BX), DI
-	MOVQ         72(BX), R8
-	MOVQ         96(BX), R9
-	MOVQ         120(BX), R10
-	MOVQ         144(BX), R11
-	MOVQ         168(BX), R12
-	MOVQ         192(BX), BX
-	MOVQ         $0x0000000f, R13
-	MOVQ         R13, X6
+	MOVQ  n+80(FP), AX
+	MOVQ  matrix_base+0(FP), CX
+	SHRQ  $0x05, AX
+	TESTQ AX, AX
+	JZ    mulAvxTwo_9x6_end
+	MOVQ  in_base+24(FP), DX
+	MOVQ  (DX), BX
+	MOVQ  24(DX), BP
+	MOVQ  48(DX), SI
+	MOVQ  72(DX), DI
+	MOVQ  96(DX), R8
+	MOVQ  120(DX), R9
+	MOVQ  144(DX), R10
+	MOVQ  168(DX), R11
+	MOVQ  192(DX), DX
+	MOVQ  out_base+48(FP), R12
+	MOVQ  start+72(FP), R13
+
+	// Add start offset to input
+	ADDQ         R13, BX
+	ADDQ         R13, BP
+	ADDQ         R13, SI
+	ADDQ         R13, DI
+	ADDQ         R13, R8
+	ADDQ         R13, R9
+	ADDQ         R13, R10
+	ADDQ         R13, R11
+	ADDQ         R13, DX
+	MOVQ         $0x0000000f, R14
+	MOVQ         R14, X6
 	VPBROADCASTB X6, Y6
-	MOVQ         start+72(FP), R13
 
 mulAvxTwo_9x6_loop:
 	// Clear 6 outputs
@@ -14006,7 +15471,8 @@ mulAvxTwo_9x6_loop:
 	VPXOR Y5, Y5, Y5
 
 	// Load and process 32 bytes from input 0 to 6 outputs
-	VMOVDQU (BP)(R13*1), Y9
+	VMOVDQU (BX), Y9
+	ADDQ    $0x20, BX
 	VPSRLQ  $0x04, Y9, Y10
 	VPAND   Y6, Y9, Y9
 	VPAND   Y6, Y10, Y10
@@ -14048,7 +15514,8 @@ mulAvxTwo_9x6_loop:
 	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 1 to 6 outputs
-	VMOVDQU (SI)(R13*1), Y9
+	VMOVDQU (BP), Y9
+	ADDQ    $0x20, BP
 	VPSRLQ  $0x04, Y9, Y10
 	VPAND   Y6, Y9, Y9
 	VPAND   Y6, Y10, Y10
@@ -14090,7 +15557,8 @@ mulAvxTwo_9x6_loop:
 	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 2 to 6 outputs
-	VMOVDQU (DI)(R13*1), Y9
+	VMOVDQU (SI), Y9
+	ADDQ    $0x20, SI
 	VPSRLQ  $0x04, Y9, Y10
 	VPAND   Y6, Y9, Y9
 	VPAND   Y6, Y10, Y10
@@ -14132,7 +15600,8 @@ mulAvxTwo_9x6_loop:
 	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 3 to 6 outputs
-	VMOVDQU (R8)(R13*1), Y9
+	VMOVDQU (DI), Y9
+	ADDQ    $0x20, DI
 	VPSRLQ  $0x04, Y9, Y10
 	VPAND   Y6, Y9, Y9
 	VPAND   Y6, Y10, Y10
@@ -14174,7 +15643,8 @@ mulAvxTwo_9x6_loop:
 	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 4 to 6 outputs
-	VMOVDQU (R9)(R13*1), Y9
+	VMOVDQU (R8), Y9
+	ADDQ    $0x20, R8
 	VPSRLQ  $0x04, Y9, Y10
 	VPAND   Y6, Y9, Y9
 	VPAND   Y6, Y10, Y10
@@ -14216,7 +15686,8 @@ mulAvxTwo_9x6_loop:
 	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 5 to 6 outputs
-	VMOVDQU (R10)(R13*1), Y9
+	VMOVDQU (R9), Y9
+	ADDQ    $0x20, R9
 	VPSRLQ  $0x04, Y9, Y10
 	VPAND   Y6, Y9, Y9
 	VPAND   Y6, Y10, Y10
@@ -14258,7 +15729,8 @@ mulAvxTwo_9x6_loop:
 	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 6 to 6 outputs
-	VMOVDQU (R11)(R13*1), Y9
+	VMOVDQU (R10), Y9
+	ADDQ    $0x20, R10
 	VPSRLQ  $0x04, Y9, Y10
 	VPAND   Y6, Y9, Y9
 	VPAND   Y6, Y10, Y10
@@ -14300,7 +15772,8 @@ mulAvxTwo_9x6_loop:
 	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 7 to 6 outputs
-	VMOVDQU (R12)(R13*1), Y9
+	VMOVDQU (R11), Y9
+	ADDQ    $0x20, R11
 	VPSRLQ  $0x04, Y9, Y10
 	VPAND   Y6, Y9, Y9
 	VPAND   Y6, Y10, Y10
@@ -14342,7 +15815,8 @@ mulAvxTwo_9x6_loop:
 	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 8 to 6 outputs
-	VMOVDQU (BX)(R13*1), Y9
+	VMOVDQU (DX), Y9
+	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y9, Y10
 	VPAND   Y6, Y9, Y9
 	VPAND   Y6, Y10, Y10
@@ -14384,17 +15858,17 @@ mulAvxTwo_9x6_loop:
 	VPXOR   Y7, Y5, Y5
 
 	// Store 6 outputs
-	MOVQ    (DX), R14
+	MOVQ    (R12), R14
 	VMOVDQU Y0, (R14)(R13*1)
-	MOVQ    24(DX), R14
+	MOVQ    24(R12), R14
 	VMOVDQU Y1, (R14)(R13*1)
-	MOVQ    48(DX), R14
+	MOVQ    48(R12), R14
 	VMOVDQU Y2, (R14)(R13*1)
-	MOVQ    72(DX), R14
+	MOVQ    72(R12), R14
 	VMOVDQU Y3, (R14)(R13*1)
-	MOVQ    96(DX), R14
+	MOVQ    96(R12), R14
 	VMOVDQU Y4, (R14)(R13*1)
-	MOVQ    120(DX), R14
+	MOVQ    120(R12), R14
 	VMOVDQU Y5, (R14)(R13*1)
 
 	// Prepare for next loop
@@ -14410,27 +15884,39 @@ mulAvxTwo_9x6_end:
 // Requires: AVX, AVX2, SSE2
 TEXT ·mulAvxTwo_9x7(SB), $0-88
 	// Loading no tables to registers
+	// Destination kept on stack
 	// Full registers estimated 138 YMM used
-	MOVQ         n+80(FP), AX
-	MOVQ         matrix_base+0(FP), CX
-	SHRQ         $0x05, AX
-	TESTQ        AX, AX
-	JZ           mulAvxTwo_9x7_end
-	MOVQ         out_base+48(FP), DX
-	MOVQ         in_base+24(FP), BX
-	MOVQ         (BX), BP
-	MOVQ         24(BX), SI
-	MOVQ         48(BX), DI
-	MOVQ         72(BX), R8
-	MOVQ         96(BX), R9
-	MOVQ         120(BX), R10
-	MOVQ         144(BX), R11
-	MOVQ         168(BX), R12
-	MOVQ         192(BX), BX
-	MOVQ         $0x0000000f, R13
-	MOVQ         R13, X7
+	MOVQ  n+80(FP), AX
+	MOVQ  matrix_base+0(FP), CX
+	SHRQ  $0x05, AX
+	TESTQ AX, AX
+	JZ    mulAvxTwo_9x7_end
+	MOVQ  in_base+24(FP), DX
+	MOVQ  (DX), BX
+	MOVQ  24(DX), BP
+	MOVQ  48(DX), SI
+	MOVQ  72(DX), DI
+	MOVQ  96(DX), R8
+	MOVQ  120(DX), R9
+	MOVQ  144(DX), R10
+	MOVQ  168(DX), R11
+	MOVQ  192(DX), DX
+	MOVQ  out_base+48(FP), R12
+	MOVQ  start+72(FP), R13
+
+	// Add start offset to input
+	ADDQ         R13, BX
+	ADDQ         R13, BP
+	ADDQ         R13, SI
+	ADDQ         R13, DI
+	ADDQ         R13, R8
+	ADDQ         R13, R9
+	ADDQ         R13, R10
+	ADDQ         R13, R11
+	ADDQ         R13, DX
+	MOVQ         $0x0000000f, R14
+	MOVQ         R14, X7
 	VPBROADCASTB X7, Y7
-	MOVQ         start+72(FP), R13
 
 mulAvxTwo_9x7_loop:
 	// Clear 7 outputs
@@ -14443,7 +15929,8 @@ mulAvxTwo_9x7_loop:
 	VPXOR Y6, Y6, Y6
 
 	// Load and process 32 bytes from input 0 to 7 outputs
-	VMOVDQU (BP)(R13*1), Y10
+	VMOVDQU (BX), Y10
+	ADDQ    $0x20, BX
 	VPSRLQ  $0x04, Y10, Y11
 	VPAND   Y7, Y10, Y10
 	VPAND   Y7, Y11, Y11
@@ -14491,7 +15978,8 @@ mulAvxTwo_9x7_loop:
 	VPXOR   Y8, Y6, Y6
 
 	// Load and process 32 bytes from input 1 to 7 outputs
-	VMOVDQU (SI)(R13*1), Y10
+	VMOVDQU (BP), Y10
+	ADDQ    $0x20, BP
 	VPSRLQ  $0x04, Y10, Y11
 	VPAND   Y7, Y10, Y10
 	VPAND   Y7, Y11, Y11
@@ -14539,7 +16027,8 @@ mulAvxTwo_9x7_loop:
 	VPXOR   Y8, Y6, Y6
 
 	// Load and process 32 bytes from input 2 to 7 outputs
-	VMOVDQU (DI)(R13*1), Y10
+	VMOVDQU (SI), Y10
+	ADDQ    $0x20, SI
 	VPSRLQ  $0x04, Y10, Y11
 	VPAND   Y7, Y10, Y10
 	VPAND   Y7, Y11, Y11
@@ -14587,7 +16076,8 @@ mulAvxTwo_9x7_loop:
 	VPXOR   Y8, Y6, Y6
 
 	// Load and process 32 bytes from input 3 to 7 outputs
-	VMOVDQU (R8)(R13*1), Y10
+	VMOVDQU (DI), Y10
+	ADDQ    $0x20, DI
 	VPSRLQ  $0x04, Y10, Y11
 	VPAND   Y7, Y10, Y10
 	VPAND   Y7, Y11, Y11
@@ -14635,7 +16125,8 @@ mulAvxTwo_9x7_loop:
 	VPXOR   Y8, Y6, Y6
 
 	// Load and process 32 bytes from input 4 to 7 outputs
-	VMOVDQU (R9)(R13*1), Y10
+	VMOVDQU (R8), Y10
+	ADDQ    $0x20, R8
 	VPSRLQ  $0x04, Y10, Y11
 	VPAND   Y7, Y10, Y10
 	VPAND   Y7, Y11, Y11
@@ -14683,7 +16174,8 @@ mulAvxTwo_9x7_loop:
 	VPXOR   Y8, Y6, Y6
 
 	// Load and process 32 bytes from input 5 to 7 outputs
-	VMOVDQU (R10)(R13*1), Y10
+	VMOVDQU (R9), Y10
+	ADDQ    $0x20, R9
 	VPSRLQ  $0x04, Y10, Y11
 	VPAND   Y7, Y10, Y10
 	VPAND   Y7, Y11, Y11
@@ -14731,7 +16223,8 @@ mulAvxTwo_9x7_loop:
 	VPXOR   Y8, Y6, Y6
 
 	// Load and process 32 bytes from input 6 to 7 outputs
-	VMOVDQU (R11)(R13*1), Y10
+	VMOVDQU (R10), Y10
+	ADDQ    $0x20, R10
 	VPSRLQ  $0x04, Y10, Y11
 	VPAND   Y7, Y10, Y10
 	VPAND   Y7, Y11, Y11
@@ -14779,7 +16272,8 @@ mulAvxTwo_9x7_loop:
 	VPXOR   Y8, Y6, Y6
 
 	// Load and process 32 bytes from input 7 to 7 outputs
-	VMOVDQU (R12)(R13*1), Y10
+	VMOVDQU (R11), Y10
+	ADDQ    $0x20, R11
 	VPSRLQ  $0x04, Y10, Y11
 	VPAND   Y7, Y10, Y10
 	VPAND   Y7, Y11, Y11
@@ -14827,7 +16321,8 @@ mulAvxTwo_9x7_loop:
 	VPXOR   Y8, Y6, Y6
 
 	// Load and process 32 bytes from input 8 to 7 outputs
-	VMOVDQU (BX)(R13*1), Y10
+	VMOVDQU (DX), Y10
+	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y10, Y11
 	VPAND   Y7, Y10, Y10
 	VPAND   Y7, Y11, Y11
@@ -14875,19 +16370,19 @@ mulAvxTwo_9x7_loop:
 	VPXOR   Y8, Y6, Y6
 
 	// Store 7 outputs
-	MOVQ    (DX), R14
+	MOVQ    (R12), R14
 	VMOVDQU Y0, (R14)(R13*1)
-	MOVQ    24(DX), R14
+	MOVQ    24(R12), R14
 	VMOVDQU Y1, (R14)(R13*1)
-	MOVQ    48(DX), R14
+	MOVQ    48(R12), R14
 	VMOVDQU Y2, (R14)(R13*1)
-	MOVQ    72(DX), R14
+	MOVQ    72(R12), R14
 	VMOVDQU Y3, (R14)(R13*1)
-	MOVQ    96(DX), R14
+	MOVQ    96(R12), R14
 	VMOVDQU Y4, (R14)(R13*1)
-	MOVQ    120(DX), R14
+	MOVQ    120(R12), R14
 	VMOVDQU Y5, (R14)(R13*1)
-	MOVQ    144(DX), R14
+	MOVQ    144(R12), R14
 	VMOVDQU Y6, (R14)(R13*1)
 
 	// Prepare for next loop
@@ -14903,27 +16398,39 @@ mulAvxTwo_9x7_end:
 // Requires: AVX, AVX2, SSE2
 TEXT ·mulAvxTwo_9x8(SB), $0-88
 	// Loading no tables to registers
+	// Destination kept on stack
 	// Full registers estimated 157 YMM used
-	MOVQ         n+80(FP), AX
-	MOVQ         matrix_base+0(FP), CX
-	SHRQ         $0x05, AX
-	TESTQ        AX, AX
-	JZ           mulAvxTwo_9x8_end
-	MOVQ         out_base+48(FP), DX
-	MOVQ         in_base+24(FP), BX
-	MOVQ         (BX), BP
-	MOVQ         24(BX), SI
-	MOVQ         48(BX), DI
-	MOVQ         72(BX), R8
-	MOVQ         96(BX), R9
-	MOVQ         120(BX), R10
-	MOVQ         144(BX), R11
-	MOVQ         168(BX), R12
-	MOVQ         192(BX), BX
-	MOVQ         $0x0000000f, R13
-	MOVQ         R13, X8
+	MOVQ  n+80(FP), AX
+	MOVQ  matrix_base+0(FP), CX
+	SHRQ  $0x05, AX
+	TESTQ AX, AX
+	JZ    mulAvxTwo_9x8_end
+	MOVQ  in_base+24(FP), DX
+	MOVQ  (DX), BX
+	MOVQ  24(DX), BP
+	MOVQ  48(DX), SI
+	MOVQ  72(DX), DI
+	MOVQ  96(DX), R8
+	MOVQ  120(DX), R9
+	MOVQ  144(DX), R10
+	MOVQ  168(DX), R11
+	MOVQ  192(DX), DX
+	MOVQ  out_base+48(FP), R12
+	MOVQ  start+72(FP), R13
+
+	// Add start offset to input
+	ADDQ         R13, BX
+	ADDQ         R13, BP
+	ADDQ         R13, SI
+	ADDQ         R13, DI
+	ADDQ         R13, R8
+	ADDQ         R13, R9
+	ADDQ         R13, R10
+	ADDQ         R13, R11
+	ADDQ         R13, DX
+	MOVQ         $0x0000000f, R14
+	MOVQ         R14, X8
 	VPBROADCASTB X8, Y8
-	MOVQ         start+72(FP), R13
 
 mulAvxTwo_9x8_loop:
 	// Clear 8 outputs
@@ -14937,7 +16444,8 @@ mulAvxTwo_9x8_loop:
 	VPXOR Y7, Y7, Y7
 
 	// Load and process 32 bytes from input 0 to 8 outputs
-	VMOVDQU (BP)(R13*1), Y11
+	VMOVDQU (BX), Y11
+	ADDQ    $0x20, BX
 	VPSRLQ  $0x04, Y11, Y12
 	VPAND   Y8, Y11, Y11
 	VPAND   Y8, Y12, Y12
@@ -14991,7 +16499,8 @@ mulAvxTwo_9x8_loop:
 	VPXOR   Y9, Y7, Y7
 
 	// Load and process 32 bytes from input 1 to 8 outputs
-	VMOVDQU (SI)(R13*1), Y11
+	VMOVDQU (BP), Y11
+	ADDQ    $0x20, BP
 	VPSRLQ  $0x04, Y11, Y12
 	VPAND   Y8, Y11, Y11
 	VPAND   Y8, Y12, Y12
@@ -15045,7 +16554,8 @@ mulAvxTwo_9x8_loop:
 	VPXOR   Y9, Y7, Y7
 
 	// Load and process 32 bytes from input 2 to 8 outputs
-	VMOVDQU (DI)(R13*1), Y11
+	VMOVDQU (SI), Y11
+	ADDQ    $0x20, SI
 	VPSRLQ  $0x04, Y11, Y12
 	VPAND   Y8, Y11, Y11
 	VPAND   Y8, Y12, Y12
@@ -15099,7 +16609,8 @@ mulAvxTwo_9x8_loop:
 	VPXOR   Y9, Y7, Y7
 
 	// Load and process 32 bytes from input 3 to 8 outputs
-	VMOVDQU (R8)(R13*1), Y11
+	VMOVDQU (DI), Y11
+	ADDQ    $0x20, DI
 	VPSRLQ  $0x04, Y11, Y12
 	VPAND   Y8, Y11, Y11
 	VPAND   Y8, Y12, Y12
@@ -15153,7 +16664,8 @@ mulAvxTwo_9x8_loop:
 	VPXOR   Y9, Y7, Y7
 
 	// Load and process 32 bytes from input 4 to 8 outputs
-	VMOVDQU (R9)(R13*1), Y11
+	VMOVDQU (R8), Y11
+	ADDQ    $0x20, R8
 	VPSRLQ  $0x04, Y11, Y12
 	VPAND   Y8, Y11, Y11
 	VPAND   Y8, Y12, Y12
@@ -15207,7 +16719,8 @@ mulAvxTwo_9x8_loop:
 	VPXOR   Y9, Y7, Y7
 
 	// Load and process 32 bytes from input 5 to 8 outputs
-	VMOVDQU (R10)(R13*1), Y11
+	VMOVDQU (R9), Y11
+	ADDQ    $0x20, R9
 	VPSRLQ  $0x04, Y11, Y12
 	VPAND   Y8, Y11, Y11
 	VPAND   Y8, Y12, Y12
@@ -15261,7 +16774,8 @@ mulAvxTwo_9x8_loop:
 	VPXOR   Y9, Y7, Y7
 
 	// Load and process 32 bytes from input 6 to 8 outputs
-	VMOVDQU (R11)(R13*1), Y11
+	VMOVDQU (R10), Y11
+	ADDQ    $0x20, R10
 	VPSRLQ  $0x04, Y11, Y12
 	VPAND   Y8, Y11, Y11
 	VPAND   Y8, Y12, Y12
@@ -15315,7 +16829,8 @@ mulAvxTwo_9x8_loop:
 	VPXOR   Y9, Y7, Y7
 
 	// Load and process 32 bytes from input 7 to 8 outputs
-	VMOVDQU (R12)(R13*1), Y11
+	VMOVDQU (R11), Y11
+	ADDQ    $0x20, R11
 	VPSRLQ  $0x04, Y11, Y12
 	VPAND   Y8, Y11, Y11
 	VPAND   Y8, Y12, Y12
@@ -15369,7 +16884,8 @@ mulAvxTwo_9x8_loop:
 	VPXOR   Y9, Y7, Y7
 
 	// Load and process 32 bytes from input 8 to 8 outputs
-	VMOVDQU (BX)(R13*1), Y11
+	VMOVDQU (DX), Y11
+	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y11, Y12
 	VPAND   Y8, Y11, Y11
 	VPAND   Y8, Y12, Y12
@@ -15423,21 +16939,21 @@ mulAvxTwo_9x8_loop:
 	VPXOR   Y9, Y7, Y7
 
 	// Store 8 outputs
-	MOVQ    (DX), R14
+	MOVQ    (R12), R14
 	VMOVDQU Y0, (R14)(R13*1)
-	MOVQ    24(DX), R14
+	MOVQ    24(R12), R14
 	VMOVDQU Y1, (R14)(R13*1)
-	MOVQ    48(DX), R14
+	MOVQ    48(R12), R14
 	VMOVDQU Y2, (R14)(R13*1)
-	MOVQ    72(DX), R14
+	MOVQ    72(R12), R14
 	VMOVDQU Y3, (R14)(R13*1)
-	MOVQ    96(DX), R14
+	MOVQ    96(R12), R14
 	VMOVDQU Y4, (R14)(R13*1)
-	MOVQ    120(DX), R14
+	MOVQ    120(R12), R14
 	VMOVDQU Y5, (R14)(R13*1)
-	MOVQ    144(DX), R14
+	MOVQ    144(R12), R14
 	VMOVDQU Y6, (R14)(R13*1)
-	MOVQ    168(DX), R14
+	MOVQ    168(R12), R14
 	VMOVDQU Y7, (R14)(R13*1)
 
 	// Prepare for next loop
@@ -15453,36 +16969,53 @@ mulAvxTwo_9x8_end:
 // Requires: AVX, AVX2, SSE2
 TEXT ·mulAvxTwo_10x1(SB), $0-88
 	// Loading no tables to registers
+	// Destination kept in GP registers
 	// Full registers estimated 24 YMM used
-	MOVQ         n+80(FP), AX
-	MOVQ         matrix_base+0(FP), CX
-	SHRQ         $0x05, AX
-	TESTQ        AX, AX
-	JZ           mulAvxTwo_10x1_end
-	MOVQ         out_base+48(FP), DX
-	MOVQ         (DX), DX
-	MOVQ         in_base+24(FP), BX
-	MOVQ         (BX), BP
-	MOVQ         24(BX), SI
-	MOVQ         48(BX), DI
-	MOVQ         72(BX), R8
-	MOVQ         96(BX), R9
-	MOVQ         120(BX), R10
-	MOVQ         144(BX), R11
-	MOVQ         168(BX), R12
-	MOVQ         192(BX), R13
-	MOVQ         216(BX), BX
+	MOVQ  n+80(FP), AX
+	MOVQ  matrix_base+0(FP), CX
+	SHRQ  $0x05, AX
+	TESTQ AX, AX
+	JZ    mulAvxTwo_10x1_end
+	MOVQ  in_base+24(FP), DX
+	MOVQ  (DX), BX
+	MOVQ  24(DX), BP
+	MOVQ  48(DX), SI
+	MOVQ  72(DX), DI
+	MOVQ  96(DX), R8
+	MOVQ  120(DX), R9
+	MOVQ  144(DX), R10
+	MOVQ  168(DX), R11
+	MOVQ  192(DX), R12
+	MOVQ  216(DX), DX
+	MOVQ  out_base+48(FP), R13
+	MOVQ  (R13), R13
+	MOVQ  start+72(FP), R14
+
+	// Add start offset to output
+	ADDQ R14, R13
+
+	// Add start offset to input
+	ADDQ         R14, BX
+	ADDQ         R14, BP
+	ADDQ         R14, SI
+	ADDQ         R14, DI
+	ADDQ         R14, R8
+	ADDQ         R14, R9
+	ADDQ         R14, R10
+	ADDQ         R14, R11
+	ADDQ         R14, R12
+	ADDQ         R14, DX
 	MOVQ         $0x0000000f, R14
 	MOVQ         R14, X1
 	VPBROADCASTB X1, Y1
-	MOVQ         start+72(FP), R14
 
 mulAvxTwo_10x1_loop:
 	// Clear 1 outputs
 	VPXOR Y0, Y0, Y0
 
 	// Load and process 32 bytes from input 0 to 1 outputs
-	VMOVDQU (BP)(R14*1), Y4
+	VMOVDQU (BX), Y4
+	ADDQ    $0x20, BX
 	VPSRLQ  $0x04, Y4, Y5
 	VPAND   Y1, Y4, Y4
 	VPAND   Y1, Y5, Y5
@@ -15494,7 +17027,8 @@ mulAvxTwo_10x1_loop:
 	VPXOR   Y2, Y0, Y0
 
 	// Load and process 32 bytes from input 1 to 1 outputs
-	VMOVDQU (SI)(R14*1), Y4
+	VMOVDQU (BP), Y4
+	ADDQ    $0x20, BP
 	VPSRLQ  $0x04, Y4, Y5
 	VPAND   Y1, Y4, Y4
 	VPAND   Y1, Y5, Y5
@@ -15506,7 +17040,8 @@ mulAvxTwo_10x1_loop:
 	VPXOR   Y2, Y0, Y0
 
 	// Load and process 32 bytes from input 2 to 1 outputs
-	VMOVDQU (DI)(R14*1), Y4
+	VMOVDQU (SI), Y4
+	ADDQ    $0x20, SI
 	VPSRLQ  $0x04, Y4, Y5
 	VPAND   Y1, Y4, Y4
 	VPAND   Y1, Y5, Y5
@@ -15518,7 +17053,8 @@ mulAvxTwo_10x1_loop:
 	VPXOR   Y2, Y0, Y0
 
 	// Load and process 32 bytes from input 3 to 1 outputs
-	VMOVDQU (R8)(R14*1), Y4
+	VMOVDQU (DI), Y4
+	ADDQ    $0x20, DI
 	VPSRLQ  $0x04, Y4, Y5
 	VPAND   Y1, Y4, Y4
 	VPAND   Y1, Y5, Y5
@@ -15530,7 +17066,8 @@ mulAvxTwo_10x1_loop:
 	VPXOR   Y2, Y0, Y0
 
 	// Load and process 32 bytes from input 4 to 1 outputs
-	VMOVDQU (R9)(R14*1), Y4
+	VMOVDQU (R8), Y4
+	ADDQ    $0x20, R8
 	VPSRLQ  $0x04, Y4, Y5
 	VPAND   Y1, Y4, Y4
 	VPAND   Y1, Y5, Y5
@@ -15542,7 +17079,8 @@ mulAvxTwo_10x1_loop:
 	VPXOR   Y2, Y0, Y0
 
 	// Load and process 32 bytes from input 5 to 1 outputs
-	VMOVDQU (R10)(R14*1), Y4
+	VMOVDQU (R9), Y4
+	ADDQ    $0x20, R9
 	VPSRLQ  $0x04, Y4, Y5
 	VPAND   Y1, Y4, Y4
 	VPAND   Y1, Y5, Y5
@@ -15554,7 +17092,8 @@ mulAvxTwo_10x1_loop:
 	VPXOR   Y2, Y0, Y0
 
 	// Load and process 32 bytes from input 6 to 1 outputs
-	VMOVDQU (R11)(R14*1), Y4
+	VMOVDQU (R10), Y4
+	ADDQ    $0x20, R10
 	VPSRLQ  $0x04, Y4, Y5
 	VPAND   Y1, Y4, Y4
 	VPAND   Y1, Y5, Y5
@@ -15566,7 +17105,8 @@ mulAvxTwo_10x1_loop:
 	VPXOR   Y2, Y0, Y0
 
 	// Load and process 32 bytes from input 7 to 1 outputs
-	VMOVDQU (R12)(R14*1), Y4
+	VMOVDQU (R11), Y4
+	ADDQ    $0x20, R11
 	VPSRLQ  $0x04, Y4, Y5
 	VPAND   Y1, Y4, Y4
 	VPAND   Y1, Y5, Y5
@@ -15578,7 +17118,8 @@ mulAvxTwo_10x1_loop:
 	VPXOR   Y2, Y0, Y0
 
 	// Load and process 32 bytes from input 8 to 1 outputs
-	VMOVDQU (R13)(R14*1), Y4
+	VMOVDQU (R12), Y4
+	ADDQ    $0x20, R12
 	VPSRLQ  $0x04, Y4, Y5
 	VPAND   Y1, Y4, Y4
 	VPAND   Y1, Y5, Y5
@@ -15590,7 +17131,8 @@ mulAvxTwo_10x1_loop:
 	VPXOR   Y2, Y0, Y0
 
 	// Load and process 32 bytes from input 9 to 1 outputs
-	VMOVDQU (BX)(R14*1), Y4
+	VMOVDQU (DX), Y4
+	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y4, Y5
 	VPAND   Y1, Y4, Y4
 	VPAND   Y1, Y5, Y5
@@ -15602,10 +17144,10 @@ mulAvxTwo_10x1_loop:
 	VPXOR   Y2, Y0, Y0
 
 	// Store 1 outputs
-	VMOVDQU Y0, (DX)(R14*1)
+	VMOVDQU Y0, (R13)
+	ADDQ    $0x20, R13
 
 	// Prepare for next loop
-	ADDQ $0x20, R14
 	DECQ AX
 	JNZ  mulAvxTwo_10x1_loop
 	VZEROUPPER
@@ -15617,30 +17159,47 @@ mulAvxTwo_10x1_end:
 // Requires: AVX, AVX2, SSE2
 TEXT ·mulAvxTwo_10x2(SB), $0-88
 	// Loading no tables to registers
+	// Destination kept in GP registers
 	// Full registers estimated 47 YMM used
-	MOVQ         n+80(FP), AX
-	MOVQ         matrix_base+0(FP), CX
-	SHRQ         $0x05, AX
-	TESTQ        AX, AX
-	JZ           mulAvxTwo_10x2_end
-	MOVQ         out_base+48(FP), DX
-	MOVQ         (DX), BX
-	MOVQ         24(DX), DX
-	MOVQ         in_base+24(FP), BP
-	MOVQ         (BP), SI
-	MOVQ         24(BP), DI
-	MOVQ         48(BP), R8
-	MOVQ         72(BP), R9
-	MOVQ         96(BP), R10
-	MOVQ         120(BP), R11
-	MOVQ         144(BP), R12
-	MOVQ         168(BP), R13
-	MOVQ         192(BP), R14
-	MOVQ         216(BP), BP
+	MOVQ  n+80(FP), AX
+	MOVQ  matrix_base+0(FP), CX
+	SHRQ  $0x05, AX
+	TESTQ AX, AX
+	JZ    mulAvxTwo_10x2_end
+	MOVQ  in_base+24(FP), DX
+	MOVQ  (DX), BX
+	MOVQ  24(DX), BP
+	MOVQ  48(DX), SI
+	MOVQ  72(DX), DI
+	MOVQ  96(DX), R8
+	MOVQ  120(DX), R9
+	MOVQ  144(DX), R10
+	MOVQ  168(DX), R11
+	MOVQ  192(DX), R12
+	MOVQ  216(DX), DX
+	MOVQ  out_base+48(FP), R13
+	MOVQ  (R13), R14
+	MOVQ  24(R13), R13
+	MOVQ  start+72(FP), R15
+
+	// Add start offset to output
+	ADDQ R15, R14
+	ADDQ R15, R13
+
+	// Add start offset to input
+	ADDQ         R15, BX
+	ADDQ         R15, BP
+	ADDQ         R15, SI
+	ADDQ         R15, DI
+	ADDQ         R15, R8
+	ADDQ         R15, R9
+	ADDQ         R15, R10
+	ADDQ         R15, R11
+	ADDQ         R15, R12
+	ADDQ         R15, DX
 	MOVQ         $0x0000000f, R15
 	MOVQ         R15, X2
 	VPBROADCASTB X2, Y2
-	MOVQ         start+72(FP), R15
 
 mulAvxTwo_10x2_loop:
 	// Clear 2 outputs
@@ -15648,7 +17207,8 @@ mulAvxTwo_10x2_loop:
 	VPXOR Y1, Y1, Y1
 
 	// Load and process 32 bytes from input 0 to 2 outputs
-	VMOVDQU (SI)(R15*1), Y5
+	VMOVDQU (BX), Y5
+	ADDQ    $0x20, BX
 	VPSRLQ  $0x04, Y5, Y6
 	VPAND   Y2, Y5, Y5
 	VPAND   Y2, Y6, Y6
@@ -15666,7 +17226,8 @@ mulAvxTwo_10x2_loop:
 	VPXOR   Y3, Y1, Y1
 
 	// Load and process 32 bytes from input 1 to 2 outputs
-	VMOVDQU (DI)(R15*1), Y5
+	VMOVDQU (BP), Y5
+	ADDQ    $0x20, BP
 	VPSRLQ  $0x04, Y5, Y6
 	VPAND   Y2, Y5, Y5
 	VPAND   Y2, Y6, Y6
@@ -15684,7 +17245,8 @@ mulAvxTwo_10x2_loop:
 	VPXOR   Y3, Y1, Y1
 
 	// Load and process 32 bytes from input 2 to 2 outputs
-	VMOVDQU (R8)(R15*1), Y5
+	VMOVDQU (SI), Y5
+	ADDQ    $0x20, SI
 	VPSRLQ  $0x04, Y5, Y6
 	VPAND   Y2, Y5, Y5
 	VPAND   Y2, Y6, Y6
@@ -15702,7 +17264,8 @@ mulAvxTwo_10x2_loop:
 	VPXOR   Y3, Y1, Y1
 
 	// Load and process 32 bytes from input 3 to 2 outputs
-	VMOVDQU (R9)(R15*1), Y5
+	VMOVDQU (DI), Y5
+	ADDQ    $0x20, DI
 	VPSRLQ  $0x04, Y5, Y6
 	VPAND   Y2, Y5, Y5
 	VPAND   Y2, Y6, Y6
@@ -15720,7 +17283,8 @@ mulAvxTwo_10x2_loop:
 	VPXOR   Y3, Y1, Y1
 
 	// Load and process 32 bytes from input 4 to 2 outputs
-	VMOVDQU (R10)(R15*1), Y5
+	VMOVDQU (R8), Y5
+	ADDQ    $0x20, R8
 	VPSRLQ  $0x04, Y5, Y6
 	VPAND   Y2, Y5, Y5
 	VPAND   Y2, Y6, Y6
@@ -15738,7 +17302,8 @@ mulAvxTwo_10x2_loop:
 	VPXOR   Y3, Y1, Y1
 
 	// Load and process 32 bytes from input 5 to 2 outputs
-	VMOVDQU (R11)(R15*1), Y5
+	VMOVDQU (R9), Y5
+	ADDQ    $0x20, R9
 	VPSRLQ  $0x04, Y5, Y6
 	VPAND   Y2, Y5, Y5
 	VPAND   Y2, Y6, Y6
@@ -15756,7 +17321,8 @@ mulAvxTwo_10x2_loop:
 	VPXOR   Y3, Y1, Y1
 
 	// Load and process 32 bytes from input 6 to 2 outputs
-	VMOVDQU (R12)(R15*1), Y5
+	VMOVDQU (R10), Y5
+	ADDQ    $0x20, R10
 	VPSRLQ  $0x04, Y5, Y6
 	VPAND   Y2, Y5, Y5
 	VPAND   Y2, Y6, Y6
@@ -15774,7 +17340,8 @@ mulAvxTwo_10x2_loop:
 	VPXOR   Y3, Y1, Y1
 
 	// Load and process 32 bytes from input 7 to 2 outputs
-	VMOVDQU (R13)(R15*1), Y5
+	VMOVDQU (R11), Y5
+	ADDQ    $0x20, R11
 	VPSRLQ  $0x04, Y5, Y6
 	VPAND   Y2, Y5, Y5
 	VPAND   Y2, Y6, Y6
@@ -15792,7 +17359,8 @@ mulAvxTwo_10x2_loop:
 	VPXOR   Y3, Y1, Y1
 
 	// Load and process 32 bytes from input 8 to 2 outputs
-	VMOVDQU (R14)(R15*1), Y5
+	VMOVDQU (R12), Y5
+	ADDQ    $0x20, R12
 	VPSRLQ  $0x04, Y5, Y6
 	VPAND   Y2, Y5, Y5
 	VPAND   Y2, Y6, Y6
@@ -15810,7 +17378,8 @@ mulAvxTwo_10x2_loop:
 	VPXOR   Y3, Y1, Y1
 
 	// Load and process 32 bytes from input 9 to 2 outputs
-	VMOVDQU (BP)(R15*1), Y5
+	VMOVDQU (DX), Y5
+	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y5, Y6
 	VPAND   Y2, Y5, Y5
 	VPAND   Y2, Y6, Y6
@@ -15828,11 +17397,12 @@ mulAvxTwo_10x2_loop:
 	VPXOR   Y3, Y1, Y1
 
 	// Store 2 outputs
-	VMOVDQU Y0, (BX)(R15*1)
-	VMOVDQU Y1, (DX)(R15*1)
+	VMOVDQU Y0, (R14)
+	ADDQ    $0x20, R14
+	VMOVDQU Y1, (R13)
+	ADDQ    $0x20, R13
 
 	// Prepare for next loop
-	ADDQ $0x20, R15
 	DECQ AX
 	JNZ  mulAvxTwo_10x2_loop
 	VZEROUPPER
@@ -15844,28 +17414,51 @@ mulAvxTwo_10x2_end:
 // Requires: AVX, AVX2, SSE2
 TEXT ·mulAvxTwo_10x3(SB), $0-88
 	// Loading no tables to registers
+	// Destination kept in GP registers
 	// Full registers estimated 68 YMM used
-	MOVQ         n+80(FP), AX
-	MOVQ         matrix_base+0(FP), CX
-	SHRQ         $0x05, AX
-	TESTQ        AX, AX
-	JZ           mulAvxTwo_10x3_end
-	MOVQ         out_base+48(FP), DX
-	MOVQ         in_base+24(FP), BX
-	MOVQ         (BX), BP
-	MOVQ         24(BX), SI
-	MOVQ         48(BX), DI
-	MOVQ         72(BX), R8
-	MOVQ         96(BX), R9
-	MOVQ         120(BX), R10
-	MOVQ         144(BX), R11
-	MOVQ         168(BX), R12
-	MOVQ         192(BX), R13
-	MOVQ         216(BX), BX
-	MOVQ         $0x0000000f, R14
-	MOVQ         R14, X3
+	MOVQ  n+80(FP), AX
+	MOVQ  matrix_base+0(FP), CX
+	SHRQ  $0x05, AX
+	TESTQ AX, AX
+	JZ    mulAvxTwo_10x3_end
+	MOVQ  in_base+24(FP), AX
+	MOVQ  (AX), DX
+	MOVQ  24(AX), BX
+	MOVQ  48(AX), BP
+	MOVQ  72(AX), SI
+	MOVQ  96(AX), DI
+	MOVQ  120(AX), R8
+	MOVQ  144(AX), R9
+	MOVQ  168(AX), R10
+	MOVQ  192(AX), R11
+	MOVQ  216(AX), AX
+	MOVQ  out_base+48(FP), R12
+	MOVQ  (R12), R13
+	MOVQ  24(R12), R14
+	MOVQ  48(R12), R12
+	MOVQ  start+72(FP), R15
+
+	// Add start offset to output
+	ADDQ R15, R13
+	ADDQ R15, R14
+	ADDQ R15, R12
+
+	// Add start offset to input
+	ADDQ         R15, DX
+	ADDQ         R15, BX
+	ADDQ         R15, BP
+	ADDQ         R15, SI
+	ADDQ         R15, DI
+	ADDQ         R15, R8
+	ADDQ         R15, R9
+	ADDQ         R15, R10
+	ADDQ         R15, R11
+	ADDQ         R15, AX
+	MOVQ         $0x0000000f, R15
+	MOVQ         R15, X3
 	VPBROADCASTB X3, Y3
-	MOVQ         start+72(FP), R14
+	MOVQ         n+80(FP), R15
+	SHRQ         $0x05, R15
 
 mulAvxTwo_10x3_loop:
 	// Clear 3 outputs
@@ -15874,7 +17467,8 @@ mulAvxTwo_10x3_loop:
 	VPXOR Y2, Y2, Y2
 
 	// Load and process 32 bytes from input 0 to 3 outputs
-	VMOVDQU (BP)(R14*1), Y6
+	VMOVDQU (DX), Y6
+	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y6, Y7
 	VPAND   Y3, Y6, Y6
 	VPAND   Y3, Y7, Y7
@@ -15898,7 +17492,8 @@ mulAvxTwo_10x3_loop:
 	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 1 to 3 outputs
-	VMOVDQU (SI)(R14*1), Y6
+	VMOVDQU (BX), Y6
+	ADDQ    $0x20, BX
 	VPSRLQ  $0x04, Y6, Y7
 	VPAND   Y3, Y6, Y6
 	VPAND   Y3, Y7, Y7
@@ -15922,7 +17517,8 @@ mulAvxTwo_10x3_loop:
 	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 2 to 3 outputs
-	VMOVDQU (DI)(R14*1), Y6
+	VMOVDQU (BP), Y6
+	ADDQ    $0x20, BP
 	VPSRLQ  $0x04, Y6, Y7
 	VPAND   Y3, Y6, Y6
 	VPAND   Y3, Y7, Y7
@@ -15946,7 +17542,8 @@ mulAvxTwo_10x3_loop:
 	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 3 to 3 outputs
-	VMOVDQU (R8)(R14*1), Y6
+	VMOVDQU (SI), Y6
+	ADDQ    $0x20, SI
 	VPSRLQ  $0x04, Y6, Y7
 	VPAND   Y3, Y6, Y6
 	VPAND   Y3, Y7, Y7
@@ -15970,7 +17567,8 @@ mulAvxTwo_10x3_loop:
 	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 4 to 3 outputs
-	VMOVDQU (R9)(R14*1), Y6
+	VMOVDQU (DI), Y6
+	ADDQ    $0x20, DI
 	VPSRLQ  $0x04, Y6, Y7
 	VPAND   Y3, Y6, Y6
 	VPAND   Y3, Y7, Y7
@@ -15994,7 +17592,8 @@ mulAvxTwo_10x3_loop:
 	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 5 to 3 outputs
-	VMOVDQU (R10)(R14*1), Y6
+	VMOVDQU (R8), Y6
+	ADDQ    $0x20, R8
 	VPSRLQ  $0x04, Y6, Y7
 	VPAND   Y3, Y6, Y6
 	VPAND   Y3, Y7, Y7
@@ -16018,7 +17617,8 @@ mulAvxTwo_10x3_loop:
 	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 6 to 3 outputs
-	VMOVDQU (R11)(R14*1), Y6
+	VMOVDQU (R9), Y6
+	ADDQ    $0x20, R9
 	VPSRLQ  $0x04, Y6, Y7
 	VPAND   Y3, Y6, Y6
 	VPAND   Y3, Y7, Y7
@@ -16042,7 +17642,8 @@ mulAvxTwo_10x3_loop:
 	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 7 to 3 outputs
-	VMOVDQU (R12)(R14*1), Y6
+	VMOVDQU (R10), Y6
+	ADDQ    $0x20, R10
 	VPSRLQ  $0x04, Y6, Y7
 	VPAND   Y3, Y6, Y6
 	VPAND   Y3, Y7, Y7
@@ -16066,7 +17667,8 @@ mulAvxTwo_10x3_loop:
 	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 8 to 3 outputs
-	VMOVDQU (R13)(R14*1), Y6
+	VMOVDQU (R11), Y6
+	ADDQ    $0x20, R11
 	VPSRLQ  $0x04, Y6, Y7
 	VPAND   Y3, Y6, Y6
 	VPAND   Y3, Y7, Y7
@@ -16090,7 +17692,8 @@ mulAvxTwo_10x3_loop:
 	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 9 to 3 outputs
-	VMOVDQU (BX)(R14*1), Y6
+	VMOVDQU (AX), Y6
+	ADDQ    $0x20, AX
 	VPSRLQ  $0x04, Y6, Y7
 	VPAND   Y3, Y6, Y6
 	VPAND   Y3, Y7, Y7
@@ -16114,16 +17717,15 @@ mulAvxTwo_10x3_loop:
 	VPXOR   Y4, Y2, Y2
 
 	// Store 3 outputs
-	MOVQ    (DX), R15
-	VMOVDQU Y0, (R15)(R14*1)
-	MOVQ    24(DX), R15
-	VMOVDQU Y1, (R15)(R14*1)
-	MOVQ    48(DX), R15
-	VMOVDQU Y2, (R15)(R14*1)
+	VMOVDQU Y0, (R13)
+	ADDQ    $0x20, R13
+	VMOVDQU Y1, (R14)
+	ADDQ    $0x20, R14
+	VMOVDQU Y2, (R12)
+	ADDQ    $0x20, R12
 
 	// Prepare for next loop
-	ADDQ $0x20, R14
-	DECQ AX
+	DECQ R15
 	JNZ  mulAvxTwo_10x3_loop
 	VZEROUPPER
 
@@ -16134,28 +17736,41 @@ mulAvxTwo_10x3_end:
 // Requires: AVX, AVX2, SSE2
 TEXT ·mulAvxTwo_10x4(SB), $0-88
 	// Loading no tables to registers
+	// Destination kept on stack
 	// Full registers estimated 89 YMM used
-	MOVQ         n+80(FP), AX
-	MOVQ         matrix_base+0(FP), CX
-	SHRQ         $0x05, AX
-	TESTQ        AX, AX
-	JZ           mulAvxTwo_10x4_end
-	MOVQ         out_base+48(FP), DX
-	MOVQ         in_base+24(FP), BX
-	MOVQ         (BX), BP
-	MOVQ         24(BX), SI
-	MOVQ         48(BX), DI
-	MOVQ         72(BX), R8
-	MOVQ         96(BX), R9
-	MOVQ         120(BX), R10
-	MOVQ         144(BX), R11
-	MOVQ         168(BX), R12
-	MOVQ         192(BX), R13
-	MOVQ         216(BX), BX
-	MOVQ         $0x0000000f, R14
-	MOVQ         R14, X4
+	MOVQ  n+80(FP), AX
+	MOVQ  matrix_base+0(FP), CX
+	SHRQ  $0x05, AX
+	TESTQ AX, AX
+	JZ    mulAvxTwo_10x4_end
+	MOVQ  in_base+24(FP), DX
+	MOVQ  (DX), BX
+	MOVQ  24(DX), BP
+	MOVQ  48(DX), SI
+	MOVQ  72(DX), DI
+	MOVQ  96(DX), R8
+	MOVQ  120(DX), R9
+	MOVQ  144(DX), R10
+	MOVQ  168(DX), R11
+	MOVQ  192(DX), R12
+	MOVQ  216(DX), DX
+	MOVQ  out_base+48(FP), R13
+	MOVQ  start+72(FP), R14
+
+	// Add start offset to input
+	ADDQ         R14, BX
+	ADDQ         R14, BP
+	ADDQ         R14, SI
+	ADDQ         R14, DI
+	ADDQ         R14, R8
+	ADDQ         R14, R9
+	ADDQ         R14, R10
+	ADDQ         R14, R11
+	ADDQ         R14, R12
+	ADDQ         R14, DX
+	MOVQ         $0x0000000f, R15
+	MOVQ         R15, X4
 	VPBROADCASTB X4, Y4
-	MOVQ         start+72(FP), R14
 
 mulAvxTwo_10x4_loop:
 	// Clear 4 outputs
@@ -16165,7 +17780,8 @@ mulAvxTwo_10x4_loop:
 	VPXOR Y3, Y3, Y3
 
 	// Load and process 32 bytes from input 0 to 4 outputs
-	VMOVDQU (BP)(R14*1), Y7
+	VMOVDQU (BX), Y7
+	ADDQ    $0x20, BX
 	VPSRLQ  $0x04, Y7, Y8
 	VPAND   Y4, Y7, Y7
 	VPAND   Y4, Y8, Y8
@@ -16195,7 +17811,8 @@ mulAvxTwo_10x4_loop:
 	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 1 to 4 outputs
-	VMOVDQU (SI)(R14*1), Y7
+	VMOVDQU (BP), Y7
+	ADDQ    $0x20, BP
 	VPSRLQ  $0x04, Y7, Y8
 	VPAND   Y4, Y7, Y7
 	VPAND   Y4, Y8, Y8
@@ -16225,7 +17842,8 @@ mulAvxTwo_10x4_loop:
 	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 2 to 4 outputs
-	VMOVDQU (DI)(R14*1), Y7
+	VMOVDQU (SI), Y7
+	ADDQ    $0x20, SI
 	VPSRLQ  $0x04, Y7, Y8
 	VPAND   Y4, Y7, Y7
 	VPAND   Y4, Y8, Y8
@@ -16255,7 +17873,8 @@ mulAvxTwo_10x4_loop:
 	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 3 to 4 outputs
-	VMOVDQU (R8)(R14*1), Y7
+	VMOVDQU (DI), Y7
+	ADDQ    $0x20, DI
 	VPSRLQ  $0x04, Y7, Y8
 	VPAND   Y4, Y7, Y7
 	VPAND   Y4, Y8, Y8
@@ -16285,7 +17904,8 @@ mulAvxTwo_10x4_loop:
 	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 4 to 4 outputs
-	VMOVDQU (R9)(R14*1), Y7
+	VMOVDQU (R8), Y7
+	ADDQ    $0x20, R8
 	VPSRLQ  $0x04, Y7, Y8
 	VPAND   Y4, Y7, Y7
 	VPAND   Y4, Y8, Y8
@@ -16315,7 +17935,8 @@ mulAvxTwo_10x4_loop:
 	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 5 to 4 outputs
-	VMOVDQU (R10)(R14*1), Y7
+	VMOVDQU (R9), Y7
+	ADDQ    $0x20, R9
 	VPSRLQ  $0x04, Y7, Y8
 	VPAND   Y4, Y7, Y7
 	VPAND   Y4, Y8, Y8
@@ -16345,7 +17966,8 @@ mulAvxTwo_10x4_loop:
 	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 6 to 4 outputs
-	VMOVDQU (R11)(R14*1), Y7
+	VMOVDQU (R10), Y7
+	ADDQ    $0x20, R10
 	VPSRLQ  $0x04, Y7, Y8
 	VPAND   Y4, Y7, Y7
 	VPAND   Y4, Y8, Y8
@@ -16375,7 +17997,8 @@ mulAvxTwo_10x4_loop:
 	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 7 to 4 outputs
-	VMOVDQU (R12)(R14*1), Y7
+	VMOVDQU (R11), Y7
+	ADDQ    $0x20, R11
 	VPSRLQ  $0x04, Y7, Y8
 	VPAND   Y4, Y7, Y7
 	VPAND   Y4, Y8, Y8
@@ -16405,7 +18028,8 @@ mulAvxTwo_10x4_loop:
 	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 8 to 4 outputs
-	VMOVDQU (R13)(R14*1), Y7
+	VMOVDQU (R12), Y7
+	ADDQ    $0x20, R12
 	VPSRLQ  $0x04, Y7, Y8
 	VPAND   Y4, Y7, Y7
 	VPAND   Y4, Y8, Y8
@@ -16435,7 +18059,8 @@ mulAvxTwo_10x4_loop:
 	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 9 to 4 outputs
-	VMOVDQU (BX)(R14*1), Y7
+	VMOVDQU (DX), Y7
+	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y7, Y8
 	VPAND   Y4, Y7, Y7
 	VPAND   Y4, Y8, Y8
@@ -16465,13 +18090,13 @@ mulAvxTwo_10x4_loop:
 	VPXOR   Y5, Y3, Y3
 
 	// Store 4 outputs
-	MOVQ    (DX), R15
+	MOVQ    (R13), R15
 	VMOVDQU Y0, (R15)(R14*1)
-	MOVQ    24(DX), R15
+	MOVQ    24(R13), R15
 	VMOVDQU Y1, (R15)(R14*1)
-	MOVQ    48(DX), R15
+	MOVQ    48(R13), R15
 	VMOVDQU Y2, (R15)(R14*1)
-	MOVQ    72(DX), R15
+	MOVQ    72(R13), R15
 	VMOVDQU Y3, (R15)(R14*1)
 
 	// Prepare for next loop
@@ -16487,28 +18112,41 @@ mulAvxTwo_10x4_end:
 // Requires: AVX, AVX2, SSE2
 TEXT ·mulAvxTwo_10x5(SB), $0-88
 	// Loading no tables to registers
+	// Destination kept on stack
 	// Full registers estimated 110 YMM used
-	MOVQ         n+80(FP), AX
-	MOVQ         matrix_base+0(FP), CX
-	SHRQ         $0x05, AX
-	TESTQ        AX, AX
-	JZ           mulAvxTwo_10x5_end
-	MOVQ         out_base+48(FP), DX
-	MOVQ         in_base+24(FP), BX
-	MOVQ         (BX), BP
-	MOVQ         24(BX), SI
-	MOVQ         48(BX), DI
-	MOVQ         72(BX), R8
-	MOVQ         96(BX), R9
-	MOVQ         120(BX), R10
-	MOVQ         144(BX), R11
-	MOVQ         168(BX), R12
-	MOVQ         192(BX), R13
-	MOVQ         216(BX), BX
-	MOVQ         $0x0000000f, R14
-	MOVQ         R14, X5
+	MOVQ  n+80(FP), AX
+	MOVQ  matrix_base+0(FP), CX
+	SHRQ  $0x05, AX
+	TESTQ AX, AX
+	JZ    mulAvxTwo_10x5_end
+	MOVQ  in_base+24(FP), DX
+	MOVQ  (DX), BX
+	MOVQ  24(DX), BP
+	MOVQ  48(DX), SI
+	MOVQ  72(DX), DI
+	MOVQ  96(DX), R8
+	MOVQ  120(DX), R9
+	MOVQ  144(DX), R10
+	MOVQ  168(DX), R11
+	MOVQ  192(DX), R12
+	MOVQ  216(DX), DX
+	MOVQ  out_base+48(FP), R13
+	MOVQ  start+72(FP), R14
+
+	// Add start offset to input
+	ADDQ         R14, BX
+	ADDQ         R14, BP
+	ADDQ         R14, SI
+	ADDQ         R14, DI
+	ADDQ         R14, R8
+	ADDQ         R14, R9
+	ADDQ         R14, R10
+	ADDQ         R14, R11
+	ADDQ         R14, R12
+	ADDQ         R14, DX
+	MOVQ         $0x0000000f, R15
+	MOVQ         R15, X5
 	VPBROADCASTB X5, Y5
-	MOVQ         start+72(FP), R14
 
 mulAvxTwo_10x5_loop:
 	// Clear 5 outputs
@@ -16519,7 +18157,8 @@ mulAvxTwo_10x5_loop:
 	VPXOR Y4, Y4, Y4
 
 	// Load and process 32 bytes from input 0 to 5 outputs
-	VMOVDQU (BP)(R14*1), Y8
+	VMOVDQU (BX), Y8
+	ADDQ    $0x20, BX
 	VPSRLQ  $0x04, Y8, Y9
 	VPAND   Y5, Y8, Y8
 	VPAND   Y5, Y9, Y9
@@ -16555,7 +18194,8 @@ mulAvxTwo_10x5_loop:
 	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 1 to 5 outputs
-	VMOVDQU (SI)(R14*1), Y8
+	VMOVDQU (BP), Y8
+	ADDQ    $0x20, BP
 	VPSRLQ  $0x04, Y8, Y9
 	VPAND   Y5, Y8, Y8
 	VPAND   Y5, Y9, Y9
@@ -16591,7 +18231,8 @@ mulAvxTwo_10x5_loop:
 	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 2 to 5 outputs
-	VMOVDQU (DI)(R14*1), Y8
+	VMOVDQU (SI), Y8
+	ADDQ    $0x20, SI
 	VPSRLQ  $0x04, Y8, Y9
 	VPAND   Y5, Y8, Y8
 	VPAND   Y5, Y9, Y9
@@ -16627,7 +18268,8 @@ mulAvxTwo_10x5_loop:
 	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 3 to 5 outputs
-	VMOVDQU (R8)(R14*1), Y8
+	VMOVDQU (DI), Y8
+	ADDQ    $0x20, DI
 	VPSRLQ  $0x04, Y8, Y9
 	VPAND   Y5, Y8, Y8
 	VPAND   Y5, Y9, Y9
@@ -16663,7 +18305,8 @@ mulAvxTwo_10x5_loop:
 	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 4 to 5 outputs
-	VMOVDQU (R9)(R14*1), Y8
+	VMOVDQU (R8), Y8
+	ADDQ    $0x20, R8
 	VPSRLQ  $0x04, Y8, Y9
 	VPAND   Y5, Y8, Y8
 	VPAND   Y5, Y9, Y9
@@ -16699,7 +18342,8 @@ mulAvxTwo_10x5_loop:
 	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 5 to 5 outputs
-	VMOVDQU (R10)(R14*1), Y8
+	VMOVDQU (R9), Y8
+	ADDQ    $0x20, R9
 	VPSRLQ  $0x04, Y8, Y9
 	VPAND   Y5, Y8, Y8
 	VPAND   Y5, Y9, Y9
@@ -16735,7 +18379,8 @@ mulAvxTwo_10x5_loop:
 	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 6 to 5 outputs
-	VMOVDQU (R11)(R14*1), Y8
+	VMOVDQU (R10), Y8
+	ADDQ    $0x20, R10
 	VPSRLQ  $0x04, Y8, Y9
 	VPAND   Y5, Y8, Y8
 	VPAND   Y5, Y9, Y9
@@ -16771,7 +18416,8 @@ mulAvxTwo_10x5_loop:
 	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 7 to 5 outputs
-	VMOVDQU (R12)(R14*1), Y8
+	VMOVDQU (R11), Y8
+	ADDQ    $0x20, R11
 	VPSRLQ  $0x04, Y8, Y9
 	VPAND   Y5, Y8, Y8
 	VPAND   Y5, Y9, Y9
@@ -16807,7 +18453,8 @@ mulAvxTwo_10x5_loop:
 	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 8 to 5 outputs
-	VMOVDQU (R13)(R14*1), Y8
+	VMOVDQU (R12), Y8
+	ADDQ    $0x20, R12
 	VPSRLQ  $0x04, Y8, Y9
 	VPAND   Y5, Y8, Y8
 	VPAND   Y5, Y9, Y9
@@ -16843,7 +18490,8 @@ mulAvxTwo_10x5_loop:
 	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 9 to 5 outputs
-	VMOVDQU (BX)(R14*1), Y8
+	VMOVDQU (DX), Y8
+	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y8, Y9
 	VPAND   Y5, Y8, Y8
 	VPAND   Y5, Y9, Y9
@@ -16879,15 +18527,15 @@ mulAvxTwo_10x5_loop:
 	VPXOR   Y6, Y4, Y4
 
 	// Store 5 outputs
-	MOVQ    (DX), R15
+	MOVQ    (R13), R15
 	VMOVDQU Y0, (R15)(R14*1)
-	MOVQ    24(DX), R15
+	MOVQ    24(R13), R15
 	VMOVDQU Y1, (R15)(R14*1)
-	MOVQ    48(DX), R15
+	MOVQ    48(R13), R15
 	VMOVDQU Y2, (R15)(R14*1)
-	MOVQ    72(DX), R15
+	MOVQ    72(R13), R15
 	VMOVDQU Y3, (R15)(R14*1)
-	MOVQ    96(DX), R15
+	MOVQ    96(R13), R15
 	VMOVDQU Y4, (R15)(R14*1)
 
 	// Prepare for next loop
@@ -16903,28 +18551,41 @@ mulAvxTwo_10x5_end:
 // Requires: AVX, AVX2, SSE2
 TEXT ·mulAvxTwo_10x6(SB), $0-88
 	// Loading no tables to registers
+	// Destination kept on stack
 	// Full registers estimated 131 YMM used
-	MOVQ         n+80(FP), AX
-	MOVQ         matrix_base+0(FP), CX
-	SHRQ         $0x05, AX
-	TESTQ        AX, AX
-	JZ           mulAvxTwo_10x6_end
-	MOVQ         out_base+48(FP), DX
-	MOVQ         in_base+24(FP), BX
-	MOVQ         (BX), BP
-	MOVQ         24(BX), SI
-	MOVQ         48(BX), DI
-	MOVQ         72(BX), R8
-	MOVQ         96(BX), R9
-	MOVQ         120(BX), R10
-	MOVQ         144(BX), R11
-	MOVQ         168(BX), R12
-	MOVQ         192(BX), R13
-	MOVQ         216(BX), BX
-	MOVQ         $0x0000000f, R14
-	MOVQ         R14, X6
+	MOVQ  n+80(FP), AX
+	MOVQ  matrix_base+0(FP), CX
+	SHRQ  $0x05, AX
+	TESTQ AX, AX
+	JZ    mulAvxTwo_10x6_end
+	MOVQ  in_base+24(FP), DX
+	MOVQ  (DX), BX
+	MOVQ  24(DX), BP
+	MOVQ  48(DX), SI
+	MOVQ  72(DX), DI
+	MOVQ  96(DX), R8
+	MOVQ  120(DX), R9
+	MOVQ  144(DX), R10
+	MOVQ  168(DX), R11
+	MOVQ  192(DX), R12
+	MOVQ  216(DX), DX
+	MOVQ  out_base+48(FP), R13
+	MOVQ  start+72(FP), R14
+
+	// Add start offset to input
+	ADDQ         R14, BX
+	ADDQ         R14, BP
+	ADDQ         R14, SI
+	ADDQ         R14, DI
+	ADDQ         R14, R8
+	ADDQ         R14, R9
+	ADDQ         R14, R10
+	ADDQ         R14, R11
+	ADDQ         R14, R12
+	ADDQ         R14, DX
+	MOVQ         $0x0000000f, R15
+	MOVQ         R15, X6
 	VPBROADCASTB X6, Y6
-	MOVQ         start+72(FP), R14
 
 mulAvxTwo_10x6_loop:
 	// Clear 6 outputs
@@ -16936,7 +18597,8 @@ mulAvxTwo_10x6_loop:
 	VPXOR Y5, Y5, Y5
 
 	// Load and process 32 bytes from input 0 to 6 outputs
-	VMOVDQU (BP)(R14*1), Y9
+	VMOVDQU (BX), Y9
+	ADDQ    $0x20, BX
 	VPSRLQ  $0x04, Y9, Y10
 	VPAND   Y6, Y9, Y9
 	VPAND   Y6, Y10, Y10
@@ -16978,7 +18640,8 @@ mulAvxTwo_10x6_loop:
 	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 1 to 6 outputs
-	VMOVDQU (SI)(R14*1), Y9
+	VMOVDQU (BP), Y9
+	ADDQ    $0x20, BP
 	VPSRLQ  $0x04, Y9, Y10
 	VPAND   Y6, Y9, Y9
 	VPAND   Y6, Y10, Y10
@@ -17020,7 +18683,8 @@ mulAvxTwo_10x6_loop:
 	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 2 to 6 outputs
-	VMOVDQU (DI)(R14*1), Y9
+	VMOVDQU (SI), Y9
+	ADDQ    $0x20, SI
 	VPSRLQ  $0x04, Y9, Y10
 	VPAND   Y6, Y9, Y9
 	VPAND   Y6, Y10, Y10
@@ -17062,7 +18726,8 @@ mulAvxTwo_10x6_loop:
 	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 3 to 6 outputs
-	VMOVDQU (R8)(R14*1), Y9
+	VMOVDQU (DI), Y9
+	ADDQ    $0x20, DI
 	VPSRLQ  $0x04, Y9, Y10
 	VPAND   Y6, Y9, Y9
 	VPAND   Y6, Y10, Y10
@@ -17104,7 +18769,8 @@ mulAvxTwo_10x6_loop:
 	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 4 to 6 outputs
-	VMOVDQU (R9)(R14*1), Y9
+	VMOVDQU (R8), Y9
+	ADDQ    $0x20, R8
 	VPSRLQ  $0x04, Y9, Y10
 	VPAND   Y6, Y9, Y9
 	VPAND   Y6, Y10, Y10
@@ -17146,7 +18812,8 @@ mulAvxTwo_10x6_loop:
 	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 5 to 6 outputs
-	VMOVDQU (R10)(R14*1), Y9
+	VMOVDQU (R9), Y9
+	ADDQ    $0x20, R9
 	VPSRLQ  $0x04, Y9, Y10
 	VPAND   Y6, Y9, Y9
 	VPAND   Y6, Y10, Y10
@@ -17188,7 +18855,8 @@ mulAvxTwo_10x6_loop:
 	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 6 to 6 outputs
-	VMOVDQU (R11)(R14*1), Y9
+	VMOVDQU (R10), Y9
+	ADDQ    $0x20, R10
 	VPSRLQ  $0x04, Y9, Y10
 	VPAND   Y6, Y9, Y9
 	VPAND   Y6, Y10, Y10
@@ -17230,7 +18898,8 @@ mulAvxTwo_10x6_loop:
 	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 7 to 6 outputs
-	VMOVDQU (R12)(R14*1), Y9
+	VMOVDQU (R11), Y9
+	ADDQ    $0x20, R11
 	VPSRLQ  $0x04, Y9, Y10
 	VPAND   Y6, Y9, Y9
 	VPAND   Y6, Y10, Y10
@@ -17272,7 +18941,8 @@ mulAvxTwo_10x6_loop:
 	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 8 to 6 outputs
-	VMOVDQU (R13)(R14*1), Y9
+	VMOVDQU (R12), Y9
+	ADDQ    $0x20, R12
 	VPSRLQ  $0x04, Y9, Y10
 	VPAND   Y6, Y9, Y9
 	VPAND   Y6, Y10, Y10
@@ -17314,7 +18984,8 @@ mulAvxTwo_10x6_loop:
 	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 9 to 6 outputs
-	VMOVDQU (BX)(R14*1), Y9
+	VMOVDQU (DX), Y9
+	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y9, Y10
 	VPAND   Y6, Y9, Y9
 	VPAND   Y6, Y10, Y10
@@ -17356,17 +19027,17 @@ mulAvxTwo_10x6_loop:
 	VPXOR   Y7, Y5, Y5
 
 	// Store 6 outputs
-	MOVQ    (DX), R15
+	MOVQ    (R13), R15
 	VMOVDQU Y0, (R15)(R14*1)
-	MOVQ    24(DX), R15
+	MOVQ    24(R13), R15
 	VMOVDQU Y1, (R15)(R14*1)
-	MOVQ    48(DX), R15
+	MOVQ    48(R13), R15
 	VMOVDQU Y2, (R15)(R14*1)
-	MOVQ    72(DX), R15
+	MOVQ    72(R13), R15
 	VMOVDQU Y3, (R15)(R14*1)
-	MOVQ    96(DX), R15
+	MOVQ    96(R13), R15
 	VMOVDQU Y4, (R15)(R14*1)
-	MOVQ    120(DX), R15
+	MOVQ    120(R13), R15
 	VMOVDQU Y5, (R15)(R14*1)
 
 	// Prepare for next loop
@@ -17382,28 +19053,41 @@ mulAvxTwo_10x6_end:
 // Requires: AVX, AVX2, SSE2
 TEXT ·mulAvxTwo_10x7(SB), $0-88
 	// Loading no tables to registers
+	// Destination kept on stack
 	// Full registers estimated 152 YMM used
-	MOVQ         n+80(FP), AX
-	MOVQ         matrix_base+0(FP), CX
-	SHRQ         $0x05, AX
-	TESTQ        AX, AX
-	JZ           mulAvxTwo_10x7_end
-	MOVQ         out_base+48(FP), DX
-	MOVQ         in_base+24(FP), BX
-	MOVQ         (BX), BP
-	MOVQ         24(BX), SI
-	MOVQ         48(BX), DI
-	MOVQ         72(BX), R8
-	MOVQ         96(BX), R9
-	MOVQ         120(BX), R10
-	MOVQ         144(BX), R11
-	MOVQ         168(BX), R12
-	MOVQ         192(BX), R13
-	MOVQ         216(BX), BX
-	MOVQ         $0x0000000f, R14
-	MOVQ         R14, X7
+	MOVQ  n+80(FP), AX
+	MOVQ  matrix_base+0(FP), CX
+	SHRQ  $0x05, AX
+	TESTQ AX, AX
+	JZ    mulAvxTwo_10x7_end
+	MOVQ  in_base+24(FP), DX
+	MOVQ  (DX), BX
+	MOVQ  24(DX), BP
+	MOVQ  48(DX), SI
+	MOVQ  72(DX), DI
+	MOVQ  96(DX), R8
+	MOVQ  120(DX), R9
+	MOVQ  144(DX), R10
+	MOVQ  168(DX), R11
+	MOVQ  192(DX), R12
+	MOVQ  216(DX), DX
+	MOVQ  out_base+48(FP), R13
+	MOVQ  start+72(FP), R14
+
+	// Add start offset to input
+	ADDQ         R14, BX
+	ADDQ         R14, BP
+	ADDQ         R14, SI
+	ADDQ         R14, DI
+	ADDQ         R14, R8
+	ADDQ         R14, R9
+	ADDQ         R14, R10
+	ADDQ         R14, R11
+	ADDQ         R14, R12
+	ADDQ         R14, DX
+	MOVQ         $0x0000000f, R15
+	MOVQ         R15, X7
 	VPBROADCASTB X7, Y7
-	MOVQ         start+72(FP), R14
 
 mulAvxTwo_10x7_loop:
 	// Clear 7 outputs
@@ -17416,7 +19100,8 @@ mulAvxTwo_10x7_loop:
 	VPXOR Y6, Y6, Y6
 
 	// Load and process 32 bytes from input 0 to 7 outputs
-	VMOVDQU (BP)(R14*1), Y10
+	VMOVDQU (BX), Y10
+	ADDQ    $0x20, BX
 	VPSRLQ  $0x04, Y10, Y11
 	VPAND   Y7, Y10, Y10
 	VPAND   Y7, Y11, Y11
@@ -17464,7 +19149,8 @@ mulAvxTwo_10x7_loop:
 	VPXOR   Y8, Y6, Y6
 
 	// Load and process 32 bytes from input 1 to 7 outputs
-	VMOVDQU (SI)(R14*1), Y10
+	VMOVDQU (BP), Y10
+	ADDQ    $0x20, BP
 	VPSRLQ  $0x04, Y10, Y11
 	VPAND   Y7, Y10, Y10
 	VPAND   Y7, Y11, Y11
@@ -17512,7 +19198,8 @@ mulAvxTwo_10x7_loop:
 	VPXOR   Y8, Y6, Y6
 
 	// Load and process 32 bytes from input 2 to 7 outputs
-	VMOVDQU (DI)(R14*1), Y10
+	VMOVDQU (SI), Y10
+	ADDQ    $0x20, SI
 	VPSRLQ  $0x04, Y10, Y11
 	VPAND   Y7, Y10, Y10
 	VPAND   Y7, Y11, Y11
@@ -17560,7 +19247,8 @@ mulAvxTwo_10x7_loop:
 	VPXOR   Y8, Y6, Y6
 
 	// Load and process 32 bytes from input 3 to 7 outputs
-	VMOVDQU (R8)(R14*1), Y10
+	VMOVDQU (DI), Y10
+	ADDQ    $0x20, DI
 	VPSRLQ  $0x04, Y10, Y11
 	VPAND   Y7, Y10, Y10
 	VPAND   Y7, Y11, Y11
@@ -17608,7 +19296,8 @@ mulAvxTwo_10x7_loop:
 	VPXOR   Y8, Y6, Y6
 
 	// Load and process 32 bytes from input 4 to 7 outputs
-	VMOVDQU (R9)(R14*1), Y10
+	VMOVDQU (R8), Y10
+	ADDQ    $0x20, R8
 	VPSRLQ  $0x04, Y10, Y11
 	VPAND   Y7, Y10, Y10
 	VPAND   Y7, Y11, Y11
@@ -17656,7 +19345,8 @@ mulAvxTwo_10x7_loop:
 	VPXOR   Y8, Y6, Y6
 
 	// Load and process 32 bytes from input 5 to 7 outputs
-	VMOVDQU (R10)(R14*1), Y10
+	VMOVDQU (R9), Y10
+	ADDQ    $0x20, R9
 	VPSRLQ  $0x04, Y10, Y11
 	VPAND   Y7, Y10, Y10
 	VPAND   Y7, Y11, Y11
@@ -17704,7 +19394,8 @@ mulAvxTwo_10x7_loop:
 	VPXOR   Y8, Y6, Y6
 
 	// Load and process 32 bytes from input 6 to 7 outputs
-	VMOVDQU (R11)(R14*1), Y10
+	VMOVDQU (R10), Y10
+	ADDQ    $0x20, R10
 	VPSRLQ  $0x04, Y10, Y11
 	VPAND   Y7, Y10, Y10
 	VPAND   Y7, Y11, Y11
@@ -17752,7 +19443,8 @@ mulAvxTwo_10x7_loop:
 	VPXOR   Y8, Y6, Y6
 
 	// Load and process 32 bytes from input 7 to 7 outputs
-	VMOVDQU (R12)(R14*1), Y10
+	VMOVDQU (R11), Y10
+	ADDQ    $0x20, R11
 	VPSRLQ  $0x04, Y10, Y11
 	VPAND   Y7, Y10, Y10
 	VPAND   Y7, Y11, Y11
@@ -17800,7 +19492,8 @@ mulAvxTwo_10x7_loop:
 	VPXOR   Y8, Y6, Y6
 
 	// Load and process 32 bytes from input 8 to 7 outputs
-	VMOVDQU (R13)(R14*1), Y10
+	VMOVDQU (R12), Y10
+	ADDQ    $0x20, R12
 	VPSRLQ  $0x04, Y10, Y11
 	VPAND   Y7, Y10, Y10
 	VPAND   Y7, Y11, Y11
@@ -17848,7 +19541,8 @@ mulAvxTwo_10x7_loop:
 	VPXOR   Y8, Y6, Y6
 
 	// Load and process 32 bytes from input 9 to 7 outputs
-	VMOVDQU (BX)(R14*1), Y10
+	VMOVDQU (DX), Y10
+	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y10, Y11
 	VPAND   Y7, Y10, Y10
 	VPAND   Y7, Y11, Y11
@@ -17896,19 +19590,19 @@ mulAvxTwo_10x7_loop:
 	VPXOR   Y8, Y6, Y6
 
 	// Store 7 outputs
-	MOVQ    (DX), R15
+	MOVQ    (R13), R15
 	VMOVDQU Y0, (R15)(R14*1)
-	MOVQ    24(DX), R15
+	MOVQ    24(R13), R15
 	VMOVDQU Y1, (R15)(R14*1)
-	MOVQ    48(DX), R15
+	MOVQ    48(R13), R15
 	VMOVDQU Y2, (R15)(R14*1)
-	MOVQ    72(DX), R15
+	MOVQ    72(R13), R15
 	VMOVDQU Y3, (R15)(R14*1)
-	MOVQ    96(DX), R15
+	MOVQ    96(R13), R15
 	VMOVDQU Y4, (R15)(R14*1)
-	MOVQ    120(DX), R15
+	MOVQ    120(R13), R15
 	VMOVDQU Y5, (R15)(R14*1)
-	MOVQ    144(DX), R15
+	MOVQ    144(R13), R15
 	VMOVDQU Y6, (R15)(R14*1)
 
 	// Prepare for next loop
@@ -17924,28 +19618,41 @@ mulAvxTwo_10x7_end:
 // Requires: AVX, AVX2, SSE2
 TEXT ·mulAvxTwo_10x8(SB), $0-88
 	// Loading no tables to registers
+	// Destination kept on stack
 	// Full registers estimated 173 YMM used
-	MOVQ         n+80(FP), AX
-	MOVQ         matrix_base+0(FP), CX
-	SHRQ         $0x05, AX
-	TESTQ        AX, AX
-	JZ           mulAvxTwo_10x8_end
-	MOVQ         out_base+48(FP), DX
-	MOVQ         in_base+24(FP), BX
-	MOVQ         (BX), BP
-	MOVQ         24(BX), SI
-	MOVQ         48(BX), DI
-	MOVQ         72(BX), R8
-	MOVQ         96(BX), R9
-	MOVQ         120(BX), R10
-	MOVQ         144(BX), R11
-	MOVQ         168(BX), R12
-	MOVQ         192(BX), R13
-	MOVQ         216(BX), BX
-	MOVQ         $0x0000000f, R14
-	MOVQ         R14, X8
+	MOVQ  n+80(FP), AX
+	MOVQ  matrix_base+0(FP), CX
+	SHRQ  $0x05, AX
+	TESTQ AX, AX
+	JZ    mulAvxTwo_10x8_end
+	MOVQ  in_base+24(FP), DX
+	MOVQ  (DX), BX
+	MOVQ  24(DX), BP
+	MOVQ  48(DX), SI
+	MOVQ  72(DX), DI
+	MOVQ  96(DX), R8
+	MOVQ  120(DX), R9
+	MOVQ  144(DX), R10
+	MOVQ  168(DX), R11
+	MOVQ  192(DX), R12
+	MOVQ  216(DX), DX
+	MOVQ  out_base+48(FP), R13
+	MOVQ  start+72(FP), R14
+
+	// Add start offset to input
+	ADDQ         R14, BX
+	ADDQ         R14, BP
+	ADDQ         R14, SI
+	ADDQ         R14, DI
+	ADDQ         R14, R8
+	ADDQ         R14, R9
+	ADDQ         R14, R10
+	ADDQ         R14, R11
+	ADDQ         R14, R12
+	ADDQ         R14, DX
+	MOVQ         $0x0000000f, R15
+	MOVQ         R15, X8
 	VPBROADCASTB X8, Y8
-	MOVQ         start+72(FP), R14
 
 mulAvxTwo_10x8_loop:
 	// Clear 8 outputs
@@ -17959,7 +19666,8 @@ mulAvxTwo_10x8_loop:
 	VPXOR Y7, Y7, Y7
 
 	// Load and process 32 bytes from input 0 to 8 outputs
-	VMOVDQU (BP)(R14*1), Y11
+	VMOVDQU (BX), Y11
+	ADDQ    $0x20, BX
 	VPSRLQ  $0x04, Y11, Y12
 	VPAND   Y8, Y11, Y11
 	VPAND   Y8, Y12, Y12
@@ -18013,7 +19721,8 @@ mulAvxTwo_10x8_loop:
 	VPXOR   Y9, Y7, Y7
 
 	// Load and process 32 bytes from input 1 to 8 outputs
-	VMOVDQU (SI)(R14*1), Y11
+	VMOVDQU (BP), Y11
+	ADDQ    $0x20, BP
 	VPSRLQ  $0x04, Y11, Y12
 	VPAND   Y8, Y11, Y11
 	VPAND   Y8, Y12, Y12
@@ -18067,7 +19776,8 @@ mulAvxTwo_10x8_loop:
 	VPXOR   Y9, Y7, Y7
 
 	// Load and process 32 bytes from input 2 to 8 outputs
-	VMOVDQU (DI)(R14*1), Y11
+	VMOVDQU (SI), Y11
+	ADDQ    $0x20, SI
 	VPSRLQ  $0x04, Y11, Y12
 	VPAND   Y8, Y11, Y11
 	VPAND   Y8, Y12, Y12
@@ -18121,7 +19831,8 @@ mulAvxTwo_10x8_loop:
 	VPXOR   Y9, Y7, Y7
 
 	// Load and process 32 bytes from input 3 to 8 outputs
-	VMOVDQU (R8)(R14*1), Y11
+	VMOVDQU (DI), Y11
+	ADDQ    $0x20, DI
 	VPSRLQ  $0x04, Y11, Y12
 	VPAND   Y8, Y11, Y11
 	VPAND   Y8, Y12, Y12
@@ -18175,7 +19886,8 @@ mulAvxTwo_10x8_loop:
 	VPXOR   Y9, Y7, Y7
 
 	// Load and process 32 bytes from input 4 to 8 outputs
-	VMOVDQU (R9)(R14*1), Y11
+	VMOVDQU (R8), Y11
+	ADDQ    $0x20, R8
 	VPSRLQ  $0x04, Y11, Y12
 	VPAND   Y8, Y11, Y11
 	VPAND   Y8, Y12, Y12
@@ -18229,7 +19941,8 @@ mulAvxTwo_10x8_loop:
 	VPXOR   Y9, Y7, Y7
 
 	// Load and process 32 bytes from input 5 to 8 outputs
-	VMOVDQU (R10)(R14*1), Y11
+	VMOVDQU (R9), Y11
+	ADDQ    $0x20, R9
 	VPSRLQ  $0x04, Y11, Y12
 	VPAND   Y8, Y11, Y11
 	VPAND   Y8, Y12, Y12
@@ -18283,7 +19996,8 @@ mulAvxTwo_10x8_loop:
 	VPXOR   Y9, Y7, Y7
 
 	// Load and process 32 bytes from input 6 to 8 outputs
-	VMOVDQU (R11)(R14*1), Y11
+	VMOVDQU (R10), Y11
+	ADDQ    $0x20, R10
 	VPSRLQ  $0x04, Y11, Y12
 	VPAND   Y8, Y11, Y11
 	VPAND   Y8, Y12, Y12
@@ -18337,7 +20051,8 @@ mulAvxTwo_10x8_loop:
 	VPXOR   Y9, Y7, Y7
 
 	// Load and process 32 bytes from input 7 to 8 outputs
-	VMOVDQU (R12)(R14*1), Y11
+	VMOVDQU (R11), Y11
+	ADDQ    $0x20, R11
 	VPSRLQ  $0x04, Y11, Y12
 	VPAND   Y8, Y11, Y11
 	VPAND   Y8, Y12, Y12
@@ -18391,7 +20106,8 @@ mulAvxTwo_10x8_loop:
 	VPXOR   Y9, Y7, Y7
 
 	// Load and process 32 bytes from input 8 to 8 outputs
-	VMOVDQU (R13)(R14*1), Y11
+	VMOVDQU (R12), Y11
+	ADDQ    $0x20, R12
 	VPSRLQ  $0x04, Y11, Y12
 	VPAND   Y8, Y11, Y11
 	VPAND   Y8, Y12, Y12
@@ -18445,7 +20161,8 @@ mulAvxTwo_10x8_loop:
 	VPXOR   Y9, Y7, Y7
 
 	// Load and process 32 bytes from input 9 to 8 outputs
-	VMOVDQU (BX)(R14*1), Y11
+	VMOVDQU (DX), Y11
+	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y11, Y12
 	VPAND   Y8, Y11, Y11
 	VPAND   Y8, Y12, Y12
@@ -18499,21 +20216,21 @@ mulAvxTwo_10x8_loop:
 	VPXOR   Y9, Y7, Y7
 
 	// Store 8 outputs
-	MOVQ    (DX), R15
+	MOVQ    (R13), R15
 	VMOVDQU Y0, (R15)(R14*1)
-	MOVQ    24(DX), R15
+	MOVQ    24(R13), R15
 	VMOVDQU Y1, (R15)(R14*1)
-	MOVQ    48(DX), R15
+	MOVQ    48(R13), R15
 	VMOVDQU Y2, (R15)(R14*1)
-	MOVQ    72(DX), R15
+	MOVQ    72(R13), R15
 	VMOVDQU Y3, (R15)(R14*1)
-	MOVQ    96(DX), R15
+	MOVQ    96(R13), R15
 	VMOVDQU Y4, (R15)(R14*1)
-	MOVQ    120(DX), R15
+	MOVQ    120(R13), R15
 	VMOVDQU Y5, (R15)(R14*1)
-	MOVQ    144(DX), R15
+	MOVQ    144(R13), R15
 	VMOVDQU Y6, (R15)(R14*1)
-	MOVQ    168(DX), R15
+	MOVQ    168(R13), R15
 	VMOVDQU Y7, (R15)(R14*1)
 
 	// Prepare for next loop
