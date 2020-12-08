@@ -18,7 +18,7 @@ import (
 	"runtime"
 	"sync"
 
-	"github.com/klauspost/cpuid"
+	"github.com/klauspost/cpuid/v2"
 )
 
 // Encoder is an interface to encode Reed-Salomon parity sets for your data.

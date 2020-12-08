@@ -3,7 +3,7 @@ package reedsolomon
 import (
 	"runtime"
 
-	"github.com/klauspost/cpuid"
+	"github.com/klauspost/cpuid/v2"
 )
 
 // Option allows to override processing parameters.
@@ -32,10 +32,10 @@ var defaultOptions = options{
 	fastOneParity: false,
 
 	// Detect CPU capabilities.
-	useSSSE3:  cpuid.CPU.SSSE3(),
-	useSSE2:   cpuid.CPU.SSE2(),
-	useAVX2:   cpuid.CPU.AVX2(),
-	useAVX512: cpuid.CPU.AVX512F() && cpuid.CPU.AVX512BW(),
+	useSSSE3:  cpuid.CPU.Supports(cpuid.SSSE3),
+	useSSE2:   cpuid.CPU.Supports(cpuid.SSE2),
+	useAVX2:   cpuid.CPU.Supports(cpuid.AVX2),
+	useAVX512: cpuid.CPU.Supports(cpuid.AVX512F, cpuid.AVX512BW),
 }
 
 func init() {

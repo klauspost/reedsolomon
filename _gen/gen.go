@@ -1,7 +1,7 @@
 //+build generate
 
-//go:generate go run gen.go -out galois_gen_amd64.s -stubs galois_gen_amd64.go
-//go:generate gofmt -w galois_gen_switch_amd64.go
+//go:generate go run gen.go -out ../galois_gen_amd64.s -stubs ../galois_gen_amd64.go -pkg=reedsolomon
+//go:generate gofmt -w ../galois_gen_switch_amd64.go
 
 package main
 
@@ -43,7 +43,7 @@ func main() {
 			genMulAvx2(fmt.Sprintf("mulAvxTwo_%dx%d", i, j), i, j, false)
 		}
 	}
-	f, err := os.Create("galois_gen_switch_amd64.go")
+	f, err := os.Create("../galois_gen_switch_amd64.go")
 	if err != nil {
 		panic(err)
 	}
