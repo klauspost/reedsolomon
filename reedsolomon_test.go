@@ -14,7 +14,6 @@ import (
 	"math/rand"
 	"os"
 	"runtime"
-	"sync"
 	"testing"
 )
 
@@ -1241,12 +1240,11 @@ func TestStandardMatrices(t *testing.T) {
 		// Runtime ~15s.
 		t.Skip("Skipping slow matrix check")
 	}
-	var wg sync.WaitGroup
-	wg.Add(256 - 1)
 	for i := 1; i < 256; i++ {
-		go func(i int) {
+		i := i
+		t.Run(fmt.Sprintf("x%d", i), func(t *testing.T) {
+			t.Parallel()
 			// i == n.o. datashards
-			defer wg.Done()
 			var shards = make([][]byte, 255)
 			for p := range shards {
 				v := byte(i)
@@ -1294,9 +1292,8 @@ func TestStandardMatrices(t *testing.T) {
 					}
 				}
 			}
-		}(i)
+		})
 	}
-	wg.Wait()
 }
 
 func TestCauchyMatrices(t *testing.T) {
@@ -1304,12 +1301,10 @@ func TestCauchyMatrices(t *testing.T) {
 		// Runtime ~15s.
 		t.Skip("Skipping slow matrix check")
 	}
-	var wg sync.WaitGroup
-	wg.Add(256 - 1)
 	for i := 1; i < 256; i++ {
-		go func(i int) {
-			// i == n.o. datashards
-			defer wg.Done()
+		i := i
+		t.Run(fmt.Sprintf("x%d", i), func(t *testing.T) {
+			t.Parallel()
 			var shards = make([][]byte, 255)
 			for p := range shards {
 				v := byte(i)
@@ -1357,9 +1352,8 @@ func TestCauchyMatrices(t *testing.T) {
 					}
 				}
 			}
-		}(i)
+		})
 	}
-	wg.Wait()
 }
 
 func TestPar1Matrices(t *testing.T) {
@@ -1367,12 +1361,10 @@ func TestPar1Matrices(t *testing.T) {
 		// Runtime ~15s.
 		t.Skip("Skipping slow matrix check")
 	}
-	var wg sync.WaitGroup
-	wg.Add(256 - 1)
 	for i := 1; i < 256; i++ {
-		go func(i int) {
-			// i == n.o. datashards
-			defer wg.Done()
+		i := i
+		t.Run(fmt.Sprintf("x%d", i), func(t *testing.T) {
+			t.Parallel()
 			var shards = make([][]byte, 255)
 			for p := range shards {
 				v := byte(i)
@@ -1429,9 +1421,8 @@ func TestPar1Matrices(t *testing.T) {
 					}
 				}
 			}
-		}(i)
+		})
 	}
-	wg.Wait()
 }
 
 func TestNew(t *testing.T) {
