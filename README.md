@@ -23,6 +23,8 @@ To get the package use the standard:
 go get -u github.com/klauspost/reedsolomon
 ```
 
+Using Go modules recommended.
+
 # Changes
 
 ## May 2020
