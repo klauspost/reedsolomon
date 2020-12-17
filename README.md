@@ -302,14 +302,16 @@ Performance depends mainly on the number of parity shards.
 In rough terms, doubling the number of parity shards will double the encoding time.
 
 Here are the throughput numbers with some different selections of data and parity shards. 
-For reference each shard is 1MB random data, and 2 CPU cores are used for encoding.
+For reference each shard is 1MB random data, and 16 CPU cores are used for encoding.
 
-| Data | Parity | Parity | MB/s   | SSSE3 MB/s  | SSSE3 Speed | Rel. Speed |
-|------|--------|--------|--------|-------------|-------------|------------|
-| 5    | 2      | 40%    | 576,11 | 2599,2      | 451%        | 100,00%    |
-| 10   | 2      | 20%    | 587,73 | 3100,28     | 528%        | 102,02%    |
-| 10   | 4      | 40%    | 298,38 | 2470,97     | 828%        | 51,79%     |
-| 50   | 20     | 40%    | 59,81  | 713,28      | 1193%       | 10,38%     |
+| Data | Parity | Go MB/s | SSSE3 MB/s | AVX2 MB/s |
+|------|--------|---------|------------|-----------|
+| 5    | 2      | 14287   | 66355      | 108755    |
+| 8    | 8      | 5569    | 34298      | 70516     |
+| 10   | 4      | 6766    | 48237      | 93875     |
+| 50   | 20     | 1540    | 12130      | 22090     |
+
+The throughput numbers here is the size of the encoded data and parity shards.
 
 If `runtime.GOMAXPROCS()` is set to a value higher than 1, 
 the encoder will use multiple goroutines to perform the calculations in `Verify`, `Encode` and `Reconstruct`.
