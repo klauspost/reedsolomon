@@ -761,7 +761,7 @@ func benchmarkEncode(b *testing.B, dataShards, parityShards, shardSize int) {
 		fillRandom(shards[s])
 	}
 
-	b.SetBytes(int64(shardSize * dataShards))
+	b.SetBytes(int64(shardSize * (dataShards + parityShards)))
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		err = r.Encode(shards)
@@ -853,7 +853,7 @@ func benchmarkVerify(b *testing.B, dataShards, parityShards, shardSize int) {
 		b.Fatal(err)
 	}
 
-	b.SetBytes(int64(shardSize * dataShards))
+	b.SetBytes(int64(shardSize * (dataShards + parityShards)))
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		_, err = r.Verify(shards)
@@ -925,7 +925,7 @@ func benchmarkReconstruct(b *testing.B, dataShards, parityShards, shardSize int)
 		b.Fatal(err)
 	}
 
-	b.SetBytes(int64(shardSize * dataShards))
+	b.SetBytes(int64(shardSize * (dataShards + parityShards)))
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		corruptRandom(shards, dataShards, parityShards)
@@ -999,7 +999,7 @@ func benchmarkReconstructData(b *testing.B, dataShards, parityShards, shardSize 
 		b.Fatal(err)
 	}
 
-	b.SetBytes(int64(shardSize * dataShards))
+	b.SetBytes(int64(shardSize * (dataShards + parityShards)))
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		corruptRandomData(shards, dataShards, parityShards)
@@ -1052,7 +1052,7 @@ func benchmarkReconstructP(b *testing.B, dataShards, parityShards, shardSize int
 		b.Fatal(err)
 	}
 
-	b.SetBytes(int64(shardSize * dataShards))
+	b.SetBytes(int64(shardSize * (dataShards + parityShards)))
 	b.ResetTimer()
 
 	b.RunParallel(func(pb *testing.PB) {
@@ -1069,7 +1069,7 @@ func benchmarkReconstructP(b *testing.B, dataShards, parityShards, shardSize int
 		if err != nil {
 			b.Fatal(err)
 		}
-
+		b.ResetTimer()
 		for pb.Next() {
 			corruptRandom(shards, dataShards, parityShards)
 
@@ -1521,7 +1521,7 @@ func benchmarkParallel(b *testing.B, dataShards, parityShards, shardSize int) {
 		shardsCh <- shards
 	}
 
-	b.SetBytes(int64(shardSize * dataShards))
+	b.SetBytes(int64(shardSize * (dataShards + parityShards)))
 	b.SetParallelism(c)
 	b.ReportAllocs()
 	b.ResetTimer()
