@@ -142,6 +142,7 @@ func testOpts() [][]Option {
 		{WithMaxGoroutines(5000), WithMinSplitSize(500000), withSSSE3(false), withAVX2(false), withAVX512(false)},
 		{WithMaxGoroutines(1), WithMinSplitSize(500000), withSSSE3(false), withAVX2(false), withAVX512(false)},
 		{WithAutoGoroutines(50000), WithMinSplitSize(500)},
+		{WithInversionCache(false)},
 	}
 	for _, o := range opts[:] {
 		if defaultOptions.useSSSE3 {

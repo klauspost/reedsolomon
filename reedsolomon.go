@@ -110,7 +110,7 @@ type reedSolomon struct {
 	ParityShards int // Number of parity shards, should not be modified.
 	Shards       int // Total number of shards. Calculated, and should not be modified.
 	m            matrix
-	tree         inversionTree
+	tree         *inversionTree
 	parity       [][]byte
 	o            options
 	mPool        sync.Pool
@@ -333,7 +333,9 @@ func New(dataShards, parityShards int, opts ...Option) (Encoder, error) {
 	// The inversion root node will have the identity matrix as
 	// its inversion matrix because it implies there are no errors
 	// with the original data.
-	r.tree = newInversionTree(dataShards, parityShards)
+	if r.o.inversionCache {
+		r.tree = newInversionTree(dataShards, parityShards)
+	}
 
 	r.parity = make([][]byte, parityShards)
 	for i := range r.parity {
