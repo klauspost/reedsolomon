@@ -117,6 +117,84 @@ func TestStreamEncodingConcurrent(t *testing.T) {
 	}
 }
 
+func TestStreamZeroParity(t *testing.T) {
+	perShard := 10 << 20
+	if testing.Short() {
+		perShard = 50000
+	}
+	r, err := NewStream(10, 0, testOptions()...)
+	if err != nil {
+		t.Fatal(err)
+	}
+	rand.Seed(0)
+	input := randomBytes(10, perShard)
+	data := toBuffers(input)
+
+	err = r.Encode(toReaders(data), []io.Writer{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	// Reset Data
+	data = toBuffers(input)
+
+	all := toReaders(data)
+	ok, err := r.Verify(all)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !ok {
+		t.Fatal("Verification failed")
+	}
+	// Reset Data
+	data = toBuffers(input)
+
+	// Check that Reconstruct does nothing
+	all = toReaders(data)
+	err = r.Reconstruct(all, nilWriters(10))
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestStreamZeroParityConcurrent(t *testing.T) {
+	perShard := 10 << 20
+	if testing.Short() {
+		perShard = 50000
+	}
+	r, err := NewStreamC(10, 0, true, true, testOptions()...)
+	if err != nil {
+		t.Fatal(err)
+	}
+	rand.Seed(0)
+	input := randomBytes(10, perShard)
+	data := toBuffers(input)
+
+	err = r.Encode(toReaders(data), []io.Writer{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	// Reset Data
+	data = toBuffers(input)
+
+	all := toReaders(data)
+	ok, err := r.Verify(all)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !ok {
+		t.Fatal("Verification failed")
+	}
+	// Reset Data
+	data = toBuffers(input)
+
+	// Check that Reconstruct does nothing
+	all = toReaders(data)
+	err = r.Reconstruct(all, nilWriters(10))
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
 func randomBuffer(length int) *bytes.Buffer {
 	b := make([]byte, length)
 	fillRandom(b)
@@ -605,10 +683,11 @@ func TestNewStream(t *testing.T) {
 		err          error
 	}{
 		{127, 127, nil},
+		{1, 0, nil},
 		{256, 256, ErrMaxShardNum},
 
 		{0, 1, ErrInvShardNum},
-		{1, 0, ErrInvShardNum},
+		{1, -1, ErrInvShardNum},
 		{257, 1, ErrMaxShardNum},
 
 		// overflow causes r.Shards to be negative
