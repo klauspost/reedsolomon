@@ -180,7 +180,9 @@ func TestEncoding(t *testing.T) {
 
 // matrix sizes to test.
 // note that par1 matric will fail on some combinations.
-var testSizes = [][2]int{{1, 1}, {1, 2}, {3, 3}, {3, 1}, {5, 3}, {8, 4}, {10, 30}, {12, 10}, {14, 7}, {41, 17}, {49, 1}}
+var testSizes = [][2]int{
+	{1, 0}, {3, 0}, {5, 0}, {8, 0}, {10, 0}, {12, 0}, {14, 0}, {41, 0}, {49, 0},
+	{1, 1}, {1, 2}, {3, 3}, {3, 1}, {5, 3}, {8, 4}, {10, 30}, {12, 10}, {14, 7}, {41, 17}, {49, 1}}
 var testDataSizes = []int{10, 100, 1000, 10001, 100003, 1000055}
 var testDataSizesShort = []int{10, 10001, 100003}
 
@@ -220,6 +222,22 @@ func testEncoding(t *testing.T, o ...Option) {
 					if !ok {
 						t.Fatal("Verification failed")
 					}
+
+					if parity == 0 {
+						// Check that Reconstruct and ReconstructData do nothing
+						err = r.ReconstructData(shards)
+						if err != nil {
+							t.Fatal(err)
+						}
+						err = r.Reconstruct(shards)
+						if err != nil {
+							t.Fatal(err)
+						}
+
+						// Skip integrity checks
+						return
+					}
+
 					// Delete one in data
 					idx := rng.Intn(data)
 					want := shards[idx]
@@ -1434,10 +1452,12 @@ func TestNew(t *testing.T) {
 		{127, 127, nil},
 		{128, 128, nil},
 		{255, 1, nil},
+		{255, 0, nil},
+		{1, 0, nil},
 		{256, 256, ErrMaxShardNum},
 
 		{0, 1, ErrInvShardNum},
-		{1, 0, ErrInvShardNum},
+		{1, -1, ErrInvShardNum},
 		{256, 1, ErrMaxShardNum},
 
 		// overflow causes r.Shards to be negative
