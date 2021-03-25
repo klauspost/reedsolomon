@@ -1,6 +1,6 @@
 //+build generate
 
-//go:generate go run gen.go -out ../galois_gen_amd64.s -stubs ../galois_gen_amd64.go -pkg=reedsolomon
+//go:generate go run gen.go -out ../galois_gen_amd64.s -stubs ../galois_gen_amd64.go
 //go:generate gofmt -w ../galois_gen_switch_amd64.go
 
 package main
@@ -86,6 +86,14 @@ func galMulSlicesAvx2(matrix []byte, in, out [][]byte, start, stop int) int {
 	panic(fmt.Sprintf("unhandled size: %dx%d", len(in), len(out)))
 }
 `)
+	genMulOneAvx2(1, false)
+	genMulOneAvx2(1, true)
+	genMulOneAvx2(2, false)
+	genMulOneAvx2(2, true)
+	genMulOneAvx2(4, false)
+	genMulOneAvx2(4, true)
+	genMulOneAvx2(6, false)
+	genMulOneAvx2(6, true)
 	Generate()
 }
 
@@ -295,6 +303,83 @@ func genMulAvx2(name string, inputs int, outputs int, xor bool) {
 	JNZ(LabelRef(name + "_loop"))
 	VZEROUPPER()
 
+	Label(name + "_end")
+	RET()
+}
+
+func genMulOneAvx2(regs int, xor bool) {
+	name := ""
+	if xor {
+		name = "Xor"
+	}
+	perLoop := 32 * regs
+	shift := 3
+	for i := 0; i < regs; i++ {
+		shift++
+	}
+	name = fmt.Sprintf("galMulAVX2%s_%d", name, perLoop)
+	TEXT(name, 0, fmt.Sprintf("func(low, high, in, out []byte)"))
+	maskReg := GP64()
+	MOVQ(U32(15), maskReg)
+	length := Load(Param("in").Len(), GP64())
+	src := Load(Param("in").Base(), GP64())
+	dst := Load(Param("out").Base(), GP64())
+	low, high := YMM(), YMM()
+
+	mask := YMM()
+	MOVQ(maskReg, mask.AsX())
+	lowP := Load(Param("low").Base(), GP64())
+	highP := Load(Param("high").Base(), GP64())
+	MOVOU(Mem{Base: lowP}, low.AsX())
+	MOVOU(Mem{Base: highP}, high.AsX())
+	SHRQ(U8(shift), length)
+	VINSERTI128(U8(1), low.AsX(), low, low)
+	VINSERTI128(U8(1), high.AsX(), high, high)
+
+	VPBROADCASTB(mask.AsX(), mask)
+	TESTQ(length, length)
+	JZ(LabelRef(name + "_end"))
+	Label(name + "_loop")
+
+	var inLow []reg.VecVirtual
+	var inHigh []reg.VecVirtual
+	forRegs := func(fn func(i int)) {
+		for i := 0; i < regs; i++ {
+			fn(i)
+		}
+	}
+	forRegs(func(i int) {
+		inLow, inHigh = append(inLow, YMM()), append(inHigh, YMM())
+		VMOVDQU(Mem{Base: src, Disp: 32 * i}, inLow[i])
+	})
+	forRegs(func(i int) {
+		VPSRLQ(U8(4), inLow[i], inHigh[i])
+		VPAND(mask, inLow[i], inLow[i])
+	})
+	forRegs(func(i int) {
+		VPAND(mask, inHigh[i], inHigh[i])
+		VPSHUFB(inLow[i], low, inLow[i])
+	})
+	var out []reg.VecVirtual
+	forRegs(func(i int) {
+		VPSHUFB(inHigh[i], high, inHigh[i])
+		if xor {
+			out = append(out, YMM())
+			VMOVDQU(Mem{Base: dst, Disp: 32 * i}, out[i])
+		}
+		VPXOR(inLow[i], inHigh[i], inLow[i])
+	})
+	forRegs(func(i int) {
+		if xor {
+			VPXOR(inLow[i], out[i], inLow[i])
+		}
+		VMOVDQU(inLow[i], Mem{Base: dst, Disp: 32 * i})
+	})
+	ADDQ(U8(perLoop), src)
+	ADDQ(U8(perLoop), dst)
+	DECQ(length)
+
+	JNZ(LabelRef(name + "_loop"))
 	Label(name + "_end")
 	RET()
 }
