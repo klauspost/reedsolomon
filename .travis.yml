@@ -12,9 +12,9 @@ arch:
   - s390x
 
 go:
-  - 1.13.x
   - 1.14.x
   - 1.15.x
+  - 1.16.x
   - master
 
 install:
@@ -29,19 +29,14 @@ script:
  - go build examples/stream-decoder.go
  - go build examples/stream-encoder.go
 
-stages:
-  - gofmt
-  - test
-  - deploy
-
 jobs:
   allow_failures:
     - go: 'master'
     - arch: s390x
   fast_finish: true
   include:
-    - stage: gofmt
-      go: 1.15.x
+    - stage: other
+      go: 1.16.x
       os: linux
       arch: amd64
       script:
@@ -49,11 +44,6 @@ jobs:
         - diff <(gofmt -d ./examples) <(printf "")
         - go install github.com/klauspost/asmfmt/cmd/asmfmt
         - diff <(asmfmt -d .) <(printf "")
-    - stage: race
-      go: 1.15.x
-      os: linux
-      arch: amd64
-      script:
         - go test -cpu=1 -short -race .
         - go test -cpu=2 -short -race .
         - go test -tags=noasm -cpu=1 -short -race .
@@ -61,7 +51,8 @@ jobs:
         - go test -no-avx512 -short -race .
         - go test -no-avx512 -no-avx2 -short -race .
         - go test -no-avx512 -no-avx2 -no-ssse3 -short -race .
-    - stage: amd64-noasm
+        - GOOS=linux GOARCH=386 go test -short .
+    - stage: other
       go: 1.15.x
       os: linux
       arch: amd64
@@ -69,9 +60,3 @@ jobs:
         - go test -no-avx512
         - go test -no-avx512 -no-avx2
         - go test -no-avx512 -no-avx2 -no-ssse3
-    - stage: i386
-      go: 1.15.x
-      os: linux
-      arch: amd64
-      script:
-        - GOOS=linux GOARCH=386 go test -short .
