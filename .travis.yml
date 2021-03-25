@@ -17,6 +17,9 @@ go:
   - 1.16.x
   - master
 
+env:
+  - GO111MODULE=off CGO_ENABLED=0
+
 install:
  - go get ./...
 
@@ -44,13 +47,13 @@ jobs:
         - diff <(gofmt -d ./examples) <(printf "")
         - go install github.com/klauspost/asmfmt/cmd/asmfmt
         - diff <(asmfmt -d .) <(printf "")
-        - go test -cpu=1 -short -race .
-        - go test -cpu=2 -short -race .
-        - go test -tags=noasm -cpu=1 -short -race .
-        - go test -tags=noasm -cpu=4 -short -race .
-        - go test -no-avx512 -short -race .
-        - go test -no-avx512 -no-avx2 -short -race .
-        - go test -no-avx512 -no-avx2 -no-ssse3 -short -race .
+        - CGO_ENABLED=1 go test -cpu=1 -short -race .
+        - CGO_ENABLED=1 go test -cpu=2 -short -race .
+        - CGO_ENABLED=1 go test -tags=noasm -cpu=1 -short -race .
+        - CGO_ENABLED=1 go test -tags=noasm -cpu=4 -short -race .
+        - CGO_ENABLED=1 go test -no-avx512 -short -race .
+        - CGO_ENABLED=1 go test -no-avx512 -no-avx2 -short -race .
+        - CGO_ENABLED=1 go test -no-avx512 -no-avx2 -no-ssse3 -short -race .
         - GOOS=linux GOARCH=386 go test -short .
     - stage: other
       go: 1.15.x
