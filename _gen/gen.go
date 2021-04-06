@@ -127,8 +127,14 @@ func genMulAvx2(name string, inputs int, outputs int, xor bool) {
 
 	TEXT(name, attr.NOSPLIT, fmt.Sprintf("func(matrix []byte, in [][]byte, out [][]byte, start, n int)"))
 
-	// Alloc 8 until https://github.com/mmcloughlin/avo/issues/156 is resolved.
-	AllocLocal(8)
+	var restore = func() {}
+	if est == 16 {
+		// If we don't have space in XMM, alloc on frame.
+		AllocLocal(8)
+	} else {
+		// Save in XMM..
+		restore = saveBP()
+	}
 	// SWITCH DEFINITION:
 	s := fmt.Sprintf("			mulAvxTwo_%dx%d(matrix, in, out, start, n)\n", inputs, outputs)
 	s += fmt.Sprintf("\t\t\t\treturn n\n")
@@ -316,5 +322,15 @@ func genMulAvx2(name string, inputs int, outputs int, xor bool) {
 	VZEROUPPER()
 
 	Label(name + "_end")
+	restore()
 	RET()
+}
+
+// saveBP will save RBP in an XMM register and restore it when returning.
+func saveBP() (restore func()) {
+	x := XMM()
+	MOVQ(reg.RBP, x)
+	return func() {
+		MOVQ(x, reg.RBP)
+	}
 }

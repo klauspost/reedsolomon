@@ -9,7 +9,9 @@
 
 // func mulAvxTwo_1x1(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX2, SSE2
-TEXT ·mulAvxTwo_1x1(SB), NOSPLIT, $8-88
+TEXT ·mulAvxTwo_1x1(SB), NOSPLIT, $0-88
+	MOVQ BP, X0
+
 	// Loading all tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 6 YMM used
@@ -18,8 +20,8 @@ TEXT ·mulAvxTwo_1x1(SB), NOSPLIT, $8-88
 	SHRQ    $0x05, AX
 	TESTQ   AX, AX
 	JZ      mulAvxTwo_1x1_end
-	VMOVDQU (CX), Y0
-	VMOVDQU 32(CX), Y1
+	VMOVDQU (CX), Y1
+	VMOVDQU 32(CX), Y2
 	MOVQ    in_base+24(FP), CX
 	MOVQ    (CX), CX
 	MOVQ    out_base+48(FP), DX
@@ -32,26 +34,26 @@ TEXT ·mulAvxTwo_1x1(SB), NOSPLIT, $8-88
 	// Add start offset to input
 	ADDQ         BX, CX
 	MOVQ         $0x0000000f, BX
-	MOVQ         BX, X3
-	VPBROADCASTB X3, Y3
+	MOVQ         BX, X4
+	VPBROADCASTB X4, Y4
 
 mulAvxTwo_1x1_loop:
 	// Clear 1 outputs
-	VPXOR Y2, Y2, Y2
+	VPXOR Y3, Y3, Y3
 
 	// Load and process 32 bytes from input 0 to 1 outputs
-	VMOVDQU (CX), Y4
+	VMOVDQU (CX), Y5
 	ADDQ    $0x20, CX
-	VPSRLQ  $0x04, Y4, Y5
-	VPAND   Y3, Y4, Y4
-	VPAND   Y3, Y5, Y5
-	VPSHUFB Y4, Y0, Y4
+	VPSRLQ  $0x04, Y5, Y6
+	VPAND   Y4, Y5, Y5
+	VPAND   Y4, Y6, Y6
 	VPSHUFB Y5, Y1, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y2, Y2
+	VPSHUFB Y6, Y2, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y3, Y3
 
 	// Store 1 outputs
-	VMOVDQU Y2, (DX)
+	VMOVDQU Y3, (DX)
 	ADDQ    $0x20, DX
 
 	// Prepare for next loop
@@ -60,11 +62,14 @@ mulAvxTwo_1x1_loop:
 	VZEROUPPER
 
 mulAvxTwo_1x1_end:
+	MOVQ X0, BP
 	RET
 
 // func mulAvxTwo_1x2(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX2, SSE2
-TEXT ·mulAvxTwo_1x2(SB), NOSPLIT, $8-88
+TEXT ·mulAvxTwo_1x2(SB), NOSPLIT, $0-88
+	MOVQ BP, X0
+
 	// Loading all tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 11 YMM used
@@ -73,10 +78,10 @@ TEXT ·mulAvxTwo_1x2(SB), NOSPLIT, $8-88
 	SHRQ    $0x05, AX
 	TESTQ   AX, AX
 	JZ      mulAvxTwo_1x2_end
-	VMOVDQU (CX), Y0
-	VMOVDQU 32(CX), Y1
-	VMOVDQU 64(CX), Y2
-	VMOVDQU 96(CX), Y3
+	VMOVDQU (CX), Y1
+	VMOVDQU 32(CX), Y2
+	VMOVDQU 64(CX), Y3
+	VMOVDQU 96(CX), Y4
 	MOVQ    in_base+24(FP), CX
 	MOVQ    (CX), CX
 	MOVQ    out_base+48(FP), DX
@@ -91,33 +96,33 @@ TEXT ·mulAvxTwo_1x2(SB), NOSPLIT, $8-88
 	// Add start offset to input
 	ADDQ         BP, CX
 	MOVQ         $0x0000000f, BP
-	MOVQ         BP, X6
-	VPBROADCASTB X6, Y6
+	MOVQ         BP, X7
+	VPBROADCASTB X7, Y7
 
 mulAvxTwo_1x2_loop:
 	// Clear 2 outputs
-	VPXOR Y4, Y4, Y4
 	VPXOR Y5, Y5, Y5
+	VPXOR Y6, Y6, Y6
 
 	// Load and process 32 bytes from input 0 to 2 outputs
-	VMOVDQU (CX), Y9
+	VMOVDQU (CX), Y10
 	ADDQ    $0x20, CX
-	VPSRLQ  $0x04, Y9, Y10
-	VPAND   Y6, Y9, Y9
-	VPAND   Y6, Y10, Y10
-	VPSHUFB Y9, Y0, Y7
+	VPSRLQ  $0x04, Y10, Y11
+	VPAND   Y7, Y10, Y10
+	VPAND   Y7, Y11, Y11
 	VPSHUFB Y10, Y1, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y4, Y4
-	VPSHUFB Y9, Y2, Y7
+	VPSHUFB Y11, Y2, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y5, Y5
 	VPSHUFB Y10, Y3, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y5, Y5
+	VPSHUFB Y11, Y4, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y6, Y6
 
 	// Store 2 outputs
-	VMOVDQU Y4, (BX)
+	VMOVDQU Y5, (BX)
 	ADDQ    $0x20, BX
-	VMOVDQU Y5, (DX)
+	VMOVDQU Y6, (DX)
 	ADDQ    $0x20, DX
 
 	// Prepare for next loop
@@ -126,11 +131,14 @@ mulAvxTwo_1x2_loop:
 	VZEROUPPER
 
 mulAvxTwo_1x2_end:
+	MOVQ X0, BP
 	RET
 
 // func mulAvxTwo_1x3(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX2, SSE2
-TEXT ·mulAvxTwo_1x3(SB), NOSPLIT, $8-88
+TEXT ·mulAvxTwo_1x3(SB), NOSPLIT, $0-88
+	MOVQ BP, X0
+
 	// Loading all tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 14 YMM used
@@ -139,12 +147,12 @@ TEXT ·mulAvxTwo_1x3(SB), NOSPLIT, $8-88
 	SHRQ    $0x05, AX
 	TESTQ   AX, AX
 	JZ      mulAvxTwo_1x3_end
-	VMOVDQU (CX), Y0
-	VMOVDQU 32(CX), Y1
-	VMOVDQU 64(CX), Y2
-	VMOVDQU 96(CX), Y3
-	VMOVDQU 128(CX), Y4
-	VMOVDQU 160(CX), Y5
+	VMOVDQU (CX), Y1
+	VMOVDQU 32(CX), Y2
+	VMOVDQU 64(CX), Y3
+	VMOVDQU 96(CX), Y4
+	VMOVDQU 128(CX), Y5
+	VMOVDQU 160(CX), Y6
 	MOVQ    in_base+24(FP), CX
 	MOVQ    (CX), CX
 	MOVQ    out_base+48(FP), DX
@@ -161,40 +169,40 @@ TEXT ·mulAvxTwo_1x3(SB), NOSPLIT, $8-88
 	// Add start offset to input
 	ADDQ         SI, CX
 	MOVQ         $0x0000000f, SI
-	MOVQ         SI, X9
-	VPBROADCASTB X9, Y9
+	MOVQ         SI, X10
+	VPBROADCASTB X10, Y10
 
 mulAvxTwo_1x3_loop:
 	// Clear 3 outputs
-	VPXOR Y6, Y6, Y6
 	VPXOR Y7, Y7, Y7
 	VPXOR Y8, Y8, Y8
+	VPXOR Y9, Y9, Y9
 
 	// Load and process 32 bytes from input 0 to 3 outputs
-	VMOVDQU (CX), Y12
+	VMOVDQU (CX), Y13
 	ADDQ    $0x20, CX
-	VPSRLQ  $0x04, Y12, Y13
-	VPAND   Y9, Y12, Y12
-	VPAND   Y9, Y13, Y13
-	VPSHUFB Y12, Y0, Y10
+	VPSRLQ  $0x04, Y13, Y14
+	VPAND   Y10, Y13, Y13
+	VPAND   Y10, Y14, Y14
 	VPSHUFB Y13, Y1, Y11
-	VPXOR   Y10, Y11, Y10
-	VPXOR   Y10, Y6, Y6
-	VPSHUFB Y12, Y2, Y10
+	VPSHUFB Y14, Y2, Y12
+	VPXOR   Y11, Y12, Y11
+	VPXOR   Y11, Y7, Y7
 	VPSHUFB Y13, Y3, Y11
-	VPXOR   Y10, Y11, Y10
-	VPXOR   Y10, Y7, Y7
-	VPSHUFB Y12, Y4, Y10
+	VPSHUFB Y14, Y4, Y12
+	VPXOR   Y11, Y12, Y11
+	VPXOR   Y11, Y8, Y8
 	VPSHUFB Y13, Y5, Y11
-	VPXOR   Y10, Y11, Y10
-	VPXOR   Y10, Y8, Y8
+	VPSHUFB Y14, Y6, Y12
+	VPXOR   Y11, Y12, Y11
+	VPXOR   Y11, Y9, Y9
 
 	// Store 3 outputs
-	VMOVDQU Y6, (BX)
+	VMOVDQU Y7, (BX)
 	ADDQ    $0x20, BX
-	VMOVDQU Y7, (BP)
+	VMOVDQU Y8, (BP)
 	ADDQ    $0x20, BP
-	VMOVDQU Y8, (DX)
+	VMOVDQU Y9, (DX)
 	ADDQ    $0x20, DX
 
 	// Prepare for next loop
@@ -203,11 +211,14 @@ mulAvxTwo_1x3_loop:
 	VZEROUPPER
 
 mulAvxTwo_1x3_end:
+	MOVQ X0, BP
 	RET
 
 // func mulAvxTwo_1x4(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX2, SSE2
-TEXT ·mulAvxTwo_1x4(SB), NOSPLIT, $8-88
+TEXT ·mulAvxTwo_1x4(SB), NOSPLIT, $0-88
+	MOVQ BP, X0
+
 	// Loading no tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 17 YMM used
@@ -234,55 +245,55 @@ TEXT ·mulAvxTwo_1x4(SB), NOSPLIT, $8-88
 	// Add start offset to input
 	ADDQ         R8, DX
 	MOVQ         $0x0000000f, R8
-	MOVQ         R8, X4
-	VPBROADCASTB X4, Y4
+	MOVQ         R8, X5
+	VPBROADCASTB X5, Y5
 
 mulAvxTwo_1x4_loop:
 	// Clear 4 outputs
-	VPXOR Y0, Y0, Y0
 	VPXOR Y1, Y1, Y1
 	VPXOR Y2, Y2, Y2
 	VPXOR Y3, Y3, Y3
+	VPXOR Y4, Y4, Y4
 
 	// Load and process 32 bytes from input 0 to 4 outputs
-	VMOVDQU (DX), Y7
+	VMOVDQU (DX), Y8
 	ADDQ    $0x20, DX
-	VPSRLQ  $0x04, Y7, Y8
-	VPAND   Y4, Y7, Y7
-	VPAND   Y4, Y8, Y8
-	VMOVDQU (CX), Y5
-	VMOVDQU 32(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSRLQ  $0x04, Y8, Y9
+	VPAND   Y5, Y8, Y8
+	VPAND   Y5, Y9, Y9
+	VMOVDQU (CX), Y6
+	VMOVDQU 32(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y0, Y0
-	VMOVDQU 64(CX), Y5
-	VMOVDQU 96(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y1, Y1
+	VMOVDQU 64(CX), Y6
+	VMOVDQU 96(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y1, Y1
-	VMOVDQU 128(CX), Y5
-	VMOVDQU 160(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y2, Y2
+	VMOVDQU 128(CX), Y6
+	VMOVDQU 160(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y2, Y2
-	VMOVDQU 192(CX), Y5
-	VMOVDQU 224(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y3, Y3
+	VMOVDQU 192(CX), Y6
+	VMOVDQU 224(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y3, Y3
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y4, Y4
 
 	// Store 4 outputs
-	VMOVDQU Y0, (BP)
+	VMOVDQU Y1, (BP)
 	ADDQ    $0x20, BP
-	VMOVDQU Y1, (SI)
+	VMOVDQU Y2, (SI)
 	ADDQ    $0x20, SI
-	VMOVDQU Y2, (DI)
+	VMOVDQU Y3, (DI)
 	ADDQ    $0x20, DI
-	VMOVDQU Y3, (BX)
+	VMOVDQU Y4, (BX)
 	ADDQ    $0x20, BX
 
 	// Prepare for next loop
@@ -291,11 +302,14 @@ mulAvxTwo_1x4_loop:
 	VZEROUPPER
 
 mulAvxTwo_1x4_end:
+	MOVQ X0, BP
 	RET
 
 // func mulAvxTwo_1x5(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX2, SSE2
-TEXT ·mulAvxTwo_1x5(SB), NOSPLIT, $8-88
+TEXT ·mulAvxTwo_1x5(SB), NOSPLIT, $0-88
+	MOVQ BP, X0
+
 	// Loading no tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 20 YMM used
@@ -324,64 +338,64 @@ TEXT ·mulAvxTwo_1x5(SB), NOSPLIT, $8-88
 	// Add start offset to input
 	ADDQ         R9, DX
 	MOVQ         $0x0000000f, R9
-	MOVQ         R9, X5
-	VPBROADCASTB X5, Y5
+	MOVQ         R9, X6
+	VPBROADCASTB X6, Y6
 
 mulAvxTwo_1x5_loop:
 	// Clear 5 outputs
-	VPXOR Y0, Y0, Y0
 	VPXOR Y1, Y1, Y1
 	VPXOR Y2, Y2, Y2
 	VPXOR Y3, Y3, Y3
 	VPXOR Y4, Y4, Y4
+	VPXOR Y5, Y5, Y5
 
 	// Load and process 32 bytes from input 0 to 5 outputs
-	VMOVDQU (DX), Y8
+	VMOVDQU (DX), Y9
 	ADDQ    $0x20, DX
-	VPSRLQ  $0x04, Y8, Y9
-	VPAND   Y5, Y8, Y8
-	VPAND   Y5, Y9, Y9
-	VMOVDQU (CX), Y6
-	VMOVDQU 32(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSRLQ  $0x04, Y9, Y10
+	VPAND   Y6, Y9, Y9
+	VPAND   Y6, Y10, Y10
+	VMOVDQU (CX), Y7
+	VMOVDQU 32(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y0, Y0
-	VMOVDQU 64(CX), Y6
-	VMOVDQU 96(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y1, Y1
+	VMOVDQU 64(CX), Y7
+	VMOVDQU 96(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y1, Y1
-	VMOVDQU 128(CX), Y6
-	VMOVDQU 160(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y2, Y2
+	VMOVDQU 128(CX), Y7
+	VMOVDQU 160(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y2, Y2
-	VMOVDQU 192(CX), Y6
-	VMOVDQU 224(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y3, Y3
+	VMOVDQU 192(CX), Y7
+	VMOVDQU 224(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y3, Y3
-	VMOVDQU 256(CX), Y6
-	VMOVDQU 288(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y4, Y4
+	VMOVDQU 256(CX), Y7
+	VMOVDQU 288(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y4, Y4
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y5, Y5
 
 	// Store 5 outputs
-	VMOVDQU Y0, (BP)
+	VMOVDQU Y1, (BP)
 	ADDQ    $0x20, BP
-	VMOVDQU Y1, (SI)
+	VMOVDQU Y2, (SI)
 	ADDQ    $0x20, SI
-	VMOVDQU Y2, (DI)
+	VMOVDQU Y3, (DI)
 	ADDQ    $0x20, DI
-	VMOVDQU Y3, (R8)
+	VMOVDQU Y4, (R8)
 	ADDQ    $0x20, R8
-	VMOVDQU Y4, (BX)
+	VMOVDQU Y5, (BX)
 	ADDQ    $0x20, BX
 
 	// Prepare for next loop
@@ -390,11 +404,14 @@ mulAvxTwo_1x5_loop:
 	VZEROUPPER
 
 mulAvxTwo_1x5_end:
+	MOVQ X0, BP
 	RET
 
 // func mulAvxTwo_1x6(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX2, SSE2
-TEXT ·mulAvxTwo_1x6(SB), NOSPLIT, $8-88
+TEXT ·mulAvxTwo_1x6(SB), NOSPLIT, $0-88
+	MOVQ BP, X0
+
 	// Loading no tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 23 YMM used
@@ -425,73 +442,73 @@ TEXT ·mulAvxTwo_1x6(SB), NOSPLIT, $8-88
 	// Add start offset to input
 	ADDQ         R10, DX
 	MOVQ         $0x0000000f, R10
-	MOVQ         R10, X6
-	VPBROADCASTB X6, Y6
+	MOVQ         R10, X7
+	VPBROADCASTB X7, Y7
 
 mulAvxTwo_1x6_loop:
 	// Clear 6 outputs
-	VPXOR Y0, Y0, Y0
 	VPXOR Y1, Y1, Y1
 	VPXOR Y2, Y2, Y2
 	VPXOR Y3, Y3, Y3
 	VPXOR Y4, Y4, Y4
 	VPXOR Y5, Y5, Y5
+	VPXOR Y6, Y6, Y6
 
 	// Load and process 32 bytes from input 0 to 6 outputs
-	VMOVDQU (DX), Y9
+	VMOVDQU (DX), Y10
 	ADDQ    $0x20, DX
-	VPSRLQ  $0x04, Y9, Y10
-	VPAND   Y6, Y9, Y9
-	VPAND   Y6, Y10, Y10
-	VMOVDQU (CX), Y7
-	VMOVDQU 32(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSRLQ  $0x04, Y10, Y11
+	VPAND   Y7, Y10, Y10
+	VPAND   Y7, Y11, Y11
+	VMOVDQU (CX), Y8
+	VMOVDQU 32(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y0, Y0
-	VMOVDQU 64(CX), Y7
-	VMOVDQU 96(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y1, Y1
+	VMOVDQU 64(CX), Y8
+	VMOVDQU 96(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y1, Y1
-	VMOVDQU 128(CX), Y7
-	VMOVDQU 160(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y2, Y2
+	VMOVDQU 128(CX), Y8
+	VMOVDQU 160(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y2, Y2
-	VMOVDQU 192(CX), Y7
-	VMOVDQU 224(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y3, Y3
+	VMOVDQU 192(CX), Y8
+	VMOVDQU 224(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y3, Y3
-	VMOVDQU 256(CX), Y7
-	VMOVDQU 288(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y4, Y4
+	VMOVDQU 256(CX), Y8
+	VMOVDQU 288(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y4, Y4
-	VMOVDQU 320(CX), Y7
-	VMOVDQU 352(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y5, Y5
+	VMOVDQU 320(CX), Y8
+	VMOVDQU 352(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y5, Y5
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y6, Y6
 
 	// Store 6 outputs
-	VMOVDQU Y0, (BP)
+	VMOVDQU Y1, (BP)
 	ADDQ    $0x20, BP
-	VMOVDQU Y1, (SI)
+	VMOVDQU Y2, (SI)
 	ADDQ    $0x20, SI
-	VMOVDQU Y2, (DI)
+	VMOVDQU Y3, (DI)
 	ADDQ    $0x20, DI
-	VMOVDQU Y3, (R8)
+	VMOVDQU Y4, (R8)
 	ADDQ    $0x20, R8
-	VMOVDQU Y4, (R9)
+	VMOVDQU Y5, (R9)
 	ADDQ    $0x20, R9
-	VMOVDQU Y5, (BX)
+	VMOVDQU Y6, (BX)
 	ADDQ    $0x20, BX
 
 	// Prepare for next loop
@@ -500,11 +517,14 @@ mulAvxTwo_1x6_loop:
 	VZEROUPPER
 
 mulAvxTwo_1x6_end:
+	MOVQ X0, BP
 	RET
 
 // func mulAvxTwo_1x7(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX2, SSE2
-TEXT ·mulAvxTwo_1x7(SB), NOSPLIT, $8-88
+TEXT ·mulAvxTwo_1x7(SB), NOSPLIT, $0-88
+	MOVQ BP, X0
+
 	// Loading no tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 26 YMM used
@@ -537,82 +557,82 @@ TEXT ·mulAvxTwo_1x7(SB), NOSPLIT, $8-88
 	// Add start offset to input
 	ADDQ         R11, DX
 	MOVQ         $0x0000000f, R11
-	MOVQ         R11, X7
-	VPBROADCASTB X7, Y7
+	MOVQ         R11, X8
+	VPBROADCASTB X8, Y8
 
 mulAvxTwo_1x7_loop:
 	// Clear 7 outputs
-	VPXOR Y0, Y0, Y0
 	VPXOR Y1, Y1, Y1
 	VPXOR Y2, Y2, Y2
 	VPXOR Y3, Y3, Y3
 	VPXOR Y4, Y4, Y4
 	VPXOR Y5, Y5, Y5
 	VPXOR Y6, Y6, Y6
+	VPXOR Y7, Y7, Y7
 
 	// Load and process 32 bytes from input 0 to 7 outputs
-	VMOVDQU (DX), Y10
+	VMOVDQU (DX), Y11
 	ADDQ    $0x20, DX
-	VPSRLQ  $0x04, Y10, Y11
-	VPAND   Y7, Y10, Y10
-	VPAND   Y7, Y11, Y11
-	VMOVDQU (CX), Y8
-	VMOVDQU 32(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSRLQ  $0x04, Y11, Y12
+	VPAND   Y8, Y11, Y11
+	VPAND   Y8, Y12, Y12
+	VMOVDQU (CX), Y9
+	VMOVDQU 32(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y0, Y0
-	VMOVDQU 64(CX), Y8
-	VMOVDQU 96(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y1, Y1
+	VMOVDQU 64(CX), Y9
+	VMOVDQU 96(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y1, Y1
-	VMOVDQU 128(CX), Y8
-	VMOVDQU 160(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y2, Y2
+	VMOVDQU 128(CX), Y9
+	VMOVDQU 160(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y2, Y2
-	VMOVDQU 192(CX), Y8
-	VMOVDQU 224(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y3, Y3
+	VMOVDQU 192(CX), Y9
+	VMOVDQU 224(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y3, Y3
-	VMOVDQU 256(CX), Y8
-	VMOVDQU 288(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y4, Y4
+	VMOVDQU 256(CX), Y9
+	VMOVDQU 288(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y4, Y4
-	VMOVDQU 320(CX), Y8
-	VMOVDQU 352(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y5, Y5
+	VMOVDQU 320(CX), Y9
+	VMOVDQU 352(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y5, Y5
-	VMOVDQU 384(CX), Y8
-	VMOVDQU 416(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y6, Y6
+	VMOVDQU 384(CX), Y9
+	VMOVDQU 416(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y6, Y6
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y7, Y7
 
 	// Store 7 outputs
-	VMOVDQU Y0, (BP)
+	VMOVDQU Y1, (BP)
 	ADDQ    $0x20, BP
-	VMOVDQU Y1, (SI)
+	VMOVDQU Y2, (SI)
 	ADDQ    $0x20, SI
-	VMOVDQU Y2, (DI)
+	VMOVDQU Y3, (DI)
 	ADDQ    $0x20, DI
-	VMOVDQU Y3, (R8)
+	VMOVDQU Y4, (R8)
 	ADDQ    $0x20, R8
-	VMOVDQU Y4, (R9)
+	VMOVDQU Y5, (R9)
 	ADDQ    $0x20, R9
-	VMOVDQU Y5, (R10)
+	VMOVDQU Y6, (R10)
 	ADDQ    $0x20, R10
-	VMOVDQU Y6, (BX)
+	VMOVDQU Y7, (BX)
 	ADDQ    $0x20, BX
 
 	// Prepare for next loop
@@ -621,11 +641,14 @@ mulAvxTwo_1x7_loop:
 	VZEROUPPER
 
 mulAvxTwo_1x7_end:
+	MOVQ X0, BP
 	RET
 
 // func mulAvxTwo_1x8(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX2, SSE2
-TEXT ·mulAvxTwo_1x8(SB), NOSPLIT, $8-88
+TEXT ·mulAvxTwo_1x8(SB), NOSPLIT, $0-88
+	MOVQ BP, X0
+
 	// Loading no tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 29 YMM used
@@ -660,12 +683,11 @@ TEXT ·mulAvxTwo_1x8(SB), NOSPLIT, $8-88
 	// Add start offset to input
 	ADDQ         R12, DX
 	MOVQ         $0x0000000f, R12
-	MOVQ         R12, X8
-	VPBROADCASTB X8, Y8
+	MOVQ         R12, X9
+	VPBROADCASTB X9, Y9
 
 mulAvxTwo_1x8_loop:
 	// Clear 8 outputs
-	VPXOR Y0, Y0, Y0
 	VPXOR Y1, Y1, Y1
 	VPXOR Y2, Y2, Y2
 	VPXOR Y3, Y3, Y3
@@ -673,78 +695,79 @@ mulAvxTwo_1x8_loop:
 	VPXOR Y5, Y5, Y5
 	VPXOR Y6, Y6, Y6
 	VPXOR Y7, Y7, Y7
+	VPXOR Y8, Y8, Y8
 
 	// Load and process 32 bytes from input 0 to 8 outputs
-	VMOVDQU (DX), Y11
+	VMOVDQU (DX), Y12
 	ADDQ    $0x20, DX
-	VPSRLQ  $0x04, Y11, Y12
-	VPAND   Y8, Y11, Y11
-	VPAND   Y8, Y12, Y12
-	VMOVDQU (CX), Y9
-	VMOVDQU 32(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSRLQ  $0x04, Y12, Y13
+	VPAND   Y9, Y12, Y12
+	VPAND   Y9, Y13, Y13
+	VMOVDQU (CX), Y10
+	VMOVDQU 32(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y0, Y0
-	VMOVDQU 64(CX), Y9
-	VMOVDQU 96(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y1, Y1
+	VMOVDQU 64(CX), Y10
+	VMOVDQU 96(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y1, Y1
-	VMOVDQU 128(CX), Y9
-	VMOVDQU 160(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y2, Y2
+	VMOVDQU 128(CX), Y10
+	VMOVDQU 160(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y2, Y2
-	VMOVDQU 192(CX), Y9
-	VMOVDQU 224(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y3, Y3
+	VMOVDQU 192(CX), Y10
+	VMOVDQU 224(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y3, Y3
-	VMOVDQU 256(CX), Y9
-	VMOVDQU 288(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y4, Y4
+	VMOVDQU 256(CX), Y10
+	VMOVDQU 288(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y4, Y4
-	VMOVDQU 320(CX), Y9
-	VMOVDQU 352(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y5, Y5
+	VMOVDQU 320(CX), Y10
+	VMOVDQU 352(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y5, Y5
-	VMOVDQU 384(CX), Y9
-	VMOVDQU 416(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y6, Y6
+	VMOVDQU 384(CX), Y10
+	VMOVDQU 416(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y6, Y6
-	VMOVDQU 448(CX), Y9
-	VMOVDQU 480(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y7, Y7
+	VMOVDQU 448(CX), Y10
+	VMOVDQU 480(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y7, Y7
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y8, Y8
 
 	// Store 8 outputs
-	VMOVDQU Y0, (BP)
+	VMOVDQU Y1, (BP)
 	ADDQ    $0x20, BP
-	VMOVDQU Y1, (SI)
+	VMOVDQU Y2, (SI)
 	ADDQ    $0x20, SI
-	VMOVDQU Y2, (DI)
+	VMOVDQU Y3, (DI)
 	ADDQ    $0x20, DI
-	VMOVDQU Y3, (R8)
+	VMOVDQU Y4, (R8)
 	ADDQ    $0x20, R8
-	VMOVDQU Y4, (R9)
+	VMOVDQU Y5, (R9)
 	ADDQ    $0x20, R9
-	VMOVDQU Y5, (R10)
+	VMOVDQU Y6, (R10)
 	ADDQ    $0x20, R10
-	VMOVDQU Y6, (R11)
+	VMOVDQU Y7, (R11)
 	ADDQ    $0x20, R11
-	VMOVDQU Y7, (BX)
+	VMOVDQU Y8, (BX)
 	ADDQ    $0x20, BX
 
 	// Prepare for next loop
@@ -753,11 +776,14 @@ mulAvxTwo_1x8_loop:
 	VZEROUPPER
 
 mulAvxTwo_1x8_end:
+	MOVQ X0, BP
 	RET
 
 // func mulAvxTwo_2x1(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX2, SSE2
-TEXT ·mulAvxTwo_2x1(SB), NOSPLIT, $8-88
+TEXT ·mulAvxTwo_2x1(SB), NOSPLIT, $0-88
+	MOVQ BP, X0
+
 	// Loading all tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 8 YMM used
@@ -766,10 +792,10 @@ TEXT ·mulAvxTwo_2x1(SB), NOSPLIT, $8-88
 	SHRQ    $0x05, AX
 	TESTQ   AX, AX
 	JZ      mulAvxTwo_2x1_end
-	VMOVDQU (CX), Y0
-	VMOVDQU 32(CX), Y1
-	VMOVDQU 64(CX), Y2
-	VMOVDQU 96(CX), Y3
+	VMOVDQU (CX), Y1
+	VMOVDQU 32(CX), Y2
+	VMOVDQU 64(CX), Y3
+	VMOVDQU 96(CX), Y4
 	MOVQ    in_base+24(FP), CX
 	MOVQ    (CX), DX
 	MOVQ    24(CX), CX
@@ -784,37 +810,37 @@ TEXT ·mulAvxTwo_2x1(SB), NOSPLIT, $8-88
 	ADDQ         BP, DX
 	ADDQ         BP, CX
 	MOVQ         $0x0000000f, BP
-	MOVQ         BP, X5
-	VPBROADCASTB X5, Y5
+	MOVQ         BP, X6
+	VPBROADCASTB X6, Y6
 
 mulAvxTwo_2x1_loop:
 	// Clear 1 outputs
-	VPXOR Y4, Y4, Y4
+	VPXOR Y5, Y5, Y5
 
 	// Load and process 32 bytes from input 0 to 1 outputs
-	VMOVDQU (DX), Y6
+	VMOVDQU (DX), Y7
 	ADDQ    $0x20, DX
-	VPSRLQ  $0x04, Y6, Y7
-	VPAND   Y5, Y6, Y6
-	VPAND   Y5, Y7, Y7
-	VPSHUFB Y6, Y0, Y6
+	VPSRLQ  $0x04, Y7, Y8
+	VPAND   Y6, Y7, Y7
+	VPAND   Y6, Y8, Y8
 	VPSHUFB Y7, Y1, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y4, Y4
+	VPSHUFB Y8, Y2, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 1 to 1 outputs
-	VMOVDQU (CX), Y6
+	VMOVDQU (CX), Y7
 	ADDQ    $0x20, CX
-	VPSRLQ  $0x04, Y6, Y7
-	VPAND   Y5, Y6, Y6
-	VPAND   Y5, Y7, Y7
-	VPSHUFB Y6, Y2, Y6
+	VPSRLQ  $0x04, Y7, Y8
+	VPAND   Y6, Y7, Y7
+	VPAND   Y6, Y8, Y8
 	VPSHUFB Y7, Y3, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y4, Y4
+	VPSHUFB Y8, Y4, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y5, Y5
 
 	// Store 1 outputs
-	VMOVDQU Y4, (BX)
+	VMOVDQU Y5, (BX)
 	ADDQ    $0x20, BX
 
 	// Prepare for next loop
@@ -823,11 +849,14 @@ mulAvxTwo_2x1_loop:
 	VZEROUPPER
 
 mulAvxTwo_2x1_end:
+	MOVQ X0, BP
 	RET
 
 // func mulAvxTwo_2x2(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX2, SSE2
-TEXT ·mulAvxTwo_2x2(SB), NOSPLIT, $8-88
+TEXT ·mulAvxTwo_2x2(SB), NOSPLIT, $0-88
+	MOVQ BP, X0
+
 	// Loading all tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 15 YMM used
@@ -836,14 +865,14 @@ TEXT ·mulAvxTwo_2x2(SB), NOSPLIT, $8-88
 	SHRQ    $0x05, AX
 	TESTQ   AX, AX
 	JZ      mulAvxTwo_2x2_end
-	VMOVDQU (CX), Y0
-	VMOVDQU 32(CX), Y1
-	VMOVDQU 64(CX), Y2
-	VMOVDQU 96(CX), Y3
-	VMOVDQU 128(CX), Y4
-	VMOVDQU 160(CX), Y5
-	VMOVDQU 192(CX), Y6
-	VMOVDQU 224(CX), Y7
+	VMOVDQU (CX), Y1
+	VMOVDQU 32(CX), Y2
+	VMOVDQU 64(CX), Y3
+	VMOVDQU 96(CX), Y4
+	VMOVDQU 128(CX), Y5
+	VMOVDQU 160(CX), Y6
+	VMOVDQU 192(CX), Y7
+	VMOVDQU 224(CX), Y8
 	MOVQ    in_base+24(FP), CX
 	MOVQ    (CX), DX
 	MOVQ    24(CX), CX
@@ -860,48 +889,48 @@ TEXT ·mulAvxTwo_2x2(SB), NOSPLIT, $8-88
 	ADDQ         SI, DX
 	ADDQ         SI, CX
 	MOVQ         $0x0000000f, SI
-	MOVQ         SI, X10
-	VPBROADCASTB X10, Y10
+	MOVQ         SI, X11
+	VPBROADCASTB X11, Y11
 
 mulAvxTwo_2x2_loop:
 	// Clear 2 outputs
-	VPXOR Y8, Y8, Y8
 	VPXOR Y9, Y9, Y9
+	VPXOR Y10, Y10, Y10
 
 	// Load and process 32 bytes from input 0 to 2 outputs
-	VMOVDQU (DX), Y13
+	VMOVDQU (DX), Y14
 	ADDQ    $0x20, DX
-	VPSRLQ  $0x04, Y13, Y14
-	VPAND   Y10, Y13, Y13
-	VPAND   Y10, Y14, Y14
-	VPSHUFB Y13, Y0, Y11
+	VPSRLQ  $0x04, Y14, Y15
+	VPAND   Y11, Y14, Y14
+	VPAND   Y11, Y15, Y15
 	VPSHUFB Y14, Y1, Y12
-	VPXOR   Y11, Y12, Y11
-	VPXOR   Y11, Y8, Y8
-	VPSHUFB Y13, Y2, Y11
+	VPSHUFB Y15, Y2, Y13
+	VPXOR   Y12, Y13, Y12
+	VPXOR   Y12, Y9, Y9
 	VPSHUFB Y14, Y3, Y12
-	VPXOR   Y11, Y12, Y11
-	VPXOR   Y11, Y9, Y9
+	VPSHUFB Y15, Y4, Y13
+	VPXOR   Y12, Y13, Y12
+	VPXOR   Y12, Y10, Y10
 
 	// Load and process 32 bytes from input 1 to 2 outputs
-	VMOVDQU (CX), Y13
+	VMOVDQU (CX), Y14
 	ADDQ    $0x20, CX
-	VPSRLQ  $0x04, Y13, Y14
-	VPAND   Y10, Y13, Y13
-	VPAND   Y10, Y14, Y14
-	VPSHUFB Y13, Y4, Y11
+	VPSRLQ  $0x04, Y14, Y15
+	VPAND   Y11, Y14, Y14
+	VPAND   Y11, Y15, Y15
 	VPSHUFB Y14, Y5, Y12
-	VPXOR   Y11, Y12, Y11
-	VPXOR   Y11, Y8, Y8
-	VPSHUFB Y13, Y6, Y11
+	VPSHUFB Y15, Y6, Y13
+	VPXOR   Y12, Y13, Y12
+	VPXOR   Y12, Y9, Y9
 	VPSHUFB Y14, Y7, Y12
-	VPXOR   Y11, Y12, Y11
-	VPXOR   Y11, Y9, Y9
+	VPSHUFB Y15, Y8, Y13
+	VPXOR   Y12, Y13, Y12
+	VPXOR   Y12, Y10, Y10
 
 	// Store 2 outputs
-	VMOVDQU Y8, (BP)
+	VMOVDQU Y9, (BP)
 	ADDQ    $0x20, BP
-	VMOVDQU Y9, (BX)
+	VMOVDQU Y10, (BX)
 	ADDQ    $0x20, BX
 
 	// Prepare for next loop
@@ -910,11 +939,14 @@ mulAvxTwo_2x2_loop:
 	VZEROUPPER
 
 mulAvxTwo_2x2_end:
+	MOVQ X0, BP
 	RET
 
 // func mulAvxTwo_2x3(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX2, SSE2
-TEXT ·mulAvxTwo_2x3(SB), NOSPLIT, $8-88
+TEXT ·mulAvxTwo_2x3(SB), NOSPLIT, $0-88
+	MOVQ BP, X0
+
 	// Loading no tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 20 YMM used
@@ -941,71 +973,71 @@ TEXT ·mulAvxTwo_2x3(SB), NOSPLIT, $8-88
 	ADDQ         R8, BX
 	ADDQ         R8, DX
 	MOVQ         $0x0000000f, R8
-	MOVQ         R8, X3
-	VPBROADCASTB X3, Y3
+	MOVQ         R8, X4
+	VPBROADCASTB X4, Y4
 
 mulAvxTwo_2x3_loop:
 	// Clear 3 outputs
-	VPXOR Y0, Y0, Y0
 	VPXOR Y1, Y1, Y1
 	VPXOR Y2, Y2, Y2
+	VPXOR Y3, Y3, Y3
 
 	// Load and process 32 bytes from input 0 to 3 outputs
-	VMOVDQU (BX), Y6
+	VMOVDQU (BX), Y7
 	ADDQ    $0x20, BX
-	VPSRLQ  $0x04, Y6, Y7
-	VPAND   Y3, Y6, Y6
-	VPAND   Y3, Y7, Y7
-	VMOVDQU (CX), Y4
-	VMOVDQU 32(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSRLQ  $0x04, Y7, Y8
+	VPAND   Y4, Y7, Y7
+	VPAND   Y4, Y8, Y8
+	VMOVDQU (CX), Y5
+	VMOVDQU 32(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y0, Y0
-	VMOVDQU 64(CX), Y4
-	VMOVDQU 96(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y1, Y1
+	VMOVDQU 64(CX), Y5
+	VMOVDQU 96(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y1, Y1
-	VMOVDQU 128(CX), Y4
-	VMOVDQU 160(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y2, Y2
+	VMOVDQU 128(CX), Y5
+	VMOVDQU 160(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y2, Y2
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 1 to 3 outputs
-	VMOVDQU (DX), Y6
+	VMOVDQU (DX), Y7
 	ADDQ    $0x20, DX
-	VPSRLQ  $0x04, Y6, Y7
-	VPAND   Y3, Y6, Y6
-	VPAND   Y3, Y7, Y7
-	VMOVDQU 192(CX), Y4
-	VMOVDQU 224(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSRLQ  $0x04, Y7, Y8
+	VPAND   Y4, Y7, Y7
+	VPAND   Y4, Y8, Y8
+	VMOVDQU 192(CX), Y5
+	VMOVDQU 224(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y0, Y0
-	VMOVDQU 256(CX), Y4
-	VMOVDQU 288(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y1, Y1
+	VMOVDQU 256(CX), Y5
+	VMOVDQU 288(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y1, Y1
-	VMOVDQU 320(CX), Y4
-	VMOVDQU 352(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y2, Y2
+	VMOVDQU 320(CX), Y5
+	VMOVDQU 352(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y2, Y2
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y3, Y3
 
 	// Store 3 outputs
-	VMOVDQU Y0, (SI)
+	VMOVDQU Y1, (SI)
 	ADDQ    $0x20, SI
-	VMOVDQU Y1, (DI)
+	VMOVDQU Y2, (DI)
 	ADDQ    $0x20, DI
-	VMOVDQU Y2, (BP)
+	VMOVDQU Y3, (BP)
 	ADDQ    $0x20, BP
 
 	// Prepare for next loop
@@ -1014,11 +1046,14 @@ mulAvxTwo_2x3_loop:
 	VZEROUPPER
 
 mulAvxTwo_2x3_end:
+	MOVQ X0, BP
 	RET
 
 // func mulAvxTwo_2x4(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX2, SSE2
-TEXT ·mulAvxTwo_2x4(SB), NOSPLIT, $8-88
+TEXT ·mulAvxTwo_2x4(SB), NOSPLIT, $0-88
+	MOVQ BP, X0
+
 	// Loading no tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 25 YMM used
@@ -1047,86 +1082,86 @@ TEXT ·mulAvxTwo_2x4(SB), NOSPLIT, $8-88
 	ADDQ         R9, BX
 	ADDQ         R9, DX
 	MOVQ         $0x0000000f, R9
-	MOVQ         R9, X4
-	VPBROADCASTB X4, Y4
+	MOVQ         R9, X5
+	VPBROADCASTB X5, Y5
 
 mulAvxTwo_2x4_loop:
 	// Clear 4 outputs
-	VPXOR Y0, Y0, Y0
 	VPXOR Y1, Y1, Y1
 	VPXOR Y2, Y2, Y2
 	VPXOR Y3, Y3, Y3
+	VPXOR Y4, Y4, Y4
 
 	// Load and process 32 bytes from input 0 to 4 outputs
-	VMOVDQU (BX), Y7
+	VMOVDQU (BX), Y8
 	ADDQ    $0x20, BX
-	VPSRLQ  $0x04, Y7, Y8
-	VPAND   Y4, Y7, Y7
-	VPAND   Y4, Y8, Y8
-	VMOVDQU (CX), Y5
-	VMOVDQU 32(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSRLQ  $0x04, Y8, Y9
+	VPAND   Y5, Y8, Y8
+	VPAND   Y5, Y9, Y9
+	VMOVDQU (CX), Y6
+	VMOVDQU 32(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y0, Y0
-	VMOVDQU 64(CX), Y5
-	VMOVDQU 96(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y1, Y1
+	VMOVDQU 64(CX), Y6
+	VMOVDQU 96(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y1, Y1
-	VMOVDQU 128(CX), Y5
-	VMOVDQU 160(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y2, Y2
+	VMOVDQU 128(CX), Y6
+	VMOVDQU 160(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y2, Y2
-	VMOVDQU 192(CX), Y5
-	VMOVDQU 224(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y3, Y3
+	VMOVDQU 192(CX), Y6
+	VMOVDQU 224(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y3, Y3
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 1 to 4 outputs
-	VMOVDQU (DX), Y7
+	VMOVDQU (DX), Y8
 	ADDQ    $0x20, DX
-	VPSRLQ  $0x04, Y7, Y8
-	VPAND   Y4, Y7, Y7
-	VPAND   Y4, Y8, Y8
-	VMOVDQU 256(CX), Y5
-	VMOVDQU 288(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSRLQ  $0x04, Y8, Y9
+	VPAND   Y5, Y8, Y8
+	VPAND   Y5, Y9, Y9
+	VMOVDQU 256(CX), Y6
+	VMOVDQU 288(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y0, Y0
-	VMOVDQU 320(CX), Y5
-	VMOVDQU 352(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y1, Y1
+	VMOVDQU 320(CX), Y6
+	VMOVDQU 352(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y1, Y1
-	VMOVDQU 384(CX), Y5
-	VMOVDQU 416(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y2, Y2
+	VMOVDQU 384(CX), Y6
+	VMOVDQU 416(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y2, Y2
-	VMOVDQU 448(CX), Y5
-	VMOVDQU 480(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y3, Y3
+	VMOVDQU 448(CX), Y6
+	VMOVDQU 480(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y3, Y3
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y4, Y4
 
 	// Store 4 outputs
-	VMOVDQU Y0, (SI)
+	VMOVDQU Y1, (SI)
 	ADDQ    $0x20, SI
-	VMOVDQU Y1, (DI)
+	VMOVDQU Y2, (DI)
 	ADDQ    $0x20, DI
-	VMOVDQU Y2, (R8)
+	VMOVDQU Y3, (R8)
 	ADDQ    $0x20, R8
-	VMOVDQU Y3, (BP)
+	VMOVDQU Y4, (BP)
 	ADDQ    $0x20, BP
 
 	// Prepare for next loop
@@ -1135,11 +1170,14 @@ mulAvxTwo_2x4_loop:
 	VZEROUPPER
 
 mulAvxTwo_2x4_end:
+	MOVQ X0, BP
 	RET
 
 // func mulAvxTwo_2x5(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX2, SSE2
-TEXT ·mulAvxTwo_2x5(SB), NOSPLIT, $8-88
+TEXT ·mulAvxTwo_2x5(SB), NOSPLIT, $0-88
+	MOVQ BP, X0
+
 	// Loading no tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 30 YMM used
@@ -1170,101 +1208,101 @@ TEXT ·mulAvxTwo_2x5(SB), NOSPLIT, $8-88
 	ADDQ         R10, BX
 	ADDQ         R10, DX
 	MOVQ         $0x0000000f, R10
-	MOVQ         R10, X5
-	VPBROADCASTB X5, Y5
+	MOVQ         R10, X6
+	VPBROADCASTB X6, Y6
 
 mulAvxTwo_2x5_loop:
 	// Clear 5 outputs
-	VPXOR Y0, Y0, Y0
 	VPXOR Y1, Y1, Y1
 	VPXOR Y2, Y2, Y2
 	VPXOR Y3, Y3, Y3
 	VPXOR Y4, Y4, Y4
+	VPXOR Y5, Y5, Y5
 
 	// Load and process 32 bytes from input 0 to 5 outputs
-	VMOVDQU (BX), Y8
+	VMOVDQU (BX), Y9
 	ADDQ    $0x20, BX
-	VPSRLQ  $0x04, Y8, Y9
-	VPAND   Y5, Y8, Y8
-	VPAND   Y5, Y9, Y9
-	VMOVDQU (CX), Y6
-	VMOVDQU 32(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSRLQ  $0x04, Y9, Y10
+	VPAND   Y6, Y9, Y9
+	VPAND   Y6, Y10, Y10
+	VMOVDQU (CX), Y7
+	VMOVDQU 32(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y0, Y0
-	VMOVDQU 64(CX), Y6
-	VMOVDQU 96(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y1, Y1
+	VMOVDQU 64(CX), Y7
+	VMOVDQU 96(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y1, Y1
-	VMOVDQU 128(CX), Y6
-	VMOVDQU 160(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y2, Y2
+	VMOVDQU 128(CX), Y7
+	VMOVDQU 160(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y2, Y2
-	VMOVDQU 192(CX), Y6
-	VMOVDQU 224(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y3, Y3
+	VMOVDQU 192(CX), Y7
+	VMOVDQU 224(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y3, Y3
-	VMOVDQU 256(CX), Y6
-	VMOVDQU 288(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y4, Y4
+	VMOVDQU 256(CX), Y7
+	VMOVDQU 288(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y4, Y4
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 1 to 5 outputs
-	VMOVDQU (DX), Y8
+	VMOVDQU (DX), Y9
 	ADDQ    $0x20, DX
-	VPSRLQ  $0x04, Y8, Y9
-	VPAND   Y5, Y8, Y8
-	VPAND   Y5, Y9, Y9
-	VMOVDQU 320(CX), Y6
-	VMOVDQU 352(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSRLQ  $0x04, Y9, Y10
+	VPAND   Y6, Y9, Y9
+	VPAND   Y6, Y10, Y10
+	VMOVDQU 320(CX), Y7
+	VMOVDQU 352(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y0, Y0
-	VMOVDQU 384(CX), Y6
-	VMOVDQU 416(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y1, Y1
+	VMOVDQU 384(CX), Y7
+	VMOVDQU 416(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y1, Y1
-	VMOVDQU 448(CX), Y6
-	VMOVDQU 480(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y2, Y2
+	VMOVDQU 448(CX), Y7
+	VMOVDQU 480(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y2, Y2
-	VMOVDQU 512(CX), Y6
-	VMOVDQU 544(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y3, Y3
+	VMOVDQU 512(CX), Y7
+	VMOVDQU 544(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y3, Y3
-	VMOVDQU 576(CX), Y6
-	VMOVDQU 608(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y4, Y4
+	VMOVDQU 576(CX), Y7
+	VMOVDQU 608(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y4, Y4
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y5, Y5
 
 	// Store 5 outputs
-	VMOVDQU Y0, (SI)
+	VMOVDQU Y1, (SI)
 	ADDQ    $0x20, SI
-	VMOVDQU Y1, (DI)
+	VMOVDQU Y2, (DI)
 	ADDQ    $0x20, DI
-	VMOVDQU Y2, (R8)
+	VMOVDQU Y3, (R8)
 	ADDQ    $0x20, R8
-	VMOVDQU Y3, (R9)
+	VMOVDQU Y4, (R9)
 	ADDQ    $0x20, R9
-	VMOVDQU Y4, (BP)
+	VMOVDQU Y5, (BP)
 	ADDQ    $0x20, BP
 
 	// Prepare for next loop
@@ -1273,11 +1311,14 @@ mulAvxTwo_2x5_loop:
 	VZEROUPPER
 
 mulAvxTwo_2x5_end:
+	MOVQ X0, BP
 	RET
 
 // func mulAvxTwo_2x6(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX2, SSE2
-TEXT ·mulAvxTwo_2x6(SB), NOSPLIT, $8-88
+TEXT ·mulAvxTwo_2x6(SB), NOSPLIT, $0-88
+	MOVQ BP, X0
+
 	// Loading no tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 35 YMM used
@@ -1310,116 +1351,116 @@ TEXT ·mulAvxTwo_2x6(SB), NOSPLIT, $8-88
 	ADDQ         R11, BX
 	ADDQ         R11, DX
 	MOVQ         $0x0000000f, R11
-	MOVQ         R11, X6
-	VPBROADCASTB X6, Y6
+	MOVQ         R11, X7
+	VPBROADCASTB X7, Y7
 
 mulAvxTwo_2x6_loop:
 	// Clear 6 outputs
-	VPXOR Y0, Y0, Y0
 	VPXOR Y1, Y1, Y1
 	VPXOR Y2, Y2, Y2
 	VPXOR Y3, Y3, Y3
 	VPXOR Y4, Y4, Y4
 	VPXOR Y5, Y5, Y5
+	VPXOR Y6, Y6, Y6
 
 	// Load and process 32 bytes from input 0 to 6 outputs
-	VMOVDQU (BX), Y9
+	VMOVDQU (BX), Y10
 	ADDQ    $0x20, BX
-	VPSRLQ  $0x04, Y9, Y10
-	VPAND   Y6, Y9, Y9
-	VPAND   Y6, Y10, Y10
-	VMOVDQU (CX), Y7
-	VMOVDQU 32(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSRLQ  $0x04, Y10, Y11
+	VPAND   Y7, Y10, Y10
+	VPAND   Y7, Y11, Y11
+	VMOVDQU (CX), Y8
+	VMOVDQU 32(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y0, Y0
-	VMOVDQU 64(CX), Y7
-	VMOVDQU 96(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y1, Y1
+	VMOVDQU 64(CX), Y8
+	VMOVDQU 96(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y1, Y1
-	VMOVDQU 128(CX), Y7
-	VMOVDQU 160(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y2, Y2
+	VMOVDQU 128(CX), Y8
+	VMOVDQU 160(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y2, Y2
-	VMOVDQU 192(CX), Y7
-	VMOVDQU 224(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y3, Y3
+	VMOVDQU 192(CX), Y8
+	VMOVDQU 224(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y3, Y3
-	VMOVDQU 256(CX), Y7
-	VMOVDQU 288(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y4, Y4
+	VMOVDQU 256(CX), Y8
+	VMOVDQU 288(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y4, Y4
-	VMOVDQU 320(CX), Y7
-	VMOVDQU 352(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y5, Y5
+	VMOVDQU 320(CX), Y8
+	VMOVDQU 352(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y5, Y5
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y6, Y6
 
 	// Load and process 32 bytes from input 1 to 6 outputs
-	VMOVDQU (DX), Y9
+	VMOVDQU (DX), Y10
 	ADDQ    $0x20, DX
-	VPSRLQ  $0x04, Y9, Y10
-	VPAND   Y6, Y9, Y9
-	VPAND   Y6, Y10, Y10
-	VMOVDQU 384(CX), Y7
-	VMOVDQU 416(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSRLQ  $0x04, Y10, Y11
+	VPAND   Y7, Y10, Y10
+	VPAND   Y7, Y11, Y11
+	VMOVDQU 384(CX), Y8
+	VMOVDQU 416(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y0, Y0
-	VMOVDQU 448(CX), Y7
-	VMOVDQU 480(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y1, Y1
+	VMOVDQU 448(CX), Y8
+	VMOVDQU 480(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y1, Y1
-	VMOVDQU 512(CX), Y7
-	VMOVDQU 544(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y2, Y2
+	VMOVDQU 512(CX), Y8
+	VMOVDQU 544(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y2, Y2
-	VMOVDQU 576(CX), Y7
-	VMOVDQU 608(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y3, Y3
+	VMOVDQU 576(CX), Y8
+	VMOVDQU 608(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y3, Y3
-	VMOVDQU 640(CX), Y7
-	VMOVDQU 672(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y4, Y4
+	VMOVDQU 640(CX), Y8
+	VMOVDQU 672(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y4, Y4
-	VMOVDQU 704(CX), Y7
-	VMOVDQU 736(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y5, Y5
+	VMOVDQU 704(CX), Y8
+	VMOVDQU 736(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y5, Y5
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y6, Y6
 
 	// Store 6 outputs
-	VMOVDQU Y0, (SI)
+	VMOVDQU Y1, (SI)
 	ADDQ    $0x20, SI
-	VMOVDQU Y1, (DI)
+	VMOVDQU Y2, (DI)
 	ADDQ    $0x20, DI
-	VMOVDQU Y2, (R8)
+	VMOVDQU Y3, (R8)
 	ADDQ    $0x20, R8
-	VMOVDQU Y3, (R9)
+	VMOVDQU Y4, (R9)
 	ADDQ    $0x20, R9
-	VMOVDQU Y4, (R10)
+	VMOVDQU Y5, (R10)
 	ADDQ    $0x20, R10
-	VMOVDQU Y5, (BP)
+	VMOVDQU Y6, (BP)
 	ADDQ    $0x20, BP
 
 	// Prepare for next loop
@@ -1428,11 +1469,14 @@ mulAvxTwo_2x6_loop:
 	VZEROUPPER
 
 mulAvxTwo_2x6_end:
+	MOVQ X0, BP
 	RET
 
 // func mulAvxTwo_2x7(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX2, SSE2
-TEXT ·mulAvxTwo_2x7(SB), NOSPLIT, $8-88
+TEXT ·mulAvxTwo_2x7(SB), NOSPLIT, $0-88
+	MOVQ BP, X0
+
 	// Loading no tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 40 YMM used
@@ -1467,131 +1511,131 @@ TEXT ·mulAvxTwo_2x7(SB), NOSPLIT, $8-88
 	ADDQ         R12, BX
 	ADDQ         R12, DX
 	MOVQ         $0x0000000f, R12
-	MOVQ         R12, X7
-	VPBROADCASTB X7, Y7
+	MOVQ         R12, X8
+	VPBROADCASTB X8, Y8
 
 mulAvxTwo_2x7_loop:
 	// Clear 7 outputs
-	VPXOR Y0, Y0, Y0
 	VPXOR Y1, Y1, Y1
 	VPXOR Y2, Y2, Y2
 	VPXOR Y3, Y3, Y3
 	VPXOR Y4, Y4, Y4
 	VPXOR Y5, Y5, Y5
 	VPXOR Y6, Y6, Y6
+	VPXOR Y7, Y7, Y7
 
 	// Load and process 32 bytes from input 0 to 7 outputs
-	VMOVDQU (BX), Y10
+	VMOVDQU (BX), Y11
 	ADDQ    $0x20, BX
-	VPSRLQ  $0x04, Y10, Y11
-	VPAND   Y7, Y10, Y10
-	VPAND   Y7, Y11, Y11
-	VMOVDQU (CX), Y8
-	VMOVDQU 32(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSRLQ  $0x04, Y11, Y12
+	VPAND   Y8, Y11, Y11
+	VPAND   Y8, Y12, Y12
+	VMOVDQU (CX), Y9
+	VMOVDQU 32(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y0, Y0
-	VMOVDQU 64(CX), Y8
-	VMOVDQU 96(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y1, Y1
+	VMOVDQU 64(CX), Y9
+	VMOVDQU 96(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y1, Y1
-	VMOVDQU 128(CX), Y8
-	VMOVDQU 160(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y2, Y2
+	VMOVDQU 128(CX), Y9
+	VMOVDQU 160(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y2, Y2
-	VMOVDQU 192(CX), Y8
-	VMOVDQU 224(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y3, Y3
+	VMOVDQU 192(CX), Y9
+	VMOVDQU 224(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y3, Y3
-	VMOVDQU 256(CX), Y8
-	VMOVDQU 288(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y4, Y4
+	VMOVDQU 256(CX), Y9
+	VMOVDQU 288(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y4, Y4
-	VMOVDQU 320(CX), Y8
-	VMOVDQU 352(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y5, Y5
+	VMOVDQU 320(CX), Y9
+	VMOVDQU 352(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y5, Y5
-	VMOVDQU 384(CX), Y8
-	VMOVDQU 416(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y6, Y6
+	VMOVDQU 384(CX), Y9
+	VMOVDQU 416(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y6, Y6
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y7, Y7
 
 	// Load and process 32 bytes from input 1 to 7 outputs
-	VMOVDQU (DX), Y10
+	VMOVDQU (DX), Y11
 	ADDQ    $0x20, DX
-	VPSRLQ  $0x04, Y10, Y11
-	VPAND   Y7, Y10, Y10
-	VPAND   Y7, Y11, Y11
-	VMOVDQU 448(CX), Y8
-	VMOVDQU 480(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSRLQ  $0x04, Y11, Y12
+	VPAND   Y8, Y11, Y11
+	VPAND   Y8, Y12, Y12
+	VMOVDQU 448(CX), Y9
+	VMOVDQU 480(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y0, Y0
-	VMOVDQU 512(CX), Y8
-	VMOVDQU 544(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y1, Y1
+	VMOVDQU 512(CX), Y9
+	VMOVDQU 544(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y1, Y1
-	VMOVDQU 576(CX), Y8
-	VMOVDQU 608(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y2, Y2
+	VMOVDQU 576(CX), Y9
+	VMOVDQU 608(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y2, Y2
-	VMOVDQU 640(CX), Y8
-	VMOVDQU 672(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y3, Y3
+	VMOVDQU 640(CX), Y9
+	VMOVDQU 672(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y3, Y3
-	VMOVDQU 704(CX), Y8
-	VMOVDQU 736(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y4, Y4
+	VMOVDQU 704(CX), Y9
+	VMOVDQU 736(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y4, Y4
-	VMOVDQU 768(CX), Y8
-	VMOVDQU 800(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y5, Y5
+	VMOVDQU 768(CX), Y9
+	VMOVDQU 800(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y5, Y5
-	VMOVDQU 832(CX), Y8
-	VMOVDQU 864(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y6, Y6
+	VMOVDQU 832(CX), Y9
+	VMOVDQU 864(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y6, Y6
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y7, Y7
 
 	// Store 7 outputs
-	VMOVDQU Y0, (SI)
+	VMOVDQU Y1, (SI)
 	ADDQ    $0x20, SI
-	VMOVDQU Y1, (DI)
+	VMOVDQU Y2, (DI)
 	ADDQ    $0x20, DI
-	VMOVDQU Y2, (R8)
+	VMOVDQU Y3, (R8)
 	ADDQ    $0x20, R8
-	VMOVDQU Y3, (R9)
+	VMOVDQU Y4, (R9)
 	ADDQ    $0x20, R9
-	VMOVDQU Y4, (R10)
+	VMOVDQU Y5, (R10)
 	ADDQ    $0x20, R10
-	VMOVDQU Y5, (R11)
+	VMOVDQU Y6, (R11)
 	ADDQ    $0x20, R11
-	VMOVDQU Y6, (BP)
+	VMOVDQU Y7, (BP)
 	ADDQ    $0x20, BP
 
 	// Prepare for next loop
@@ -1600,11 +1644,14 @@ mulAvxTwo_2x7_loop:
 	VZEROUPPER
 
 mulAvxTwo_2x7_end:
+	MOVQ X0, BP
 	RET
 
 // func mulAvxTwo_2x8(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX2, SSE2
-TEXT ·mulAvxTwo_2x8(SB), NOSPLIT, $8-88
+TEXT ·mulAvxTwo_2x8(SB), NOSPLIT, $0-88
+	MOVQ BP, X0
+
 	// Loading no tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 45 YMM used
@@ -1641,12 +1688,11 @@ TEXT ·mulAvxTwo_2x8(SB), NOSPLIT, $8-88
 	ADDQ         R13, BX
 	ADDQ         R13, DX
 	MOVQ         $0x0000000f, R13
-	MOVQ         R13, X8
-	VPBROADCASTB X8, Y8
+	MOVQ         R13, X9
+	VPBROADCASTB X9, Y9
 
 mulAvxTwo_2x8_loop:
 	// Clear 8 outputs
-	VPXOR Y0, Y0, Y0
 	VPXOR Y1, Y1, Y1
 	VPXOR Y2, Y2, Y2
 	VPXOR Y3, Y3, Y3
@@ -1654,133 +1700,134 @@ mulAvxTwo_2x8_loop:
 	VPXOR Y5, Y5, Y5
 	VPXOR Y6, Y6, Y6
 	VPXOR Y7, Y7, Y7
+	VPXOR Y8, Y8, Y8
 
 	// Load and process 32 bytes from input 0 to 8 outputs
-	VMOVDQU (BX), Y11
+	VMOVDQU (BX), Y12
 	ADDQ    $0x20, BX
-	VPSRLQ  $0x04, Y11, Y12
-	VPAND   Y8, Y11, Y11
-	VPAND   Y8, Y12, Y12
-	VMOVDQU (CX), Y9
-	VMOVDQU 32(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSRLQ  $0x04, Y12, Y13
+	VPAND   Y9, Y12, Y12
+	VPAND   Y9, Y13, Y13
+	VMOVDQU (CX), Y10
+	VMOVDQU 32(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y0, Y0
-	VMOVDQU 64(CX), Y9
-	VMOVDQU 96(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y1, Y1
+	VMOVDQU 64(CX), Y10
+	VMOVDQU 96(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y1, Y1
-	VMOVDQU 128(CX), Y9
-	VMOVDQU 160(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y2, Y2
+	VMOVDQU 128(CX), Y10
+	VMOVDQU 160(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y2, Y2
-	VMOVDQU 192(CX), Y9
-	VMOVDQU 224(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y3, Y3
+	VMOVDQU 192(CX), Y10
+	VMOVDQU 224(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y3, Y3
-	VMOVDQU 256(CX), Y9
-	VMOVDQU 288(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y4, Y4
+	VMOVDQU 256(CX), Y10
+	VMOVDQU 288(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y4, Y4
-	VMOVDQU 320(CX), Y9
-	VMOVDQU 352(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y5, Y5
+	VMOVDQU 320(CX), Y10
+	VMOVDQU 352(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y5, Y5
-	VMOVDQU 384(CX), Y9
-	VMOVDQU 416(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y6, Y6
+	VMOVDQU 384(CX), Y10
+	VMOVDQU 416(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y6, Y6
-	VMOVDQU 448(CX), Y9
-	VMOVDQU 480(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y7, Y7
+	VMOVDQU 448(CX), Y10
+	VMOVDQU 480(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y7, Y7
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y8, Y8
 
 	// Load and process 32 bytes from input 1 to 8 outputs
-	VMOVDQU (DX), Y11
+	VMOVDQU (DX), Y12
 	ADDQ    $0x20, DX
-	VPSRLQ  $0x04, Y11, Y12
-	VPAND   Y8, Y11, Y11
-	VPAND   Y8, Y12, Y12
-	VMOVDQU 512(CX), Y9
-	VMOVDQU 544(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSRLQ  $0x04, Y12, Y13
+	VPAND   Y9, Y12, Y12
+	VPAND   Y9, Y13, Y13
+	VMOVDQU 512(CX), Y10
+	VMOVDQU 544(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y0, Y0
-	VMOVDQU 576(CX), Y9
-	VMOVDQU 608(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y1, Y1
+	VMOVDQU 576(CX), Y10
+	VMOVDQU 608(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y1, Y1
-	VMOVDQU 640(CX), Y9
-	VMOVDQU 672(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y2, Y2
+	VMOVDQU 640(CX), Y10
+	VMOVDQU 672(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y2, Y2
-	VMOVDQU 704(CX), Y9
-	VMOVDQU 736(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y3, Y3
+	VMOVDQU 704(CX), Y10
+	VMOVDQU 736(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y3, Y3
-	VMOVDQU 768(CX), Y9
-	VMOVDQU 800(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y4, Y4
+	VMOVDQU 768(CX), Y10
+	VMOVDQU 800(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y4, Y4
-	VMOVDQU 832(CX), Y9
-	VMOVDQU 864(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y5, Y5
+	VMOVDQU 832(CX), Y10
+	VMOVDQU 864(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y5, Y5
-	VMOVDQU 896(CX), Y9
-	VMOVDQU 928(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y6, Y6
+	VMOVDQU 896(CX), Y10
+	VMOVDQU 928(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y6, Y6
-	VMOVDQU 960(CX), Y9
-	VMOVDQU 992(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y7, Y7
+	VMOVDQU 960(CX), Y10
+	VMOVDQU 992(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y7, Y7
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y8, Y8
 
 	// Store 8 outputs
-	VMOVDQU Y0, (SI)
+	VMOVDQU Y1, (SI)
 	ADDQ    $0x20, SI
-	VMOVDQU Y1, (DI)
+	VMOVDQU Y2, (DI)
 	ADDQ    $0x20, DI
-	VMOVDQU Y2, (R8)
+	VMOVDQU Y3, (R8)
 	ADDQ    $0x20, R8
-	VMOVDQU Y3, (R9)
+	VMOVDQU Y4, (R9)
 	ADDQ    $0x20, R9
-	VMOVDQU Y4, (R10)
+	VMOVDQU Y5, (R10)
 	ADDQ    $0x20, R10
-	VMOVDQU Y5, (R11)
+	VMOVDQU Y6, (R11)
 	ADDQ    $0x20, R11
-	VMOVDQU Y6, (R12)
+	VMOVDQU Y7, (R12)
 	ADDQ    $0x20, R12
-	VMOVDQU Y7, (BP)
+	VMOVDQU Y8, (BP)
 	ADDQ    $0x20, BP
 
 	// Prepare for next loop
@@ -1789,11 +1836,14 @@ mulAvxTwo_2x8_loop:
 	VZEROUPPER
 
 mulAvxTwo_2x8_end:
+	MOVQ X0, BP
 	RET
 
 // func mulAvxTwo_3x1(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX2, SSE2
-TEXT ·mulAvxTwo_3x1(SB), NOSPLIT, $8-88
+TEXT ·mulAvxTwo_3x1(SB), NOSPLIT, $0-88
+	MOVQ BP, X0
+
 	// Loading all tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 10 YMM used
@@ -1802,12 +1852,12 @@ TEXT ·mulAvxTwo_3x1(SB), NOSPLIT, $8-88
 	SHRQ    $0x05, AX
 	TESTQ   AX, AX
 	JZ      mulAvxTwo_3x1_end
-	VMOVDQU (CX), Y0
-	VMOVDQU 32(CX), Y1
-	VMOVDQU 64(CX), Y2
-	VMOVDQU 96(CX), Y3
-	VMOVDQU 128(CX), Y4
-	VMOVDQU 160(CX), Y5
+	VMOVDQU (CX), Y1
+	VMOVDQU 32(CX), Y2
+	VMOVDQU 64(CX), Y3
+	VMOVDQU 96(CX), Y4
+	VMOVDQU 128(CX), Y5
+	VMOVDQU 160(CX), Y6
 	MOVQ    in_base+24(FP), CX
 	MOVQ    (CX), DX
 	MOVQ    24(CX), BX
@@ -1824,48 +1874,48 @@ TEXT ·mulAvxTwo_3x1(SB), NOSPLIT, $8-88
 	ADDQ         SI, BX
 	ADDQ         SI, CX
 	MOVQ         $0x0000000f, SI
-	MOVQ         SI, X7
-	VPBROADCASTB X7, Y7
+	MOVQ         SI, X8
+	VPBROADCASTB X8, Y8
 
 mulAvxTwo_3x1_loop:
 	// Clear 1 outputs
-	VPXOR Y6, Y6, Y6
+	VPXOR Y7, Y7, Y7
 
 	// Load and process 32 bytes from input 0 to 1 outputs
-	VMOVDQU (DX), Y8
+	VMOVDQU (DX), Y9
 	ADDQ    $0x20, DX
-	VPSRLQ  $0x04, Y8, Y9
-	VPAND   Y7, Y8, Y8
-	VPAND   Y7, Y9, Y9
-	VPSHUFB Y8, Y0, Y8
+	VPSRLQ  $0x04, Y9, Y10
+	VPAND   Y8, Y9, Y9
+	VPAND   Y8, Y10, Y10
 	VPSHUFB Y9, Y1, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y6, Y6
+	VPSHUFB Y10, Y2, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y7, Y7
 
 	// Load and process 32 bytes from input 1 to 1 outputs
-	VMOVDQU (BX), Y8
+	VMOVDQU (BX), Y9
 	ADDQ    $0x20, BX
-	VPSRLQ  $0x04, Y8, Y9
-	VPAND   Y7, Y8, Y8
-	VPAND   Y7, Y9, Y9
-	VPSHUFB Y8, Y2, Y8
+	VPSRLQ  $0x04, Y9, Y10
+	VPAND   Y8, Y9, Y9
+	VPAND   Y8, Y10, Y10
 	VPSHUFB Y9, Y3, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y6, Y6
+	VPSHUFB Y10, Y4, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y7, Y7
 
 	// Load and process 32 bytes from input 2 to 1 outputs
-	VMOVDQU (CX), Y8
+	VMOVDQU (CX), Y9
 	ADDQ    $0x20, CX
-	VPSRLQ  $0x04, Y8, Y9
-	VPAND   Y7, Y8, Y8
-	VPAND   Y7, Y9, Y9
-	VPSHUFB Y8, Y4, Y8
+	VPSRLQ  $0x04, Y9, Y10
+	VPAND   Y8, Y9, Y9
+	VPAND   Y8, Y10, Y10
 	VPSHUFB Y9, Y5, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y6, Y6
+	VPSHUFB Y10, Y6, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y7, Y7
 
 	// Store 1 outputs
-	VMOVDQU Y6, (BP)
+	VMOVDQU Y7, (BP)
 	ADDQ    $0x20, BP
 
 	// Prepare for next loop
@@ -1874,11 +1924,14 @@ mulAvxTwo_3x1_loop:
 	VZEROUPPER
 
 mulAvxTwo_3x1_end:
+	MOVQ X0, BP
 	RET
 
 // func mulAvxTwo_3x2(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX2, SSE2
-TEXT ·mulAvxTwo_3x2(SB), NOSPLIT, $8-88
+TEXT ·mulAvxTwo_3x2(SB), NOSPLIT, $0-88
+	MOVQ BP, X0
+
 	// Loading no tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 19 YMM used
@@ -1905,75 +1958,75 @@ TEXT ·mulAvxTwo_3x2(SB), NOSPLIT, $8-88
 	ADDQ         R8, BP
 	ADDQ         R8, DX
 	MOVQ         $0x0000000f, R8
-	MOVQ         R8, X2
-	VPBROADCASTB X2, Y2
+	MOVQ         R8, X3
+	VPBROADCASTB X3, Y3
 
 mulAvxTwo_3x2_loop:
 	// Clear 2 outputs
-	VPXOR Y0, Y0, Y0
 	VPXOR Y1, Y1, Y1
+	VPXOR Y2, Y2, Y2
 
 	// Load and process 32 bytes from input 0 to 2 outputs
-	VMOVDQU (BX), Y5
+	VMOVDQU (BX), Y6
 	ADDQ    $0x20, BX
-	VPSRLQ  $0x04, Y5, Y6
-	VPAND   Y2, Y5, Y5
-	VPAND   Y2, Y6, Y6
-	VMOVDQU (CX), Y3
-	VMOVDQU 32(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSRLQ  $0x04, Y6, Y7
+	VPAND   Y3, Y6, Y6
+	VPAND   Y3, Y7, Y7
+	VMOVDQU (CX), Y4
+	VMOVDQU 32(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y0, Y0
-	VMOVDQU 64(CX), Y3
-	VMOVDQU 96(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y1, Y1
+	VMOVDQU 64(CX), Y4
+	VMOVDQU 96(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y1, Y1
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 1 to 2 outputs
-	VMOVDQU (BP), Y5
+	VMOVDQU (BP), Y6
 	ADDQ    $0x20, BP
-	VPSRLQ  $0x04, Y5, Y6
-	VPAND   Y2, Y5, Y5
-	VPAND   Y2, Y6, Y6
-	VMOVDQU 128(CX), Y3
-	VMOVDQU 160(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSRLQ  $0x04, Y6, Y7
+	VPAND   Y3, Y6, Y6
+	VPAND   Y3, Y7, Y7
+	VMOVDQU 128(CX), Y4
+	VMOVDQU 160(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y0, Y0
-	VMOVDQU 192(CX), Y3
-	VMOVDQU 224(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y1, Y1
+	VMOVDQU 192(CX), Y4
+	VMOVDQU 224(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y1, Y1
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 2 to 2 outputs
-	VMOVDQU (DX), Y5
+	VMOVDQU (DX), Y6
 	ADDQ    $0x20, DX
-	VPSRLQ  $0x04, Y5, Y6
-	VPAND   Y2, Y5, Y5
-	VPAND   Y2, Y6, Y6
-	VMOVDQU 256(CX), Y3
-	VMOVDQU 288(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSRLQ  $0x04, Y6, Y7
+	VPAND   Y3, Y6, Y6
+	VPAND   Y3, Y7, Y7
+	VMOVDQU 256(CX), Y4
+	VMOVDQU 288(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y0, Y0
-	VMOVDQU 320(CX), Y3
-	VMOVDQU 352(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y1, Y1
+	VMOVDQU 320(CX), Y4
+	VMOVDQU 352(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y1, Y1
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y2, Y2
 
 	// Store 2 outputs
-	VMOVDQU Y0, (DI)
+	VMOVDQU Y1, (DI)
 	ADDQ    $0x20, DI
-	VMOVDQU Y1, (SI)
+	VMOVDQU Y2, (SI)
 	ADDQ    $0x20, SI
 
 	// Prepare for next loop
@@ -1982,11 +2035,14 @@ mulAvxTwo_3x2_loop:
 	VZEROUPPER
 
 mulAvxTwo_3x2_end:
+	MOVQ X0, BP
 	RET
 
 // func mulAvxTwo_3x3(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX2, SSE2
-TEXT ·mulAvxTwo_3x3(SB), NOSPLIT, $8-88
+TEXT ·mulAvxTwo_3x3(SB), NOSPLIT, $0-88
+	MOVQ BP, X0
+
 	// Loading no tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 26 YMM used
@@ -2015,96 +2071,96 @@ TEXT ·mulAvxTwo_3x3(SB), NOSPLIT, $8-88
 	ADDQ         R9, BP
 	ADDQ         R9, DX
 	MOVQ         $0x0000000f, R9
-	MOVQ         R9, X3
-	VPBROADCASTB X3, Y3
+	MOVQ         R9, X4
+	VPBROADCASTB X4, Y4
 
 mulAvxTwo_3x3_loop:
 	// Clear 3 outputs
-	VPXOR Y0, Y0, Y0
 	VPXOR Y1, Y1, Y1
 	VPXOR Y2, Y2, Y2
+	VPXOR Y3, Y3, Y3
 
 	// Load and process 32 bytes from input 0 to 3 outputs
-	VMOVDQU (BX), Y6
+	VMOVDQU (BX), Y7
 	ADDQ    $0x20, BX
-	VPSRLQ  $0x04, Y6, Y7
-	VPAND   Y3, Y6, Y6
-	VPAND   Y3, Y7, Y7
-	VMOVDQU (CX), Y4
-	VMOVDQU 32(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSRLQ  $0x04, Y7, Y8
+	VPAND   Y4, Y7, Y7
+	VPAND   Y4, Y8, Y8
+	VMOVDQU (CX), Y5
+	VMOVDQU 32(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y0, Y0
-	VMOVDQU 64(CX), Y4
-	VMOVDQU 96(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y1, Y1
+	VMOVDQU 64(CX), Y5
+	VMOVDQU 96(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y1, Y1
-	VMOVDQU 128(CX), Y4
-	VMOVDQU 160(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y2, Y2
+	VMOVDQU 128(CX), Y5
+	VMOVDQU 160(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y2, Y2
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 1 to 3 outputs
-	VMOVDQU (BP), Y6
+	VMOVDQU (BP), Y7
 	ADDQ    $0x20, BP
-	VPSRLQ  $0x04, Y6, Y7
-	VPAND   Y3, Y6, Y6
-	VPAND   Y3, Y7, Y7
-	VMOVDQU 192(CX), Y4
-	VMOVDQU 224(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSRLQ  $0x04, Y7, Y8
+	VPAND   Y4, Y7, Y7
+	VPAND   Y4, Y8, Y8
+	VMOVDQU 192(CX), Y5
+	VMOVDQU 224(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y0, Y0
-	VMOVDQU 256(CX), Y4
-	VMOVDQU 288(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y1, Y1
+	VMOVDQU 256(CX), Y5
+	VMOVDQU 288(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y1, Y1
-	VMOVDQU 320(CX), Y4
-	VMOVDQU 352(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y2, Y2
+	VMOVDQU 320(CX), Y5
+	VMOVDQU 352(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y2, Y2
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 2 to 3 outputs
-	VMOVDQU (DX), Y6
+	VMOVDQU (DX), Y7
 	ADDQ    $0x20, DX
-	VPSRLQ  $0x04, Y6, Y7
-	VPAND   Y3, Y6, Y6
-	VPAND   Y3, Y7, Y7
-	VMOVDQU 384(CX), Y4
-	VMOVDQU 416(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSRLQ  $0x04, Y7, Y8
+	VPAND   Y4, Y7, Y7
+	VPAND   Y4, Y8, Y8
+	VMOVDQU 384(CX), Y5
+	VMOVDQU 416(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y0, Y0
-	VMOVDQU 448(CX), Y4
-	VMOVDQU 480(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y1, Y1
+	VMOVDQU 448(CX), Y5
+	VMOVDQU 480(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y1, Y1
-	VMOVDQU 512(CX), Y4
-	VMOVDQU 544(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y2, Y2
+	VMOVDQU 512(CX), Y5
+	VMOVDQU 544(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y2, Y2
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y3, Y3
 
 	// Store 3 outputs
-	VMOVDQU Y0, (DI)
+	VMOVDQU Y1, (DI)
 	ADDQ    $0x20, DI
-	VMOVDQU Y1, (R8)
+	VMOVDQU Y2, (R8)
 	ADDQ    $0x20, R8
-	VMOVDQU Y2, (SI)
+	VMOVDQU Y3, (SI)
 	ADDQ    $0x20, SI
 
 	// Prepare for next loop
@@ -2113,11 +2169,14 @@ mulAvxTwo_3x3_loop:
 	VZEROUPPER
 
 mulAvxTwo_3x3_end:
+	MOVQ X0, BP
 	RET
 
 // func mulAvxTwo_3x4(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX2, SSE2
-TEXT ·mulAvxTwo_3x4(SB), NOSPLIT, $8-88
+TEXT ·mulAvxTwo_3x4(SB), NOSPLIT, $0-88
+	MOVQ BP, X0
+
 	// Loading no tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 33 YMM used
@@ -2148,117 +2207,117 @@ TEXT ·mulAvxTwo_3x4(SB), NOSPLIT, $8-88
 	ADDQ         R10, BP
 	ADDQ         R10, DX
 	MOVQ         $0x0000000f, R10
-	MOVQ         R10, X4
-	VPBROADCASTB X4, Y4
+	MOVQ         R10, X5
+	VPBROADCASTB X5, Y5
 
 mulAvxTwo_3x4_loop:
 	// Clear 4 outputs
-	VPXOR Y0, Y0, Y0
 	VPXOR Y1, Y1, Y1
 	VPXOR Y2, Y2, Y2
 	VPXOR Y3, Y3, Y3
+	VPXOR Y4, Y4, Y4
 
 	// Load and process 32 bytes from input 0 to 4 outputs
-	VMOVDQU (BX), Y7
+	VMOVDQU (BX), Y8
 	ADDQ    $0x20, BX
-	VPSRLQ  $0x04, Y7, Y8
-	VPAND   Y4, Y7, Y7
-	VPAND   Y4, Y8, Y8
-	VMOVDQU (CX), Y5
-	VMOVDQU 32(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSRLQ  $0x04, Y8, Y9
+	VPAND   Y5, Y8, Y8
+	VPAND   Y5, Y9, Y9
+	VMOVDQU (CX), Y6
+	VMOVDQU 32(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y0, Y0
-	VMOVDQU 64(CX), Y5
-	VMOVDQU 96(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y1, Y1
+	VMOVDQU 64(CX), Y6
+	VMOVDQU 96(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y1, Y1
-	VMOVDQU 128(CX), Y5
-	VMOVDQU 160(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y2, Y2
+	VMOVDQU 128(CX), Y6
+	VMOVDQU 160(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y2, Y2
-	VMOVDQU 192(CX), Y5
-	VMOVDQU 224(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y3, Y3
+	VMOVDQU 192(CX), Y6
+	VMOVDQU 224(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y3, Y3
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 1 to 4 outputs
-	VMOVDQU (BP), Y7
+	VMOVDQU (BP), Y8
 	ADDQ    $0x20, BP
-	VPSRLQ  $0x04, Y7, Y8
-	VPAND   Y4, Y7, Y7
-	VPAND   Y4, Y8, Y8
-	VMOVDQU 256(CX), Y5
-	VMOVDQU 288(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSRLQ  $0x04, Y8, Y9
+	VPAND   Y5, Y8, Y8
+	VPAND   Y5, Y9, Y9
+	VMOVDQU 256(CX), Y6
+	VMOVDQU 288(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y0, Y0
-	VMOVDQU 320(CX), Y5
-	VMOVDQU 352(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y1, Y1
+	VMOVDQU 320(CX), Y6
+	VMOVDQU 352(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y1, Y1
-	VMOVDQU 384(CX), Y5
-	VMOVDQU 416(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y2, Y2
+	VMOVDQU 384(CX), Y6
+	VMOVDQU 416(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y2, Y2
-	VMOVDQU 448(CX), Y5
-	VMOVDQU 480(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y3, Y3
+	VMOVDQU 448(CX), Y6
+	VMOVDQU 480(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y3, Y3
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 2 to 4 outputs
-	VMOVDQU (DX), Y7
+	VMOVDQU (DX), Y8
 	ADDQ    $0x20, DX
-	VPSRLQ  $0x04, Y7, Y8
-	VPAND   Y4, Y7, Y7
-	VPAND   Y4, Y8, Y8
-	VMOVDQU 512(CX), Y5
-	VMOVDQU 544(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSRLQ  $0x04, Y8, Y9
+	VPAND   Y5, Y8, Y8
+	VPAND   Y5, Y9, Y9
+	VMOVDQU 512(CX), Y6
+	VMOVDQU 544(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y0, Y0
-	VMOVDQU 576(CX), Y5
-	VMOVDQU 608(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y1, Y1
+	VMOVDQU 576(CX), Y6
+	VMOVDQU 608(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y1, Y1
-	VMOVDQU 640(CX), Y5
-	VMOVDQU 672(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y2, Y2
+	VMOVDQU 640(CX), Y6
+	VMOVDQU 672(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y2, Y2
-	VMOVDQU 704(CX), Y5
-	VMOVDQU 736(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y3, Y3
+	VMOVDQU 704(CX), Y6
+	VMOVDQU 736(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y3, Y3
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y4, Y4
 
 	// Store 4 outputs
-	VMOVDQU Y0, (DI)
+	VMOVDQU Y1, (DI)
 	ADDQ    $0x20, DI
-	VMOVDQU Y1, (R8)
+	VMOVDQU Y2, (R8)
 	ADDQ    $0x20, R8
-	VMOVDQU Y2, (R9)
+	VMOVDQU Y3, (R9)
 	ADDQ    $0x20, R9
-	VMOVDQU Y3, (SI)
+	VMOVDQU Y4, (SI)
 	ADDQ    $0x20, SI
 
 	// Prepare for next loop
@@ -2267,11 +2326,14 @@ mulAvxTwo_3x4_loop:
 	VZEROUPPER
 
 mulAvxTwo_3x4_end:
+	MOVQ X0, BP
 	RET
 
 // func mulAvxTwo_3x5(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX2, SSE2
-TEXT ·mulAvxTwo_3x5(SB), NOSPLIT, $8-88
+TEXT ·mulAvxTwo_3x5(SB), NOSPLIT, $0-88
+	MOVQ BP, X0
+
 	// Loading no tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 40 YMM used
@@ -2304,138 +2366,138 @@ TEXT ·mulAvxTwo_3x5(SB), NOSPLIT, $8-88
 	ADDQ         R11, BP
 	ADDQ         R11, DX
 	MOVQ         $0x0000000f, R11
-	MOVQ         R11, X5
-	VPBROADCASTB X5, Y5
+	MOVQ         R11, X6
+	VPBROADCASTB X6, Y6
 
 mulAvxTwo_3x5_loop:
 	// Clear 5 outputs
-	VPXOR Y0, Y0, Y0
 	VPXOR Y1, Y1, Y1
 	VPXOR Y2, Y2, Y2
 	VPXOR Y3, Y3, Y3
 	VPXOR Y4, Y4, Y4
+	VPXOR Y5, Y5, Y5
 
 	// Load and process 32 bytes from input 0 to 5 outputs
-	VMOVDQU (BX), Y8
+	VMOVDQU (BX), Y9
 	ADDQ    $0x20, BX
-	VPSRLQ  $0x04, Y8, Y9
-	VPAND   Y5, Y8, Y8
-	VPAND   Y5, Y9, Y9
-	VMOVDQU (CX), Y6
-	VMOVDQU 32(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSRLQ  $0x04, Y9, Y10
+	VPAND   Y6, Y9, Y9
+	VPAND   Y6, Y10, Y10
+	VMOVDQU (CX), Y7
+	VMOVDQU 32(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y0, Y0
-	VMOVDQU 64(CX), Y6
-	VMOVDQU 96(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y1, Y1
+	VMOVDQU 64(CX), Y7
+	VMOVDQU 96(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y1, Y1
-	VMOVDQU 128(CX), Y6
-	VMOVDQU 160(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y2, Y2
+	VMOVDQU 128(CX), Y7
+	VMOVDQU 160(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y2, Y2
-	VMOVDQU 192(CX), Y6
-	VMOVDQU 224(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y3, Y3
+	VMOVDQU 192(CX), Y7
+	VMOVDQU 224(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y3, Y3
-	VMOVDQU 256(CX), Y6
-	VMOVDQU 288(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y4, Y4
+	VMOVDQU 256(CX), Y7
+	VMOVDQU 288(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y4, Y4
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 1 to 5 outputs
-	VMOVDQU (BP), Y8
+	VMOVDQU (BP), Y9
 	ADDQ    $0x20, BP
-	VPSRLQ  $0x04, Y8, Y9
-	VPAND   Y5, Y8, Y8
-	VPAND   Y5, Y9, Y9
-	VMOVDQU 320(CX), Y6
-	VMOVDQU 352(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSRLQ  $0x04, Y9, Y10
+	VPAND   Y6, Y9, Y9
+	VPAND   Y6, Y10, Y10
+	VMOVDQU 320(CX), Y7
+	VMOVDQU 352(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y0, Y0
-	VMOVDQU 384(CX), Y6
-	VMOVDQU 416(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y1, Y1
+	VMOVDQU 384(CX), Y7
+	VMOVDQU 416(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y1, Y1
-	VMOVDQU 448(CX), Y6
-	VMOVDQU 480(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y2, Y2
+	VMOVDQU 448(CX), Y7
+	VMOVDQU 480(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y2, Y2
-	VMOVDQU 512(CX), Y6
-	VMOVDQU 544(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y3, Y3
+	VMOVDQU 512(CX), Y7
+	VMOVDQU 544(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y3, Y3
-	VMOVDQU 576(CX), Y6
-	VMOVDQU 608(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y4, Y4
+	VMOVDQU 576(CX), Y7
+	VMOVDQU 608(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y4, Y4
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 2 to 5 outputs
-	VMOVDQU (DX), Y8
+	VMOVDQU (DX), Y9
 	ADDQ    $0x20, DX
-	VPSRLQ  $0x04, Y8, Y9
-	VPAND   Y5, Y8, Y8
-	VPAND   Y5, Y9, Y9
-	VMOVDQU 640(CX), Y6
-	VMOVDQU 672(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSRLQ  $0x04, Y9, Y10
+	VPAND   Y6, Y9, Y9
+	VPAND   Y6, Y10, Y10
+	VMOVDQU 640(CX), Y7
+	VMOVDQU 672(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y0, Y0
-	VMOVDQU 704(CX), Y6
-	VMOVDQU 736(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y1, Y1
+	VMOVDQU 704(CX), Y7
+	VMOVDQU 736(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y1, Y1
-	VMOVDQU 768(CX), Y6
-	VMOVDQU 800(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y2, Y2
+	VMOVDQU 768(CX), Y7
+	VMOVDQU 800(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y2, Y2
-	VMOVDQU 832(CX), Y6
-	VMOVDQU 864(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y3, Y3
+	VMOVDQU 832(CX), Y7
+	VMOVDQU 864(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y3, Y3
-	VMOVDQU 896(CX), Y6
-	VMOVDQU 928(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y4, Y4
+	VMOVDQU 896(CX), Y7
+	VMOVDQU 928(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y4, Y4
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y5, Y5
 
 	// Store 5 outputs
-	VMOVDQU Y0, (DI)
+	VMOVDQU Y1, (DI)
 	ADDQ    $0x20, DI
-	VMOVDQU Y1, (R8)
+	VMOVDQU Y2, (R8)
 	ADDQ    $0x20, R8
-	VMOVDQU Y2, (R9)
+	VMOVDQU Y3, (R9)
 	ADDQ    $0x20, R9
-	VMOVDQU Y3, (R10)
+	VMOVDQU Y4, (R10)
 	ADDQ    $0x20, R10
-	VMOVDQU Y4, (SI)
+	VMOVDQU Y5, (SI)
 	ADDQ    $0x20, SI
 
 	// Prepare for next loop
@@ -2444,11 +2506,14 @@ mulAvxTwo_3x5_loop:
 	VZEROUPPER
 
 mulAvxTwo_3x5_end:
+	MOVQ X0, BP
 	RET
 
 // func mulAvxTwo_3x6(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX2, SSE2
-TEXT ·mulAvxTwo_3x6(SB), NOSPLIT, $8-88
+TEXT ·mulAvxTwo_3x6(SB), NOSPLIT, $0-88
+	MOVQ BP, X0
+
 	// Loading no tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 47 YMM used
@@ -2483,159 +2548,159 @@ TEXT ·mulAvxTwo_3x6(SB), NOSPLIT, $8-88
 	ADDQ         R12, BP
 	ADDQ         R12, DX
 	MOVQ         $0x0000000f, R12
-	MOVQ         R12, X6
-	VPBROADCASTB X6, Y6
+	MOVQ         R12, X7
+	VPBROADCASTB X7, Y7
 
 mulAvxTwo_3x6_loop:
 	// Clear 6 outputs
-	VPXOR Y0, Y0, Y0
 	VPXOR Y1, Y1, Y1
 	VPXOR Y2, Y2, Y2
 	VPXOR Y3, Y3, Y3
 	VPXOR Y4, Y4, Y4
 	VPXOR Y5, Y5, Y5
+	VPXOR Y6, Y6, Y6
 
 	// Load and process 32 bytes from input 0 to 6 outputs
-	VMOVDQU (BX), Y9
+	VMOVDQU (BX), Y10
 	ADDQ    $0x20, BX
-	VPSRLQ  $0x04, Y9, Y10
-	VPAND   Y6, Y9, Y9
-	VPAND   Y6, Y10, Y10
-	VMOVDQU (CX), Y7
-	VMOVDQU 32(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSRLQ  $0x04, Y10, Y11
+	VPAND   Y7, Y10, Y10
+	VPAND   Y7, Y11, Y11
+	VMOVDQU (CX), Y8
+	VMOVDQU 32(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y0, Y0
-	VMOVDQU 64(CX), Y7
-	VMOVDQU 96(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y1, Y1
+	VMOVDQU 64(CX), Y8
+	VMOVDQU 96(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y1, Y1
-	VMOVDQU 128(CX), Y7
-	VMOVDQU 160(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y2, Y2
+	VMOVDQU 128(CX), Y8
+	VMOVDQU 160(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y2, Y2
-	VMOVDQU 192(CX), Y7
-	VMOVDQU 224(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y3, Y3
+	VMOVDQU 192(CX), Y8
+	VMOVDQU 224(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y3, Y3
-	VMOVDQU 256(CX), Y7
-	VMOVDQU 288(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y4, Y4
+	VMOVDQU 256(CX), Y8
+	VMOVDQU 288(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y4, Y4
-	VMOVDQU 320(CX), Y7
-	VMOVDQU 352(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y5, Y5
+	VMOVDQU 320(CX), Y8
+	VMOVDQU 352(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y5, Y5
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y6, Y6
 
 	// Load and process 32 bytes from input 1 to 6 outputs
-	VMOVDQU (BP), Y9
+	VMOVDQU (BP), Y10
 	ADDQ    $0x20, BP
-	VPSRLQ  $0x04, Y9, Y10
-	VPAND   Y6, Y9, Y9
-	VPAND   Y6, Y10, Y10
-	VMOVDQU 384(CX), Y7
-	VMOVDQU 416(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSRLQ  $0x04, Y10, Y11
+	VPAND   Y7, Y10, Y10
+	VPAND   Y7, Y11, Y11
+	VMOVDQU 384(CX), Y8
+	VMOVDQU 416(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y0, Y0
-	VMOVDQU 448(CX), Y7
-	VMOVDQU 480(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y1, Y1
+	VMOVDQU 448(CX), Y8
+	VMOVDQU 480(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y1, Y1
-	VMOVDQU 512(CX), Y7
-	VMOVDQU 544(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y2, Y2
+	VMOVDQU 512(CX), Y8
+	VMOVDQU 544(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y2, Y2
-	VMOVDQU 576(CX), Y7
-	VMOVDQU 608(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y3, Y3
+	VMOVDQU 576(CX), Y8
+	VMOVDQU 608(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y3, Y3
-	VMOVDQU 640(CX), Y7
-	VMOVDQU 672(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y4, Y4
+	VMOVDQU 640(CX), Y8
+	VMOVDQU 672(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y4, Y4
-	VMOVDQU 704(CX), Y7
-	VMOVDQU 736(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y5, Y5
+	VMOVDQU 704(CX), Y8
+	VMOVDQU 736(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y5, Y5
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y6, Y6
 
 	// Load and process 32 bytes from input 2 to 6 outputs
-	VMOVDQU (DX), Y9
+	VMOVDQU (DX), Y10
 	ADDQ    $0x20, DX
-	VPSRLQ  $0x04, Y9, Y10
-	VPAND   Y6, Y9, Y9
-	VPAND   Y6, Y10, Y10
-	VMOVDQU 768(CX), Y7
-	VMOVDQU 800(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSRLQ  $0x04, Y10, Y11
+	VPAND   Y7, Y10, Y10
+	VPAND   Y7, Y11, Y11
+	VMOVDQU 768(CX), Y8
+	VMOVDQU 800(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y0, Y0
-	VMOVDQU 832(CX), Y7
-	VMOVDQU 864(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y1, Y1
+	VMOVDQU 832(CX), Y8
+	VMOVDQU 864(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y1, Y1
-	VMOVDQU 896(CX), Y7
-	VMOVDQU 928(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y2, Y2
+	VMOVDQU 896(CX), Y8
+	VMOVDQU 928(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y2, Y2
-	VMOVDQU 960(CX), Y7
-	VMOVDQU 992(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y3, Y3
+	VMOVDQU 960(CX), Y8
+	VMOVDQU 992(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y3, Y3
-	VMOVDQU 1024(CX), Y7
-	VMOVDQU 1056(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y4, Y4
+	VMOVDQU 1024(CX), Y8
+	VMOVDQU 1056(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y4, Y4
-	VMOVDQU 1088(CX), Y7
-	VMOVDQU 1120(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y5, Y5
+	VMOVDQU 1088(CX), Y8
+	VMOVDQU 1120(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y5, Y5
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y6, Y6
 
 	// Store 6 outputs
-	VMOVDQU Y0, (DI)
+	VMOVDQU Y1, (DI)
 	ADDQ    $0x20, DI
-	VMOVDQU Y1, (R8)
+	VMOVDQU Y2, (R8)
 	ADDQ    $0x20, R8
-	VMOVDQU Y2, (R9)
+	VMOVDQU Y3, (R9)
 	ADDQ    $0x20, R9
-	VMOVDQU Y3, (R10)
+	VMOVDQU Y4, (R10)
 	ADDQ    $0x20, R10
-	VMOVDQU Y4, (R11)
+	VMOVDQU Y5, (R11)
 	ADDQ    $0x20, R11
-	VMOVDQU Y5, (SI)
+	VMOVDQU Y6, (SI)
 	ADDQ    $0x20, SI
 
 	// Prepare for next loop
@@ -2644,11 +2709,14 @@ mulAvxTwo_3x6_loop:
 	VZEROUPPER
 
 mulAvxTwo_3x6_end:
+	MOVQ X0, BP
 	RET
 
 // func mulAvxTwo_3x7(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX2, SSE2
-TEXT ·mulAvxTwo_3x7(SB), NOSPLIT, $8-88
+TEXT ·mulAvxTwo_3x7(SB), NOSPLIT, $0-88
+	MOVQ BP, X0
+
 	// Loading no tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 54 YMM used
@@ -2685,180 +2753,180 @@ TEXT ·mulAvxTwo_3x7(SB), NOSPLIT, $8-88
 	ADDQ         R13, BP
 	ADDQ         R13, DX
 	MOVQ         $0x0000000f, R13
-	MOVQ         R13, X7
-	VPBROADCASTB X7, Y7
+	MOVQ         R13, X8
+	VPBROADCASTB X8, Y8
 
 mulAvxTwo_3x7_loop:
 	// Clear 7 outputs
-	VPXOR Y0, Y0, Y0
 	VPXOR Y1, Y1, Y1
 	VPXOR Y2, Y2, Y2
 	VPXOR Y3, Y3, Y3
 	VPXOR Y4, Y4, Y4
 	VPXOR Y5, Y5, Y5
 	VPXOR Y6, Y6, Y6
+	VPXOR Y7, Y7, Y7
 
 	// Load and process 32 bytes from input 0 to 7 outputs
-	VMOVDQU (BX), Y10
+	VMOVDQU (BX), Y11
 	ADDQ    $0x20, BX
-	VPSRLQ  $0x04, Y10, Y11
-	VPAND   Y7, Y10, Y10
-	VPAND   Y7, Y11, Y11
-	VMOVDQU (CX), Y8
-	VMOVDQU 32(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSRLQ  $0x04, Y11, Y12
+	VPAND   Y8, Y11, Y11
+	VPAND   Y8, Y12, Y12
+	VMOVDQU (CX), Y9
+	VMOVDQU 32(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y0, Y0
-	VMOVDQU 64(CX), Y8
-	VMOVDQU 96(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y1, Y1
+	VMOVDQU 64(CX), Y9
+	VMOVDQU 96(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y1, Y1
-	VMOVDQU 128(CX), Y8
-	VMOVDQU 160(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y2, Y2
+	VMOVDQU 128(CX), Y9
+	VMOVDQU 160(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y2, Y2
-	VMOVDQU 192(CX), Y8
-	VMOVDQU 224(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y3, Y3
+	VMOVDQU 192(CX), Y9
+	VMOVDQU 224(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y3, Y3
-	VMOVDQU 256(CX), Y8
-	VMOVDQU 288(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y4, Y4
+	VMOVDQU 256(CX), Y9
+	VMOVDQU 288(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y4, Y4
-	VMOVDQU 320(CX), Y8
-	VMOVDQU 352(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y5, Y5
+	VMOVDQU 320(CX), Y9
+	VMOVDQU 352(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y5, Y5
-	VMOVDQU 384(CX), Y8
-	VMOVDQU 416(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y6, Y6
+	VMOVDQU 384(CX), Y9
+	VMOVDQU 416(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y6, Y6
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y7, Y7
 
 	// Load and process 32 bytes from input 1 to 7 outputs
-	VMOVDQU (BP), Y10
+	VMOVDQU (BP), Y11
 	ADDQ    $0x20, BP
-	VPSRLQ  $0x04, Y10, Y11
-	VPAND   Y7, Y10, Y10
-	VPAND   Y7, Y11, Y11
-	VMOVDQU 448(CX), Y8
-	VMOVDQU 480(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSRLQ  $0x04, Y11, Y12
+	VPAND   Y8, Y11, Y11
+	VPAND   Y8, Y12, Y12
+	VMOVDQU 448(CX), Y9
+	VMOVDQU 480(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y0, Y0
-	VMOVDQU 512(CX), Y8
-	VMOVDQU 544(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y1, Y1
+	VMOVDQU 512(CX), Y9
+	VMOVDQU 544(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y1, Y1
-	VMOVDQU 576(CX), Y8
-	VMOVDQU 608(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y2, Y2
+	VMOVDQU 576(CX), Y9
+	VMOVDQU 608(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y2, Y2
-	VMOVDQU 640(CX), Y8
-	VMOVDQU 672(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y3, Y3
+	VMOVDQU 640(CX), Y9
+	VMOVDQU 672(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y3, Y3
-	VMOVDQU 704(CX), Y8
-	VMOVDQU 736(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y4, Y4
+	VMOVDQU 704(CX), Y9
+	VMOVDQU 736(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y4, Y4
-	VMOVDQU 768(CX), Y8
-	VMOVDQU 800(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y5, Y5
+	VMOVDQU 768(CX), Y9
+	VMOVDQU 800(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y5, Y5
-	VMOVDQU 832(CX), Y8
-	VMOVDQU 864(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y6, Y6
+	VMOVDQU 832(CX), Y9
+	VMOVDQU 864(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y6, Y6
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y7, Y7
 
 	// Load and process 32 bytes from input 2 to 7 outputs
-	VMOVDQU (DX), Y10
+	VMOVDQU (DX), Y11
 	ADDQ    $0x20, DX
-	VPSRLQ  $0x04, Y10, Y11
-	VPAND   Y7, Y10, Y10
-	VPAND   Y7, Y11, Y11
-	VMOVDQU 896(CX), Y8
-	VMOVDQU 928(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSRLQ  $0x04, Y11, Y12
+	VPAND   Y8, Y11, Y11
+	VPAND   Y8, Y12, Y12
+	VMOVDQU 896(CX), Y9
+	VMOVDQU 928(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y0, Y0
-	VMOVDQU 960(CX), Y8
-	VMOVDQU 992(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y1, Y1
+	VMOVDQU 960(CX), Y9
+	VMOVDQU 992(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y1, Y1
-	VMOVDQU 1024(CX), Y8
-	VMOVDQU 1056(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y2, Y2
+	VMOVDQU 1024(CX), Y9
+	VMOVDQU 1056(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y2, Y2
-	VMOVDQU 1088(CX), Y8
-	VMOVDQU 1120(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y3, Y3
+	VMOVDQU 1088(CX), Y9
+	VMOVDQU 1120(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y3, Y3
-	VMOVDQU 1152(CX), Y8
-	VMOVDQU 1184(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y4, Y4
+	VMOVDQU 1152(CX), Y9
+	VMOVDQU 1184(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y4, Y4
-	VMOVDQU 1216(CX), Y8
-	VMOVDQU 1248(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y5, Y5
+	VMOVDQU 1216(CX), Y9
+	VMOVDQU 1248(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y5, Y5
-	VMOVDQU 1280(CX), Y8
-	VMOVDQU 1312(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y6, Y6
+	VMOVDQU 1280(CX), Y9
+	VMOVDQU 1312(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y6, Y6
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y7, Y7
 
 	// Store 7 outputs
-	VMOVDQU Y0, (DI)
+	VMOVDQU Y1, (DI)
 	ADDQ    $0x20, DI
-	VMOVDQU Y1, (R8)
+	VMOVDQU Y2, (R8)
 	ADDQ    $0x20, R8
-	VMOVDQU Y2, (R9)
+	VMOVDQU Y3, (R9)
 	ADDQ    $0x20, R9
-	VMOVDQU Y3, (R10)
+	VMOVDQU Y4, (R10)
 	ADDQ    $0x20, R10
-	VMOVDQU Y4, (R11)
+	VMOVDQU Y5, (R11)
 	ADDQ    $0x20, R11
-	VMOVDQU Y5, (R12)
+	VMOVDQU Y6, (R12)
 	ADDQ    $0x20, R12
-	VMOVDQU Y6, (SI)
+	VMOVDQU Y7, (SI)
 	ADDQ    $0x20, SI
 
 	// Prepare for next loop
@@ -2867,11 +2935,14 @@ mulAvxTwo_3x7_loop:
 	VZEROUPPER
 
 mulAvxTwo_3x7_end:
+	MOVQ X0, BP
 	RET
 
 // func mulAvxTwo_3x8(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX2, SSE2
-TEXT ·mulAvxTwo_3x8(SB), NOSPLIT, $8-88
+TEXT ·mulAvxTwo_3x8(SB), NOSPLIT, $0-88
+	MOVQ BP, X0
+
 	// Loading no tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 61 YMM used
@@ -2910,12 +2981,11 @@ TEXT ·mulAvxTwo_3x8(SB), NOSPLIT, $8-88
 	ADDQ         R14, BP
 	ADDQ         R14, DX
 	MOVQ         $0x0000000f, R14
-	MOVQ         R14, X8
-	VPBROADCASTB X8, Y8
+	MOVQ         R14, X9
+	VPBROADCASTB X9, Y9
 
 mulAvxTwo_3x8_loop:
 	// Clear 8 outputs
-	VPXOR Y0, Y0, Y0
 	VPXOR Y1, Y1, Y1
 	VPXOR Y2, Y2, Y2
 	VPXOR Y3, Y3, Y3
@@ -2923,188 +2993,189 @@ mulAvxTwo_3x8_loop:
 	VPXOR Y5, Y5, Y5
 	VPXOR Y6, Y6, Y6
 	VPXOR Y7, Y7, Y7
+	VPXOR Y8, Y8, Y8
 
 	// Load and process 32 bytes from input 0 to 8 outputs
-	VMOVDQU (BX), Y11
+	VMOVDQU (BX), Y12
 	ADDQ    $0x20, BX
-	VPSRLQ  $0x04, Y11, Y12
-	VPAND   Y8, Y11, Y11
-	VPAND   Y8, Y12, Y12
-	VMOVDQU (CX), Y9
-	VMOVDQU 32(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSRLQ  $0x04, Y12, Y13
+	VPAND   Y9, Y12, Y12
+	VPAND   Y9, Y13, Y13
+	VMOVDQU (CX), Y10
+	VMOVDQU 32(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y0, Y0
-	VMOVDQU 64(CX), Y9
-	VMOVDQU 96(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y1, Y1
+	VMOVDQU 64(CX), Y10
+	VMOVDQU 96(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y1, Y1
-	VMOVDQU 128(CX), Y9
-	VMOVDQU 160(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y2, Y2
+	VMOVDQU 128(CX), Y10
+	VMOVDQU 160(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y2, Y2
-	VMOVDQU 192(CX), Y9
-	VMOVDQU 224(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y3, Y3
+	VMOVDQU 192(CX), Y10
+	VMOVDQU 224(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y3, Y3
-	VMOVDQU 256(CX), Y9
-	VMOVDQU 288(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y4, Y4
+	VMOVDQU 256(CX), Y10
+	VMOVDQU 288(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y4, Y4
-	VMOVDQU 320(CX), Y9
-	VMOVDQU 352(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y5, Y5
+	VMOVDQU 320(CX), Y10
+	VMOVDQU 352(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y5, Y5
-	VMOVDQU 384(CX), Y9
-	VMOVDQU 416(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y6, Y6
+	VMOVDQU 384(CX), Y10
+	VMOVDQU 416(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y6, Y6
-	VMOVDQU 448(CX), Y9
-	VMOVDQU 480(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y7, Y7
+	VMOVDQU 448(CX), Y10
+	VMOVDQU 480(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y7, Y7
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y8, Y8
 
 	// Load and process 32 bytes from input 1 to 8 outputs
-	VMOVDQU (BP), Y11
+	VMOVDQU (BP), Y12
 	ADDQ    $0x20, BP
-	VPSRLQ  $0x04, Y11, Y12
-	VPAND   Y8, Y11, Y11
-	VPAND   Y8, Y12, Y12
-	VMOVDQU 512(CX), Y9
-	VMOVDQU 544(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSRLQ  $0x04, Y12, Y13
+	VPAND   Y9, Y12, Y12
+	VPAND   Y9, Y13, Y13
+	VMOVDQU 512(CX), Y10
+	VMOVDQU 544(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y0, Y0
-	VMOVDQU 576(CX), Y9
-	VMOVDQU 608(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y1, Y1
+	VMOVDQU 576(CX), Y10
+	VMOVDQU 608(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y1, Y1
-	VMOVDQU 640(CX), Y9
-	VMOVDQU 672(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y2, Y2
+	VMOVDQU 640(CX), Y10
+	VMOVDQU 672(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y2, Y2
-	VMOVDQU 704(CX), Y9
-	VMOVDQU 736(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y3, Y3
+	VMOVDQU 704(CX), Y10
+	VMOVDQU 736(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y3, Y3
-	VMOVDQU 768(CX), Y9
-	VMOVDQU 800(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y4, Y4
+	VMOVDQU 768(CX), Y10
+	VMOVDQU 800(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y4, Y4
-	VMOVDQU 832(CX), Y9
-	VMOVDQU 864(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y5, Y5
+	VMOVDQU 832(CX), Y10
+	VMOVDQU 864(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y5, Y5
-	VMOVDQU 896(CX), Y9
-	VMOVDQU 928(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y6, Y6
+	VMOVDQU 896(CX), Y10
+	VMOVDQU 928(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y6, Y6
-	VMOVDQU 960(CX), Y9
-	VMOVDQU 992(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y7, Y7
+	VMOVDQU 960(CX), Y10
+	VMOVDQU 992(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y7, Y7
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y8, Y8
 
 	// Load and process 32 bytes from input 2 to 8 outputs
-	VMOVDQU (DX), Y11
+	VMOVDQU (DX), Y12
 	ADDQ    $0x20, DX
-	VPSRLQ  $0x04, Y11, Y12
-	VPAND   Y8, Y11, Y11
-	VPAND   Y8, Y12, Y12
-	VMOVDQU 1024(CX), Y9
-	VMOVDQU 1056(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSRLQ  $0x04, Y12, Y13
+	VPAND   Y9, Y12, Y12
+	VPAND   Y9, Y13, Y13
+	VMOVDQU 1024(CX), Y10
+	VMOVDQU 1056(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y0, Y0
-	VMOVDQU 1088(CX), Y9
-	VMOVDQU 1120(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y1, Y1
+	VMOVDQU 1088(CX), Y10
+	VMOVDQU 1120(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y1, Y1
-	VMOVDQU 1152(CX), Y9
-	VMOVDQU 1184(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y2, Y2
+	VMOVDQU 1152(CX), Y10
+	VMOVDQU 1184(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y2, Y2
-	VMOVDQU 1216(CX), Y9
-	VMOVDQU 1248(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y3, Y3
+	VMOVDQU 1216(CX), Y10
+	VMOVDQU 1248(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y3, Y3
-	VMOVDQU 1280(CX), Y9
-	VMOVDQU 1312(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y4, Y4
+	VMOVDQU 1280(CX), Y10
+	VMOVDQU 1312(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y4, Y4
-	VMOVDQU 1344(CX), Y9
-	VMOVDQU 1376(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y5, Y5
+	VMOVDQU 1344(CX), Y10
+	VMOVDQU 1376(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y5, Y5
-	VMOVDQU 1408(CX), Y9
-	VMOVDQU 1440(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y6, Y6
+	VMOVDQU 1408(CX), Y10
+	VMOVDQU 1440(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y6, Y6
-	VMOVDQU 1472(CX), Y9
-	VMOVDQU 1504(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y7, Y7
+	VMOVDQU 1472(CX), Y10
+	VMOVDQU 1504(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y7, Y7
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y8, Y8
 
 	// Store 8 outputs
-	VMOVDQU Y0, (DI)
+	VMOVDQU Y1, (DI)
 	ADDQ    $0x20, DI
-	VMOVDQU Y1, (R8)
+	VMOVDQU Y2, (R8)
 	ADDQ    $0x20, R8
-	VMOVDQU Y2, (R9)
+	VMOVDQU Y3, (R9)
 	ADDQ    $0x20, R9
-	VMOVDQU Y3, (R10)
+	VMOVDQU Y4, (R10)
 	ADDQ    $0x20, R10
-	VMOVDQU Y4, (R11)
+	VMOVDQU Y5, (R11)
 	ADDQ    $0x20, R11
-	VMOVDQU Y5, (R12)
+	VMOVDQU Y6, (R12)
 	ADDQ    $0x20, R12
-	VMOVDQU Y6, (R13)
+	VMOVDQU Y7, (R13)
 	ADDQ    $0x20, R13
-	VMOVDQU Y7, (SI)
+	VMOVDQU Y8, (SI)
 	ADDQ    $0x20, SI
 
 	// Prepare for next loop
@@ -3113,11 +3184,14 @@ mulAvxTwo_3x8_loop:
 	VZEROUPPER
 
 mulAvxTwo_3x8_end:
+	MOVQ X0, BP
 	RET
 
 // func mulAvxTwo_4x1(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX2, SSE2
-TEXT ·mulAvxTwo_4x1(SB), NOSPLIT, $8-88
+TEXT ·mulAvxTwo_4x1(SB), NOSPLIT, $0-88
+	MOVQ BP, X0
+
 	// Loading all tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 12 YMM used
@@ -3126,14 +3200,14 @@ TEXT ·mulAvxTwo_4x1(SB), NOSPLIT, $8-88
 	SHRQ    $0x05, AX
 	TESTQ   AX, AX
 	JZ      mulAvxTwo_4x1_end
-	VMOVDQU (CX), Y0
-	VMOVDQU 32(CX), Y1
-	VMOVDQU 64(CX), Y2
-	VMOVDQU 96(CX), Y3
-	VMOVDQU 128(CX), Y4
-	VMOVDQU 160(CX), Y5
-	VMOVDQU 192(CX), Y6
-	VMOVDQU 224(CX), Y7
+	VMOVDQU (CX), Y1
+	VMOVDQU 32(CX), Y2
+	VMOVDQU 64(CX), Y3
+	VMOVDQU 96(CX), Y4
+	VMOVDQU 128(CX), Y5
+	VMOVDQU 160(CX), Y6
+	VMOVDQU 192(CX), Y7
+	VMOVDQU 224(CX), Y8
 	MOVQ    in_base+24(FP), CX
 	MOVQ    (CX), DX
 	MOVQ    24(CX), BX
@@ -3152,59 +3226,59 @@ TEXT ·mulAvxTwo_4x1(SB), NOSPLIT, $8-88
 	ADDQ         DI, BP
 	ADDQ         DI, CX
 	MOVQ         $0x0000000f, DI
-	MOVQ         DI, X9
-	VPBROADCASTB X9, Y9
+	MOVQ         DI, X10
+	VPBROADCASTB X10, Y10
 
 mulAvxTwo_4x1_loop:
 	// Clear 1 outputs
-	VPXOR Y8, Y8, Y8
+	VPXOR Y9, Y9, Y9
 
 	// Load and process 32 bytes from input 0 to 1 outputs
-	VMOVDQU (DX), Y10
+	VMOVDQU (DX), Y11
 	ADDQ    $0x20, DX
-	VPSRLQ  $0x04, Y10, Y11
-	VPAND   Y9, Y10, Y10
-	VPAND   Y9, Y11, Y11
-	VPSHUFB Y10, Y0, Y10
+	VPSRLQ  $0x04, Y11, Y12
+	VPAND   Y10, Y11, Y11
+	VPAND   Y10, Y12, Y12
 	VPSHUFB Y11, Y1, Y11
-	VPXOR   Y10, Y11, Y10
-	VPXOR   Y10, Y8, Y8
+	VPSHUFB Y12, Y2, Y12
+	VPXOR   Y11, Y12, Y11
+	VPXOR   Y11, Y9, Y9
 
 	// Load and process 32 bytes from input 1 to 1 outputs
-	VMOVDQU (BX), Y10
+	VMOVDQU (BX), Y11
 	ADDQ    $0x20, BX
-	VPSRLQ  $0x04, Y10, Y11
-	VPAND   Y9, Y10, Y10
-	VPAND   Y9, Y11, Y11
-	VPSHUFB Y10, Y2, Y10
+	VPSRLQ  $0x04, Y11, Y12
+	VPAND   Y10, Y11, Y11
+	VPAND   Y10, Y12, Y12
 	VPSHUFB Y11, Y3, Y11
-	VPXOR   Y10, Y11, Y10
-	VPXOR   Y10, Y8, Y8
+	VPSHUFB Y12, Y4, Y12
+	VPXOR   Y11, Y12, Y11
+	VPXOR   Y11, Y9, Y9
 
 	// Load and process 32 bytes from input 2 to 1 outputs
-	VMOVDQU (BP), Y10
+	VMOVDQU (BP), Y11
 	ADDQ    $0x20, BP
-	VPSRLQ  $0x04, Y10, Y11
-	VPAND   Y9, Y10, Y10
-	VPAND   Y9, Y11, Y11
-	VPSHUFB Y10, Y4, Y10
+	VPSRLQ  $0x04, Y11, Y12
+	VPAND   Y10, Y11, Y11
+	VPAND   Y10, Y12, Y12
 	VPSHUFB Y11, Y5, Y11
-	VPXOR   Y10, Y11, Y10
-	VPXOR   Y10, Y8, Y8
+	VPSHUFB Y12, Y6, Y12
+	VPXOR   Y11, Y12, Y11
+	VPXOR   Y11, Y9, Y9
 
 	// Load and process 32 bytes from input 3 to 1 outputs
-	VMOVDQU (CX), Y10
+	VMOVDQU (CX), Y11
 	ADDQ    $0x20, CX
-	VPSRLQ  $0x04, Y10, Y11
-	VPAND   Y9, Y10, Y10
-	VPAND   Y9, Y11, Y11
-	VPSHUFB Y10, Y6, Y10
+	VPSRLQ  $0x04, Y11, Y12
+	VPAND   Y10, Y11, Y11
+	VPAND   Y10, Y12, Y12
 	VPSHUFB Y11, Y7, Y11
-	VPXOR   Y10, Y11, Y10
-	VPXOR   Y10, Y8, Y8
+	VPSHUFB Y12, Y8, Y12
+	VPXOR   Y11, Y12, Y11
+	VPXOR   Y11, Y9, Y9
 
 	// Store 1 outputs
-	VMOVDQU Y8, (SI)
+	VMOVDQU Y9, (SI)
 	ADDQ    $0x20, SI
 
 	// Prepare for next loop
@@ -3213,11 +3287,14 @@ mulAvxTwo_4x1_loop:
 	VZEROUPPER
 
 mulAvxTwo_4x1_end:
+	MOVQ X0, BP
 	RET
 
 // func mulAvxTwo_4x2(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX2, SSE2
-TEXT ·mulAvxTwo_4x2(SB), NOSPLIT, $8-88
+TEXT ·mulAvxTwo_4x2(SB), NOSPLIT, $0-88
+	MOVQ BP, X0
+
 	// Loading no tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 23 YMM used
@@ -3246,94 +3323,94 @@ TEXT ·mulAvxTwo_4x2(SB), NOSPLIT, $8-88
 	ADDQ         R9, SI
 	ADDQ         R9, DX
 	MOVQ         $0x0000000f, R9
-	MOVQ         R9, X2
-	VPBROADCASTB X2, Y2
+	MOVQ         R9, X3
+	VPBROADCASTB X3, Y3
 
 mulAvxTwo_4x2_loop:
 	// Clear 2 outputs
-	VPXOR Y0, Y0, Y0
 	VPXOR Y1, Y1, Y1
+	VPXOR Y2, Y2, Y2
 
 	// Load and process 32 bytes from input 0 to 2 outputs
-	VMOVDQU (BX), Y5
+	VMOVDQU (BX), Y6
 	ADDQ    $0x20, BX
-	VPSRLQ  $0x04, Y5, Y6
-	VPAND   Y2, Y5, Y5
-	VPAND   Y2, Y6, Y6
-	VMOVDQU (CX), Y3
-	VMOVDQU 32(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSRLQ  $0x04, Y6, Y7
+	VPAND   Y3, Y6, Y6
+	VPAND   Y3, Y7, Y7
+	VMOVDQU (CX), Y4
+	VMOVDQU 32(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y0, Y0
-	VMOVDQU 64(CX), Y3
-	VMOVDQU 96(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y1, Y1
+	VMOVDQU 64(CX), Y4
+	VMOVDQU 96(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y1, Y1
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 1 to 2 outputs
-	VMOVDQU (BP), Y5
+	VMOVDQU (BP), Y6
 	ADDQ    $0x20, BP
-	VPSRLQ  $0x04, Y5, Y6
-	VPAND   Y2, Y5, Y5
-	VPAND   Y2, Y6, Y6
-	VMOVDQU 128(CX), Y3
-	VMOVDQU 160(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSRLQ  $0x04, Y6, Y7
+	VPAND   Y3, Y6, Y6
+	VPAND   Y3, Y7, Y7
+	VMOVDQU 128(CX), Y4
+	VMOVDQU 160(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y0, Y0
-	VMOVDQU 192(CX), Y3
-	VMOVDQU 224(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y1, Y1
+	VMOVDQU 192(CX), Y4
+	VMOVDQU 224(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y1, Y1
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 2 to 2 outputs
-	VMOVDQU (SI), Y5
+	VMOVDQU (SI), Y6
 	ADDQ    $0x20, SI
-	VPSRLQ  $0x04, Y5, Y6
-	VPAND   Y2, Y5, Y5
-	VPAND   Y2, Y6, Y6
-	VMOVDQU 256(CX), Y3
-	VMOVDQU 288(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSRLQ  $0x04, Y6, Y7
+	VPAND   Y3, Y6, Y6
+	VPAND   Y3, Y7, Y7
+	VMOVDQU 256(CX), Y4
+	VMOVDQU 288(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y0, Y0
-	VMOVDQU 320(CX), Y3
-	VMOVDQU 352(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y1, Y1
+	VMOVDQU 320(CX), Y4
+	VMOVDQU 352(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y1, Y1
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 3 to 2 outputs
-	VMOVDQU (DX), Y5
+	VMOVDQU (DX), Y6
 	ADDQ    $0x20, DX
-	VPSRLQ  $0x04, Y5, Y6
-	VPAND   Y2, Y5, Y5
-	VPAND   Y2, Y6, Y6
-	VMOVDQU 384(CX), Y3
-	VMOVDQU 416(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSRLQ  $0x04, Y6, Y7
+	VPAND   Y3, Y6, Y6
+	VPAND   Y3, Y7, Y7
+	VMOVDQU 384(CX), Y4
+	VMOVDQU 416(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y0, Y0
-	VMOVDQU 448(CX), Y3
-	VMOVDQU 480(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y1, Y1
+	VMOVDQU 448(CX), Y4
+	VMOVDQU 480(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y1, Y1
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y2, Y2
 
 	// Store 2 outputs
-	VMOVDQU Y0, (R8)
+	VMOVDQU Y1, (R8)
 	ADDQ    $0x20, R8
-	VMOVDQU Y1, (DI)
+	VMOVDQU Y2, (DI)
 	ADDQ    $0x20, DI
 
 	// Prepare for next loop
@@ -3342,11 +3419,14 @@ mulAvxTwo_4x2_loop:
 	VZEROUPPER
 
 mulAvxTwo_4x2_end:
+	MOVQ X0, BP
 	RET
 
 // func mulAvxTwo_4x3(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX2, SSE2
-TEXT ·mulAvxTwo_4x3(SB), NOSPLIT, $8-88
+TEXT ·mulAvxTwo_4x3(SB), NOSPLIT, $0-88
+	MOVQ BP, X0
+
 	// Loading no tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 32 YMM used
@@ -3377,121 +3457,121 @@ TEXT ·mulAvxTwo_4x3(SB), NOSPLIT, $8-88
 	ADDQ         R10, SI
 	ADDQ         R10, DX
 	MOVQ         $0x0000000f, R10
-	MOVQ         R10, X3
-	VPBROADCASTB X3, Y3
+	MOVQ         R10, X4
+	VPBROADCASTB X4, Y4
 
 mulAvxTwo_4x3_loop:
 	// Clear 3 outputs
-	VPXOR Y0, Y0, Y0
 	VPXOR Y1, Y1, Y1
 	VPXOR Y2, Y2, Y2
+	VPXOR Y3, Y3, Y3
 
 	// Load and process 32 bytes from input 0 to 3 outputs
-	VMOVDQU (BX), Y6
+	VMOVDQU (BX), Y7
 	ADDQ    $0x20, BX
-	VPSRLQ  $0x04, Y6, Y7
-	VPAND   Y3, Y6, Y6
-	VPAND   Y3, Y7, Y7
-	VMOVDQU (CX), Y4
-	VMOVDQU 32(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSRLQ  $0x04, Y7, Y8
+	VPAND   Y4, Y7, Y7
+	VPAND   Y4, Y8, Y8
+	VMOVDQU (CX), Y5
+	VMOVDQU 32(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y0, Y0
-	VMOVDQU 64(CX), Y4
-	VMOVDQU 96(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y1, Y1
+	VMOVDQU 64(CX), Y5
+	VMOVDQU 96(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y1, Y1
-	VMOVDQU 128(CX), Y4
-	VMOVDQU 160(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y2, Y2
+	VMOVDQU 128(CX), Y5
+	VMOVDQU 160(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y2, Y2
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 1 to 3 outputs
-	VMOVDQU (BP), Y6
+	VMOVDQU (BP), Y7
 	ADDQ    $0x20, BP
-	VPSRLQ  $0x04, Y6, Y7
-	VPAND   Y3, Y6, Y6
-	VPAND   Y3, Y7, Y7
-	VMOVDQU 192(CX), Y4
-	VMOVDQU 224(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSRLQ  $0x04, Y7, Y8
+	VPAND   Y4, Y7, Y7
+	VPAND   Y4, Y8, Y8
+	VMOVDQU 192(CX), Y5
+	VMOVDQU 224(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y0, Y0
-	VMOVDQU 256(CX), Y4
-	VMOVDQU 288(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y1, Y1
+	VMOVDQU 256(CX), Y5
+	VMOVDQU 288(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y1, Y1
-	VMOVDQU 320(CX), Y4
-	VMOVDQU 352(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y2, Y2
+	VMOVDQU 320(CX), Y5
+	VMOVDQU 352(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y2, Y2
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 2 to 3 outputs
-	VMOVDQU (SI), Y6
+	VMOVDQU (SI), Y7
 	ADDQ    $0x20, SI
-	VPSRLQ  $0x04, Y6, Y7
-	VPAND   Y3, Y6, Y6
-	VPAND   Y3, Y7, Y7
-	VMOVDQU 384(CX), Y4
-	VMOVDQU 416(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSRLQ  $0x04, Y7, Y8
+	VPAND   Y4, Y7, Y7
+	VPAND   Y4, Y8, Y8
+	VMOVDQU 384(CX), Y5
+	VMOVDQU 416(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y0, Y0
-	VMOVDQU 448(CX), Y4
-	VMOVDQU 480(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y1, Y1
+	VMOVDQU 448(CX), Y5
+	VMOVDQU 480(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y1, Y1
-	VMOVDQU 512(CX), Y4
-	VMOVDQU 544(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y2, Y2
+	VMOVDQU 512(CX), Y5
+	VMOVDQU 544(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y2, Y2
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 3 to 3 outputs
-	VMOVDQU (DX), Y6
+	VMOVDQU (DX), Y7
 	ADDQ    $0x20, DX
-	VPSRLQ  $0x04, Y6, Y7
-	VPAND   Y3, Y6, Y6
-	VPAND   Y3, Y7, Y7
-	VMOVDQU 576(CX), Y4
-	VMOVDQU 608(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSRLQ  $0x04, Y7, Y8
+	VPAND   Y4, Y7, Y7
+	VPAND   Y4, Y8, Y8
+	VMOVDQU 576(CX), Y5
+	VMOVDQU 608(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y0, Y0
-	VMOVDQU 640(CX), Y4
-	VMOVDQU 672(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y1, Y1
+	VMOVDQU 640(CX), Y5
+	VMOVDQU 672(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y1, Y1
-	VMOVDQU 704(CX), Y4
-	VMOVDQU 736(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y2, Y2
+	VMOVDQU 704(CX), Y5
+	VMOVDQU 736(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y2, Y2
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y3, Y3
 
 	// Store 3 outputs
-	VMOVDQU Y0, (R8)
+	VMOVDQU Y1, (R8)
 	ADDQ    $0x20, R8
-	VMOVDQU Y1, (R9)
+	VMOVDQU Y2, (R9)
 	ADDQ    $0x20, R9
-	VMOVDQU Y2, (DI)
+	VMOVDQU Y3, (DI)
 	ADDQ    $0x20, DI
 
 	// Prepare for next loop
@@ -3500,11 +3580,14 @@ mulAvxTwo_4x3_loop:
 	VZEROUPPER
 
 mulAvxTwo_4x3_end:
+	MOVQ X0, BP
 	RET
 
 // func mulAvxTwo_4x4(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX2, SSE2
-TEXT ·mulAvxTwo_4x4(SB), NOSPLIT, $8-88
+TEXT ·mulAvxTwo_4x4(SB), NOSPLIT, $0-88
+	MOVQ BP, X0
+
 	// Loading no tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 41 YMM used
@@ -3537,148 +3620,148 @@ TEXT ·mulAvxTwo_4x4(SB), NOSPLIT, $8-88
 	ADDQ         R11, SI
 	ADDQ         R11, DX
 	MOVQ         $0x0000000f, R11
-	MOVQ         R11, X4
-	VPBROADCASTB X4, Y4
+	MOVQ         R11, X5
+	VPBROADCASTB X5, Y5
 
 mulAvxTwo_4x4_loop:
 	// Clear 4 outputs
-	VPXOR Y0, Y0, Y0
 	VPXOR Y1, Y1, Y1
 	VPXOR Y2, Y2, Y2
 	VPXOR Y3, Y3, Y3
+	VPXOR Y4, Y4, Y4
 
 	// Load and process 32 bytes from input 0 to 4 outputs
-	VMOVDQU (BX), Y7
+	VMOVDQU (BX), Y8
 	ADDQ    $0x20, BX
-	VPSRLQ  $0x04, Y7, Y8
-	VPAND   Y4, Y7, Y7
-	VPAND   Y4, Y8, Y8
-	VMOVDQU (CX), Y5
-	VMOVDQU 32(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSRLQ  $0x04, Y8, Y9
+	VPAND   Y5, Y8, Y8
+	VPAND   Y5, Y9, Y9
+	VMOVDQU (CX), Y6
+	VMOVDQU 32(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y0, Y0
-	VMOVDQU 64(CX), Y5
-	VMOVDQU 96(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y1, Y1
+	VMOVDQU 64(CX), Y6
+	VMOVDQU 96(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y1, Y1
-	VMOVDQU 128(CX), Y5
-	VMOVDQU 160(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y2, Y2
+	VMOVDQU 128(CX), Y6
+	VMOVDQU 160(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y2, Y2
-	VMOVDQU 192(CX), Y5
-	VMOVDQU 224(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y3, Y3
+	VMOVDQU 192(CX), Y6
+	VMOVDQU 224(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y3, Y3
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 1 to 4 outputs
-	VMOVDQU (BP), Y7
+	VMOVDQU (BP), Y8
 	ADDQ    $0x20, BP
-	VPSRLQ  $0x04, Y7, Y8
-	VPAND   Y4, Y7, Y7
-	VPAND   Y4, Y8, Y8
-	VMOVDQU 256(CX), Y5
-	VMOVDQU 288(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSRLQ  $0x04, Y8, Y9
+	VPAND   Y5, Y8, Y8
+	VPAND   Y5, Y9, Y9
+	VMOVDQU 256(CX), Y6
+	VMOVDQU 288(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y0, Y0
-	VMOVDQU 320(CX), Y5
-	VMOVDQU 352(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y1, Y1
+	VMOVDQU 320(CX), Y6
+	VMOVDQU 352(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y1, Y1
-	VMOVDQU 384(CX), Y5
-	VMOVDQU 416(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y2, Y2
+	VMOVDQU 384(CX), Y6
+	VMOVDQU 416(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y2, Y2
-	VMOVDQU 448(CX), Y5
-	VMOVDQU 480(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y3, Y3
+	VMOVDQU 448(CX), Y6
+	VMOVDQU 480(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y3, Y3
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 2 to 4 outputs
-	VMOVDQU (SI), Y7
+	VMOVDQU (SI), Y8
 	ADDQ    $0x20, SI
-	VPSRLQ  $0x04, Y7, Y8
-	VPAND   Y4, Y7, Y7
-	VPAND   Y4, Y8, Y8
-	VMOVDQU 512(CX), Y5
-	VMOVDQU 544(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSRLQ  $0x04, Y8, Y9
+	VPAND   Y5, Y8, Y8
+	VPAND   Y5, Y9, Y9
+	VMOVDQU 512(CX), Y6
+	VMOVDQU 544(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y0, Y0
-	VMOVDQU 576(CX), Y5
-	VMOVDQU 608(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y1, Y1
+	VMOVDQU 576(CX), Y6
+	VMOVDQU 608(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y1, Y1
-	VMOVDQU 640(CX), Y5
-	VMOVDQU 672(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y2, Y2
+	VMOVDQU 640(CX), Y6
+	VMOVDQU 672(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y2, Y2
-	VMOVDQU 704(CX), Y5
-	VMOVDQU 736(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y3, Y3
+	VMOVDQU 704(CX), Y6
+	VMOVDQU 736(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y3, Y3
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 3 to 4 outputs
-	VMOVDQU (DX), Y7
+	VMOVDQU (DX), Y8
 	ADDQ    $0x20, DX
-	VPSRLQ  $0x04, Y7, Y8
-	VPAND   Y4, Y7, Y7
-	VPAND   Y4, Y8, Y8
-	VMOVDQU 768(CX), Y5
-	VMOVDQU 800(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSRLQ  $0x04, Y8, Y9
+	VPAND   Y5, Y8, Y8
+	VPAND   Y5, Y9, Y9
+	VMOVDQU 768(CX), Y6
+	VMOVDQU 800(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y0, Y0
-	VMOVDQU 832(CX), Y5
-	VMOVDQU 864(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y1, Y1
+	VMOVDQU 832(CX), Y6
+	VMOVDQU 864(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y1, Y1
-	VMOVDQU 896(CX), Y5
-	VMOVDQU 928(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y2, Y2
+	VMOVDQU 896(CX), Y6
+	VMOVDQU 928(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y2, Y2
-	VMOVDQU 960(CX), Y5
-	VMOVDQU 992(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y3, Y3
+	VMOVDQU 960(CX), Y6
+	VMOVDQU 992(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y3, Y3
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y4, Y4
 
 	// Store 4 outputs
-	VMOVDQU Y0, (R8)
+	VMOVDQU Y1, (R8)
 	ADDQ    $0x20, R8
-	VMOVDQU Y1, (R9)
+	VMOVDQU Y2, (R9)
 	ADDQ    $0x20, R9
-	VMOVDQU Y2, (R10)
+	VMOVDQU Y3, (R10)
 	ADDQ    $0x20, R10
-	VMOVDQU Y3, (DI)
+	VMOVDQU Y4, (DI)
 	ADDQ    $0x20, DI
 
 	// Prepare for next loop
@@ -3687,11 +3770,14 @@ mulAvxTwo_4x4_loop:
 	VZEROUPPER
 
 mulAvxTwo_4x4_end:
+	MOVQ X0, BP
 	RET
 
 // func mulAvxTwo_4x5(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX2, SSE2
-TEXT ·mulAvxTwo_4x5(SB), NOSPLIT, $8-88
+TEXT ·mulAvxTwo_4x5(SB), NOSPLIT, $0-88
+	MOVQ BP, X0
+
 	// Loading no tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 50 YMM used
@@ -3726,175 +3812,175 @@ TEXT ·mulAvxTwo_4x5(SB), NOSPLIT, $8-88
 	ADDQ         R12, SI
 	ADDQ         R12, DX
 	MOVQ         $0x0000000f, R12
-	MOVQ         R12, X5
-	VPBROADCASTB X5, Y5
+	MOVQ         R12, X6
+	VPBROADCASTB X6, Y6
 
 mulAvxTwo_4x5_loop:
 	// Clear 5 outputs
-	VPXOR Y0, Y0, Y0
 	VPXOR Y1, Y1, Y1
 	VPXOR Y2, Y2, Y2
 	VPXOR Y3, Y3, Y3
 	VPXOR Y4, Y4, Y4
+	VPXOR Y5, Y5, Y5
 
 	// Load and process 32 bytes from input 0 to 5 outputs
-	VMOVDQU (BX), Y8
+	VMOVDQU (BX), Y9
 	ADDQ    $0x20, BX
-	VPSRLQ  $0x04, Y8, Y9
-	VPAND   Y5, Y8, Y8
-	VPAND   Y5, Y9, Y9
-	VMOVDQU (CX), Y6
-	VMOVDQU 32(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSRLQ  $0x04, Y9, Y10
+	VPAND   Y6, Y9, Y9
+	VPAND   Y6, Y10, Y10
+	VMOVDQU (CX), Y7
+	VMOVDQU 32(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y0, Y0
-	VMOVDQU 64(CX), Y6
-	VMOVDQU 96(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y1, Y1
+	VMOVDQU 64(CX), Y7
+	VMOVDQU 96(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y1, Y1
-	VMOVDQU 128(CX), Y6
-	VMOVDQU 160(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y2, Y2
+	VMOVDQU 128(CX), Y7
+	VMOVDQU 160(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y2, Y2
-	VMOVDQU 192(CX), Y6
-	VMOVDQU 224(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y3, Y3
+	VMOVDQU 192(CX), Y7
+	VMOVDQU 224(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y3, Y3
-	VMOVDQU 256(CX), Y6
-	VMOVDQU 288(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y4, Y4
+	VMOVDQU 256(CX), Y7
+	VMOVDQU 288(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y4, Y4
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 1 to 5 outputs
-	VMOVDQU (BP), Y8
+	VMOVDQU (BP), Y9
 	ADDQ    $0x20, BP
-	VPSRLQ  $0x04, Y8, Y9
-	VPAND   Y5, Y8, Y8
-	VPAND   Y5, Y9, Y9
-	VMOVDQU 320(CX), Y6
-	VMOVDQU 352(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSRLQ  $0x04, Y9, Y10
+	VPAND   Y6, Y9, Y9
+	VPAND   Y6, Y10, Y10
+	VMOVDQU 320(CX), Y7
+	VMOVDQU 352(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y0, Y0
-	VMOVDQU 384(CX), Y6
-	VMOVDQU 416(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y1, Y1
+	VMOVDQU 384(CX), Y7
+	VMOVDQU 416(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y1, Y1
-	VMOVDQU 448(CX), Y6
-	VMOVDQU 480(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y2, Y2
+	VMOVDQU 448(CX), Y7
+	VMOVDQU 480(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y2, Y2
-	VMOVDQU 512(CX), Y6
-	VMOVDQU 544(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y3, Y3
+	VMOVDQU 512(CX), Y7
+	VMOVDQU 544(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y3, Y3
-	VMOVDQU 576(CX), Y6
-	VMOVDQU 608(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y4, Y4
+	VMOVDQU 576(CX), Y7
+	VMOVDQU 608(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y4, Y4
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 2 to 5 outputs
-	VMOVDQU (SI), Y8
+	VMOVDQU (SI), Y9
 	ADDQ    $0x20, SI
-	VPSRLQ  $0x04, Y8, Y9
-	VPAND   Y5, Y8, Y8
-	VPAND   Y5, Y9, Y9
-	VMOVDQU 640(CX), Y6
-	VMOVDQU 672(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSRLQ  $0x04, Y9, Y10
+	VPAND   Y6, Y9, Y9
+	VPAND   Y6, Y10, Y10
+	VMOVDQU 640(CX), Y7
+	VMOVDQU 672(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y0, Y0
-	VMOVDQU 704(CX), Y6
-	VMOVDQU 736(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y1, Y1
+	VMOVDQU 704(CX), Y7
+	VMOVDQU 736(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y1, Y1
-	VMOVDQU 768(CX), Y6
-	VMOVDQU 800(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y2, Y2
+	VMOVDQU 768(CX), Y7
+	VMOVDQU 800(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y2, Y2
-	VMOVDQU 832(CX), Y6
-	VMOVDQU 864(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y3, Y3
+	VMOVDQU 832(CX), Y7
+	VMOVDQU 864(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y3, Y3
-	VMOVDQU 896(CX), Y6
-	VMOVDQU 928(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y4, Y4
+	VMOVDQU 896(CX), Y7
+	VMOVDQU 928(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y4, Y4
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 3 to 5 outputs
-	VMOVDQU (DX), Y8
+	VMOVDQU (DX), Y9
 	ADDQ    $0x20, DX
-	VPSRLQ  $0x04, Y8, Y9
-	VPAND   Y5, Y8, Y8
-	VPAND   Y5, Y9, Y9
-	VMOVDQU 960(CX), Y6
-	VMOVDQU 992(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSRLQ  $0x04, Y9, Y10
+	VPAND   Y6, Y9, Y9
+	VPAND   Y6, Y10, Y10
+	VMOVDQU 960(CX), Y7
+	VMOVDQU 992(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y0, Y0
-	VMOVDQU 1024(CX), Y6
-	VMOVDQU 1056(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y1, Y1
+	VMOVDQU 1024(CX), Y7
+	VMOVDQU 1056(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y1, Y1
-	VMOVDQU 1088(CX), Y6
-	VMOVDQU 1120(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y2, Y2
+	VMOVDQU 1088(CX), Y7
+	VMOVDQU 1120(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y2, Y2
-	VMOVDQU 1152(CX), Y6
-	VMOVDQU 1184(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y3, Y3
+	VMOVDQU 1152(CX), Y7
+	VMOVDQU 1184(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y3, Y3
-	VMOVDQU 1216(CX), Y6
-	VMOVDQU 1248(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y4, Y4
+	VMOVDQU 1216(CX), Y7
+	VMOVDQU 1248(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y4, Y4
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y5, Y5
 
 	// Store 5 outputs
-	VMOVDQU Y0, (R8)
+	VMOVDQU Y1, (R8)
 	ADDQ    $0x20, R8
-	VMOVDQU Y1, (R9)
+	VMOVDQU Y2, (R9)
 	ADDQ    $0x20, R9
-	VMOVDQU Y2, (R10)
+	VMOVDQU Y3, (R10)
 	ADDQ    $0x20, R10
-	VMOVDQU Y3, (R11)
+	VMOVDQU Y4, (R11)
 	ADDQ    $0x20, R11
-	VMOVDQU Y4, (DI)
+	VMOVDQU Y5, (DI)
 	ADDQ    $0x20, DI
 
 	// Prepare for next loop
@@ -3903,11 +3989,14 @@ mulAvxTwo_4x5_loop:
 	VZEROUPPER
 
 mulAvxTwo_4x5_end:
+	MOVQ X0, BP
 	RET
 
 // func mulAvxTwo_4x6(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX2, SSE2
-TEXT ·mulAvxTwo_4x6(SB), NOSPLIT, $8-88
+TEXT ·mulAvxTwo_4x6(SB), NOSPLIT, $0-88
+	MOVQ BP, X0
+
 	// Loading no tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 59 YMM used
@@ -3944,202 +4033,202 @@ TEXT ·mulAvxTwo_4x6(SB), NOSPLIT, $8-88
 	ADDQ         R13, SI
 	ADDQ         R13, DX
 	MOVQ         $0x0000000f, R13
-	MOVQ         R13, X6
-	VPBROADCASTB X6, Y6
+	MOVQ         R13, X7
+	VPBROADCASTB X7, Y7
 
 mulAvxTwo_4x6_loop:
 	// Clear 6 outputs
-	VPXOR Y0, Y0, Y0
 	VPXOR Y1, Y1, Y1
 	VPXOR Y2, Y2, Y2
 	VPXOR Y3, Y3, Y3
 	VPXOR Y4, Y4, Y4
 	VPXOR Y5, Y5, Y5
+	VPXOR Y6, Y6, Y6
 
 	// Load and process 32 bytes from input 0 to 6 outputs
-	VMOVDQU (BX), Y9
+	VMOVDQU (BX), Y10
 	ADDQ    $0x20, BX
-	VPSRLQ  $0x04, Y9, Y10
-	VPAND   Y6, Y9, Y9
-	VPAND   Y6, Y10, Y10
-	VMOVDQU (CX), Y7
-	VMOVDQU 32(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSRLQ  $0x04, Y10, Y11
+	VPAND   Y7, Y10, Y10
+	VPAND   Y7, Y11, Y11
+	VMOVDQU (CX), Y8
+	VMOVDQU 32(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y0, Y0
-	VMOVDQU 64(CX), Y7
-	VMOVDQU 96(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y1, Y1
+	VMOVDQU 64(CX), Y8
+	VMOVDQU 96(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y1, Y1
-	VMOVDQU 128(CX), Y7
-	VMOVDQU 160(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y2, Y2
+	VMOVDQU 128(CX), Y8
+	VMOVDQU 160(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y2, Y2
-	VMOVDQU 192(CX), Y7
-	VMOVDQU 224(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y3, Y3
+	VMOVDQU 192(CX), Y8
+	VMOVDQU 224(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y3, Y3
-	VMOVDQU 256(CX), Y7
-	VMOVDQU 288(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y4, Y4
+	VMOVDQU 256(CX), Y8
+	VMOVDQU 288(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y4, Y4
-	VMOVDQU 320(CX), Y7
-	VMOVDQU 352(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y5, Y5
+	VMOVDQU 320(CX), Y8
+	VMOVDQU 352(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y5, Y5
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y6, Y6
 
 	// Load and process 32 bytes from input 1 to 6 outputs
-	VMOVDQU (BP), Y9
+	VMOVDQU (BP), Y10
 	ADDQ    $0x20, BP
-	VPSRLQ  $0x04, Y9, Y10
-	VPAND   Y6, Y9, Y9
-	VPAND   Y6, Y10, Y10
-	VMOVDQU 384(CX), Y7
-	VMOVDQU 416(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSRLQ  $0x04, Y10, Y11
+	VPAND   Y7, Y10, Y10
+	VPAND   Y7, Y11, Y11
+	VMOVDQU 384(CX), Y8
+	VMOVDQU 416(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y0, Y0
-	VMOVDQU 448(CX), Y7
-	VMOVDQU 480(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y1, Y1
+	VMOVDQU 448(CX), Y8
+	VMOVDQU 480(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y1, Y1
-	VMOVDQU 512(CX), Y7
-	VMOVDQU 544(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y2, Y2
+	VMOVDQU 512(CX), Y8
+	VMOVDQU 544(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y2, Y2
-	VMOVDQU 576(CX), Y7
-	VMOVDQU 608(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y3, Y3
+	VMOVDQU 576(CX), Y8
+	VMOVDQU 608(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y3, Y3
-	VMOVDQU 640(CX), Y7
-	VMOVDQU 672(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y4, Y4
+	VMOVDQU 640(CX), Y8
+	VMOVDQU 672(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y4, Y4
-	VMOVDQU 704(CX), Y7
-	VMOVDQU 736(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y5, Y5
+	VMOVDQU 704(CX), Y8
+	VMOVDQU 736(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y5, Y5
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y6, Y6
 
 	// Load and process 32 bytes from input 2 to 6 outputs
-	VMOVDQU (SI), Y9
+	VMOVDQU (SI), Y10
 	ADDQ    $0x20, SI
-	VPSRLQ  $0x04, Y9, Y10
-	VPAND   Y6, Y9, Y9
-	VPAND   Y6, Y10, Y10
-	VMOVDQU 768(CX), Y7
-	VMOVDQU 800(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSRLQ  $0x04, Y10, Y11
+	VPAND   Y7, Y10, Y10
+	VPAND   Y7, Y11, Y11
+	VMOVDQU 768(CX), Y8
+	VMOVDQU 800(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y0, Y0
-	VMOVDQU 832(CX), Y7
-	VMOVDQU 864(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y1, Y1
+	VMOVDQU 832(CX), Y8
+	VMOVDQU 864(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y1, Y1
-	VMOVDQU 896(CX), Y7
-	VMOVDQU 928(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y2, Y2
+	VMOVDQU 896(CX), Y8
+	VMOVDQU 928(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y2, Y2
-	VMOVDQU 960(CX), Y7
-	VMOVDQU 992(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y3, Y3
+	VMOVDQU 960(CX), Y8
+	VMOVDQU 992(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y3, Y3
-	VMOVDQU 1024(CX), Y7
-	VMOVDQU 1056(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y4, Y4
+	VMOVDQU 1024(CX), Y8
+	VMOVDQU 1056(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y4, Y4
-	VMOVDQU 1088(CX), Y7
-	VMOVDQU 1120(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y5, Y5
+	VMOVDQU 1088(CX), Y8
+	VMOVDQU 1120(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y5, Y5
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y6, Y6
 
 	// Load and process 32 bytes from input 3 to 6 outputs
-	VMOVDQU (DX), Y9
+	VMOVDQU (DX), Y10
 	ADDQ    $0x20, DX
-	VPSRLQ  $0x04, Y9, Y10
-	VPAND   Y6, Y9, Y9
-	VPAND   Y6, Y10, Y10
-	VMOVDQU 1152(CX), Y7
-	VMOVDQU 1184(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSRLQ  $0x04, Y10, Y11
+	VPAND   Y7, Y10, Y10
+	VPAND   Y7, Y11, Y11
+	VMOVDQU 1152(CX), Y8
+	VMOVDQU 1184(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y0, Y0
-	VMOVDQU 1216(CX), Y7
-	VMOVDQU 1248(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y1, Y1
+	VMOVDQU 1216(CX), Y8
+	VMOVDQU 1248(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y1, Y1
-	VMOVDQU 1280(CX), Y7
-	VMOVDQU 1312(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y2, Y2
+	VMOVDQU 1280(CX), Y8
+	VMOVDQU 1312(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y2, Y2
-	VMOVDQU 1344(CX), Y7
-	VMOVDQU 1376(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y3, Y3
+	VMOVDQU 1344(CX), Y8
+	VMOVDQU 1376(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y3, Y3
-	VMOVDQU 1408(CX), Y7
-	VMOVDQU 1440(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y4, Y4
+	VMOVDQU 1408(CX), Y8
+	VMOVDQU 1440(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y4, Y4
-	VMOVDQU 1472(CX), Y7
-	VMOVDQU 1504(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y5, Y5
+	VMOVDQU 1472(CX), Y8
+	VMOVDQU 1504(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y5, Y5
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y6, Y6
 
 	// Store 6 outputs
-	VMOVDQU Y0, (R8)
+	VMOVDQU Y1, (R8)
 	ADDQ    $0x20, R8
-	VMOVDQU Y1, (R9)
+	VMOVDQU Y2, (R9)
 	ADDQ    $0x20, R9
-	VMOVDQU Y2, (R10)
+	VMOVDQU Y3, (R10)
 	ADDQ    $0x20, R10
-	VMOVDQU Y3, (R11)
+	VMOVDQU Y4, (R11)
 	ADDQ    $0x20, R11
-	VMOVDQU Y4, (R12)
+	VMOVDQU Y5, (R12)
 	ADDQ    $0x20, R12
-	VMOVDQU Y5, (DI)
+	VMOVDQU Y6, (DI)
 	ADDQ    $0x20, DI
 
 	// Prepare for next loop
@@ -4148,11 +4237,14 @@ mulAvxTwo_4x6_loop:
 	VZEROUPPER
 
 mulAvxTwo_4x6_end:
+	MOVQ X0, BP
 	RET
 
 // func mulAvxTwo_4x7(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX2, SSE2
-TEXT ·mulAvxTwo_4x7(SB), NOSPLIT, $8-88
+TEXT ·mulAvxTwo_4x7(SB), NOSPLIT, $0-88
+	MOVQ BP, X0
+
 	// Loading no tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 68 YMM used
@@ -4191,229 +4283,229 @@ TEXT ·mulAvxTwo_4x7(SB), NOSPLIT, $8-88
 	ADDQ         R14, SI
 	ADDQ         R14, DX
 	MOVQ         $0x0000000f, R14
-	MOVQ         R14, X7
-	VPBROADCASTB X7, Y7
+	MOVQ         R14, X8
+	VPBROADCASTB X8, Y8
 
 mulAvxTwo_4x7_loop:
 	// Clear 7 outputs
-	VPXOR Y0, Y0, Y0
 	VPXOR Y1, Y1, Y1
 	VPXOR Y2, Y2, Y2
 	VPXOR Y3, Y3, Y3
 	VPXOR Y4, Y4, Y4
 	VPXOR Y5, Y5, Y5
 	VPXOR Y6, Y6, Y6
+	VPXOR Y7, Y7, Y7
 
 	// Load and process 32 bytes from input 0 to 7 outputs
-	VMOVDQU (BX), Y10
+	VMOVDQU (BX), Y11
 	ADDQ    $0x20, BX
-	VPSRLQ  $0x04, Y10, Y11
-	VPAND   Y7, Y10, Y10
-	VPAND   Y7, Y11, Y11
-	VMOVDQU (CX), Y8
-	VMOVDQU 32(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSRLQ  $0x04, Y11, Y12
+	VPAND   Y8, Y11, Y11
+	VPAND   Y8, Y12, Y12
+	VMOVDQU (CX), Y9
+	VMOVDQU 32(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y0, Y0
-	VMOVDQU 64(CX), Y8
-	VMOVDQU 96(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y1, Y1
+	VMOVDQU 64(CX), Y9
+	VMOVDQU 96(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y1, Y1
-	VMOVDQU 128(CX), Y8
-	VMOVDQU 160(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y2, Y2
+	VMOVDQU 128(CX), Y9
+	VMOVDQU 160(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y2, Y2
-	VMOVDQU 192(CX), Y8
-	VMOVDQU 224(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y3, Y3
+	VMOVDQU 192(CX), Y9
+	VMOVDQU 224(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y3, Y3
-	VMOVDQU 256(CX), Y8
-	VMOVDQU 288(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y4, Y4
+	VMOVDQU 256(CX), Y9
+	VMOVDQU 288(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y4, Y4
-	VMOVDQU 320(CX), Y8
-	VMOVDQU 352(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y5, Y5
+	VMOVDQU 320(CX), Y9
+	VMOVDQU 352(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y5, Y5
-	VMOVDQU 384(CX), Y8
-	VMOVDQU 416(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y6, Y6
+	VMOVDQU 384(CX), Y9
+	VMOVDQU 416(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y6, Y6
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y7, Y7
 
 	// Load and process 32 bytes from input 1 to 7 outputs
-	VMOVDQU (BP), Y10
+	VMOVDQU (BP), Y11
 	ADDQ    $0x20, BP
-	VPSRLQ  $0x04, Y10, Y11
-	VPAND   Y7, Y10, Y10
-	VPAND   Y7, Y11, Y11
-	VMOVDQU 448(CX), Y8
-	VMOVDQU 480(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSRLQ  $0x04, Y11, Y12
+	VPAND   Y8, Y11, Y11
+	VPAND   Y8, Y12, Y12
+	VMOVDQU 448(CX), Y9
+	VMOVDQU 480(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y0, Y0
-	VMOVDQU 512(CX), Y8
-	VMOVDQU 544(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y1, Y1
+	VMOVDQU 512(CX), Y9
+	VMOVDQU 544(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y1, Y1
-	VMOVDQU 576(CX), Y8
-	VMOVDQU 608(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y2, Y2
+	VMOVDQU 576(CX), Y9
+	VMOVDQU 608(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y2, Y2
-	VMOVDQU 640(CX), Y8
-	VMOVDQU 672(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y3, Y3
+	VMOVDQU 640(CX), Y9
+	VMOVDQU 672(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y3, Y3
-	VMOVDQU 704(CX), Y8
-	VMOVDQU 736(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y4, Y4
+	VMOVDQU 704(CX), Y9
+	VMOVDQU 736(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y4, Y4
-	VMOVDQU 768(CX), Y8
-	VMOVDQU 800(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y5, Y5
+	VMOVDQU 768(CX), Y9
+	VMOVDQU 800(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y5, Y5
-	VMOVDQU 832(CX), Y8
-	VMOVDQU 864(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y6, Y6
+	VMOVDQU 832(CX), Y9
+	VMOVDQU 864(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y6, Y6
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y7, Y7
 
 	// Load and process 32 bytes from input 2 to 7 outputs
-	VMOVDQU (SI), Y10
+	VMOVDQU (SI), Y11
 	ADDQ    $0x20, SI
-	VPSRLQ  $0x04, Y10, Y11
-	VPAND   Y7, Y10, Y10
-	VPAND   Y7, Y11, Y11
-	VMOVDQU 896(CX), Y8
-	VMOVDQU 928(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSRLQ  $0x04, Y11, Y12
+	VPAND   Y8, Y11, Y11
+	VPAND   Y8, Y12, Y12
+	VMOVDQU 896(CX), Y9
+	VMOVDQU 928(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y0, Y0
-	VMOVDQU 960(CX), Y8
-	VMOVDQU 992(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y1, Y1
+	VMOVDQU 960(CX), Y9
+	VMOVDQU 992(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y1, Y1
-	VMOVDQU 1024(CX), Y8
-	VMOVDQU 1056(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y2, Y2
+	VMOVDQU 1024(CX), Y9
+	VMOVDQU 1056(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y2, Y2
-	VMOVDQU 1088(CX), Y8
-	VMOVDQU 1120(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y3, Y3
+	VMOVDQU 1088(CX), Y9
+	VMOVDQU 1120(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y3, Y3
-	VMOVDQU 1152(CX), Y8
-	VMOVDQU 1184(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y4, Y4
+	VMOVDQU 1152(CX), Y9
+	VMOVDQU 1184(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y4, Y4
-	VMOVDQU 1216(CX), Y8
-	VMOVDQU 1248(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y5, Y5
+	VMOVDQU 1216(CX), Y9
+	VMOVDQU 1248(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y5, Y5
-	VMOVDQU 1280(CX), Y8
-	VMOVDQU 1312(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y6, Y6
+	VMOVDQU 1280(CX), Y9
+	VMOVDQU 1312(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y6, Y6
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y7, Y7
 
 	// Load and process 32 bytes from input 3 to 7 outputs
-	VMOVDQU (DX), Y10
+	VMOVDQU (DX), Y11
 	ADDQ    $0x20, DX
-	VPSRLQ  $0x04, Y10, Y11
-	VPAND   Y7, Y10, Y10
-	VPAND   Y7, Y11, Y11
-	VMOVDQU 1344(CX), Y8
-	VMOVDQU 1376(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSRLQ  $0x04, Y11, Y12
+	VPAND   Y8, Y11, Y11
+	VPAND   Y8, Y12, Y12
+	VMOVDQU 1344(CX), Y9
+	VMOVDQU 1376(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y0, Y0
-	VMOVDQU 1408(CX), Y8
-	VMOVDQU 1440(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y1, Y1
+	VMOVDQU 1408(CX), Y9
+	VMOVDQU 1440(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y1, Y1
-	VMOVDQU 1472(CX), Y8
-	VMOVDQU 1504(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y2, Y2
+	VMOVDQU 1472(CX), Y9
+	VMOVDQU 1504(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y2, Y2
-	VMOVDQU 1536(CX), Y8
-	VMOVDQU 1568(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y3, Y3
+	VMOVDQU 1536(CX), Y9
+	VMOVDQU 1568(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y3, Y3
-	VMOVDQU 1600(CX), Y8
-	VMOVDQU 1632(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y4, Y4
+	VMOVDQU 1600(CX), Y9
+	VMOVDQU 1632(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y4, Y4
-	VMOVDQU 1664(CX), Y8
-	VMOVDQU 1696(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y5, Y5
+	VMOVDQU 1664(CX), Y9
+	VMOVDQU 1696(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y5, Y5
-	VMOVDQU 1728(CX), Y8
-	VMOVDQU 1760(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y6, Y6
+	VMOVDQU 1728(CX), Y9
+	VMOVDQU 1760(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y6, Y6
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y7, Y7
 
 	// Store 7 outputs
-	VMOVDQU Y0, (R8)
+	VMOVDQU Y1, (R8)
 	ADDQ    $0x20, R8
-	VMOVDQU Y1, (R9)
+	VMOVDQU Y2, (R9)
 	ADDQ    $0x20, R9
-	VMOVDQU Y2, (R10)
+	VMOVDQU Y3, (R10)
 	ADDQ    $0x20, R10
-	VMOVDQU Y3, (R11)
+	VMOVDQU Y4, (R11)
 	ADDQ    $0x20, R11
-	VMOVDQU Y4, (R12)
+	VMOVDQU Y5, (R12)
 	ADDQ    $0x20, R12
-	VMOVDQU Y5, (R13)
+	VMOVDQU Y6, (R13)
 	ADDQ    $0x20, R13
-	VMOVDQU Y6, (DI)
+	VMOVDQU Y7, (DI)
 	ADDQ    $0x20, DI
 
 	// Prepare for next loop
@@ -4422,11 +4514,14 @@ mulAvxTwo_4x7_loop:
 	VZEROUPPER
 
 mulAvxTwo_4x7_end:
+	MOVQ X0, BP
 	RET
 
 // func mulAvxTwo_4x8(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX2, SSE2
-TEXT ·mulAvxTwo_4x8(SB), NOSPLIT, $8-88
+TEXT ·mulAvxTwo_4x8(SB), NOSPLIT, $0-88
+	MOVQ BP, X0
+
 	// Loading no tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 77 YMM used
@@ -4467,12 +4562,11 @@ TEXT ·mulAvxTwo_4x8(SB), NOSPLIT, $8-88
 	ADDQ         R15, SI
 	ADDQ         R15, DX
 	MOVQ         $0x0000000f, R15
-	MOVQ         R15, X8
-	VPBROADCASTB X8, Y8
+	MOVQ         R15, X9
+	VPBROADCASTB X9, Y9
 
 mulAvxTwo_4x8_loop:
 	// Clear 8 outputs
-	VPXOR Y0, Y0, Y0
 	VPXOR Y1, Y1, Y1
 	VPXOR Y2, Y2, Y2
 	VPXOR Y3, Y3, Y3
@@ -4480,243 +4574,244 @@ mulAvxTwo_4x8_loop:
 	VPXOR Y5, Y5, Y5
 	VPXOR Y6, Y6, Y6
 	VPXOR Y7, Y7, Y7
+	VPXOR Y8, Y8, Y8
 
 	// Load and process 32 bytes from input 0 to 8 outputs
-	VMOVDQU (BX), Y11
+	VMOVDQU (BX), Y12
 	ADDQ    $0x20, BX
-	VPSRLQ  $0x04, Y11, Y12
-	VPAND   Y8, Y11, Y11
-	VPAND   Y8, Y12, Y12
-	VMOVDQU (CX), Y9
-	VMOVDQU 32(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSRLQ  $0x04, Y12, Y13
+	VPAND   Y9, Y12, Y12
+	VPAND   Y9, Y13, Y13
+	VMOVDQU (CX), Y10
+	VMOVDQU 32(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y0, Y0
-	VMOVDQU 64(CX), Y9
-	VMOVDQU 96(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y1, Y1
+	VMOVDQU 64(CX), Y10
+	VMOVDQU 96(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y1, Y1
-	VMOVDQU 128(CX), Y9
-	VMOVDQU 160(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y2, Y2
+	VMOVDQU 128(CX), Y10
+	VMOVDQU 160(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y2, Y2
-	VMOVDQU 192(CX), Y9
-	VMOVDQU 224(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y3, Y3
+	VMOVDQU 192(CX), Y10
+	VMOVDQU 224(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y3, Y3
-	VMOVDQU 256(CX), Y9
-	VMOVDQU 288(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y4, Y4
+	VMOVDQU 256(CX), Y10
+	VMOVDQU 288(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y4, Y4
-	VMOVDQU 320(CX), Y9
-	VMOVDQU 352(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y5, Y5
+	VMOVDQU 320(CX), Y10
+	VMOVDQU 352(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y5, Y5
-	VMOVDQU 384(CX), Y9
-	VMOVDQU 416(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y6, Y6
+	VMOVDQU 384(CX), Y10
+	VMOVDQU 416(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y6, Y6
-	VMOVDQU 448(CX), Y9
-	VMOVDQU 480(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y7, Y7
+	VMOVDQU 448(CX), Y10
+	VMOVDQU 480(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y7, Y7
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y8, Y8
 
 	// Load and process 32 bytes from input 1 to 8 outputs
-	VMOVDQU (BP), Y11
+	VMOVDQU (BP), Y12
 	ADDQ    $0x20, BP
-	VPSRLQ  $0x04, Y11, Y12
-	VPAND   Y8, Y11, Y11
-	VPAND   Y8, Y12, Y12
-	VMOVDQU 512(CX), Y9
-	VMOVDQU 544(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSRLQ  $0x04, Y12, Y13
+	VPAND   Y9, Y12, Y12
+	VPAND   Y9, Y13, Y13
+	VMOVDQU 512(CX), Y10
+	VMOVDQU 544(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y0, Y0
-	VMOVDQU 576(CX), Y9
-	VMOVDQU 608(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y1, Y1
+	VMOVDQU 576(CX), Y10
+	VMOVDQU 608(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y1, Y1
-	VMOVDQU 640(CX), Y9
-	VMOVDQU 672(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y2, Y2
+	VMOVDQU 640(CX), Y10
+	VMOVDQU 672(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y2, Y2
-	VMOVDQU 704(CX), Y9
-	VMOVDQU 736(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y3, Y3
+	VMOVDQU 704(CX), Y10
+	VMOVDQU 736(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y3, Y3
-	VMOVDQU 768(CX), Y9
-	VMOVDQU 800(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y4, Y4
+	VMOVDQU 768(CX), Y10
+	VMOVDQU 800(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y4, Y4
-	VMOVDQU 832(CX), Y9
-	VMOVDQU 864(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y5, Y5
+	VMOVDQU 832(CX), Y10
+	VMOVDQU 864(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y5, Y5
-	VMOVDQU 896(CX), Y9
-	VMOVDQU 928(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y6, Y6
+	VMOVDQU 896(CX), Y10
+	VMOVDQU 928(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y6, Y6
-	VMOVDQU 960(CX), Y9
-	VMOVDQU 992(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y7, Y7
+	VMOVDQU 960(CX), Y10
+	VMOVDQU 992(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y7, Y7
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y8, Y8
 
 	// Load and process 32 bytes from input 2 to 8 outputs
-	VMOVDQU (SI), Y11
+	VMOVDQU (SI), Y12
 	ADDQ    $0x20, SI
-	VPSRLQ  $0x04, Y11, Y12
-	VPAND   Y8, Y11, Y11
-	VPAND   Y8, Y12, Y12
-	VMOVDQU 1024(CX), Y9
-	VMOVDQU 1056(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSRLQ  $0x04, Y12, Y13
+	VPAND   Y9, Y12, Y12
+	VPAND   Y9, Y13, Y13
+	VMOVDQU 1024(CX), Y10
+	VMOVDQU 1056(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y0, Y0
-	VMOVDQU 1088(CX), Y9
-	VMOVDQU 1120(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y1, Y1
+	VMOVDQU 1088(CX), Y10
+	VMOVDQU 1120(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y1, Y1
-	VMOVDQU 1152(CX), Y9
-	VMOVDQU 1184(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y2, Y2
+	VMOVDQU 1152(CX), Y10
+	VMOVDQU 1184(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y2, Y2
-	VMOVDQU 1216(CX), Y9
-	VMOVDQU 1248(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y3, Y3
+	VMOVDQU 1216(CX), Y10
+	VMOVDQU 1248(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y3, Y3
-	VMOVDQU 1280(CX), Y9
-	VMOVDQU 1312(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y4, Y4
+	VMOVDQU 1280(CX), Y10
+	VMOVDQU 1312(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y4, Y4
-	VMOVDQU 1344(CX), Y9
-	VMOVDQU 1376(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y5, Y5
+	VMOVDQU 1344(CX), Y10
+	VMOVDQU 1376(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y5, Y5
-	VMOVDQU 1408(CX), Y9
-	VMOVDQU 1440(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y6, Y6
+	VMOVDQU 1408(CX), Y10
+	VMOVDQU 1440(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y6, Y6
-	VMOVDQU 1472(CX), Y9
-	VMOVDQU 1504(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y7, Y7
+	VMOVDQU 1472(CX), Y10
+	VMOVDQU 1504(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y7, Y7
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y8, Y8
 
 	// Load and process 32 bytes from input 3 to 8 outputs
-	VMOVDQU (DX), Y11
+	VMOVDQU (DX), Y12
 	ADDQ    $0x20, DX
-	VPSRLQ  $0x04, Y11, Y12
-	VPAND   Y8, Y11, Y11
-	VPAND   Y8, Y12, Y12
-	VMOVDQU 1536(CX), Y9
-	VMOVDQU 1568(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSRLQ  $0x04, Y12, Y13
+	VPAND   Y9, Y12, Y12
+	VPAND   Y9, Y13, Y13
+	VMOVDQU 1536(CX), Y10
+	VMOVDQU 1568(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y0, Y0
-	VMOVDQU 1600(CX), Y9
-	VMOVDQU 1632(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y1, Y1
+	VMOVDQU 1600(CX), Y10
+	VMOVDQU 1632(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y1, Y1
-	VMOVDQU 1664(CX), Y9
-	VMOVDQU 1696(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y2, Y2
+	VMOVDQU 1664(CX), Y10
+	VMOVDQU 1696(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y2, Y2
-	VMOVDQU 1728(CX), Y9
-	VMOVDQU 1760(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y3, Y3
+	VMOVDQU 1728(CX), Y10
+	VMOVDQU 1760(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y3, Y3
-	VMOVDQU 1792(CX), Y9
-	VMOVDQU 1824(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y4, Y4
+	VMOVDQU 1792(CX), Y10
+	VMOVDQU 1824(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y4, Y4
-	VMOVDQU 1856(CX), Y9
-	VMOVDQU 1888(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y5, Y5
+	VMOVDQU 1856(CX), Y10
+	VMOVDQU 1888(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y5, Y5
-	VMOVDQU 1920(CX), Y9
-	VMOVDQU 1952(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y6, Y6
+	VMOVDQU 1920(CX), Y10
+	VMOVDQU 1952(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y6, Y6
-	VMOVDQU 1984(CX), Y9
-	VMOVDQU 2016(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y7, Y7
+	VMOVDQU 1984(CX), Y10
+	VMOVDQU 2016(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y7, Y7
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y8, Y8
 
 	// Store 8 outputs
-	VMOVDQU Y0, (R8)
+	VMOVDQU Y1, (R8)
 	ADDQ    $0x20, R8
-	VMOVDQU Y1, (R9)
+	VMOVDQU Y2, (R9)
 	ADDQ    $0x20, R9
-	VMOVDQU Y2, (R10)
+	VMOVDQU Y3, (R10)
 	ADDQ    $0x20, R10
-	VMOVDQU Y3, (R11)
+	VMOVDQU Y4, (R11)
 	ADDQ    $0x20, R11
-	VMOVDQU Y4, (R12)
+	VMOVDQU Y5, (R12)
 	ADDQ    $0x20, R12
-	VMOVDQU Y5, (R13)
+	VMOVDQU Y6, (R13)
 	ADDQ    $0x20, R13
-	VMOVDQU Y6, (R14)
+	VMOVDQU Y7, (R14)
 	ADDQ    $0x20, R14
-	VMOVDQU Y7, (DI)
+	VMOVDQU Y8, (DI)
 	ADDQ    $0x20, DI
 
 	// Prepare for next loop
@@ -4725,11 +4820,14 @@ mulAvxTwo_4x8_loop:
 	VZEROUPPER
 
 mulAvxTwo_4x8_end:
+	MOVQ X0, BP
 	RET
 
 // func mulAvxTwo_5x1(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX2, SSE2
-TEXT ·mulAvxTwo_5x1(SB), NOSPLIT, $8-88
+TEXT ·mulAvxTwo_5x1(SB), NOSPLIT, $0-88
+	MOVQ BP, X0
+
 	// Loading all tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 14 YMM used
@@ -4738,16 +4836,16 @@ TEXT ·mulAvxTwo_5x1(SB), NOSPLIT, $8-88
 	SHRQ    $0x05, AX
 	TESTQ   AX, AX
 	JZ      mulAvxTwo_5x1_end
-	VMOVDQU (CX), Y0
-	VMOVDQU 32(CX), Y1
-	VMOVDQU 64(CX), Y2
-	VMOVDQU 96(CX), Y3
-	VMOVDQU 128(CX), Y4
-	VMOVDQU 160(CX), Y5
-	VMOVDQU 192(CX), Y6
-	VMOVDQU 224(CX), Y7
-	VMOVDQU 256(CX), Y8
-	VMOVDQU 288(CX), Y9
+	VMOVDQU (CX), Y1
+	VMOVDQU 32(CX), Y2
+	VMOVDQU 64(CX), Y3
+	VMOVDQU 96(CX), Y4
+	VMOVDQU 128(CX), Y5
+	VMOVDQU 160(CX), Y6
+	VMOVDQU 192(CX), Y7
+	VMOVDQU 224(CX), Y8
+	VMOVDQU 256(CX), Y9
+	VMOVDQU 288(CX), Y10
 	MOVQ    in_base+24(FP), CX
 	MOVQ    (CX), DX
 	MOVQ    24(CX), BX
@@ -4768,70 +4866,70 @@ TEXT ·mulAvxTwo_5x1(SB), NOSPLIT, $8-88
 	ADDQ         R8, SI
 	ADDQ         R8, CX
 	MOVQ         $0x0000000f, R8
-	MOVQ         R8, X11
-	VPBROADCASTB X11, Y11
+	MOVQ         R8, X12
+	VPBROADCASTB X12, Y12
 
 mulAvxTwo_5x1_loop:
 	// Clear 1 outputs
-	VPXOR Y10, Y10, Y10
+	VPXOR Y11, Y11, Y11
 
 	// Load and process 32 bytes from input 0 to 1 outputs
-	VMOVDQU (DX), Y12
+	VMOVDQU (DX), Y13
 	ADDQ    $0x20, DX
-	VPSRLQ  $0x04, Y12, Y13
-	VPAND   Y11, Y12, Y12
-	VPAND   Y11, Y13, Y13
-	VPSHUFB Y12, Y0, Y12
+	VPSRLQ  $0x04, Y13, Y14
+	VPAND   Y12, Y13, Y13
+	VPAND   Y12, Y14, Y14
 	VPSHUFB Y13, Y1, Y13
-	VPXOR   Y12, Y13, Y12
-	VPXOR   Y12, Y10, Y10
+	VPSHUFB Y14, Y2, Y14
+	VPXOR   Y13, Y14, Y13
+	VPXOR   Y13, Y11, Y11
 
 	// Load and process 32 bytes from input 1 to 1 outputs
-	VMOVDQU (BX), Y12
+	VMOVDQU (BX), Y13
 	ADDQ    $0x20, BX
-	VPSRLQ  $0x04, Y12, Y13
-	VPAND   Y11, Y12, Y12
-	VPAND   Y11, Y13, Y13
-	VPSHUFB Y12, Y2, Y12
+	VPSRLQ  $0x04, Y13, Y14
+	VPAND   Y12, Y13, Y13
+	VPAND   Y12, Y14, Y14
 	VPSHUFB Y13, Y3, Y13
-	VPXOR   Y12, Y13, Y12
-	VPXOR   Y12, Y10, Y10
+	VPSHUFB Y14, Y4, Y14
+	VPXOR   Y13, Y14, Y13
+	VPXOR   Y13, Y11, Y11
 
 	// Load and process 32 bytes from input 2 to 1 outputs
-	VMOVDQU (BP), Y12
+	VMOVDQU (BP), Y13
 	ADDQ    $0x20, BP
-	VPSRLQ  $0x04, Y12, Y13
-	VPAND   Y11, Y12, Y12
-	VPAND   Y11, Y13, Y13
-	VPSHUFB Y12, Y4, Y12
+	VPSRLQ  $0x04, Y13, Y14
+	VPAND   Y12, Y13, Y13
+	VPAND   Y12, Y14, Y14
 	VPSHUFB Y13, Y5, Y13
-	VPXOR   Y12, Y13, Y12
-	VPXOR   Y12, Y10, Y10
+	VPSHUFB Y14, Y6, Y14
+	VPXOR   Y13, Y14, Y13
+	VPXOR   Y13, Y11, Y11
 
 	// Load and process 32 bytes from input 3 to 1 outputs
-	VMOVDQU (SI), Y12
+	VMOVDQU (SI), Y13
 	ADDQ    $0x20, SI
-	VPSRLQ  $0x04, Y12, Y13
-	VPAND   Y11, Y12, Y12
-	VPAND   Y11, Y13, Y13
-	VPSHUFB Y12, Y6, Y12
+	VPSRLQ  $0x04, Y13, Y14
+	VPAND   Y12, Y13, Y13
+	VPAND   Y12, Y14, Y14
 	VPSHUFB Y13, Y7, Y13
-	VPXOR   Y12, Y13, Y12
-	VPXOR   Y12, Y10, Y10
+	VPSHUFB Y14, Y8, Y14
+	VPXOR   Y13, Y14, Y13
+	VPXOR   Y13, Y11, Y11
 
 	// Load and process 32 bytes from input 4 to 1 outputs
-	VMOVDQU (CX), Y12
+	VMOVDQU (CX), Y13
 	ADDQ    $0x20, CX
-	VPSRLQ  $0x04, Y12, Y13
-	VPAND   Y11, Y12, Y12
-	VPAND   Y11, Y13, Y13
-	VPSHUFB Y12, Y8, Y12
+	VPSRLQ  $0x04, Y13, Y14
+	VPAND   Y12, Y13, Y13
+	VPAND   Y12, Y14, Y14
 	VPSHUFB Y13, Y9, Y13
-	VPXOR   Y12, Y13, Y12
-	VPXOR   Y12, Y10, Y10
+	VPSHUFB Y14, Y10, Y14
+	VPXOR   Y13, Y14, Y13
+	VPXOR   Y13, Y11, Y11
 
 	// Store 1 outputs
-	VMOVDQU Y10, (DI)
+	VMOVDQU Y11, (DI)
 	ADDQ    $0x20, DI
 
 	// Prepare for next loop
@@ -4840,11 +4938,14 @@ mulAvxTwo_5x1_loop:
 	VZEROUPPER
 
 mulAvxTwo_5x1_end:
+	MOVQ X0, BP
 	RET
 
 // func mulAvxTwo_5x2(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX2, SSE2
-TEXT ·mulAvxTwo_5x2(SB), NOSPLIT, $8-88
+TEXT ·mulAvxTwo_5x2(SB), NOSPLIT, $0-88
+	MOVQ BP, X0
+
 	// Loading no tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 27 YMM used
@@ -4875,113 +4976,113 @@ TEXT ·mulAvxTwo_5x2(SB), NOSPLIT, $8-88
 	ADDQ         R10, DI
 	ADDQ         R10, DX
 	MOVQ         $0x0000000f, R10
-	MOVQ         R10, X2
-	VPBROADCASTB X2, Y2
+	MOVQ         R10, X3
+	VPBROADCASTB X3, Y3
 
 mulAvxTwo_5x2_loop:
 	// Clear 2 outputs
-	VPXOR Y0, Y0, Y0
 	VPXOR Y1, Y1, Y1
+	VPXOR Y2, Y2, Y2
 
 	// Load and process 32 bytes from input 0 to 2 outputs
-	VMOVDQU (BX), Y5
+	VMOVDQU (BX), Y6
 	ADDQ    $0x20, BX
-	VPSRLQ  $0x04, Y5, Y6
-	VPAND   Y2, Y5, Y5
-	VPAND   Y2, Y6, Y6
-	VMOVDQU (CX), Y3
-	VMOVDQU 32(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSRLQ  $0x04, Y6, Y7
+	VPAND   Y3, Y6, Y6
+	VPAND   Y3, Y7, Y7
+	VMOVDQU (CX), Y4
+	VMOVDQU 32(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y0, Y0
-	VMOVDQU 64(CX), Y3
-	VMOVDQU 96(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y1, Y1
+	VMOVDQU 64(CX), Y4
+	VMOVDQU 96(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y1, Y1
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 1 to 2 outputs
-	VMOVDQU (BP), Y5
+	VMOVDQU (BP), Y6
 	ADDQ    $0x20, BP
-	VPSRLQ  $0x04, Y5, Y6
-	VPAND   Y2, Y5, Y5
-	VPAND   Y2, Y6, Y6
-	VMOVDQU 128(CX), Y3
-	VMOVDQU 160(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSRLQ  $0x04, Y6, Y7
+	VPAND   Y3, Y6, Y6
+	VPAND   Y3, Y7, Y7
+	VMOVDQU 128(CX), Y4
+	VMOVDQU 160(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y0, Y0
-	VMOVDQU 192(CX), Y3
-	VMOVDQU 224(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y1, Y1
+	VMOVDQU 192(CX), Y4
+	VMOVDQU 224(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y1, Y1
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 2 to 2 outputs
-	VMOVDQU (SI), Y5
+	VMOVDQU (SI), Y6
 	ADDQ    $0x20, SI
-	VPSRLQ  $0x04, Y5, Y6
-	VPAND   Y2, Y5, Y5
-	VPAND   Y2, Y6, Y6
-	VMOVDQU 256(CX), Y3
-	VMOVDQU 288(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSRLQ  $0x04, Y6, Y7
+	VPAND   Y3, Y6, Y6
+	VPAND   Y3, Y7, Y7
+	VMOVDQU 256(CX), Y4
+	VMOVDQU 288(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y0, Y0
-	VMOVDQU 320(CX), Y3
-	VMOVDQU 352(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y1, Y1
+	VMOVDQU 320(CX), Y4
+	VMOVDQU 352(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y1, Y1
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 3 to 2 outputs
-	VMOVDQU (DI), Y5
+	VMOVDQU (DI), Y6
 	ADDQ    $0x20, DI
-	VPSRLQ  $0x04, Y5, Y6
-	VPAND   Y2, Y5, Y5
-	VPAND   Y2, Y6, Y6
-	VMOVDQU 384(CX), Y3
-	VMOVDQU 416(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSRLQ  $0x04, Y6, Y7
+	VPAND   Y3, Y6, Y6
+	VPAND   Y3, Y7, Y7
+	VMOVDQU 384(CX), Y4
+	VMOVDQU 416(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y0, Y0
-	VMOVDQU 448(CX), Y3
-	VMOVDQU 480(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y1, Y1
+	VMOVDQU 448(CX), Y4
+	VMOVDQU 480(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y1, Y1
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 4 to 2 outputs
-	VMOVDQU (DX), Y5
+	VMOVDQU (DX), Y6
 	ADDQ    $0x20, DX
-	VPSRLQ  $0x04, Y5, Y6
-	VPAND   Y2, Y5, Y5
-	VPAND   Y2, Y6, Y6
-	VMOVDQU 512(CX), Y3
-	VMOVDQU 544(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSRLQ  $0x04, Y6, Y7
+	VPAND   Y3, Y6, Y6
+	VPAND   Y3, Y7, Y7
+	VMOVDQU 512(CX), Y4
+	VMOVDQU 544(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y0, Y0
-	VMOVDQU 576(CX), Y3
-	VMOVDQU 608(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y1, Y1
+	VMOVDQU 576(CX), Y4
+	VMOVDQU 608(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y1, Y1
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y2, Y2
 
 	// Store 2 outputs
-	VMOVDQU Y0, (R9)
+	VMOVDQU Y1, (R9)
 	ADDQ    $0x20, R9
-	VMOVDQU Y1, (R8)
+	VMOVDQU Y2, (R8)
 	ADDQ    $0x20, R8
 
 	// Prepare for next loop
@@ -4990,11 +5091,14 @@ mulAvxTwo_5x2_loop:
 	VZEROUPPER
 
 mulAvxTwo_5x2_end:
+	MOVQ X0, BP
 	RET
 
 // func mulAvxTwo_5x3(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX2, SSE2
-TEXT ·mulAvxTwo_5x3(SB), NOSPLIT, $8-88
+TEXT ·mulAvxTwo_5x3(SB), NOSPLIT, $0-88
+	MOVQ BP, X0
+
 	// Loading no tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 38 YMM used
@@ -5027,146 +5131,146 @@ TEXT ·mulAvxTwo_5x3(SB), NOSPLIT, $8-88
 	ADDQ         R11, DI
 	ADDQ         R11, DX
 	MOVQ         $0x0000000f, R11
-	MOVQ         R11, X3
-	VPBROADCASTB X3, Y3
+	MOVQ         R11, X4
+	VPBROADCASTB X4, Y4
 
 mulAvxTwo_5x3_loop:
 	// Clear 3 outputs
-	VPXOR Y0, Y0, Y0
 	VPXOR Y1, Y1, Y1
 	VPXOR Y2, Y2, Y2
+	VPXOR Y3, Y3, Y3
 
 	// Load and process 32 bytes from input 0 to 3 outputs
-	VMOVDQU (BX), Y6
+	VMOVDQU (BX), Y7
 	ADDQ    $0x20, BX
-	VPSRLQ  $0x04, Y6, Y7
-	VPAND   Y3, Y6, Y6
-	VPAND   Y3, Y7, Y7
-	VMOVDQU (CX), Y4
-	VMOVDQU 32(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSRLQ  $0x04, Y7, Y8
+	VPAND   Y4, Y7, Y7
+	VPAND   Y4, Y8, Y8
+	VMOVDQU (CX), Y5
+	VMOVDQU 32(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y0, Y0
-	VMOVDQU 64(CX), Y4
-	VMOVDQU 96(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y1, Y1
+	VMOVDQU 64(CX), Y5
+	VMOVDQU 96(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y1, Y1
-	VMOVDQU 128(CX), Y4
-	VMOVDQU 160(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y2, Y2
+	VMOVDQU 128(CX), Y5
+	VMOVDQU 160(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y2, Y2
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 1 to 3 outputs
-	VMOVDQU (BP), Y6
+	VMOVDQU (BP), Y7
 	ADDQ    $0x20, BP
-	VPSRLQ  $0x04, Y6, Y7
-	VPAND   Y3, Y6, Y6
-	VPAND   Y3, Y7, Y7
-	VMOVDQU 192(CX), Y4
-	VMOVDQU 224(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSRLQ  $0x04, Y7, Y8
+	VPAND   Y4, Y7, Y7
+	VPAND   Y4, Y8, Y8
+	VMOVDQU 192(CX), Y5
+	VMOVDQU 224(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y0, Y0
-	VMOVDQU 256(CX), Y4
-	VMOVDQU 288(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y1, Y1
+	VMOVDQU 256(CX), Y5
+	VMOVDQU 288(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y1, Y1
-	VMOVDQU 320(CX), Y4
-	VMOVDQU 352(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y2, Y2
+	VMOVDQU 320(CX), Y5
+	VMOVDQU 352(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y2, Y2
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 2 to 3 outputs
-	VMOVDQU (SI), Y6
+	VMOVDQU (SI), Y7
 	ADDQ    $0x20, SI
-	VPSRLQ  $0x04, Y6, Y7
-	VPAND   Y3, Y6, Y6
-	VPAND   Y3, Y7, Y7
-	VMOVDQU 384(CX), Y4
-	VMOVDQU 416(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSRLQ  $0x04, Y7, Y8
+	VPAND   Y4, Y7, Y7
+	VPAND   Y4, Y8, Y8
+	VMOVDQU 384(CX), Y5
+	VMOVDQU 416(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y0, Y0
-	VMOVDQU 448(CX), Y4
-	VMOVDQU 480(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y1, Y1
+	VMOVDQU 448(CX), Y5
+	VMOVDQU 480(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y1, Y1
-	VMOVDQU 512(CX), Y4
-	VMOVDQU 544(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y2, Y2
+	VMOVDQU 512(CX), Y5
+	VMOVDQU 544(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y2, Y2
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 3 to 3 outputs
-	VMOVDQU (DI), Y6
+	VMOVDQU (DI), Y7
 	ADDQ    $0x20, DI
-	VPSRLQ  $0x04, Y6, Y7
-	VPAND   Y3, Y6, Y6
-	VPAND   Y3, Y7, Y7
-	VMOVDQU 576(CX), Y4
-	VMOVDQU 608(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSRLQ  $0x04, Y7, Y8
+	VPAND   Y4, Y7, Y7
+	VPAND   Y4, Y8, Y8
+	VMOVDQU 576(CX), Y5
+	VMOVDQU 608(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y0, Y0
-	VMOVDQU 640(CX), Y4
-	VMOVDQU 672(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y1, Y1
+	VMOVDQU 640(CX), Y5
+	VMOVDQU 672(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y1, Y1
-	VMOVDQU 704(CX), Y4
-	VMOVDQU 736(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y2, Y2
+	VMOVDQU 704(CX), Y5
+	VMOVDQU 736(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y2, Y2
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 4 to 3 outputs
-	VMOVDQU (DX), Y6
+	VMOVDQU (DX), Y7
 	ADDQ    $0x20, DX
-	VPSRLQ  $0x04, Y6, Y7
-	VPAND   Y3, Y6, Y6
-	VPAND   Y3, Y7, Y7
-	VMOVDQU 768(CX), Y4
-	VMOVDQU 800(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSRLQ  $0x04, Y7, Y8
+	VPAND   Y4, Y7, Y7
+	VPAND   Y4, Y8, Y8
+	VMOVDQU 768(CX), Y5
+	VMOVDQU 800(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y0, Y0
-	VMOVDQU 832(CX), Y4
-	VMOVDQU 864(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y1, Y1
+	VMOVDQU 832(CX), Y5
+	VMOVDQU 864(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y1, Y1
-	VMOVDQU 896(CX), Y4
-	VMOVDQU 928(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y2, Y2
+	VMOVDQU 896(CX), Y5
+	VMOVDQU 928(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y2, Y2
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y3, Y3
 
 	// Store 3 outputs
-	VMOVDQU Y0, (R9)
+	VMOVDQU Y1, (R9)
 	ADDQ    $0x20, R9
-	VMOVDQU Y1, (R10)
+	VMOVDQU Y2, (R10)
 	ADDQ    $0x20, R10
-	VMOVDQU Y2, (R8)
+	VMOVDQU Y3, (R8)
 	ADDQ    $0x20, R8
 
 	// Prepare for next loop
@@ -5175,11 +5279,14 @@ mulAvxTwo_5x3_loop:
 	VZEROUPPER
 
 mulAvxTwo_5x3_end:
+	MOVQ X0, BP
 	RET
 
 // func mulAvxTwo_5x4(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX2, SSE2
-TEXT ·mulAvxTwo_5x4(SB), NOSPLIT, $8-88
+TEXT ·mulAvxTwo_5x4(SB), NOSPLIT, $0-88
+	MOVQ BP, X0
+
 	// Loading no tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 49 YMM used
@@ -5214,179 +5321,179 @@ TEXT ·mulAvxTwo_5x4(SB), NOSPLIT, $8-88
 	ADDQ         R12, DI
 	ADDQ         R12, DX
 	MOVQ         $0x0000000f, R12
-	MOVQ         R12, X4
-	VPBROADCASTB X4, Y4
+	MOVQ         R12, X5
+	VPBROADCASTB X5, Y5
 
 mulAvxTwo_5x4_loop:
 	// Clear 4 outputs
-	VPXOR Y0, Y0, Y0
 	VPXOR Y1, Y1, Y1
 	VPXOR Y2, Y2, Y2
 	VPXOR Y3, Y3, Y3
+	VPXOR Y4, Y4, Y4
 
 	// Load and process 32 bytes from input 0 to 4 outputs
-	VMOVDQU (BX), Y7
+	VMOVDQU (BX), Y8
 	ADDQ    $0x20, BX
-	VPSRLQ  $0x04, Y7, Y8
-	VPAND   Y4, Y7, Y7
-	VPAND   Y4, Y8, Y8
-	VMOVDQU (CX), Y5
-	VMOVDQU 32(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSRLQ  $0x04, Y8, Y9
+	VPAND   Y5, Y8, Y8
+	VPAND   Y5, Y9, Y9
+	VMOVDQU (CX), Y6
+	VMOVDQU 32(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y0, Y0
-	VMOVDQU 64(CX), Y5
-	VMOVDQU 96(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y1, Y1
+	VMOVDQU 64(CX), Y6
+	VMOVDQU 96(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y1, Y1
-	VMOVDQU 128(CX), Y5
-	VMOVDQU 160(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y2, Y2
+	VMOVDQU 128(CX), Y6
+	VMOVDQU 160(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y2, Y2
-	VMOVDQU 192(CX), Y5
-	VMOVDQU 224(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y3, Y3
+	VMOVDQU 192(CX), Y6
+	VMOVDQU 224(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y3, Y3
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 1 to 4 outputs
-	VMOVDQU (BP), Y7
+	VMOVDQU (BP), Y8
 	ADDQ    $0x20, BP
-	VPSRLQ  $0x04, Y7, Y8
-	VPAND   Y4, Y7, Y7
-	VPAND   Y4, Y8, Y8
-	VMOVDQU 256(CX), Y5
-	VMOVDQU 288(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSRLQ  $0x04, Y8, Y9
+	VPAND   Y5, Y8, Y8
+	VPAND   Y5, Y9, Y9
+	VMOVDQU 256(CX), Y6
+	VMOVDQU 288(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y0, Y0
-	VMOVDQU 320(CX), Y5
-	VMOVDQU 352(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y1, Y1
+	VMOVDQU 320(CX), Y6
+	VMOVDQU 352(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y1, Y1
-	VMOVDQU 384(CX), Y5
-	VMOVDQU 416(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y2, Y2
+	VMOVDQU 384(CX), Y6
+	VMOVDQU 416(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y2, Y2
-	VMOVDQU 448(CX), Y5
-	VMOVDQU 480(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y3, Y3
+	VMOVDQU 448(CX), Y6
+	VMOVDQU 480(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y3, Y3
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 2 to 4 outputs
-	VMOVDQU (SI), Y7
+	VMOVDQU (SI), Y8
 	ADDQ    $0x20, SI
-	VPSRLQ  $0x04, Y7, Y8
-	VPAND   Y4, Y7, Y7
-	VPAND   Y4, Y8, Y8
-	VMOVDQU 512(CX), Y5
-	VMOVDQU 544(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSRLQ  $0x04, Y8, Y9
+	VPAND   Y5, Y8, Y8
+	VPAND   Y5, Y9, Y9
+	VMOVDQU 512(CX), Y6
+	VMOVDQU 544(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y0, Y0
-	VMOVDQU 576(CX), Y5
-	VMOVDQU 608(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y1, Y1
+	VMOVDQU 576(CX), Y6
+	VMOVDQU 608(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y1, Y1
-	VMOVDQU 640(CX), Y5
-	VMOVDQU 672(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y2, Y2
+	VMOVDQU 640(CX), Y6
+	VMOVDQU 672(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y2, Y2
-	VMOVDQU 704(CX), Y5
-	VMOVDQU 736(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y3, Y3
+	VMOVDQU 704(CX), Y6
+	VMOVDQU 736(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y3, Y3
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 3 to 4 outputs
-	VMOVDQU (DI), Y7
+	VMOVDQU (DI), Y8
 	ADDQ    $0x20, DI
-	VPSRLQ  $0x04, Y7, Y8
-	VPAND   Y4, Y7, Y7
-	VPAND   Y4, Y8, Y8
-	VMOVDQU 768(CX), Y5
-	VMOVDQU 800(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSRLQ  $0x04, Y8, Y9
+	VPAND   Y5, Y8, Y8
+	VPAND   Y5, Y9, Y9
+	VMOVDQU 768(CX), Y6
+	VMOVDQU 800(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y0, Y0
-	VMOVDQU 832(CX), Y5
-	VMOVDQU 864(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y1, Y1
+	VMOVDQU 832(CX), Y6
+	VMOVDQU 864(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y1, Y1
-	VMOVDQU 896(CX), Y5
-	VMOVDQU 928(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y2, Y2
+	VMOVDQU 896(CX), Y6
+	VMOVDQU 928(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y2, Y2
-	VMOVDQU 960(CX), Y5
-	VMOVDQU 992(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y3, Y3
+	VMOVDQU 960(CX), Y6
+	VMOVDQU 992(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y3, Y3
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 4 to 4 outputs
-	VMOVDQU (DX), Y7
+	VMOVDQU (DX), Y8
 	ADDQ    $0x20, DX
-	VPSRLQ  $0x04, Y7, Y8
-	VPAND   Y4, Y7, Y7
-	VPAND   Y4, Y8, Y8
-	VMOVDQU 1024(CX), Y5
-	VMOVDQU 1056(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSRLQ  $0x04, Y8, Y9
+	VPAND   Y5, Y8, Y8
+	VPAND   Y5, Y9, Y9
+	VMOVDQU 1024(CX), Y6
+	VMOVDQU 1056(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y0, Y0
-	VMOVDQU 1088(CX), Y5
-	VMOVDQU 1120(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y1, Y1
+	VMOVDQU 1088(CX), Y6
+	VMOVDQU 1120(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y1, Y1
-	VMOVDQU 1152(CX), Y5
-	VMOVDQU 1184(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y2, Y2
+	VMOVDQU 1152(CX), Y6
+	VMOVDQU 1184(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y2, Y2
-	VMOVDQU 1216(CX), Y5
-	VMOVDQU 1248(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y3, Y3
+	VMOVDQU 1216(CX), Y6
+	VMOVDQU 1248(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y3, Y3
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y4, Y4
 
 	// Store 4 outputs
-	VMOVDQU Y0, (R9)
+	VMOVDQU Y1, (R9)
 	ADDQ    $0x20, R9
-	VMOVDQU Y1, (R10)
+	VMOVDQU Y2, (R10)
 	ADDQ    $0x20, R10
-	VMOVDQU Y2, (R11)
+	VMOVDQU Y3, (R11)
 	ADDQ    $0x20, R11
-	VMOVDQU Y3, (R8)
+	VMOVDQU Y4, (R8)
 	ADDQ    $0x20, R8
 
 	// Prepare for next loop
@@ -5395,11 +5502,14 @@ mulAvxTwo_5x4_loop:
 	VZEROUPPER
 
 mulAvxTwo_5x4_end:
+	MOVQ X0, BP
 	RET
 
 // func mulAvxTwo_5x5(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX2, SSE2
-TEXT ·mulAvxTwo_5x5(SB), NOSPLIT, $8-88
+TEXT ·mulAvxTwo_5x5(SB), NOSPLIT, $0-88
+	MOVQ BP, X0
+
 	// Loading no tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 60 YMM used
@@ -5436,212 +5546,212 @@ TEXT ·mulAvxTwo_5x5(SB), NOSPLIT, $8-88
 	ADDQ         R13, DI
 	ADDQ         R13, DX
 	MOVQ         $0x0000000f, R13
-	MOVQ         R13, X5
-	VPBROADCASTB X5, Y5
+	MOVQ         R13, X6
+	VPBROADCASTB X6, Y6
 
 mulAvxTwo_5x5_loop:
 	// Clear 5 outputs
-	VPXOR Y0, Y0, Y0
 	VPXOR Y1, Y1, Y1
 	VPXOR Y2, Y2, Y2
 	VPXOR Y3, Y3, Y3
 	VPXOR Y4, Y4, Y4
+	VPXOR Y5, Y5, Y5
 
 	// Load and process 32 bytes from input 0 to 5 outputs
-	VMOVDQU (BX), Y8
+	VMOVDQU (BX), Y9
 	ADDQ    $0x20, BX
-	VPSRLQ  $0x04, Y8, Y9
-	VPAND   Y5, Y8, Y8
-	VPAND   Y5, Y9, Y9
-	VMOVDQU (CX), Y6
-	VMOVDQU 32(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSRLQ  $0x04, Y9, Y10
+	VPAND   Y6, Y9, Y9
+	VPAND   Y6, Y10, Y10
+	VMOVDQU (CX), Y7
+	VMOVDQU 32(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y0, Y0
-	VMOVDQU 64(CX), Y6
-	VMOVDQU 96(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y1, Y1
+	VMOVDQU 64(CX), Y7
+	VMOVDQU 96(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y1, Y1
-	VMOVDQU 128(CX), Y6
-	VMOVDQU 160(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y2, Y2
+	VMOVDQU 128(CX), Y7
+	VMOVDQU 160(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y2, Y2
-	VMOVDQU 192(CX), Y6
-	VMOVDQU 224(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y3, Y3
+	VMOVDQU 192(CX), Y7
+	VMOVDQU 224(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y3, Y3
-	VMOVDQU 256(CX), Y6
-	VMOVDQU 288(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y4, Y4
+	VMOVDQU 256(CX), Y7
+	VMOVDQU 288(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y4, Y4
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 1 to 5 outputs
-	VMOVDQU (BP), Y8
+	VMOVDQU (BP), Y9
 	ADDQ    $0x20, BP
-	VPSRLQ  $0x04, Y8, Y9
-	VPAND   Y5, Y8, Y8
-	VPAND   Y5, Y9, Y9
-	VMOVDQU 320(CX), Y6
-	VMOVDQU 352(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSRLQ  $0x04, Y9, Y10
+	VPAND   Y6, Y9, Y9
+	VPAND   Y6, Y10, Y10
+	VMOVDQU 320(CX), Y7
+	VMOVDQU 352(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y0, Y0
-	VMOVDQU 384(CX), Y6
-	VMOVDQU 416(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y1, Y1
+	VMOVDQU 384(CX), Y7
+	VMOVDQU 416(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y1, Y1
-	VMOVDQU 448(CX), Y6
-	VMOVDQU 480(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y2, Y2
+	VMOVDQU 448(CX), Y7
+	VMOVDQU 480(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y2, Y2
-	VMOVDQU 512(CX), Y6
-	VMOVDQU 544(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y3, Y3
+	VMOVDQU 512(CX), Y7
+	VMOVDQU 544(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y3, Y3
-	VMOVDQU 576(CX), Y6
-	VMOVDQU 608(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y4, Y4
+	VMOVDQU 576(CX), Y7
+	VMOVDQU 608(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y4, Y4
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 2 to 5 outputs
-	VMOVDQU (SI), Y8
+	VMOVDQU (SI), Y9
 	ADDQ    $0x20, SI
-	VPSRLQ  $0x04, Y8, Y9
-	VPAND   Y5, Y8, Y8
-	VPAND   Y5, Y9, Y9
-	VMOVDQU 640(CX), Y6
-	VMOVDQU 672(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSRLQ  $0x04, Y9, Y10
+	VPAND   Y6, Y9, Y9
+	VPAND   Y6, Y10, Y10
+	VMOVDQU 640(CX), Y7
+	VMOVDQU 672(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y0, Y0
-	VMOVDQU 704(CX), Y6
-	VMOVDQU 736(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y1, Y1
+	VMOVDQU 704(CX), Y7
+	VMOVDQU 736(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y1, Y1
-	VMOVDQU 768(CX), Y6
-	VMOVDQU 800(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y2, Y2
+	VMOVDQU 768(CX), Y7
+	VMOVDQU 800(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y2, Y2
-	VMOVDQU 832(CX), Y6
-	VMOVDQU 864(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y3, Y3
+	VMOVDQU 832(CX), Y7
+	VMOVDQU 864(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y3, Y3
-	VMOVDQU 896(CX), Y6
-	VMOVDQU 928(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y4, Y4
+	VMOVDQU 896(CX), Y7
+	VMOVDQU 928(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y4, Y4
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 3 to 5 outputs
-	VMOVDQU (DI), Y8
+	VMOVDQU (DI), Y9
 	ADDQ    $0x20, DI
-	VPSRLQ  $0x04, Y8, Y9
-	VPAND   Y5, Y8, Y8
-	VPAND   Y5, Y9, Y9
-	VMOVDQU 960(CX), Y6
-	VMOVDQU 992(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSRLQ  $0x04, Y9, Y10
+	VPAND   Y6, Y9, Y9
+	VPAND   Y6, Y10, Y10
+	VMOVDQU 960(CX), Y7
+	VMOVDQU 992(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y0, Y0
-	VMOVDQU 1024(CX), Y6
-	VMOVDQU 1056(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y1, Y1
+	VMOVDQU 1024(CX), Y7
+	VMOVDQU 1056(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y1, Y1
-	VMOVDQU 1088(CX), Y6
-	VMOVDQU 1120(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y2, Y2
+	VMOVDQU 1088(CX), Y7
+	VMOVDQU 1120(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y2, Y2
-	VMOVDQU 1152(CX), Y6
-	VMOVDQU 1184(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y3, Y3
+	VMOVDQU 1152(CX), Y7
+	VMOVDQU 1184(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y3, Y3
-	VMOVDQU 1216(CX), Y6
-	VMOVDQU 1248(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y4, Y4
+	VMOVDQU 1216(CX), Y7
+	VMOVDQU 1248(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y4, Y4
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 4 to 5 outputs
-	VMOVDQU (DX), Y8
+	VMOVDQU (DX), Y9
 	ADDQ    $0x20, DX
-	VPSRLQ  $0x04, Y8, Y9
-	VPAND   Y5, Y8, Y8
-	VPAND   Y5, Y9, Y9
-	VMOVDQU 1280(CX), Y6
-	VMOVDQU 1312(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSRLQ  $0x04, Y9, Y10
+	VPAND   Y6, Y9, Y9
+	VPAND   Y6, Y10, Y10
+	VMOVDQU 1280(CX), Y7
+	VMOVDQU 1312(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y0, Y0
-	VMOVDQU 1344(CX), Y6
-	VMOVDQU 1376(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y1, Y1
+	VMOVDQU 1344(CX), Y7
+	VMOVDQU 1376(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y1, Y1
-	VMOVDQU 1408(CX), Y6
-	VMOVDQU 1440(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y2, Y2
+	VMOVDQU 1408(CX), Y7
+	VMOVDQU 1440(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y2, Y2
-	VMOVDQU 1472(CX), Y6
-	VMOVDQU 1504(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y3, Y3
+	VMOVDQU 1472(CX), Y7
+	VMOVDQU 1504(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y3, Y3
-	VMOVDQU 1536(CX), Y6
-	VMOVDQU 1568(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y4, Y4
+	VMOVDQU 1536(CX), Y7
+	VMOVDQU 1568(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y4, Y4
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y5, Y5
 
 	// Store 5 outputs
-	VMOVDQU Y0, (R9)
+	VMOVDQU Y1, (R9)
 	ADDQ    $0x20, R9
-	VMOVDQU Y1, (R10)
+	VMOVDQU Y2, (R10)
 	ADDQ    $0x20, R10
-	VMOVDQU Y2, (R11)
+	VMOVDQU Y3, (R11)
 	ADDQ    $0x20, R11
-	VMOVDQU Y3, (R12)
+	VMOVDQU Y4, (R12)
 	ADDQ    $0x20, R12
-	VMOVDQU Y4, (R8)
+	VMOVDQU Y5, (R8)
 	ADDQ    $0x20, R8
 
 	// Prepare for next loop
@@ -5650,11 +5760,14 @@ mulAvxTwo_5x5_loop:
 	VZEROUPPER
 
 mulAvxTwo_5x5_end:
+	MOVQ X0, BP
 	RET
 
 // func mulAvxTwo_5x6(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX2, SSE2
-TEXT ·mulAvxTwo_5x6(SB), NOSPLIT, $8-88
+TEXT ·mulAvxTwo_5x6(SB), NOSPLIT, $0-88
+	MOVQ BP, X0
+
 	// Loading no tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 71 YMM used
@@ -5693,245 +5806,245 @@ TEXT ·mulAvxTwo_5x6(SB), NOSPLIT, $8-88
 	ADDQ         R14, DI
 	ADDQ         R14, DX
 	MOVQ         $0x0000000f, R14
-	MOVQ         R14, X6
-	VPBROADCASTB X6, Y6
+	MOVQ         R14, X7
+	VPBROADCASTB X7, Y7
 
 mulAvxTwo_5x6_loop:
 	// Clear 6 outputs
-	VPXOR Y0, Y0, Y0
 	VPXOR Y1, Y1, Y1
 	VPXOR Y2, Y2, Y2
 	VPXOR Y3, Y3, Y3
 	VPXOR Y4, Y4, Y4
 	VPXOR Y5, Y5, Y5
+	VPXOR Y6, Y6, Y6
 
 	// Load and process 32 bytes from input 0 to 6 outputs
-	VMOVDQU (BX), Y9
+	VMOVDQU (BX), Y10
 	ADDQ    $0x20, BX
-	VPSRLQ  $0x04, Y9, Y10
-	VPAND   Y6, Y9, Y9
-	VPAND   Y6, Y10, Y10
-	VMOVDQU (CX), Y7
-	VMOVDQU 32(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSRLQ  $0x04, Y10, Y11
+	VPAND   Y7, Y10, Y10
+	VPAND   Y7, Y11, Y11
+	VMOVDQU (CX), Y8
+	VMOVDQU 32(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y0, Y0
-	VMOVDQU 64(CX), Y7
-	VMOVDQU 96(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y1, Y1
+	VMOVDQU 64(CX), Y8
+	VMOVDQU 96(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y1, Y1
-	VMOVDQU 128(CX), Y7
-	VMOVDQU 160(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y2, Y2
+	VMOVDQU 128(CX), Y8
+	VMOVDQU 160(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y2, Y2
-	VMOVDQU 192(CX), Y7
-	VMOVDQU 224(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y3, Y3
+	VMOVDQU 192(CX), Y8
+	VMOVDQU 224(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y3, Y3
-	VMOVDQU 256(CX), Y7
-	VMOVDQU 288(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y4, Y4
+	VMOVDQU 256(CX), Y8
+	VMOVDQU 288(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y4, Y4
-	VMOVDQU 320(CX), Y7
-	VMOVDQU 352(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y5, Y5
+	VMOVDQU 320(CX), Y8
+	VMOVDQU 352(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y5, Y5
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y6, Y6
 
 	// Load and process 32 bytes from input 1 to 6 outputs
-	VMOVDQU (BP), Y9
+	VMOVDQU (BP), Y10
 	ADDQ    $0x20, BP
-	VPSRLQ  $0x04, Y9, Y10
-	VPAND   Y6, Y9, Y9
-	VPAND   Y6, Y10, Y10
-	VMOVDQU 384(CX), Y7
-	VMOVDQU 416(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSRLQ  $0x04, Y10, Y11
+	VPAND   Y7, Y10, Y10
+	VPAND   Y7, Y11, Y11
+	VMOVDQU 384(CX), Y8
+	VMOVDQU 416(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y0, Y0
-	VMOVDQU 448(CX), Y7
-	VMOVDQU 480(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y1, Y1
+	VMOVDQU 448(CX), Y8
+	VMOVDQU 480(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y1, Y1
-	VMOVDQU 512(CX), Y7
-	VMOVDQU 544(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y2, Y2
+	VMOVDQU 512(CX), Y8
+	VMOVDQU 544(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y2, Y2
-	VMOVDQU 576(CX), Y7
-	VMOVDQU 608(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y3, Y3
+	VMOVDQU 576(CX), Y8
+	VMOVDQU 608(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y3, Y3
-	VMOVDQU 640(CX), Y7
-	VMOVDQU 672(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y4, Y4
+	VMOVDQU 640(CX), Y8
+	VMOVDQU 672(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y4, Y4
-	VMOVDQU 704(CX), Y7
-	VMOVDQU 736(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y5, Y5
+	VMOVDQU 704(CX), Y8
+	VMOVDQU 736(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y5, Y5
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y6, Y6
 
 	// Load and process 32 bytes from input 2 to 6 outputs
-	VMOVDQU (SI), Y9
+	VMOVDQU (SI), Y10
 	ADDQ    $0x20, SI
-	VPSRLQ  $0x04, Y9, Y10
-	VPAND   Y6, Y9, Y9
-	VPAND   Y6, Y10, Y10
-	VMOVDQU 768(CX), Y7
-	VMOVDQU 800(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSRLQ  $0x04, Y10, Y11
+	VPAND   Y7, Y10, Y10
+	VPAND   Y7, Y11, Y11
+	VMOVDQU 768(CX), Y8
+	VMOVDQU 800(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y0, Y0
-	VMOVDQU 832(CX), Y7
-	VMOVDQU 864(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y1, Y1
+	VMOVDQU 832(CX), Y8
+	VMOVDQU 864(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y1, Y1
-	VMOVDQU 896(CX), Y7
-	VMOVDQU 928(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y2, Y2
+	VMOVDQU 896(CX), Y8
+	VMOVDQU 928(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y2, Y2
-	VMOVDQU 960(CX), Y7
-	VMOVDQU 992(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y3, Y3
+	VMOVDQU 960(CX), Y8
+	VMOVDQU 992(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y3, Y3
-	VMOVDQU 1024(CX), Y7
-	VMOVDQU 1056(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y4, Y4
+	VMOVDQU 1024(CX), Y8
+	VMOVDQU 1056(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y4, Y4
-	VMOVDQU 1088(CX), Y7
-	VMOVDQU 1120(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y5, Y5
+	VMOVDQU 1088(CX), Y8
+	VMOVDQU 1120(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y5, Y5
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y6, Y6
 
 	// Load and process 32 bytes from input 3 to 6 outputs
-	VMOVDQU (DI), Y9
+	VMOVDQU (DI), Y10
 	ADDQ    $0x20, DI
-	VPSRLQ  $0x04, Y9, Y10
-	VPAND   Y6, Y9, Y9
-	VPAND   Y6, Y10, Y10
-	VMOVDQU 1152(CX), Y7
-	VMOVDQU 1184(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSRLQ  $0x04, Y10, Y11
+	VPAND   Y7, Y10, Y10
+	VPAND   Y7, Y11, Y11
+	VMOVDQU 1152(CX), Y8
+	VMOVDQU 1184(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y0, Y0
-	VMOVDQU 1216(CX), Y7
-	VMOVDQU 1248(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y1, Y1
+	VMOVDQU 1216(CX), Y8
+	VMOVDQU 1248(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y1, Y1
-	VMOVDQU 1280(CX), Y7
-	VMOVDQU 1312(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y2, Y2
+	VMOVDQU 1280(CX), Y8
+	VMOVDQU 1312(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y2, Y2
-	VMOVDQU 1344(CX), Y7
-	VMOVDQU 1376(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y3, Y3
+	VMOVDQU 1344(CX), Y8
+	VMOVDQU 1376(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y3, Y3
-	VMOVDQU 1408(CX), Y7
-	VMOVDQU 1440(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y4, Y4
+	VMOVDQU 1408(CX), Y8
+	VMOVDQU 1440(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y4, Y4
-	VMOVDQU 1472(CX), Y7
-	VMOVDQU 1504(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y5, Y5
+	VMOVDQU 1472(CX), Y8
+	VMOVDQU 1504(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y5, Y5
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y6, Y6
 
 	// Load and process 32 bytes from input 4 to 6 outputs
-	VMOVDQU (DX), Y9
+	VMOVDQU (DX), Y10
 	ADDQ    $0x20, DX
-	VPSRLQ  $0x04, Y9, Y10
-	VPAND   Y6, Y9, Y9
-	VPAND   Y6, Y10, Y10
-	VMOVDQU 1536(CX), Y7
-	VMOVDQU 1568(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSRLQ  $0x04, Y10, Y11
+	VPAND   Y7, Y10, Y10
+	VPAND   Y7, Y11, Y11
+	VMOVDQU 1536(CX), Y8
+	VMOVDQU 1568(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y0, Y0
-	VMOVDQU 1600(CX), Y7
-	VMOVDQU 1632(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y1, Y1
+	VMOVDQU 1600(CX), Y8
+	VMOVDQU 1632(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y1, Y1
-	VMOVDQU 1664(CX), Y7
-	VMOVDQU 1696(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y2, Y2
+	VMOVDQU 1664(CX), Y8
+	VMOVDQU 1696(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y2, Y2
-	VMOVDQU 1728(CX), Y7
-	VMOVDQU 1760(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y3, Y3
+	VMOVDQU 1728(CX), Y8
+	VMOVDQU 1760(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y3, Y3
-	VMOVDQU 1792(CX), Y7
-	VMOVDQU 1824(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y4, Y4
+	VMOVDQU 1792(CX), Y8
+	VMOVDQU 1824(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y4, Y4
-	VMOVDQU 1856(CX), Y7
-	VMOVDQU 1888(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y5, Y5
+	VMOVDQU 1856(CX), Y8
+	VMOVDQU 1888(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y5, Y5
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y6, Y6
 
 	// Store 6 outputs
-	VMOVDQU Y0, (R9)
+	VMOVDQU Y1, (R9)
 	ADDQ    $0x20, R9
-	VMOVDQU Y1, (R10)
+	VMOVDQU Y2, (R10)
 	ADDQ    $0x20, R10
-	VMOVDQU Y2, (R11)
+	VMOVDQU Y3, (R11)
 	ADDQ    $0x20, R11
-	VMOVDQU Y3, (R12)
+	VMOVDQU Y4, (R12)
 	ADDQ    $0x20, R12
-	VMOVDQU Y4, (R13)
+	VMOVDQU Y5, (R13)
 	ADDQ    $0x20, R13
-	VMOVDQU Y5, (R8)
+	VMOVDQU Y6, (R8)
 	ADDQ    $0x20, R8
 
 	// Prepare for next loop
@@ -5940,11 +6053,14 @@ mulAvxTwo_5x6_loop:
 	VZEROUPPER
 
 mulAvxTwo_5x6_end:
+	MOVQ X0, BP
 	RET
 
 // func mulAvxTwo_5x7(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX2, SSE2
-TEXT ·mulAvxTwo_5x7(SB), NOSPLIT, $8-88
+TEXT ·mulAvxTwo_5x7(SB), NOSPLIT, $0-88
+	MOVQ BP, X0
+
 	// Loading no tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 82 YMM used
@@ -5985,278 +6101,278 @@ TEXT ·mulAvxTwo_5x7(SB), NOSPLIT, $8-88
 	ADDQ         R15, DI
 	ADDQ         R15, DX
 	MOVQ         $0x0000000f, R15
-	MOVQ         R15, X7
-	VPBROADCASTB X7, Y7
+	MOVQ         R15, X8
+	VPBROADCASTB X8, Y8
 
 mulAvxTwo_5x7_loop:
 	// Clear 7 outputs
-	VPXOR Y0, Y0, Y0
 	VPXOR Y1, Y1, Y1
 	VPXOR Y2, Y2, Y2
 	VPXOR Y3, Y3, Y3
 	VPXOR Y4, Y4, Y4
 	VPXOR Y5, Y5, Y5
 	VPXOR Y6, Y6, Y6
+	VPXOR Y7, Y7, Y7
 
 	// Load and process 32 bytes from input 0 to 7 outputs
-	VMOVDQU (BX), Y10
+	VMOVDQU (BX), Y11
 	ADDQ    $0x20, BX
-	VPSRLQ  $0x04, Y10, Y11
-	VPAND   Y7, Y10, Y10
-	VPAND   Y7, Y11, Y11
-	VMOVDQU (CX), Y8
-	VMOVDQU 32(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSRLQ  $0x04, Y11, Y12
+	VPAND   Y8, Y11, Y11
+	VPAND   Y8, Y12, Y12
+	VMOVDQU (CX), Y9
+	VMOVDQU 32(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y0, Y0
-	VMOVDQU 64(CX), Y8
-	VMOVDQU 96(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y1, Y1
+	VMOVDQU 64(CX), Y9
+	VMOVDQU 96(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y1, Y1
-	VMOVDQU 128(CX), Y8
-	VMOVDQU 160(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y2, Y2
+	VMOVDQU 128(CX), Y9
+	VMOVDQU 160(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y2, Y2
-	VMOVDQU 192(CX), Y8
-	VMOVDQU 224(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y3, Y3
+	VMOVDQU 192(CX), Y9
+	VMOVDQU 224(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y3, Y3
-	VMOVDQU 256(CX), Y8
-	VMOVDQU 288(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y4, Y4
+	VMOVDQU 256(CX), Y9
+	VMOVDQU 288(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y4, Y4
-	VMOVDQU 320(CX), Y8
-	VMOVDQU 352(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y5, Y5
+	VMOVDQU 320(CX), Y9
+	VMOVDQU 352(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y5, Y5
-	VMOVDQU 384(CX), Y8
-	VMOVDQU 416(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y6, Y6
+	VMOVDQU 384(CX), Y9
+	VMOVDQU 416(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y6, Y6
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y7, Y7
 
 	// Load and process 32 bytes from input 1 to 7 outputs
-	VMOVDQU (BP), Y10
+	VMOVDQU (BP), Y11
 	ADDQ    $0x20, BP
-	VPSRLQ  $0x04, Y10, Y11
-	VPAND   Y7, Y10, Y10
-	VPAND   Y7, Y11, Y11
-	VMOVDQU 448(CX), Y8
-	VMOVDQU 480(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSRLQ  $0x04, Y11, Y12
+	VPAND   Y8, Y11, Y11
+	VPAND   Y8, Y12, Y12
+	VMOVDQU 448(CX), Y9
+	VMOVDQU 480(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y0, Y0
-	VMOVDQU 512(CX), Y8
-	VMOVDQU 544(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y1, Y1
+	VMOVDQU 512(CX), Y9
+	VMOVDQU 544(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y1, Y1
-	VMOVDQU 576(CX), Y8
-	VMOVDQU 608(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y2, Y2
+	VMOVDQU 576(CX), Y9
+	VMOVDQU 608(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y2, Y2
-	VMOVDQU 640(CX), Y8
-	VMOVDQU 672(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y3, Y3
+	VMOVDQU 640(CX), Y9
+	VMOVDQU 672(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y3, Y3
-	VMOVDQU 704(CX), Y8
-	VMOVDQU 736(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y4, Y4
+	VMOVDQU 704(CX), Y9
+	VMOVDQU 736(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y4, Y4
-	VMOVDQU 768(CX), Y8
-	VMOVDQU 800(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y5, Y5
+	VMOVDQU 768(CX), Y9
+	VMOVDQU 800(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y5, Y5
-	VMOVDQU 832(CX), Y8
-	VMOVDQU 864(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y6, Y6
+	VMOVDQU 832(CX), Y9
+	VMOVDQU 864(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y6, Y6
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y7, Y7
 
 	// Load and process 32 bytes from input 2 to 7 outputs
-	VMOVDQU (SI), Y10
+	VMOVDQU (SI), Y11
 	ADDQ    $0x20, SI
-	VPSRLQ  $0x04, Y10, Y11
-	VPAND   Y7, Y10, Y10
-	VPAND   Y7, Y11, Y11
-	VMOVDQU 896(CX), Y8
-	VMOVDQU 928(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSRLQ  $0x04, Y11, Y12
+	VPAND   Y8, Y11, Y11
+	VPAND   Y8, Y12, Y12
+	VMOVDQU 896(CX), Y9
+	VMOVDQU 928(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y0, Y0
-	VMOVDQU 960(CX), Y8
-	VMOVDQU 992(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y1, Y1
+	VMOVDQU 960(CX), Y9
+	VMOVDQU 992(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y1, Y1
-	VMOVDQU 1024(CX), Y8
-	VMOVDQU 1056(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y2, Y2
+	VMOVDQU 1024(CX), Y9
+	VMOVDQU 1056(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y2, Y2
-	VMOVDQU 1088(CX), Y8
-	VMOVDQU 1120(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y3, Y3
+	VMOVDQU 1088(CX), Y9
+	VMOVDQU 1120(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y3, Y3
-	VMOVDQU 1152(CX), Y8
-	VMOVDQU 1184(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y4, Y4
+	VMOVDQU 1152(CX), Y9
+	VMOVDQU 1184(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y4, Y4
-	VMOVDQU 1216(CX), Y8
-	VMOVDQU 1248(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y5, Y5
+	VMOVDQU 1216(CX), Y9
+	VMOVDQU 1248(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y5, Y5
-	VMOVDQU 1280(CX), Y8
-	VMOVDQU 1312(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y6, Y6
+	VMOVDQU 1280(CX), Y9
+	VMOVDQU 1312(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y6, Y6
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y7, Y7
 
 	// Load and process 32 bytes from input 3 to 7 outputs
-	VMOVDQU (DI), Y10
+	VMOVDQU (DI), Y11
 	ADDQ    $0x20, DI
-	VPSRLQ  $0x04, Y10, Y11
-	VPAND   Y7, Y10, Y10
-	VPAND   Y7, Y11, Y11
-	VMOVDQU 1344(CX), Y8
-	VMOVDQU 1376(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSRLQ  $0x04, Y11, Y12
+	VPAND   Y8, Y11, Y11
+	VPAND   Y8, Y12, Y12
+	VMOVDQU 1344(CX), Y9
+	VMOVDQU 1376(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y0, Y0
-	VMOVDQU 1408(CX), Y8
-	VMOVDQU 1440(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y1, Y1
+	VMOVDQU 1408(CX), Y9
+	VMOVDQU 1440(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y1, Y1
-	VMOVDQU 1472(CX), Y8
-	VMOVDQU 1504(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y2, Y2
+	VMOVDQU 1472(CX), Y9
+	VMOVDQU 1504(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y2, Y2
-	VMOVDQU 1536(CX), Y8
-	VMOVDQU 1568(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y3, Y3
+	VMOVDQU 1536(CX), Y9
+	VMOVDQU 1568(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y3, Y3
-	VMOVDQU 1600(CX), Y8
-	VMOVDQU 1632(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y4, Y4
+	VMOVDQU 1600(CX), Y9
+	VMOVDQU 1632(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y4, Y4
-	VMOVDQU 1664(CX), Y8
-	VMOVDQU 1696(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y5, Y5
+	VMOVDQU 1664(CX), Y9
+	VMOVDQU 1696(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y5, Y5
-	VMOVDQU 1728(CX), Y8
-	VMOVDQU 1760(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y6, Y6
+	VMOVDQU 1728(CX), Y9
+	VMOVDQU 1760(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y6, Y6
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y7, Y7
 
 	// Load and process 32 bytes from input 4 to 7 outputs
-	VMOVDQU (DX), Y10
+	VMOVDQU (DX), Y11
 	ADDQ    $0x20, DX
-	VPSRLQ  $0x04, Y10, Y11
-	VPAND   Y7, Y10, Y10
-	VPAND   Y7, Y11, Y11
-	VMOVDQU 1792(CX), Y8
-	VMOVDQU 1824(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSRLQ  $0x04, Y11, Y12
+	VPAND   Y8, Y11, Y11
+	VPAND   Y8, Y12, Y12
+	VMOVDQU 1792(CX), Y9
+	VMOVDQU 1824(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y0, Y0
-	VMOVDQU 1856(CX), Y8
-	VMOVDQU 1888(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y1, Y1
+	VMOVDQU 1856(CX), Y9
+	VMOVDQU 1888(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y1, Y1
-	VMOVDQU 1920(CX), Y8
-	VMOVDQU 1952(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y2, Y2
+	VMOVDQU 1920(CX), Y9
+	VMOVDQU 1952(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y2, Y2
-	VMOVDQU 1984(CX), Y8
-	VMOVDQU 2016(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y3, Y3
+	VMOVDQU 1984(CX), Y9
+	VMOVDQU 2016(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y3, Y3
-	VMOVDQU 2048(CX), Y8
-	VMOVDQU 2080(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y4, Y4
+	VMOVDQU 2048(CX), Y9
+	VMOVDQU 2080(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y4, Y4
-	VMOVDQU 2112(CX), Y8
-	VMOVDQU 2144(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y5, Y5
+	VMOVDQU 2112(CX), Y9
+	VMOVDQU 2144(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y5, Y5
-	VMOVDQU 2176(CX), Y8
-	VMOVDQU 2208(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y6, Y6
+	VMOVDQU 2176(CX), Y9
+	VMOVDQU 2208(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y6, Y6
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y7, Y7
 
 	// Store 7 outputs
-	VMOVDQU Y0, (R9)
+	VMOVDQU Y1, (R9)
 	ADDQ    $0x20, R9
-	VMOVDQU Y1, (R10)
+	VMOVDQU Y2, (R10)
 	ADDQ    $0x20, R10
-	VMOVDQU Y2, (R11)
+	VMOVDQU Y3, (R11)
 	ADDQ    $0x20, R11
-	VMOVDQU Y3, (R12)
+	VMOVDQU Y4, (R12)
 	ADDQ    $0x20, R12
-	VMOVDQU Y4, (R13)
+	VMOVDQU Y5, (R13)
 	ADDQ    $0x20, R13
-	VMOVDQU Y5, (R14)
+	VMOVDQU Y6, (R14)
 	ADDQ    $0x20, R14
-	VMOVDQU Y6, (R8)
+	VMOVDQU Y7, (R8)
 	ADDQ    $0x20, R8
 
 	// Prepare for next loop
@@ -6265,11 +6381,14 @@ mulAvxTwo_5x7_loop:
 	VZEROUPPER
 
 mulAvxTwo_5x7_end:
+	MOVQ X0, BP
 	RET
 
 // func mulAvxTwo_5x8(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX2, SSE2
-TEXT ·mulAvxTwo_5x8(SB), NOSPLIT, $8-88
+TEXT ·mulAvxTwo_5x8(SB), NOSPLIT, $0-88
+	MOVQ BP, X0
+
 	// Loading no tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 93 YMM used
@@ -6312,14 +6431,13 @@ TEXT ·mulAvxTwo_5x8(SB), NOSPLIT, $8-88
 	ADDQ         R15, SI
 	ADDQ         R15, AX
 	MOVQ         $0x0000000f, R15
-	MOVQ         R15, X8
-	VPBROADCASTB X8, Y8
+	MOVQ         R15, X9
+	VPBROADCASTB X9, Y9
 	MOVQ         n+80(FP), R15
 	SHRQ         $0x05, R15
 
 mulAvxTwo_5x8_loop:
 	// Clear 8 outputs
-	VPXOR Y0, Y0, Y0
 	VPXOR Y1, Y1, Y1
 	VPXOR Y2, Y2, Y2
 	VPXOR Y3, Y3, Y3
@@ -6327,298 +6445,299 @@ mulAvxTwo_5x8_loop:
 	VPXOR Y5, Y5, Y5
 	VPXOR Y6, Y6, Y6
 	VPXOR Y7, Y7, Y7
+	VPXOR Y8, Y8, Y8
 
 	// Load and process 32 bytes from input 0 to 8 outputs
-	VMOVDQU (DX), Y11
+	VMOVDQU (DX), Y12
 	ADDQ    $0x20, DX
-	VPSRLQ  $0x04, Y11, Y12
-	VPAND   Y8, Y11, Y11
-	VPAND   Y8, Y12, Y12
-	VMOVDQU (CX), Y9
-	VMOVDQU 32(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSRLQ  $0x04, Y12, Y13
+	VPAND   Y9, Y12, Y12
+	VPAND   Y9, Y13, Y13
+	VMOVDQU (CX), Y10
+	VMOVDQU 32(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y0, Y0
-	VMOVDQU 64(CX), Y9
-	VMOVDQU 96(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y1, Y1
+	VMOVDQU 64(CX), Y10
+	VMOVDQU 96(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y1, Y1
-	VMOVDQU 128(CX), Y9
-	VMOVDQU 160(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y2, Y2
+	VMOVDQU 128(CX), Y10
+	VMOVDQU 160(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y2, Y2
-	VMOVDQU 192(CX), Y9
-	VMOVDQU 224(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y3, Y3
+	VMOVDQU 192(CX), Y10
+	VMOVDQU 224(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y3, Y3
-	VMOVDQU 256(CX), Y9
-	VMOVDQU 288(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y4, Y4
+	VMOVDQU 256(CX), Y10
+	VMOVDQU 288(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y4, Y4
-	VMOVDQU 320(CX), Y9
-	VMOVDQU 352(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y5, Y5
+	VMOVDQU 320(CX), Y10
+	VMOVDQU 352(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y5, Y5
-	VMOVDQU 384(CX), Y9
-	VMOVDQU 416(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y6, Y6
+	VMOVDQU 384(CX), Y10
+	VMOVDQU 416(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y6, Y6
-	VMOVDQU 448(CX), Y9
-	VMOVDQU 480(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y7, Y7
+	VMOVDQU 448(CX), Y10
+	VMOVDQU 480(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y7, Y7
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y8, Y8
 
 	// Load and process 32 bytes from input 1 to 8 outputs
-	VMOVDQU (BX), Y11
+	VMOVDQU (BX), Y12
 	ADDQ    $0x20, BX
-	VPSRLQ  $0x04, Y11, Y12
-	VPAND   Y8, Y11, Y11
-	VPAND   Y8, Y12, Y12
-	VMOVDQU 512(CX), Y9
-	VMOVDQU 544(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSRLQ  $0x04, Y12, Y13
+	VPAND   Y9, Y12, Y12
+	VPAND   Y9, Y13, Y13
+	VMOVDQU 512(CX), Y10
+	VMOVDQU 544(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y0, Y0
-	VMOVDQU 576(CX), Y9
-	VMOVDQU 608(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y1, Y1
+	VMOVDQU 576(CX), Y10
+	VMOVDQU 608(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y1, Y1
-	VMOVDQU 640(CX), Y9
-	VMOVDQU 672(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y2, Y2
+	VMOVDQU 640(CX), Y10
+	VMOVDQU 672(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y2, Y2
-	VMOVDQU 704(CX), Y9
-	VMOVDQU 736(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y3, Y3
+	VMOVDQU 704(CX), Y10
+	VMOVDQU 736(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y3, Y3
-	VMOVDQU 768(CX), Y9
-	VMOVDQU 800(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y4, Y4
+	VMOVDQU 768(CX), Y10
+	VMOVDQU 800(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y4, Y4
-	VMOVDQU 832(CX), Y9
-	VMOVDQU 864(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y5, Y5
+	VMOVDQU 832(CX), Y10
+	VMOVDQU 864(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y5, Y5
-	VMOVDQU 896(CX), Y9
-	VMOVDQU 928(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y6, Y6
+	VMOVDQU 896(CX), Y10
+	VMOVDQU 928(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y6, Y6
-	VMOVDQU 960(CX), Y9
-	VMOVDQU 992(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y7, Y7
+	VMOVDQU 960(CX), Y10
+	VMOVDQU 992(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y7, Y7
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y8, Y8
 
 	// Load and process 32 bytes from input 2 to 8 outputs
-	VMOVDQU (BP), Y11
+	VMOVDQU (BP), Y12
 	ADDQ    $0x20, BP
-	VPSRLQ  $0x04, Y11, Y12
-	VPAND   Y8, Y11, Y11
-	VPAND   Y8, Y12, Y12
-	VMOVDQU 1024(CX), Y9
-	VMOVDQU 1056(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSRLQ  $0x04, Y12, Y13
+	VPAND   Y9, Y12, Y12
+	VPAND   Y9, Y13, Y13
+	VMOVDQU 1024(CX), Y10
+	VMOVDQU 1056(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y0, Y0
-	VMOVDQU 1088(CX), Y9
-	VMOVDQU 1120(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y1, Y1
+	VMOVDQU 1088(CX), Y10
+	VMOVDQU 1120(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y1, Y1
-	VMOVDQU 1152(CX), Y9
-	VMOVDQU 1184(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y2, Y2
+	VMOVDQU 1152(CX), Y10
+	VMOVDQU 1184(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y2, Y2
-	VMOVDQU 1216(CX), Y9
-	VMOVDQU 1248(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y3, Y3
+	VMOVDQU 1216(CX), Y10
+	VMOVDQU 1248(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y3, Y3
-	VMOVDQU 1280(CX), Y9
-	VMOVDQU 1312(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y4, Y4
+	VMOVDQU 1280(CX), Y10
+	VMOVDQU 1312(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y4, Y4
-	VMOVDQU 1344(CX), Y9
-	VMOVDQU 1376(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y5, Y5
+	VMOVDQU 1344(CX), Y10
+	VMOVDQU 1376(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y5, Y5
-	VMOVDQU 1408(CX), Y9
-	VMOVDQU 1440(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y6, Y6
+	VMOVDQU 1408(CX), Y10
+	VMOVDQU 1440(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y6, Y6
-	VMOVDQU 1472(CX), Y9
-	VMOVDQU 1504(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y7, Y7
+	VMOVDQU 1472(CX), Y10
+	VMOVDQU 1504(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y7, Y7
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y8, Y8
 
 	// Load and process 32 bytes from input 3 to 8 outputs
-	VMOVDQU (SI), Y11
+	VMOVDQU (SI), Y12
 	ADDQ    $0x20, SI
-	VPSRLQ  $0x04, Y11, Y12
-	VPAND   Y8, Y11, Y11
-	VPAND   Y8, Y12, Y12
-	VMOVDQU 1536(CX), Y9
-	VMOVDQU 1568(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSRLQ  $0x04, Y12, Y13
+	VPAND   Y9, Y12, Y12
+	VPAND   Y9, Y13, Y13
+	VMOVDQU 1536(CX), Y10
+	VMOVDQU 1568(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y0, Y0
-	VMOVDQU 1600(CX), Y9
-	VMOVDQU 1632(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y1, Y1
+	VMOVDQU 1600(CX), Y10
+	VMOVDQU 1632(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y1, Y1
-	VMOVDQU 1664(CX), Y9
-	VMOVDQU 1696(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y2, Y2
+	VMOVDQU 1664(CX), Y10
+	VMOVDQU 1696(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y2, Y2
-	VMOVDQU 1728(CX), Y9
-	VMOVDQU 1760(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y3, Y3
+	VMOVDQU 1728(CX), Y10
+	VMOVDQU 1760(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y3, Y3
-	VMOVDQU 1792(CX), Y9
-	VMOVDQU 1824(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y4, Y4
+	VMOVDQU 1792(CX), Y10
+	VMOVDQU 1824(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y4, Y4
-	VMOVDQU 1856(CX), Y9
-	VMOVDQU 1888(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y5, Y5
+	VMOVDQU 1856(CX), Y10
+	VMOVDQU 1888(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y5, Y5
-	VMOVDQU 1920(CX), Y9
-	VMOVDQU 1952(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y6, Y6
+	VMOVDQU 1920(CX), Y10
+	VMOVDQU 1952(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y6, Y6
-	VMOVDQU 1984(CX), Y9
-	VMOVDQU 2016(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y7, Y7
+	VMOVDQU 1984(CX), Y10
+	VMOVDQU 2016(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y7, Y7
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y8, Y8
 
 	// Load and process 32 bytes from input 4 to 8 outputs
-	VMOVDQU (AX), Y11
+	VMOVDQU (AX), Y12
 	ADDQ    $0x20, AX
-	VPSRLQ  $0x04, Y11, Y12
-	VPAND   Y8, Y11, Y11
-	VPAND   Y8, Y12, Y12
-	VMOVDQU 2048(CX), Y9
-	VMOVDQU 2080(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSRLQ  $0x04, Y12, Y13
+	VPAND   Y9, Y12, Y12
+	VPAND   Y9, Y13, Y13
+	VMOVDQU 2048(CX), Y10
+	VMOVDQU 2080(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y0, Y0
-	VMOVDQU 2112(CX), Y9
-	VMOVDQU 2144(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y1, Y1
+	VMOVDQU 2112(CX), Y10
+	VMOVDQU 2144(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y1, Y1
-	VMOVDQU 2176(CX), Y9
-	VMOVDQU 2208(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y2, Y2
+	VMOVDQU 2176(CX), Y10
+	VMOVDQU 2208(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y2, Y2
-	VMOVDQU 2240(CX), Y9
-	VMOVDQU 2272(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y3, Y3
+	VMOVDQU 2240(CX), Y10
+	VMOVDQU 2272(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y3, Y3
-	VMOVDQU 2304(CX), Y9
-	VMOVDQU 2336(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y4, Y4
+	VMOVDQU 2304(CX), Y10
+	VMOVDQU 2336(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y4, Y4
-	VMOVDQU 2368(CX), Y9
-	VMOVDQU 2400(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y5, Y5
+	VMOVDQU 2368(CX), Y10
+	VMOVDQU 2400(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y5, Y5
-	VMOVDQU 2432(CX), Y9
-	VMOVDQU 2464(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y6, Y6
+	VMOVDQU 2432(CX), Y10
+	VMOVDQU 2464(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y6, Y6
-	VMOVDQU 2496(CX), Y9
-	VMOVDQU 2528(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y7, Y7
+	VMOVDQU 2496(CX), Y10
+	VMOVDQU 2528(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y7, Y7
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y8, Y8
 
 	// Store 8 outputs
-	VMOVDQU Y0, (R8)
+	VMOVDQU Y1, (R8)
 	ADDQ    $0x20, R8
-	VMOVDQU Y1, (R9)
+	VMOVDQU Y2, (R9)
 	ADDQ    $0x20, R9
-	VMOVDQU Y2, (R10)
+	VMOVDQU Y3, (R10)
 	ADDQ    $0x20, R10
-	VMOVDQU Y3, (R11)
+	VMOVDQU Y4, (R11)
 	ADDQ    $0x20, R11
-	VMOVDQU Y4, (R12)
+	VMOVDQU Y5, (R12)
 	ADDQ    $0x20, R12
-	VMOVDQU Y5, (R13)
+	VMOVDQU Y6, (R13)
 	ADDQ    $0x20, R13
-	VMOVDQU Y6, (R14)
+	VMOVDQU Y7, (R14)
 	ADDQ    $0x20, R14
-	VMOVDQU Y7, (DI)
+	VMOVDQU Y8, (DI)
 	ADDQ    $0x20, DI
 
 	// Prepare for next loop
@@ -6627,6 +6746,7 @@ mulAvxTwo_5x8_loop:
 	VZEROUPPER
 
 mulAvxTwo_5x8_end:
+	MOVQ X0, BP
 	RET
 
 // func mulAvxTwo_6x1(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -6761,7 +6881,9 @@ mulAvxTwo_6x1_end:
 
 // func mulAvxTwo_6x2(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX2, SSE2
-TEXT ·mulAvxTwo_6x2(SB), NOSPLIT, $8-88
+TEXT ·mulAvxTwo_6x2(SB), NOSPLIT, $0-88
+	MOVQ BP, X0
+
 	// Loading no tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 31 YMM used
@@ -6794,132 +6916,132 @@ TEXT ·mulAvxTwo_6x2(SB), NOSPLIT, $8-88
 	ADDQ         R11, R8
 	ADDQ         R11, DX
 	MOVQ         $0x0000000f, R11
-	MOVQ         R11, X2
-	VPBROADCASTB X2, Y2
+	MOVQ         R11, X3
+	VPBROADCASTB X3, Y3
 
 mulAvxTwo_6x2_loop:
 	// Clear 2 outputs
-	VPXOR Y0, Y0, Y0
 	VPXOR Y1, Y1, Y1
+	VPXOR Y2, Y2, Y2
 
 	// Load and process 32 bytes from input 0 to 2 outputs
-	VMOVDQU (BX), Y5
+	VMOVDQU (BX), Y6
 	ADDQ    $0x20, BX
-	VPSRLQ  $0x04, Y5, Y6
-	VPAND   Y2, Y5, Y5
-	VPAND   Y2, Y6, Y6
-	VMOVDQU (CX), Y3
-	VMOVDQU 32(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSRLQ  $0x04, Y6, Y7
+	VPAND   Y3, Y6, Y6
+	VPAND   Y3, Y7, Y7
+	VMOVDQU (CX), Y4
+	VMOVDQU 32(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y0, Y0
-	VMOVDQU 64(CX), Y3
-	VMOVDQU 96(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y1, Y1
+	VMOVDQU 64(CX), Y4
+	VMOVDQU 96(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y1, Y1
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 1 to 2 outputs
-	VMOVDQU (BP), Y5
+	VMOVDQU (BP), Y6
 	ADDQ    $0x20, BP
-	VPSRLQ  $0x04, Y5, Y6
-	VPAND   Y2, Y5, Y5
-	VPAND   Y2, Y6, Y6
-	VMOVDQU 128(CX), Y3
-	VMOVDQU 160(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSRLQ  $0x04, Y6, Y7
+	VPAND   Y3, Y6, Y6
+	VPAND   Y3, Y7, Y7
+	VMOVDQU 128(CX), Y4
+	VMOVDQU 160(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y0, Y0
-	VMOVDQU 192(CX), Y3
-	VMOVDQU 224(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y1, Y1
+	VMOVDQU 192(CX), Y4
+	VMOVDQU 224(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y1, Y1
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 2 to 2 outputs
-	VMOVDQU (SI), Y5
+	VMOVDQU (SI), Y6
 	ADDQ    $0x20, SI
-	VPSRLQ  $0x04, Y5, Y6
-	VPAND   Y2, Y5, Y5
-	VPAND   Y2, Y6, Y6
-	VMOVDQU 256(CX), Y3
-	VMOVDQU 288(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSRLQ  $0x04, Y6, Y7
+	VPAND   Y3, Y6, Y6
+	VPAND   Y3, Y7, Y7
+	VMOVDQU 256(CX), Y4
+	VMOVDQU 288(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y0, Y0
-	VMOVDQU 320(CX), Y3
-	VMOVDQU 352(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y1, Y1
+	VMOVDQU 320(CX), Y4
+	VMOVDQU 352(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y1, Y1
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 3 to 2 outputs
-	VMOVDQU (DI), Y5
+	VMOVDQU (DI), Y6
 	ADDQ    $0x20, DI
-	VPSRLQ  $0x04, Y5, Y6
-	VPAND   Y2, Y5, Y5
-	VPAND   Y2, Y6, Y6
-	VMOVDQU 384(CX), Y3
-	VMOVDQU 416(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSRLQ  $0x04, Y6, Y7
+	VPAND   Y3, Y6, Y6
+	VPAND   Y3, Y7, Y7
+	VMOVDQU 384(CX), Y4
+	VMOVDQU 416(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y0, Y0
-	VMOVDQU 448(CX), Y3
-	VMOVDQU 480(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y1, Y1
+	VMOVDQU 448(CX), Y4
+	VMOVDQU 480(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y1, Y1
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 4 to 2 outputs
-	VMOVDQU (R8), Y5
+	VMOVDQU (R8), Y6
 	ADDQ    $0x20, R8
-	VPSRLQ  $0x04, Y5, Y6
-	VPAND   Y2, Y5, Y5
-	VPAND   Y2, Y6, Y6
-	VMOVDQU 512(CX), Y3
-	VMOVDQU 544(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSRLQ  $0x04, Y6, Y7
+	VPAND   Y3, Y6, Y6
+	VPAND   Y3, Y7, Y7
+	VMOVDQU 512(CX), Y4
+	VMOVDQU 544(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y0, Y0
-	VMOVDQU 576(CX), Y3
-	VMOVDQU 608(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y1, Y1
+	VMOVDQU 576(CX), Y4
+	VMOVDQU 608(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y1, Y1
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 5 to 2 outputs
-	VMOVDQU (DX), Y5
+	VMOVDQU (DX), Y6
 	ADDQ    $0x20, DX
-	VPSRLQ  $0x04, Y5, Y6
-	VPAND   Y2, Y5, Y5
-	VPAND   Y2, Y6, Y6
-	VMOVDQU 640(CX), Y3
-	VMOVDQU 672(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSRLQ  $0x04, Y6, Y7
+	VPAND   Y3, Y6, Y6
+	VPAND   Y3, Y7, Y7
+	VMOVDQU 640(CX), Y4
+	VMOVDQU 672(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y0, Y0
-	VMOVDQU 704(CX), Y3
-	VMOVDQU 736(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y1, Y1
+	VMOVDQU 704(CX), Y4
+	VMOVDQU 736(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y1, Y1
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y2, Y2
 
 	// Store 2 outputs
-	VMOVDQU Y0, (R10)
+	VMOVDQU Y1, (R10)
 	ADDQ    $0x20, R10
-	VMOVDQU Y1, (R9)
+	VMOVDQU Y2, (R9)
 	ADDQ    $0x20, R9
 
 	// Prepare for next loop
@@ -6928,11 +7050,14 @@ mulAvxTwo_6x2_loop:
 	VZEROUPPER
 
 mulAvxTwo_6x2_end:
+	MOVQ X0, BP
 	RET
 
 // func mulAvxTwo_6x3(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX2, SSE2
-TEXT ·mulAvxTwo_6x3(SB), NOSPLIT, $8-88
+TEXT ·mulAvxTwo_6x3(SB), NOSPLIT, $0-88
+	MOVQ BP, X0
+
 	// Loading no tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 44 YMM used
@@ -6967,171 +7092,171 @@ TEXT ·mulAvxTwo_6x3(SB), NOSPLIT, $8-88
 	ADDQ         R12, R8
 	ADDQ         R12, DX
 	MOVQ         $0x0000000f, R12
-	MOVQ         R12, X3
-	VPBROADCASTB X3, Y3
+	MOVQ         R12, X4
+	VPBROADCASTB X4, Y4
 
 mulAvxTwo_6x3_loop:
 	// Clear 3 outputs
-	VPXOR Y0, Y0, Y0
 	VPXOR Y1, Y1, Y1
 	VPXOR Y2, Y2, Y2
+	VPXOR Y3, Y3, Y3
 
 	// Load and process 32 bytes from input 0 to 3 outputs
-	VMOVDQU (BX), Y6
+	VMOVDQU (BX), Y7
 	ADDQ    $0x20, BX
-	VPSRLQ  $0x04, Y6, Y7
-	VPAND   Y3, Y6, Y6
-	VPAND   Y3, Y7, Y7
-	VMOVDQU (CX), Y4
-	VMOVDQU 32(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSRLQ  $0x04, Y7, Y8
+	VPAND   Y4, Y7, Y7
+	VPAND   Y4, Y8, Y8
+	VMOVDQU (CX), Y5
+	VMOVDQU 32(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y0, Y0
-	VMOVDQU 64(CX), Y4
-	VMOVDQU 96(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y1, Y1
+	VMOVDQU 64(CX), Y5
+	VMOVDQU 96(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y1, Y1
-	VMOVDQU 128(CX), Y4
-	VMOVDQU 160(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y2, Y2
+	VMOVDQU 128(CX), Y5
+	VMOVDQU 160(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y2, Y2
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 1 to 3 outputs
-	VMOVDQU (BP), Y6
+	VMOVDQU (BP), Y7
 	ADDQ    $0x20, BP
-	VPSRLQ  $0x04, Y6, Y7
-	VPAND   Y3, Y6, Y6
-	VPAND   Y3, Y7, Y7
-	VMOVDQU 192(CX), Y4
-	VMOVDQU 224(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSRLQ  $0x04, Y7, Y8
+	VPAND   Y4, Y7, Y7
+	VPAND   Y4, Y8, Y8
+	VMOVDQU 192(CX), Y5
+	VMOVDQU 224(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y0, Y0
-	VMOVDQU 256(CX), Y4
-	VMOVDQU 288(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y1, Y1
+	VMOVDQU 256(CX), Y5
+	VMOVDQU 288(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y1, Y1
-	VMOVDQU 320(CX), Y4
-	VMOVDQU 352(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y2, Y2
+	VMOVDQU 320(CX), Y5
+	VMOVDQU 352(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y2, Y2
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 2 to 3 outputs
-	VMOVDQU (SI), Y6
+	VMOVDQU (SI), Y7
 	ADDQ    $0x20, SI
-	VPSRLQ  $0x04, Y6, Y7
-	VPAND   Y3, Y6, Y6
-	VPAND   Y3, Y7, Y7
-	VMOVDQU 384(CX), Y4
-	VMOVDQU 416(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSRLQ  $0x04, Y7, Y8
+	VPAND   Y4, Y7, Y7
+	VPAND   Y4, Y8, Y8
+	VMOVDQU 384(CX), Y5
+	VMOVDQU 416(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y0, Y0
-	VMOVDQU 448(CX), Y4
-	VMOVDQU 480(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y1, Y1
+	VMOVDQU 448(CX), Y5
+	VMOVDQU 480(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y1, Y1
-	VMOVDQU 512(CX), Y4
-	VMOVDQU 544(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y2, Y2
+	VMOVDQU 512(CX), Y5
+	VMOVDQU 544(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y2, Y2
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 3 to 3 outputs
-	VMOVDQU (DI), Y6
+	VMOVDQU (DI), Y7
 	ADDQ    $0x20, DI
-	VPSRLQ  $0x04, Y6, Y7
-	VPAND   Y3, Y6, Y6
-	VPAND   Y3, Y7, Y7
-	VMOVDQU 576(CX), Y4
-	VMOVDQU 608(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSRLQ  $0x04, Y7, Y8
+	VPAND   Y4, Y7, Y7
+	VPAND   Y4, Y8, Y8
+	VMOVDQU 576(CX), Y5
+	VMOVDQU 608(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y0, Y0
-	VMOVDQU 640(CX), Y4
-	VMOVDQU 672(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y1, Y1
+	VMOVDQU 640(CX), Y5
+	VMOVDQU 672(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y1, Y1
-	VMOVDQU 704(CX), Y4
-	VMOVDQU 736(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y2, Y2
+	VMOVDQU 704(CX), Y5
+	VMOVDQU 736(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y2, Y2
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 4 to 3 outputs
-	VMOVDQU (R8), Y6
+	VMOVDQU (R8), Y7
 	ADDQ    $0x20, R8
-	VPSRLQ  $0x04, Y6, Y7
-	VPAND   Y3, Y6, Y6
-	VPAND   Y3, Y7, Y7
-	VMOVDQU 768(CX), Y4
-	VMOVDQU 800(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSRLQ  $0x04, Y7, Y8
+	VPAND   Y4, Y7, Y7
+	VPAND   Y4, Y8, Y8
+	VMOVDQU 768(CX), Y5
+	VMOVDQU 800(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y0, Y0
-	VMOVDQU 832(CX), Y4
-	VMOVDQU 864(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y1, Y1
+	VMOVDQU 832(CX), Y5
+	VMOVDQU 864(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y1, Y1
-	VMOVDQU 896(CX), Y4
-	VMOVDQU 928(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y2, Y2
+	VMOVDQU 896(CX), Y5
+	VMOVDQU 928(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y2, Y2
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 5 to 3 outputs
-	VMOVDQU (DX), Y6
+	VMOVDQU (DX), Y7
 	ADDQ    $0x20, DX
-	VPSRLQ  $0x04, Y6, Y7
-	VPAND   Y3, Y6, Y6
-	VPAND   Y3, Y7, Y7
-	VMOVDQU 960(CX), Y4
-	VMOVDQU 992(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSRLQ  $0x04, Y7, Y8
+	VPAND   Y4, Y7, Y7
+	VPAND   Y4, Y8, Y8
+	VMOVDQU 960(CX), Y5
+	VMOVDQU 992(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y0, Y0
-	VMOVDQU 1024(CX), Y4
-	VMOVDQU 1056(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y1, Y1
+	VMOVDQU 1024(CX), Y5
+	VMOVDQU 1056(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y1, Y1
-	VMOVDQU 1088(CX), Y4
-	VMOVDQU 1120(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y2, Y2
+	VMOVDQU 1088(CX), Y5
+	VMOVDQU 1120(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y2, Y2
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y3, Y3
 
 	// Store 3 outputs
-	VMOVDQU Y0, (R10)
+	VMOVDQU Y1, (R10)
 	ADDQ    $0x20, R10
-	VMOVDQU Y1, (R11)
+	VMOVDQU Y2, (R11)
 	ADDQ    $0x20, R11
-	VMOVDQU Y2, (R9)
+	VMOVDQU Y3, (R9)
 	ADDQ    $0x20, R9
 
 	// Prepare for next loop
@@ -7140,11 +7265,14 @@ mulAvxTwo_6x3_loop:
 	VZEROUPPER
 
 mulAvxTwo_6x3_end:
+	MOVQ X0, BP
 	RET
 
 // func mulAvxTwo_6x4(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX2, SSE2
-TEXT ·mulAvxTwo_6x4(SB), NOSPLIT, $8-88
+TEXT ·mulAvxTwo_6x4(SB), NOSPLIT, $0-88
+	MOVQ BP, X0
+
 	// Loading no tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 57 YMM used
@@ -7181,210 +7309,210 @@ TEXT ·mulAvxTwo_6x4(SB), NOSPLIT, $8-88
 	ADDQ         R13, R8
 	ADDQ         R13, DX
 	MOVQ         $0x0000000f, R13
-	MOVQ         R13, X4
-	VPBROADCASTB X4, Y4
+	MOVQ         R13, X5
+	VPBROADCASTB X5, Y5
 
 mulAvxTwo_6x4_loop:
 	// Clear 4 outputs
-	VPXOR Y0, Y0, Y0
 	VPXOR Y1, Y1, Y1
 	VPXOR Y2, Y2, Y2
 	VPXOR Y3, Y3, Y3
+	VPXOR Y4, Y4, Y4
 
 	// Load and process 32 bytes from input 0 to 4 outputs
-	VMOVDQU (BX), Y7
+	VMOVDQU (BX), Y8
 	ADDQ    $0x20, BX
-	VPSRLQ  $0x04, Y7, Y8
-	VPAND   Y4, Y7, Y7
-	VPAND   Y4, Y8, Y8
-	VMOVDQU (CX), Y5
-	VMOVDQU 32(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSRLQ  $0x04, Y8, Y9
+	VPAND   Y5, Y8, Y8
+	VPAND   Y5, Y9, Y9
+	VMOVDQU (CX), Y6
+	VMOVDQU 32(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y0, Y0
-	VMOVDQU 64(CX), Y5
-	VMOVDQU 96(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y1, Y1
+	VMOVDQU 64(CX), Y6
+	VMOVDQU 96(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y1, Y1
-	VMOVDQU 128(CX), Y5
-	VMOVDQU 160(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y2, Y2
+	VMOVDQU 128(CX), Y6
+	VMOVDQU 160(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y2, Y2
-	VMOVDQU 192(CX), Y5
-	VMOVDQU 224(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y3, Y3
+	VMOVDQU 192(CX), Y6
+	VMOVDQU 224(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y3, Y3
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 1 to 4 outputs
-	VMOVDQU (BP), Y7
+	VMOVDQU (BP), Y8
 	ADDQ    $0x20, BP
-	VPSRLQ  $0x04, Y7, Y8
-	VPAND   Y4, Y7, Y7
-	VPAND   Y4, Y8, Y8
-	VMOVDQU 256(CX), Y5
-	VMOVDQU 288(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSRLQ  $0x04, Y8, Y9
+	VPAND   Y5, Y8, Y8
+	VPAND   Y5, Y9, Y9
+	VMOVDQU 256(CX), Y6
+	VMOVDQU 288(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y0, Y0
-	VMOVDQU 320(CX), Y5
-	VMOVDQU 352(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y1, Y1
+	VMOVDQU 320(CX), Y6
+	VMOVDQU 352(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y1, Y1
-	VMOVDQU 384(CX), Y5
-	VMOVDQU 416(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y2, Y2
+	VMOVDQU 384(CX), Y6
+	VMOVDQU 416(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y2, Y2
-	VMOVDQU 448(CX), Y5
-	VMOVDQU 480(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y3, Y3
+	VMOVDQU 448(CX), Y6
+	VMOVDQU 480(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y3, Y3
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 2 to 4 outputs
-	VMOVDQU (SI), Y7
+	VMOVDQU (SI), Y8
 	ADDQ    $0x20, SI
-	VPSRLQ  $0x04, Y7, Y8
-	VPAND   Y4, Y7, Y7
-	VPAND   Y4, Y8, Y8
-	VMOVDQU 512(CX), Y5
-	VMOVDQU 544(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSRLQ  $0x04, Y8, Y9
+	VPAND   Y5, Y8, Y8
+	VPAND   Y5, Y9, Y9
+	VMOVDQU 512(CX), Y6
+	VMOVDQU 544(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y0, Y0
-	VMOVDQU 576(CX), Y5
-	VMOVDQU 608(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y1, Y1
+	VMOVDQU 576(CX), Y6
+	VMOVDQU 608(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y1, Y1
-	VMOVDQU 640(CX), Y5
-	VMOVDQU 672(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y2, Y2
+	VMOVDQU 640(CX), Y6
+	VMOVDQU 672(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y2, Y2
-	VMOVDQU 704(CX), Y5
-	VMOVDQU 736(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y3, Y3
+	VMOVDQU 704(CX), Y6
+	VMOVDQU 736(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y3, Y3
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 3 to 4 outputs
-	VMOVDQU (DI), Y7
+	VMOVDQU (DI), Y8
 	ADDQ    $0x20, DI
-	VPSRLQ  $0x04, Y7, Y8
-	VPAND   Y4, Y7, Y7
-	VPAND   Y4, Y8, Y8
-	VMOVDQU 768(CX), Y5
-	VMOVDQU 800(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSRLQ  $0x04, Y8, Y9
+	VPAND   Y5, Y8, Y8
+	VPAND   Y5, Y9, Y9
+	VMOVDQU 768(CX), Y6
+	VMOVDQU 800(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y0, Y0
-	VMOVDQU 832(CX), Y5
-	VMOVDQU 864(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y1, Y1
+	VMOVDQU 832(CX), Y6
+	VMOVDQU 864(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y1, Y1
-	VMOVDQU 896(CX), Y5
-	VMOVDQU 928(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y2, Y2
+	VMOVDQU 896(CX), Y6
+	VMOVDQU 928(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y2, Y2
-	VMOVDQU 960(CX), Y5
-	VMOVDQU 992(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y3, Y3
+	VMOVDQU 960(CX), Y6
+	VMOVDQU 992(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y3, Y3
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 4 to 4 outputs
-	VMOVDQU (R8), Y7
+	VMOVDQU (R8), Y8
 	ADDQ    $0x20, R8
-	VPSRLQ  $0x04, Y7, Y8
-	VPAND   Y4, Y7, Y7
-	VPAND   Y4, Y8, Y8
-	VMOVDQU 1024(CX), Y5
-	VMOVDQU 1056(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSRLQ  $0x04, Y8, Y9
+	VPAND   Y5, Y8, Y8
+	VPAND   Y5, Y9, Y9
+	VMOVDQU 1024(CX), Y6
+	VMOVDQU 1056(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y0, Y0
-	VMOVDQU 1088(CX), Y5
-	VMOVDQU 1120(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y1, Y1
+	VMOVDQU 1088(CX), Y6
+	VMOVDQU 1120(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y1, Y1
-	VMOVDQU 1152(CX), Y5
-	VMOVDQU 1184(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y2, Y2
+	VMOVDQU 1152(CX), Y6
+	VMOVDQU 1184(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y2, Y2
-	VMOVDQU 1216(CX), Y5
-	VMOVDQU 1248(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y3, Y3
+	VMOVDQU 1216(CX), Y6
+	VMOVDQU 1248(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y3, Y3
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 5 to 4 outputs
-	VMOVDQU (DX), Y7
+	VMOVDQU (DX), Y8
 	ADDQ    $0x20, DX
-	VPSRLQ  $0x04, Y7, Y8
-	VPAND   Y4, Y7, Y7
-	VPAND   Y4, Y8, Y8
-	VMOVDQU 1280(CX), Y5
-	VMOVDQU 1312(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSRLQ  $0x04, Y8, Y9
+	VPAND   Y5, Y8, Y8
+	VPAND   Y5, Y9, Y9
+	VMOVDQU 1280(CX), Y6
+	VMOVDQU 1312(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y0, Y0
-	VMOVDQU 1344(CX), Y5
-	VMOVDQU 1376(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y1, Y1
+	VMOVDQU 1344(CX), Y6
+	VMOVDQU 1376(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y1, Y1
-	VMOVDQU 1408(CX), Y5
-	VMOVDQU 1440(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y2, Y2
+	VMOVDQU 1408(CX), Y6
+	VMOVDQU 1440(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y2, Y2
-	VMOVDQU 1472(CX), Y5
-	VMOVDQU 1504(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y3, Y3
+	VMOVDQU 1472(CX), Y6
+	VMOVDQU 1504(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y3, Y3
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y4, Y4
 
 	// Store 4 outputs
-	VMOVDQU Y0, (R10)
+	VMOVDQU Y1, (R10)
 	ADDQ    $0x20, R10
-	VMOVDQU Y1, (R11)
+	VMOVDQU Y2, (R11)
 	ADDQ    $0x20, R11
-	VMOVDQU Y2, (R12)
+	VMOVDQU Y3, (R12)
 	ADDQ    $0x20, R12
-	VMOVDQU Y3, (R9)
+	VMOVDQU Y4, (R9)
 	ADDQ    $0x20, R9
 
 	// Prepare for next loop
@@ -7393,11 +7521,14 @@ mulAvxTwo_6x4_loop:
 	VZEROUPPER
 
 mulAvxTwo_6x4_end:
+	MOVQ X0, BP
 	RET
 
 // func mulAvxTwo_6x5(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX2, SSE2
-TEXT ·mulAvxTwo_6x5(SB), NOSPLIT, $8-88
+TEXT ·mulAvxTwo_6x5(SB), NOSPLIT, $0-88
+	MOVQ BP, X0
+
 	// Loading no tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 70 YMM used
@@ -7436,249 +7567,249 @@ TEXT ·mulAvxTwo_6x5(SB), NOSPLIT, $8-88
 	ADDQ         R14, R8
 	ADDQ         R14, DX
 	MOVQ         $0x0000000f, R14
-	MOVQ         R14, X5
-	VPBROADCASTB X5, Y5
+	MOVQ         R14, X6
+	VPBROADCASTB X6, Y6
 
 mulAvxTwo_6x5_loop:
 	// Clear 5 outputs
-	VPXOR Y0, Y0, Y0
 	VPXOR Y1, Y1, Y1
 	VPXOR Y2, Y2, Y2
 	VPXOR Y3, Y3, Y3
 	VPXOR Y4, Y4, Y4
+	VPXOR Y5, Y5, Y5
 
 	// Load and process 32 bytes from input 0 to 5 outputs
-	VMOVDQU (BX), Y8
+	VMOVDQU (BX), Y9
 	ADDQ    $0x20, BX
-	VPSRLQ  $0x04, Y8, Y9
-	VPAND   Y5, Y8, Y8
-	VPAND   Y5, Y9, Y9
-	VMOVDQU (CX), Y6
-	VMOVDQU 32(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSRLQ  $0x04, Y9, Y10
+	VPAND   Y6, Y9, Y9
+	VPAND   Y6, Y10, Y10
+	VMOVDQU (CX), Y7
+	VMOVDQU 32(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y0, Y0
-	VMOVDQU 64(CX), Y6
-	VMOVDQU 96(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y1, Y1
+	VMOVDQU 64(CX), Y7
+	VMOVDQU 96(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y1, Y1
-	VMOVDQU 128(CX), Y6
-	VMOVDQU 160(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y2, Y2
+	VMOVDQU 128(CX), Y7
+	VMOVDQU 160(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y2, Y2
-	VMOVDQU 192(CX), Y6
-	VMOVDQU 224(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y3, Y3
+	VMOVDQU 192(CX), Y7
+	VMOVDQU 224(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y3, Y3
-	VMOVDQU 256(CX), Y6
-	VMOVDQU 288(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y4, Y4
+	VMOVDQU 256(CX), Y7
+	VMOVDQU 288(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y4, Y4
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 1 to 5 outputs
-	VMOVDQU (BP), Y8
+	VMOVDQU (BP), Y9
 	ADDQ    $0x20, BP
-	VPSRLQ  $0x04, Y8, Y9
-	VPAND   Y5, Y8, Y8
-	VPAND   Y5, Y9, Y9
-	VMOVDQU 320(CX), Y6
-	VMOVDQU 352(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSRLQ  $0x04, Y9, Y10
+	VPAND   Y6, Y9, Y9
+	VPAND   Y6, Y10, Y10
+	VMOVDQU 320(CX), Y7
+	VMOVDQU 352(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y0, Y0
-	VMOVDQU 384(CX), Y6
-	VMOVDQU 416(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y1, Y1
+	VMOVDQU 384(CX), Y7
+	VMOVDQU 416(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y1, Y1
-	VMOVDQU 448(CX), Y6
-	VMOVDQU 480(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y2, Y2
+	VMOVDQU 448(CX), Y7
+	VMOVDQU 480(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y2, Y2
-	VMOVDQU 512(CX), Y6
-	VMOVDQU 544(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y3, Y3
+	VMOVDQU 512(CX), Y7
+	VMOVDQU 544(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y3, Y3
-	VMOVDQU 576(CX), Y6
-	VMOVDQU 608(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y4, Y4
+	VMOVDQU 576(CX), Y7
+	VMOVDQU 608(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y4, Y4
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 2 to 5 outputs
-	VMOVDQU (SI), Y8
+	VMOVDQU (SI), Y9
 	ADDQ    $0x20, SI
-	VPSRLQ  $0x04, Y8, Y9
-	VPAND   Y5, Y8, Y8
-	VPAND   Y5, Y9, Y9
-	VMOVDQU 640(CX), Y6
-	VMOVDQU 672(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSRLQ  $0x04, Y9, Y10
+	VPAND   Y6, Y9, Y9
+	VPAND   Y6, Y10, Y10
+	VMOVDQU 640(CX), Y7
+	VMOVDQU 672(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y0, Y0
-	VMOVDQU 704(CX), Y6
-	VMOVDQU 736(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y1, Y1
+	VMOVDQU 704(CX), Y7
+	VMOVDQU 736(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y1, Y1
-	VMOVDQU 768(CX), Y6
-	VMOVDQU 800(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y2, Y2
+	VMOVDQU 768(CX), Y7
+	VMOVDQU 800(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y2, Y2
-	VMOVDQU 832(CX), Y6
-	VMOVDQU 864(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y3, Y3
+	VMOVDQU 832(CX), Y7
+	VMOVDQU 864(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y3, Y3
-	VMOVDQU 896(CX), Y6
-	VMOVDQU 928(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y4, Y4
+	VMOVDQU 896(CX), Y7
+	VMOVDQU 928(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y4, Y4
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 3 to 5 outputs
-	VMOVDQU (DI), Y8
+	VMOVDQU (DI), Y9
 	ADDQ    $0x20, DI
-	VPSRLQ  $0x04, Y8, Y9
-	VPAND   Y5, Y8, Y8
-	VPAND   Y5, Y9, Y9
-	VMOVDQU 960(CX), Y6
-	VMOVDQU 992(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSRLQ  $0x04, Y9, Y10
+	VPAND   Y6, Y9, Y9
+	VPAND   Y6, Y10, Y10
+	VMOVDQU 960(CX), Y7
+	VMOVDQU 992(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y0, Y0
-	VMOVDQU 1024(CX), Y6
-	VMOVDQU 1056(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y1, Y1
+	VMOVDQU 1024(CX), Y7
+	VMOVDQU 1056(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y1, Y1
-	VMOVDQU 1088(CX), Y6
-	VMOVDQU 1120(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y2, Y2
+	VMOVDQU 1088(CX), Y7
+	VMOVDQU 1120(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y2, Y2
-	VMOVDQU 1152(CX), Y6
-	VMOVDQU 1184(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y3, Y3
+	VMOVDQU 1152(CX), Y7
+	VMOVDQU 1184(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y3, Y3
-	VMOVDQU 1216(CX), Y6
-	VMOVDQU 1248(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y4, Y4
+	VMOVDQU 1216(CX), Y7
+	VMOVDQU 1248(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y4, Y4
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 4 to 5 outputs
-	VMOVDQU (R8), Y8
+	VMOVDQU (R8), Y9
 	ADDQ    $0x20, R8
-	VPSRLQ  $0x04, Y8, Y9
-	VPAND   Y5, Y8, Y8
-	VPAND   Y5, Y9, Y9
-	VMOVDQU 1280(CX), Y6
-	VMOVDQU 1312(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSRLQ  $0x04, Y9, Y10
+	VPAND   Y6, Y9, Y9
+	VPAND   Y6, Y10, Y10
+	VMOVDQU 1280(CX), Y7
+	VMOVDQU 1312(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y0, Y0
-	VMOVDQU 1344(CX), Y6
-	VMOVDQU 1376(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y1, Y1
+	VMOVDQU 1344(CX), Y7
+	VMOVDQU 1376(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y1, Y1
-	VMOVDQU 1408(CX), Y6
-	VMOVDQU 1440(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y2, Y2
+	VMOVDQU 1408(CX), Y7
+	VMOVDQU 1440(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y2, Y2
-	VMOVDQU 1472(CX), Y6
-	VMOVDQU 1504(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y3, Y3
+	VMOVDQU 1472(CX), Y7
+	VMOVDQU 1504(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y3, Y3
-	VMOVDQU 1536(CX), Y6
-	VMOVDQU 1568(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y4, Y4
+	VMOVDQU 1536(CX), Y7
+	VMOVDQU 1568(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y4, Y4
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 5 to 5 outputs
-	VMOVDQU (DX), Y8
+	VMOVDQU (DX), Y9
 	ADDQ    $0x20, DX
-	VPSRLQ  $0x04, Y8, Y9
-	VPAND   Y5, Y8, Y8
-	VPAND   Y5, Y9, Y9
-	VMOVDQU 1600(CX), Y6
-	VMOVDQU 1632(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSRLQ  $0x04, Y9, Y10
+	VPAND   Y6, Y9, Y9
+	VPAND   Y6, Y10, Y10
+	VMOVDQU 1600(CX), Y7
+	VMOVDQU 1632(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y0, Y0
-	VMOVDQU 1664(CX), Y6
-	VMOVDQU 1696(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y1, Y1
+	VMOVDQU 1664(CX), Y7
+	VMOVDQU 1696(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y1, Y1
-	VMOVDQU 1728(CX), Y6
-	VMOVDQU 1760(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y2, Y2
+	VMOVDQU 1728(CX), Y7
+	VMOVDQU 1760(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y2, Y2
-	VMOVDQU 1792(CX), Y6
-	VMOVDQU 1824(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y3, Y3
+	VMOVDQU 1792(CX), Y7
+	VMOVDQU 1824(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y3, Y3
-	VMOVDQU 1856(CX), Y6
-	VMOVDQU 1888(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y4, Y4
+	VMOVDQU 1856(CX), Y7
+	VMOVDQU 1888(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y4, Y4
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y5, Y5
 
 	// Store 5 outputs
-	VMOVDQU Y0, (R10)
+	VMOVDQU Y1, (R10)
 	ADDQ    $0x20, R10
-	VMOVDQU Y1, (R11)
+	VMOVDQU Y2, (R11)
 	ADDQ    $0x20, R11
-	VMOVDQU Y2, (R12)
+	VMOVDQU Y3, (R12)
 	ADDQ    $0x20, R12
-	VMOVDQU Y3, (R13)
+	VMOVDQU Y4, (R13)
 	ADDQ    $0x20, R13
-	VMOVDQU Y4, (R9)
+	VMOVDQU Y5, (R9)
 	ADDQ    $0x20, R9
 
 	// Prepare for next loop
@@ -7687,11 +7818,14 @@ mulAvxTwo_6x5_loop:
 	VZEROUPPER
 
 mulAvxTwo_6x5_end:
+	MOVQ X0, BP
 	RET
 
 // func mulAvxTwo_6x6(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX2, SSE2
-TEXT ·mulAvxTwo_6x6(SB), NOSPLIT, $8-88
+TEXT ·mulAvxTwo_6x6(SB), NOSPLIT, $0-88
+	MOVQ BP, X0
+
 	// Loading no tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 83 YMM used
@@ -7732,288 +7866,288 @@ TEXT ·mulAvxTwo_6x6(SB), NOSPLIT, $8-88
 	ADDQ         R15, R8
 	ADDQ         R15, DX
 	MOVQ         $0x0000000f, R15
-	MOVQ         R15, X6
-	VPBROADCASTB X6, Y6
+	MOVQ         R15, X7
+	VPBROADCASTB X7, Y7
 
 mulAvxTwo_6x6_loop:
 	// Clear 6 outputs
-	VPXOR Y0, Y0, Y0
 	VPXOR Y1, Y1, Y1
 	VPXOR Y2, Y2, Y2
 	VPXOR Y3, Y3, Y3
 	VPXOR Y4, Y4, Y4
 	VPXOR Y5, Y5, Y5
+	VPXOR Y6, Y6, Y6
 
 	// Load and process 32 bytes from input 0 to 6 outputs
-	VMOVDQU (BX), Y9
+	VMOVDQU (BX), Y10
 	ADDQ    $0x20, BX
-	VPSRLQ  $0x04, Y9, Y10
-	VPAND   Y6, Y9, Y9
-	VPAND   Y6, Y10, Y10
-	VMOVDQU (CX), Y7
-	VMOVDQU 32(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSRLQ  $0x04, Y10, Y11
+	VPAND   Y7, Y10, Y10
+	VPAND   Y7, Y11, Y11
+	VMOVDQU (CX), Y8
+	VMOVDQU 32(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y0, Y0
-	VMOVDQU 64(CX), Y7
-	VMOVDQU 96(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y1, Y1
+	VMOVDQU 64(CX), Y8
+	VMOVDQU 96(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y1, Y1
-	VMOVDQU 128(CX), Y7
-	VMOVDQU 160(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y2, Y2
+	VMOVDQU 128(CX), Y8
+	VMOVDQU 160(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y2, Y2
-	VMOVDQU 192(CX), Y7
-	VMOVDQU 224(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y3, Y3
+	VMOVDQU 192(CX), Y8
+	VMOVDQU 224(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y3, Y3
-	VMOVDQU 256(CX), Y7
-	VMOVDQU 288(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y4, Y4
+	VMOVDQU 256(CX), Y8
+	VMOVDQU 288(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y4, Y4
-	VMOVDQU 320(CX), Y7
-	VMOVDQU 352(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y5, Y5
+	VMOVDQU 320(CX), Y8
+	VMOVDQU 352(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y5, Y5
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y6, Y6
 
 	// Load and process 32 bytes from input 1 to 6 outputs
-	VMOVDQU (BP), Y9
+	VMOVDQU (BP), Y10
 	ADDQ    $0x20, BP
-	VPSRLQ  $0x04, Y9, Y10
-	VPAND   Y6, Y9, Y9
-	VPAND   Y6, Y10, Y10
-	VMOVDQU 384(CX), Y7
-	VMOVDQU 416(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSRLQ  $0x04, Y10, Y11
+	VPAND   Y7, Y10, Y10
+	VPAND   Y7, Y11, Y11
+	VMOVDQU 384(CX), Y8
+	VMOVDQU 416(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y0, Y0
-	VMOVDQU 448(CX), Y7
-	VMOVDQU 480(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y1, Y1
+	VMOVDQU 448(CX), Y8
+	VMOVDQU 480(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y1, Y1
-	VMOVDQU 512(CX), Y7
-	VMOVDQU 544(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y2, Y2
+	VMOVDQU 512(CX), Y8
+	VMOVDQU 544(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y2, Y2
-	VMOVDQU 576(CX), Y7
-	VMOVDQU 608(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y3, Y3
+	VMOVDQU 576(CX), Y8
+	VMOVDQU 608(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y3, Y3
-	VMOVDQU 640(CX), Y7
-	VMOVDQU 672(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y4, Y4
+	VMOVDQU 640(CX), Y8
+	VMOVDQU 672(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y4, Y4
-	VMOVDQU 704(CX), Y7
-	VMOVDQU 736(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y5, Y5
+	VMOVDQU 704(CX), Y8
+	VMOVDQU 736(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y5, Y5
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y6, Y6
 
 	// Load and process 32 bytes from input 2 to 6 outputs
-	VMOVDQU (SI), Y9
+	VMOVDQU (SI), Y10
 	ADDQ    $0x20, SI
-	VPSRLQ  $0x04, Y9, Y10
-	VPAND   Y6, Y9, Y9
-	VPAND   Y6, Y10, Y10
-	VMOVDQU 768(CX), Y7
-	VMOVDQU 800(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSRLQ  $0x04, Y10, Y11
+	VPAND   Y7, Y10, Y10
+	VPAND   Y7, Y11, Y11
+	VMOVDQU 768(CX), Y8
+	VMOVDQU 800(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y0, Y0
-	VMOVDQU 832(CX), Y7
-	VMOVDQU 864(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y1, Y1
+	VMOVDQU 832(CX), Y8
+	VMOVDQU 864(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y1, Y1
-	VMOVDQU 896(CX), Y7
-	VMOVDQU 928(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y2, Y2
+	VMOVDQU 896(CX), Y8
+	VMOVDQU 928(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y2, Y2
-	VMOVDQU 960(CX), Y7
-	VMOVDQU 992(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y3, Y3
+	VMOVDQU 960(CX), Y8
+	VMOVDQU 992(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y3, Y3
-	VMOVDQU 1024(CX), Y7
-	VMOVDQU 1056(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y4, Y4
+	VMOVDQU 1024(CX), Y8
+	VMOVDQU 1056(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y4, Y4
-	VMOVDQU 1088(CX), Y7
-	VMOVDQU 1120(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y5, Y5
+	VMOVDQU 1088(CX), Y8
+	VMOVDQU 1120(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y5, Y5
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y6, Y6
 
 	// Load and process 32 bytes from input 3 to 6 outputs
-	VMOVDQU (DI), Y9
+	VMOVDQU (DI), Y10
 	ADDQ    $0x20, DI
-	VPSRLQ  $0x04, Y9, Y10
-	VPAND   Y6, Y9, Y9
-	VPAND   Y6, Y10, Y10
-	VMOVDQU 1152(CX), Y7
-	VMOVDQU 1184(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSRLQ  $0x04, Y10, Y11
+	VPAND   Y7, Y10, Y10
+	VPAND   Y7, Y11, Y11
+	VMOVDQU 1152(CX), Y8
+	VMOVDQU 1184(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y0, Y0
-	VMOVDQU 1216(CX), Y7
-	VMOVDQU 1248(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y1, Y1
+	VMOVDQU 1216(CX), Y8
+	VMOVDQU 1248(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y1, Y1
-	VMOVDQU 1280(CX), Y7
-	VMOVDQU 1312(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y2, Y2
+	VMOVDQU 1280(CX), Y8
+	VMOVDQU 1312(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y2, Y2
-	VMOVDQU 1344(CX), Y7
-	VMOVDQU 1376(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y3, Y3
+	VMOVDQU 1344(CX), Y8
+	VMOVDQU 1376(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y3, Y3
-	VMOVDQU 1408(CX), Y7
-	VMOVDQU 1440(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y4, Y4
+	VMOVDQU 1408(CX), Y8
+	VMOVDQU 1440(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y4, Y4
-	VMOVDQU 1472(CX), Y7
-	VMOVDQU 1504(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y5, Y5
+	VMOVDQU 1472(CX), Y8
+	VMOVDQU 1504(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y5, Y5
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y6, Y6
 
 	// Load and process 32 bytes from input 4 to 6 outputs
-	VMOVDQU (R8), Y9
+	VMOVDQU (R8), Y10
 	ADDQ    $0x20, R8
-	VPSRLQ  $0x04, Y9, Y10
-	VPAND   Y6, Y9, Y9
-	VPAND   Y6, Y10, Y10
-	VMOVDQU 1536(CX), Y7
-	VMOVDQU 1568(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSRLQ  $0x04, Y10, Y11
+	VPAND   Y7, Y10, Y10
+	VPAND   Y7, Y11, Y11
+	VMOVDQU 1536(CX), Y8
+	VMOVDQU 1568(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y0, Y0
-	VMOVDQU 1600(CX), Y7
-	VMOVDQU 1632(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y1, Y1
+	VMOVDQU 1600(CX), Y8
+	VMOVDQU 1632(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y1, Y1
-	VMOVDQU 1664(CX), Y7
-	VMOVDQU 1696(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y2, Y2
+	VMOVDQU 1664(CX), Y8
+	VMOVDQU 1696(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y2, Y2
-	VMOVDQU 1728(CX), Y7
-	VMOVDQU 1760(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y3, Y3
+	VMOVDQU 1728(CX), Y8
+	VMOVDQU 1760(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y3, Y3
-	VMOVDQU 1792(CX), Y7
-	VMOVDQU 1824(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y4, Y4
+	VMOVDQU 1792(CX), Y8
+	VMOVDQU 1824(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y4, Y4
-	VMOVDQU 1856(CX), Y7
-	VMOVDQU 1888(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y5, Y5
+	VMOVDQU 1856(CX), Y8
+	VMOVDQU 1888(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y5, Y5
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y6, Y6
 
 	// Load and process 32 bytes from input 5 to 6 outputs
-	VMOVDQU (DX), Y9
+	VMOVDQU (DX), Y10
 	ADDQ    $0x20, DX
-	VPSRLQ  $0x04, Y9, Y10
-	VPAND   Y6, Y9, Y9
-	VPAND   Y6, Y10, Y10
-	VMOVDQU 1920(CX), Y7
-	VMOVDQU 1952(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSRLQ  $0x04, Y10, Y11
+	VPAND   Y7, Y10, Y10
+	VPAND   Y7, Y11, Y11
+	VMOVDQU 1920(CX), Y8
+	VMOVDQU 1952(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y0, Y0
-	VMOVDQU 1984(CX), Y7
-	VMOVDQU 2016(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y1, Y1
+	VMOVDQU 1984(CX), Y8
+	VMOVDQU 2016(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y1, Y1
-	VMOVDQU 2048(CX), Y7
-	VMOVDQU 2080(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y2, Y2
+	VMOVDQU 2048(CX), Y8
+	VMOVDQU 2080(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y2, Y2
-	VMOVDQU 2112(CX), Y7
-	VMOVDQU 2144(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y3, Y3
+	VMOVDQU 2112(CX), Y8
+	VMOVDQU 2144(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y3, Y3
-	VMOVDQU 2176(CX), Y7
-	VMOVDQU 2208(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y4, Y4
+	VMOVDQU 2176(CX), Y8
+	VMOVDQU 2208(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y4, Y4
-	VMOVDQU 2240(CX), Y7
-	VMOVDQU 2272(CX), Y8
-	VPSHUFB Y9, Y7, Y7
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y5, Y5
+	VMOVDQU 2240(CX), Y8
+	VMOVDQU 2272(CX), Y9
 	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y5, Y5
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y6, Y6
 
 	// Store 6 outputs
-	VMOVDQU Y0, (R10)
+	VMOVDQU Y1, (R10)
 	ADDQ    $0x20, R10
-	VMOVDQU Y1, (R11)
+	VMOVDQU Y2, (R11)
 	ADDQ    $0x20, R11
-	VMOVDQU Y2, (R12)
+	VMOVDQU Y3, (R12)
 	ADDQ    $0x20, R12
-	VMOVDQU Y3, (R13)
+	VMOVDQU Y4, (R13)
 	ADDQ    $0x20, R13
-	VMOVDQU Y4, (R14)
+	VMOVDQU Y5, (R14)
 	ADDQ    $0x20, R14
-	VMOVDQU Y5, (R9)
+	VMOVDQU Y6, (R9)
 	ADDQ    $0x20, R9
 
 	// Prepare for next loop
@@ -8022,11 +8156,14 @@ mulAvxTwo_6x6_loop:
 	VZEROUPPER
 
 mulAvxTwo_6x6_end:
+	MOVQ X0, BP
 	RET
 
 // func mulAvxTwo_6x7(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX2, SSE2
-TEXT ·mulAvxTwo_6x7(SB), NOSPLIT, $8-88
+TEXT ·mulAvxTwo_6x7(SB), NOSPLIT, $0-88
+	MOVQ BP, X0
+
 	// Loading no tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 96 YMM used
@@ -8069,329 +8206,329 @@ TEXT ·mulAvxTwo_6x7(SB), NOSPLIT, $8-88
 	ADDQ         R15, DI
 	ADDQ         R15, AX
 	MOVQ         $0x0000000f, R15
-	MOVQ         R15, X7
-	VPBROADCASTB X7, Y7
+	MOVQ         R15, X8
+	VPBROADCASTB X8, Y8
 	MOVQ         n+80(FP), R15
 	SHRQ         $0x05, R15
 
 mulAvxTwo_6x7_loop:
 	// Clear 7 outputs
-	VPXOR Y0, Y0, Y0
 	VPXOR Y1, Y1, Y1
 	VPXOR Y2, Y2, Y2
 	VPXOR Y3, Y3, Y3
 	VPXOR Y4, Y4, Y4
 	VPXOR Y5, Y5, Y5
 	VPXOR Y6, Y6, Y6
+	VPXOR Y7, Y7, Y7
 
 	// Load and process 32 bytes from input 0 to 7 outputs
-	VMOVDQU (DX), Y10
+	VMOVDQU (DX), Y11
 	ADDQ    $0x20, DX
-	VPSRLQ  $0x04, Y10, Y11
-	VPAND   Y7, Y10, Y10
-	VPAND   Y7, Y11, Y11
-	VMOVDQU (CX), Y8
-	VMOVDQU 32(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSRLQ  $0x04, Y11, Y12
+	VPAND   Y8, Y11, Y11
+	VPAND   Y8, Y12, Y12
+	VMOVDQU (CX), Y9
+	VMOVDQU 32(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y0, Y0
-	VMOVDQU 64(CX), Y8
-	VMOVDQU 96(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y1, Y1
+	VMOVDQU 64(CX), Y9
+	VMOVDQU 96(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y1, Y1
-	VMOVDQU 128(CX), Y8
-	VMOVDQU 160(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y2, Y2
+	VMOVDQU 128(CX), Y9
+	VMOVDQU 160(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y2, Y2
-	VMOVDQU 192(CX), Y8
-	VMOVDQU 224(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y3, Y3
+	VMOVDQU 192(CX), Y9
+	VMOVDQU 224(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y3, Y3
-	VMOVDQU 256(CX), Y8
-	VMOVDQU 288(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y4, Y4
+	VMOVDQU 256(CX), Y9
+	VMOVDQU 288(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y4, Y4
-	VMOVDQU 320(CX), Y8
-	VMOVDQU 352(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y5, Y5
+	VMOVDQU 320(CX), Y9
+	VMOVDQU 352(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y5, Y5
-	VMOVDQU 384(CX), Y8
-	VMOVDQU 416(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y6, Y6
+	VMOVDQU 384(CX), Y9
+	VMOVDQU 416(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y6, Y6
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y7, Y7
 
 	// Load and process 32 bytes from input 1 to 7 outputs
-	VMOVDQU (BX), Y10
+	VMOVDQU (BX), Y11
 	ADDQ    $0x20, BX
-	VPSRLQ  $0x04, Y10, Y11
-	VPAND   Y7, Y10, Y10
-	VPAND   Y7, Y11, Y11
-	VMOVDQU 448(CX), Y8
-	VMOVDQU 480(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSRLQ  $0x04, Y11, Y12
+	VPAND   Y8, Y11, Y11
+	VPAND   Y8, Y12, Y12
+	VMOVDQU 448(CX), Y9
+	VMOVDQU 480(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y0, Y0
-	VMOVDQU 512(CX), Y8
-	VMOVDQU 544(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y1, Y1
+	VMOVDQU 512(CX), Y9
+	VMOVDQU 544(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y1, Y1
-	VMOVDQU 576(CX), Y8
-	VMOVDQU 608(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y2, Y2
+	VMOVDQU 576(CX), Y9
+	VMOVDQU 608(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y2, Y2
-	VMOVDQU 640(CX), Y8
-	VMOVDQU 672(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y3, Y3
+	VMOVDQU 640(CX), Y9
+	VMOVDQU 672(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y3, Y3
-	VMOVDQU 704(CX), Y8
-	VMOVDQU 736(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y4, Y4
+	VMOVDQU 704(CX), Y9
+	VMOVDQU 736(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y4, Y4
-	VMOVDQU 768(CX), Y8
-	VMOVDQU 800(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y5, Y5
+	VMOVDQU 768(CX), Y9
+	VMOVDQU 800(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y5, Y5
-	VMOVDQU 832(CX), Y8
-	VMOVDQU 864(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y6, Y6
+	VMOVDQU 832(CX), Y9
+	VMOVDQU 864(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y6, Y6
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y7, Y7
 
 	// Load and process 32 bytes from input 2 to 7 outputs
-	VMOVDQU (BP), Y10
+	VMOVDQU (BP), Y11
 	ADDQ    $0x20, BP
-	VPSRLQ  $0x04, Y10, Y11
-	VPAND   Y7, Y10, Y10
-	VPAND   Y7, Y11, Y11
-	VMOVDQU 896(CX), Y8
-	VMOVDQU 928(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSRLQ  $0x04, Y11, Y12
+	VPAND   Y8, Y11, Y11
+	VPAND   Y8, Y12, Y12
+	VMOVDQU 896(CX), Y9
+	VMOVDQU 928(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y0, Y0
-	VMOVDQU 960(CX), Y8
-	VMOVDQU 992(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y1, Y1
+	VMOVDQU 960(CX), Y9
+	VMOVDQU 992(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y1, Y1
-	VMOVDQU 1024(CX), Y8
-	VMOVDQU 1056(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y2, Y2
+	VMOVDQU 1024(CX), Y9
+	VMOVDQU 1056(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y2, Y2
-	VMOVDQU 1088(CX), Y8
-	VMOVDQU 1120(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y3, Y3
+	VMOVDQU 1088(CX), Y9
+	VMOVDQU 1120(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y3, Y3
-	VMOVDQU 1152(CX), Y8
-	VMOVDQU 1184(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y4, Y4
+	VMOVDQU 1152(CX), Y9
+	VMOVDQU 1184(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y4, Y4
-	VMOVDQU 1216(CX), Y8
-	VMOVDQU 1248(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y5, Y5
+	VMOVDQU 1216(CX), Y9
+	VMOVDQU 1248(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y5, Y5
-	VMOVDQU 1280(CX), Y8
-	VMOVDQU 1312(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y6, Y6
+	VMOVDQU 1280(CX), Y9
+	VMOVDQU 1312(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y6, Y6
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y7, Y7
 
 	// Load and process 32 bytes from input 3 to 7 outputs
-	VMOVDQU (SI), Y10
+	VMOVDQU (SI), Y11
 	ADDQ    $0x20, SI
-	VPSRLQ  $0x04, Y10, Y11
-	VPAND   Y7, Y10, Y10
-	VPAND   Y7, Y11, Y11
-	VMOVDQU 1344(CX), Y8
-	VMOVDQU 1376(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSRLQ  $0x04, Y11, Y12
+	VPAND   Y8, Y11, Y11
+	VPAND   Y8, Y12, Y12
+	VMOVDQU 1344(CX), Y9
+	VMOVDQU 1376(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y0, Y0
-	VMOVDQU 1408(CX), Y8
-	VMOVDQU 1440(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y1, Y1
+	VMOVDQU 1408(CX), Y9
+	VMOVDQU 1440(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y1, Y1
-	VMOVDQU 1472(CX), Y8
-	VMOVDQU 1504(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y2, Y2
+	VMOVDQU 1472(CX), Y9
+	VMOVDQU 1504(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y2, Y2
-	VMOVDQU 1536(CX), Y8
-	VMOVDQU 1568(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y3, Y3
+	VMOVDQU 1536(CX), Y9
+	VMOVDQU 1568(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y3, Y3
-	VMOVDQU 1600(CX), Y8
-	VMOVDQU 1632(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y4, Y4
+	VMOVDQU 1600(CX), Y9
+	VMOVDQU 1632(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y4, Y4
-	VMOVDQU 1664(CX), Y8
-	VMOVDQU 1696(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y5, Y5
+	VMOVDQU 1664(CX), Y9
+	VMOVDQU 1696(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y5, Y5
-	VMOVDQU 1728(CX), Y8
-	VMOVDQU 1760(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y6, Y6
+	VMOVDQU 1728(CX), Y9
+	VMOVDQU 1760(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y6, Y6
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y7, Y7
 
 	// Load and process 32 bytes from input 4 to 7 outputs
-	VMOVDQU (DI), Y10
+	VMOVDQU (DI), Y11
 	ADDQ    $0x20, DI
-	VPSRLQ  $0x04, Y10, Y11
-	VPAND   Y7, Y10, Y10
-	VPAND   Y7, Y11, Y11
-	VMOVDQU 1792(CX), Y8
-	VMOVDQU 1824(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSRLQ  $0x04, Y11, Y12
+	VPAND   Y8, Y11, Y11
+	VPAND   Y8, Y12, Y12
+	VMOVDQU 1792(CX), Y9
+	VMOVDQU 1824(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y0, Y0
-	VMOVDQU 1856(CX), Y8
-	VMOVDQU 1888(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y1, Y1
+	VMOVDQU 1856(CX), Y9
+	VMOVDQU 1888(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y1, Y1
-	VMOVDQU 1920(CX), Y8
-	VMOVDQU 1952(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y2, Y2
+	VMOVDQU 1920(CX), Y9
+	VMOVDQU 1952(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y2, Y2
-	VMOVDQU 1984(CX), Y8
-	VMOVDQU 2016(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y3, Y3
+	VMOVDQU 1984(CX), Y9
+	VMOVDQU 2016(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y3, Y3
-	VMOVDQU 2048(CX), Y8
-	VMOVDQU 2080(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y4, Y4
+	VMOVDQU 2048(CX), Y9
+	VMOVDQU 2080(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y4, Y4
-	VMOVDQU 2112(CX), Y8
-	VMOVDQU 2144(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y5, Y5
+	VMOVDQU 2112(CX), Y9
+	VMOVDQU 2144(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y5, Y5
-	VMOVDQU 2176(CX), Y8
-	VMOVDQU 2208(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y6, Y6
+	VMOVDQU 2176(CX), Y9
+	VMOVDQU 2208(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y6, Y6
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y7, Y7
 
 	// Load and process 32 bytes from input 5 to 7 outputs
-	VMOVDQU (AX), Y10
+	VMOVDQU (AX), Y11
 	ADDQ    $0x20, AX
-	VPSRLQ  $0x04, Y10, Y11
-	VPAND   Y7, Y10, Y10
-	VPAND   Y7, Y11, Y11
-	VMOVDQU 2240(CX), Y8
-	VMOVDQU 2272(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSRLQ  $0x04, Y11, Y12
+	VPAND   Y8, Y11, Y11
+	VPAND   Y8, Y12, Y12
+	VMOVDQU 2240(CX), Y9
+	VMOVDQU 2272(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y0, Y0
-	VMOVDQU 2304(CX), Y8
-	VMOVDQU 2336(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y1, Y1
+	VMOVDQU 2304(CX), Y9
+	VMOVDQU 2336(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y1, Y1
-	VMOVDQU 2368(CX), Y8
-	VMOVDQU 2400(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y2, Y2
+	VMOVDQU 2368(CX), Y9
+	VMOVDQU 2400(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y2, Y2
-	VMOVDQU 2432(CX), Y8
-	VMOVDQU 2464(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y3, Y3
+	VMOVDQU 2432(CX), Y9
+	VMOVDQU 2464(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y3, Y3
-	VMOVDQU 2496(CX), Y8
-	VMOVDQU 2528(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y4, Y4
+	VMOVDQU 2496(CX), Y9
+	VMOVDQU 2528(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y4, Y4
-	VMOVDQU 2560(CX), Y8
-	VMOVDQU 2592(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y5, Y5
+	VMOVDQU 2560(CX), Y9
+	VMOVDQU 2592(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y5, Y5
-	VMOVDQU 2624(CX), Y8
-	VMOVDQU 2656(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y6, Y6
+	VMOVDQU 2624(CX), Y9
+	VMOVDQU 2656(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y6, Y6
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y7, Y7
 
 	// Store 7 outputs
-	VMOVDQU Y0, (R9)
+	VMOVDQU Y1, (R9)
 	ADDQ    $0x20, R9
-	VMOVDQU Y1, (R10)
+	VMOVDQU Y2, (R10)
 	ADDQ    $0x20, R10
-	VMOVDQU Y2, (R11)
+	VMOVDQU Y3, (R11)
 	ADDQ    $0x20, R11
-	VMOVDQU Y3, (R12)
+	VMOVDQU Y4, (R12)
 	ADDQ    $0x20, R12
-	VMOVDQU Y4, (R13)
+	VMOVDQU Y5, (R13)
 	ADDQ    $0x20, R13
-	VMOVDQU Y5, (R14)
+	VMOVDQU Y6, (R14)
 	ADDQ    $0x20, R14
-	VMOVDQU Y6, (R8)
+	VMOVDQU Y7, (R8)
 	ADDQ    $0x20, R8
 
 	// Prepare for next loop
@@ -8400,11 +8537,14 @@ mulAvxTwo_6x7_loop:
 	VZEROUPPER
 
 mulAvxTwo_6x7_end:
+	MOVQ X0, BP
 	RET
 
 // func mulAvxTwo_6x8(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX2, SSE2
-TEXT ·mulAvxTwo_6x8(SB), NOSPLIT, $8-88
+TEXT ·mulAvxTwo_6x8(SB), NOSPLIT, $0-88
+	MOVQ BP, X0
+
 	// Loading no tables to registers
 	// Destination kept on stack
 	// Full registers estimated 109 YMM used
@@ -8431,12 +8571,11 @@ TEXT ·mulAvxTwo_6x8(SB), NOSPLIT, $8-88
 	ADDQ         R10, R8
 	ADDQ         R10, DX
 	MOVQ         $0x0000000f, R11
-	MOVQ         R11, X8
-	VPBROADCASTB X8, Y8
+	MOVQ         R11, X9
+	VPBROADCASTB X9, Y9
 
 mulAvxTwo_6x8_loop:
 	// Clear 8 outputs
-	VPXOR Y0, Y0, Y0
 	VPXOR Y1, Y1, Y1
 	VPXOR Y2, Y2, Y2
 	VPXOR Y3, Y3, Y3
@@ -8444,354 +8583,355 @@ mulAvxTwo_6x8_loop:
 	VPXOR Y5, Y5, Y5
 	VPXOR Y6, Y6, Y6
 	VPXOR Y7, Y7, Y7
+	VPXOR Y8, Y8, Y8
 
 	// Load and process 32 bytes from input 0 to 8 outputs
-	VMOVDQU (BX), Y11
+	VMOVDQU (BX), Y12
 	ADDQ    $0x20, BX
-	VPSRLQ  $0x04, Y11, Y12
-	VPAND   Y8, Y11, Y11
-	VPAND   Y8, Y12, Y12
-	VMOVDQU (CX), Y9
-	VMOVDQU 32(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSRLQ  $0x04, Y12, Y13
+	VPAND   Y9, Y12, Y12
+	VPAND   Y9, Y13, Y13
+	VMOVDQU (CX), Y10
+	VMOVDQU 32(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y0, Y0
-	VMOVDQU 64(CX), Y9
-	VMOVDQU 96(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y1, Y1
+	VMOVDQU 64(CX), Y10
+	VMOVDQU 96(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y1, Y1
-	VMOVDQU 128(CX), Y9
-	VMOVDQU 160(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y2, Y2
+	VMOVDQU 128(CX), Y10
+	VMOVDQU 160(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y2, Y2
-	VMOVDQU 192(CX), Y9
-	VMOVDQU 224(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y3, Y3
+	VMOVDQU 192(CX), Y10
+	VMOVDQU 224(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y3, Y3
-	VMOVDQU 256(CX), Y9
-	VMOVDQU 288(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y4, Y4
+	VMOVDQU 256(CX), Y10
+	VMOVDQU 288(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y4, Y4
-	VMOVDQU 320(CX), Y9
-	VMOVDQU 352(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y5, Y5
+	VMOVDQU 320(CX), Y10
+	VMOVDQU 352(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y5, Y5
-	VMOVDQU 384(CX), Y9
-	VMOVDQU 416(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y6, Y6
+	VMOVDQU 384(CX), Y10
+	VMOVDQU 416(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y6, Y6
-	VMOVDQU 448(CX), Y9
-	VMOVDQU 480(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y7, Y7
+	VMOVDQU 448(CX), Y10
+	VMOVDQU 480(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y7, Y7
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y8, Y8
 
 	// Load and process 32 bytes from input 1 to 8 outputs
-	VMOVDQU (BP), Y11
+	VMOVDQU (BP), Y12
 	ADDQ    $0x20, BP
-	VPSRLQ  $0x04, Y11, Y12
-	VPAND   Y8, Y11, Y11
-	VPAND   Y8, Y12, Y12
-	VMOVDQU 512(CX), Y9
-	VMOVDQU 544(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSRLQ  $0x04, Y12, Y13
+	VPAND   Y9, Y12, Y12
+	VPAND   Y9, Y13, Y13
+	VMOVDQU 512(CX), Y10
+	VMOVDQU 544(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y0, Y0
-	VMOVDQU 576(CX), Y9
-	VMOVDQU 608(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y1, Y1
+	VMOVDQU 576(CX), Y10
+	VMOVDQU 608(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y1, Y1
-	VMOVDQU 640(CX), Y9
-	VMOVDQU 672(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y2, Y2
+	VMOVDQU 640(CX), Y10
+	VMOVDQU 672(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y2, Y2
-	VMOVDQU 704(CX), Y9
-	VMOVDQU 736(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y3, Y3
+	VMOVDQU 704(CX), Y10
+	VMOVDQU 736(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y3, Y3
-	VMOVDQU 768(CX), Y9
-	VMOVDQU 800(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y4, Y4
+	VMOVDQU 768(CX), Y10
+	VMOVDQU 800(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y4, Y4
-	VMOVDQU 832(CX), Y9
-	VMOVDQU 864(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y5, Y5
+	VMOVDQU 832(CX), Y10
+	VMOVDQU 864(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y5, Y5
-	VMOVDQU 896(CX), Y9
-	VMOVDQU 928(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y6, Y6
+	VMOVDQU 896(CX), Y10
+	VMOVDQU 928(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y6, Y6
-	VMOVDQU 960(CX), Y9
-	VMOVDQU 992(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y7, Y7
+	VMOVDQU 960(CX), Y10
+	VMOVDQU 992(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y7, Y7
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y8, Y8
 
 	// Load and process 32 bytes from input 2 to 8 outputs
-	VMOVDQU (SI), Y11
+	VMOVDQU (SI), Y12
 	ADDQ    $0x20, SI
-	VPSRLQ  $0x04, Y11, Y12
-	VPAND   Y8, Y11, Y11
-	VPAND   Y8, Y12, Y12
-	VMOVDQU 1024(CX), Y9
-	VMOVDQU 1056(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSRLQ  $0x04, Y12, Y13
+	VPAND   Y9, Y12, Y12
+	VPAND   Y9, Y13, Y13
+	VMOVDQU 1024(CX), Y10
+	VMOVDQU 1056(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y0, Y0
-	VMOVDQU 1088(CX), Y9
-	VMOVDQU 1120(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y1, Y1
+	VMOVDQU 1088(CX), Y10
+	VMOVDQU 1120(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y1, Y1
-	VMOVDQU 1152(CX), Y9
-	VMOVDQU 1184(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y2, Y2
+	VMOVDQU 1152(CX), Y10
+	VMOVDQU 1184(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y2, Y2
-	VMOVDQU 1216(CX), Y9
-	VMOVDQU 1248(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y3, Y3
+	VMOVDQU 1216(CX), Y10
+	VMOVDQU 1248(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y3, Y3
-	VMOVDQU 1280(CX), Y9
-	VMOVDQU 1312(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y4, Y4
+	VMOVDQU 1280(CX), Y10
+	VMOVDQU 1312(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y4, Y4
-	VMOVDQU 1344(CX), Y9
-	VMOVDQU 1376(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y5, Y5
+	VMOVDQU 1344(CX), Y10
+	VMOVDQU 1376(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y5, Y5
-	VMOVDQU 1408(CX), Y9
-	VMOVDQU 1440(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y6, Y6
+	VMOVDQU 1408(CX), Y10
+	VMOVDQU 1440(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y6, Y6
-	VMOVDQU 1472(CX), Y9
-	VMOVDQU 1504(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y7, Y7
+	VMOVDQU 1472(CX), Y10
+	VMOVDQU 1504(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y7, Y7
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y8, Y8
 
 	// Load and process 32 bytes from input 3 to 8 outputs
-	VMOVDQU (DI), Y11
+	VMOVDQU (DI), Y12
 	ADDQ    $0x20, DI
-	VPSRLQ  $0x04, Y11, Y12
-	VPAND   Y8, Y11, Y11
-	VPAND   Y8, Y12, Y12
-	VMOVDQU 1536(CX), Y9
-	VMOVDQU 1568(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSRLQ  $0x04, Y12, Y13
+	VPAND   Y9, Y12, Y12
+	VPAND   Y9, Y13, Y13
+	VMOVDQU 1536(CX), Y10
+	VMOVDQU 1568(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y0, Y0
-	VMOVDQU 1600(CX), Y9
-	VMOVDQU 1632(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y1, Y1
+	VMOVDQU 1600(CX), Y10
+	VMOVDQU 1632(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y1, Y1
-	VMOVDQU 1664(CX), Y9
-	VMOVDQU 1696(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y2, Y2
+	VMOVDQU 1664(CX), Y10
+	VMOVDQU 1696(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y2, Y2
-	VMOVDQU 1728(CX), Y9
-	VMOVDQU 1760(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y3, Y3
+	VMOVDQU 1728(CX), Y10
+	VMOVDQU 1760(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y3, Y3
-	VMOVDQU 1792(CX), Y9
-	VMOVDQU 1824(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y4, Y4
+	VMOVDQU 1792(CX), Y10
+	VMOVDQU 1824(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y4, Y4
-	VMOVDQU 1856(CX), Y9
-	VMOVDQU 1888(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y5, Y5
+	VMOVDQU 1856(CX), Y10
+	VMOVDQU 1888(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y5, Y5
-	VMOVDQU 1920(CX), Y9
-	VMOVDQU 1952(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y6, Y6
+	VMOVDQU 1920(CX), Y10
+	VMOVDQU 1952(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y6, Y6
-	VMOVDQU 1984(CX), Y9
-	VMOVDQU 2016(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y7, Y7
+	VMOVDQU 1984(CX), Y10
+	VMOVDQU 2016(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y7, Y7
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y8, Y8
 
 	// Load and process 32 bytes from input 4 to 8 outputs
-	VMOVDQU (R8), Y11
+	VMOVDQU (R8), Y12
 	ADDQ    $0x20, R8
-	VPSRLQ  $0x04, Y11, Y12
-	VPAND   Y8, Y11, Y11
-	VPAND   Y8, Y12, Y12
-	VMOVDQU 2048(CX), Y9
-	VMOVDQU 2080(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSRLQ  $0x04, Y12, Y13
+	VPAND   Y9, Y12, Y12
+	VPAND   Y9, Y13, Y13
+	VMOVDQU 2048(CX), Y10
+	VMOVDQU 2080(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y0, Y0
-	VMOVDQU 2112(CX), Y9
-	VMOVDQU 2144(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y1, Y1
+	VMOVDQU 2112(CX), Y10
+	VMOVDQU 2144(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y1, Y1
-	VMOVDQU 2176(CX), Y9
-	VMOVDQU 2208(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y2, Y2
+	VMOVDQU 2176(CX), Y10
+	VMOVDQU 2208(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y2, Y2
-	VMOVDQU 2240(CX), Y9
-	VMOVDQU 2272(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y3, Y3
+	VMOVDQU 2240(CX), Y10
+	VMOVDQU 2272(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y3, Y3
-	VMOVDQU 2304(CX), Y9
-	VMOVDQU 2336(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y4, Y4
+	VMOVDQU 2304(CX), Y10
+	VMOVDQU 2336(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y4, Y4
-	VMOVDQU 2368(CX), Y9
-	VMOVDQU 2400(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y5, Y5
+	VMOVDQU 2368(CX), Y10
+	VMOVDQU 2400(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y5, Y5
-	VMOVDQU 2432(CX), Y9
-	VMOVDQU 2464(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y6, Y6
+	VMOVDQU 2432(CX), Y10
+	VMOVDQU 2464(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y6, Y6
-	VMOVDQU 2496(CX), Y9
-	VMOVDQU 2528(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y7, Y7
+	VMOVDQU 2496(CX), Y10
+	VMOVDQU 2528(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y7, Y7
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y8, Y8
 
 	// Load and process 32 bytes from input 5 to 8 outputs
-	VMOVDQU (DX), Y11
+	VMOVDQU (DX), Y12
 	ADDQ    $0x20, DX
-	VPSRLQ  $0x04, Y11, Y12
-	VPAND   Y8, Y11, Y11
-	VPAND   Y8, Y12, Y12
-	VMOVDQU 2560(CX), Y9
-	VMOVDQU 2592(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSRLQ  $0x04, Y12, Y13
+	VPAND   Y9, Y12, Y12
+	VPAND   Y9, Y13, Y13
+	VMOVDQU 2560(CX), Y10
+	VMOVDQU 2592(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y0, Y0
-	VMOVDQU 2624(CX), Y9
-	VMOVDQU 2656(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y1, Y1
+	VMOVDQU 2624(CX), Y10
+	VMOVDQU 2656(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y1, Y1
-	VMOVDQU 2688(CX), Y9
-	VMOVDQU 2720(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y2, Y2
+	VMOVDQU 2688(CX), Y10
+	VMOVDQU 2720(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y2, Y2
-	VMOVDQU 2752(CX), Y9
-	VMOVDQU 2784(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y3, Y3
+	VMOVDQU 2752(CX), Y10
+	VMOVDQU 2784(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y3, Y3
-	VMOVDQU 2816(CX), Y9
-	VMOVDQU 2848(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y4, Y4
+	VMOVDQU 2816(CX), Y10
+	VMOVDQU 2848(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y4, Y4
-	VMOVDQU 2880(CX), Y9
-	VMOVDQU 2912(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y5, Y5
+	VMOVDQU 2880(CX), Y10
+	VMOVDQU 2912(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y5, Y5
-	VMOVDQU 2944(CX), Y9
-	VMOVDQU 2976(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y6, Y6
+	VMOVDQU 2944(CX), Y10
+	VMOVDQU 2976(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y6, Y6
-	VMOVDQU 3008(CX), Y9
-	VMOVDQU 3040(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y7, Y7
+	VMOVDQU 3008(CX), Y10
+	VMOVDQU 3040(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y7, Y7
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y8, Y8
 
 	// Store 8 outputs
 	MOVQ    (R9), R11
-	VMOVDQU Y0, (R11)(R10*1)
-	MOVQ    24(R9), R11
 	VMOVDQU Y1, (R11)(R10*1)
-	MOVQ    48(R9), R11
+	MOVQ    24(R9), R11
 	VMOVDQU Y2, (R11)(R10*1)
-	MOVQ    72(R9), R11
+	MOVQ    48(R9), R11
 	VMOVDQU Y3, (R11)(R10*1)
-	MOVQ    96(R9), R11
+	MOVQ    72(R9), R11
 	VMOVDQU Y4, (R11)(R10*1)
-	MOVQ    120(R9), R11
+	MOVQ    96(R9), R11
 	VMOVDQU Y5, (R11)(R10*1)
-	MOVQ    144(R9), R11
+	MOVQ    120(R9), R11
 	VMOVDQU Y6, (R11)(R10*1)
-	MOVQ    168(R9), R11
+	MOVQ    144(R9), R11
 	VMOVDQU Y7, (R11)(R10*1)
+	MOVQ    168(R9), R11
+	VMOVDQU Y8, (R11)(R10*1)
 
 	// Prepare for next loop
 	ADDQ $0x20, R10
@@ -8800,11 +8940,14 @@ mulAvxTwo_6x8_loop:
 	VZEROUPPER
 
 mulAvxTwo_6x8_end:
+	MOVQ X0, BP
 	RET
 
 // func mulAvxTwo_7x1(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX2, SSE2
-TEXT ·mulAvxTwo_7x1(SB), NOSPLIT, $8-88
+TEXT ·mulAvxTwo_7x1(SB), NOSPLIT, $0-88
+	MOVQ BP, X0
+
 	// Loading no tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 18 YMM used
@@ -8837,106 +8980,106 @@ TEXT ·mulAvxTwo_7x1(SB), NOSPLIT, $8-88
 	ADDQ         R11, R9
 	ADDQ         R11, DX
 	MOVQ         $0x0000000f, R11
-	MOVQ         R11, X1
-	VPBROADCASTB X1, Y1
+	MOVQ         R11, X2
+	VPBROADCASTB X2, Y2
 
 mulAvxTwo_7x1_loop:
 	// Clear 1 outputs
-	VPXOR Y0, Y0, Y0
+	VPXOR Y1, Y1, Y1
 
 	// Load and process 32 bytes from input 0 to 1 outputs
-	VMOVDQU (BX), Y4
+	VMOVDQU (BX), Y5
 	ADDQ    $0x20, BX
-	VPSRLQ  $0x04, Y4, Y5
-	VPAND   Y1, Y4, Y4
-	VPAND   Y1, Y5, Y5
-	VMOVDQU (CX), Y2
-	VMOVDQU 32(CX), Y3
-	VPSHUFB Y4, Y2, Y2
+	VPSRLQ  $0x04, Y5, Y6
+	VPAND   Y2, Y5, Y5
+	VPAND   Y2, Y6, Y6
+	VMOVDQU (CX), Y3
+	VMOVDQU 32(CX), Y4
 	VPSHUFB Y5, Y3, Y3
-	VPXOR   Y2, Y3, Y2
-	VPXOR   Y2, Y0, Y0
+	VPSHUFB Y6, Y4, Y4
+	VPXOR   Y3, Y4, Y3
+	VPXOR   Y3, Y1, Y1
 
 	// Load and process 32 bytes from input 1 to 1 outputs
-	VMOVDQU (BP), Y4
+	VMOVDQU (BP), Y5
 	ADDQ    $0x20, BP
-	VPSRLQ  $0x04, Y4, Y5
-	VPAND   Y1, Y4, Y4
-	VPAND   Y1, Y5, Y5
-	VMOVDQU 64(CX), Y2
-	VMOVDQU 96(CX), Y3
-	VPSHUFB Y4, Y2, Y2
+	VPSRLQ  $0x04, Y5, Y6
+	VPAND   Y2, Y5, Y5
+	VPAND   Y2, Y6, Y6
+	VMOVDQU 64(CX), Y3
+	VMOVDQU 96(CX), Y4
 	VPSHUFB Y5, Y3, Y3
-	VPXOR   Y2, Y3, Y2
-	VPXOR   Y2, Y0, Y0
+	VPSHUFB Y6, Y4, Y4
+	VPXOR   Y3, Y4, Y3
+	VPXOR   Y3, Y1, Y1
 
 	// Load and process 32 bytes from input 2 to 1 outputs
-	VMOVDQU (SI), Y4
+	VMOVDQU (SI), Y5
 	ADDQ    $0x20, SI
-	VPSRLQ  $0x04, Y4, Y5
-	VPAND   Y1, Y4, Y4
-	VPAND   Y1, Y5, Y5
-	VMOVDQU 128(CX), Y2
-	VMOVDQU 160(CX), Y3
-	VPSHUFB Y4, Y2, Y2
+	VPSRLQ  $0x04, Y5, Y6
+	VPAND   Y2, Y5, Y5
+	VPAND   Y2, Y6, Y6
+	VMOVDQU 128(CX), Y3
+	VMOVDQU 160(CX), Y4
 	VPSHUFB Y5, Y3, Y3
-	VPXOR   Y2, Y3, Y2
-	VPXOR   Y2, Y0, Y0
+	VPSHUFB Y6, Y4, Y4
+	VPXOR   Y3, Y4, Y3
+	VPXOR   Y3, Y1, Y1
 
 	// Load and process 32 bytes from input 3 to 1 outputs
-	VMOVDQU (DI), Y4
+	VMOVDQU (DI), Y5
 	ADDQ    $0x20, DI
-	VPSRLQ  $0x04, Y4, Y5
-	VPAND   Y1, Y4, Y4
-	VPAND   Y1, Y5, Y5
-	VMOVDQU 192(CX), Y2
-	VMOVDQU 224(CX), Y3
-	VPSHUFB Y4, Y2, Y2
+	VPSRLQ  $0x04, Y5, Y6
+	VPAND   Y2, Y5, Y5
+	VPAND   Y2, Y6, Y6
+	VMOVDQU 192(CX), Y3
+	VMOVDQU 224(CX), Y4
 	VPSHUFB Y5, Y3, Y3
-	VPXOR   Y2, Y3, Y2
-	VPXOR   Y2, Y0, Y0
+	VPSHUFB Y6, Y4, Y4
+	VPXOR   Y3, Y4, Y3
+	VPXOR   Y3, Y1, Y1
 
 	// Load and process 32 bytes from input 4 to 1 outputs
-	VMOVDQU (R8), Y4
+	VMOVDQU (R8), Y5
 	ADDQ    $0x20, R8
-	VPSRLQ  $0x04, Y4, Y5
-	VPAND   Y1, Y4, Y4
-	VPAND   Y1, Y5, Y5
-	VMOVDQU 256(CX), Y2
-	VMOVDQU 288(CX), Y3
-	VPSHUFB Y4, Y2, Y2
+	VPSRLQ  $0x04, Y5, Y6
+	VPAND   Y2, Y5, Y5
+	VPAND   Y2, Y6, Y6
+	VMOVDQU 256(CX), Y3
+	VMOVDQU 288(CX), Y4
 	VPSHUFB Y5, Y3, Y3
-	VPXOR   Y2, Y3, Y2
-	VPXOR   Y2, Y0, Y0
+	VPSHUFB Y6, Y4, Y4
+	VPXOR   Y3, Y4, Y3
+	VPXOR   Y3, Y1, Y1
 
 	// Load and process 32 bytes from input 5 to 1 outputs
-	VMOVDQU (R9), Y4
+	VMOVDQU (R9), Y5
 	ADDQ    $0x20, R9
-	VPSRLQ  $0x04, Y4, Y5
-	VPAND   Y1, Y4, Y4
-	VPAND   Y1, Y5, Y5
-	VMOVDQU 320(CX), Y2
-	VMOVDQU 352(CX), Y3
-	VPSHUFB Y4, Y2, Y2
+	VPSRLQ  $0x04, Y5, Y6
+	VPAND   Y2, Y5, Y5
+	VPAND   Y2, Y6, Y6
+	VMOVDQU 320(CX), Y3
+	VMOVDQU 352(CX), Y4
 	VPSHUFB Y5, Y3, Y3
-	VPXOR   Y2, Y3, Y2
-	VPXOR   Y2, Y0, Y0
+	VPSHUFB Y6, Y4, Y4
+	VPXOR   Y3, Y4, Y3
+	VPXOR   Y3, Y1, Y1
 
 	// Load and process 32 bytes from input 6 to 1 outputs
-	VMOVDQU (DX), Y4
+	VMOVDQU (DX), Y5
 	ADDQ    $0x20, DX
-	VPSRLQ  $0x04, Y4, Y5
-	VPAND   Y1, Y4, Y4
-	VPAND   Y1, Y5, Y5
-	VMOVDQU 384(CX), Y2
-	VMOVDQU 416(CX), Y3
-	VPSHUFB Y4, Y2, Y2
+	VPSRLQ  $0x04, Y5, Y6
+	VPAND   Y2, Y5, Y5
+	VPAND   Y2, Y6, Y6
+	VMOVDQU 384(CX), Y3
+	VMOVDQU 416(CX), Y4
 	VPSHUFB Y5, Y3, Y3
-	VPXOR   Y2, Y3, Y2
-	VPXOR   Y2, Y0, Y0
+	VPSHUFB Y6, Y4, Y4
+	VPXOR   Y3, Y4, Y3
+	VPXOR   Y3, Y1, Y1
 
 	// Store 1 outputs
-	VMOVDQU Y0, (R10)
+	VMOVDQU Y1, (R10)
 	ADDQ    $0x20, R10
 
 	// Prepare for next loop
@@ -8945,11 +9088,14 @@ mulAvxTwo_7x1_loop:
 	VZEROUPPER
 
 mulAvxTwo_7x1_end:
+	MOVQ X0, BP
 	RET
 
 // func mulAvxTwo_7x2(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX2, SSE2
-TEXT ·mulAvxTwo_7x2(SB), NOSPLIT, $8-88
+TEXT ·mulAvxTwo_7x2(SB), NOSPLIT, $0-88
+	MOVQ BP, X0
+
 	// Loading no tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 35 YMM used
@@ -8984,151 +9130,151 @@ TEXT ·mulAvxTwo_7x2(SB), NOSPLIT, $8-88
 	ADDQ         R12, R9
 	ADDQ         R12, DX
 	MOVQ         $0x0000000f, R12
-	MOVQ         R12, X2
-	VPBROADCASTB X2, Y2
+	MOVQ         R12, X3
+	VPBROADCASTB X3, Y3
 
 mulAvxTwo_7x2_loop:
 	// Clear 2 outputs
-	VPXOR Y0, Y0, Y0
 	VPXOR Y1, Y1, Y1
+	VPXOR Y2, Y2, Y2
 
 	// Load and process 32 bytes from input 0 to 2 outputs
-	VMOVDQU (BX), Y5
+	VMOVDQU (BX), Y6
 	ADDQ    $0x20, BX
-	VPSRLQ  $0x04, Y5, Y6
-	VPAND   Y2, Y5, Y5
-	VPAND   Y2, Y6, Y6
-	VMOVDQU (CX), Y3
-	VMOVDQU 32(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSRLQ  $0x04, Y6, Y7
+	VPAND   Y3, Y6, Y6
+	VPAND   Y3, Y7, Y7
+	VMOVDQU (CX), Y4
+	VMOVDQU 32(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y0, Y0
-	VMOVDQU 64(CX), Y3
-	VMOVDQU 96(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y1, Y1
+	VMOVDQU 64(CX), Y4
+	VMOVDQU 96(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y1, Y1
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 1 to 2 outputs
-	VMOVDQU (BP), Y5
+	VMOVDQU (BP), Y6
 	ADDQ    $0x20, BP
-	VPSRLQ  $0x04, Y5, Y6
-	VPAND   Y2, Y5, Y5
-	VPAND   Y2, Y6, Y6
-	VMOVDQU 128(CX), Y3
-	VMOVDQU 160(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSRLQ  $0x04, Y6, Y7
+	VPAND   Y3, Y6, Y6
+	VPAND   Y3, Y7, Y7
+	VMOVDQU 128(CX), Y4
+	VMOVDQU 160(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y0, Y0
-	VMOVDQU 192(CX), Y3
-	VMOVDQU 224(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y1, Y1
+	VMOVDQU 192(CX), Y4
+	VMOVDQU 224(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y1, Y1
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 2 to 2 outputs
-	VMOVDQU (SI), Y5
+	VMOVDQU (SI), Y6
 	ADDQ    $0x20, SI
-	VPSRLQ  $0x04, Y5, Y6
-	VPAND   Y2, Y5, Y5
-	VPAND   Y2, Y6, Y6
-	VMOVDQU 256(CX), Y3
-	VMOVDQU 288(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSRLQ  $0x04, Y6, Y7
+	VPAND   Y3, Y6, Y6
+	VPAND   Y3, Y7, Y7
+	VMOVDQU 256(CX), Y4
+	VMOVDQU 288(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y0, Y0
-	VMOVDQU 320(CX), Y3
-	VMOVDQU 352(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y1, Y1
+	VMOVDQU 320(CX), Y4
+	VMOVDQU 352(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y1, Y1
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 3 to 2 outputs
-	VMOVDQU (DI), Y5
+	VMOVDQU (DI), Y6
 	ADDQ    $0x20, DI
-	VPSRLQ  $0x04, Y5, Y6
-	VPAND   Y2, Y5, Y5
-	VPAND   Y2, Y6, Y6
-	VMOVDQU 384(CX), Y3
-	VMOVDQU 416(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSRLQ  $0x04, Y6, Y7
+	VPAND   Y3, Y6, Y6
+	VPAND   Y3, Y7, Y7
+	VMOVDQU 384(CX), Y4
+	VMOVDQU 416(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y0, Y0
-	VMOVDQU 448(CX), Y3
-	VMOVDQU 480(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y1, Y1
+	VMOVDQU 448(CX), Y4
+	VMOVDQU 480(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y1, Y1
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 4 to 2 outputs
-	VMOVDQU (R8), Y5
+	VMOVDQU (R8), Y6
 	ADDQ    $0x20, R8
-	VPSRLQ  $0x04, Y5, Y6
-	VPAND   Y2, Y5, Y5
-	VPAND   Y2, Y6, Y6
-	VMOVDQU 512(CX), Y3
-	VMOVDQU 544(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSRLQ  $0x04, Y6, Y7
+	VPAND   Y3, Y6, Y6
+	VPAND   Y3, Y7, Y7
+	VMOVDQU 512(CX), Y4
+	VMOVDQU 544(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y0, Y0
-	VMOVDQU 576(CX), Y3
-	VMOVDQU 608(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y1, Y1
+	VMOVDQU 576(CX), Y4
+	VMOVDQU 608(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y1, Y1
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 5 to 2 outputs
-	VMOVDQU (R9), Y5
+	VMOVDQU (R9), Y6
 	ADDQ    $0x20, R9
-	VPSRLQ  $0x04, Y5, Y6
-	VPAND   Y2, Y5, Y5
-	VPAND   Y2, Y6, Y6
-	VMOVDQU 640(CX), Y3
-	VMOVDQU 672(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSRLQ  $0x04, Y6, Y7
+	VPAND   Y3, Y6, Y6
+	VPAND   Y3, Y7, Y7
+	VMOVDQU 640(CX), Y4
+	VMOVDQU 672(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y0, Y0
-	VMOVDQU 704(CX), Y3
-	VMOVDQU 736(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y1, Y1
+	VMOVDQU 704(CX), Y4
+	VMOVDQU 736(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y1, Y1
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 6 to 2 outputs
-	VMOVDQU (DX), Y5
+	VMOVDQU (DX), Y6
 	ADDQ    $0x20, DX
-	VPSRLQ  $0x04, Y5, Y6
-	VPAND   Y2, Y5, Y5
-	VPAND   Y2, Y6, Y6
-	VMOVDQU 768(CX), Y3
-	VMOVDQU 800(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSRLQ  $0x04, Y6, Y7
+	VPAND   Y3, Y6, Y6
+	VPAND   Y3, Y7, Y7
+	VMOVDQU 768(CX), Y4
+	VMOVDQU 800(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y0, Y0
-	VMOVDQU 832(CX), Y3
-	VMOVDQU 864(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y1, Y1
+	VMOVDQU 832(CX), Y4
+	VMOVDQU 864(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y1, Y1
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y2, Y2
 
 	// Store 2 outputs
-	VMOVDQU Y0, (R11)
+	VMOVDQU Y1, (R11)
 	ADDQ    $0x20, R11
-	VMOVDQU Y1, (R10)
+	VMOVDQU Y2, (R10)
 	ADDQ    $0x20, R10
 
 	// Prepare for next loop
@@ -9137,11 +9283,14 @@ mulAvxTwo_7x2_loop:
 	VZEROUPPER
 
 mulAvxTwo_7x2_end:
+	MOVQ X0, BP
 	RET
 
 // func mulAvxTwo_7x3(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX2, SSE2
-TEXT ·mulAvxTwo_7x3(SB), NOSPLIT, $8-88
+TEXT ·mulAvxTwo_7x3(SB), NOSPLIT, $0-88
+	MOVQ BP, X0
+
 	// Loading no tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 50 YMM used
@@ -9178,196 +9327,196 @@ TEXT ·mulAvxTwo_7x3(SB), NOSPLIT, $8-88
 	ADDQ         R13, R9
 	ADDQ         R13, DX
 	MOVQ         $0x0000000f, R13
-	MOVQ         R13, X3
-	VPBROADCASTB X3, Y3
+	MOVQ         R13, X4
+	VPBROADCASTB X4, Y4
 
 mulAvxTwo_7x3_loop:
 	// Clear 3 outputs
-	VPXOR Y0, Y0, Y0
 	VPXOR Y1, Y1, Y1
 	VPXOR Y2, Y2, Y2
+	VPXOR Y3, Y3, Y3
 
 	// Load and process 32 bytes from input 0 to 3 outputs
-	VMOVDQU (BX), Y6
+	VMOVDQU (BX), Y7
 	ADDQ    $0x20, BX
-	VPSRLQ  $0x04, Y6, Y7
-	VPAND   Y3, Y6, Y6
-	VPAND   Y3, Y7, Y7
-	VMOVDQU (CX), Y4
-	VMOVDQU 32(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSRLQ  $0x04, Y7, Y8
+	VPAND   Y4, Y7, Y7
+	VPAND   Y4, Y8, Y8
+	VMOVDQU (CX), Y5
+	VMOVDQU 32(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y0, Y0
-	VMOVDQU 64(CX), Y4
-	VMOVDQU 96(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y1, Y1
+	VMOVDQU 64(CX), Y5
+	VMOVDQU 96(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y1, Y1
-	VMOVDQU 128(CX), Y4
-	VMOVDQU 160(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y2, Y2
+	VMOVDQU 128(CX), Y5
+	VMOVDQU 160(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y2, Y2
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 1 to 3 outputs
-	VMOVDQU (BP), Y6
+	VMOVDQU (BP), Y7
 	ADDQ    $0x20, BP
-	VPSRLQ  $0x04, Y6, Y7
-	VPAND   Y3, Y6, Y6
-	VPAND   Y3, Y7, Y7
-	VMOVDQU 192(CX), Y4
-	VMOVDQU 224(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSRLQ  $0x04, Y7, Y8
+	VPAND   Y4, Y7, Y7
+	VPAND   Y4, Y8, Y8
+	VMOVDQU 192(CX), Y5
+	VMOVDQU 224(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y0, Y0
-	VMOVDQU 256(CX), Y4
-	VMOVDQU 288(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y1, Y1
+	VMOVDQU 256(CX), Y5
+	VMOVDQU 288(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y1, Y1
-	VMOVDQU 320(CX), Y4
-	VMOVDQU 352(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y2, Y2
+	VMOVDQU 320(CX), Y5
+	VMOVDQU 352(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y2, Y2
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 2 to 3 outputs
-	VMOVDQU (SI), Y6
+	VMOVDQU (SI), Y7
 	ADDQ    $0x20, SI
-	VPSRLQ  $0x04, Y6, Y7
-	VPAND   Y3, Y6, Y6
-	VPAND   Y3, Y7, Y7
-	VMOVDQU 384(CX), Y4
-	VMOVDQU 416(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSRLQ  $0x04, Y7, Y8
+	VPAND   Y4, Y7, Y7
+	VPAND   Y4, Y8, Y8
+	VMOVDQU 384(CX), Y5
+	VMOVDQU 416(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y0, Y0
-	VMOVDQU 448(CX), Y4
-	VMOVDQU 480(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y1, Y1
+	VMOVDQU 448(CX), Y5
+	VMOVDQU 480(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y1, Y1
-	VMOVDQU 512(CX), Y4
-	VMOVDQU 544(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y2, Y2
+	VMOVDQU 512(CX), Y5
+	VMOVDQU 544(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y2, Y2
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 3 to 3 outputs
-	VMOVDQU (DI), Y6
+	VMOVDQU (DI), Y7
 	ADDQ    $0x20, DI
-	VPSRLQ  $0x04, Y6, Y7
-	VPAND   Y3, Y6, Y6
-	VPAND   Y3, Y7, Y7
-	VMOVDQU 576(CX), Y4
-	VMOVDQU 608(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSRLQ  $0x04, Y7, Y8
+	VPAND   Y4, Y7, Y7
+	VPAND   Y4, Y8, Y8
+	VMOVDQU 576(CX), Y5
+	VMOVDQU 608(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y0, Y0
-	VMOVDQU 640(CX), Y4
-	VMOVDQU 672(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y1, Y1
+	VMOVDQU 640(CX), Y5
+	VMOVDQU 672(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y1, Y1
-	VMOVDQU 704(CX), Y4
-	VMOVDQU 736(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y2, Y2
+	VMOVDQU 704(CX), Y5
+	VMOVDQU 736(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y2, Y2
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 4 to 3 outputs
-	VMOVDQU (R8), Y6
+	VMOVDQU (R8), Y7
 	ADDQ    $0x20, R8
-	VPSRLQ  $0x04, Y6, Y7
-	VPAND   Y3, Y6, Y6
-	VPAND   Y3, Y7, Y7
-	VMOVDQU 768(CX), Y4
-	VMOVDQU 800(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSRLQ  $0x04, Y7, Y8
+	VPAND   Y4, Y7, Y7
+	VPAND   Y4, Y8, Y8
+	VMOVDQU 768(CX), Y5
+	VMOVDQU 800(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y0, Y0
-	VMOVDQU 832(CX), Y4
-	VMOVDQU 864(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y1, Y1
+	VMOVDQU 832(CX), Y5
+	VMOVDQU 864(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y1, Y1
-	VMOVDQU 896(CX), Y4
-	VMOVDQU 928(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y2, Y2
+	VMOVDQU 896(CX), Y5
+	VMOVDQU 928(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y2, Y2
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 5 to 3 outputs
-	VMOVDQU (R9), Y6
+	VMOVDQU (R9), Y7
 	ADDQ    $0x20, R9
-	VPSRLQ  $0x04, Y6, Y7
-	VPAND   Y3, Y6, Y6
-	VPAND   Y3, Y7, Y7
-	VMOVDQU 960(CX), Y4
-	VMOVDQU 992(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSRLQ  $0x04, Y7, Y8
+	VPAND   Y4, Y7, Y7
+	VPAND   Y4, Y8, Y8
+	VMOVDQU 960(CX), Y5
+	VMOVDQU 992(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y0, Y0
-	VMOVDQU 1024(CX), Y4
-	VMOVDQU 1056(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y1, Y1
+	VMOVDQU 1024(CX), Y5
+	VMOVDQU 1056(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y1, Y1
-	VMOVDQU 1088(CX), Y4
-	VMOVDQU 1120(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y2, Y2
+	VMOVDQU 1088(CX), Y5
+	VMOVDQU 1120(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y2, Y2
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 6 to 3 outputs
-	VMOVDQU (DX), Y6
+	VMOVDQU (DX), Y7
 	ADDQ    $0x20, DX
-	VPSRLQ  $0x04, Y6, Y7
-	VPAND   Y3, Y6, Y6
-	VPAND   Y3, Y7, Y7
-	VMOVDQU 1152(CX), Y4
-	VMOVDQU 1184(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSRLQ  $0x04, Y7, Y8
+	VPAND   Y4, Y7, Y7
+	VPAND   Y4, Y8, Y8
+	VMOVDQU 1152(CX), Y5
+	VMOVDQU 1184(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y0, Y0
-	VMOVDQU 1216(CX), Y4
-	VMOVDQU 1248(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y1, Y1
+	VMOVDQU 1216(CX), Y5
+	VMOVDQU 1248(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y1, Y1
-	VMOVDQU 1280(CX), Y4
-	VMOVDQU 1312(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y2, Y2
+	VMOVDQU 1280(CX), Y5
+	VMOVDQU 1312(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y2, Y2
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y3, Y3
 
 	// Store 3 outputs
-	VMOVDQU Y0, (R11)
+	VMOVDQU Y1, (R11)
 	ADDQ    $0x20, R11
-	VMOVDQU Y1, (R12)
+	VMOVDQU Y2, (R12)
 	ADDQ    $0x20, R12
-	VMOVDQU Y2, (R10)
+	VMOVDQU Y3, (R10)
 	ADDQ    $0x20, R10
 
 	// Prepare for next loop
@@ -9376,11 +9525,14 @@ mulAvxTwo_7x3_loop:
 	VZEROUPPER
 
 mulAvxTwo_7x3_end:
+	MOVQ X0, BP
 	RET
 
 // func mulAvxTwo_7x4(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX2, SSE2
-TEXT ·mulAvxTwo_7x4(SB), NOSPLIT, $8-88
+TEXT ·mulAvxTwo_7x4(SB), NOSPLIT, $0-88
+	MOVQ BP, X0
+
 	// Loading no tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 65 YMM used
@@ -9419,241 +9571,241 @@ TEXT ·mulAvxTwo_7x4(SB), NOSPLIT, $8-88
 	ADDQ         R14, R9
 	ADDQ         R14, DX
 	MOVQ         $0x0000000f, R14
-	MOVQ         R14, X4
-	VPBROADCASTB X4, Y4
+	MOVQ         R14, X5
+	VPBROADCASTB X5, Y5
 
 mulAvxTwo_7x4_loop:
 	// Clear 4 outputs
-	VPXOR Y0, Y0, Y0
 	VPXOR Y1, Y1, Y1
 	VPXOR Y2, Y2, Y2
 	VPXOR Y3, Y3, Y3
+	VPXOR Y4, Y4, Y4
 
 	// Load and process 32 bytes from input 0 to 4 outputs
-	VMOVDQU (BX), Y7
+	VMOVDQU (BX), Y8
 	ADDQ    $0x20, BX
-	VPSRLQ  $0x04, Y7, Y8
-	VPAND   Y4, Y7, Y7
-	VPAND   Y4, Y8, Y8
-	VMOVDQU (CX), Y5
-	VMOVDQU 32(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSRLQ  $0x04, Y8, Y9
+	VPAND   Y5, Y8, Y8
+	VPAND   Y5, Y9, Y9
+	VMOVDQU (CX), Y6
+	VMOVDQU 32(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y0, Y0
-	VMOVDQU 64(CX), Y5
-	VMOVDQU 96(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y1, Y1
+	VMOVDQU 64(CX), Y6
+	VMOVDQU 96(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y1, Y1
-	VMOVDQU 128(CX), Y5
-	VMOVDQU 160(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y2, Y2
+	VMOVDQU 128(CX), Y6
+	VMOVDQU 160(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y2, Y2
-	VMOVDQU 192(CX), Y5
-	VMOVDQU 224(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y3, Y3
+	VMOVDQU 192(CX), Y6
+	VMOVDQU 224(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y3, Y3
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 1 to 4 outputs
-	VMOVDQU (BP), Y7
+	VMOVDQU (BP), Y8
 	ADDQ    $0x20, BP
-	VPSRLQ  $0x04, Y7, Y8
-	VPAND   Y4, Y7, Y7
-	VPAND   Y4, Y8, Y8
-	VMOVDQU 256(CX), Y5
-	VMOVDQU 288(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSRLQ  $0x04, Y8, Y9
+	VPAND   Y5, Y8, Y8
+	VPAND   Y5, Y9, Y9
+	VMOVDQU 256(CX), Y6
+	VMOVDQU 288(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y0, Y0
-	VMOVDQU 320(CX), Y5
-	VMOVDQU 352(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y1, Y1
+	VMOVDQU 320(CX), Y6
+	VMOVDQU 352(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y1, Y1
-	VMOVDQU 384(CX), Y5
-	VMOVDQU 416(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y2, Y2
+	VMOVDQU 384(CX), Y6
+	VMOVDQU 416(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y2, Y2
-	VMOVDQU 448(CX), Y5
-	VMOVDQU 480(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y3, Y3
+	VMOVDQU 448(CX), Y6
+	VMOVDQU 480(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y3, Y3
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 2 to 4 outputs
-	VMOVDQU (SI), Y7
+	VMOVDQU (SI), Y8
 	ADDQ    $0x20, SI
-	VPSRLQ  $0x04, Y7, Y8
-	VPAND   Y4, Y7, Y7
-	VPAND   Y4, Y8, Y8
-	VMOVDQU 512(CX), Y5
-	VMOVDQU 544(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSRLQ  $0x04, Y8, Y9
+	VPAND   Y5, Y8, Y8
+	VPAND   Y5, Y9, Y9
+	VMOVDQU 512(CX), Y6
+	VMOVDQU 544(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y0, Y0
-	VMOVDQU 576(CX), Y5
-	VMOVDQU 608(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y1, Y1
+	VMOVDQU 576(CX), Y6
+	VMOVDQU 608(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y1, Y1
-	VMOVDQU 640(CX), Y5
-	VMOVDQU 672(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y2, Y2
+	VMOVDQU 640(CX), Y6
+	VMOVDQU 672(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y2, Y2
-	VMOVDQU 704(CX), Y5
-	VMOVDQU 736(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y3, Y3
+	VMOVDQU 704(CX), Y6
+	VMOVDQU 736(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y3, Y3
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 3 to 4 outputs
-	VMOVDQU (DI), Y7
+	VMOVDQU (DI), Y8
 	ADDQ    $0x20, DI
-	VPSRLQ  $0x04, Y7, Y8
-	VPAND   Y4, Y7, Y7
-	VPAND   Y4, Y8, Y8
-	VMOVDQU 768(CX), Y5
-	VMOVDQU 800(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSRLQ  $0x04, Y8, Y9
+	VPAND   Y5, Y8, Y8
+	VPAND   Y5, Y9, Y9
+	VMOVDQU 768(CX), Y6
+	VMOVDQU 800(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y0, Y0
-	VMOVDQU 832(CX), Y5
-	VMOVDQU 864(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y1, Y1
+	VMOVDQU 832(CX), Y6
+	VMOVDQU 864(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y1, Y1
-	VMOVDQU 896(CX), Y5
-	VMOVDQU 928(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y2, Y2
+	VMOVDQU 896(CX), Y6
+	VMOVDQU 928(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y2, Y2
-	VMOVDQU 960(CX), Y5
-	VMOVDQU 992(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y3, Y3
+	VMOVDQU 960(CX), Y6
+	VMOVDQU 992(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y3, Y3
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 4 to 4 outputs
-	VMOVDQU (R8), Y7
+	VMOVDQU (R8), Y8
 	ADDQ    $0x20, R8
-	VPSRLQ  $0x04, Y7, Y8
-	VPAND   Y4, Y7, Y7
-	VPAND   Y4, Y8, Y8
-	VMOVDQU 1024(CX), Y5
-	VMOVDQU 1056(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSRLQ  $0x04, Y8, Y9
+	VPAND   Y5, Y8, Y8
+	VPAND   Y5, Y9, Y9
+	VMOVDQU 1024(CX), Y6
+	VMOVDQU 1056(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y0, Y0
-	VMOVDQU 1088(CX), Y5
-	VMOVDQU 1120(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y1, Y1
+	VMOVDQU 1088(CX), Y6
+	VMOVDQU 1120(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y1, Y1
-	VMOVDQU 1152(CX), Y5
-	VMOVDQU 1184(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y2, Y2
+	VMOVDQU 1152(CX), Y6
+	VMOVDQU 1184(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y2, Y2
-	VMOVDQU 1216(CX), Y5
-	VMOVDQU 1248(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y3, Y3
+	VMOVDQU 1216(CX), Y6
+	VMOVDQU 1248(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y3, Y3
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 5 to 4 outputs
-	VMOVDQU (R9), Y7
+	VMOVDQU (R9), Y8
 	ADDQ    $0x20, R9
-	VPSRLQ  $0x04, Y7, Y8
-	VPAND   Y4, Y7, Y7
-	VPAND   Y4, Y8, Y8
-	VMOVDQU 1280(CX), Y5
-	VMOVDQU 1312(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSRLQ  $0x04, Y8, Y9
+	VPAND   Y5, Y8, Y8
+	VPAND   Y5, Y9, Y9
+	VMOVDQU 1280(CX), Y6
+	VMOVDQU 1312(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y0, Y0
-	VMOVDQU 1344(CX), Y5
-	VMOVDQU 1376(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y1, Y1
+	VMOVDQU 1344(CX), Y6
+	VMOVDQU 1376(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y1, Y1
-	VMOVDQU 1408(CX), Y5
-	VMOVDQU 1440(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y2, Y2
+	VMOVDQU 1408(CX), Y6
+	VMOVDQU 1440(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y2, Y2
-	VMOVDQU 1472(CX), Y5
-	VMOVDQU 1504(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y3, Y3
+	VMOVDQU 1472(CX), Y6
+	VMOVDQU 1504(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y3, Y3
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 6 to 4 outputs
-	VMOVDQU (DX), Y7
+	VMOVDQU (DX), Y8
 	ADDQ    $0x20, DX
-	VPSRLQ  $0x04, Y7, Y8
-	VPAND   Y4, Y7, Y7
-	VPAND   Y4, Y8, Y8
-	VMOVDQU 1536(CX), Y5
-	VMOVDQU 1568(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSRLQ  $0x04, Y8, Y9
+	VPAND   Y5, Y8, Y8
+	VPAND   Y5, Y9, Y9
+	VMOVDQU 1536(CX), Y6
+	VMOVDQU 1568(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y0, Y0
-	VMOVDQU 1600(CX), Y5
-	VMOVDQU 1632(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y1, Y1
+	VMOVDQU 1600(CX), Y6
+	VMOVDQU 1632(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y1, Y1
-	VMOVDQU 1664(CX), Y5
-	VMOVDQU 1696(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y2, Y2
+	VMOVDQU 1664(CX), Y6
+	VMOVDQU 1696(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y2, Y2
-	VMOVDQU 1728(CX), Y5
-	VMOVDQU 1760(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y3, Y3
+	VMOVDQU 1728(CX), Y6
+	VMOVDQU 1760(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y3, Y3
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y4, Y4
 
 	// Store 4 outputs
-	VMOVDQU Y0, (R11)
+	VMOVDQU Y1, (R11)
 	ADDQ    $0x20, R11
-	VMOVDQU Y1, (R12)
+	VMOVDQU Y2, (R12)
 	ADDQ    $0x20, R12
-	VMOVDQU Y2, (R13)
+	VMOVDQU Y3, (R13)
 	ADDQ    $0x20, R13
-	VMOVDQU Y3, (R10)
+	VMOVDQU Y4, (R10)
 	ADDQ    $0x20, R10
 
 	// Prepare for next loop
@@ -9662,11 +9814,14 @@ mulAvxTwo_7x4_loop:
 	VZEROUPPER
 
 mulAvxTwo_7x4_end:
+	MOVQ X0, BP
 	RET
 
 // func mulAvxTwo_7x5(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX2, SSE2
-TEXT ·mulAvxTwo_7x5(SB), NOSPLIT, $8-88
+TEXT ·mulAvxTwo_7x5(SB), NOSPLIT, $0-88
+	MOVQ BP, X0
+
 	// Loading no tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 80 YMM used
@@ -9707,286 +9862,286 @@ TEXT ·mulAvxTwo_7x5(SB), NOSPLIT, $8-88
 	ADDQ         R15, R9
 	ADDQ         R15, DX
 	MOVQ         $0x0000000f, R15
-	MOVQ         R15, X5
-	VPBROADCASTB X5, Y5
+	MOVQ         R15, X6
+	VPBROADCASTB X6, Y6
 
 mulAvxTwo_7x5_loop:
 	// Clear 5 outputs
-	VPXOR Y0, Y0, Y0
 	VPXOR Y1, Y1, Y1
 	VPXOR Y2, Y2, Y2
 	VPXOR Y3, Y3, Y3
 	VPXOR Y4, Y4, Y4
+	VPXOR Y5, Y5, Y5
 
 	// Load and process 32 bytes from input 0 to 5 outputs
-	VMOVDQU (BX), Y8
+	VMOVDQU (BX), Y9
 	ADDQ    $0x20, BX
-	VPSRLQ  $0x04, Y8, Y9
-	VPAND   Y5, Y8, Y8
-	VPAND   Y5, Y9, Y9
-	VMOVDQU (CX), Y6
-	VMOVDQU 32(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSRLQ  $0x04, Y9, Y10
+	VPAND   Y6, Y9, Y9
+	VPAND   Y6, Y10, Y10
+	VMOVDQU (CX), Y7
+	VMOVDQU 32(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y0, Y0
-	VMOVDQU 64(CX), Y6
-	VMOVDQU 96(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y1, Y1
+	VMOVDQU 64(CX), Y7
+	VMOVDQU 96(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y1, Y1
-	VMOVDQU 128(CX), Y6
-	VMOVDQU 160(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y2, Y2
+	VMOVDQU 128(CX), Y7
+	VMOVDQU 160(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y2, Y2
-	VMOVDQU 192(CX), Y6
-	VMOVDQU 224(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y3, Y3
+	VMOVDQU 192(CX), Y7
+	VMOVDQU 224(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y3, Y3
-	VMOVDQU 256(CX), Y6
-	VMOVDQU 288(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y4, Y4
+	VMOVDQU 256(CX), Y7
+	VMOVDQU 288(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y4, Y4
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 1 to 5 outputs
-	VMOVDQU (BP), Y8
+	VMOVDQU (BP), Y9
 	ADDQ    $0x20, BP
-	VPSRLQ  $0x04, Y8, Y9
-	VPAND   Y5, Y8, Y8
-	VPAND   Y5, Y9, Y9
-	VMOVDQU 320(CX), Y6
-	VMOVDQU 352(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSRLQ  $0x04, Y9, Y10
+	VPAND   Y6, Y9, Y9
+	VPAND   Y6, Y10, Y10
+	VMOVDQU 320(CX), Y7
+	VMOVDQU 352(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y0, Y0
-	VMOVDQU 384(CX), Y6
-	VMOVDQU 416(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y1, Y1
+	VMOVDQU 384(CX), Y7
+	VMOVDQU 416(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y1, Y1
-	VMOVDQU 448(CX), Y6
-	VMOVDQU 480(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y2, Y2
+	VMOVDQU 448(CX), Y7
+	VMOVDQU 480(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y2, Y2
-	VMOVDQU 512(CX), Y6
-	VMOVDQU 544(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y3, Y3
+	VMOVDQU 512(CX), Y7
+	VMOVDQU 544(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y3, Y3
-	VMOVDQU 576(CX), Y6
-	VMOVDQU 608(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y4, Y4
+	VMOVDQU 576(CX), Y7
+	VMOVDQU 608(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y4, Y4
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 2 to 5 outputs
-	VMOVDQU (SI), Y8
+	VMOVDQU (SI), Y9
 	ADDQ    $0x20, SI
-	VPSRLQ  $0x04, Y8, Y9
-	VPAND   Y5, Y8, Y8
-	VPAND   Y5, Y9, Y9
-	VMOVDQU 640(CX), Y6
-	VMOVDQU 672(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSRLQ  $0x04, Y9, Y10
+	VPAND   Y6, Y9, Y9
+	VPAND   Y6, Y10, Y10
+	VMOVDQU 640(CX), Y7
+	VMOVDQU 672(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y0, Y0
-	VMOVDQU 704(CX), Y6
-	VMOVDQU 736(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y1, Y1
+	VMOVDQU 704(CX), Y7
+	VMOVDQU 736(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y1, Y1
-	VMOVDQU 768(CX), Y6
-	VMOVDQU 800(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y2, Y2
+	VMOVDQU 768(CX), Y7
+	VMOVDQU 800(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y2, Y2
-	VMOVDQU 832(CX), Y6
-	VMOVDQU 864(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y3, Y3
+	VMOVDQU 832(CX), Y7
+	VMOVDQU 864(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y3, Y3
-	VMOVDQU 896(CX), Y6
-	VMOVDQU 928(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y4, Y4
+	VMOVDQU 896(CX), Y7
+	VMOVDQU 928(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y4, Y4
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 3 to 5 outputs
-	VMOVDQU (DI), Y8
+	VMOVDQU (DI), Y9
 	ADDQ    $0x20, DI
-	VPSRLQ  $0x04, Y8, Y9
-	VPAND   Y5, Y8, Y8
-	VPAND   Y5, Y9, Y9
-	VMOVDQU 960(CX), Y6
-	VMOVDQU 992(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSRLQ  $0x04, Y9, Y10
+	VPAND   Y6, Y9, Y9
+	VPAND   Y6, Y10, Y10
+	VMOVDQU 960(CX), Y7
+	VMOVDQU 992(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y0, Y0
-	VMOVDQU 1024(CX), Y6
-	VMOVDQU 1056(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y1, Y1
+	VMOVDQU 1024(CX), Y7
+	VMOVDQU 1056(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y1, Y1
-	VMOVDQU 1088(CX), Y6
-	VMOVDQU 1120(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y2, Y2
+	VMOVDQU 1088(CX), Y7
+	VMOVDQU 1120(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y2, Y2
-	VMOVDQU 1152(CX), Y6
-	VMOVDQU 1184(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y3, Y3
+	VMOVDQU 1152(CX), Y7
+	VMOVDQU 1184(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y3, Y3
-	VMOVDQU 1216(CX), Y6
-	VMOVDQU 1248(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y4, Y4
+	VMOVDQU 1216(CX), Y7
+	VMOVDQU 1248(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y4, Y4
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 4 to 5 outputs
-	VMOVDQU (R8), Y8
+	VMOVDQU (R8), Y9
 	ADDQ    $0x20, R8
-	VPSRLQ  $0x04, Y8, Y9
-	VPAND   Y5, Y8, Y8
-	VPAND   Y5, Y9, Y9
-	VMOVDQU 1280(CX), Y6
-	VMOVDQU 1312(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSRLQ  $0x04, Y9, Y10
+	VPAND   Y6, Y9, Y9
+	VPAND   Y6, Y10, Y10
+	VMOVDQU 1280(CX), Y7
+	VMOVDQU 1312(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y0, Y0
-	VMOVDQU 1344(CX), Y6
-	VMOVDQU 1376(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y1, Y1
+	VMOVDQU 1344(CX), Y7
+	VMOVDQU 1376(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y1, Y1
-	VMOVDQU 1408(CX), Y6
-	VMOVDQU 1440(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y2, Y2
+	VMOVDQU 1408(CX), Y7
+	VMOVDQU 1440(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y2, Y2
-	VMOVDQU 1472(CX), Y6
-	VMOVDQU 1504(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y3, Y3
+	VMOVDQU 1472(CX), Y7
+	VMOVDQU 1504(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y3, Y3
-	VMOVDQU 1536(CX), Y6
-	VMOVDQU 1568(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y4, Y4
+	VMOVDQU 1536(CX), Y7
+	VMOVDQU 1568(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y4, Y4
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 5 to 5 outputs
-	VMOVDQU (R9), Y8
+	VMOVDQU (R9), Y9
 	ADDQ    $0x20, R9
-	VPSRLQ  $0x04, Y8, Y9
-	VPAND   Y5, Y8, Y8
-	VPAND   Y5, Y9, Y9
-	VMOVDQU 1600(CX), Y6
-	VMOVDQU 1632(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSRLQ  $0x04, Y9, Y10
+	VPAND   Y6, Y9, Y9
+	VPAND   Y6, Y10, Y10
+	VMOVDQU 1600(CX), Y7
+	VMOVDQU 1632(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y0, Y0
-	VMOVDQU 1664(CX), Y6
-	VMOVDQU 1696(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y1, Y1
+	VMOVDQU 1664(CX), Y7
+	VMOVDQU 1696(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y1, Y1
-	VMOVDQU 1728(CX), Y6
-	VMOVDQU 1760(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y2, Y2
+	VMOVDQU 1728(CX), Y7
+	VMOVDQU 1760(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y2, Y2
-	VMOVDQU 1792(CX), Y6
-	VMOVDQU 1824(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y3, Y3
+	VMOVDQU 1792(CX), Y7
+	VMOVDQU 1824(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y3, Y3
-	VMOVDQU 1856(CX), Y6
-	VMOVDQU 1888(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y4, Y4
+	VMOVDQU 1856(CX), Y7
+	VMOVDQU 1888(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y4, Y4
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 6 to 5 outputs
-	VMOVDQU (DX), Y8
+	VMOVDQU (DX), Y9
 	ADDQ    $0x20, DX
-	VPSRLQ  $0x04, Y8, Y9
-	VPAND   Y5, Y8, Y8
-	VPAND   Y5, Y9, Y9
-	VMOVDQU 1920(CX), Y6
-	VMOVDQU 1952(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSRLQ  $0x04, Y9, Y10
+	VPAND   Y6, Y9, Y9
+	VPAND   Y6, Y10, Y10
+	VMOVDQU 1920(CX), Y7
+	VMOVDQU 1952(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y0, Y0
-	VMOVDQU 1984(CX), Y6
-	VMOVDQU 2016(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y1, Y1
+	VMOVDQU 1984(CX), Y7
+	VMOVDQU 2016(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y1, Y1
-	VMOVDQU 2048(CX), Y6
-	VMOVDQU 2080(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y2, Y2
+	VMOVDQU 2048(CX), Y7
+	VMOVDQU 2080(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y2, Y2
-	VMOVDQU 2112(CX), Y6
-	VMOVDQU 2144(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y3, Y3
+	VMOVDQU 2112(CX), Y7
+	VMOVDQU 2144(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y3, Y3
-	VMOVDQU 2176(CX), Y6
-	VMOVDQU 2208(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y4, Y4
+	VMOVDQU 2176(CX), Y7
+	VMOVDQU 2208(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y4, Y4
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y5, Y5
 
 	// Store 5 outputs
-	VMOVDQU Y0, (R11)
+	VMOVDQU Y1, (R11)
 	ADDQ    $0x20, R11
-	VMOVDQU Y1, (R12)
+	VMOVDQU Y2, (R12)
 	ADDQ    $0x20, R12
-	VMOVDQU Y2, (R13)
+	VMOVDQU Y3, (R13)
 	ADDQ    $0x20, R13
-	VMOVDQU Y3, (R14)
+	VMOVDQU Y4, (R14)
 	ADDQ    $0x20, R14
-	VMOVDQU Y4, (R10)
+	VMOVDQU Y5, (R10)
 	ADDQ    $0x20, R10
 
 	// Prepare for next loop
@@ -9995,11 +10150,14 @@ mulAvxTwo_7x5_loop:
 	VZEROUPPER
 
 mulAvxTwo_7x5_end:
+	MOVQ X0, BP
 	RET
 
 // func mulAvxTwo_7x6(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX2, SSE2
-TEXT ·mulAvxTwo_7x6(SB), NOSPLIT, $8-88
+TEXT ·mulAvxTwo_7x6(SB), NOSPLIT, $0-88
+	MOVQ BP, X0
+
 	// Loading no tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 95 YMM used
@@ -10042,380 +10200,13 @@ TEXT ·mulAvxTwo_7x6(SB), NOSPLIT, $8-88
 	ADDQ         R15, R8
 	ADDQ         R15, AX
 	MOVQ         $0x0000000f, R15
-	MOVQ         R15, X6
-	VPBROADCASTB X6, Y6
+	MOVQ         R15, X7
+	VPBROADCASTB X7, Y7
 	MOVQ         n+80(FP), R15
 	SHRQ         $0x05, R15
 
 mulAvxTwo_7x6_loop:
 	// Clear 6 outputs
-	VPXOR Y0, Y0, Y0
-	VPXOR Y1, Y1, Y1
-	VPXOR Y2, Y2, Y2
-	VPXOR Y3, Y3, Y3
-	VPXOR Y4, Y4, Y4
-	VPXOR Y5, Y5, Y5
-
-	// Load and process 32 bytes from input 0 to 6 outputs
-	VMOVDQU (DX), Y9
-	ADDQ    $0x20, DX
-	VPSRLQ  $0x04, Y9, Y10
-	VPAND   Y6, Y9, Y9
-	VPAND   Y6, Y10, Y10
-	VMOVDQU (CX), Y7
-	VMOVDQU 32(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y0, Y0
-	VMOVDQU 64(CX), Y7
-	VMOVDQU 96(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y1, Y1
-	VMOVDQU 128(CX), Y7
-	VMOVDQU 160(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y2, Y2
-	VMOVDQU 192(CX), Y7
-	VMOVDQU 224(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y3, Y3
-	VMOVDQU 256(CX), Y7
-	VMOVDQU 288(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y4, Y4
-	VMOVDQU 320(CX), Y7
-	VMOVDQU 352(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y5, Y5
-
-	// Load and process 32 bytes from input 1 to 6 outputs
-	VMOVDQU (BX), Y9
-	ADDQ    $0x20, BX
-	VPSRLQ  $0x04, Y9, Y10
-	VPAND   Y6, Y9, Y9
-	VPAND   Y6, Y10, Y10
-	VMOVDQU 384(CX), Y7
-	VMOVDQU 416(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y0, Y0
-	VMOVDQU 448(CX), Y7
-	VMOVDQU 480(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y1, Y1
-	VMOVDQU 512(CX), Y7
-	VMOVDQU 544(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y2, Y2
-	VMOVDQU 576(CX), Y7
-	VMOVDQU 608(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y3, Y3
-	VMOVDQU 640(CX), Y7
-	VMOVDQU 672(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y4, Y4
-	VMOVDQU 704(CX), Y7
-	VMOVDQU 736(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y5, Y5
-
-	// Load and process 32 bytes from input 2 to 6 outputs
-	VMOVDQU (BP), Y9
-	ADDQ    $0x20, BP
-	VPSRLQ  $0x04, Y9, Y10
-	VPAND   Y6, Y9, Y9
-	VPAND   Y6, Y10, Y10
-	VMOVDQU 768(CX), Y7
-	VMOVDQU 800(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y0, Y0
-	VMOVDQU 832(CX), Y7
-	VMOVDQU 864(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y1, Y1
-	VMOVDQU 896(CX), Y7
-	VMOVDQU 928(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y2, Y2
-	VMOVDQU 960(CX), Y7
-	VMOVDQU 992(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y3, Y3
-	VMOVDQU 1024(CX), Y7
-	VMOVDQU 1056(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y4, Y4
-	VMOVDQU 1088(CX), Y7
-	VMOVDQU 1120(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y5, Y5
-
-	// Load and process 32 bytes from input 3 to 6 outputs
-	VMOVDQU (SI), Y9
-	ADDQ    $0x20, SI
-	VPSRLQ  $0x04, Y9, Y10
-	VPAND   Y6, Y9, Y9
-	VPAND   Y6, Y10, Y10
-	VMOVDQU 1152(CX), Y7
-	VMOVDQU 1184(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y0, Y0
-	VMOVDQU 1216(CX), Y7
-	VMOVDQU 1248(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y1, Y1
-	VMOVDQU 1280(CX), Y7
-	VMOVDQU 1312(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y2, Y2
-	VMOVDQU 1344(CX), Y7
-	VMOVDQU 1376(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y3, Y3
-	VMOVDQU 1408(CX), Y7
-	VMOVDQU 1440(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y4, Y4
-	VMOVDQU 1472(CX), Y7
-	VMOVDQU 1504(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y5, Y5
-
-	// Load and process 32 bytes from input 4 to 6 outputs
-	VMOVDQU (DI), Y9
-	ADDQ    $0x20, DI
-	VPSRLQ  $0x04, Y9, Y10
-	VPAND   Y6, Y9, Y9
-	VPAND   Y6, Y10, Y10
-	VMOVDQU 1536(CX), Y7
-	VMOVDQU 1568(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y0, Y0
-	VMOVDQU 1600(CX), Y7
-	VMOVDQU 1632(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y1, Y1
-	VMOVDQU 1664(CX), Y7
-	VMOVDQU 1696(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y2, Y2
-	VMOVDQU 1728(CX), Y7
-	VMOVDQU 1760(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y3, Y3
-	VMOVDQU 1792(CX), Y7
-	VMOVDQU 1824(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y4, Y4
-	VMOVDQU 1856(CX), Y7
-	VMOVDQU 1888(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y5, Y5
-
-	// Load and process 32 bytes from input 5 to 6 outputs
-	VMOVDQU (R8), Y9
-	ADDQ    $0x20, R8
-	VPSRLQ  $0x04, Y9, Y10
-	VPAND   Y6, Y9, Y9
-	VPAND   Y6, Y10, Y10
-	VMOVDQU 1920(CX), Y7
-	VMOVDQU 1952(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y0, Y0
-	VMOVDQU 1984(CX), Y7
-	VMOVDQU 2016(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y1, Y1
-	VMOVDQU 2048(CX), Y7
-	VMOVDQU 2080(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y2, Y2
-	VMOVDQU 2112(CX), Y7
-	VMOVDQU 2144(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y3, Y3
-	VMOVDQU 2176(CX), Y7
-	VMOVDQU 2208(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y4, Y4
-	VMOVDQU 2240(CX), Y7
-	VMOVDQU 2272(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y5, Y5
-
-	// Load and process 32 bytes from input 6 to 6 outputs
-	VMOVDQU (AX), Y9
-	ADDQ    $0x20, AX
-	VPSRLQ  $0x04, Y9, Y10
-	VPAND   Y6, Y9, Y9
-	VPAND   Y6, Y10, Y10
-	VMOVDQU 2304(CX), Y7
-	VMOVDQU 2336(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y0, Y0
-	VMOVDQU 2368(CX), Y7
-	VMOVDQU 2400(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y1, Y1
-	VMOVDQU 2432(CX), Y7
-	VMOVDQU 2464(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y2, Y2
-	VMOVDQU 2496(CX), Y7
-	VMOVDQU 2528(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y3, Y3
-	VMOVDQU 2560(CX), Y7
-	VMOVDQU 2592(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y4, Y4
-	VMOVDQU 2624(CX), Y7
-	VMOVDQU 2656(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y5, Y5
-
-	// Store 6 outputs
-	VMOVDQU Y0, (R10)
-	ADDQ    $0x20, R10
-	VMOVDQU Y1, (R11)
-	ADDQ    $0x20, R11
-	VMOVDQU Y2, (R12)
-	ADDQ    $0x20, R12
-	VMOVDQU Y3, (R13)
-	ADDQ    $0x20, R13
-	VMOVDQU Y4, (R14)
-	ADDQ    $0x20, R14
-	VMOVDQU Y5, (R9)
-	ADDQ    $0x20, R9
-
-	// Prepare for next loop
-	DECQ R15
-	JNZ  mulAvxTwo_7x6_loop
-	VZEROUPPER
-
-mulAvxTwo_7x6_end:
-	RET
-
-// func mulAvxTwo_7x7(matrix []byte, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX2, SSE2
-TEXT ·mulAvxTwo_7x7(SB), NOSPLIT, $8-88
-	// Loading no tables to registers
-	// Destination kept on stack
-	// Full registers estimated 110 YMM used
-	MOVQ  n+80(FP), AX
-	MOVQ  matrix_base+0(FP), CX
-	SHRQ  $0x05, AX
-	TESTQ AX, AX
-	JZ    mulAvxTwo_7x7_end
-	MOVQ  in_base+24(FP), DX
-	MOVQ  (DX), BX
-	MOVQ  24(DX), BP
-	MOVQ  48(DX), SI
-	MOVQ  72(DX), DI
-	MOVQ  96(DX), R8
-	MOVQ  120(DX), R9
-	MOVQ  144(DX), DX
-	MOVQ  out_base+48(FP), R10
-	MOVQ  start+72(FP), R11
-
-	// Add start offset to input
-	ADDQ         R11, BX
-	ADDQ         R11, BP
-	ADDQ         R11, SI
-	ADDQ         R11, DI
-	ADDQ         R11, R8
-	ADDQ         R11, R9
-	ADDQ         R11, DX
-	MOVQ         $0x0000000f, R12
-	MOVQ         R12, X7
-	VPBROADCASTB X7, Y7
-
-mulAvxTwo_7x7_loop:
-	// Clear 7 outputs
-	VPXOR Y0, Y0, Y0
 	VPXOR Y1, Y1, Y1
 	VPXOR Y2, Y2, Y2
 	VPXOR Y3, Y3, Y3
@@ -10423,9 +10214,9 @@ mulAvxTwo_7x7_loop:
 	VPXOR Y5, Y5, Y5
 	VPXOR Y6, Y6, Y6
 
-	// Load and process 32 bytes from input 0 to 7 outputs
-	VMOVDQU (BX), Y10
-	ADDQ    $0x20, BX
+	// Load and process 32 bytes from input 0 to 6 outputs
+	VMOVDQU (DX), Y10
+	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y10, Y11
 	VPAND   Y7, Y10, Y10
 	VPAND   Y7, Y11, Y11
@@ -10434,252 +10225,259 @@ mulAvxTwo_7x7_loop:
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y0, Y0
+	VPXOR   Y8, Y1, Y1
 	VMOVDQU 64(CX), Y8
 	VMOVDQU 96(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y1, Y1
+	VPXOR   Y8, Y2, Y2
 	VMOVDQU 128(CX), Y8
 	VMOVDQU 160(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y2, Y2
+	VPXOR   Y8, Y3, Y3
 	VMOVDQU 192(CX), Y8
 	VMOVDQU 224(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y3, Y3
+	VPXOR   Y8, Y4, Y4
 	VMOVDQU 256(CX), Y8
 	VMOVDQU 288(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y4, Y4
+	VPXOR   Y8, Y5, Y5
 	VMOVDQU 320(CX), Y8
 	VMOVDQU 352(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y5, Y5
+	VPXOR   Y8, Y6, Y6
+
+	// Load and process 32 bytes from input 1 to 6 outputs
+	VMOVDQU (BX), Y10
+	ADDQ    $0x20, BX
+	VPSRLQ  $0x04, Y10, Y11
+	VPAND   Y7, Y10, Y10
+	VPAND   Y7, Y11, Y11
 	VMOVDQU 384(CX), Y8
 	VMOVDQU 416(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y6, Y6
-
-	// Load and process 32 bytes from input 1 to 7 outputs
-	VMOVDQU (BP), Y10
-	ADDQ    $0x20, BP
-	VPSRLQ  $0x04, Y10, Y11
-	VPAND   Y7, Y10, Y10
-	VPAND   Y7, Y11, Y11
+	VPXOR   Y8, Y1, Y1
 	VMOVDQU 448(CX), Y8
 	VMOVDQU 480(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y0, Y0
+	VPXOR   Y8, Y2, Y2
 	VMOVDQU 512(CX), Y8
 	VMOVDQU 544(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y1, Y1
+	VPXOR   Y8, Y3, Y3
 	VMOVDQU 576(CX), Y8
 	VMOVDQU 608(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y2, Y2
+	VPXOR   Y8, Y4, Y4
 	VMOVDQU 640(CX), Y8
 	VMOVDQU 672(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y3, Y3
+	VPXOR   Y8, Y5, Y5
 	VMOVDQU 704(CX), Y8
 	VMOVDQU 736(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y4, Y4
+	VPXOR   Y8, Y6, Y6
+
+	// Load and process 32 bytes from input 2 to 6 outputs
+	VMOVDQU (BP), Y10
+	ADDQ    $0x20, BP
+	VPSRLQ  $0x04, Y10, Y11
+	VPAND   Y7, Y10, Y10
+	VPAND   Y7, Y11, Y11
 	VMOVDQU 768(CX), Y8
 	VMOVDQU 800(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y5, Y5
+	VPXOR   Y8, Y1, Y1
 	VMOVDQU 832(CX), Y8
 	VMOVDQU 864(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y6, Y6
-
-	// Load and process 32 bytes from input 2 to 7 outputs
-	VMOVDQU (SI), Y10
-	ADDQ    $0x20, SI
-	VPSRLQ  $0x04, Y10, Y11
-	VPAND   Y7, Y10, Y10
-	VPAND   Y7, Y11, Y11
+	VPXOR   Y8, Y2, Y2
 	VMOVDQU 896(CX), Y8
 	VMOVDQU 928(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y0, Y0
+	VPXOR   Y8, Y3, Y3
 	VMOVDQU 960(CX), Y8
 	VMOVDQU 992(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y1, Y1
+	VPXOR   Y8, Y4, Y4
 	VMOVDQU 1024(CX), Y8
 	VMOVDQU 1056(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y2, Y2
+	VPXOR   Y8, Y5, Y5
 	VMOVDQU 1088(CX), Y8
 	VMOVDQU 1120(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y3, Y3
+	VPXOR   Y8, Y6, Y6
+
+	// Load and process 32 bytes from input 3 to 6 outputs
+	VMOVDQU (SI), Y10
+	ADDQ    $0x20, SI
+	VPSRLQ  $0x04, Y10, Y11
+	VPAND   Y7, Y10, Y10
+	VPAND   Y7, Y11, Y11
 	VMOVDQU 1152(CX), Y8
 	VMOVDQU 1184(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y4, Y4
+	VPXOR   Y8, Y1, Y1
 	VMOVDQU 1216(CX), Y8
 	VMOVDQU 1248(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y5, Y5
+	VPXOR   Y8, Y2, Y2
 	VMOVDQU 1280(CX), Y8
 	VMOVDQU 1312(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y6, Y6
-
-	// Load and process 32 bytes from input 3 to 7 outputs
-	VMOVDQU (DI), Y10
-	ADDQ    $0x20, DI
-	VPSRLQ  $0x04, Y10, Y11
-	VPAND   Y7, Y10, Y10
-	VPAND   Y7, Y11, Y11
+	VPXOR   Y8, Y3, Y3
 	VMOVDQU 1344(CX), Y8
 	VMOVDQU 1376(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y0, Y0
+	VPXOR   Y8, Y4, Y4
 	VMOVDQU 1408(CX), Y8
 	VMOVDQU 1440(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y1, Y1
+	VPXOR   Y8, Y5, Y5
 	VMOVDQU 1472(CX), Y8
 	VMOVDQU 1504(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y2, Y2
+	VPXOR   Y8, Y6, Y6
+
+	// Load and process 32 bytes from input 4 to 6 outputs
+	VMOVDQU (DI), Y10
+	ADDQ    $0x20, DI
+	VPSRLQ  $0x04, Y10, Y11
+	VPAND   Y7, Y10, Y10
+	VPAND   Y7, Y11, Y11
 	VMOVDQU 1536(CX), Y8
 	VMOVDQU 1568(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y3, Y3
+	VPXOR   Y8, Y1, Y1
 	VMOVDQU 1600(CX), Y8
 	VMOVDQU 1632(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y4, Y4
+	VPXOR   Y8, Y2, Y2
 	VMOVDQU 1664(CX), Y8
 	VMOVDQU 1696(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y5, Y5
+	VPXOR   Y8, Y3, Y3
 	VMOVDQU 1728(CX), Y8
 	VMOVDQU 1760(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y6, Y6
-
-	// Load and process 32 bytes from input 4 to 7 outputs
-	VMOVDQU (R8), Y10
-	ADDQ    $0x20, R8
-	VPSRLQ  $0x04, Y10, Y11
-	VPAND   Y7, Y10, Y10
-	VPAND   Y7, Y11, Y11
+	VPXOR   Y8, Y4, Y4
 	VMOVDQU 1792(CX), Y8
 	VMOVDQU 1824(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y0, Y0
+	VPXOR   Y8, Y5, Y5
 	VMOVDQU 1856(CX), Y8
 	VMOVDQU 1888(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y1, Y1
+	VPXOR   Y8, Y6, Y6
+
+	// Load and process 32 bytes from input 5 to 6 outputs
+	VMOVDQU (R8), Y10
+	ADDQ    $0x20, R8
+	VPSRLQ  $0x04, Y10, Y11
+	VPAND   Y7, Y10, Y10
+	VPAND   Y7, Y11, Y11
 	VMOVDQU 1920(CX), Y8
 	VMOVDQU 1952(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y2, Y2
+	VPXOR   Y8, Y1, Y1
 	VMOVDQU 1984(CX), Y8
 	VMOVDQU 2016(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y3, Y3
+	VPXOR   Y8, Y2, Y2
 	VMOVDQU 2048(CX), Y8
 	VMOVDQU 2080(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y4, Y4
+	VPXOR   Y8, Y3, Y3
 	VMOVDQU 2112(CX), Y8
 	VMOVDQU 2144(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y5, Y5
+	VPXOR   Y8, Y4, Y4
 	VMOVDQU 2176(CX), Y8
 	VMOVDQU 2208(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y6, Y6
-
-	// Load and process 32 bytes from input 5 to 7 outputs
-	VMOVDQU (R9), Y10
-	ADDQ    $0x20, R9
-	VPSRLQ  $0x04, Y10, Y11
-	VPAND   Y7, Y10, Y10
-	VPAND   Y7, Y11, Y11
+	VPXOR   Y8, Y5, Y5
 	VMOVDQU 2240(CX), Y8
 	VMOVDQU 2272(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y0, Y0
+	VPXOR   Y8, Y6, Y6
+
+	// Load and process 32 bytes from input 6 to 6 outputs
+	VMOVDQU (AX), Y10
+	ADDQ    $0x20, AX
+	VPSRLQ  $0x04, Y10, Y11
+	VPAND   Y7, Y10, Y10
+	VPAND   Y7, Y11, Y11
 	VMOVDQU 2304(CX), Y8
 	VMOVDQU 2336(CX), Y9
 	VPSHUFB Y10, Y8, Y8
@@ -10717,70 +10515,433 @@ mulAvxTwo_7x7_loop:
 	VPXOR   Y8, Y9, Y8
 	VPXOR   Y8, Y6, Y6
 
+	// Store 6 outputs
+	VMOVDQU Y1, (R10)
+	ADDQ    $0x20, R10
+	VMOVDQU Y2, (R11)
+	ADDQ    $0x20, R11
+	VMOVDQU Y3, (R12)
+	ADDQ    $0x20, R12
+	VMOVDQU Y4, (R13)
+	ADDQ    $0x20, R13
+	VMOVDQU Y5, (R14)
+	ADDQ    $0x20, R14
+	VMOVDQU Y6, (R9)
+	ADDQ    $0x20, R9
+
+	// Prepare for next loop
+	DECQ R15
+	JNZ  mulAvxTwo_7x6_loop
+	VZEROUPPER
+
+mulAvxTwo_7x6_end:
+	MOVQ X0, BP
+	RET
+
+// func mulAvxTwo_7x7(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+// Requires: AVX, AVX2, SSE2
+TEXT ·mulAvxTwo_7x7(SB), NOSPLIT, $0-88
+	MOVQ BP, X0
+
+	// Loading no tables to registers
+	// Destination kept on stack
+	// Full registers estimated 110 YMM used
+	MOVQ  n+80(FP), AX
+	MOVQ  matrix_base+0(FP), CX
+	SHRQ  $0x05, AX
+	TESTQ AX, AX
+	JZ    mulAvxTwo_7x7_end
+	MOVQ  in_base+24(FP), DX
+	MOVQ  (DX), BX
+	MOVQ  24(DX), BP
+	MOVQ  48(DX), SI
+	MOVQ  72(DX), DI
+	MOVQ  96(DX), R8
+	MOVQ  120(DX), R9
+	MOVQ  144(DX), DX
+	MOVQ  out_base+48(FP), R10
+	MOVQ  start+72(FP), R11
+
+	// Add start offset to input
+	ADDQ         R11, BX
+	ADDQ         R11, BP
+	ADDQ         R11, SI
+	ADDQ         R11, DI
+	ADDQ         R11, R8
+	ADDQ         R11, R9
+	ADDQ         R11, DX
+	MOVQ         $0x0000000f, R12
+	MOVQ         R12, X8
+	VPBROADCASTB X8, Y8
+
+mulAvxTwo_7x7_loop:
+	// Clear 7 outputs
+	VPXOR Y1, Y1, Y1
+	VPXOR Y2, Y2, Y2
+	VPXOR Y3, Y3, Y3
+	VPXOR Y4, Y4, Y4
+	VPXOR Y5, Y5, Y5
+	VPXOR Y6, Y6, Y6
+	VPXOR Y7, Y7, Y7
+
+	// Load and process 32 bytes from input 0 to 7 outputs
+	VMOVDQU (BX), Y11
+	ADDQ    $0x20, BX
+	VPSRLQ  $0x04, Y11, Y12
+	VPAND   Y8, Y11, Y11
+	VPAND   Y8, Y12, Y12
+	VMOVDQU (CX), Y9
+	VMOVDQU 32(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y1, Y1
+	VMOVDQU 64(CX), Y9
+	VMOVDQU 96(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y2, Y2
+	VMOVDQU 128(CX), Y9
+	VMOVDQU 160(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y3, Y3
+	VMOVDQU 192(CX), Y9
+	VMOVDQU 224(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y4, Y4
+	VMOVDQU 256(CX), Y9
+	VMOVDQU 288(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y5, Y5
+	VMOVDQU 320(CX), Y9
+	VMOVDQU 352(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y6, Y6
+	VMOVDQU 384(CX), Y9
+	VMOVDQU 416(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y7, Y7
+
+	// Load and process 32 bytes from input 1 to 7 outputs
+	VMOVDQU (BP), Y11
+	ADDQ    $0x20, BP
+	VPSRLQ  $0x04, Y11, Y12
+	VPAND   Y8, Y11, Y11
+	VPAND   Y8, Y12, Y12
+	VMOVDQU 448(CX), Y9
+	VMOVDQU 480(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y1, Y1
+	VMOVDQU 512(CX), Y9
+	VMOVDQU 544(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y2, Y2
+	VMOVDQU 576(CX), Y9
+	VMOVDQU 608(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y3, Y3
+	VMOVDQU 640(CX), Y9
+	VMOVDQU 672(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y4, Y4
+	VMOVDQU 704(CX), Y9
+	VMOVDQU 736(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y5, Y5
+	VMOVDQU 768(CX), Y9
+	VMOVDQU 800(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y6, Y6
+	VMOVDQU 832(CX), Y9
+	VMOVDQU 864(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y7, Y7
+
+	// Load and process 32 bytes from input 2 to 7 outputs
+	VMOVDQU (SI), Y11
+	ADDQ    $0x20, SI
+	VPSRLQ  $0x04, Y11, Y12
+	VPAND   Y8, Y11, Y11
+	VPAND   Y8, Y12, Y12
+	VMOVDQU 896(CX), Y9
+	VMOVDQU 928(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y1, Y1
+	VMOVDQU 960(CX), Y9
+	VMOVDQU 992(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y2, Y2
+	VMOVDQU 1024(CX), Y9
+	VMOVDQU 1056(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y3, Y3
+	VMOVDQU 1088(CX), Y9
+	VMOVDQU 1120(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y4, Y4
+	VMOVDQU 1152(CX), Y9
+	VMOVDQU 1184(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y5, Y5
+	VMOVDQU 1216(CX), Y9
+	VMOVDQU 1248(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y6, Y6
+	VMOVDQU 1280(CX), Y9
+	VMOVDQU 1312(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y7, Y7
+
+	// Load and process 32 bytes from input 3 to 7 outputs
+	VMOVDQU (DI), Y11
+	ADDQ    $0x20, DI
+	VPSRLQ  $0x04, Y11, Y12
+	VPAND   Y8, Y11, Y11
+	VPAND   Y8, Y12, Y12
+	VMOVDQU 1344(CX), Y9
+	VMOVDQU 1376(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y1, Y1
+	VMOVDQU 1408(CX), Y9
+	VMOVDQU 1440(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y2, Y2
+	VMOVDQU 1472(CX), Y9
+	VMOVDQU 1504(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y3, Y3
+	VMOVDQU 1536(CX), Y9
+	VMOVDQU 1568(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y4, Y4
+	VMOVDQU 1600(CX), Y9
+	VMOVDQU 1632(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y5, Y5
+	VMOVDQU 1664(CX), Y9
+	VMOVDQU 1696(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y6, Y6
+	VMOVDQU 1728(CX), Y9
+	VMOVDQU 1760(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y7, Y7
+
+	// Load and process 32 bytes from input 4 to 7 outputs
+	VMOVDQU (R8), Y11
+	ADDQ    $0x20, R8
+	VPSRLQ  $0x04, Y11, Y12
+	VPAND   Y8, Y11, Y11
+	VPAND   Y8, Y12, Y12
+	VMOVDQU 1792(CX), Y9
+	VMOVDQU 1824(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y1, Y1
+	VMOVDQU 1856(CX), Y9
+	VMOVDQU 1888(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y2, Y2
+	VMOVDQU 1920(CX), Y9
+	VMOVDQU 1952(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y3, Y3
+	VMOVDQU 1984(CX), Y9
+	VMOVDQU 2016(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y4, Y4
+	VMOVDQU 2048(CX), Y9
+	VMOVDQU 2080(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y5, Y5
+	VMOVDQU 2112(CX), Y9
+	VMOVDQU 2144(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y6, Y6
+	VMOVDQU 2176(CX), Y9
+	VMOVDQU 2208(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y7, Y7
+
+	// Load and process 32 bytes from input 5 to 7 outputs
+	VMOVDQU (R9), Y11
+	ADDQ    $0x20, R9
+	VPSRLQ  $0x04, Y11, Y12
+	VPAND   Y8, Y11, Y11
+	VPAND   Y8, Y12, Y12
+	VMOVDQU 2240(CX), Y9
+	VMOVDQU 2272(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y1, Y1
+	VMOVDQU 2304(CX), Y9
+	VMOVDQU 2336(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y2, Y2
+	VMOVDQU 2368(CX), Y9
+	VMOVDQU 2400(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y3, Y3
+	VMOVDQU 2432(CX), Y9
+	VMOVDQU 2464(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y4, Y4
+	VMOVDQU 2496(CX), Y9
+	VMOVDQU 2528(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y5, Y5
+	VMOVDQU 2560(CX), Y9
+	VMOVDQU 2592(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y6, Y6
+	VMOVDQU 2624(CX), Y9
+	VMOVDQU 2656(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y7, Y7
+
 	// Load and process 32 bytes from input 6 to 7 outputs
-	VMOVDQU (DX), Y10
+	VMOVDQU (DX), Y11
 	ADDQ    $0x20, DX
-	VPSRLQ  $0x04, Y10, Y11
-	VPAND   Y7, Y10, Y10
-	VPAND   Y7, Y11, Y11
-	VMOVDQU 2688(CX), Y8
-	VMOVDQU 2720(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSRLQ  $0x04, Y11, Y12
+	VPAND   Y8, Y11, Y11
+	VPAND   Y8, Y12, Y12
+	VMOVDQU 2688(CX), Y9
+	VMOVDQU 2720(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y0, Y0
-	VMOVDQU 2752(CX), Y8
-	VMOVDQU 2784(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y1, Y1
+	VMOVDQU 2752(CX), Y9
+	VMOVDQU 2784(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y1, Y1
-	VMOVDQU 2816(CX), Y8
-	VMOVDQU 2848(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y2, Y2
+	VMOVDQU 2816(CX), Y9
+	VMOVDQU 2848(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y2, Y2
-	VMOVDQU 2880(CX), Y8
-	VMOVDQU 2912(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y3, Y3
+	VMOVDQU 2880(CX), Y9
+	VMOVDQU 2912(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y3, Y3
-	VMOVDQU 2944(CX), Y8
-	VMOVDQU 2976(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y4, Y4
+	VMOVDQU 2944(CX), Y9
+	VMOVDQU 2976(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y4, Y4
-	VMOVDQU 3008(CX), Y8
-	VMOVDQU 3040(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y5, Y5
+	VMOVDQU 3008(CX), Y9
+	VMOVDQU 3040(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y5, Y5
-	VMOVDQU 3072(CX), Y8
-	VMOVDQU 3104(CX), Y9
-	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y6, Y6
+	VMOVDQU 3072(CX), Y9
+	VMOVDQU 3104(CX), Y10
 	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y6, Y6
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y7, Y7
 
 	// Store 7 outputs
 	MOVQ    (R10), R12
-	VMOVDQU Y0, (R12)(R11*1)
-	MOVQ    24(R10), R12
 	VMOVDQU Y1, (R12)(R11*1)
-	MOVQ    48(R10), R12
+	MOVQ    24(R10), R12
 	VMOVDQU Y2, (R12)(R11*1)
-	MOVQ    72(R10), R12
+	MOVQ    48(R10), R12
 	VMOVDQU Y3, (R12)(R11*1)
-	MOVQ    96(R10), R12
+	MOVQ    72(R10), R12
 	VMOVDQU Y4, (R12)(R11*1)
-	MOVQ    120(R10), R12
+	MOVQ    96(R10), R12
 	VMOVDQU Y5, (R12)(R11*1)
-	MOVQ    144(R10), R12
+	MOVQ    120(R10), R12
 	VMOVDQU Y6, (R12)(R11*1)
+	MOVQ    144(R10), R12
+	VMOVDQU Y7, (R12)(R11*1)
 
 	// Prepare for next loop
 	ADDQ $0x20, R11
@@ -10789,11 +10950,14 @@ mulAvxTwo_7x7_loop:
 	VZEROUPPER
 
 mulAvxTwo_7x7_end:
+	MOVQ X0, BP
 	RET
 
 // func mulAvxTwo_7x8(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX2, SSE2
-TEXT ·mulAvxTwo_7x8(SB), NOSPLIT, $8-88
+TEXT ·mulAvxTwo_7x8(SB), NOSPLIT, $0-88
+	MOVQ BP, X0
+
 	// Loading no tables to registers
 	// Destination kept on stack
 	// Full registers estimated 125 YMM used
@@ -10822,12 +10986,11 @@ TEXT ·mulAvxTwo_7x8(SB), NOSPLIT, $8-88
 	ADDQ         R11, R9
 	ADDQ         R11, DX
 	MOVQ         $0x0000000f, R12
-	MOVQ         R12, X8
-	VPBROADCASTB X8, Y8
+	MOVQ         R12, X9
+	VPBROADCASTB X9, Y9
 
 mulAvxTwo_7x8_loop:
 	// Clear 8 outputs
-	VPXOR Y0, Y0, Y0
 	VPXOR Y1, Y1, Y1
 	VPXOR Y2, Y2, Y2
 	VPXOR Y3, Y3, Y3
@@ -10835,409 +10998,410 @@ mulAvxTwo_7x8_loop:
 	VPXOR Y5, Y5, Y5
 	VPXOR Y6, Y6, Y6
 	VPXOR Y7, Y7, Y7
+	VPXOR Y8, Y8, Y8
 
 	// Load and process 32 bytes from input 0 to 8 outputs
-	VMOVDQU (BX), Y11
+	VMOVDQU (BX), Y12
 	ADDQ    $0x20, BX
-	VPSRLQ  $0x04, Y11, Y12
-	VPAND   Y8, Y11, Y11
-	VPAND   Y8, Y12, Y12
-	VMOVDQU (CX), Y9
-	VMOVDQU 32(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSRLQ  $0x04, Y12, Y13
+	VPAND   Y9, Y12, Y12
+	VPAND   Y9, Y13, Y13
+	VMOVDQU (CX), Y10
+	VMOVDQU 32(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y0, Y0
-	VMOVDQU 64(CX), Y9
-	VMOVDQU 96(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y1, Y1
+	VMOVDQU 64(CX), Y10
+	VMOVDQU 96(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y1, Y1
-	VMOVDQU 128(CX), Y9
-	VMOVDQU 160(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y2, Y2
+	VMOVDQU 128(CX), Y10
+	VMOVDQU 160(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y2, Y2
-	VMOVDQU 192(CX), Y9
-	VMOVDQU 224(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y3, Y3
+	VMOVDQU 192(CX), Y10
+	VMOVDQU 224(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y3, Y3
-	VMOVDQU 256(CX), Y9
-	VMOVDQU 288(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y4, Y4
+	VMOVDQU 256(CX), Y10
+	VMOVDQU 288(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y4, Y4
-	VMOVDQU 320(CX), Y9
-	VMOVDQU 352(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y5, Y5
+	VMOVDQU 320(CX), Y10
+	VMOVDQU 352(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y5, Y5
-	VMOVDQU 384(CX), Y9
-	VMOVDQU 416(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y6, Y6
+	VMOVDQU 384(CX), Y10
+	VMOVDQU 416(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y6, Y6
-	VMOVDQU 448(CX), Y9
-	VMOVDQU 480(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y7, Y7
+	VMOVDQU 448(CX), Y10
+	VMOVDQU 480(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y7, Y7
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y8, Y8
 
 	// Load and process 32 bytes from input 1 to 8 outputs
-	VMOVDQU (BP), Y11
+	VMOVDQU (BP), Y12
 	ADDQ    $0x20, BP
-	VPSRLQ  $0x04, Y11, Y12
-	VPAND   Y8, Y11, Y11
-	VPAND   Y8, Y12, Y12
-	VMOVDQU 512(CX), Y9
-	VMOVDQU 544(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSRLQ  $0x04, Y12, Y13
+	VPAND   Y9, Y12, Y12
+	VPAND   Y9, Y13, Y13
+	VMOVDQU 512(CX), Y10
+	VMOVDQU 544(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y0, Y0
-	VMOVDQU 576(CX), Y9
-	VMOVDQU 608(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y1, Y1
+	VMOVDQU 576(CX), Y10
+	VMOVDQU 608(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y1, Y1
-	VMOVDQU 640(CX), Y9
-	VMOVDQU 672(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y2, Y2
+	VMOVDQU 640(CX), Y10
+	VMOVDQU 672(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y2, Y2
-	VMOVDQU 704(CX), Y9
-	VMOVDQU 736(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y3, Y3
+	VMOVDQU 704(CX), Y10
+	VMOVDQU 736(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y3, Y3
-	VMOVDQU 768(CX), Y9
-	VMOVDQU 800(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y4, Y4
+	VMOVDQU 768(CX), Y10
+	VMOVDQU 800(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y4, Y4
-	VMOVDQU 832(CX), Y9
-	VMOVDQU 864(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y5, Y5
+	VMOVDQU 832(CX), Y10
+	VMOVDQU 864(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y5, Y5
-	VMOVDQU 896(CX), Y9
-	VMOVDQU 928(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y6, Y6
+	VMOVDQU 896(CX), Y10
+	VMOVDQU 928(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y6, Y6
-	VMOVDQU 960(CX), Y9
-	VMOVDQU 992(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y7, Y7
+	VMOVDQU 960(CX), Y10
+	VMOVDQU 992(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y7, Y7
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y8, Y8
 
 	// Load and process 32 bytes from input 2 to 8 outputs
-	VMOVDQU (SI), Y11
+	VMOVDQU (SI), Y12
 	ADDQ    $0x20, SI
-	VPSRLQ  $0x04, Y11, Y12
-	VPAND   Y8, Y11, Y11
-	VPAND   Y8, Y12, Y12
-	VMOVDQU 1024(CX), Y9
-	VMOVDQU 1056(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSRLQ  $0x04, Y12, Y13
+	VPAND   Y9, Y12, Y12
+	VPAND   Y9, Y13, Y13
+	VMOVDQU 1024(CX), Y10
+	VMOVDQU 1056(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y0, Y0
-	VMOVDQU 1088(CX), Y9
-	VMOVDQU 1120(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y1, Y1
+	VMOVDQU 1088(CX), Y10
+	VMOVDQU 1120(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y1, Y1
-	VMOVDQU 1152(CX), Y9
-	VMOVDQU 1184(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y2, Y2
+	VMOVDQU 1152(CX), Y10
+	VMOVDQU 1184(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y2, Y2
-	VMOVDQU 1216(CX), Y9
-	VMOVDQU 1248(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y3, Y3
+	VMOVDQU 1216(CX), Y10
+	VMOVDQU 1248(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y3, Y3
-	VMOVDQU 1280(CX), Y9
-	VMOVDQU 1312(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y4, Y4
+	VMOVDQU 1280(CX), Y10
+	VMOVDQU 1312(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y4, Y4
-	VMOVDQU 1344(CX), Y9
-	VMOVDQU 1376(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y5, Y5
+	VMOVDQU 1344(CX), Y10
+	VMOVDQU 1376(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y5, Y5
-	VMOVDQU 1408(CX), Y9
-	VMOVDQU 1440(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y6, Y6
+	VMOVDQU 1408(CX), Y10
+	VMOVDQU 1440(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y6, Y6
-	VMOVDQU 1472(CX), Y9
-	VMOVDQU 1504(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y7, Y7
+	VMOVDQU 1472(CX), Y10
+	VMOVDQU 1504(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y7, Y7
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y8, Y8
 
 	// Load and process 32 bytes from input 3 to 8 outputs
-	VMOVDQU (DI), Y11
+	VMOVDQU (DI), Y12
 	ADDQ    $0x20, DI
-	VPSRLQ  $0x04, Y11, Y12
-	VPAND   Y8, Y11, Y11
-	VPAND   Y8, Y12, Y12
-	VMOVDQU 1536(CX), Y9
-	VMOVDQU 1568(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSRLQ  $0x04, Y12, Y13
+	VPAND   Y9, Y12, Y12
+	VPAND   Y9, Y13, Y13
+	VMOVDQU 1536(CX), Y10
+	VMOVDQU 1568(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y0, Y0
-	VMOVDQU 1600(CX), Y9
-	VMOVDQU 1632(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y1, Y1
+	VMOVDQU 1600(CX), Y10
+	VMOVDQU 1632(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y1, Y1
-	VMOVDQU 1664(CX), Y9
-	VMOVDQU 1696(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y2, Y2
+	VMOVDQU 1664(CX), Y10
+	VMOVDQU 1696(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y2, Y2
-	VMOVDQU 1728(CX), Y9
-	VMOVDQU 1760(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y3, Y3
+	VMOVDQU 1728(CX), Y10
+	VMOVDQU 1760(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y3, Y3
-	VMOVDQU 1792(CX), Y9
-	VMOVDQU 1824(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y4, Y4
+	VMOVDQU 1792(CX), Y10
+	VMOVDQU 1824(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y4, Y4
-	VMOVDQU 1856(CX), Y9
-	VMOVDQU 1888(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y5, Y5
+	VMOVDQU 1856(CX), Y10
+	VMOVDQU 1888(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y5, Y5
-	VMOVDQU 1920(CX), Y9
-	VMOVDQU 1952(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y6, Y6
+	VMOVDQU 1920(CX), Y10
+	VMOVDQU 1952(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y6, Y6
-	VMOVDQU 1984(CX), Y9
-	VMOVDQU 2016(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y7, Y7
+	VMOVDQU 1984(CX), Y10
+	VMOVDQU 2016(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y7, Y7
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y8, Y8
 
 	// Load and process 32 bytes from input 4 to 8 outputs
-	VMOVDQU (R8), Y11
+	VMOVDQU (R8), Y12
 	ADDQ    $0x20, R8
-	VPSRLQ  $0x04, Y11, Y12
-	VPAND   Y8, Y11, Y11
-	VPAND   Y8, Y12, Y12
-	VMOVDQU 2048(CX), Y9
-	VMOVDQU 2080(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSRLQ  $0x04, Y12, Y13
+	VPAND   Y9, Y12, Y12
+	VPAND   Y9, Y13, Y13
+	VMOVDQU 2048(CX), Y10
+	VMOVDQU 2080(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y0, Y0
-	VMOVDQU 2112(CX), Y9
-	VMOVDQU 2144(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y1, Y1
+	VMOVDQU 2112(CX), Y10
+	VMOVDQU 2144(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y1, Y1
-	VMOVDQU 2176(CX), Y9
-	VMOVDQU 2208(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y2, Y2
+	VMOVDQU 2176(CX), Y10
+	VMOVDQU 2208(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y2, Y2
-	VMOVDQU 2240(CX), Y9
-	VMOVDQU 2272(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y3, Y3
+	VMOVDQU 2240(CX), Y10
+	VMOVDQU 2272(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y3, Y3
-	VMOVDQU 2304(CX), Y9
-	VMOVDQU 2336(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y4, Y4
+	VMOVDQU 2304(CX), Y10
+	VMOVDQU 2336(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y4, Y4
-	VMOVDQU 2368(CX), Y9
-	VMOVDQU 2400(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y5, Y5
+	VMOVDQU 2368(CX), Y10
+	VMOVDQU 2400(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y5, Y5
-	VMOVDQU 2432(CX), Y9
-	VMOVDQU 2464(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y6, Y6
+	VMOVDQU 2432(CX), Y10
+	VMOVDQU 2464(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y6, Y6
-	VMOVDQU 2496(CX), Y9
-	VMOVDQU 2528(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y7, Y7
+	VMOVDQU 2496(CX), Y10
+	VMOVDQU 2528(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y7, Y7
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y8, Y8
 
 	// Load and process 32 bytes from input 5 to 8 outputs
-	VMOVDQU (R9), Y11
+	VMOVDQU (R9), Y12
 	ADDQ    $0x20, R9
-	VPSRLQ  $0x04, Y11, Y12
-	VPAND   Y8, Y11, Y11
-	VPAND   Y8, Y12, Y12
-	VMOVDQU 2560(CX), Y9
-	VMOVDQU 2592(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSRLQ  $0x04, Y12, Y13
+	VPAND   Y9, Y12, Y12
+	VPAND   Y9, Y13, Y13
+	VMOVDQU 2560(CX), Y10
+	VMOVDQU 2592(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y0, Y0
-	VMOVDQU 2624(CX), Y9
-	VMOVDQU 2656(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y1, Y1
+	VMOVDQU 2624(CX), Y10
+	VMOVDQU 2656(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y1, Y1
-	VMOVDQU 2688(CX), Y9
-	VMOVDQU 2720(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y2, Y2
+	VMOVDQU 2688(CX), Y10
+	VMOVDQU 2720(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y2, Y2
-	VMOVDQU 2752(CX), Y9
-	VMOVDQU 2784(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y3, Y3
+	VMOVDQU 2752(CX), Y10
+	VMOVDQU 2784(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y3, Y3
-	VMOVDQU 2816(CX), Y9
-	VMOVDQU 2848(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y4, Y4
+	VMOVDQU 2816(CX), Y10
+	VMOVDQU 2848(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y4, Y4
-	VMOVDQU 2880(CX), Y9
-	VMOVDQU 2912(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y5, Y5
+	VMOVDQU 2880(CX), Y10
+	VMOVDQU 2912(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y5, Y5
-	VMOVDQU 2944(CX), Y9
-	VMOVDQU 2976(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y6, Y6
+	VMOVDQU 2944(CX), Y10
+	VMOVDQU 2976(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y6, Y6
-	VMOVDQU 3008(CX), Y9
-	VMOVDQU 3040(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y7, Y7
+	VMOVDQU 3008(CX), Y10
+	VMOVDQU 3040(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y7, Y7
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y8, Y8
 
 	// Load and process 32 bytes from input 6 to 8 outputs
-	VMOVDQU (DX), Y11
+	VMOVDQU (DX), Y12
 	ADDQ    $0x20, DX
-	VPSRLQ  $0x04, Y11, Y12
-	VPAND   Y8, Y11, Y11
-	VPAND   Y8, Y12, Y12
-	VMOVDQU 3072(CX), Y9
-	VMOVDQU 3104(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSRLQ  $0x04, Y12, Y13
+	VPAND   Y9, Y12, Y12
+	VPAND   Y9, Y13, Y13
+	VMOVDQU 3072(CX), Y10
+	VMOVDQU 3104(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y0, Y0
-	VMOVDQU 3136(CX), Y9
-	VMOVDQU 3168(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y1, Y1
+	VMOVDQU 3136(CX), Y10
+	VMOVDQU 3168(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y1, Y1
-	VMOVDQU 3200(CX), Y9
-	VMOVDQU 3232(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y2, Y2
+	VMOVDQU 3200(CX), Y10
+	VMOVDQU 3232(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y2, Y2
-	VMOVDQU 3264(CX), Y9
-	VMOVDQU 3296(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y3, Y3
+	VMOVDQU 3264(CX), Y10
+	VMOVDQU 3296(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y3, Y3
-	VMOVDQU 3328(CX), Y9
-	VMOVDQU 3360(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y4, Y4
+	VMOVDQU 3328(CX), Y10
+	VMOVDQU 3360(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y4, Y4
-	VMOVDQU 3392(CX), Y9
-	VMOVDQU 3424(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y5, Y5
+	VMOVDQU 3392(CX), Y10
+	VMOVDQU 3424(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y5, Y5
-	VMOVDQU 3456(CX), Y9
-	VMOVDQU 3488(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y6, Y6
+	VMOVDQU 3456(CX), Y10
+	VMOVDQU 3488(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y6, Y6
-	VMOVDQU 3520(CX), Y9
-	VMOVDQU 3552(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y7, Y7
+	VMOVDQU 3520(CX), Y10
+	VMOVDQU 3552(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y7, Y7
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y8, Y8
 
 	// Store 8 outputs
 	MOVQ    (R10), R12
-	VMOVDQU Y0, (R12)(R11*1)
-	MOVQ    24(R10), R12
 	VMOVDQU Y1, (R12)(R11*1)
-	MOVQ    48(R10), R12
+	MOVQ    24(R10), R12
 	VMOVDQU Y2, (R12)(R11*1)
-	MOVQ    72(R10), R12
+	MOVQ    48(R10), R12
 	VMOVDQU Y3, (R12)(R11*1)
-	MOVQ    96(R10), R12
+	MOVQ    72(R10), R12
 	VMOVDQU Y4, (R12)(R11*1)
-	MOVQ    120(R10), R12
+	MOVQ    96(R10), R12
 	VMOVDQU Y5, (R12)(R11*1)
-	MOVQ    144(R10), R12
+	MOVQ    120(R10), R12
 	VMOVDQU Y6, (R12)(R11*1)
-	MOVQ    168(R10), R12
+	MOVQ    144(R10), R12
 	VMOVDQU Y7, (R12)(R11*1)
+	MOVQ    168(R10), R12
+	VMOVDQU Y8, (R12)(R11*1)
 
 	// Prepare for next loop
 	ADDQ $0x20, R11
@@ -11246,11 +11410,14 @@ mulAvxTwo_7x8_loop:
 	VZEROUPPER
 
 mulAvxTwo_7x8_end:
+	MOVQ X0, BP
 	RET
 
 // func mulAvxTwo_8x1(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX2, SSE2
-TEXT ·mulAvxTwo_8x1(SB), NOSPLIT, $8-88
+TEXT ·mulAvxTwo_8x1(SB), NOSPLIT, $0-88
+	MOVQ BP, X0
+
 	// Loading no tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 20 YMM used
@@ -11285,119 +11452,119 @@ TEXT ·mulAvxTwo_8x1(SB), NOSPLIT, $8-88
 	ADDQ         R12, R10
 	ADDQ         R12, DX
 	MOVQ         $0x0000000f, R12
-	MOVQ         R12, X1
-	VPBROADCASTB X1, Y1
+	MOVQ         R12, X2
+	VPBROADCASTB X2, Y2
 
 mulAvxTwo_8x1_loop:
 	// Clear 1 outputs
-	VPXOR Y0, Y0, Y0
+	VPXOR Y1, Y1, Y1
 
 	// Load and process 32 bytes from input 0 to 1 outputs
-	VMOVDQU (BX), Y4
+	VMOVDQU (BX), Y5
 	ADDQ    $0x20, BX
-	VPSRLQ  $0x04, Y4, Y5
-	VPAND   Y1, Y4, Y4
-	VPAND   Y1, Y5, Y5
-	VMOVDQU (CX), Y2
-	VMOVDQU 32(CX), Y3
-	VPSHUFB Y4, Y2, Y2
+	VPSRLQ  $0x04, Y5, Y6
+	VPAND   Y2, Y5, Y5
+	VPAND   Y2, Y6, Y6
+	VMOVDQU (CX), Y3
+	VMOVDQU 32(CX), Y4
 	VPSHUFB Y5, Y3, Y3
-	VPXOR   Y2, Y3, Y2
-	VPXOR   Y2, Y0, Y0
+	VPSHUFB Y6, Y4, Y4
+	VPXOR   Y3, Y4, Y3
+	VPXOR   Y3, Y1, Y1
 
 	// Load and process 32 bytes from input 1 to 1 outputs
-	VMOVDQU (BP), Y4
+	VMOVDQU (BP), Y5
 	ADDQ    $0x20, BP
-	VPSRLQ  $0x04, Y4, Y5
-	VPAND   Y1, Y4, Y4
-	VPAND   Y1, Y5, Y5
-	VMOVDQU 64(CX), Y2
-	VMOVDQU 96(CX), Y3
-	VPSHUFB Y4, Y2, Y2
+	VPSRLQ  $0x04, Y5, Y6
+	VPAND   Y2, Y5, Y5
+	VPAND   Y2, Y6, Y6
+	VMOVDQU 64(CX), Y3
+	VMOVDQU 96(CX), Y4
 	VPSHUFB Y5, Y3, Y3
-	VPXOR   Y2, Y3, Y2
-	VPXOR   Y2, Y0, Y0
+	VPSHUFB Y6, Y4, Y4
+	VPXOR   Y3, Y4, Y3
+	VPXOR   Y3, Y1, Y1
 
 	// Load and process 32 bytes from input 2 to 1 outputs
-	VMOVDQU (SI), Y4
+	VMOVDQU (SI), Y5
 	ADDQ    $0x20, SI
-	VPSRLQ  $0x04, Y4, Y5
-	VPAND   Y1, Y4, Y4
-	VPAND   Y1, Y5, Y5
-	VMOVDQU 128(CX), Y2
-	VMOVDQU 160(CX), Y3
-	VPSHUFB Y4, Y2, Y2
+	VPSRLQ  $0x04, Y5, Y6
+	VPAND   Y2, Y5, Y5
+	VPAND   Y2, Y6, Y6
+	VMOVDQU 128(CX), Y3
+	VMOVDQU 160(CX), Y4
 	VPSHUFB Y5, Y3, Y3
-	VPXOR   Y2, Y3, Y2
-	VPXOR   Y2, Y0, Y0
+	VPSHUFB Y6, Y4, Y4
+	VPXOR   Y3, Y4, Y3
+	VPXOR   Y3, Y1, Y1
 
 	// Load and process 32 bytes from input 3 to 1 outputs
-	VMOVDQU (DI), Y4
+	VMOVDQU (DI), Y5
 	ADDQ    $0x20, DI
-	VPSRLQ  $0x04, Y4, Y5
-	VPAND   Y1, Y4, Y4
-	VPAND   Y1, Y5, Y5
-	VMOVDQU 192(CX), Y2
-	VMOVDQU 224(CX), Y3
-	VPSHUFB Y4, Y2, Y2
+	VPSRLQ  $0x04, Y5, Y6
+	VPAND   Y2, Y5, Y5
+	VPAND   Y2, Y6, Y6
+	VMOVDQU 192(CX), Y3
+	VMOVDQU 224(CX), Y4
 	VPSHUFB Y5, Y3, Y3
-	VPXOR   Y2, Y3, Y2
-	VPXOR   Y2, Y0, Y0
+	VPSHUFB Y6, Y4, Y4
+	VPXOR   Y3, Y4, Y3
+	VPXOR   Y3, Y1, Y1
 
 	// Load and process 32 bytes from input 4 to 1 outputs
-	VMOVDQU (R8), Y4
+	VMOVDQU (R8), Y5
 	ADDQ    $0x20, R8
-	VPSRLQ  $0x04, Y4, Y5
-	VPAND   Y1, Y4, Y4
-	VPAND   Y1, Y5, Y5
-	VMOVDQU 256(CX), Y2
-	VMOVDQU 288(CX), Y3
-	VPSHUFB Y4, Y2, Y2
+	VPSRLQ  $0x04, Y5, Y6
+	VPAND   Y2, Y5, Y5
+	VPAND   Y2, Y6, Y6
+	VMOVDQU 256(CX), Y3
+	VMOVDQU 288(CX), Y4
 	VPSHUFB Y5, Y3, Y3
-	VPXOR   Y2, Y3, Y2
-	VPXOR   Y2, Y0, Y0
+	VPSHUFB Y6, Y4, Y4
+	VPXOR   Y3, Y4, Y3
+	VPXOR   Y3, Y1, Y1
 
 	// Load and process 32 bytes from input 5 to 1 outputs
-	VMOVDQU (R9), Y4
+	VMOVDQU (R9), Y5
 	ADDQ    $0x20, R9
-	VPSRLQ  $0x04, Y4, Y5
-	VPAND   Y1, Y4, Y4
-	VPAND   Y1, Y5, Y5
-	VMOVDQU 320(CX), Y2
-	VMOVDQU 352(CX), Y3
-	VPSHUFB Y4, Y2, Y2
+	VPSRLQ  $0x04, Y5, Y6
+	VPAND   Y2, Y5, Y5
+	VPAND   Y2, Y6, Y6
+	VMOVDQU 320(CX), Y3
+	VMOVDQU 352(CX), Y4
 	VPSHUFB Y5, Y3, Y3
-	VPXOR   Y2, Y3, Y2
-	VPXOR   Y2, Y0, Y0
+	VPSHUFB Y6, Y4, Y4
+	VPXOR   Y3, Y4, Y3
+	VPXOR   Y3, Y1, Y1
 
 	// Load and process 32 bytes from input 6 to 1 outputs
-	VMOVDQU (R10), Y4
+	VMOVDQU (R10), Y5
 	ADDQ    $0x20, R10
-	VPSRLQ  $0x04, Y4, Y5
-	VPAND   Y1, Y4, Y4
-	VPAND   Y1, Y5, Y5
-	VMOVDQU 384(CX), Y2
-	VMOVDQU 416(CX), Y3
-	VPSHUFB Y4, Y2, Y2
+	VPSRLQ  $0x04, Y5, Y6
+	VPAND   Y2, Y5, Y5
+	VPAND   Y2, Y6, Y6
+	VMOVDQU 384(CX), Y3
+	VMOVDQU 416(CX), Y4
 	VPSHUFB Y5, Y3, Y3
-	VPXOR   Y2, Y3, Y2
-	VPXOR   Y2, Y0, Y0
+	VPSHUFB Y6, Y4, Y4
+	VPXOR   Y3, Y4, Y3
+	VPXOR   Y3, Y1, Y1
 
 	// Load and process 32 bytes from input 7 to 1 outputs
-	VMOVDQU (DX), Y4
+	VMOVDQU (DX), Y5
 	ADDQ    $0x20, DX
-	VPSRLQ  $0x04, Y4, Y5
-	VPAND   Y1, Y4, Y4
-	VPAND   Y1, Y5, Y5
-	VMOVDQU 448(CX), Y2
-	VMOVDQU 480(CX), Y3
-	VPSHUFB Y4, Y2, Y2
+	VPSRLQ  $0x04, Y5, Y6
+	VPAND   Y2, Y5, Y5
+	VPAND   Y2, Y6, Y6
+	VMOVDQU 448(CX), Y3
+	VMOVDQU 480(CX), Y4
 	VPSHUFB Y5, Y3, Y3
-	VPXOR   Y2, Y3, Y2
-	VPXOR   Y2, Y0, Y0
+	VPSHUFB Y6, Y4, Y4
+	VPXOR   Y3, Y4, Y3
+	VPXOR   Y3, Y1, Y1
 
 	// Store 1 outputs
-	VMOVDQU Y0, (R11)
+	VMOVDQU Y1, (R11)
 	ADDQ    $0x20, R11
 
 	// Prepare for next loop
@@ -11406,11 +11573,14 @@ mulAvxTwo_8x1_loop:
 	VZEROUPPER
 
 mulAvxTwo_8x1_end:
+	MOVQ X0, BP
 	RET
 
 // func mulAvxTwo_8x2(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX2, SSE2
-TEXT ·mulAvxTwo_8x2(SB), NOSPLIT, $8-88
+TEXT ·mulAvxTwo_8x2(SB), NOSPLIT, $0-88
+	MOVQ BP, X0
+
 	// Loading no tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 39 YMM used
@@ -11447,170 +11617,170 @@ TEXT ·mulAvxTwo_8x2(SB), NOSPLIT, $8-88
 	ADDQ         R13, R10
 	ADDQ         R13, DX
 	MOVQ         $0x0000000f, R13
-	MOVQ         R13, X2
-	VPBROADCASTB X2, Y2
+	MOVQ         R13, X3
+	VPBROADCASTB X3, Y3
 
 mulAvxTwo_8x2_loop:
 	// Clear 2 outputs
-	VPXOR Y0, Y0, Y0
 	VPXOR Y1, Y1, Y1
+	VPXOR Y2, Y2, Y2
 
 	// Load and process 32 bytes from input 0 to 2 outputs
-	VMOVDQU (BX), Y5
+	VMOVDQU (BX), Y6
 	ADDQ    $0x20, BX
-	VPSRLQ  $0x04, Y5, Y6
-	VPAND   Y2, Y5, Y5
-	VPAND   Y2, Y6, Y6
-	VMOVDQU (CX), Y3
-	VMOVDQU 32(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSRLQ  $0x04, Y6, Y7
+	VPAND   Y3, Y6, Y6
+	VPAND   Y3, Y7, Y7
+	VMOVDQU (CX), Y4
+	VMOVDQU 32(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y0, Y0
-	VMOVDQU 64(CX), Y3
-	VMOVDQU 96(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y1, Y1
+	VMOVDQU 64(CX), Y4
+	VMOVDQU 96(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y1, Y1
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 1 to 2 outputs
-	VMOVDQU (BP), Y5
+	VMOVDQU (BP), Y6
 	ADDQ    $0x20, BP
-	VPSRLQ  $0x04, Y5, Y6
-	VPAND   Y2, Y5, Y5
-	VPAND   Y2, Y6, Y6
-	VMOVDQU 128(CX), Y3
-	VMOVDQU 160(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSRLQ  $0x04, Y6, Y7
+	VPAND   Y3, Y6, Y6
+	VPAND   Y3, Y7, Y7
+	VMOVDQU 128(CX), Y4
+	VMOVDQU 160(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y0, Y0
-	VMOVDQU 192(CX), Y3
-	VMOVDQU 224(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y1, Y1
+	VMOVDQU 192(CX), Y4
+	VMOVDQU 224(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y1, Y1
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 2 to 2 outputs
-	VMOVDQU (SI), Y5
+	VMOVDQU (SI), Y6
 	ADDQ    $0x20, SI
-	VPSRLQ  $0x04, Y5, Y6
-	VPAND   Y2, Y5, Y5
-	VPAND   Y2, Y6, Y6
-	VMOVDQU 256(CX), Y3
-	VMOVDQU 288(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSRLQ  $0x04, Y6, Y7
+	VPAND   Y3, Y6, Y6
+	VPAND   Y3, Y7, Y7
+	VMOVDQU 256(CX), Y4
+	VMOVDQU 288(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y0, Y0
-	VMOVDQU 320(CX), Y3
-	VMOVDQU 352(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y1, Y1
+	VMOVDQU 320(CX), Y4
+	VMOVDQU 352(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y1, Y1
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 3 to 2 outputs
-	VMOVDQU (DI), Y5
+	VMOVDQU (DI), Y6
 	ADDQ    $0x20, DI
-	VPSRLQ  $0x04, Y5, Y6
-	VPAND   Y2, Y5, Y5
-	VPAND   Y2, Y6, Y6
-	VMOVDQU 384(CX), Y3
-	VMOVDQU 416(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSRLQ  $0x04, Y6, Y7
+	VPAND   Y3, Y6, Y6
+	VPAND   Y3, Y7, Y7
+	VMOVDQU 384(CX), Y4
+	VMOVDQU 416(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y0, Y0
-	VMOVDQU 448(CX), Y3
-	VMOVDQU 480(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y1, Y1
+	VMOVDQU 448(CX), Y4
+	VMOVDQU 480(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y1, Y1
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 4 to 2 outputs
-	VMOVDQU (R8), Y5
+	VMOVDQU (R8), Y6
 	ADDQ    $0x20, R8
-	VPSRLQ  $0x04, Y5, Y6
-	VPAND   Y2, Y5, Y5
-	VPAND   Y2, Y6, Y6
-	VMOVDQU 512(CX), Y3
-	VMOVDQU 544(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSRLQ  $0x04, Y6, Y7
+	VPAND   Y3, Y6, Y6
+	VPAND   Y3, Y7, Y7
+	VMOVDQU 512(CX), Y4
+	VMOVDQU 544(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y0, Y0
-	VMOVDQU 576(CX), Y3
-	VMOVDQU 608(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y1, Y1
+	VMOVDQU 576(CX), Y4
+	VMOVDQU 608(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y1, Y1
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 5 to 2 outputs
-	VMOVDQU (R9), Y5
+	VMOVDQU (R9), Y6
 	ADDQ    $0x20, R9
-	VPSRLQ  $0x04, Y5, Y6
-	VPAND   Y2, Y5, Y5
-	VPAND   Y2, Y6, Y6
-	VMOVDQU 640(CX), Y3
-	VMOVDQU 672(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSRLQ  $0x04, Y6, Y7
+	VPAND   Y3, Y6, Y6
+	VPAND   Y3, Y7, Y7
+	VMOVDQU 640(CX), Y4
+	VMOVDQU 672(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y0, Y0
-	VMOVDQU 704(CX), Y3
-	VMOVDQU 736(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y1, Y1
+	VMOVDQU 704(CX), Y4
+	VMOVDQU 736(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y1, Y1
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 6 to 2 outputs
-	VMOVDQU (R10), Y5
+	VMOVDQU (R10), Y6
 	ADDQ    $0x20, R10
-	VPSRLQ  $0x04, Y5, Y6
-	VPAND   Y2, Y5, Y5
-	VPAND   Y2, Y6, Y6
-	VMOVDQU 768(CX), Y3
-	VMOVDQU 800(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSRLQ  $0x04, Y6, Y7
+	VPAND   Y3, Y6, Y6
+	VPAND   Y3, Y7, Y7
+	VMOVDQU 768(CX), Y4
+	VMOVDQU 800(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y0, Y0
-	VMOVDQU 832(CX), Y3
-	VMOVDQU 864(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y1, Y1
+	VMOVDQU 832(CX), Y4
+	VMOVDQU 864(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y1, Y1
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 7 to 2 outputs
-	VMOVDQU (DX), Y5
+	VMOVDQU (DX), Y6
 	ADDQ    $0x20, DX
-	VPSRLQ  $0x04, Y5, Y6
-	VPAND   Y2, Y5, Y5
-	VPAND   Y2, Y6, Y6
-	VMOVDQU 896(CX), Y3
-	VMOVDQU 928(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSRLQ  $0x04, Y6, Y7
+	VPAND   Y3, Y6, Y6
+	VPAND   Y3, Y7, Y7
+	VMOVDQU 896(CX), Y4
+	VMOVDQU 928(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y0, Y0
-	VMOVDQU 960(CX), Y3
-	VMOVDQU 992(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y1, Y1
+	VMOVDQU 960(CX), Y4
+	VMOVDQU 992(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y1, Y1
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y2, Y2
 
 	// Store 2 outputs
-	VMOVDQU Y0, (R12)
+	VMOVDQU Y1, (R12)
 	ADDQ    $0x20, R12
-	VMOVDQU Y1, (R11)
+	VMOVDQU Y2, (R11)
 	ADDQ    $0x20, R11
 
 	// Prepare for next loop
@@ -11619,11 +11789,14 @@ mulAvxTwo_8x2_loop:
 	VZEROUPPER
 
 mulAvxTwo_8x2_end:
+	MOVQ X0, BP
 	RET
 
 // func mulAvxTwo_8x3(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX2, SSE2
-TEXT ·mulAvxTwo_8x3(SB), NOSPLIT, $8-88
+TEXT ·mulAvxTwo_8x3(SB), NOSPLIT, $0-88
+	MOVQ BP, X0
+
 	// Loading no tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 56 YMM used
@@ -11662,221 +11835,221 @@ TEXT ·mulAvxTwo_8x3(SB), NOSPLIT, $8-88
 	ADDQ         R14, R10
 	ADDQ         R14, DX
 	MOVQ         $0x0000000f, R14
-	MOVQ         R14, X3
-	VPBROADCASTB X3, Y3
+	MOVQ         R14, X4
+	VPBROADCASTB X4, Y4
 
 mulAvxTwo_8x3_loop:
 	// Clear 3 outputs
-	VPXOR Y0, Y0, Y0
 	VPXOR Y1, Y1, Y1
 	VPXOR Y2, Y2, Y2
+	VPXOR Y3, Y3, Y3
 
 	// Load and process 32 bytes from input 0 to 3 outputs
-	VMOVDQU (BX), Y6
+	VMOVDQU (BX), Y7
 	ADDQ    $0x20, BX
-	VPSRLQ  $0x04, Y6, Y7
-	VPAND   Y3, Y6, Y6
-	VPAND   Y3, Y7, Y7
-	VMOVDQU (CX), Y4
-	VMOVDQU 32(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSRLQ  $0x04, Y7, Y8
+	VPAND   Y4, Y7, Y7
+	VPAND   Y4, Y8, Y8
+	VMOVDQU (CX), Y5
+	VMOVDQU 32(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y0, Y0
-	VMOVDQU 64(CX), Y4
-	VMOVDQU 96(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y1, Y1
+	VMOVDQU 64(CX), Y5
+	VMOVDQU 96(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y1, Y1
-	VMOVDQU 128(CX), Y4
-	VMOVDQU 160(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y2, Y2
+	VMOVDQU 128(CX), Y5
+	VMOVDQU 160(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y2, Y2
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 1 to 3 outputs
-	VMOVDQU (BP), Y6
+	VMOVDQU (BP), Y7
 	ADDQ    $0x20, BP
-	VPSRLQ  $0x04, Y6, Y7
-	VPAND   Y3, Y6, Y6
-	VPAND   Y3, Y7, Y7
-	VMOVDQU 192(CX), Y4
-	VMOVDQU 224(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSRLQ  $0x04, Y7, Y8
+	VPAND   Y4, Y7, Y7
+	VPAND   Y4, Y8, Y8
+	VMOVDQU 192(CX), Y5
+	VMOVDQU 224(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y0, Y0
-	VMOVDQU 256(CX), Y4
-	VMOVDQU 288(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y1, Y1
+	VMOVDQU 256(CX), Y5
+	VMOVDQU 288(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y1, Y1
-	VMOVDQU 320(CX), Y4
-	VMOVDQU 352(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y2, Y2
+	VMOVDQU 320(CX), Y5
+	VMOVDQU 352(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y2, Y2
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 2 to 3 outputs
-	VMOVDQU (SI), Y6
+	VMOVDQU (SI), Y7
 	ADDQ    $0x20, SI
-	VPSRLQ  $0x04, Y6, Y7
-	VPAND   Y3, Y6, Y6
-	VPAND   Y3, Y7, Y7
-	VMOVDQU 384(CX), Y4
-	VMOVDQU 416(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSRLQ  $0x04, Y7, Y8
+	VPAND   Y4, Y7, Y7
+	VPAND   Y4, Y8, Y8
+	VMOVDQU 384(CX), Y5
+	VMOVDQU 416(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y0, Y0
-	VMOVDQU 448(CX), Y4
-	VMOVDQU 480(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y1, Y1
+	VMOVDQU 448(CX), Y5
+	VMOVDQU 480(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y1, Y1
-	VMOVDQU 512(CX), Y4
-	VMOVDQU 544(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y2, Y2
+	VMOVDQU 512(CX), Y5
+	VMOVDQU 544(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y2, Y2
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 3 to 3 outputs
-	VMOVDQU (DI), Y6
+	VMOVDQU (DI), Y7
 	ADDQ    $0x20, DI
-	VPSRLQ  $0x04, Y6, Y7
-	VPAND   Y3, Y6, Y6
-	VPAND   Y3, Y7, Y7
-	VMOVDQU 576(CX), Y4
-	VMOVDQU 608(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSRLQ  $0x04, Y7, Y8
+	VPAND   Y4, Y7, Y7
+	VPAND   Y4, Y8, Y8
+	VMOVDQU 576(CX), Y5
+	VMOVDQU 608(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y0, Y0
-	VMOVDQU 640(CX), Y4
-	VMOVDQU 672(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y1, Y1
+	VMOVDQU 640(CX), Y5
+	VMOVDQU 672(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y1, Y1
-	VMOVDQU 704(CX), Y4
-	VMOVDQU 736(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y2, Y2
+	VMOVDQU 704(CX), Y5
+	VMOVDQU 736(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y2, Y2
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 4 to 3 outputs
-	VMOVDQU (R8), Y6
+	VMOVDQU (R8), Y7
 	ADDQ    $0x20, R8
-	VPSRLQ  $0x04, Y6, Y7
-	VPAND   Y3, Y6, Y6
-	VPAND   Y3, Y7, Y7
-	VMOVDQU 768(CX), Y4
-	VMOVDQU 800(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSRLQ  $0x04, Y7, Y8
+	VPAND   Y4, Y7, Y7
+	VPAND   Y4, Y8, Y8
+	VMOVDQU 768(CX), Y5
+	VMOVDQU 800(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y0, Y0
-	VMOVDQU 832(CX), Y4
-	VMOVDQU 864(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y1, Y1
+	VMOVDQU 832(CX), Y5
+	VMOVDQU 864(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y1, Y1
-	VMOVDQU 896(CX), Y4
-	VMOVDQU 928(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y2, Y2
+	VMOVDQU 896(CX), Y5
+	VMOVDQU 928(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y2, Y2
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 5 to 3 outputs
-	VMOVDQU (R9), Y6
+	VMOVDQU (R9), Y7
 	ADDQ    $0x20, R9
-	VPSRLQ  $0x04, Y6, Y7
-	VPAND   Y3, Y6, Y6
-	VPAND   Y3, Y7, Y7
-	VMOVDQU 960(CX), Y4
-	VMOVDQU 992(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSRLQ  $0x04, Y7, Y8
+	VPAND   Y4, Y7, Y7
+	VPAND   Y4, Y8, Y8
+	VMOVDQU 960(CX), Y5
+	VMOVDQU 992(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y0, Y0
-	VMOVDQU 1024(CX), Y4
-	VMOVDQU 1056(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y1, Y1
+	VMOVDQU 1024(CX), Y5
+	VMOVDQU 1056(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y1, Y1
-	VMOVDQU 1088(CX), Y4
-	VMOVDQU 1120(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y2, Y2
+	VMOVDQU 1088(CX), Y5
+	VMOVDQU 1120(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y2, Y2
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 6 to 3 outputs
-	VMOVDQU (R10), Y6
+	VMOVDQU (R10), Y7
 	ADDQ    $0x20, R10
-	VPSRLQ  $0x04, Y6, Y7
-	VPAND   Y3, Y6, Y6
-	VPAND   Y3, Y7, Y7
-	VMOVDQU 1152(CX), Y4
-	VMOVDQU 1184(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSRLQ  $0x04, Y7, Y8
+	VPAND   Y4, Y7, Y7
+	VPAND   Y4, Y8, Y8
+	VMOVDQU 1152(CX), Y5
+	VMOVDQU 1184(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y0, Y0
-	VMOVDQU 1216(CX), Y4
-	VMOVDQU 1248(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y1, Y1
+	VMOVDQU 1216(CX), Y5
+	VMOVDQU 1248(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y1, Y1
-	VMOVDQU 1280(CX), Y4
-	VMOVDQU 1312(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y2, Y2
+	VMOVDQU 1280(CX), Y5
+	VMOVDQU 1312(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y2, Y2
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 7 to 3 outputs
-	VMOVDQU (DX), Y6
+	VMOVDQU (DX), Y7
 	ADDQ    $0x20, DX
-	VPSRLQ  $0x04, Y6, Y7
-	VPAND   Y3, Y6, Y6
-	VPAND   Y3, Y7, Y7
-	VMOVDQU 1344(CX), Y4
-	VMOVDQU 1376(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSRLQ  $0x04, Y7, Y8
+	VPAND   Y4, Y7, Y7
+	VPAND   Y4, Y8, Y8
+	VMOVDQU 1344(CX), Y5
+	VMOVDQU 1376(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y0, Y0
-	VMOVDQU 1408(CX), Y4
-	VMOVDQU 1440(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y1, Y1
+	VMOVDQU 1408(CX), Y5
+	VMOVDQU 1440(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y1, Y1
-	VMOVDQU 1472(CX), Y4
-	VMOVDQU 1504(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y2, Y2
+	VMOVDQU 1472(CX), Y5
+	VMOVDQU 1504(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y2, Y2
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y3, Y3
 
 	// Store 3 outputs
-	VMOVDQU Y0, (R12)
+	VMOVDQU Y1, (R12)
 	ADDQ    $0x20, R12
-	VMOVDQU Y1, (R13)
+	VMOVDQU Y2, (R13)
 	ADDQ    $0x20, R13
-	VMOVDQU Y2, (R11)
+	VMOVDQU Y3, (R11)
 	ADDQ    $0x20, R11
 
 	// Prepare for next loop
@@ -11885,11 +12058,14 @@ mulAvxTwo_8x3_loop:
 	VZEROUPPER
 
 mulAvxTwo_8x3_end:
+	MOVQ X0, BP
 	RET
 
 // func mulAvxTwo_8x4(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX2, SSE2
-TEXT ·mulAvxTwo_8x4(SB), NOSPLIT, $8-88
+TEXT ·mulAvxTwo_8x4(SB), NOSPLIT, $0-88
+	MOVQ BP, X0
+
 	// Loading no tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 73 YMM used
@@ -11930,272 +12106,272 @@ TEXT ·mulAvxTwo_8x4(SB), NOSPLIT, $8-88
 	ADDQ         R15, R10
 	ADDQ         R15, DX
 	MOVQ         $0x0000000f, R15
-	MOVQ         R15, X4
-	VPBROADCASTB X4, Y4
+	MOVQ         R15, X5
+	VPBROADCASTB X5, Y5
 
 mulAvxTwo_8x4_loop:
 	// Clear 4 outputs
-	VPXOR Y0, Y0, Y0
 	VPXOR Y1, Y1, Y1
 	VPXOR Y2, Y2, Y2
 	VPXOR Y3, Y3, Y3
+	VPXOR Y4, Y4, Y4
 
 	// Load and process 32 bytes from input 0 to 4 outputs
-	VMOVDQU (BX), Y7
+	VMOVDQU (BX), Y8
 	ADDQ    $0x20, BX
-	VPSRLQ  $0x04, Y7, Y8
-	VPAND   Y4, Y7, Y7
-	VPAND   Y4, Y8, Y8
-	VMOVDQU (CX), Y5
-	VMOVDQU 32(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSRLQ  $0x04, Y8, Y9
+	VPAND   Y5, Y8, Y8
+	VPAND   Y5, Y9, Y9
+	VMOVDQU (CX), Y6
+	VMOVDQU 32(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y0, Y0
-	VMOVDQU 64(CX), Y5
-	VMOVDQU 96(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y1, Y1
+	VMOVDQU 64(CX), Y6
+	VMOVDQU 96(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y1, Y1
-	VMOVDQU 128(CX), Y5
-	VMOVDQU 160(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y2, Y2
+	VMOVDQU 128(CX), Y6
+	VMOVDQU 160(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y2, Y2
-	VMOVDQU 192(CX), Y5
-	VMOVDQU 224(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y3, Y3
+	VMOVDQU 192(CX), Y6
+	VMOVDQU 224(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y3, Y3
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 1 to 4 outputs
-	VMOVDQU (BP), Y7
+	VMOVDQU (BP), Y8
 	ADDQ    $0x20, BP
-	VPSRLQ  $0x04, Y7, Y8
-	VPAND   Y4, Y7, Y7
-	VPAND   Y4, Y8, Y8
-	VMOVDQU 256(CX), Y5
-	VMOVDQU 288(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSRLQ  $0x04, Y8, Y9
+	VPAND   Y5, Y8, Y8
+	VPAND   Y5, Y9, Y9
+	VMOVDQU 256(CX), Y6
+	VMOVDQU 288(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y0, Y0
-	VMOVDQU 320(CX), Y5
-	VMOVDQU 352(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y1, Y1
+	VMOVDQU 320(CX), Y6
+	VMOVDQU 352(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y1, Y1
-	VMOVDQU 384(CX), Y5
-	VMOVDQU 416(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y2, Y2
+	VMOVDQU 384(CX), Y6
+	VMOVDQU 416(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y2, Y2
-	VMOVDQU 448(CX), Y5
-	VMOVDQU 480(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y3, Y3
+	VMOVDQU 448(CX), Y6
+	VMOVDQU 480(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y3, Y3
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 2 to 4 outputs
-	VMOVDQU (SI), Y7
+	VMOVDQU (SI), Y8
 	ADDQ    $0x20, SI
-	VPSRLQ  $0x04, Y7, Y8
-	VPAND   Y4, Y7, Y7
-	VPAND   Y4, Y8, Y8
-	VMOVDQU 512(CX), Y5
-	VMOVDQU 544(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSRLQ  $0x04, Y8, Y9
+	VPAND   Y5, Y8, Y8
+	VPAND   Y5, Y9, Y9
+	VMOVDQU 512(CX), Y6
+	VMOVDQU 544(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y0, Y0
-	VMOVDQU 576(CX), Y5
-	VMOVDQU 608(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y1, Y1
+	VMOVDQU 576(CX), Y6
+	VMOVDQU 608(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y1, Y1
-	VMOVDQU 640(CX), Y5
-	VMOVDQU 672(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y2, Y2
+	VMOVDQU 640(CX), Y6
+	VMOVDQU 672(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y2, Y2
-	VMOVDQU 704(CX), Y5
-	VMOVDQU 736(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y3, Y3
+	VMOVDQU 704(CX), Y6
+	VMOVDQU 736(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y3, Y3
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 3 to 4 outputs
-	VMOVDQU (DI), Y7
+	VMOVDQU (DI), Y8
 	ADDQ    $0x20, DI
-	VPSRLQ  $0x04, Y7, Y8
-	VPAND   Y4, Y7, Y7
-	VPAND   Y4, Y8, Y8
-	VMOVDQU 768(CX), Y5
-	VMOVDQU 800(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSRLQ  $0x04, Y8, Y9
+	VPAND   Y5, Y8, Y8
+	VPAND   Y5, Y9, Y9
+	VMOVDQU 768(CX), Y6
+	VMOVDQU 800(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y0, Y0
-	VMOVDQU 832(CX), Y5
-	VMOVDQU 864(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y1, Y1
+	VMOVDQU 832(CX), Y6
+	VMOVDQU 864(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y1, Y1
-	VMOVDQU 896(CX), Y5
-	VMOVDQU 928(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y2, Y2
+	VMOVDQU 896(CX), Y6
+	VMOVDQU 928(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y2, Y2
-	VMOVDQU 960(CX), Y5
-	VMOVDQU 992(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y3, Y3
+	VMOVDQU 960(CX), Y6
+	VMOVDQU 992(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y3, Y3
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 4 to 4 outputs
-	VMOVDQU (R8), Y7
+	VMOVDQU (R8), Y8
 	ADDQ    $0x20, R8
-	VPSRLQ  $0x04, Y7, Y8
-	VPAND   Y4, Y7, Y7
-	VPAND   Y4, Y8, Y8
-	VMOVDQU 1024(CX), Y5
-	VMOVDQU 1056(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSRLQ  $0x04, Y8, Y9
+	VPAND   Y5, Y8, Y8
+	VPAND   Y5, Y9, Y9
+	VMOVDQU 1024(CX), Y6
+	VMOVDQU 1056(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y0, Y0
-	VMOVDQU 1088(CX), Y5
-	VMOVDQU 1120(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y1, Y1
+	VMOVDQU 1088(CX), Y6
+	VMOVDQU 1120(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y1, Y1
-	VMOVDQU 1152(CX), Y5
-	VMOVDQU 1184(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y2, Y2
+	VMOVDQU 1152(CX), Y6
+	VMOVDQU 1184(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y2, Y2
-	VMOVDQU 1216(CX), Y5
-	VMOVDQU 1248(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y3, Y3
+	VMOVDQU 1216(CX), Y6
+	VMOVDQU 1248(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y3, Y3
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 5 to 4 outputs
-	VMOVDQU (R9), Y7
+	VMOVDQU (R9), Y8
 	ADDQ    $0x20, R9
-	VPSRLQ  $0x04, Y7, Y8
-	VPAND   Y4, Y7, Y7
-	VPAND   Y4, Y8, Y8
-	VMOVDQU 1280(CX), Y5
-	VMOVDQU 1312(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSRLQ  $0x04, Y8, Y9
+	VPAND   Y5, Y8, Y8
+	VPAND   Y5, Y9, Y9
+	VMOVDQU 1280(CX), Y6
+	VMOVDQU 1312(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y0, Y0
-	VMOVDQU 1344(CX), Y5
-	VMOVDQU 1376(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y1, Y1
+	VMOVDQU 1344(CX), Y6
+	VMOVDQU 1376(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y1, Y1
-	VMOVDQU 1408(CX), Y5
-	VMOVDQU 1440(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y2, Y2
+	VMOVDQU 1408(CX), Y6
+	VMOVDQU 1440(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y2, Y2
-	VMOVDQU 1472(CX), Y5
-	VMOVDQU 1504(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y3, Y3
+	VMOVDQU 1472(CX), Y6
+	VMOVDQU 1504(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y3, Y3
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 6 to 4 outputs
-	VMOVDQU (R10), Y7
+	VMOVDQU (R10), Y8
 	ADDQ    $0x20, R10
-	VPSRLQ  $0x04, Y7, Y8
-	VPAND   Y4, Y7, Y7
-	VPAND   Y4, Y8, Y8
-	VMOVDQU 1536(CX), Y5
-	VMOVDQU 1568(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSRLQ  $0x04, Y8, Y9
+	VPAND   Y5, Y8, Y8
+	VPAND   Y5, Y9, Y9
+	VMOVDQU 1536(CX), Y6
+	VMOVDQU 1568(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y0, Y0
-	VMOVDQU 1600(CX), Y5
-	VMOVDQU 1632(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y1, Y1
+	VMOVDQU 1600(CX), Y6
+	VMOVDQU 1632(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y1, Y1
-	VMOVDQU 1664(CX), Y5
-	VMOVDQU 1696(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y2, Y2
+	VMOVDQU 1664(CX), Y6
+	VMOVDQU 1696(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y2, Y2
-	VMOVDQU 1728(CX), Y5
-	VMOVDQU 1760(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y3, Y3
+	VMOVDQU 1728(CX), Y6
+	VMOVDQU 1760(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y3, Y3
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 7 to 4 outputs
-	VMOVDQU (DX), Y7
+	VMOVDQU (DX), Y8
 	ADDQ    $0x20, DX
-	VPSRLQ  $0x04, Y7, Y8
-	VPAND   Y4, Y7, Y7
-	VPAND   Y4, Y8, Y8
-	VMOVDQU 1792(CX), Y5
-	VMOVDQU 1824(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSRLQ  $0x04, Y8, Y9
+	VPAND   Y5, Y8, Y8
+	VPAND   Y5, Y9, Y9
+	VMOVDQU 1792(CX), Y6
+	VMOVDQU 1824(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y0, Y0
-	VMOVDQU 1856(CX), Y5
-	VMOVDQU 1888(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y1, Y1
+	VMOVDQU 1856(CX), Y6
+	VMOVDQU 1888(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y1, Y1
-	VMOVDQU 1920(CX), Y5
-	VMOVDQU 1952(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y2, Y2
+	VMOVDQU 1920(CX), Y6
+	VMOVDQU 1952(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y2, Y2
-	VMOVDQU 1984(CX), Y5
-	VMOVDQU 2016(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y3, Y3
+	VMOVDQU 1984(CX), Y6
+	VMOVDQU 2016(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y3, Y3
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y4, Y4
 
 	// Store 4 outputs
-	VMOVDQU Y0, (R12)
+	VMOVDQU Y1, (R12)
 	ADDQ    $0x20, R12
-	VMOVDQU Y1, (R13)
+	VMOVDQU Y2, (R13)
 	ADDQ    $0x20, R13
-	VMOVDQU Y2, (R14)
+	VMOVDQU Y3, (R14)
 	ADDQ    $0x20, R14
-	VMOVDQU Y3, (R11)
+	VMOVDQU Y4, (R11)
 	ADDQ    $0x20, R11
 
 	// Prepare for next loop
@@ -12204,11 +12380,14 @@ mulAvxTwo_8x4_loop:
 	VZEROUPPER
 
 mulAvxTwo_8x4_end:
+	MOVQ X0, BP
 	RET
 
 // func mulAvxTwo_8x5(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX2, SSE2
-TEXT ·mulAvxTwo_8x5(SB), NOSPLIT, $8-88
+TEXT ·mulAvxTwo_8x5(SB), NOSPLIT, $0-88
+	MOVQ BP, X0
+
 	// Loading no tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 90 YMM used
@@ -12251,383 +12430,22 @@ TEXT ·mulAvxTwo_8x5(SB), NOSPLIT, $8-88
 	ADDQ         R15, R9
 	ADDQ         R15, AX
 	MOVQ         $0x0000000f, R15
-	MOVQ         R15, X5
-	VPBROADCASTB X5, Y5
+	MOVQ         R15, X6
+	VPBROADCASTB X6, Y6
 	MOVQ         n+80(FP), R15
 	SHRQ         $0x05, R15
 
 mulAvxTwo_8x5_loop:
 	// Clear 5 outputs
-	VPXOR Y0, Y0, Y0
-	VPXOR Y1, Y1, Y1
-	VPXOR Y2, Y2, Y2
-	VPXOR Y3, Y3, Y3
-	VPXOR Y4, Y4, Y4
-
-	// Load and process 32 bytes from input 0 to 5 outputs
-	VMOVDQU (DX), Y8
-	ADDQ    $0x20, DX
-	VPSRLQ  $0x04, Y8, Y9
-	VPAND   Y5, Y8, Y8
-	VPAND   Y5, Y9, Y9
-	VMOVDQU (CX), Y6
-	VMOVDQU 32(CX), Y7
-	VPSHUFB Y8, Y6, Y6
-	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y0, Y0
-	VMOVDQU 64(CX), Y6
-	VMOVDQU 96(CX), Y7
-	VPSHUFB Y8, Y6, Y6
-	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y1, Y1
-	VMOVDQU 128(CX), Y6
-	VMOVDQU 160(CX), Y7
-	VPSHUFB Y8, Y6, Y6
-	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y2, Y2
-	VMOVDQU 192(CX), Y6
-	VMOVDQU 224(CX), Y7
-	VPSHUFB Y8, Y6, Y6
-	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y3, Y3
-	VMOVDQU 256(CX), Y6
-	VMOVDQU 288(CX), Y7
-	VPSHUFB Y8, Y6, Y6
-	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y4, Y4
-
-	// Load and process 32 bytes from input 1 to 5 outputs
-	VMOVDQU (BX), Y8
-	ADDQ    $0x20, BX
-	VPSRLQ  $0x04, Y8, Y9
-	VPAND   Y5, Y8, Y8
-	VPAND   Y5, Y9, Y9
-	VMOVDQU 320(CX), Y6
-	VMOVDQU 352(CX), Y7
-	VPSHUFB Y8, Y6, Y6
-	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y0, Y0
-	VMOVDQU 384(CX), Y6
-	VMOVDQU 416(CX), Y7
-	VPSHUFB Y8, Y6, Y6
-	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y1, Y1
-	VMOVDQU 448(CX), Y6
-	VMOVDQU 480(CX), Y7
-	VPSHUFB Y8, Y6, Y6
-	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y2, Y2
-	VMOVDQU 512(CX), Y6
-	VMOVDQU 544(CX), Y7
-	VPSHUFB Y8, Y6, Y6
-	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y3, Y3
-	VMOVDQU 576(CX), Y6
-	VMOVDQU 608(CX), Y7
-	VPSHUFB Y8, Y6, Y6
-	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y4, Y4
-
-	// Load and process 32 bytes from input 2 to 5 outputs
-	VMOVDQU (BP), Y8
-	ADDQ    $0x20, BP
-	VPSRLQ  $0x04, Y8, Y9
-	VPAND   Y5, Y8, Y8
-	VPAND   Y5, Y9, Y9
-	VMOVDQU 640(CX), Y6
-	VMOVDQU 672(CX), Y7
-	VPSHUFB Y8, Y6, Y6
-	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y0, Y0
-	VMOVDQU 704(CX), Y6
-	VMOVDQU 736(CX), Y7
-	VPSHUFB Y8, Y6, Y6
-	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y1, Y1
-	VMOVDQU 768(CX), Y6
-	VMOVDQU 800(CX), Y7
-	VPSHUFB Y8, Y6, Y6
-	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y2, Y2
-	VMOVDQU 832(CX), Y6
-	VMOVDQU 864(CX), Y7
-	VPSHUFB Y8, Y6, Y6
-	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y3, Y3
-	VMOVDQU 896(CX), Y6
-	VMOVDQU 928(CX), Y7
-	VPSHUFB Y8, Y6, Y6
-	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y4, Y4
-
-	// Load and process 32 bytes from input 3 to 5 outputs
-	VMOVDQU (SI), Y8
-	ADDQ    $0x20, SI
-	VPSRLQ  $0x04, Y8, Y9
-	VPAND   Y5, Y8, Y8
-	VPAND   Y5, Y9, Y9
-	VMOVDQU 960(CX), Y6
-	VMOVDQU 992(CX), Y7
-	VPSHUFB Y8, Y6, Y6
-	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y0, Y0
-	VMOVDQU 1024(CX), Y6
-	VMOVDQU 1056(CX), Y7
-	VPSHUFB Y8, Y6, Y6
-	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y1, Y1
-	VMOVDQU 1088(CX), Y6
-	VMOVDQU 1120(CX), Y7
-	VPSHUFB Y8, Y6, Y6
-	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y2, Y2
-	VMOVDQU 1152(CX), Y6
-	VMOVDQU 1184(CX), Y7
-	VPSHUFB Y8, Y6, Y6
-	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y3, Y3
-	VMOVDQU 1216(CX), Y6
-	VMOVDQU 1248(CX), Y7
-	VPSHUFB Y8, Y6, Y6
-	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y4, Y4
-
-	// Load and process 32 bytes from input 4 to 5 outputs
-	VMOVDQU (DI), Y8
-	ADDQ    $0x20, DI
-	VPSRLQ  $0x04, Y8, Y9
-	VPAND   Y5, Y8, Y8
-	VPAND   Y5, Y9, Y9
-	VMOVDQU 1280(CX), Y6
-	VMOVDQU 1312(CX), Y7
-	VPSHUFB Y8, Y6, Y6
-	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y0, Y0
-	VMOVDQU 1344(CX), Y6
-	VMOVDQU 1376(CX), Y7
-	VPSHUFB Y8, Y6, Y6
-	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y1, Y1
-	VMOVDQU 1408(CX), Y6
-	VMOVDQU 1440(CX), Y7
-	VPSHUFB Y8, Y6, Y6
-	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y2, Y2
-	VMOVDQU 1472(CX), Y6
-	VMOVDQU 1504(CX), Y7
-	VPSHUFB Y8, Y6, Y6
-	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y3, Y3
-	VMOVDQU 1536(CX), Y6
-	VMOVDQU 1568(CX), Y7
-	VPSHUFB Y8, Y6, Y6
-	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y4, Y4
-
-	// Load and process 32 bytes from input 5 to 5 outputs
-	VMOVDQU (R8), Y8
-	ADDQ    $0x20, R8
-	VPSRLQ  $0x04, Y8, Y9
-	VPAND   Y5, Y8, Y8
-	VPAND   Y5, Y9, Y9
-	VMOVDQU 1600(CX), Y6
-	VMOVDQU 1632(CX), Y7
-	VPSHUFB Y8, Y6, Y6
-	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y0, Y0
-	VMOVDQU 1664(CX), Y6
-	VMOVDQU 1696(CX), Y7
-	VPSHUFB Y8, Y6, Y6
-	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y1, Y1
-	VMOVDQU 1728(CX), Y6
-	VMOVDQU 1760(CX), Y7
-	VPSHUFB Y8, Y6, Y6
-	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y2, Y2
-	VMOVDQU 1792(CX), Y6
-	VMOVDQU 1824(CX), Y7
-	VPSHUFB Y8, Y6, Y6
-	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y3, Y3
-	VMOVDQU 1856(CX), Y6
-	VMOVDQU 1888(CX), Y7
-	VPSHUFB Y8, Y6, Y6
-	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y4, Y4
-
-	// Load and process 32 bytes from input 6 to 5 outputs
-	VMOVDQU (R9), Y8
-	ADDQ    $0x20, R9
-	VPSRLQ  $0x04, Y8, Y9
-	VPAND   Y5, Y8, Y8
-	VPAND   Y5, Y9, Y9
-	VMOVDQU 1920(CX), Y6
-	VMOVDQU 1952(CX), Y7
-	VPSHUFB Y8, Y6, Y6
-	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y0, Y0
-	VMOVDQU 1984(CX), Y6
-	VMOVDQU 2016(CX), Y7
-	VPSHUFB Y8, Y6, Y6
-	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y1, Y1
-	VMOVDQU 2048(CX), Y6
-	VMOVDQU 2080(CX), Y7
-	VPSHUFB Y8, Y6, Y6
-	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y2, Y2
-	VMOVDQU 2112(CX), Y6
-	VMOVDQU 2144(CX), Y7
-	VPSHUFB Y8, Y6, Y6
-	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y3, Y3
-	VMOVDQU 2176(CX), Y6
-	VMOVDQU 2208(CX), Y7
-	VPSHUFB Y8, Y6, Y6
-	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y4, Y4
-
-	// Load and process 32 bytes from input 7 to 5 outputs
-	VMOVDQU (AX), Y8
-	ADDQ    $0x20, AX
-	VPSRLQ  $0x04, Y8, Y9
-	VPAND   Y5, Y8, Y8
-	VPAND   Y5, Y9, Y9
-	VMOVDQU 2240(CX), Y6
-	VMOVDQU 2272(CX), Y7
-	VPSHUFB Y8, Y6, Y6
-	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y0, Y0
-	VMOVDQU 2304(CX), Y6
-	VMOVDQU 2336(CX), Y7
-	VPSHUFB Y8, Y6, Y6
-	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y1, Y1
-	VMOVDQU 2368(CX), Y6
-	VMOVDQU 2400(CX), Y7
-	VPSHUFB Y8, Y6, Y6
-	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y2, Y2
-	VMOVDQU 2432(CX), Y6
-	VMOVDQU 2464(CX), Y7
-	VPSHUFB Y8, Y6, Y6
-	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y3, Y3
-	VMOVDQU 2496(CX), Y6
-	VMOVDQU 2528(CX), Y7
-	VPSHUFB Y8, Y6, Y6
-	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y4, Y4
-
-	// Store 5 outputs
-	VMOVDQU Y0, (R11)
-	ADDQ    $0x20, R11
-	VMOVDQU Y1, (R12)
-	ADDQ    $0x20, R12
-	VMOVDQU Y2, (R13)
-	ADDQ    $0x20, R13
-	VMOVDQU Y3, (R14)
-	ADDQ    $0x20, R14
-	VMOVDQU Y4, (R10)
-	ADDQ    $0x20, R10
-
-	// Prepare for next loop
-	DECQ R15
-	JNZ  mulAvxTwo_8x5_loop
-	VZEROUPPER
-
-mulAvxTwo_8x5_end:
-	RET
-
-// func mulAvxTwo_8x6(matrix []byte, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX2, SSE2
-TEXT ·mulAvxTwo_8x6(SB), NOSPLIT, $8-88
-	// Loading no tables to registers
-	// Destination kept on stack
-	// Full registers estimated 107 YMM used
-	MOVQ  n+80(FP), AX
-	MOVQ  matrix_base+0(FP), CX
-	SHRQ  $0x05, AX
-	TESTQ AX, AX
-	JZ    mulAvxTwo_8x6_end
-	MOVQ  in_base+24(FP), DX
-	MOVQ  (DX), BX
-	MOVQ  24(DX), BP
-	MOVQ  48(DX), SI
-	MOVQ  72(DX), DI
-	MOVQ  96(DX), R8
-	MOVQ  120(DX), R9
-	MOVQ  144(DX), R10
-	MOVQ  168(DX), DX
-	MOVQ  out_base+48(FP), R11
-	MOVQ  start+72(FP), R12
-
-	// Add start offset to input
-	ADDQ         R12, BX
-	ADDQ         R12, BP
-	ADDQ         R12, SI
-	ADDQ         R12, DI
-	ADDQ         R12, R8
-	ADDQ         R12, R9
-	ADDQ         R12, R10
-	ADDQ         R12, DX
-	MOVQ         $0x0000000f, R13
-	MOVQ         R13, X6
-	VPBROADCASTB X6, Y6
-
-mulAvxTwo_8x6_loop:
-	// Clear 6 outputs
-	VPXOR Y0, Y0, Y0
 	VPXOR Y1, Y1, Y1
 	VPXOR Y2, Y2, Y2
 	VPXOR Y3, Y3, Y3
 	VPXOR Y4, Y4, Y4
 	VPXOR Y5, Y5, Y5
 
-	// Load and process 32 bytes from input 0 to 6 outputs
-	VMOVDQU (BX), Y9
-	ADDQ    $0x20, BX
+	// Load and process 32 bytes from input 0 to 5 outputs
+	VMOVDQU (DX), Y9
+	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y9, Y10
 	VPAND   Y6, Y9, Y9
 	VPAND   Y6, Y10, Y10
@@ -12636,179 +12454,186 @@ mulAvxTwo_8x6_loop:
 	VPSHUFB Y9, Y7, Y7
 	VPSHUFB Y10, Y8, Y8
 	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y0, Y0
+	VPXOR   Y7, Y1, Y1
 	VMOVDQU 64(CX), Y7
 	VMOVDQU 96(CX), Y8
 	VPSHUFB Y9, Y7, Y7
 	VPSHUFB Y10, Y8, Y8
 	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y1, Y1
+	VPXOR   Y7, Y2, Y2
 	VMOVDQU 128(CX), Y7
 	VMOVDQU 160(CX), Y8
 	VPSHUFB Y9, Y7, Y7
 	VPSHUFB Y10, Y8, Y8
 	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y2, Y2
+	VPXOR   Y7, Y3, Y3
 	VMOVDQU 192(CX), Y7
 	VMOVDQU 224(CX), Y8
 	VPSHUFB Y9, Y7, Y7
 	VPSHUFB Y10, Y8, Y8
 	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y3, Y3
+	VPXOR   Y7, Y4, Y4
 	VMOVDQU 256(CX), Y7
 	VMOVDQU 288(CX), Y8
 	VPSHUFB Y9, Y7, Y7
 	VPSHUFB Y10, Y8, Y8
 	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y4, Y4
+	VPXOR   Y7, Y5, Y5
+
+	// Load and process 32 bytes from input 1 to 5 outputs
+	VMOVDQU (BX), Y9
+	ADDQ    $0x20, BX
+	VPSRLQ  $0x04, Y9, Y10
+	VPAND   Y6, Y9, Y9
+	VPAND   Y6, Y10, Y10
 	VMOVDQU 320(CX), Y7
 	VMOVDQU 352(CX), Y8
 	VPSHUFB Y9, Y7, Y7
 	VPSHUFB Y10, Y8, Y8
 	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y5, Y5
-
-	// Load and process 32 bytes from input 1 to 6 outputs
-	VMOVDQU (BP), Y9
-	ADDQ    $0x20, BP
-	VPSRLQ  $0x04, Y9, Y10
-	VPAND   Y6, Y9, Y9
-	VPAND   Y6, Y10, Y10
+	VPXOR   Y7, Y1, Y1
 	VMOVDQU 384(CX), Y7
 	VMOVDQU 416(CX), Y8
 	VPSHUFB Y9, Y7, Y7
 	VPSHUFB Y10, Y8, Y8
 	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y0, Y0
+	VPXOR   Y7, Y2, Y2
 	VMOVDQU 448(CX), Y7
 	VMOVDQU 480(CX), Y8
 	VPSHUFB Y9, Y7, Y7
 	VPSHUFB Y10, Y8, Y8
 	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y1, Y1
+	VPXOR   Y7, Y3, Y3
 	VMOVDQU 512(CX), Y7
 	VMOVDQU 544(CX), Y8
 	VPSHUFB Y9, Y7, Y7
 	VPSHUFB Y10, Y8, Y8
 	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y2, Y2
+	VPXOR   Y7, Y4, Y4
 	VMOVDQU 576(CX), Y7
 	VMOVDQU 608(CX), Y8
 	VPSHUFB Y9, Y7, Y7
 	VPSHUFB Y10, Y8, Y8
 	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y3, Y3
+	VPXOR   Y7, Y5, Y5
+
+	// Load and process 32 bytes from input 2 to 5 outputs
+	VMOVDQU (BP), Y9
+	ADDQ    $0x20, BP
+	VPSRLQ  $0x04, Y9, Y10
+	VPAND   Y6, Y9, Y9
+	VPAND   Y6, Y10, Y10
 	VMOVDQU 640(CX), Y7
 	VMOVDQU 672(CX), Y8
 	VPSHUFB Y9, Y7, Y7
 	VPSHUFB Y10, Y8, Y8
 	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y4, Y4
+	VPXOR   Y7, Y1, Y1
 	VMOVDQU 704(CX), Y7
 	VMOVDQU 736(CX), Y8
 	VPSHUFB Y9, Y7, Y7
 	VPSHUFB Y10, Y8, Y8
 	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y5, Y5
-
-	// Load and process 32 bytes from input 2 to 6 outputs
-	VMOVDQU (SI), Y9
-	ADDQ    $0x20, SI
-	VPSRLQ  $0x04, Y9, Y10
-	VPAND   Y6, Y9, Y9
-	VPAND   Y6, Y10, Y10
+	VPXOR   Y7, Y2, Y2
 	VMOVDQU 768(CX), Y7
 	VMOVDQU 800(CX), Y8
 	VPSHUFB Y9, Y7, Y7
 	VPSHUFB Y10, Y8, Y8
 	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y0, Y0
+	VPXOR   Y7, Y3, Y3
 	VMOVDQU 832(CX), Y7
 	VMOVDQU 864(CX), Y8
 	VPSHUFB Y9, Y7, Y7
 	VPSHUFB Y10, Y8, Y8
 	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y1, Y1
+	VPXOR   Y7, Y4, Y4
 	VMOVDQU 896(CX), Y7
 	VMOVDQU 928(CX), Y8
 	VPSHUFB Y9, Y7, Y7
 	VPSHUFB Y10, Y8, Y8
 	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y2, Y2
+	VPXOR   Y7, Y5, Y5
+
+	// Load and process 32 bytes from input 3 to 5 outputs
+	VMOVDQU (SI), Y9
+	ADDQ    $0x20, SI
+	VPSRLQ  $0x04, Y9, Y10
+	VPAND   Y6, Y9, Y9
+	VPAND   Y6, Y10, Y10
 	VMOVDQU 960(CX), Y7
 	VMOVDQU 992(CX), Y8
 	VPSHUFB Y9, Y7, Y7
 	VPSHUFB Y10, Y8, Y8
 	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y3, Y3
+	VPXOR   Y7, Y1, Y1
 	VMOVDQU 1024(CX), Y7
 	VMOVDQU 1056(CX), Y8
 	VPSHUFB Y9, Y7, Y7
 	VPSHUFB Y10, Y8, Y8
 	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y4, Y4
+	VPXOR   Y7, Y2, Y2
 	VMOVDQU 1088(CX), Y7
 	VMOVDQU 1120(CX), Y8
 	VPSHUFB Y9, Y7, Y7
 	VPSHUFB Y10, Y8, Y8
 	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y5, Y5
-
-	// Load and process 32 bytes from input 3 to 6 outputs
-	VMOVDQU (DI), Y9
-	ADDQ    $0x20, DI
-	VPSRLQ  $0x04, Y9, Y10
-	VPAND   Y6, Y9, Y9
-	VPAND   Y6, Y10, Y10
+	VPXOR   Y7, Y3, Y3
 	VMOVDQU 1152(CX), Y7
 	VMOVDQU 1184(CX), Y8
 	VPSHUFB Y9, Y7, Y7
 	VPSHUFB Y10, Y8, Y8
 	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y0, Y0
+	VPXOR   Y7, Y4, Y4
 	VMOVDQU 1216(CX), Y7
 	VMOVDQU 1248(CX), Y8
 	VPSHUFB Y9, Y7, Y7
 	VPSHUFB Y10, Y8, Y8
 	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y1, Y1
+	VPXOR   Y7, Y5, Y5
+
+	// Load and process 32 bytes from input 4 to 5 outputs
+	VMOVDQU (DI), Y9
+	ADDQ    $0x20, DI
+	VPSRLQ  $0x04, Y9, Y10
+	VPAND   Y6, Y9, Y9
+	VPAND   Y6, Y10, Y10
 	VMOVDQU 1280(CX), Y7
 	VMOVDQU 1312(CX), Y8
 	VPSHUFB Y9, Y7, Y7
 	VPSHUFB Y10, Y8, Y8
 	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y2, Y2
+	VPXOR   Y7, Y1, Y1
 	VMOVDQU 1344(CX), Y7
 	VMOVDQU 1376(CX), Y8
 	VPSHUFB Y9, Y7, Y7
 	VPSHUFB Y10, Y8, Y8
 	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y3, Y3
+	VPXOR   Y7, Y2, Y2
 	VMOVDQU 1408(CX), Y7
 	VMOVDQU 1440(CX), Y8
 	VPSHUFB Y9, Y7, Y7
 	VPSHUFB Y10, Y8, Y8
 	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y4, Y4
+	VPXOR   Y7, Y3, Y3
 	VMOVDQU 1472(CX), Y7
 	VMOVDQU 1504(CX), Y8
 	VPSHUFB Y9, Y7, Y7
 	VPSHUFB Y10, Y8, Y8
 	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y5, Y5
-
-	// Load and process 32 bytes from input 4 to 6 outputs
-	VMOVDQU (R8), Y9
-	ADDQ    $0x20, R8
-	VPSRLQ  $0x04, Y9, Y10
-	VPAND   Y6, Y9, Y9
-	VPAND   Y6, Y10, Y10
+	VPXOR   Y7, Y4, Y4
 	VMOVDQU 1536(CX), Y7
 	VMOVDQU 1568(CX), Y8
 	VPSHUFB Y9, Y7, Y7
 	VPSHUFB Y10, Y8, Y8
 	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y0, Y0
+	VPXOR   Y7, Y5, Y5
+
+	// Load and process 32 bytes from input 5 to 5 outputs
+	VMOVDQU (R8), Y9
+	ADDQ    $0x20, R8
+	VPSRLQ  $0x04, Y9, Y10
+	VPAND   Y6, Y9, Y9
+	VPAND   Y6, Y10, Y10
 	VMOVDQU 1600(CX), Y7
 	VMOVDQU 1632(CX), Y8
 	VPSHUFB Y9, Y7, Y7
@@ -12840,7 +12665,7 @@ mulAvxTwo_8x6_loop:
 	VPXOR   Y7, Y8, Y7
 	VPXOR   Y7, Y5, Y5
 
-	// Load and process 32 bytes from input 5 to 6 outputs
+	// Load and process 32 bytes from input 6 to 5 outputs
 	VMOVDQU (R9), Y9
 	ADDQ    $0x20, R9
 	VPSRLQ  $0x04, Y9, Y10
@@ -12851,158 +12676,103 @@ mulAvxTwo_8x6_loop:
 	VPSHUFB Y9, Y7, Y7
 	VPSHUFB Y10, Y8, Y8
 	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y0, Y0
+	VPXOR   Y7, Y1, Y1
 	VMOVDQU 1984(CX), Y7
 	VMOVDQU 2016(CX), Y8
 	VPSHUFB Y9, Y7, Y7
 	VPSHUFB Y10, Y8, Y8
 	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y1, Y1
+	VPXOR   Y7, Y2, Y2
 	VMOVDQU 2048(CX), Y7
 	VMOVDQU 2080(CX), Y8
 	VPSHUFB Y9, Y7, Y7
 	VPSHUFB Y10, Y8, Y8
 	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y2, Y2
+	VPXOR   Y7, Y3, Y3
 	VMOVDQU 2112(CX), Y7
 	VMOVDQU 2144(CX), Y8
 	VPSHUFB Y9, Y7, Y7
 	VPSHUFB Y10, Y8, Y8
 	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y3, Y3
+	VPXOR   Y7, Y4, Y4
 	VMOVDQU 2176(CX), Y7
 	VMOVDQU 2208(CX), Y8
 	VPSHUFB Y9, Y7, Y7
 	VPSHUFB Y10, Y8, Y8
 	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y4, Y4
+	VPXOR   Y7, Y5, Y5
+
+	// Load and process 32 bytes from input 7 to 5 outputs
+	VMOVDQU (AX), Y9
+	ADDQ    $0x20, AX
+	VPSRLQ  $0x04, Y9, Y10
+	VPAND   Y6, Y9, Y9
+	VPAND   Y6, Y10, Y10
 	VMOVDQU 2240(CX), Y7
 	VMOVDQU 2272(CX), Y8
 	VPSHUFB Y9, Y7, Y7
 	VPSHUFB Y10, Y8, Y8
 	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y5, Y5
-
-	// Load and process 32 bytes from input 6 to 6 outputs
-	VMOVDQU (R10), Y9
-	ADDQ    $0x20, R10
-	VPSRLQ  $0x04, Y9, Y10
-	VPAND   Y6, Y9, Y9
-	VPAND   Y6, Y10, Y10
+	VPXOR   Y7, Y1, Y1
 	VMOVDQU 2304(CX), Y7
 	VMOVDQU 2336(CX), Y8
 	VPSHUFB Y9, Y7, Y7
 	VPSHUFB Y10, Y8, Y8
 	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y0, Y0
+	VPXOR   Y7, Y2, Y2
 	VMOVDQU 2368(CX), Y7
 	VMOVDQU 2400(CX), Y8
 	VPSHUFB Y9, Y7, Y7
 	VPSHUFB Y10, Y8, Y8
 	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y1, Y1
+	VPXOR   Y7, Y3, Y3
 	VMOVDQU 2432(CX), Y7
 	VMOVDQU 2464(CX), Y8
 	VPSHUFB Y9, Y7, Y7
 	VPSHUFB Y10, Y8, Y8
 	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y2, Y2
+	VPXOR   Y7, Y4, Y4
 	VMOVDQU 2496(CX), Y7
 	VMOVDQU 2528(CX), Y8
 	VPSHUFB Y9, Y7, Y7
 	VPSHUFB Y10, Y8, Y8
 	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y3, Y3
-	VMOVDQU 2560(CX), Y7
-	VMOVDQU 2592(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y4, Y4
-	VMOVDQU 2624(CX), Y7
-	VMOVDQU 2656(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
 	VPXOR   Y7, Y5, Y5
 
-	// Load and process 32 bytes from input 7 to 6 outputs
-	VMOVDQU (DX), Y9
-	ADDQ    $0x20, DX
-	VPSRLQ  $0x04, Y9, Y10
-	VPAND   Y6, Y9, Y9
-	VPAND   Y6, Y10, Y10
-	VMOVDQU 2688(CX), Y7
-	VMOVDQU 2720(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y0, Y0
-	VMOVDQU 2752(CX), Y7
-	VMOVDQU 2784(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y1, Y1
-	VMOVDQU 2816(CX), Y7
-	VMOVDQU 2848(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y2, Y2
-	VMOVDQU 2880(CX), Y7
-	VMOVDQU 2912(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y3, Y3
-	VMOVDQU 2944(CX), Y7
-	VMOVDQU 2976(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y4, Y4
-	VMOVDQU 3008(CX), Y7
-	VMOVDQU 3040(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y5, Y5
-
-	// Store 6 outputs
-	MOVQ    (R11), R13
-	VMOVDQU Y0, (R13)(R12*1)
-	MOVQ    24(R11), R13
-	VMOVDQU Y1, (R13)(R12*1)
-	MOVQ    48(R11), R13
-	VMOVDQU Y2, (R13)(R12*1)
-	MOVQ    72(R11), R13
-	VMOVDQU Y3, (R13)(R12*1)
-	MOVQ    96(R11), R13
-	VMOVDQU Y4, (R13)(R12*1)
-	MOVQ    120(R11), R13
-	VMOVDQU Y5, (R13)(R12*1)
+	// Store 5 outputs
+	VMOVDQU Y1, (R11)
+	ADDQ    $0x20, R11
+	VMOVDQU Y2, (R12)
+	ADDQ    $0x20, R12
+	VMOVDQU Y3, (R13)
+	ADDQ    $0x20, R13
+	VMOVDQU Y4, (R14)
+	ADDQ    $0x20, R14
+	VMOVDQU Y5, (R10)
+	ADDQ    $0x20, R10
 
 	// Prepare for next loop
-	ADDQ $0x20, R12
-	DECQ AX
-	JNZ  mulAvxTwo_8x6_loop
+	DECQ R15
+	JNZ  mulAvxTwo_8x5_loop
 	VZEROUPPER
 
-mulAvxTwo_8x6_end:
+mulAvxTwo_8x5_end:
+	MOVQ X0, BP
 	RET
 
-// func mulAvxTwo_8x7(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxTwo_8x6(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX2, SSE2
-TEXT ·mulAvxTwo_8x7(SB), NOSPLIT, $8-88
+TEXT ·mulAvxTwo_8x6(SB), NOSPLIT, $0-88
+	MOVQ BP, X0
+
 	// Loading no tables to registers
 	// Destination kept on stack
-	// Full registers estimated 124 YMM used
+	// Full registers estimated 107 YMM used
 	MOVQ  n+80(FP), AX
 	MOVQ  matrix_base+0(FP), CX
 	SHRQ  $0x05, AX
 	TESTQ AX, AX
-	JZ    mulAvxTwo_8x7_end
+	JZ    mulAvxTwo_8x6_end
 	MOVQ  in_base+24(FP), DX
 	MOVQ  (DX), BX
 	MOVQ  24(DX), BP
@@ -13028,9 +12798,8 @@ TEXT ·mulAvxTwo_8x7(SB), NOSPLIT, $8-88
 	MOVQ         R13, X7
 	VPBROADCASTB X7, Y7
 
-mulAvxTwo_8x7_loop:
-	// Clear 7 outputs
-	VPXOR Y0, Y0, Y0
+mulAvxTwo_8x6_loop:
+	// Clear 6 outputs
 	VPXOR Y1, Y1, Y1
 	VPXOR Y2, Y2, Y2
 	VPXOR Y3, Y3, Y3
@@ -13038,7 +12807,7 @@ mulAvxTwo_8x7_loop:
 	VPXOR Y5, Y5, Y5
 	VPXOR Y6, Y6, Y6
 
-	// Load and process 32 bytes from input 0 to 7 outputs
+	// Load and process 32 bytes from input 0 to 6 outputs
 	VMOVDQU (BX), Y10
 	ADDQ    $0x20, BX
 	VPSRLQ  $0x04, Y10, Y11
@@ -13049,252 +12818,259 @@ mulAvxTwo_8x7_loop:
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y0, Y0
+	VPXOR   Y8, Y1, Y1
 	VMOVDQU 64(CX), Y8
 	VMOVDQU 96(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y1, Y1
+	VPXOR   Y8, Y2, Y2
 	VMOVDQU 128(CX), Y8
 	VMOVDQU 160(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y2, Y2
+	VPXOR   Y8, Y3, Y3
 	VMOVDQU 192(CX), Y8
 	VMOVDQU 224(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y3, Y3
+	VPXOR   Y8, Y4, Y4
 	VMOVDQU 256(CX), Y8
 	VMOVDQU 288(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y4, Y4
+	VPXOR   Y8, Y5, Y5
 	VMOVDQU 320(CX), Y8
 	VMOVDQU 352(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y5, Y5
-	VMOVDQU 384(CX), Y8
-	VMOVDQU 416(CX), Y9
-	VPSHUFB Y10, Y8, Y8
-	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
 	VPXOR   Y8, Y6, Y6
 
-	// Load and process 32 bytes from input 1 to 7 outputs
+	// Load and process 32 bytes from input 1 to 6 outputs
 	VMOVDQU (BP), Y10
 	ADDQ    $0x20, BP
 	VPSRLQ  $0x04, Y10, Y11
 	VPAND   Y7, Y10, Y10
 	VPAND   Y7, Y11, Y11
+	VMOVDQU 384(CX), Y8
+	VMOVDQU 416(CX), Y9
+	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y1, Y1
 	VMOVDQU 448(CX), Y8
 	VMOVDQU 480(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y0, Y0
+	VPXOR   Y8, Y2, Y2
 	VMOVDQU 512(CX), Y8
 	VMOVDQU 544(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y1, Y1
+	VPXOR   Y8, Y3, Y3
 	VMOVDQU 576(CX), Y8
 	VMOVDQU 608(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y2, Y2
+	VPXOR   Y8, Y4, Y4
 	VMOVDQU 640(CX), Y8
 	VMOVDQU 672(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y3, Y3
+	VPXOR   Y8, Y5, Y5
 	VMOVDQU 704(CX), Y8
 	VMOVDQU 736(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y4, Y4
-	VMOVDQU 768(CX), Y8
-	VMOVDQU 800(CX), Y9
-	VPSHUFB Y10, Y8, Y8
-	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y5, Y5
-	VMOVDQU 832(CX), Y8
-	VMOVDQU 864(CX), Y9
-	VPSHUFB Y10, Y8, Y8
-	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
 	VPXOR   Y8, Y6, Y6
 
-	// Load and process 32 bytes from input 2 to 7 outputs
+	// Load and process 32 bytes from input 2 to 6 outputs
 	VMOVDQU (SI), Y10
 	ADDQ    $0x20, SI
 	VPSRLQ  $0x04, Y10, Y11
 	VPAND   Y7, Y10, Y10
 	VPAND   Y7, Y11, Y11
+	VMOVDQU 768(CX), Y8
+	VMOVDQU 800(CX), Y9
+	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y1, Y1
+	VMOVDQU 832(CX), Y8
+	VMOVDQU 864(CX), Y9
+	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y2, Y2
 	VMOVDQU 896(CX), Y8
 	VMOVDQU 928(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y0, Y0
+	VPXOR   Y8, Y3, Y3
 	VMOVDQU 960(CX), Y8
 	VMOVDQU 992(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y1, Y1
+	VPXOR   Y8, Y4, Y4
 	VMOVDQU 1024(CX), Y8
 	VMOVDQU 1056(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y2, Y2
+	VPXOR   Y8, Y5, Y5
 	VMOVDQU 1088(CX), Y8
 	VMOVDQU 1120(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y3, Y3
-	VMOVDQU 1152(CX), Y8
-	VMOVDQU 1184(CX), Y9
-	VPSHUFB Y10, Y8, Y8
-	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y4, Y4
-	VMOVDQU 1216(CX), Y8
-	VMOVDQU 1248(CX), Y9
-	VPSHUFB Y10, Y8, Y8
-	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y5, Y5
-	VMOVDQU 1280(CX), Y8
-	VMOVDQU 1312(CX), Y9
-	VPSHUFB Y10, Y8, Y8
-	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
 	VPXOR   Y8, Y6, Y6
 
-	// Load and process 32 bytes from input 3 to 7 outputs
+	// Load and process 32 bytes from input 3 to 6 outputs
 	VMOVDQU (DI), Y10
 	ADDQ    $0x20, DI
 	VPSRLQ  $0x04, Y10, Y11
 	VPAND   Y7, Y10, Y10
 	VPAND   Y7, Y11, Y11
+	VMOVDQU 1152(CX), Y8
+	VMOVDQU 1184(CX), Y9
+	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y1, Y1
+	VMOVDQU 1216(CX), Y8
+	VMOVDQU 1248(CX), Y9
+	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y2, Y2
+	VMOVDQU 1280(CX), Y8
+	VMOVDQU 1312(CX), Y9
+	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y3, Y3
 	VMOVDQU 1344(CX), Y8
 	VMOVDQU 1376(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y0, Y0
+	VPXOR   Y8, Y4, Y4
 	VMOVDQU 1408(CX), Y8
 	VMOVDQU 1440(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y1, Y1
+	VPXOR   Y8, Y5, Y5
 	VMOVDQU 1472(CX), Y8
 	VMOVDQU 1504(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y2, Y2
-	VMOVDQU 1536(CX), Y8
-	VMOVDQU 1568(CX), Y9
-	VPSHUFB Y10, Y8, Y8
-	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y3, Y3
-	VMOVDQU 1600(CX), Y8
-	VMOVDQU 1632(CX), Y9
-	VPSHUFB Y10, Y8, Y8
-	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y4, Y4
-	VMOVDQU 1664(CX), Y8
-	VMOVDQU 1696(CX), Y9
-	VPSHUFB Y10, Y8, Y8
-	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y5, Y5
-	VMOVDQU 1728(CX), Y8
-	VMOVDQU 1760(CX), Y9
-	VPSHUFB Y10, Y8, Y8
-	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
 	VPXOR   Y8, Y6, Y6
 
-	// Load and process 32 bytes from input 4 to 7 outputs
+	// Load and process 32 bytes from input 4 to 6 outputs
 	VMOVDQU (R8), Y10
 	ADDQ    $0x20, R8
 	VPSRLQ  $0x04, Y10, Y11
 	VPAND   Y7, Y10, Y10
 	VPAND   Y7, Y11, Y11
+	VMOVDQU 1536(CX), Y8
+	VMOVDQU 1568(CX), Y9
+	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y1, Y1
+	VMOVDQU 1600(CX), Y8
+	VMOVDQU 1632(CX), Y9
+	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y2, Y2
+	VMOVDQU 1664(CX), Y8
+	VMOVDQU 1696(CX), Y9
+	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y3, Y3
+	VMOVDQU 1728(CX), Y8
+	VMOVDQU 1760(CX), Y9
+	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y4, Y4
 	VMOVDQU 1792(CX), Y8
 	VMOVDQU 1824(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y0, Y0
+	VPXOR   Y8, Y5, Y5
 	VMOVDQU 1856(CX), Y8
 	VMOVDQU 1888(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y1, Y1
-	VMOVDQU 1920(CX), Y8
-	VMOVDQU 1952(CX), Y9
-	VPSHUFB Y10, Y8, Y8
-	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y2, Y2
-	VMOVDQU 1984(CX), Y8
-	VMOVDQU 2016(CX), Y9
-	VPSHUFB Y10, Y8, Y8
-	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y3, Y3
-	VMOVDQU 2048(CX), Y8
-	VMOVDQU 2080(CX), Y9
-	VPSHUFB Y10, Y8, Y8
-	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y4, Y4
-	VMOVDQU 2112(CX), Y8
-	VMOVDQU 2144(CX), Y9
-	VPSHUFB Y10, Y8, Y8
-	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y5, Y5
-	VMOVDQU 2176(CX), Y8
-	VMOVDQU 2208(CX), Y9
-	VPSHUFB Y10, Y8, Y8
-	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
 	VPXOR   Y8, Y6, Y6
 
-	// Load and process 32 bytes from input 5 to 7 outputs
+	// Load and process 32 bytes from input 5 to 6 outputs
 	VMOVDQU (R9), Y10
 	ADDQ    $0x20, R9
 	VPSRLQ  $0x04, Y10, Y11
 	VPAND   Y7, Y10, Y10
 	VPAND   Y7, Y11, Y11
+	VMOVDQU 1920(CX), Y8
+	VMOVDQU 1952(CX), Y9
+	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y1, Y1
+	VMOVDQU 1984(CX), Y8
+	VMOVDQU 2016(CX), Y9
+	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y2, Y2
+	VMOVDQU 2048(CX), Y8
+	VMOVDQU 2080(CX), Y9
+	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y3, Y3
+	VMOVDQU 2112(CX), Y8
+	VMOVDQU 2144(CX), Y9
+	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y4, Y4
+	VMOVDQU 2176(CX), Y8
+	VMOVDQU 2208(CX), Y9
+	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y5, Y5
 	VMOVDQU 2240(CX), Y8
 	VMOVDQU 2272(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y0, Y0
+	VPXOR   Y8, Y6, Y6
+
+	// Load and process 32 bytes from input 6 to 6 outputs
+	VMOVDQU (R10), Y10
+	ADDQ    $0x20, R10
+	VPSRLQ  $0x04, Y10, Y11
+	VPAND   Y7, Y10, Y10
+	VPAND   Y7, Y11, Y11
 	VMOVDQU 2304(CX), Y8
 	VMOVDQU 2336(CX), Y9
 	VPSHUFB Y10, Y8, Y8
@@ -13332,9 +13108,9 @@ mulAvxTwo_8x7_loop:
 	VPXOR   Y8, Y9, Y8
 	VPXOR   Y8, Y6, Y6
 
-	// Load and process 32 bytes from input 6 to 7 outputs
-	VMOVDQU (R10), Y10
-	ADDQ    $0x20, R10
+	// Load and process 32 bytes from input 7 to 6 outputs
+	VMOVDQU (DX), Y10
+	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y10, Y11
 	VPAND   Y7, Y10, Y10
 	VPAND   Y7, Y11, Y11
@@ -13343,129 +13119,75 @@ mulAvxTwo_8x7_loop:
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y0, Y0
+	VPXOR   Y8, Y1, Y1
 	VMOVDQU 2752(CX), Y8
 	VMOVDQU 2784(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y1, Y1
+	VPXOR   Y8, Y2, Y2
 	VMOVDQU 2816(CX), Y8
 	VMOVDQU 2848(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y2, Y2
+	VPXOR   Y8, Y3, Y3
 	VMOVDQU 2880(CX), Y8
 	VMOVDQU 2912(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y3, Y3
+	VPXOR   Y8, Y4, Y4
 	VMOVDQU 2944(CX), Y8
 	VMOVDQU 2976(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y4, Y4
+	VPXOR   Y8, Y5, Y5
 	VMOVDQU 3008(CX), Y8
 	VMOVDQU 3040(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y5, Y5
-	VMOVDQU 3072(CX), Y8
-	VMOVDQU 3104(CX), Y9
-	VPSHUFB Y10, Y8, Y8
-	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
 	VPXOR   Y8, Y6, Y6
 
-	// Load and process 32 bytes from input 7 to 7 outputs
-	VMOVDQU (DX), Y10
-	ADDQ    $0x20, DX
-	VPSRLQ  $0x04, Y10, Y11
-	VPAND   Y7, Y10, Y10
-	VPAND   Y7, Y11, Y11
-	VMOVDQU 3136(CX), Y8
-	VMOVDQU 3168(CX), Y9
-	VPSHUFB Y10, Y8, Y8
-	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y0, Y0
-	VMOVDQU 3200(CX), Y8
-	VMOVDQU 3232(CX), Y9
-	VPSHUFB Y10, Y8, Y8
-	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y1, Y1
-	VMOVDQU 3264(CX), Y8
-	VMOVDQU 3296(CX), Y9
-	VPSHUFB Y10, Y8, Y8
-	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y2, Y2
-	VMOVDQU 3328(CX), Y8
-	VMOVDQU 3360(CX), Y9
-	VPSHUFB Y10, Y8, Y8
-	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y3, Y3
-	VMOVDQU 3392(CX), Y8
-	VMOVDQU 3424(CX), Y9
-	VPSHUFB Y10, Y8, Y8
-	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y4, Y4
-	VMOVDQU 3456(CX), Y8
-	VMOVDQU 3488(CX), Y9
-	VPSHUFB Y10, Y8, Y8
-	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y5, Y5
-	VMOVDQU 3520(CX), Y8
-	VMOVDQU 3552(CX), Y9
-	VPSHUFB Y10, Y8, Y8
-	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y6, Y6
-
-	// Store 7 outputs
+	// Store 6 outputs
 	MOVQ    (R11), R13
-	VMOVDQU Y0, (R13)(R12*1)
-	MOVQ    24(R11), R13
 	VMOVDQU Y1, (R13)(R12*1)
-	MOVQ    48(R11), R13
+	MOVQ    24(R11), R13
 	VMOVDQU Y2, (R13)(R12*1)
-	MOVQ    72(R11), R13
+	MOVQ    48(R11), R13
 	VMOVDQU Y3, (R13)(R12*1)
-	MOVQ    96(R11), R13
+	MOVQ    72(R11), R13
 	VMOVDQU Y4, (R13)(R12*1)
-	MOVQ    120(R11), R13
+	MOVQ    96(R11), R13
 	VMOVDQU Y5, (R13)(R12*1)
-	MOVQ    144(R11), R13
+	MOVQ    120(R11), R13
 	VMOVDQU Y6, (R13)(R12*1)
 
 	// Prepare for next loop
 	ADDQ $0x20, R12
 	DECQ AX
-	JNZ  mulAvxTwo_8x7_loop
+	JNZ  mulAvxTwo_8x6_loop
 	VZEROUPPER
 
-mulAvxTwo_8x7_end:
+mulAvxTwo_8x6_end:
+	MOVQ X0, BP
 	RET
 
-// func mulAvxTwo_8x8(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxTwo_8x7(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX2, SSE2
-TEXT ·mulAvxTwo_8x8(SB), NOSPLIT, $8-88
+TEXT ·mulAvxTwo_8x7(SB), NOSPLIT, $0-88
+	MOVQ BP, X0
+
 	// Loading no tables to registers
 	// Destination kept on stack
-	// Full registers estimated 141 YMM used
+	// Full registers estimated 124 YMM used
 	MOVQ  n+80(FP), AX
 	MOVQ  matrix_base+0(FP), CX
 	SHRQ  $0x05, AX
 	TESTQ AX, AX
-	JZ    mulAvxTwo_8x8_end
+	JZ    mulAvxTwo_8x7_end
 	MOVQ  in_base+24(FP), DX
 	MOVQ  (DX), BX
 	MOVQ  24(DX), BP
@@ -13491,9 +13213,8 @@ TEXT ·mulAvxTwo_8x8(SB), NOSPLIT, $8-88
 	MOVQ         R13, X8
 	VPBROADCASTB X8, Y8
 
-mulAvxTwo_8x8_loop:
-	// Clear 8 outputs
-	VPXOR Y0, Y0, Y0
+mulAvxTwo_8x7_loop:
+	// Clear 7 outputs
 	VPXOR Y1, Y1, Y1
 	VPXOR Y2, Y2, Y2
 	VPXOR Y3, Y3, Y3
@@ -13502,7 +13223,7 @@ mulAvxTwo_8x8_loop:
 	VPXOR Y6, Y6, Y6
 	VPXOR Y7, Y7, Y7
 
-	// Load and process 32 bytes from input 0 to 8 outputs
+	// Load and process 32 bytes from input 0 to 7 outputs
 	VMOVDQU (BX), Y11
 	ADDQ    $0x20, BX
 	VPSRLQ  $0x04, Y11, Y12
@@ -13513,337 +13234,344 @@ mulAvxTwo_8x8_loop:
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y0, Y0
+	VPXOR   Y9, Y1, Y1
 	VMOVDQU 64(CX), Y9
 	VMOVDQU 96(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y1, Y1
+	VPXOR   Y9, Y2, Y2
 	VMOVDQU 128(CX), Y9
 	VMOVDQU 160(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y2, Y2
+	VPXOR   Y9, Y3, Y3
 	VMOVDQU 192(CX), Y9
 	VMOVDQU 224(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y3, Y3
+	VPXOR   Y9, Y4, Y4
 	VMOVDQU 256(CX), Y9
 	VMOVDQU 288(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y4, Y4
+	VPXOR   Y9, Y5, Y5
 	VMOVDQU 320(CX), Y9
 	VMOVDQU 352(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y5, Y5
+	VPXOR   Y9, Y6, Y6
 	VMOVDQU 384(CX), Y9
 	VMOVDQU 416(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y6, Y6
-	VMOVDQU 448(CX), Y9
-	VMOVDQU 480(CX), Y10
-	VPSHUFB Y11, Y9, Y9
-	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
 	VPXOR   Y9, Y7, Y7
 
-	// Load and process 32 bytes from input 1 to 8 outputs
+	// Load and process 32 bytes from input 1 to 7 outputs
 	VMOVDQU (BP), Y11
 	ADDQ    $0x20, BP
 	VPSRLQ  $0x04, Y11, Y12
 	VPAND   Y8, Y11, Y11
 	VPAND   Y8, Y12, Y12
+	VMOVDQU 448(CX), Y9
+	VMOVDQU 480(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y1, Y1
 	VMOVDQU 512(CX), Y9
 	VMOVDQU 544(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y0, Y0
+	VPXOR   Y9, Y2, Y2
 	VMOVDQU 576(CX), Y9
 	VMOVDQU 608(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y1, Y1
+	VPXOR   Y9, Y3, Y3
 	VMOVDQU 640(CX), Y9
 	VMOVDQU 672(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y2, Y2
+	VPXOR   Y9, Y4, Y4
 	VMOVDQU 704(CX), Y9
 	VMOVDQU 736(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y3, Y3
+	VPXOR   Y9, Y5, Y5
 	VMOVDQU 768(CX), Y9
 	VMOVDQU 800(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y4, Y4
+	VPXOR   Y9, Y6, Y6
 	VMOVDQU 832(CX), Y9
 	VMOVDQU 864(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y5, Y5
-	VMOVDQU 896(CX), Y9
-	VMOVDQU 928(CX), Y10
-	VPSHUFB Y11, Y9, Y9
-	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y6, Y6
-	VMOVDQU 960(CX), Y9
-	VMOVDQU 992(CX), Y10
-	VPSHUFB Y11, Y9, Y9
-	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
 	VPXOR   Y9, Y7, Y7
 
-	// Load and process 32 bytes from input 2 to 8 outputs
+	// Load and process 32 bytes from input 2 to 7 outputs
 	VMOVDQU (SI), Y11
 	ADDQ    $0x20, SI
 	VPSRLQ  $0x04, Y11, Y12
 	VPAND   Y8, Y11, Y11
 	VPAND   Y8, Y12, Y12
+	VMOVDQU 896(CX), Y9
+	VMOVDQU 928(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y1, Y1
+	VMOVDQU 960(CX), Y9
+	VMOVDQU 992(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y2, Y2
 	VMOVDQU 1024(CX), Y9
 	VMOVDQU 1056(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y0, Y0
+	VPXOR   Y9, Y3, Y3
 	VMOVDQU 1088(CX), Y9
 	VMOVDQU 1120(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y1, Y1
+	VPXOR   Y9, Y4, Y4
 	VMOVDQU 1152(CX), Y9
 	VMOVDQU 1184(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y2, Y2
+	VPXOR   Y9, Y5, Y5
 	VMOVDQU 1216(CX), Y9
 	VMOVDQU 1248(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y3, Y3
+	VPXOR   Y9, Y6, Y6
 	VMOVDQU 1280(CX), Y9
 	VMOVDQU 1312(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y4, Y4
-	VMOVDQU 1344(CX), Y9
-	VMOVDQU 1376(CX), Y10
-	VPSHUFB Y11, Y9, Y9
-	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y5, Y5
-	VMOVDQU 1408(CX), Y9
-	VMOVDQU 1440(CX), Y10
-	VPSHUFB Y11, Y9, Y9
-	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y6, Y6
-	VMOVDQU 1472(CX), Y9
-	VMOVDQU 1504(CX), Y10
-	VPSHUFB Y11, Y9, Y9
-	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
 	VPXOR   Y9, Y7, Y7
 
-	// Load and process 32 bytes from input 3 to 8 outputs
+	// Load and process 32 bytes from input 3 to 7 outputs
 	VMOVDQU (DI), Y11
 	ADDQ    $0x20, DI
 	VPSRLQ  $0x04, Y11, Y12
 	VPAND   Y8, Y11, Y11
 	VPAND   Y8, Y12, Y12
+	VMOVDQU 1344(CX), Y9
+	VMOVDQU 1376(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y1, Y1
+	VMOVDQU 1408(CX), Y9
+	VMOVDQU 1440(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y2, Y2
+	VMOVDQU 1472(CX), Y9
+	VMOVDQU 1504(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y3, Y3
 	VMOVDQU 1536(CX), Y9
 	VMOVDQU 1568(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y0, Y0
+	VPXOR   Y9, Y4, Y4
 	VMOVDQU 1600(CX), Y9
 	VMOVDQU 1632(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y1, Y1
+	VPXOR   Y9, Y5, Y5
 	VMOVDQU 1664(CX), Y9
 	VMOVDQU 1696(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y2, Y2
+	VPXOR   Y9, Y6, Y6
 	VMOVDQU 1728(CX), Y9
 	VMOVDQU 1760(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y3, Y3
-	VMOVDQU 1792(CX), Y9
-	VMOVDQU 1824(CX), Y10
-	VPSHUFB Y11, Y9, Y9
-	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y4, Y4
-	VMOVDQU 1856(CX), Y9
-	VMOVDQU 1888(CX), Y10
-	VPSHUFB Y11, Y9, Y9
-	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y5, Y5
-	VMOVDQU 1920(CX), Y9
-	VMOVDQU 1952(CX), Y10
-	VPSHUFB Y11, Y9, Y9
-	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y6, Y6
-	VMOVDQU 1984(CX), Y9
-	VMOVDQU 2016(CX), Y10
-	VPSHUFB Y11, Y9, Y9
-	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
 	VPXOR   Y9, Y7, Y7
 
-	// Load and process 32 bytes from input 4 to 8 outputs
+	// Load and process 32 bytes from input 4 to 7 outputs
 	VMOVDQU (R8), Y11
 	ADDQ    $0x20, R8
 	VPSRLQ  $0x04, Y11, Y12
 	VPAND   Y8, Y11, Y11
 	VPAND   Y8, Y12, Y12
+	VMOVDQU 1792(CX), Y9
+	VMOVDQU 1824(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y1, Y1
+	VMOVDQU 1856(CX), Y9
+	VMOVDQU 1888(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y2, Y2
+	VMOVDQU 1920(CX), Y9
+	VMOVDQU 1952(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y3, Y3
+	VMOVDQU 1984(CX), Y9
+	VMOVDQU 2016(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y4, Y4
 	VMOVDQU 2048(CX), Y9
 	VMOVDQU 2080(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y0, Y0
+	VPXOR   Y9, Y5, Y5
 	VMOVDQU 2112(CX), Y9
 	VMOVDQU 2144(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y1, Y1
+	VPXOR   Y9, Y6, Y6
 	VMOVDQU 2176(CX), Y9
 	VMOVDQU 2208(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y2, Y2
-	VMOVDQU 2240(CX), Y9
-	VMOVDQU 2272(CX), Y10
-	VPSHUFB Y11, Y9, Y9
-	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y3, Y3
-	VMOVDQU 2304(CX), Y9
-	VMOVDQU 2336(CX), Y10
-	VPSHUFB Y11, Y9, Y9
-	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y4, Y4
-	VMOVDQU 2368(CX), Y9
-	VMOVDQU 2400(CX), Y10
-	VPSHUFB Y11, Y9, Y9
-	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y5, Y5
-	VMOVDQU 2432(CX), Y9
-	VMOVDQU 2464(CX), Y10
-	VPSHUFB Y11, Y9, Y9
-	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y6, Y6
-	VMOVDQU 2496(CX), Y9
-	VMOVDQU 2528(CX), Y10
-	VPSHUFB Y11, Y9, Y9
-	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
 	VPXOR   Y9, Y7, Y7
 
-	// Load and process 32 bytes from input 5 to 8 outputs
+	// Load and process 32 bytes from input 5 to 7 outputs
 	VMOVDQU (R9), Y11
 	ADDQ    $0x20, R9
 	VPSRLQ  $0x04, Y11, Y12
 	VPAND   Y8, Y11, Y11
 	VPAND   Y8, Y12, Y12
+	VMOVDQU 2240(CX), Y9
+	VMOVDQU 2272(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y1, Y1
+	VMOVDQU 2304(CX), Y9
+	VMOVDQU 2336(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y2, Y2
+	VMOVDQU 2368(CX), Y9
+	VMOVDQU 2400(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y3, Y3
+	VMOVDQU 2432(CX), Y9
+	VMOVDQU 2464(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y4, Y4
+	VMOVDQU 2496(CX), Y9
+	VMOVDQU 2528(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y5, Y5
 	VMOVDQU 2560(CX), Y9
 	VMOVDQU 2592(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y0, Y0
+	VPXOR   Y9, Y6, Y6
 	VMOVDQU 2624(CX), Y9
 	VMOVDQU 2656(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y1, Y1
-	VMOVDQU 2688(CX), Y9
-	VMOVDQU 2720(CX), Y10
-	VPSHUFB Y11, Y9, Y9
-	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y2, Y2
-	VMOVDQU 2752(CX), Y9
-	VMOVDQU 2784(CX), Y10
-	VPSHUFB Y11, Y9, Y9
-	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y3, Y3
-	VMOVDQU 2816(CX), Y9
-	VMOVDQU 2848(CX), Y10
-	VPSHUFB Y11, Y9, Y9
-	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y4, Y4
-	VMOVDQU 2880(CX), Y9
-	VMOVDQU 2912(CX), Y10
-	VPSHUFB Y11, Y9, Y9
-	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y5, Y5
-	VMOVDQU 2944(CX), Y9
-	VMOVDQU 2976(CX), Y10
-	VPSHUFB Y11, Y9, Y9
-	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y6, Y6
-	VMOVDQU 3008(CX), Y9
-	VMOVDQU 3040(CX), Y10
-	VPSHUFB Y11, Y9, Y9
-	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
 	VPXOR   Y9, Y7, Y7
 
-	// Load and process 32 bytes from input 6 to 8 outputs
+	// Load and process 32 bytes from input 6 to 7 outputs
 	VMOVDQU (R10), Y11
 	ADDQ    $0x20, R10
 	VPSRLQ  $0x04, Y11, Y12
 	VPAND   Y8, Y11, Y11
 	VPAND   Y8, Y12, Y12
+	VMOVDQU 2688(CX), Y9
+	VMOVDQU 2720(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y1, Y1
+	VMOVDQU 2752(CX), Y9
+	VMOVDQU 2784(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y2, Y2
+	VMOVDQU 2816(CX), Y9
+	VMOVDQU 2848(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y3, Y3
+	VMOVDQU 2880(CX), Y9
+	VMOVDQU 2912(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y4, Y4
+	VMOVDQU 2944(CX), Y9
+	VMOVDQU 2976(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y5, Y5
+	VMOVDQU 3008(CX), Y9
+	VMOVDQU 3040(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y6, Y6
 	VMOVDQU 3072(CX), Y9
 	VMOVDQU 3104(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y0, Y0
+	VPXOR   Y9, Y7, Y7
+
+	// Load and process 32 bytes from input 7 to 7 outputs
+	VMOVDQU (DX), Y11
+	ADDQ    $0x20, DX
+	VPSRLQ  $0x04, Y11, Y12
+	VPAND   Y8, Y11, Y11
+	VPAND   Y8, Y12, Y12
 	VMOVDQU 3136(CX), Y9
 	VMOVDQU 3168(CX), Y10
 	VPSHUFB Y11, Y9, Y9
@@ -13887,78 +13615,538 @@ mulAvxTwo_8x8_loop:
 	VPXOR   Y9, Y10, Y9
 	VPXOR   Y9, Y7, Y7
 
+	// Store 7 outputs
+	MOVQ    (R11), R13
+	VMOVDQU Y1, (R13)(R12*1)
+	MOVQ    24(R11), R13
+	VMOVDQU Y2, (R13)(R12*1)
+	MOVQ    48(R11), R13
+	VMOVDQU Y3, (R13)(R12*1)
+	MOVQ    72(R11), R13
+	VMOVDQU Y4, (R13)(R12*1)
+	MOVQ    96(R11), R13
+	VMOVDQU Y5, (R13)(R12*1)
+	MOVQ    120(R11), R13
+	VMOVDQU Y6, (R13)(R12*1)
+	MOVQ    144(R11), R13
+	VMOVDQU Y7, (R13)(R12*1)
+
+	// Prepare for next loop
+	ADDQ $0x20, R12
+	DECQ AX
+	JNZ  mulAvxTwo_8x7_loop
+	VZEROUPPER
+
+mulAvxTwo_8x7_end:
+	MOVQ X0, BP
+	RET
+
+// func mulAvxTwo_8x8(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+// Requires: AVX, AVX2, SSE2
+TEXT ·mulAvxTwo_8x8(SB), NOSPLIT, $0-88
+	MOVQ BP, X0
+
+	// Loading no tables to registers
+	// Destination kept on stack
+	// Full registers estimated 141 YMM used
+	MOVQ  n+80(FP), AX
+	MOVQ  matrix_base+0(FP), CX
+	SHRQ  $0x05, AX
+	TESTQ AX, AX
+	JZ    mulAvxTwo_8x8_end
+	MOVQ  in_base+24(FP), DX
+	MOVQ  (DX), BX
+	MOVQ  24(DX), BP
+	MOVQ  48(DX), SI
+	MOVQ  72(DX), DI
+	MOVQ  96(DX), R8
+	MOVQ  120(DX), R9
+	MOVQ  144(DX), R10
+	MOVQ  168(DX), DX
+	MOVQ  out_base+48(FP), R11
+	MOVQ  start+72(FP), R12
+
+	// Add start offset to input
+	ADDQ         R12, BX
+	ADDQ         R12, BP
+	ADDQ         R12, SI
+	ADDQ         R12, DI
+	ADDQ         R12, R8
+	ADDQ         R12, R9
+	ADDQ         R12, R10
+	ADDQ         R12, DX
+	MOVQ         $0x0000000f, R13
+	MOVQ         R13, X9
+	VPBROADCASTB X9, Y9
+
+mulAvxTwo_8x8_loop:
+	// Clear 8 outputs
+	VPXOR Y1, Y1, Y1
+	VPXOR Y2, Y2, Y2
+	VPXOR Y3, Y3, Y3
+	VPXOR Y4, Y4, Y4
+	VPXOR Y5, Y5, Y5
+	VPXOR Y6, Y6, Y6
+	VPXOR Y7, Y7, Y7
+	VPXOR Y8, Y8, Y8
+
+	// Load and process 32 bytes from input 0 to 8 outputs
+	VMOVDQU (BX), Y12
+	ADDQ    $0x20, BX
+	VPSRLQ  $0x04, Y12, Y13
+	VPAND   Y9, Y12, Y12
+	VPAND   Y9, Y13, Y13
+	VMOVDQU (CX), Y10
+	VMOVDQU 32(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y1, Y1
+	VMOVDQU 64(CX), Y10
+	VMOVDQU 96(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y2, Y2
+	VMOVDQU 128(CX), Y10
+	VMOVDQU 160(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y3, Y3
+	VMOVDQU 192(CX), Y10
+	VMOVDQU 224(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y4, Y4
+	VMOVDQU 256(CX), Y10
+	VMOVDQU 288(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y5, Y5
+	VMOVDQU 320(CX), Y10
+	VMOVDQU 352(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y6, Y6
+	VMOVDQU 384(CX), Y10
+	VMOVDQU 416(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y7, Y7
+	VMOVDQU 448(CX), Y10
+	VMOVDQU 480(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y8, Y8
+
+	// Load and process 32 bytes from input 1 to 8 outputs
+	VMOVDQU (BP), Y12
+	ADDQ    $0x20, BP
+	VPSRLQ  $0x04, Y12, Y13
+	VPAND   Y9, Y12, Y12
+	VPAND   Y9, Y13, Y13
+	VMOVDQU 512(CX), Y10
+	VMOVDQU 544(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y1, Y1
+	VMOVDQU 576(CX), Y10
+	VMOVDQU 608(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y2, Y2
+	VMOVDQU 640(CX), Y10
+	VMOVDQU 672(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y3, Y3
+	VMOVDQU 704(CX), Y10
+	VMOVDQU 736(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y4, Y4
+	VMOVDQU 768(CX), Y10
+	VMOVDQU 800(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y5, Y5
+	VMOVDQU 832(CX), Y10
+	VMOVDQU 864(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y6, Y6
+	VMOVDQU 896(CX), Y10
+	VMOVDQU 928(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y7, Y7
+	VMOVDQU 960(CX), Y10
+	VMOVDQU 992(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y8, Y8
+
+	// Load and process 32 bytes from input 2 to 8 outputs
+	VMOVDQU (SI), Y12
+	ADDQ    $0x20, SI
+	VPSRLQ  $0x04, Y12, Y13
+	VPAND   Y9, Y12, Y12
+	VPAND   Y9, Y13, Y13
+	VMOVDQU 1024(CX), Y10
+	VMOVDQU 1056(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y1, Y1
+	VMOVDQU 1088(CX), Y10
+	VMOVDQU 1120(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y2, Y2
+	VMOVDQU 1152(CX), Y10
+	VMOVDQU 1184(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y3, Y3
+	VMOVDQU 1216(CX), Y10
+	VMOVDQU 1248(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y4, Y4
+	VMOVDQU 1280(CX), Y10
+	VMOVDQU 1312(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y5, Y5
+	VMOVDQU 1344(CX), Y10
+	VMOVDQU 1376(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y6, Y6
+	VMOVDQU 1408(CX), Y10
+	VMOVDQU 1440(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y7, Y7
+	VMOVDQU 1472(CX), Y10
+	VMOVDQU 1504(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y8, Y8
+
+	// Load and process 32 bytes from input 3 to 8 outputs
+	VMOVDQU (DI), Y12
+	ADDQ    $0x20, DI
+	VPSRLQ  $0x04, Y12, Y13
+	VPAND   Y9, Y12, Y12
+	VPAND   Y9, Y13, Y13
+	VMOVDQU 1536(CX), Y10
+	VMOVDQU 1568(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y1, Y1
+	VMOVDQU 1600(CX), Y10
+	VMOVDQU 1632(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y2, Y2
+	VMOVDQU 1664(CX), Y10
+	VMOVDQU 1696(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y3, Y3
+	VMOVDQU 1728(CX), Y10
+	VMOVDQU 1760(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y4, Y4
+	VMOVDQU 1792(CX), Y10
+	VMOVDQU 1824(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y5, Y5
+	VMOVDQU 1856(CX), Y10
+	VMOVDQU 1888(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y6, Y6
+	VMOVDQU 1920(CX), Y10
+	VMOVDQU 1952(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y7, Y7
+	VMOVDQU 1984(CX), Y10
+	VMOVDQU 2016(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y8, Y8
+
+	// Load and process 32 bytes from input 4 to 8 outputs
+	VMOVDQU (R8), Y12
+	ADDQ    $0x20, R8
+	VPSRLQ  $0x04, Y12, Y13
+	VPAND   Y9, Y12, Y12
+	VPAND   Y9, Y13, Y13
+	VMOVDQU 2048(CX), Y10
+	VMOVDQU 2080(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y1, Y1
+	VMOVDQU 2112(CX), Y10
+	VMOVDQU 2144(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y2, Y2
+	VMOVDQU 2176(CX), Y10
+	VMOVDQU 2208(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y3, Y3
+	VMOVDQU 2240(CX), Y10
+	VMOVDQU 2272(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y4, Y4
+	VMOVDQU 2304(CX), Y10
+	VMOVDQU 2336(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y5, Y5
+	VMOVDQU 2368(CX), Y10
+	VMOVDQU 2400(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y6, Y6
+	VMOVDQU 2432(CX), Y10
+	VMOVDQU 2464(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y7, Y7
+	VMOVDQU 2496(CX), Y10
+	VMOVDQU 2528(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y8, Y8
+
+	// Load and process 32 bytes from input 5 to 8 outputs
+	VMOVDQU (R9), Y12
+	ADDQ    $0x20, R9
+	VPSRLQ  $0x04, Y12, Y13
+	VPAND   Y9, Y12, Y12
+	VPAND   Y9, Y13, Y13
+	VMOVDQU 2560(CX), Y10
+	VMOVDQU 2592(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y1, Y1
+	VMOVDQU 2624(CX), Y10
+	VMOVDQU 2656(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y2, Y2
+	VMOVDQU 2688(CX), Y10
+	VMOVDQU 2720(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y3, Y3
+	VMOVDQU 2752(CX), Y10
+	VMOVDQU 2784(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y4, Y4
+	VMOVDQU 2816(CX), Y10
+	VMOVDQU 2848(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y5, Y5
+	VMOVDQU 2880(CX), Y10
+	VMOVDQU 2912(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y6, Y6
+	VMOVDQU 2944(CX), Y10
+	VMOVDQU 2976(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y7, Y7
+	VMOVDQU 3008(CX), Y10
+	VMOVDQU 3040(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y8, Y8
+
+	// Load and process 32 bytes from input 6 to 8 outputs
+	VMOVDQU (R10), Y12
+	ADDQ    $0x20, R10
+	VPSRLQ  $0x04, Y12, Y13
+	VPAND   Y9, Y12, Y12
+	VPAND   Y9, Y13, Y13
+	VMOVDQU 3072(CX), Y10
+	VMOVDQU 3104(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y1, Y1
+	VMOVDQU 3136(CX), Y10
+	VMOVDQU 3168(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y2, Y2
+	VMOVDQU 3200(CX), Y10
+	VMOVDQU 3232(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y3, Y3
+	VMOVDQU 3264(CX), Y10
+	VMOVDQU 3296(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y4, Y4
+	VMOVDQU 3328(CX), Y10
+	VMOVDQU 3360(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y5, Y5
+	VMOVDQU 3392(CX), Y10
+	VMOVDQU 3424(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y6, Y6
+	VMOVDQU 3456(CX), Y10
+	VMOVDQU 3488(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y7, Y7
+	VMOVDQU 3520(CX), Y10
+	VMOVDQU 3552(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y8, Y8
+
 	// Load and process 32 bytes from input 7 to 8 outputs
-	VMOVDQU (DX), Y11
+	VMOVDQU (DX), Y12
 	ADDQ    $0x20, DX
-	VPSRLQ  $0x04, Y11, Y12
-	VPAND   Y8, Y11, Y11
-	VPAND   Y8, Y12, Y12
-	VMOVDQU 3584(CX), Y9
-	VMOVDQU 3616(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSRLQ  $0x04, Y12, Y13
+	VPAND   Y9, Y12, Y12
+	VPAND   Y9, Y13, Y13
+	VMOVDQU 3584(CX), Y10
+	VMOVDQU 3616(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y0, Y0
-	VMOVDQU 3648(CX), Y9
-	VMOVDQU 3680(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y1, Y1
+	VMOVDQU 3648(CX), Y10
+	VMOVDQU 3680(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y1, Y1
-	VMOVDQU 3712(CX), Y9
-	VMOVDQU 3744(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y2, Y2
+	VMOVDQU 3712(CX), Y10
+	VMOVDQU 3744(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y2, Y2
-	VMOVDQU 3776(CX), Y9
-	VMOVDQU 3808(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y3, Y3
+	VMOVDQU 3776(CX), Y10
+	VMOVDQU 3808(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y3, Y3
-	VMOVDQU 3840(CX), Y9
-	VMOVDQU 3872(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y4, Y4
+	VMOVDQU 3840(CX), Y10
+	VMOVDQU 3872(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y4, Y4
-	VMOVDQU 3904(CX), Y9
-	VMOVDQU 3936(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y5, Y5
+	VMOVDQU 3904(CX), Y10
+	VMOVDQU 3936(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y5, Y5
-	VMOVDQU 3968(CX), Y9
-	VMOVDQU 4000(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y6, Y6
+	VMOVDQU 3968(CX), Y10
+	VMOVDQU 4000(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y6, Y6
-	VMOVDQU 4032(CX), Y9
-	VMOVDQU 4064(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y7, Y7
+	VMOVDQU 4032(CX), Y10
+	VMOVDQU 4064(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y7, Y7
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y8, Y8
 
 	// Store 8 outputs
 	MOVQ    (R11), R13
-	VMOVDQU Y0, (R13)(R12*1)
-	MOVQ    24(R11), R13
 	VMOVDQU Y1, (R13)(R12*1)
-	MOVQ    48(R11), R13
+	MOVQ    24(R11), R13
 	VMOVDQU Y2, (R13)(R12*1)
-	MOVQ    72(R11), R13
+	MOVQ    48(R11), R13
 	VMOVDQU Y3, (R13)(R12*1)
-	MOVQ    96(R11), R13
+	MOVQ    72(R11), R13
 	VMOVDQU Y4, (R13)(R12*1)
-	MOVQ    120(R11), R13
+	MOVQ    96(R11), R13
 	VMOVDQU Y5, (R13)(R12*1)
-	MOVQ    144(R11), R13
+	MOVQ    120(R11), R13
 	VMOVDQU Y6, (R13)(R12*1)
-	MOVQ    168(R11), R13
+	MOVQ    144(R11), R13
 	VMOVDQU Y7, (R13)(R12*1)
+	MOVQ    168(R11), R13
+	VMOVDQU Y8, (R13)(R12*1)
 
 	// Prepare for next loop
 	ADDQ $0x20, R12
@@ -13967,11 +14155,14 @@ mulAvxTwo_8x8_loop:
 	VZEROUPPER
 
 mulAvxTwo_8x8_end:
+	MOVQ X0, BP
 	RET
 
 // func mulAvxTwo_9x1(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX2, SSE2
-TEXT ·mulAvxTwo_9x1(SB), NOSPLIT, $8-88
+TEXT ·mulAvxTwo_9x1(SB), NOSPLIT, $0-88
+	MOVQ BP, X0
+
 	// Loading no tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 22 YMM used
@@ -14008,132 +14199,132 @@ TEXT ·mulAvxTwo_9x1(SB), NOSPLIT, $8-88
 	ADDQ         R13, R11
 	ADDQ         R13, DX
 	MOVQ         $0x0000000f, R13
-	MOVQ         R13, X1
-	VPBROADCASTB X1, Y1
+	MOVQ         R13, X2
+	VPBROADCASTB X2, Y2
 
 mulAvxTwo_9x1_loop:
 	// Clear 1 outputs
-	VPXOR Y0, Y0, Y0
+	VPXOR Y1, Y1, Y1
 
 	// Load and process 32 bytes from input 0 to 1 outputs
-	VMOVDQU (BX), Y4
+	VMOVDQU (BX), Y5
 	ADDQ    $0x20, BX
-	VPSRLQ  $0x04, Y4, Y5
-	VPAND   Y1, Y4, Y4
-	VPAND   Y1, Y5, Y5
-	VMOVDQU (CX), Y2
-	VMOVDQU 32(CX), Y3
-	VPSHUFB Y4, Y2, Y2
+	VPSRLQ  $0x04, Y5, Y6
+	VPAND   Y2, Y5, Y5
+	VPAND   Y2, Y6, Y6
+	VMOVDQU (CX), Y3
+	VMOVDQU 32(CX), Y4
 	VPSHUFB Y5, Y3, Y3
-	VPXOR   Y2, Y3, Y2
-	VPXOR   Y2, Y0, Y0
+	VPSHUFB Y6, Y4, Y4
+	VPXOR   Y3, Y4, Y3
+	VPXOR   Y3, Y1, Y1
 
 	// Load and process 32 bytes from input 1 to 1 outputs
-	VMOVDQU (BP), Y4
+	VMOVDQU (BP), Y5
 	ADDQ    $0x20, BP
-	VPSRLQ  $0x04, Y4, Y5
-	VPAND   Y1, Y4, Y4
-	VPAND   Y1, Y5, Y5
-	VMOVDQU 64(CX), Y2
-	VMOVDQU 96(CX), Y3
-	VPSHUFB Y4, Y2, Y2
+	VPSRLQ  $0x04, Y5, Y6
+	VPAND   Y2, Y5, Y5
+	VPAND   Y2, Y6, Y6
+	VMOVDQU 64(CX), Y3
+	VMOVDQU 96(CX), Y4
 	VPSHUFB Y5, Y3, Y3
-	VPXOR   Y2, Y3, Y2
-	VPXOR   Y2, Y0, Y0
+	VPSHUFB Y6, Y4, Y4
+	VPXOR   Y3, Y4, Y3
+	VPXOR   Y3, Y1, Y1
 
 	// Load and process 32 bytes from input 2 to 1 outputs
-	VMOVDQU (SI), Y4
+	VMOVDQU (SI), Y5
 	ADDQ    $0x20, SI
-	VPSRLQ  $0x04, Y4, Y5
-	VPAND   Y1, Y4, Y4
-	VPAND   Y1, Y5, Y5
-	VMOVDQU 128(CX), Y2
-	VMOVDQU 160(CX), Y3
-	VPSHUFB Y4, Y2, Y2
+	VPSRLQ  $0x04, Y5, Y6
+	VPAND   Y2, Y5, Y5
+	VPAND   Y2, Y6, Y6
+	VMOVDQU 128(CX), Y3
+	VMOVDQU 160(CX), Y4
 	VPSHUFB Y5, Y3, Y3
-	VPXOR   Y2, Y3, Y2
-	VPXOR   Y2, Y0, Y0
+	VPSHUFB Y6, Y4, Y4
+	VPXOR   Y3, Y4, Y3
+	VPXOR   Y3, Y1, Y1
 
 	// Load and process 32 bytes from input 3 to 1 outputs
-	VMOVDQU (DI), Y4
+	VMOVDQU (DI), Y5
 	ADDQ    $0x20, DI
-	VPSRLQ  $0x04, Y4, Y5
-	VPAND   Y1, Y4, Y4
-	VPAND   Y1, Y5, Y5
-	VMOVDQU 192(CX), Y2
-	VMOVDQU 224(CX), Y3
-	VPSHUFB Y4, Y2, Y2
+	VPSRLQ  $0x04, Y5, Y6
+	VPAND   Y2, Y5, Y5
+	VPAND   Y2, Y6, Y6
+	VMOVDQU 192(CX), Y3
+	VMOVDQU 224(CX), Y4
 	VPSHUFB Y5, Y3, Y3
-	VPXOR   Y2, Y3, Y2
-	VPXOR   Y2, Y0, Y0
+	VPSHUFB Y6, Y4, Y4
+	VPXOR   Y3, Y4, Y3
+	VPXOR   Y3, Y1, Y1
 
 	// Load and process 32 bytes from input 4 to 1 outputs
-	VMOVDQU (R8), Y4
+	VMOVDQU (R8), Y5
 	ADDQ    $0x20, R8
-	VPSRLQ  $0x04, Y4, Y5
-	VPAND   Y1, Y4, Y4
-	VPAND   Y1, Y5, Y5
-	VMOVDQU 256(CX), Y2
-	VMOVDQU 288(CX), Y3
-	VPSHUFB Y4, Y2, Y2
+	VPSRLQ  $0x04, Y5, Y6
+	VPAND   Y2, Y5, Y5
+	VPAND   Y2, Y6, Y6
+	VMOVDQU 256(CX), Y3
+	VMOVDQU 288(CX), Y4
 	VPSHUFB Y5, Y3, Y3
-	VPXOR   Y2, Y3, Y2
-	VPXOR   Y2, Y0, Y0
+	VPSHUFB Y6, Y4, Y4
+	VPXOR   Y3, Y4, Y3
+	VPXOR   Y3, Y1, Y1
 
 	// Load and process 32 bytes from input 5 to 1 outputs
-	VMOVDQU (R9), Y4
+	VMOVDQU (R9), Y5
 	ADDQ    $0x20, R9
-	VPSRLQ  $0x04, Y4, Y5
-	VPAND   Y1, Y4, Y4
-	VPAND   Y1, Y5, Y5
-	VMOVDQU 320(CX), Y2
-	VMOVDQU 352(CX), Y3
-	VPSHUFB Y4, Y2, Y2
+	VPSRLQ  $0x04, Y5, Y6
+	VPAND   Y2, Y5, Y5
+	VPAND   Y2, Y6, Y6
+	VMOVDQU 320(CX), Y3
+	VMOVDQU 352(CX), Y4
 	VPSHUFB Y5, Y3, Y3
-	VPXOR   Y2, Y3, Y2
-	VPXOR   Y2, Y0, Y0
+	VPSHUFB Y6, Y4, Y4
+	VPXOR   Y3, Y4, Y3
+	VPXOR   Y3, Y1, Y1
 
 	// Load and process 32 bytes from input 6 to 1 outputs
-	VMOVDQU (R10), Y4
+	VMOVDQU (R10), Y5
 	ADDQ    $0x20, R10
-	VPSRLQ  $0x04, Y4, Y5
-	VPAND   Y1, Y4, Y4
-	VPAND   Y1, Y5, Y5
-	VMOVDQU 384(CX), Y2
-	VMOVDQU 416(CX), Y3
-	VPSHUFB Y4, Y2, Y2
+	VPSRLQ  $0x04, Y5, Y6
+	VPAND   Y2, Y5, Y5
+	VPAND   Y2, Y6, Y6
+	VMOVDQU 384(CX), Y3
+	VMOVDQU 416(CX), Y4
 	VPSHUFB Y5, Y3, Y3
-	VPXOR   Y2, Y3, Y2
-	VPXOR   Y2, Y0, Y0
+	VPSHUFB Y6, Y4, Y4
+	VPXOR   Y3, Y4, Y3
+	VPXOR   Y3, Y1, Y1
 
 	// Load and process 32 bytes from input 7 to 1 outputs
-	VMOVDQU (R11), Y4
+	VMOVDQU (R11), Y5
 	ADDQ    $0x20, R11
-	VPSRLQ  $0x04, Y4, Y5
-	VPAND   Y1, Y4, Y4
-	VPAND   Y1, Y5, Y5
-	VMOVDQU 448(CX), Y2
-	VMOVDQU 480(CX), Y3
-	VPSHUFB Y4, Y2, Y2
+	VPSRLQ  $0x04, Y5, Y6
+	VPAND   Y2, Y5, Y5
+	VPAND   Y2, Y6, Y6
+	VMOVDQU 448(CX), Y3
+	VMOVDQU 480(CX), Y4
 	VPSHUFB Y5, Y3, Y3
-	VPXOR   Y2, Y3, Y2
-	VPXOR   Y2, Y0, Y0
+	VPSHUFB Y6, Y4, Y4
+	VPXOR   Y3, Y4, Y3
+	VPXOR   Y3, Y1, Y1
 
 	// Load and process 32 bytes from input 8 to 1 outputs
-	VMOVDQU (DX), Y4
+	VMOVDQU (DX), Y5
 	ADDQ    $0x20, DX
-	VPSRLQ  $0x04, Y4, Y5
-	VPAND   Y1, Y4, Y4
-	VPAND   Y1, Y5, Y5
-	VMOVDQU 512(CX), Y2
-	VMOVDQU 544(CX), Y3
-	VPSHUFB Y4, Y2, Y2
+	VPSRLQ  $0x04, Y5, Y6
+	VPAND   Y2, Y5, Y5
+	VPAND   Y2, Y6, Y6
+	VMOVDQU 512(CX), Y3
+	VMOVDQU 544(CX), Y4
 	VPSHUFB Y5, Y3, Y3
-	VPXOR   Y2, Y3, Y2
-	VPXOR   Y2, Y0, Y0
+	VPSHUFB Y6, Y4, Y4
+	VPXOR   Y3, Y4, Y3
+	VPXOR   Y3, Y1, Y1
 
 	// Store 1 outputs
-	VMOVDQU Y0, (R12)
+	VMOVDQU Y1, (R12)
 	ADDQ    $0x20, R12
 
 	// Prepare for next loop
@@ -14142,11 +14333,14 @@ mulAvxTwo_9x1_loop:
 	VZEROUPPER
 
 mulAvxTwo_9x1_end:
+	MOVQ X0, BP
 	RET
 
 // func mulAvxTwo_9x2(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX2, SSE2
-TEXT ·mulAvxTwo_9x2(SB), NOSPLIT, $8-88
+TEXT ·mulAvxTwo_9x2(SB), NOSPLIT, $0-88
+	MOVQ BP, X0
+
 	// Loading no tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 43 YMM used
@@ -14185,189 +14379,189 @@ TEXT ·mulAvxTwo_9x2(SB), NOSPLIT, $8-88
 	ADDQ         R14, R11
 	ADDQ         R14, DX
 	MOVQ         $0x0000000f, R14
-	MOVQ         R14, X2
-	VPBROADCASTB X2, Y2
+	MOVQ         R14, X3
+	VPBROADCASTB X3, Y3
 
 mulAvxTwo_9x2_loop:
 	// Clear 2 outputs
-	VPXOR Y0, Y0, Y0
 	VPXOR Y1, Y1, Y1
+	VPXOR Y2, Y2, Y2
 
 	// Load and process 32 bytes from input 0 to 2 outputs
-	VMOVDQU (BX), Y5
+	VMOVDQU (BX), Y6
 	ADDQ    $0x20, BX
-	VPSRLQ  $0x04, Y5, Y6
-	VPAND   Y2, Y5, Y5
-	VPAND   Y2, Y6, Y6
-	VMOVDQU (CX), Y3
-	VMOVDQU 32(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSRLQ  $0x04, Y6, Y7
+	VPAND   Y3, Y6, Y6
+	VPAND   Y3, Y7, Y7
+	VMOVDQU (CX), Y4
+	VMOVDQU 32(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y0, Y0
-	VMOVDQU 64(CX), Y3
-	VMOVDQU 96(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y1, Y1
+	VMOVDQU 64(CX), Y4
+	VMOVDQU 96(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y1, Y1
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 1 to 2 outputs
-	VMOVDQU (BP), Y5
+	VMOVDQU (BP), Y6
 	ADDQ    $0x20, BP
-	VPSRLQ  $0x04, Y5, Y6
-	VPAND   Y2, Y5, Y5
-	VPAND   Y2, Y6, Y6
-	VMOVDQU 128(CX), Y3
-	VMOVDQU 160(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSRLQ  $0x04, Y6, Y7
+	VPAND   Y3, Y6, Y6
+	VPAND   Y3, Y7, Y7
+	VMOVDQU 128(CX), Y4
+	VMOVDQU 160(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y0, Y0
-	VMOVDQU 192(CX), Y3
-	VMOVDQU 224(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y1, Y1
+	VMOVDQU 192(CX), Y4
+	VMOVDQU 224(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y1, Y1
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 2 to 2 outputs
-	VMOVDQU (SI), Y5
+	VMOVDQU (SI), Y6
 	ADDQ    $0x20, SI
-	VPSRLQ  $0x04, Y5, Y6
-	VPAND   Y2, Y5, Y5
-	VPAND   Y2, Y6, Y6
-	VMOVDQU 256(CX), Y3
-	VMOVDQU 288(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSRLQ  $0x04, Y6, Y7
+	VPAND   Y3, Y6, Y6
+	VPAND   Y3, Y7, Y7
+	VMOVDQU 256(CX), Y4
+	VMOVDQU 288(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y0, Y0
-	VMOVDQU 320(CX), Y3
-	VMOVDQU 352(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y1, Y1
+	VMOVDQU 320(CX), Y4
+	VMOVDQU 352(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y1, Y1
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 3 to 2 outputs
-	VMOVDQU (DI), Y5
+	VMOVDQU (DI), Y6
 	ADDQ    $0x20, DI
-	VPSRLQ  $0x04, Y5, Y6
-	VPAND   Y2, Y5, Y5
-	VPAND   Y2, Y6, Y6
-	VMOVDQU 384(CX), Y3
-	VMOVDQU 416(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSRLQ  $0x04, Y6, Y7
+	VPAND   Y3, Y6, Y6
+	VPAND   Y3, Y7, Y7
+	VMOVDQU 384(CX), Y4
+	VMOVDQU 416(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y0, Y0
-	VMOVDQU 448(CX), Y3
-	VMOVDQU 480(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y1, Y1
+	VMOVDQU 448(CX), Y4
+	VMOVDQU 480(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y1, Y1
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 4 to 2 outputs
-	VMOVDQU (R8), Y5
+	VMOVDQU (R8), Y6
 	ADDQ    $0x20, R8
-	VPSRLQ  $0x04, Y5, Y6
-	VPAND   Y2, Y5, Y5
-	VPAND   Y2, Y6, Y6
-	VMOVDQU 512(CX), Y3
-	VMOVDQU 544(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSRLQ  $0x04, Y6, Y7
+	VPAND   Y3, Y6, Y6
+	VPAND   Y3, Y7, Y7
+	VMOVDQU 512(CX), Y4
+	VMOVDQU 544(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y0, Y0
-	VMOVDQU 576(CX), Y3
-	VMOVDQU 608(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y1, Y1
+	VMOVDQU 576(CX), Y4
+	VMOVDQU 608(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y1, Y1
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 5 to 2 outputs
-	VMOVDQU (R9), Y5
+	VMOVDQU (R9), Y6
 	ADDQ    $0x20, R9
-	VPSRLQ  $0x04, Y5, Y6
-	VPAND   Y2, Y5, Y5
-	VPAND   Y2, Y6, Y6
-	VMOVDQU 640(CX), Y3
-	VMOVDQU 672(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSRLQ  $0x04, Y6, Y7
+	VPAND   Y3, Y6, Y6
+	VPAND   Y3, Y7, Y7
+	VMOVDQU 640(CX), Y4
+	VMOVDQU 672(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y0, Y0
-	VMOVDQU 704(CX), Y3
-	VMOVDQU 736(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y1, Y1
+	VMOVDQU 704(CX), Y4
+	VMOVDQU 736(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y1, Y1
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 6 to 2 outputs
-	VMOVDQU (R10), Y5
+	VMOVDQU (R10), Y6
 	ADDQ    $0x20, R10
-	VPSRLQ  $0x04, Y5, Y6
-	VPAND   Y2, Y5, Y5
-	VPAND   Y2, Y6, Y6
-	VMOVDQU 768(CX), Y3
-	VMOVDQU 800(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSRLQ  $0x04, Y6, Y7
+	VPAND   Y3, Y6, Y6
+	VPAND   Y3, Y7, Y7
+	VMOVDQU 768(CX), Y4
+	VMOVDQU 800(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y0, Y0
-	VMOVDQU 832(CX), Y3
-	VMOVDQU 864(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y1, Y1
+	VMOVDQU 832(CX), Y4
+	VMOVDQU 864(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y1, Y1
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 7 to 2 outputs
-	VMOVDQU (R11), Y5
+	VMOVDQU (R11), Y6
 	ADDQ    $0x20, R11
-	VPSRLQ  $0x04, Y5, Y6
-	VPAND   Y2, Y5, Y5
-	VPAND   Y2, Y6, Y6
-	VMOVDQU 896(CX), Y3
-	VMOVDQU 928(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSRLQ  $0x04, Y6, Y7
+	VPAND   Y3, Y6, Y6
+	VPAND   Y3, Y7, Y7
+	VMOVDQU 896(CX), Y4
+	VMOVDQU 928(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y0, Y0
-	VMOVDQU 960(CX), Y3
-	VMOVDQU 992(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y1, Y1
+	VMOVDQU 960(CX), Y4
+	VMOVDQU 992(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y1, Y1
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 8 to 2 outputs
-	VMOVDQU (DX), Y5
+	VMOVDQU (DX), Y6
 	ADDQ    $0x20, DX
-	VPSRLQ  $0x04, Y5, Y6
-	VPAND   Y2, Y5, Y5
-	VPAND   Y2, Y6, Y6
-	VMOVDQU 1024(CX), Y3
-	VMOVDQU 1056(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSRLQ  $0x04, Y6, Y7
+	VPAND   Y3, Y6, Y6
+	VPAND   Y3, Y7, Y7
+	VMOVDQU 1024(CX), Y4
+	VMOVDQU 1056(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y0, Y0
-	VMOVDQU 1088(CX), Y3
-	VMOVDQU 1120(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y1, Y1
+	VMOVDQU 1088(CX), Y4
+	VMOVDQU 1120(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y1, Y1
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y2, Y2
 
 	// Store 2 outputs
-	VMOVDQU Y0, (R13)
+	VMOVDQU Y1, (R13)
 	ADDQ    $0x20, R13
-	VMOVDQU Y1, (R12)
+	VMOVDQU Y2, (R12)
 	ADDQ    $0x20, R12
 
 	// Prepare for next loop
@@ -14376,11 +14570,14 @@ mulAvxTwo_9x2_loop:
 	VZEROUPPER
 
 mulAvxTwo_9x2_end:
+	MOVQ X0, BP
 	RET
 
 // func mulAvxTwo_9x3(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX2, SSE2
-TEXT ·mulAvxTwo_9x3(SB), NOSPLIT, $8-88
+TEXT ·mulAvxTwo_9x3(SB), NOSPLIT, $0-88
+	MOVQ BP, X0
+
 	// Loading no tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 62 YMM used
@@ -14421,246 +14618,246 @@ TEXT ·mulAvxTwo_9x3(SB), NOSPLIT, $8-88
 	ADDQ         R15, R11
 	ADDQ         R15, DX
 	MOVQ         $0x0000000f, R15
-	MOVQ         R15, X3
-	VPBROADCASTB X3, Y3
+	MOVQ         R15, X4
+	VPBROADCASTB X4, Y4
 
 mulAvxTwo_9x3_loop:
 	// Clear 3 outputs
-	VPXOR Y0, Y0, Y0
 	VPXOR Y1, Y1, Y1
 	VPXOR Y2, Y2, Y2
+	VPXOR Y3, Y3, Y3
 
 	// Load and process 32 bytes from input 0 to 3 outputs
-	VMOVDQU (BX), Y6
+	VMOVDQU (BX), Y7
 	ADDQ    $0x20, BX
-	VPSRLQ  $0x04, Y6, Y7
-	VPAND   Y3, Y6, Y6
-	VPAND   Y3, Y7, Y7
-	VMOVDQU (CX), Y4
-	VMOVDQU 32(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSRLQ  $0x04, Y7, Y8
+	VPAND   Y4, Y7, Y7
+	VPAND   Y4, Y8, Y8
+	VMOVDQU (CX), Y5
+	VMOVDQU 32(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y0, Y0
-	VMOVDQU 64(CX), Y4
-	VMOVDQU 96(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y1, Y1
+	VMOVDQU 64(CX), Y5
+	VMOVDQU 96(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y1, Y1
-	VMOVDQU 128(CX), Y4
-	VMOVDQU 160(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y2, Y2
+	VMOVDQU 128(CX), Y5
+	VMOVDQU 160(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y2, Y2
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 1 to 3 outputs
-	VMOVDQU (BP), Y6
+	VMOVDQU (BP), Y7
 	ADDQ    $0x20, BP
-	VPSRLQ  $0x04, Y6, Y7
-	VPAND   Y3, Y6, Y6
-	VPAND   Y3, Y7, Y7
-	VMOVDQU 192(CX), Y4
-	VMOVDQU 224(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSRLQ  $0x04, Y7, Y8
+	VPAND   Y4, Y7, Y7
+	VPAND   Y4, Y8, Y8
+	VMOVDQU 192(CX), Y5
+	VMOVDQU 224(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y0, Y0
-	VMOVDQU 256(CX), Y4
-	VMOVDQU 288(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y1, Y1
+	VMOVDQU 256(CX), Y5
+	VMOVDQU 288(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y1, Y1
-	VMOVDQU 320(CX), Y4
-	VMOVDQU 352(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y2, Y2
+	VMOVDQU 320(CX), Y5
+	VMOVDQU 352(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y2, Y2
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 2 to 3 outputs
-	VMOVDQU (SI), Y6
+	VMOVDQU (SI), Y7
 	ADDQ    $0x20, SI
-	VPSRLQ  $0x04, Y6, Y7
-	VPAND   Y3, Y6, Y6
-	VPAND   Y3, Y7, Y7
-	VMOVDQU 384(CX), Y4
-	VMOVDQU 416(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSRLQ  $0x04, Y7, Y8
+	VPAND   Y4, Y7, Y7
+	VPAND   Y4, Y8, Y8
+	VMOVDQU 384(CX), Y5
+	VMOVDQU 416(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y0, Y0
-	VMOVDQU 448(CX), Y4
-	VMOVDQU 480(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y1, Y1
+	VMOVDQU 448(CX), Y5
+	VMOVDQU 480(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y1, Y1
-	VMOVDQU 512(CX), Y4
-	VMOVDQU 544(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y2, Y2
+	VMOVDQU 512(CX), Y5
+	VMOVDQU 544(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y2, Y2
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 3 to 3 outputs
-	VMOVDQU (DI), Y6
+	VMOVDQU (DI), Y7
 	ADDQ    $0x20, DI
-	VPSRLQ  $0x04, Y6, Y7
-	VPAND   Y3, Y6, Y6
-	VPAND   Y3, Y7, Y7
-	VMOVDQU 576(CX), Y4
-	VMOVDQU 608(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSRLQ  $0x04, Y7, Y8
+	VPAND   Y4, Y7, Y7
+	VPAND   Y4, Y8, Y8
+	VMOVDQU 576(CX), Y5
+	VMOVDQU 608(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y0, Y0
-	VMOVDQU 640(CX), Y4
-	VMOVDQU 672(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y1, Y1
+	VMOVDQU 640(CX), Y5
+	VMOVDQU 672(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y1, Y1
-	VMOVDQU 704(CX), Y4
-	VMOVDQU 736(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y2, Y2
+	VMOVDQU 704(CX), Y5
+	VMOVDQU 736(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y2, Y2
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 4 to 3 outputs
-	VMOVDQU (R8), Y6
+	VMOVDQU (R8), Y7
 	ADDQ    $0x20, R8
-	VPSRLQ  $0x04, Y6, Y7
-	VPAND   Y3, Y6, Y6
-	VPAND   Y3, Y7, Y7
-	VMOVDQU 768(CX), Y4
-	VMOVDQU 800(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSRLQ  $0x04, Y7, Y8
+	VPAND   Y4, Y7, Y7
+	VPAND   Y4, Y8, Y8
+	VMOVDQU 768(CX), Y5
+	VMOVDQU 800(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y0, Y0
-	VMOVDQU 832(CX), Y4
-	VMOVDQU 864(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y1, Y1
+	VMOVDQU 832(CX), Y5
+	VMOVDQU 864(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y1, Y1
-	VMOVDQU 896(CX), Y4
-	VMOVDQU 928(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y2, Y2
+	VMOVDQU 896(CX), Y5
+	VMOVDQU 928(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y2, Y2
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 5 to 3 outputs
-	VMOVDQU (R9), Y6
+	VMOVDQU (R9), Y7
 	ADDQ    $0x20, R9
-	VPSRLQ  $0x04, Y6, Y7
-	VPAND   Y3, Y6, Y6
-	VPAND   Y3, Y7, Y7
-	VMOVDQU 960(CX), Y4
-	VMOVDQU 992(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSRLQ  $0x04, Y7, Y8
+	VPAND   Y4, Y7, Y7
+	VPAND   Y4, Y8, Y8
+	VMOVDQU 960(CX), Y5
+	VMOVDQU 992(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y0, Y0
-	VMOVDQU 1024(CX), Y4
-	VMOVDQU 1056(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y1, Y1
+	VMOVDQU 1024(CX), Y5
+	VMOVDQU 1056(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y1, Y1
-	VMOVDQU 1088(CX), Y4
-	VMOVDQU 1120(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y2, Y2
+	VMOVDQU 1088(CX), Y5
+	VMOVDQU 1120(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y2, Y2
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 6 to 3 outputs
-	VMOVDQU (R10), Y6
+	VMOVDQU (R10), Y7
 	ADDQ    $0x20, R10
-	VPSRLQ  $0x04, Y6, Y7
-	VPAND   Y3, Y6, Y6
-	VPAND   Y3, Y7, Y7
-	VMOVDQU 1152(CX), Y4
-	VMOVDQU 1184(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSRLQ  $0x04, Y7, Y8
+	VPAND   Y4, Y7, Y7
+	VPAND   Y4, Y8, Y8
+	VMOVDQU 1152(CX), Y5
+	VMOVDQU 1184(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y0, Y0
-	VMOVDQU 1216(CX), Y4
-	VMOVDQU 1248(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y1, Y1
+	VMOVDQU 1216(CX), Y5
+	VMOVDQU 1248(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y1, Y1
-	VMOVDQU 1280(CX), Y4
-	VMOVDQU 1312(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y2, Y2
+	VMOVDQU 1280(CX), Y5
+	VMOVDQU 1312(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y2, Y2
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 7 to 3 outputs
-	VMOVDQU (R11), Y6
+	VMOVDQU (R11), Y7
 	ADDQ    $0x20, R11
-	VPSRLQ  $0x04, Y6, Y7
-	VPAND   Y3, Y6, Y6
-	VPAND   Y3, Y7, Y7
-	VMOVDQU 1344(CX), Y4
-	VMOVDQU 1376(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSRLQ  $0x04, Y7, Y8
+	VPAND   Y4, Y7, Y7
+	VPAND   Y4, Y8, Y8
+	VMOVDQU 1344(CX), Y5
+	VMOVDQU 1376(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y0, Y0
-	VMOVDQU 1408(CX), Y4
-	VMOVDQU 1440(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y1, Y1
+	VMOVDQU 1408(CX), Y5
+	VMOVDQU 1440(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y1, Y1
-	VMOVDQU 1472(CX), Y4
-	VMOVDQU 1504(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y2, Y2
+	VMOVDQU 1472(CX), Y5
+	VMOVDQU 1504(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y2, Y2
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 8 to 3 outputs
-	VMOVDQU (DX), Y6
+	VMOVDQU (DX), Y7
 	ADDQ    $0x20, DX
-	VPSRLQ  $0x04, Y6, Y7
-	VPAND   Y3, Y6, Y6
-	VPAND   Y3, Y7, Y7
-	VMOVDQU 1536(CX), Y4
-	VMOVDQU 1568(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSRLQ  $0x04, Y7, Y8
+	VPAND   Y4, Y7, Y7
+	VPAND   Y4, Y8, Y8
+	VMOVDQU 1536(CX), Y5
+	VMOVDQU 1568(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y0, Y0
-	VMOVDQU 1600(CX), Y4
-	VMOVDQU 1632(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y1, Y1
+	VMOVDQU 1600(CX), Y5
+	VMOVDQU 1632(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y1, Y1
-	VMOVDQU 1664(CX), Y4
-	VMOVDQU 1696(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y2, Y2
+	VMOVDQU 1664(CX), Y5
+	VMOVDQU 1696(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y2, Y2
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y3, Y3
 
 	// Store 3 outputs
-	VMOVDQU Y0, (R13)
+	VMOVDQU Y1, (R13)
 	ADDQ    $0x20, R13
-	VMOVDQU Y1, (R14)
+	VMOVDQU Y2, (R14)
 	ADDQ    $0x20, R14
-	VMOVDQU Y2, (R12)
+	VMOVDQU Y3, (R12)
 	ADDQ    $0x20, R12
 
 	// Prepare for next loop
@@ -14669,11 +14866,14 @@ mulAvxTwo_9x3_loop:
 	VZEROUPPER
 
 mulAvxTwo_9x3_end:
+	MOVQ X0, BP
 	RET
 
 // func mulAvxTwo_9x4(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX2, SSE2
-TEXT ·mulAvxTwo_9x4(SB), NOSPLIT, $8-88
+TEXT ·mulAvxTwo_9x4(SB), NOSPLIT, $0-88
+	MOVQ BP, X0
+
 	// Loading no tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 81 YMM used
@@ -14716,305 +14916,305 @@ TEXT ·mulAvxTwo_9x4(SB), NOSPLIT, $8-88
 	ADDQ         R15, R10
 	ADDQ         R15, AX
 	MOVQ         $0x0000000f, R15
-	MOVQ         R15, X4
-	VPBROADCASTB X4, Y4
+	MOVQ         R15, X5
+	VPBROADCASTB X5, Y5
 	MOVQ         n+80(FP), R15
 	SHRQ         $0x05, R15
 
 mulAvxTwo_9x4_loop:
 	// Clear 4 outputs
-	VPXOR Y0, Y0, Y0
 	VPXOR Y1, Y1, Y1
 	VPXOR Y2, Y2, Y2
 	VPXOR Y3, Y3, Y3
+	VPXOR Y4, Y4, Y4
 
 	// Load and process 32 bytes from input 0 to 4 outputs
-	VMOVDQU (DX), Y7
+	VMOVDQU (DX), Y8
 	ADDQ    $0x20, DX
-	VPSRLQ  $0x04, Y7, Y8
-	VPAND   Y4, Y7, Y7
-	VPAND   Y4, Y8, Y8
-	VMOVDQU (CX), Y5
-	VMOVDQU 32(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSRLQ  $0x04, Y8, Y9
+	VPAND   Y5, Y8, Y8
+	VPAND   Y5, Y9, Y9
+	VMOVDQU (CX), Y6
+	VMOVDQU 32(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y0, Y0
-	VMOVDQU 64(CX), Y5
-	VMOVDQU 96(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y1, Y1
+	VMOVDQU 64(CX), Y6
+	VMOVDQU 96(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y1, Y1
-	VMOVDQU 128(CX), Y5
-	VMOVDQU 160(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y2, Y2
+	VMOVDQU 128(CX), Y6
+	VMOVDQU 160(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y2, Y2
-	VMOVDQU 192(CX), Y5
-	VMOVDQU 224(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y3, Y3
+	VMOVDQU 192(CX), Y6
+	VMOVDQU 224(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y3, Y3
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 1 to 4 outputs
-	VMOVDQU (BX), Y7
+	VMOVDQU (BX), Y8
 	ADDQ    $0x20, BX
-	VPSRLQ  $0x04, Y7, Y8
-	VPAND   Y4, Y7, Y7
-	VPAND   Y4, Y8, Y8
-	VMOVDQU 256(CX), Y5
-	VMOVDQU 288(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSRLQ  $0x04, Y8, Y9
+	VPAND   Y5, Y8, Y8
+	VPAND   Y5, Y9, Y9
+	VMOVDQU 256(CX), Y6
+	VMOVDQU 288(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y0, Y0
-	VMOVDQU 320(CX), Y5
-	VMOVDQU 352(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y1, Y1
+	VMOVDQU 320(CX), Y6
+	VMOVDQU 352(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y1, Y1
-	VMOVDQU 384(CX), Y5
-	VMOVDQU 416(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y2, Y2
+	VMOVDQU 384(CX), Y6
+	VMOVDQU 416(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y2, Y2
-	VMOVDQU 448(CX), Y5
-	VMOVDQU 480(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y3, Y3
+	VMOVDQU 448(CX), Y6
+	VMOVDQU 480(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y3, Y3
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 2 to 4 outputs
-	VMOVDQU (BP), Y7
+	VMOVDQU (BP), Y8
 	ADDQ    $0x20, BP
-	VPSRLQ  $0x04, Y7, Y8
-	VPAND   Y4, Y7, Y7
-	VPAND   Y4, Y8, Y8
-	VMOVDQU 512(CX), Y5
-	VMOVDQU 544(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSRLQ  $0x04, Y8, Y9
+	VPAND   Y5, Y8, Y8
+	VPAND   Y5, Y9, Y9
+	VMOVDQU 512(CX), Y6
+	VMOVDQU 544(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y0, Y0
-	VMOVDQU 576(CX), Y5
-	VMOVDQU 608(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y1, Y1
+	VMOVDQU 576(CX), Y6
+	VMOVDQU 608(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y1, Y1
-	VMOVDQU 640(CX), Y5
-	VMOVDQU 672(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y2, Y2
+	VMOVDQU 640(CX), Y6
+	VMOVDQU 672(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y2, Y2
-	VMOVDQU 704(CX), Y5
-	VMOVDQU 736(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y3, Y3
+	VMOVDQU 704(CX), Y6
+	VMOVDQU 736(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y3, Y3
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 3 to 4 outputs
-	VMOVDQU (SI), Y7
+	VMOVDQU (SI), Y8
 	ADDQ    $0x20, SI
-	VPSRLQ  $0x04, Y7, Y8
-	VPAND   Y4, Y7, Y7
-	VPAND   Y4, Y8, Y8
-	VMOVDQU 768(CX), Y5
-	VMOVDQU 800(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSRLQ  $0x04, Y8, Y9
+	VPAND   Y5, Y8, Y8
+	VPAND   Y5, Y9, Y9
+	VMOVDQU 768(CX), Y6
+	VMOVDQU 800(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y0, Y0
-	VMOVDQU 832(CX), Y5
-	VMOVDQU 864(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y1, Y1
+	VMOVDQU 832(CX), Y6
+	VMOVDQU 864(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y1, Y1
-	VMOVDQU 896(CX), Y5
-	VMOVDQU 928(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y2, Y2
+	VMOVDQU 896(CX), Y6
+	VMOVDQU 928(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y2, Y2
-	VMOVDQU 960(CX), Y5
-	VMOVDQU 992(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y3, Y3
+	VMOVDQU 960(CX), Y6
+	VMOVDQU 992(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y3, Y3
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 4 to 4 outputs
-	VMOVDQU (DI), Y7
+	VMOVDQU (DI), Y8
 	ADDQ    $0x20, DI
-	VPSRLQ  $0x04, Y7, Y8
-	VPAND   Y4, Y7, Y7
-	VPAND   Y4, Y8, Y8
-	VMOVDQU 1024(CX), Y5
-	VMOVDQU 1056(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSRLQ  $0x04, Y8, Y9
+	VPAND   Y5, Y8, Y8
+	VPAND   Y5, Y9, Y9
+	VMOVDQU 1024(CX), Y6
+	VMOVDQU 1056(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y0, Y0
-	VMOVDQU 1088(CX), Y5
-	VMOVDQU 1120(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y1, Y1
+	VMOVDQU 1088(CX), Y6
+	VMOVDQU 1120(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y1, Y1
-	VMOVDQU 1152(CX), Y5
-	VMOVDQU 1184(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y2, Y2
+	VMOVDQU 1152(CX), Y6
+	VMOVDQU 1184(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y2, Y2
-	VMOVDQU 1216(CX), Y5
-	VMOVDQU 1248(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y3, Y3
+	VMOVDQU 1216(CX), Y6
+	VMOVDQU 1248(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y3, Y3
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 5 to 4 outputs
-	VMOVDQU (R8), Y7
+	VMOVDQU (R8), Y8
 	ADDQ    $0x20, R8
-	VPSRLQ  $0x04, Y7, Y8
-	VPAND   Y4, Y7, Y7
-	VPAND   Y4, Y8, Y8
-	VMOVDQU 1280(CX), Y5
-	VMOVDQU 1312(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSRLQ  $0x04, Y8, Y9
+	VPAND   Y5, Y8, Y8
+	VPAND   Y5, Y9, Y9
+	VMOVDQU 1280(CX), Y6
+	VMOVDQU 1312(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y0, Y0
-	VMOVDQU 1344(CX), Y5
-	VMOVDQU 1376(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y1, Y1
+	VMOVDQU 1344(CX), Y6
+	VMOVDQU 1376(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y1, Y1
-	VMOVDQU 1408(CX), Y5
-	VMOVDQU 1440(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y2, Y2
+	VMOVDQU 1408(CX), Y6
+	VMOVDQU 1440(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y2, Y2
-	VMOVDQU 1472(CX), Y5
-	VMOVDQU 1504(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y3, Y3
+	VMOVDQU 1472(CX), Y6
+	VMOVDQU 1504(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y3, Y3
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 6 to 4 outputs
-	VMOVDQU (R9), Y7
+	VMOVDQU (R9), Y8
 	ADDQ    $0x20, R9
-	VPSRLQ  $0x04, Y7, Y8
-	VPAND   Y4, Y7, Y7
-	VPAND   Y4, Y8, Y8
-	VMOVDQU 1536(CX), Y5
-	VMOVDQU 1568(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSRLQ  $0x04, Y8, Y9
+	VPAND   Y5, Y8, Y8
+	VPAND   Y5, Y9, Y9
+	VMOVDQU 1536(CX), Y6
+	VMOVDQU 1568(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y0, Y0
-	VMOVDQU 1600(CX), Y5
-	VMOVDQU 1632(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y1, Y1
+	VMOVDQU 1600(CX), Y6
+	VMOVDQU 1632(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y1, Y1
-	VMOVDQU 1664(CX), Y5
-	VMOVDQU 1696(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y2, Y2
+	VMOVDQU 1664(CX), Y6
+	VMOVDQU 1696(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y2, Y2
-	VMOVDQU 1728(CX), Y5
-	VMOVDQU 1760(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y3, Y3
+	VMOVDQU 1728(CX), Y6
+	VMOVDQU 1760(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y3, Y3
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 7 to 4 outputs
-	VMOVDQU (R10), Y7
+	VMOVDQU (R10), Y8
 	ADDQ    $0x20, R10
-	VPSRLQ  $0x04, Y7, Y8
-	VPAND   Y4, Y7, Y7
-	VPAND   Y4, Y8, Y8
-	VMOVDQU 1792(CX), Y5
-	VMOVDQU 1824(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSRLQ  $0x04, Y8, Y9
+	VPAND   Y5, Y8, Y8
+	VPAND   Y5, Y9, Y9
+	VMOVDQU 1792(CX), Y6
+	VMOVDQU 1824(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y0, Y0
-	VMOVDQU 1856(CX), Y5
-	VMOVDQU 1888(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y1, Y1
+	VMOVDQU 1856(CX), Y6
+	VMOVDQU 1888(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y1, Y1
-	VMOVDQU 1920(CX), Y5
-	VMOVDQU 1952(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y2, Y2
+	VMOVDQU 1920(CX), Y6
+	VMOVDQU 1952(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y2, Y2
-	VMOVDQU 1984(CX), Y5
-	VMOVDQU 2016(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y3, Y3
+	VMOVDQU 1984(CX), Y6
+	VMOVDQU 2016(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y3, Y3
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 8 to 4 outputs
-	VMOVDQU (AX), Y7
+	VMOVDQU (AX), Y8
 	ADDQ    $0x20, AX
-	VPSRLQ  $0x04, Y7, Y8
-	VPAND   Y4, Y7, Y7
-	VPAND   Y4, Y8, Y8
-	VMOVDQU 2048(CX), Y5
-	VMOVDQU 2080(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSRLQ  $0x04, Y8, Y9
+	VPAND   Y5, Y8, Y8
+	VPAND   Y5, Y9, Y9
+	VMOVDQU 2048(CX), Y6
+	VMOVDQU 2080(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y0, Y0
-	VMOVDQU 2112(CX), Y5
-	VMOVDQU 2144(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y1, Y1
+	VMOVDQU 2112(CX), Y6
+	VMOVDQU 2144(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y1, Y1
-	VMOVDQU 2176(CX), Y5
-	VMOVDQU 2208(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y2, Y2
+	VMOVDQU 2176(CX), Y6
+	VMOVDQU 2208(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y2, Y2
-	VMOVDQU 2240(CX), Y5
-	VMOVDQU 2272(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y3, Y3
+	VMOVDQU 2240(CX), Y6
+	VMOVDQU 2272(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y3, Y3
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y4, Y4
 
 	// Store 4 outputs
-	VMOVDQU Y0, (R12)
+	VMOVDQU Y1, (R12)
 	ADDQ    $0x20, R12
-	VMOVDQU Y1, (R13)
+	VMOVDQU Y2, (R13)
 	ADDQ    $0x20, R13
-	VMOVDQU Y2, (R14)
+	VMOVDQU Y3, (R14)
 	ADDQ    $0x20, R14
-	VMOVDQU Y3, (R11)
+	VMOVDQU Y4, (R11)
 	ADDQ    $0x20, R11
 
 	// Prepare for next loop
@@ -15023,11 +15223,14 @@ mulAvxTwo_9x4_loop:
 	VZEROUPPER
 
 mulAvxTwo_9x4_end:
+	MOVQ X0, BP
 	RET
 
 // func mulAvxTwo_9x5(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX2, SSE2
-TEXT ·mulAvxTwo_9x5(SB), NOSPLIT, $8-88
+TEXT ·mulAvxTwo_9x5(SB), NOSPLIT, $0-88
+	MOVQ BP, X0
+
 	// Loading no tables to registers
 	// Destination kept on stack
 	// Full registers estimated 100 YMM used
@@ -15060,361 +15263,361 @@ TEXT ·mulAvxTwo_9x5(SB), NOSPLIT, $8-88
 	ADDQ         R13, R11
 	ADDQ         R13, DX
 	MOVQ         $0x0000000f, R14
-	MOVQ         R14, X5
-	VPBROADCASTB X5, Y5
+	MOVQ         R14, X6
+	VPBROADCASTB X6, Y6
 
 mulAvxTwo_9x5_loop:
 	// Clear 5 outputs
-	VPXOR Y0, Y0, Y0
 	VPXOR Y1, Y1, Y1
 	VPXOR Y2, Y2, Y2
 	VPXOR Y3, Y3, Y3
 	VPXOR Y4, Y4, Y4
+	VPXOR Y5, Y5, Y5
 
 	// Load and process 32 bytes from input 0 to 5 outputs
-	VMOVDQU (BX), Y8
+	VMOVDQU (BX), Y9
 	ADDQ    $0x20, BX
-	VPSRLQ  $0x04, Y8, Y9
-	VPAND   Y5, Y8, Y8
-	VPAND   Y5, Y9, Y9
-	VMOVDQU (CX), Y6
-	VMOVDQU 32(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSRLQ  $0x04, Y9, Y10
+	VPAND   Y6, Y9, Y9
+	VPAND   Y6, Y10, Y10
+	VMOVDQU (CX), Y7
+	VMOVDQU 32(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y0, Y0
-	VMOVDQU 64(CX), Y6
-	VMOVDQU 96(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y1, Y1
+	VMOVDQU 64(CX), Y7
+	VMOVDQU 96(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y1, Y1
-	VMOVDQU 128(CX), Y6
-	VMOVDQU 160(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y2, Y2
+	VMOVDQU 128(CX), Y7
+	VMOVDQU 160(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y2, Y2
-	VMOVDQU 192(CX), Y6
-	VMOVDQU 224(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y3, Y3
+	VMOVDQU 192(CX), Y7
+	VMOVDQU 224(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y3, Y3
-	VMOVDQU 256(CX), Y6
-	VMOVDQU 288(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y4, Y4
+	VMOVDQU 256(CX), Y7
+	VMOVDQU 288(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y4, Y4
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 1 to 5 outputs
-	VMOVDQU (BP), Y8
+	VMOVDQU (BP), Y9
 	ADDQ    $0x20, BP
-	VPSRLQ  $0x04, Y8, Y9
-	VPAND   Y5, Y8, Y8
-	VPAND   Y5, Y9, Y9
-	VMOVDQU 320(CX), Y6
-	VMOVDQU 352(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSRLQ  $0x04, Y9, Y10
+	VPAND   Y6, Y9, Y9
+	VPAND   Y6, Y10, Y10
+	VMOVDQU 320(CX), Y7
+	VMOVDQU 352(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y0, Y0
-	VMOVDQU 384(CX), Y6
-	VMOVDQU 416(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y1, Y1
+	VMOVDQU 384(CX), Y7
+	VMOVDQU 416(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y1, Y1
-	VMOVDQU 448(CX), Y6
-	VMOVDQU 480(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y2, Y2
+	VMOVDQU 448(CX), Y7
+	VMOVDQU 480(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y2, Y2
-	VMOVDQU 512(CX), Y6
-	VMOVDQU 544(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y3, Y3
+	VMOVDQU 512(CX), Y7
+	VMOVDQU 544(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y3, Y3
-	VMOVDQU 576(CX), Y6
-	VMOVDQU 608(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y4, Y4
+	VMOVDQU 576(CX), Y7
+	VMOVDQU 608(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y4, Y4
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 2 to 5 outputs
-	VMOVDQU (SI), Y8
+	VMOVDQU (SI), Y9
 	ADDQ    $0x20, SI
-	VPSRLQ  $0x04, Y8, Y9
-	VPAND   Y5, Y8, Y8
-	VPAND   Y5, Y9, Y9
-	VMOVDQU 640(CX), Y6
-	VMOVDQU 672(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSRLQ  $0x04, Y9, Y10
+	VPAND   Y6, Y9, Y9
+	VPAND   Y6, Y10, Y10
+	VMOVDQU 640(CX), Y7
+	VMOVDQU 672(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y0, Y0
-	VMOVDQU 704(CX), Y6
-	VMOVDQU 736(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y1, Y1
+	VMOVDQU 704(CX), Y7
+	VMOVDQU 736(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y1, Y1
-	VMOVDQU 768(CX), Y6
-	VMOVDQU 800(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y2, Y2
+	VMOVDQU 768(CX), Y7
+	VMOVDQU 800(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y2, Y2
-	VMOVDQU 832(CX), Y6
-	VMOVDQU 864(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y3, Y3
+	VMOVDQU 832(CX), Y7
+	VMOVDQU 864(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y3, Y3
-	VMOVDQU 896(CX), Y6
-	VMOVDQU 928(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y4, Y4
+	VMOVDQU 896(CX), Y7
+	VMOVDQU 928(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y4, Y4
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 3 to 5 outputs
-	VMOVDQU (DI), Y8
+	VMOVDQU (DI), Y9
 	ADDQ    $0x20, DI
-	VPSRLQ  $0x04, Y8, Y9
-	VPAND   Y5, Y8, Y8
-	VPAND   Y5, Y9, Y9
-	VMOVDQU 960(CX), Y6
-	VMOVDQU 992(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSRLQ  $0x04, Y9, Y10
+	VPAND   Y6, Y9, Y9
+	VPAND   Y6, Y10, Y10
+	VMOVDQU 960(CX), Y7
+	VMOVDQU 992(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y0, Y0
-	VMOVDQU 1024(CX), Y6
-	VMOVDQU 1056(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y1, Y1
+	VMOVDQU 1024(CX), Y7
+	VMOVDQU 1056(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y1, Y1
-	VMOVDQU 1088(CX), Y6
-	VMOVDQU 1120(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y2, Y2
+	VMOVDQU 1088(CX), Y7
+	VMOVDQU 1120(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y2, Y2
-	VMOVDQU 1152(CX), Y6
-	VMOVDQU 1184(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y3, Y3
+	VMOVDQU 1152(CX), Y7
+	VMOVDQU 1184(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y3, Y3
-	VMOVDQU 1216(CX), Y6
-	VMOVDQU 1248(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y4, Y4
+	VMOVDQU 1216(CX), Y7
+	VMOVDQU 1248(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y4, Y4
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 4 to 5 outputs
-	VMOVDQU (R8), Y8
+	VMOVDQU (R8), Y9
 	ADDQ    $0x20, R8
-	VPSRLQ  $0x04, Y8, Y9
-	VPAND   Y5, Y8, Y8
-	VPAND   Y5, Y9, Y9
-	VMOVDQU 1280(CX), Y6
-	VMOVDQU 1312(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSRLQ  $0x04, Y9, Y10
+	VPAND   Y6, Y9, Y9
+	VPAND   Y6, Y10, Y10
+	VMOVDQU 1280(CX), Y7
+	VMOVDQU 1312(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y0, Y0
-	VMOVDQU 1344(CX), Y6
-	VMOVDQU 1376(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y1, Y1
+	VMOVDQU 1344(CX), Y7
+	VMOVDQU 1376(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y1, Y1
-	VMOVDQU 1408(CX), Y6
-	VMOVDQU 1440(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y2, Y2
+	VMOVDQU 1408(CX), Y7
+	VMOVDQU 1440(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y2, Y2
-	VMOVDQU 1472(CX), Y6
-	VMOVDQU 1504(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y3, Y3
+	VMOVDQU 1472(CX), Y7
+	VMOVDQU 1504(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y3, Y3
-	VMOVDQU 1536(CX), Y6
-	VMOVDQU 1568(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y4, Y4
+	VMOVDQU 1536(CX), Y7
+	VMOVDQU 1568(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y4, Y4
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 5 to 5 outputs
-	VMOVDQU (R9), Y8
+	VMOVDQU (R9), Y9
 	ADDQ    $0x20, R9
-	VPSRLQ  $0x04, Y8, Y9
-	VPAND   Y5, Y8, Y8
-	VPAND   Y5, Y9, Y9
-	VMOVDQU 1600(CX), Y6
-	VMOVDQU 1632(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSRLQ  $0x04, Y9, Y10
+	VPAND   Y6, Y9, Y9
+	VPAND   Y6, Y10, Y10
+	VMOVDQU 1600(CX), Y7
+	VMOVDQU 1632(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y0, Y0
-	VMOVDQU 1664(CX), Y6
-	VMOVDQU 1696(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y1, Y1
+	VMOVDQU 1664(CX), Y7
+	VMOVDQU 1696(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y1, Y1
-	VMOVDQU 1728(CX), Y6
-	VMOVDQU 1760(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y2, Y2
+	VMOVDQU 1728(CX), Y7
+	VMOVDQU 1760(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y2, Y2
-	VMOVDQU 1792(CX), Y6
-	VMOVDQU 1824(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y3, Y3
+	VMOVDQU 1792(CX), Y7
+	VMOVDQU 1824(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y3, Y3
-	VMOVDQU 1856(CX), Y6
-	VMOVDQU 1888(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y4, Y4
+	VMOVDQU 1856(CX), Y7
+	VMOVDQU 1888(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y4, Y4
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 6 to 5 outputs
-	VMOVDQU (R10), Y8
+	VMOVDQU (R10), Y9
 	ADDQ    $0x20, R10
-	VPSRLQ  $0x04, Y8, Y9
-	VPAND   Y5, Y8, Y8
-	VPAND   Y5, Y9, Y9
-	VMOVDQU 1920(CX), Y6
-	VMOVDQU 1952(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSRLQ  $0x04, Y9, Y10
+	VPAND   Y6, Y9, Y9
+	VPAND   Y6, Y10, Y10
+	VMOVDQU 1920(CX), Y7
+	VMOVDQU 1952(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y0, Y0
-	VMOVDQU 1984(CX), Y6
-	VMOVDQU 2016(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y1, Y1
+	VMOVDQU 1984(CX), Y7
+	VMOVDQU 2016(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y1, Y1
-	VMOVDQU 2048(CX), Y6
-	VMOVDQU 2080(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y2, Y2
+	VMOVDQU 2048(CX), Y7
+	VMOVDQU 2080(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y2, Y2
-	VMOVDQU 2112(CX), Y6
-	VMOVDQU 2144(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y3, Y3
+	VMOVDQU 2112(CX), Y7
+	VMOVDQU 2144(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y3, Y3
-	VMOVDQU 2176(CX), Y6
-	VMOVDQU 2208(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y4, Y4
+	VMOVDQU 2176(CX), Y7
+	VMOVDQU 2208(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y4, Y4
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 7 to 5 outputs
-	VMOVDQU (R11), Y8
+	VMOVDQU (R11), Y9
 	ADDQ    $0x20, R11
-	VPSRLQ  $0x04, Y8, Y9
-	VPAND   Y5, Y8, Y8
-	VPAND   Y5, Y9, Y9
-	VMOVDQU 2240(CX), Y6
-	VMOVDQU 2272(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSRLQ  $0x04, Y9, Y10
+	VPAND   Y6, Y9, Y9
+	VPAND   Y6, Y10, Y10
+	VMOVDQU 2240(CX), Y7
+	VMOVDQU 2272(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y0, Y0
-	VMOVDQU 2304(CX), Y6
-	VMOVDQU 2336(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y1, Y1
+	VMOVDQU 2304(CX), Y7
+	VMOVDQU 2336(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y1, Y1
-	VMOVDQU 2368(CX), Y6
-	VMOVDQU 2400(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y2, Y2
+	VMOVDQU 2368(CX), Y7
+	VMOVDQU 2400(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y2, Y2
-	VMOVDQU 2432(CX), Y6
-	VMOVDQU 2464(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y3, Y3
+	VMOVDQU 2432(CX), Y7
+	VMOVDQU 2464(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y3, Y3
-	VMOVDQU 2496(CX), Y6
-	VMOVDQU 2528(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y4, Y4
+	VMOVDQU 2496(CX), Y7
+	VMOVDQU 2528(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y4, Y4
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 8 to 5 outputs
-	VMOVDQU (DX), Y8
+	VMOVDQU (DX), Y9
 	ADDQ    $0x20, DX
-	VPSRLQ  $0x04, Y8, Y9
-	VPAND   Y5, Y8, Y8
-	VPAND   Y5, Y9, Y9
-	VMOVDQU 2560(CX), Y6
-	VMOVDQU 2592(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSRLQ  $0x04, Y9, Y10
+	VPAND   Y6, Y9, Y9
+	VPAND   Y6, Y10, Y10
+	VMOVDQU 2560(CX), Y7
+	VMOVDQU 2592(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y0, Y0
-	VMOVDQU 2624(CX), Y6
-	VMOVDQU 2656(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y1, Y1
+	VMOVDQU 2624(CX), Y7
+	VMOVDQU 2656(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y1, Y1
-	VMOVDQU 2688(CX), Y6
-	VMOVDQU 2720(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y2, Y2
+	VMOVDQU 2688(CX), Y7
+	VMOVDQU 2720(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y2, Y2
-	VMOVDQU 2752(CX), Y6
-	VMOVDQU 2784(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y3, Y3
+	VMOVDQU 2752(CX), Y7
+	VMOVDQU 2784(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y3, Y3
-	VMOVDQU 2816(CX), Y6
-	VMOVDQU 2848(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y4, Y4
+	VMOVDQU 2816(CX), Y7
+	VMOVDQU 2848(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y4, Y4
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y5, Y5
 
 	// Store 5 outputs
 	MOVQ    (R12), R14
-	VMOVDQU Y0, (R14)(R13*1)
-	MOVQ    24(R12), R14
 	VMOVDQU Y1, (R14)(R13*1)
-	MOVQ    48(R12), R14
+	MOVQ    24(R12), R14
 	VMOVDQU Y2, (R14)(R13*1)
-	MOVQ    72(R12), R14
+	MOVQ    48(R12), R14
 	VMOVDQU Y3, (R14)(R13*1)
-	MOVQ    96(R12), R14
+	MOVQ    72(R12), R14
 	VMOVDQU Y4, (R14)(R13*1)
+	MOVQ    96(R12), R14
+	VMOVDQU Y5, (R14)(R13*1)
 
 	// Prepare for next loop
 	ADDQ $0x20, R13
@@ -15423,11 +15626,14 @@ mulAvxTwo_9x5_loop:
 	VZEROUPPER
 
 mulAvxTwo_9x5_end:
+	MOVQ X0, BP
 	RET
 
 // func mulAvxTwo_9x6(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX2, SSE2
-TEXT ·mulAvxTwo_9x6(SB), NOSPLIT, $8-88
+TEXT ·mulAvxTwo_9x6(SB), NOSPLIT, $0-88
+	MOVQ BP, X0
+
 	// Loading no tables to registers
 	// Destination kept on stack
 	// Full registers estimated 119 YMM used
@@ -15460,469 +15666,11 @@ TEXT ·mulAvxTwo_9x6(SB), NOSPLIT, $8-88
 	ADDQ         R13, R11
 	ADDQ         R13, DX
 	MOVQ         $0x0000000f, R14
-	MOVQ         R14, X6
-	VPBROADCASTB X6, Y6
-
-mulAvxTwo_9x6_loop:
-	// Clear 6 outputs
-	VPXOR Y0, Y0, Y0
-	VPXOR Y1, Y1, Y1
-	VPXOR Y2, Y2, Y2
-	VPXOR Y3, Y3, Y3
-	VPXOR Y4, Y4, Y4
-	VPXOR Y5, Y5, Y5
-
-	// Load and process 32 bytes from input 0 to 6 outputs
-	VMOVDQU (BX), Y9
-	ADDQ    $0x20, BX
-	VPSRLQ  $0x04, Y9, Y10
-	VPAND   Y6, Y9, Y9
-	VPAND   Y6, Y10, Y10
-	VMOVDQU (CX), Y7
-	VMOVDQU 32(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y0, Y0
-	VMOVDQU 64(CX), Y7
-	VMOVDQU 96(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y1, Y1
-	VMOVDQU 128(CX), Y7
-	VMOVDQU 160(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y2, Y2
-	VMOVDQU 192(CX), Y7
-	VMOVDQU 224(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y3, Y3
-	VMOVDQU 256(CX), Y7
-	VMOVDQU 288(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y4, Y4
-	VMOVDQU 320(CX), Y7
-	VMOVDQU 352(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y5, Y5
-
-	// Load and process 32 bytes from input 1 to 6 outputs
-	VMOVDQU (BP), Y9
-	ADDQ    $0x20, BP
-	VPSRLQ  $0x04, Y9, Y10
-	VPAND   Y6, Y9, Y9
-	VPAND   Y6, Y10, Y10
-	VMOVDQU 384(CX), Y7
-	VMOVDQU 416(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y0, Y0
-	VMOVDQU 448(CX), Y7
-	VMOVDQU 480(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y1, Y1
-	VMOVDQU 512(CX), Y7
-	VMOVDQU 544(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y2, Y2
-	VMOVDQU 576(CX), Y7
-	VMOVDQU 608(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y3, Y3
-	VMOVDQU 640(CX), Y7
-	VMOVDQU 672(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y4, Y4
-	VMOVDQU 704(CX), Y7
-	VMOVDQU 736(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y5, Y5
-
-	// Load and process 32 bytes from input 2 to 6 outputs
-	VMOVDQU (SI), Y9
-	ADDQ    $0x20, SI
-	VPSRLQ  $0x04, Y9, Y10
-	VPAND   Y6, Y9, Y9
-	VPAND   Y6, Y10, Y10
-	VMOVDQU 768(CX), Y7
-	VMOVDQU 800(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y0, Y0
-	VMOVDQU 832(CX), Y7
-	VMOVDQU 864(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y1, Y1
-	VMOVDQU 896(CX), Y7
-	VMOVDQU 928(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y2, Y2
-	VMOVDQU 960(CX), Y7
-	VMOVDQU 992(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y3, Y3
-	VMOVDQU 1024(CX), Y7
-	VMOVDQU 1056(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y4, Y4
-	VMOVDQU 1088(CX), Y7
-	VMOVDQU 1120(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y5, Y5
-
-	// Load and process 32 bytes from input 3 to 6 outputs
-	VMOVDQU (DI), Y9
-	ADDQ    $0x20, DI
-	VPSRLQ  $0x04, Y9, Y10
-	VPAND   Y6, Y9, Y9
-	VPAND   Y6, Y10, Y10
-	VMOVDQU 1152(CX), Y7
-	VMOVDQU 1184(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y0, Y0
-	VMOVDQU 1216(CX), Y7
-	VMOVDQU 1248(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y1, Y1
-	VMOVDQU 1280(CX), Y7
-	VMOVDQU 1312(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y2, Y2
-	VMOVDQU 1344(CX), Y7
-	VMOVDQU 1376(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y3, Y3
-	VMOVDQU 1408(CX), Y7
-	VMOVDQU 1440(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y4, Y4
-	VMOVDQU 1472(CX), Y7
-	VMOVDQU 1504(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y5, Y5
-
-	// Load and process 32 bytes from input 4 to 6 outputs
-	VMOVDQU (R8), Y9
-	ADDQ    $0x20, R8
-	VPSRLQ  $0x04, Y9, Y10
-	VPAND   Y6, Y9, Y9
-	VPAND   Y6, Y10, Y10
-	VMOVDQU 1536(CX), Y7
-	VMOVDQU 1568(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y0, Y0
-	VMOVDQU 1600(CX), Y7
-	VMOVDQU 1632(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y1, Y1
-	VMOVDQU 1664(CX), Y7
-	VMOVDQU 1696(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y2, Y2
-	VMOVDQU 1728(CX), Y7
-	VMOVDQU 1760(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y3, Y3
-	VMOVDQU 1792(CX), Y7
-	VMOVDQU 1824(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y4, Y4
-	VMOVDQU 1856(CX), Y7
-	VMOVDQU 1888(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y5, Y5
-
-	// Load and process 32 bytes from input 5 to 6 outputs
-	VMOVDQU (R9), Y9
-	ADDQ    $0x20, R9
-	VPSRLQ  $0x04, Y9, Y10
-	VPAND   Y6, Y9, Y9
-	VPAND   Y6, Y10, Y10
-	VMOVDQU 1920(CX), Y7
-	VMOVDQU 1952(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y0, Y0
-	VMOVDQU 1984(CX), Y7
-	VMOVDQU 2016(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y1, Y1
-	VMOVDQU 2048(CX), Y7
-	VMOVDQU 2080(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y2, Y2
-	VMOVDQU 2112(CX), Y7
-	VMOVDQU 2144(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y3, Y3
-	VMOVDQU 2176(CX), Y7
-	VMOVDQU 2208(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y4, Y4
-	VMOVDQU 2240(CX), Y7
-	VMOVDQU 2272(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y5, Y5
-
-	// Load and process 32 bytes from input 6 to 6 outputs
-	VMOVDQU (R10), Y9
-	ADDQ    $0x20, R10
-	VPSRLQ  $0x04, Y9, Y10
-	VPAND   Y6, Y9, Y9
-	VPAND   Y6, Y10, Y10
-	VMOVDQU 2304(CX), Y7
-	VMOVDQU 2336(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y0, Y0
-	VMOVDQU 2368(CX), Y7
-	VMOVDQU 2400(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y1, Y1
-	VMOVDQU 2432(CX), Y7
-	VMOVDQU 2464(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y2, Y2
-	VMOVDQU 2496(CX), Y7
-	VMOVDQU 2528(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y3, Y3
-	VMOVDQU 2560(CX), Y7
-	VMOVDQU 2592(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y4, Y4
-	VMOVDQU 2624(CX), Y7
-	VMOVDQU 2656(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y5, Y5
-
-	// Load and process 32 bytes from input 7 to 6 outputs
-	VMOVDQU (R11), Y9
-	ADDQ    $0x20, R11
-	VPSRLQ  $0x04, Y9, Y10
-	VPAND   Y6, Y9, Y9
-	VPAND   Y6, Y10, Y10
-	VMOVDQU 2688(CX), Y7
-	VMOVDQU 2720(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y0, Y0
-	VMOVDQU 2752(CX), Y7
-	VMOVDQU 2784(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y1, Y1
-	VMOVDQU 2816(CX), Y7
-	VMOVDQU 2848(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y2, Y2
-	VMOVDQU 2880(CX), Y7
-	VMOVDQU 2912(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y3, Y3
-	VMOVDQU 2944(CX), Y7
-	VMOVDQU 2976(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y4, Y4
-	VMOVDQU 3008(CX), Y7
-	VMOVDQU 3040(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y5, Y5
-
-	// Load and process 32 bytes from input 8 to 6 outputs
-	VMOVDQU (DX), Y9
-	ADDQ    $0x20, DX
-	VPSRLQ  $0x04, Y9, Y10
-	VPAND   Y6, Y9, Y9
-	VPAND   Y6, Y10, Y10
-	VMOVDQU 3072(CX), Y7
-	VMOVDQU 3104(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y0, Y0
-	VMOVDQU 3136(CX), Y7
-	VMOVDQU 3168(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y1, Y1
-	VMOVDQU 3200(CX), Y7
-	VMOVDQU 3232(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y2, Y2
-	VMOVDQU 3264(CX), Y7
-	VMOVDQU 3296(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y3, Y3
-	VMOVDQU 3328(CX), Y7
-	VMOVDQU 3360(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y4, Y4
-	VMOVDQU 3392(CX), Y7
-	VMOVDQU 3424(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y5, Y5
-
-	// Store 6 outputs
-	MOVQ    (R12), R14
-	VMOVDQU Y0, (R14)(R13*1)
-	MOVQ    24(R12), R14
-	VMOVDQU Y1, (R14)(R13*1)
-	MOVQ    48(R12), R14
-	VMOVDQU Y2, (R14)(R13*1)
-	MOVQ    72(R12), R14
-	VMOVDQU Y3, (R14)(R13*1)
-	MOVQ    96(R12), R14
-	VMOVDQU Y4, (R14)(R13*1)
-	MOVQ    120(R12), R14
-	VMOVDQU Y5, (R14)(R13*1)
-
-	// Prepare for next loop
-	ADDQ $0x20, R13
-	DECQ AX
-	JNZ  mulAvxTwo_9x6_loop
-	VZEROUPPER
-
-mulAvxTwo_9x6_end:
-	RET
-
-// func mulAvxTwo_9x7(matrix []byte, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX2, SSE2
-TEXT ·mulAvxTwo_9x7(SB), NOSPLIT, $8-88
-	// Loading no tables to registers
-	// Destination kept on stack
-	// Full registers estimated 138 YMM used
-	MOVQ  n+80(FP), AX
-	MOVQ  matrix_base+0(FP), CX
-	SHRQ  $0x05, AX
-	TESTQ AX, AX
-	JZ    mulAvxTwo_9x7_end
-	MOVQ  in_base+24(FP), DX
-	MOVQ  (DX), BX
-	MOVQ  24(DX), BP
-	MOVQ  48(DX), SI
-	MOVQ  72(DX), DI
-	MOVQ  96(DX), R8
-	MOVQ  120(DX), R9
-	MOVQ  144(DX), R10
-	MOVQ  168(DX), R11
-	MOVQ  192(DX), DX
-	MOVQ  out_base+48(FP), R12
-	MOVQ  start+72(FP), R13
-
-	// Add start offset to input
-	ADDQ         R13, BX
-	ADDQ         R13, BP
-	ADDQ         R13, SI
-	ADDQ         R13, DI
-	ADDQ         R13, R8
-	ADDQ         R13, R9
-	ADDQ         R13, R10
-	ADDQ         R13, R11
-	ADDQ         R13, DX
-	MOVQ         $0x0000000f, R14
 	MOVQ         R14, X7
 	VPBROADCASTB X7, Y7
 
-mulAvxTwo_9x7_loop:
-	// Clear 7 outputs
-	VPXOR Y0, Y0, Y0
+mulAvxTwo_9x6_loop:
+	// Clear 6 outputs
 	VPXOR Y1, Y1, Y1
 	VPXOR Y2, Y2, Y2
 	VPXOR Y3, Y3, Y3
@@ -15930,7 +15678,7 @@ mulAvxTwo_9x7_loop:
 	VPXOR Y5, Y5, Y5
 	VPXOR Y6, Y6, Y6
 
-	// Load and process 32 bytes from input 0 to 7 outputs
+	// Load and process 32 bytes from input 0 to 6 outputs
 	VMOVDQU (BX), Y10
 	ADDQ    $0x20, BX
 	VPSRLQ  $0x04, Y10, Y11
@@ -15941,252 +15689,259 @@ mulAvxTwo_9x7_loop:
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y0, Y0
+	VPXOR   Y8, Y1, Y1
 	VMOVDQU 64(CX), Y8
 	VMOVDQU 96(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y1, Y1
+	VPXOR   Y8, Y2, Y2
 	VMOVDQU 128(CX), Y8
 	VMOVDQU 160(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y2, Y2
+	VPXOR   Y8, Y3, Y3
 	VMOVDQU 192(CX), Y8
 	VMOVDQU 224(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y3, Y3
+	VPXOR   Y8, Y4, Y4
 	VMOVDQU 256(CX), Y8
 	VMOVDQU 288(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y4, Y4
+	VPXOR   Y8, Y5, Y5
 	VMOVDQU 320(CX), Y8
 	VMOVDQU 352(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y5, Y5
-	VMOVDQU 384(CX), Y8
-	VMOVDQU 416(CX), Y9
-	VPSHUFB Y10, Y8, Y8
-	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
 	VPXOR   Y8, Y6, Y6
 
-	// Load and process 32 bytes from input 1 to 7 outputs
+	// Load and process 32 bytes from input 1 to 6 outputs
 	VMOVDQU (BP), Y10
 	ADDQ    $0x20, BP
 	VPSRLQ  $0x04, Y10, Y11
 	VPAND   Y7, Y10, Y10
 	VPAND   Y7, Y11, Y11
+	VMOVDQU 384(CX), Y8
+	VMOVDQU 416(CX), Y9
+	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y1, Y1
 	VMOVDQU 448(CX), Y8
 	VMOVDQU 480(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y0, Y0
+	VPXOR   Y8, Y2, Y2
 	VMOVDQU 512(CX), Y8
 	VMOVDQU 544(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y1, Y1
+	VPXOR   Y8, Y3, Y3
 	VMOVDQU 576(CX), Y8
 	VMOVDQU 608(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y2, Y2
+	VPXOR   Y8, Y4, Y4
 	VMOVDQU 640(CX), Y8
 	VMOVDQU 672(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y3, Y3
+	VPXOR   Y8, Y5, Y5
 	VMOVDQU 704(CX), Y8
 	VMOVDQU 736(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y4, Y4
-	VMOVDQU 768(CX), Y8
-	VMOVDQU 800(CX), Y9
-	VPSHUFB Y10, Y8, Y8
-	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y5, Y5
-	VMOVDQU 832(CX), Y8
-	VMOVDQU 864(CX), Y9
-	VPSHUFB Y10, Y8, Y8
-	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
 	VPXOR   Y8, Y6, Y6
 
-	// Load and process 32 bytes from input 2 to 7 outputs
+	// Load and process 32 bytes from input 2 to 6 outputs
 	VMOVDQU (SI), Y10
 	ADDQ    $0x20, SI
 	VPSRLQ  $0x04, Y10, Y11
 	VPAND   Y7, Y10, Y10
 	VPAND   Y7, Y11, Y11
+	VMOVDQU 768(CX), Y8
+	VMOVDQU 800(CX), Y9
+	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y1, Y1
+	VMOVDQU 832(CX), Y8
+	VMOVDQU 864(CX), Y9
+	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y2, Y2
 	VMOVDQU 896(CX), Y8
 	VMOVDQU 928(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y0, Y0
+	VPXOR   Y8, Y3, Y3
 	VMOVDQU 960(CX), Y8
 	VMOVDQU 992(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y1, Y1
+	VPXOR   Y8, Y4, Y4
 	VMOVDQU 1024(CX), Y8
 	VMOVDQU 1056(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y2, Y2
+	VPXOR   Y8, Y5, Y5
 	VMOVDQU 1088(CX), Y8
 	VMOVDQU 1120(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y3, Y3
-	VMOVDQU 1152(CX), Y8
-	VMOVDQU 1184(CX), Y9
-	VPSHUFB Y10, Y8, Y8
-	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y4, Y4
-	VMOVDQU 1216(CX), Y8
-	VMOVDQU 1248(CX), Y9
-	VPSHUFB Y10, Y8, Y8
-	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y5, Y5
-	VMOVDQU 1280(CX), Y8
-	VMOVDQU 1312(CX), Y9
-	VPSHUFB Y10, Y8, Y8
-	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
 	VPXOR   Y8, Y6, Y6
 
-	// Load and process 32 bytes from input 3 to 7 outputs
+	// Load and process 32 bytes from input 3 to 6 outputs
 	VMOVDQU (DI), Y10
 	ADDQ    $0x20, DI
 	VPSRLQ  $0x04, Y10, Y11
 	VPAND   Y7, Y10, Y10
 	VPAND   Y7, Y11, Y11
+	VMOVDQU 1152(CX), Y8
+	VMOVDQU 1184(CX), Y9
+	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y1, Y1
+	VMOVDQU 1216(CX), Y8
+	VMOVDQU 1248(CX), Y9
+	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y2, Y2
+	VMOVDQU 1280(CX), Y8
+	VMOVDQU 1312(CX), Y9
+	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y3, Y3
 	VMOVDQU 1344(CX), Y8
 	VMOVDQU 1376(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y0, Y0
+	VPXOR   Y8, Y4, Y4
 	VMOVDQU 1408(CX), Y8
 	VMOVDQU 1440(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y1, Y1
+	VPXOR   Y8, Y5, Y5
 	VMOVDQU 1472(CX), Y8
 	VMOVDQU 1504(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y2, Y2
-	VMOVDQU 1536(CX), Y8
-	VMOVDQU 1568(CX), Y9
-	VPSHUFB Y10, Y8, Y8
-	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y3, Y3
-	VMOVDQU 1600(CX), Y8
-	VMOVDQU 1632(CX), Y9
-	VPSHUFB Y10, Y8, Y8
-	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y4, Y4
-	VMOVDQU 1664(CX), Y8
-	VMOVDQU 1696(CX), Y9
-	VPSHUFB Y10, Y8, Y8
-	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y5, Y5
-	VMOVDQU 1728(CX), Y8
-	VMOVDQU 1760(CX), Y9
-	VPSHUFB Y10, Y8, Y8
-	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
 	VPXOR   Y8, Y6, Y6
 
-	// Load and process 32 bytes from input 4 to 7 outputs
+	// Load and process 32 bytes from input 4 to 6 outputs
 	VMOVDQU (R8), Y10
 	ADDQ    $0x20, R8
 	VPSRLQ  $0x04, Y10, Y11
 	VPAND   Y7, Y10, Y10
 	VPAND   Y7, Y11, Y11
+	VMOVDQU 1536(CX), Y8
+	VMOVDQU 1568(CX), Y9
+	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y1, Y1
+	VMOVDQU 1600(CX), Y8
+	VMOVDQU 1632(CX), Y9
+	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y2, Y2
+	VMOVDQU 1664(CX), Y8
+	VMOVDQU 1696(CX), Y9
+	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y3, Y3
+	VMOVDQU 1728(CX), Y8
+	VMOVDQU 1760(CX), Y9
+	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y4, Y4
 	VMOVDQU 1792(CX), Y8
 	VMOVDQU 1824(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y0, Y0
+	VPXOR   Y8, Y5, Y5
 	VMOVDQU 1856(CX), Y8
 	VMOVDQU 1888(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y1, Y1
-	VMOVDQU 1920(CX), Y8
-	VMOVDQU 1952(CX), Y9
-	VPSHUFB Y10, Y8, Y8
-	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y2, Y2
-	VMOVDQU 1984(CX), Y8
-	VMOVDQU 2016(CX), Y9
-	VPSHUFB Y10, Y8, Y8
-	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y3, Y3
-	VMOVDQU 2048(CX), Y8
-	VMOVDQU 2080(CX), Y9
-	VPSHUFB Y10, Y8, Y8
-	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y4, Y4
-	VMOVDQU 2112(CX), Y8
-	VMOVDQU 2144(CX), Y9
-	VPSHUFB Y10, Y8, Y8
-	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y5, Y5
-	VMOVDQU 2176(CX), Y8
-	VMOVDQU 2208(CX), Y9
-	VPSHUFB Y10, Y8, Y8
-	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
 	VPXOR   Y8, Y6, Y6
 
-	// Load and process 32 bytes from input 5 to 7 outputs
+	// Load and process 32 bytes from input 5 to 6 outputs
 	VMOVDQU (R9), Y10
 	ADDQ    $0x20, R9
 	VPSRLQ  $0x04, Y10, Y11
 	VPAND   Y7, Y10, Y10
 	VPAND   Y7, Y11, Y11
+	VMOVDQU 1920(CX), Y8
+	VMOVDQU 1952(CX), Y9
+	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y1, Y1
+	VMOVDQU 1984(CX), Y8
+	VMOVDQU 2016(CX), Y9
+	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y2, Y2
+	VMOVDQU 2048(CX), Y8
+	VMOVDQU 2080(CX), Y9
+	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y3, Y3
+	VMOVDQU 2112(CX), Y8
+	VMOVDQU 2144(CX), Y9
+	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y4, Y4
+	VMOVDQU 2176(CX), Y8
+	VMOVDQU 2208(CX), Y9
+	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y5, Y5
 	VMOVDQU 2240(CX), Y8
 	VMOVDQU 2272(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y0, Y0
+	VPXOR   Y8, Y6, Y6
+
+	// Load and process 32 bytes from input 6 to 6 outputs
+	VMOVDQU (R10), Y10
+	ADDQ    $0x20, R10
+	VPSRLQ  $0x04, Y10, Y11
+	VPAND   Y7, Y10, Y10
+	VPAND   Y7, Y11, Y11
 	VMOVDQU 2304(CX), Y8
 	VMOVDQU 2336(CX), Y9
 	VPSHUFB Y10, Y8, Y8
@@ -16224,9 +15979,9 @@ mulAvxTwo_9x7_loop:
 	VPXOR   Y8, Y9, Y8
 	VPXOR   Y8, Y6, Y6
 
-	// Load and process 32 bytes from input 6 to 7 outputs
-	VMOVDQU (R10), Y10
-	ADDQ    $0x20, R10
+	// Load and process 32 bytes from input 7 to 6 outputs
+	VMOVDQU (R11), Y10
+	ADDQ    $0x20, R11
 	VPSRLQ  $0x04, Y10, Y11
 	VPAND   Y7, Y10, Y10
 	VPAND   Y7, Y11, Y11
@@ -16235,178 +15990,118 @@ mulAvxTwo_9x7_loop:
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y0, Y0
+	VPXOR   Y8, Y1, Y1
 	VMOVDQU 2752(CX), Y8
 	VMOVDQU 2784(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y1, Y1
+	VPXOR   Y8, Y2, Y2
 	VMOVDQU 2816(CX), Y8
 	VMOVDQU 2848(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y2, Y2
+	VPXOR   Y8, Y3, Y3
 	VMOVDQU 2880(CX), Y8
 	VMOVDQU 2912(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y3, Y3
+	VPXOR   Y8, Y4, Y4
 	VMOVDQU 2944(CX), Y8
 	VMOVDQU 2976(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y4, Y4
+	VPXOR   Y8, Y5, Y5
 	VMOVDQU 3008(CX), Y8
 	VMOVDQU 3040(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y5, Y5
-	VMOVDQU 3072(CX), Y8
-	VMOVDQU 3104(CX), Y9
-	VPSHUFB Y10, Y8, Y8
-	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
 	VPXOR   Y8, Y6, Y6
 
-	// Load and process 32 bytes from input 7 to 7 outputs
-	VMOVDQU (R11), Y10
-	ADDQ    $0x20, R11
-	VPSRLQ  $0x04, Y10, Y11
-	VPAND   Y7, Y10, Y10
-	VPAND   Y7, Y11, Y11
-	VMOVDQU 3136(CX), Y8
-	VMOVDQU 3168(CX), Y9
-	VPSHUFB Y10, Y8, Y8
-	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y0, Y0
-	VMOVDQU 3200(CX), Y8
-	VMOVDQU 3232(CX), Y9
-	VPSHUFB Y10, Y8, Y8
-	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y1, Y1
-	VMOVDQU 3264(CX), Y8
-	VMOVDQU 3296(CX), Y9
-	VPSHUFB Y10, Y8, Y8
-	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y2, Y2
-	VMOVDQU 3328(CX), Y8
-	VMOVDQU 3360(CX), Y9
-	VPSHUFB Y10, Y8, Y8
-	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y3, Y3
-	VMOVDQU 3392(CX), Y8
-	VMOVDQU 3424(CX), Y9
-	VPSHUFB Y10, Y8, Y8
-	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y4, Y4
-	VMOVDQU 3456(CX), Y8
-	VMOVDQU 3488(CX), Y9
-	VPSHUFB Y10, Y8, Y8
-	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y5, Y5
-	VMOVDQU 3520(CX), Y8
-	VMOVDQU 3552(CX), Y9
-	VPSHUFB Y10, Y8, Y8
-	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y6, Y6
-
-	// Load and process 32 bytes from input 8 to 7 outputs
+	// Load and process 32 bytes from input 8 to 6 outputs
 	VMOVDQU (DX), Y10
 	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y10, Y11
 	VPAND   Y7, Y10, Y10
 	VPAND   Y7, Y11, Y11
-	VMOVDQU 3584(CX), Y8
-	VMOVDQU 3616(CX), Y9
-	VPSHUFB Y10, Y8, Y8
-	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y0, Y0
-	VMOVDQU 3648(CX), Y8
-	VMOVDQU 3680(CX), Y9
+	VMOVDQU 3072(CX), Y8
+	VMOVDQU 3104(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
 	VPXOR   Y8, Y1, Y1
-	VMOVDQU 3712(CX), Y8
-	VMOVDQU 3744(CX), Y9
+	VMOVDQU 3136(CX), Y8
+	VMOVDQU 3168(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
 	VPXOR   Y8, Y2, Y2
-	VMOVDQU 3776(CX), Y8
-	VMOVDQU 3808(CX), Y9
+	VMOVDQU 3200(CX), Y8
+	VMOVDQU 3232(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
 	VPXOR   Y8, Y3, Y3
-	VMOVDQU 3840(CX), Y8
-	VMOVDQU 3872(CX), Y9
+	VMOVDQU 3264(CX), Y8
+	VMOVDQU 3296(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
 	VPXOR   Y8, Y4, Y4
-	VMOVDQU 3904(CX), Y8
-	VMOVDQU 3936(CX), Y9
+	VMOVDQU 3328(CX), Y8
+	VMOVDQU 3360(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
 	VPXOR   Y8, Y5, Y5
-	VMOVDQU 3968(CX), Y8
-	VMOVDQU 4000(CX), Y9
+	VMOVDQU 3392(CX), Y8
+	VMOVDQU 3424(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
 	VPXOR   Y8, Y6, Y6
 
-	// Store 7 outputs
+	// Store 6 outputs
 	MOVQ    (R12), R14
-	VMOVDQU Y0, (R14)(R13*1)
-	MOVQ    24(R12), R14
 	VMOVDQU Y1, (R14)(R13*1)
-	MOVQ    48(R12), R14
+	MOVQ    24(R12), R14
 	VMOVDQU Y2, (R14)(R13*1)
-	MOVQ    72(R12), R14
+	MOVQ    48(R12), R14
 	VMOVDQU Y3, (R14)(R13*1)
-	MOVQ    96(R12), R14
+	MOVQ    72(R12), R14
 	VMOVDQU Y4, (R14)(R13*1)
-	MOVQ    120(R12), R14
+	MOVQ    96(R12), R14
 	VMOVDQU Y5, (R14)(R13*1)
-	MOVQ    144(R12), R14
+	MOVQ    120(R12), R14
 	VMOVDQU Y6, (R14)(R13*1)
 
 	// Prepare for next loop
 	ADDQ $0x20, R13
 	DECQ AX
-	JNZ  mulAvxTwo_9x7_loop
+	JNZ  mulAvxTwo_9x6_loop
 	VZEROUPPER
 
-mulAvxTwo_9x7_end:
+mulAvxTwo_9x6_end:
+	MOVQ X0, BP
 	RET
 
-// func mulAvxTwo_9x8(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxTwo_9x7(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX2, SSE2
-TEXT ·mulAvxTwo_9x8(SB), NOSPLIT, $8-88
+TEXT ·mulAvxTwo_9x7(SB), NOSPLIT, $0-88
+	MOVQ BP, X0
+
 	// Loading no tables to registers
 	// Destination kept on stack
-	// Full registers estimated 157 YMM used
+	// Full registers estimated 138 YMM used
 	MOVQ  n+80(FP), AX
 	MOVQ  matrix_base+0(FP), CX
 	SHRQ  $0x05, AX
 	TESTQ AX, AX
-	JZ    mulAvxTwo_9x8_end
+	JZ    mulAvxTwo_9x7_end
 	MOVQ  in_base+24(FP), DX
 	MOVQ  (DX), BX
 	MOVQ  24(DX), BP
@@ -16434,9 +16129,8 @@ TEXT ·mulAvxTwo_9x8(SB), NOSPLIT, $8-88
 	MOVQ         R14, X8
 	VPBROADCASTB X8, Y8
 
-mulAvxTwo_9x8_loop:
-	// Clear 8 outputs
-	VPXOR Y0, Y0, Y0
+mulAvxTwo_9x7_loop:
+	// Clear 7 outputs
 	VPXOR Y1, Y1, Y1
 	VPXOR Y2, Y2, Y2
 	VPXOR Y3, Y3, Y3
@@ -16445,7 +16139,7 @@ mulAvxTwo_9x8_loop:
 	VPXOR Y6, Y6, Y6
 	VPXOR Y7, Y7, Y7
 
-	// Load and process 32 bytes from input 0 to 8 outputs
+	// Load and process 32 bytes from input 0 to 7 outputs
 	VMOVDQU (BX), Y11
 	ADDQ    $0x20, BX
 	VPSRLQ  $0x04, Y11, Y12
@@ -16456,337 +16150,344 @@ mulAvxTwo_9x8_loop:
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y0, Y0
+	VPXOR   Y9, Y1, Y1
 	VMOVDQU 64(CX), Y9
 	VMOVDQU 96(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y1, Y1
+	VPXOR   Y9, Y2, Y2
 	VMOVDQU 128(CX), Y9
 	VMOVDQU 160(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y2, Y2
+	VPXOR   Y9, Y3, Y3
 	VMOVDQU 192(CX), Y9
 	VMOVDQU 224(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y3, Y3
+	VPXOR   Y9, Y4, Y4
 	VMOVDQU 256(CX), Y9
 	VMOVDQU 288(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y4, Y4
+	VPXOR   Y9, Y5, Y5
 	VMOVDQU 320(CX), Y9
 	VMOVDQU 352(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y5, Y5
+	VPXOR   Y9, Y6, Y6
 	VMOVDQU 384(CX), Y9
 	VMOVDQU 416(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y6, Y6
-	VMOVDQU 448(CX), Y9
-	VMOVDQU 480(CX), Y10
-	VPSHUFB Y11, Y9, Y9
-	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
 	VPXOR   Y9, Y7, Y7
 
-	// Load and process 32 bytes from input 1 to 8 outputs
+	// Load and process 32 bytes from input 1 to 7 outputs
 	VMOVDQU (BP), Y11
 	ADDQ    $0x20, BP
 	VPSRLQ  $0x04, Y11, Y12
 	VPAND   Y8, Y11, Y11
 	VPAND   Y8, Y12, Y12
+	VMOVDQU 448(CX), Y9
+	VMOVDQU 480(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y1, Y1
 	VMOVDQU 512(CX), Y9
 	VMOVDQU 544(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y0, Y0
+	VPXOR   Y9, Y2, Y2
 	VMOVDQU 576(CX), Y9
 	VMOVDQU 608(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y1, Y1
+	VPXOR   Y9, Y3, Y3
 	VMOVDQU 640(CX), Y9
 	VMOVDQU 672(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y2, Y2
+	VPXOR   Y9, Y4, Y4
 	VMOVDQU 704(CX), Y9
 	VMOVDQU 736(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y3, Y3
+	VPXOR   Y9, Y5, Y5
 	VMOVDQU 768(CX), Y9
 	VMOVDQU 800(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y4, Y4
+	VPXOR   Y9, Y6, Y6
 	VMOVDQU 832(CX), Y9
 	VMOVDQU 864(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y5, Y5
-	VMOVDQU 896(CX), Y9
-	VMOVDQU 928(CX), Y10
-	VPSHUFB Y11, Y9, Y9
-	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y6, Y6
-	VMOVDQU 960(CX), Y9
-	VMOVDQU 992(CX), Y10
-	VPSHUFB Y11, Y9, Y9
-	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
 	VPXOR   Y9, Y7, Y7
 
-	// Load and process 32 bytes from input 2 to 8 outputs
+	// Load and process 32 bytes from input 2 to 7 outputs
 	VMOVDQU (SI), Y11
 	ADDQ    $0x20, SI
 	VPSRLQ  $0x04, Y11, Y12
 	VPAND   Y8, Y11, Y11
 	VPAND   Y8, Y12, Y12
+	VMOVDQU 896(CX), Y9
+	VMOVDQU 928(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y1, Y1
+	VMOVDQU 960(CX), Y9
+	VMOVDQU 992(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y2, Y2
 	VMOVDQU 1024(CX), Y9
 	VMOVDQU 1056(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y0, Y0
+	VPXOR   Y9, Y3, Y3
 	VMOVDQU 1088(CX), Y9
 	VMOVDQU 1120(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y1, Y1
+	VPXOR   Y9, Y4, Y4
 	VMOVDQU 1152(CX), Y9
 	VMOVDQU 1184(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y2, Y2
+	VPXOR   Y9, Y5, Y5
 	VMOVDQU 1216(CX), Y9
 	VMOVDQU 1248(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y3, Y3
+	VPXOR   Y9, Y6, Y6
 	VMOVDQU 1280(CX), Y9
 	VMOVDQU 1312(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y4, Y4
-	VMOVDQU 1344(CX), Y9
-	VMOVDQU 1376(CX), Y10
-	VPSHUFB Y11, Y9, Y9
-	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y5, Y5
-	VMOVDQU 1408(CX), Y9
-	VMOVDQU 1440(CX), Y10
-	VPSHUFB Y11, Y9, Y9
-	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y6, Y6
-	VMOVDQU 1472(CX), Y9
-	VMOVDQU 1504(CX), Y10
-	VPSHUFB Y11, Y9, Y9
-	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
 	VPXOR   Y9, Y7, Y7
 
-	// Load and process 32 bytes from input 3 to 8 outputs
+	// Load and process 32 bytes from input 3 to 7 outputs
 	VMOVDQU (DI), Y11
 	ADDQ    $0x20, DI
 	VPSRLQ  $0x04, Y11, Y12
 	VPAND   Y8, Y11, Y11
 	VPAND   Y8, Y12, Y12
+	VMOVDQU 1344(CX), Y9
+	VMOVDQU 1376(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y1, Y1
+	VMOVDQU 1408(CX), Y9
+	VMOVDQU 1440(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y2, Y2
+	VMOVDQU 1472(CX), Y9
+	VMOVDQU 1504(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y3, Y3
 	VMOVDQU 1536(CX), Y9
 	VMOVDQU 1568(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y0, Y0
+	VPXOR   Y9, Y4, Y4
 	VMOVDQU 1600(CX), Y9
 	VMOVDQU 1632(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y1, Y1
+	VPXOR   Y9, Y5, Y5
 	VMOVDQU 1664(CX), Y9
 	VMOVDQU 1696(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y2, Y2
+	VPXOR   Y9, Y6, Y6
 	VMOVDQU 1728(CX), Y9
 	VMOVDQU 1760(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y3, Y3
-	VMOVDQU 1792(CX), Y9
-	VMOVDQU 1824(CX), Y10
-	VPSHUFB Y11, Y9, Y9
-	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y4, Y4
-	VMOVDQU 1856(CX), Y9
-	VMOVDQU 1888(CX), Y10
-	VPSHUFB Y11, Y9, Y9
-	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y5, Y5
-	VMOVDQU 1920(CX), Y9
-	VMOVDQU 1952(CX), Y10
-	VPSHUFB Y11, Y9, Y9
-	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y6, Y6
-	VMOVDQU 1984(CX), Y9
-	VMOVDQU 2016(CX), Y10
-	VPSHUFB Y11, Y9, Y9
-	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
 	VPXOR   Y9, Y7, Y7
 
-	// Load and process 32 bytes from input 4 to 8 outputs
+	// Load and process 32 bytes from input 4 to 7 outputs
 	VMOVDQU (R8), Y11
 	ADDQ    $0x20, R8
 	VPSRLQ  $0x04, Y11, Y12
 	VPAND   Y8, Y11, Y11
 	VPAND   Y8, Y12, Y12
+	VMOVDQU 1792(CX), Y9
+	VMOVDQU 1824(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y1, Y1
+	VMOVDQU 1856(CX), Y9
+	VMOVDQU 1888(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y2, Y2
+	VMOVDQU 1920(CX), Y9
+	VMOVDQU 1952(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y3, Y3
+	VMOVDQU 1984(CX), Y9
+	VMOVDQU 2016(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y4, Y4
 	VMOVDQU 2048(CX), Y9
 	VMOVDQU 2080(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y0, Y0
+	VPXOR   Y9, Y5, Y5
 	VMOVDQU 2112(CX), Y9
 	VMOVDQU 2144(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y1, Y1
+	VPXOR   Y9, Y6, Y6
 	VMOVDQU 2176(CX), Y9
 	VMOVDQU 2208(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y2, Y2
-	VMOVDQU 2240(CX), Y9
-	VMOVDQU 2272(CX), Y10
-	VPSHUFB Y11, Y9, Y9
-	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y3, Y3
-	VMOVDQU 2304(CX), Y9
-	VMOVDQU 2336(CX), Y10
-	VPSHUFB Y11, Y9, Y9
-	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y4, Y4
-	VMOVDQU 2368(CX), Y9
-	VMOVDQU 2400(CX), Y10
-	VPSHUFB Y11, Y9, Y9
-	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y5, Y5
-	VMOVDQU 2432(CX), Y9
-	VMOVDQU 2464(CX), Y10
-	VPSHUFB Y11, Y9, Y9
-	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y6, Y6
-	VMOVDQU 2496(CX), Y9
-	VMOVDQU 2528(CX), Y10
-	VPSHUFB Y11, Y9, Y9
-	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
 	VPXOR   Y9, Y7, Y7
 
-	// Load and process 32 bytes from input 5 to 8 outputs
+	// Load and process 32 bytes from input 5 to 7 outputs
 	VMOVDQU (R9), Y11
 	ADDQ    $0x20, R9
 	VPSRLQ  $0x04, Y11, Y12
 	VPAND   Y8, Y11, Y11
 	VPAND   Y8, Y12, Y12
+	VMOVDQU 2240(CX), Y9
+	VMOVDQU 2272(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y1, Y1
+	VMOVDQU 2304(CX), Y9
+	VMOVDQU 2336(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y2, Y2
+	VMOVDQU 2368(CX), Y9
+	VMOVDQU 2400(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y3, Y3
+	VMOVDQU 2432(CX), Y9
+	VMOVDQU 2464(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y4, Y4
+	VMOVDQU 2496(CX), Y9
+	VMOVDQU 2528(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y5, Y5
 	VMOVDQU 2560(CX), Y9
 	VMOVDQU 2592(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y0, Y0
+	VPXOR   Y9, Y6, Y6
 	VMOVDQU 2624(CX), Y9
 	VMOVDQU 2656(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y1, Y1
-	VMOVDQU 2688(CX), Y9
-	VMOVDQU 2720(CX), Y10
-	VPSHUFB Y11, Y9, Y9
-	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y2, Y2
-	VMOVDQU 2752(CX), Y9
-	VMOVDQU 2784(CX), Y10
-	VPSHUFB Y11, Y9, Y9
-	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y3, Y3
-	VMOVDQU 2816(CX), Y9
-	VMOVDQU 2848(CX), Y10
-	VPSHUFB Y11, Y9, Y9
-	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y4, Y4
-	VMOVDQU 2880(CX), Y9
-	VMOVDQU 2912(CX), Y10
-	VPSHUFB Y11, Y9, Y9
-	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y5, Y5
-	VMOVDQU 2944(CX), Y9
-	VMOVDQU 2976(CX), Y10
-	VPSHUFB Y11, Y9, Y9
-	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y6, Y6
-	VMOVDQU 3008(CX), Y9
-	VMOVDQU 3040(CX), Y10
-	VPSHUFB Y11, Y9, Y9
-	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
 	VPXOR   Y9, Y7, Y7
 
-	// Load and process 32 bytes from input 6 to 8 outputs
+	// Load and process 32 bytes from input 6 to 7 outputs
 	VMOVDQU (R10), Y11
 	ADDQ    $0x20, R10
 	VPSRLQ  $0x04, Y11, Y12
 	VPAND   Y8, Y11, Y11
 	VPAND   Y8, Y12, Y12
+	VMOVDQU 2688(CX), Y9
+	VMOVDQU 2720(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y1, Y1
+	VMOVDQU 2752(CX), Y9
+	VMOVDQU 2784(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y2, Y2
+	VMOVDQU 2816(CX), Y9
+	VMOVDQU 2848(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y3, Y3
+	VMOVDQU 2880(CX), Y9
+	VMOVDQU 2912(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y4, Y4
+	VMOVDQU 2944(CX), Y9
+	VMOVDQU 2976(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y5, Y5
+	VMOVDQU 3008(CX), Y9
+	VMOVDQU 3040(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y6, Y6
 	VMOVDQU 3072(CX), Y9
 	VMOVDQU 3104(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y0, Y0
+	VPXOR   Y9, Y7, Y7
+
+	// Load and process 32 bytes from input 7 to 7 outputs
+	VMOVDQU (R11), Y11
+	ADDQ    $0x20, R11
+	VPSRLQ  $0x04, Y11, Y12
+	VPAND   Y8, Y11, Y11
+	VPAND   Y8, Y12, Y12
 	VMOVDQU 3136(CX), Y9
 	VMOVDQU 3168(CX), Y10
 	VPSHUFB Y11, Y9, Y9
@@ -16830,9 +16531,9 @@ mulAvxTwo_9x8_loop:
 	VPXOR   Y9, Y10, Y9
 	VPXOR   Y9, Y7, Y7
 
-	// Load and process 32 bytes from input 7 to 8 outputs
-	VMOVDQU (R11), Y11
-	ADDQ    $0x20, R11
+	// Load and process 32 bytes from input 8 to 7 outputs
+	VMOVDQU (DX), Y11
+	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y11, Y12
 	VPAND   Y8, Y11, Y11
 	VPAND   Y8, Y12, Y12
@@ -16841,122 +16542,633 @@ mulAvxTwo_9x8_loop:
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y0, Y0
+	VPXOR   Y9, Y1, Y1
 	VMOVDQU 3648(CX), Y9
 	VMOVDQU 3680(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y1, Y1
+	VPXOR   Y9, Y2, Y2
 	VMOVDQU 3712(CX), Y9
 	VMOVDQU 3744(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y2, Y2
+	VPXOR   Y9, Y3, Y3
 	VMOVDQU 3776(CX), Y9
 	VMOVDQU 3808(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y3, Y3
+	VPXOR   Y9, Y4, Y4
 	VMOVDQU 3840(CX), Y9
 	VMOVDQU 3872(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y4, Y4
+	VPXOR   Y9, Y5, Y5
 	VMOVDQU 3904(CX), Y9
 	VMOVDQU 3936(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y5, Y5
+	VPXOR   Y9, Y6, Y6
 	VMOVDQU 3968(CX), Y9
 	VMOVDQU 4000(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y6, Y6
-	VMOVDQU 4032(CX), Y9
-	VMOVDQU 4064(CX), Y10
-	VPSHUFB Y11, Y9, Y9
-	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
 	VPXOR   Y9, Y7, Y7
 
+	// Store 7 outputs
+	MOVQ    (R12), R14
+	VMOVDQU Y1, (R14)(R13*1)
+	MOVQ    24(R12), R14
+	VMOVDQU Y2, (R14)(R13*1)
+	MOVQ    48(R12), R14
+	VMOVDQU Y3, (R14)(R13*1)
+	MOVQ    72(R12), R14
+	VMOVDQU Y4, (R14)(R13*1)
+	MOVQ    96(R12), R14
+	VMOVDQU Y5, (R14)(R13*1)
+	MOVQ    120(R12), R14
+	VMOVDQU Y6, (R14)(R13*1)
+	MOVQ    144(R12), R14
+	VMOVDQU Y7, (R14)(R13*1)
+
+	// Prepare for next loop
+	ADDQ $0x20, R13
+	DECQ AX
+	JNZ  mulAvxTwo_9x7_loop
+	VZEROUPPER
+
+mulAvxTwo_9x7_end:
+	MOVQ X0, BP
+	RET
+
+// func mulAvxTwo_9x8(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+// Requires: AVX, AVX2, SSE2
+TEXT ·mulAvxTwo_9x8(SB), NOSPLIT, $0-88
+	MOVQ BP, X0
+
+	// Loading no tables to registers
+	// Destination kept on stack
+	// Full registers estimated 157 YMM used
+	MOVQ  n+80(FP), AX
+	MOVQ  matrix_base+0(FP), CX
+	SHRQ  $0x05, AX
+	TESTQ AX, AX
+	JZ    mulAvxTwo_9x8_end
+	MOVQ  in_base+24(FP), DX
+	MOVQ  (DX), BX
+	MOVQ  24(DX), BP
+	MOVQ  48(DX), SI
+	MOVQ  72(DX), DI
+	MOVQ  96(DX), R8
+	MOVQ  120(DX), R9
+	MOVQ  144(DX), R10
+	MOVQ  168(DX), R11
+	MOVQ  192(DX), DX
+	MOVQ  out_base+48(FP), R12
+	MOVQ  start+72(FP), R13
+
+	// Add start offset to input
+	ADDQ         R13, BX
+	ADDQ         R13, BP
+	ADDQ         R13, SI
+	ADDQ         R13, DI
+	ADDQ         R13, R8
+	ADDQ         R13, R9
+	ADDQ         R13, R10
+	ADDQ         R13, R11
+	ADDQ         R13, DX
+	MOVQ         $0x0000000f, R14
+	MOVQ         R14, X9
+	VPBROADCASTB X9, Y9
+
+mulAvxTwo_9x8_loop:
+	// Clear 8 outputs
+	VPXOR Y1, Y1, Y1
+	VPXOR Y2, Y2, Y2
+	VPXOR Y3, Y3, Y3
+	VPXOR Y4, Y4, Y4
+	VPXOR Y5, Y5, Y5
+	VPXOR Y6, Y6, Y6
+	VPXOR Y7, Y7, Y7
+	VPXOR Y8, Y8, Y8
+
+	// Load and process 32 bytes from input 0 to 8 outputs
+	VMOVDQU (BX), Y12
+	ADDQ    $0x20, BX
+	VPSRLQ  $0x04, Y12, Y13
+	VPAND   Y9, Y12, Y12
+	VPAND   Y9, Y13, Y13
+	VMOVDQU (CX), Y10
+	VMOVDQU 32(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y1, Y1
+	VMOVDQU 64(CX), Y10
+	VMOVDQU 96(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y2, Y2
+	VMOVDQU 128(CX), Y10
+	VMOVDQU 160(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y3, Y3
+	VMOVDQU 192(CX), Y10
+	VMOVDQU 224(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y4, Y4
+	VMOVDQU 256(CX), Y10
+	VMOVDQU 288(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y5, Y5
+	VMOVDQU 320(CX), Y10
+	VMOVDQU 352(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y6, Y6
+	VMOVDQU 384(CX), Y10
+	VMOVDQU 416(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y7, Y7
+	VMOVDQU 448(CX), Y10
+	VMOVDQU 480(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y8, Y8
+
+	// Load and process 32 bytes from input 1 to 8 outputs
+	VMOVDQU (BP), Y12
+	ADDQ    $0x20, BP
+	VPSRLQ  $0x04, Y12, Y13
+	VPAND   Y9, Y12, Y12
+	VPAND   Y9, Y13, Y13
+	VMOVDQU 512(CX), Y10
+	VMOVDQU 544(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y1, Y1
+	VMOVDQU 576(CX), Y10
+	VMOVDQU 608(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y2, Y2
+	VMOVDQU 640(CX), Y10
+	VMOVDQU 672(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y3, Y3
+	VMOVDQU 704(CX), Y10
+	VMOVDQU 736(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y4, Y4
+	VMOVDQU 768(CX), Y10
+	VMOVDQU 800(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y5, Y5
+	VMOVDQU 832(CX), Y10
+	VMOVDQU 864(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y6, Y6
+	VMOVDQU 896(CX), Y10
+	VMOVDQU 928(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y7, Y7
+	VMOVDQU 960(CX), Y10
+	VMOVDQU 992(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y8, Y8
+
+	// Load and process 32 bytes from input 2 to 8 outputs
+	VMOVDQU (SI), Y12
+	ADDQ    $0x20, SI
+	VPSRLQ  $0x04, Y12, Y13
+	VPAND   Y9, Y12, Y12
+	VPAND   Y9, Y13, Y13
+	VMOVDQU 1024(CX), Y10
+	VMOVDQU 1056(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y1, Y1
+	VMOVDQU 1088(CX), Y10
+	VMOVDQU 1120(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y2, Y2
+	VMOVDQU 1152(CX), Y10
+	VMOVDQU 1184(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y3, Y3
+	VMOVDQU 1216(CX), Y10
+	VMOVDQU 1248(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y4, Y4
+	VMOVDQU 1280(CX), Y10
+	VMOVDQU 1312(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y5, Y5
+	VMOVDQU 1344(CX), Y10
+	VMOVDQU 1376(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y6, Y6
+	VMOVDQU 1408(CX), Y10
+	VMOVDQU 1440(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y7, Y7
+	VMOVDQU 1472(CX), Y10
+	VMOVDQU 1504(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y8, Y8
+
+	// Load and process 32 bytes from input 3 to 8 outputs
+	VMOVDQU (DI), Y12
+	ADDQ    $0x20, DI
+	VPSRLQ  $0x04, Y12, Y13
+	VPAND   Y9, Y12, Y12
+	VPAND   Y9, Y13, Y13
+	VMOVDQU 1536(CX), Y10
+	VMOVDQU 1568(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y1, Y1
+	VMOVDQU 1600(CX), Y10
+	VMOVDQU 1632(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y2, Y2
+	VMOVDQU 1664(CX), Y10
+	VMOVDQU 1696(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y3, Y3
+	VMOVDQU 1728(CX), Y10
+	VMOVDQU 1760(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y4, Y4
+	VMOVDQU 1792(CX), Y10
+	VMOVDQU 1824(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y5, Y5
+	VMOVDQU 1856(CX), Y10
+	VMOVDQU 1888(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y6, Y6
+	VMOVDQU 1920(CX), Y10
+	VMOVDQU 1952(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y7, Y7
+	VMOVDQU 1984(CX), Y10
+	VMOVDQU 2016(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y8, Y8
+
+	// Load and process 32 bytes from input 4 to 8 outputs
+	VMOVDQU (R8), Y12
+	ADDQ    $0x20, R8
+	VPSRLQ  $0x04, Y12, Y13
+	VPAND   Y9, Y12, Y12
+	VPAND   Y9, Y13, Y13
+	VMOVDQU 2048(CX), Y10
+	VMOVDQU 2080(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y1, Y1
+	VMOVDQU 2112(CX), Y10
+	VMOVDQU 2144(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y2, Y2
+	VMOVDQU 2176(CX), Y10
+	VMOVDQU 2208(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y3, Y3
+	VMOVDQU 2240(CX), Y10
+	VMOVDQU 2272(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y4, Y4
+	VMOVDQU 2304(CX), Y10
+	VMOVDQU 2336(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y5, Y5
+	VMOVDQU 2368(CX), Y10
+	VMOVDQU 2400(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y6, Y6
+	VMOVDQU 2432(CX), Y10
+	VMOVDQU 2464(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y7, Y7
+	VMOVDQU 2496(CX), Y10
+	VMOVDQU 2528(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y8, Y8
+
+	// Load and process 32 bytes from input 5 to 8 outputs
+	VMOVDQU (R9), Y12
+	ADDQ    $0x20, R9
+	VPSRLQ  $0x04, Y12, Y13
+	VPAND   Y9, Y12, Y12
+	VPAND   Y9, Y13, Y13
+	VMOVDQU 2560(CX), Y10
+	VMOVDQU 2592(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y1, Y1
+	VMOVDQU 2624(CX), Y10
+	VMOVDQU 2656(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y2, Y2
+	VMOVDQU 2688(CX), Y10
+	VMOVDQU 2720(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y3, Y3
+	VMOVDQU 2752(CX), Y10
+	VMOVDQU 2784(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y4, Y4
+	VMOVDQU 2816(CX), Y10
+	VMOVDQU 2848(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y5, Y5
+	VMOVDQU 2880(CX), Y10
+	VMOVDQU 2912(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y6, Y6
+	VMOVDQU 2944(CX), Y10
+	VMOVDQU 2976(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y7, Y7
+	VMOVDQU 3008(CX), Y10
+	VMOVDQU 3040(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y8, Y8
+
+	// Load and process 32 bytes from input 6 to 8 outputs
+	VMOVDQU (R10), Y12
+	ADDQ    $0x20, R10
+	VPSRLQ  $0x04, Y12, Y13
+	VPAND   Y9, Y12, Y12
+	VPAND   Y9, Y13, Y13
+	VMOVDQU 3072(CX), Y10
+	VMOVDQU 3104(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y1, Y1
+	VMOVDQU 3136(CX), Y10
+	VMOVDQU 3168(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y2, Y2
+	VMOVDQU 3200(CX), Y10
+	VMOVDQU 3232(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y3, Y3
+	VMOVDQU 3264(CX), Y10
+	VMOVDQU 3296(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y4, Y4
+	VMOVDQU 3328(CX), Y10
+	VMOVDQU 3360(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y5, Y5
+	VMOVDQU 3392(CX), Y10
+	VMOVDQU 3424(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y6, Y6
+	VMOVDQU 3456(CX), Y10
+	VMOVDQU 3488(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y7, Y7
+	VMOVDQU 3520(CX), Y10
+	VMOVDQU 3552(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y8, Y8
+
+	// Load and process 32 bytes from input 7 to 8 outputs
+	VMOVDQU (R11), Y12
+	ADDQ    $0x20, R11
+	VPSRLQ  $0x04, Y12, Y13
+	VPAND   Y9, Y12, Y12
+	VPAND   Y9, Y13, Y13
+	VMOVDQU 3584(CX), Y10
+	VMOVDQU 3616(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y1, Y1
+	VMOVDQU 3648(CX), Y10
+	VMOVDQU 3680(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y2, Y2
+	VMOVDQU 3712(CX), Y10
+	VMOVDQU 3744(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y3, Y3
+	VMOVDQU 3776(CX), Y10
+	VMOVDQU 3808(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y4, Y4
+	VMOVDQU 3840(CX), Y10
+	VMOVDQU 3872(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y5, Y5
+	VMOVDQU 3904(CX), Y10
+	VMOVDQU 3936(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y6, Y6
+	VMOVDQU 3968(CX), Y10
+	VMOVDQU 4000(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y7, Y7
+	VMOVDQU 4032(CX), Y10
+	VMOVDQU 4064(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y8, Y8
+
 	// Load and process 32 bytes from input 8 to 8 outputs
-	VMOVDQU (DX), Y11
+	VMOVDQU (DX), Y12
 	ADDQ    $0x20, DX
-	VPSRLQ  $0x04, Y11, Y12
-	VPAND   Y8, Y11, Y11
-	VPAND   Y8, Y12, Y12
-	VMOVDQU 4096(CX), Y9
-	VMOVDQU 4128(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSRLQ  $0x04, Y12, Y13
+	VPAND   Y9, Y12, Y12
+	VPAND   Y9, Y13, Y13
+	VMOVDQU 4096(CX), Y10
+	VMOVDQU 4128(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y0, Y0
-	VMOVDQU 4160(CX), Y9
-	VMOVDQU 4192(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y1, Y1
+	VMOVDQU 4160(CX), Y10
+	VMOVDQU 4192(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y1, Y1
-	VMOVDQU 4224(CX), Y9
-	VMOVDQU 4256(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y2, Y2
+	VMOVDQU 4224(CX), Y10
+	VMOVDQU 4256(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y2, Y2
-	VMOVDQU 4288(CX), Y9
-	VMOVDQU 4320(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y3, Y3
+	VMOVDQU 4288(CX), Y10
+	VMOVDQU 4320(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y3, Y3
-	VMOVDQU 4352(CX), Y9
-	VMOVDQU 4384(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y4, Y4
+	VMOVDQU 4352(CX), Y10
+	VMOVDQU 4384(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y4, Y4
-	VMOVDQU 4416(CX), Y9
-	VMOVDQU 4448(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y5, Y5
+	VMOVDQU 4416(CX), Y10
+	VMOVDQU 4448(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y5, Y5
-	VMOVDQU 4480(CX), Y9
-	VMOVDQU 4512(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y6, Y6
+	VMOVDQU 4480(CX), Y10
+	VMOVDQU 4512(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y6, Y6
-	VMOVDQU 4544(CX), Y9
-	VMOVDQU 4576(CX), Y10
-	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y7, Y7
+	VMOVDQU 4544(CX), Y10
+	VMOVDQU 4576(CX), Y11
 	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y7, Y7
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y8, Y8
 
 	// Store 8 outputs
 	MOVQ    (R12), R14
-	VMOVDQU Y0, (R14)(R13*1)
-	MOVQ    24(R12), R14
 	VMOVDQU Y1, (R14)(R13*1)
-	MOVQ    48(R12), R14
+	MOVQ    24(R12), R14
 	VMOVDQU Y2, (R14)(R13*1)
-	MOVQ    72(R12), R14
+	MOVQ    48(R12), R14
 	VMOVDQU Y3, (R14)(R13*1)
-	MOVQ    96(R12), R14
+	MOVQ    72(R12), R14
 	VMOVDQU Y4, (R14)(R13*1)
-	MOVQ    120(R12), R14
+	MOVQ    96(R12), R14
 	VMOVDQU Y5, (R14)(R13*1)
-	MOVQ    144(R12), R14
+	MOVQ    120(R12), R14
 	VMOVDQU Y6, (R14)(R13*1)
-	MOVQ    168(R12), R14
+	MOVQ    144(R12), R14
 	VMOVDQU Y7, (R14)(R13*1)
+	MOVQ    168(R12), R14
+	VMOVDQU Y8, (R14)(R13*1)
 
 	// Prepare for next loop
 	ADDQ $0x20, R13
@@ -16965,11 +17177,14 @@ mulAvxTwo_9x8_loop:
 	VZEROUPPER
 
 mulAvxTwo_9x8_end:
+	MOVQ X0, BP
 	RET
 
 // func mulAvxTwo_10x1(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX2, SSE2
-TEXT ·mulAvxTwo_10x1(SB), NOSPLIT, $8-88
+TEXT ·mulAvxTwo_10x1(SB), NOSPLIT, $0-88
+	MOVQ BP, X0
+
 	// Loading no tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 24 YMM used
@@ -17008,145 +17223,145 @@ TEXT ·mulAvxTwo_10x1(SB), NOSPLIT, $8-88
 	ADDQ         R14, R12
 	ADDQ         R14, DX
 	MOVQ         $0x0000000f, R14
-	MOVQ         R14, X1
-	VPBROADCASTB X1, Y1
+	MOVQ         R14, X2
+	VPBROADCASTB X2, Y2
 
 mulAvxTwo_10x1_loop:
 	// Clear 1 outputs
-	VPXOR Y0, Y0, Y0
+	VPXOR Y1, Y1, Y1
 
 	// Load and process 32 bytes from input 0 to 1 outputs
-	VMOVDQU (BX), Y4
+	VMOVDQU (BX), Y5
 	ADDQ    $0x20, BX
-	VPSRLQ  $0x04, Y4, Y5
-	VPAND   Y1, Y4, Y4
-	VPAND   Y1, Y5, Y5
-	VMOVDQU (CX), Y2
-	VMOVDQU 32(CX), Y3
-	VPSHUFB Y4, Y2, Y2
+	VPSRLQ  $0x04, Y5, Y6
+	VPAND   Y2, Y5, Y5
+	VPAND   Y2, Y6, Y6
+	VMOVDQU (CX), Y3
+	VMOVDQU 32(CX), Y4
 	VPSHUFB Y5, Y3, Y3
-	VPXOR   Y2, Y3, Y2
-	VPXOR   Y2, Y0, Y0
+	VPSHUFB Y6, Y4, Y4
+	VPXOR   Y3, Y4, Y3
+	VPXOR   Y3, Y1, Y1
 
 	// Load and process 32 bytes from input 1 to 1 outputs
-	VMOVDQU (BP), Y4
+	VMOVDQU (BP), Y5
 	ADDQ    $0x20, BP
-	VPSRLQ  $0x04, Y4, Y5
-	VPAND   Y1, Y4, Y4
-	VPAND   Y1, Y5, Y5
-	VMOVDQU 64(CX), Y2
-	VMOVDQU 96(CX), Y3
-	VPSHUFB Y4, Y2, Y2
+	VPSRLQ  $0x04, Y5, Y6
+	VPAND   Y2, Y5, Y5
+	VPAND   Y2, Y6, Y6
+	VMOVDQU 64(CX), Y3
+	VMOVDQU 96(CX), Y4
 	VPSHUFB Y5, Y3, Y3
-	VPXOR   Y2, Y3, Y2
-	VPXOR   Y2, Y0, Y0
+	VPSHUFB Y6, Y4, Y4
+	VPXOR   Y3, Y4, Y3
+	VPXOR   Y3, Y1, Y1
 
 	// Load and process 32 bytes from input 2 to 1 outputs
-	VMOVDQU (SI), Y4
+	VMOVDQU (SI), Y5
 	ADDQ    $0x20, SI
-	VPSRLQ  $0x04, Y4, Y5
-	VPAND   Y1, Y4, Y4
-	VPAND   Y1, Y5, Y5
-	VMOVDQU 128(CX), Y2
-	VMOVDQU 160(CX), Y3
-	VPSHUFB Y4, Y2, Y2
+	VPSRLQ  $0x04, Y5, Y6
+	VPAND   Y2, Y5, Y5
+	VPAND   Y2, Y6, Y6
+	VMOVDQU 128(CX), Y3
+	VMOVDQU 160(CX), Y4
 	VPSHUFB Y5, Y3, Y3
-	VPXOR   Y2, Y3, Y2
-	VPXOR   Y2, Y0, Y0
+	VPSHUFB Y6, Y4, Y4
+	VPXOR   Y3, Y4, Y3
+	VPXOR   Y3, Y1, Y1
 
 	// Load and process 32 bytes from input 3 to 1 outputs
-	VMOVDQU (DI), Y4
+	VMOVDQU (DI), Y5
 	ADDQ    $0x20, DI
-	VPSRLQ  $0x04, Y4, Y5
-	VPAND   Y1, Y4, Y4
-	VPAND   Y1, Y5, Y5
-	VMOVDQU 192(CX), Y2
-	VMOVDQU 224(CX), Y3
-	VPSHUFB Y4, Y2, Y2
+	VPSRLQ  $0x04, Y5, Y6
+	VPAND   Y2, Y5, Y5
+	VPAND   Y2, Y6, Y6
+	VMOVDQU 192(CX), Y3
+	VMOVDQU 224(CX), Y4
 	VPSHUFB Y5, Y3, Y3
-	VPXOR   Y2, Y3, Y2
-	VPXOR   Y2, Y0, Y0
+	VPSHUFB Y6, Y4, Y4
+	VPXOR   Y3, Y4, Y3
+	VPXOR   Y3, Y1, Y1
 
 	// Load and process 32 bytes from input 4 to 1 outputs
-	VMOVDQU (R8), Y4
+	VMOVDQU (R8), Y5
 	ADDQ    $0x20, R8
-	VPSRLQ  $0x04, Y4, Y5
-	VPAND   Y1, Y4, Y4
-	VPAND   Y1, Y5, Y5
-	VMOVDQU 256(CX), Y2
-	VMOVDQU 288(CX), Y3
-	VPSHUFB Y4, Y2, Y2
+	VPSRLQ  $0x04, Y5, Y6
+	VPAND   Y2, Y5, Y5
+	VPAND   Y2, Y6, Y6
+	VMOVDQU 256(CX), Y3
+	VMOVDQU 288(CX), Y4
 	VPSHUFB Y5, Y3, Y3
-	VPXOR   Y2, Y3, Y2
-	VPXOR   Y2, Y0, Y0
+	VPSHUFB Y6, Y4, Y4
+	VPXOR   Y3, Y4, Y3
+	VPXOR   Y3, Y1, Y1
 
 	// Load and process 32 bytes from input 5 to 1 outputs
-	VMOVDQU (R9), Y4
+	VMOVDQU (R9), Y5
 	ADDQ    $0x20, R9
-	VPSRLQ  $0x04, Y4, Y5
-	VPAND   Y1, Y4, Y4
-	VPAND   Y1, Y5, Y5
-	VMOVDQU 320(CX), Y2
-	VMOVDQU 352(CX), Y3
-	VPSHUFB Y4, Y2, Y2
+	VPSRLQ  $0x04, Y5, Y6
+	VPAND   Y2, Y5, Y5
+	VPAND   Y2, Y6, Y6
+	VMOVDQU 320(CX), Y3
+	VMOVDQU 352(CX), Y4
 	VPSHUFB Y5, Y3, Y3
-	VPXOR   Y2, Y3, Y2
-	VPXOR   Y2, Y0, Y0
+	VPSHUFB Y6, Y4, Y4
+	VPXOR   Y3, Y4, Y3
+	VPXOR   Y3, Y1, Y1
 
 	// Load and process 32 bytes from input 6 to 1 outputs
-	VMOVDQU (R10), Y4
+	VMOVDQU (R10), Y5
 	ADDQ    $0x20, R10
-	VPSRLQ  $0x04, Y4, Y5
-	VPAND   Y1, Y4, Y4
-	VPAND   Y1, Y5, Y5
-	VMOVDQU 384(CX), Y2
-	VMOVDQU 416(CX), Y3
-	VPSHUFB Y4, Y2, Y2
+	VPSRLQ  $0x04, Y5, Y6
+	VPAND   Y2, Y5, Y5
+	VPAND   Y2, Y6, Y6
+	VMOVDQU 384(CX), Y3
+	VMOVDQU 416(CX), Y4
 	VPSHUFB Y5, Y3, Y3
-	VPXOR   Y2, Y3, Y2
-	VPXOR   Y2, Y0, Y0
+	VPSHUFB Y6, Y4, Y4
+	VPXOR   Y3, Y4, Y3
+	VPXOR   Y3, Y1, Y1
 
 	// Load and process 32 bytes from input 7 to 1 outputs
-	VMOVDQU (R11), Y4
+	VMOVDQU (R11), Y5
 	ADDQ    $0x20, R11
-	VPSRLQ  $0x04, Y4, Y5
-	VPAND   Y1, Y4, Y4
-	VPAND   Y1, Y5, Y5
-	VMOVDQU 448(CX), Y2
-	VMOVDQU 480(CX), Y3
-	VPSHUFB Y4, Y2, Y2
+	VPSRLQ  $0x04, Y5, Y6
+	VPAND   Y2, Y5, Y5
+	VPAND   Y2, Y6, Y6
+	VMOVDQU 448(CX), Y3
+	VMOVDQU 480(CX), Y4
 	VPSHUFB Y5, Y3, Y3
-	VPXOR   Y2, Y3, Y2
-	VPXOR   Y2, Y0, Y0
+	VPSHUFB Y6, Y4, Y4
+	VPXOR   Y3, Y4, Y3
+	VPXOR   Y3, Y1, Y1
 
 	// Load and process 32 bytes from input 8 to 1 outputs
-	VMOVDQU (R12), Y4
+	VMOVDQU (R12), Y5
 	ADDQ    $0x20, R12
-	VPSRLQ  $0x04, Y4, Y5
-	VPAND   Y1, Y4, Y4
-	VPAND   Y1, Y5, Y5
-	VMOVDQU 512(CX), Y2
-	VMOVDQU 544(CX), Y3
-	VPSHUFB Y4, Y2, Y2
+	VPSRLQ  $0x04, Y5, Y6
+	VPAND   Y2, Y5, Y5
+	VPAND   Y2, Y6, Y6
+	VMOVDQU 512(CX), Y3
+	VMOVDQU 544(CX), Y4
 	VPSHUFB Y5, Y3, Y3
-	VPXOR   Y2, Y3, Y2
-	VPXOR   Y2, Y0, Y0
+	VPSHUFB Y6, Y4, Y4
+	VPXOR   Y3, Y4, Y3
+	VPXOR   Y3, Y1, Y1
 
 	// Load and process 32 bytes from input 9 to 1 outputs
-	VMOVDQU (DX), Y4
+	VMOVDQU (DX), Y5
 	ADDQ    $0x20, DX
-	VPSRLQ  $0x04, Y4, Y5
-	VPAND   Y1, Y4, Y4
-	VPAND   Y1, Y5, Y5
-	VMOVDQU 576(CX), Y2
-	VMOVDQU 608(CX), Y3
-	VPSHUFB Y4, Y2, Y2
+	VPSRLQ  $0x04, Y5, Y6
+	VPAND   Y2, Y5, Y5
+	VPAND   Y2, Y6, Y6
+	VMOVDQU 576(CX), Y3
+	VMOVDQU 608(CX), Y4
 	VPSHUFB Y5, Y3, Y3
-	VPXOR   Y2, Y3, Y2
-	VPXOR   Y2, Y0, Y0
+	VPSHUFB Y6, Y4, Y4
+	VPXOR   Y3, Y4, Y3
+	VPXOR   Y3, Y1, Y1
 
 	// Store 1 outputs
-	VMOVDQU Y0, (R13)
+	VMOVDQU Y1, (R13)
 	ADDQ    $0x20, R13
 
 	// Prepare for next loop
@@ -17155,11 +17370,14 @@ mulAvxTwo_10x1_loop:
 	VZEROUPPER
 
 mulAvxTwo_10x1_end:
+	MOVQ X0, BP
 	RET
 
 // func mulAvxTwo_10x2(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX2, SSE2
-TEXT ·mulAvxTwo_10x2(SB), NOSPLIT, $8-88
+TEXT ·mulAvxTwo_10x2(SB), NOSPLIT, $0-88
+	MOVQ BP, X0
+
 	// Loading no tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 47 YMM used
@@ -17200,208 +17418,208 @@ TEXT ·mulAvxTwo_10x2(SB), NOSPLIT, $8-88
 	ADDQ         R15, R12
 	ADDQ         R15, DX
 	MOVQ         $0x0000000f, R15
-	MOVQ         R15, X2
-	VPBROADCASTB X2, Y2
+	MOVQ         R15, X3
+	VPBROADCASTB X3, Y3
 
 mulAvxTwo_10x2_loop:
 	// Clear 2 outputs
-	VPXOR Y0, Y0, Y0
 	VPXOR Y1, Y1, Y1
+	VPXOR Y2, Y2, Y2
 
 	// Load and process 32 bytes from input 0 to 2 outputs
-	VMOVDQU (BX), Y5
+	VMOVDQU (BX), Y6
 	ADDQ    $0x20, BX
-	VPSRLQ  $0x04, Y5, Y6
-	VPAND   Y2, Y5, Y5
-	VPAND   Y2, Y6, Y6
-	VMOVDQU (CX), Y3
-	VMOVDQU 32(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSRLQ  $0x04, Y6, Y7
+	VPAND   Y3, Y6, Y6
+	VPAND   Y3, Y7, Y7
+	VMOVDQU (CX), Y4
+	VMOVDQU 32(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y0, Y0
-	VMOVDQU 64(CX), Y3
-	VMOVDQU 96(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y1, Y1
+	VMOVDQU 64(CX), Y4
+	VMOVDQU 96(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y1, Y1
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 1 to 2 outputs
-	VMOVDQU (BP), Y5
+	VMOVDQU (BP), Y6
 	ADDQ    $0x20, BP
-	VPSRLQ  $0x04, Y5, Y6
-	VPAND   Y2, Y5, Y5
-	VPAND   Y2, Y6, Y6
-	VMOVDQU 128(CX), Y3
-	VMOVDQU 160(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSRLQ  $0x04, Y6, Y7
+	VPAND   Y3, Y6, Y6
+	VPAND   Y3, Y7, Y7
+	VMOVDQU 128(CX), Y4
+	VMOVDQU 160(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y0, Y0
-	VMOVDQU 192(CX), Y3
-	VMOVDQU 224(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y1, Y1
+	VMOVDQU 192(CX), Y4
+	VMOVDQU 224(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y1, Y1
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 2 to 2 outputs
-	VMOVDQU (SI), Y5
+	VMOVDQU (SI), Y6
 	ADDQ    $0x20, SI
-	VPSRLQ  $0x04, Y5, Y6
-	VPAND   Y2, Y5, Y5
-	VPAND   Y2, Y6, Y6
-	VMOVDQU 256(CX), Y3
-	VMOVDQU 288(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSRLQ  $0x04, Y6, Y7
+	VPAND   Y3, Y6, Y6
+	VPAND   Y3, Y7, Y7
+	VMOVDQU 256(CX), Y4
+	VMOVDQU 288(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y0, Y0
-	VMOVDQU 320(CX), Y3
-	VMOVDQU 352(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y1, Y1
+	VMOVDQU 320(CX), Y4
+	VMOVDQU 352(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y1, Y1
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 3 to 2 outputs
-	VMOVDQU (DI), Y5
+	VMOVDQU (DI), Y6
 	ADDQ    $0x20, DI
-	VPSRLQ  $0x04, Y5, Y6
-	VPAND   Y2, Y5, Y5
-	VPAND   Y2, Y6, Y6
-	VMOVDQU 384(CX), Y3
-	VMOVDQU 416(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSRLQ  $0x04, Y6, Y7
+	VPAND   Y3, Y6, Y6
+	VPAND   Y3, Y7, Y7
+	VMOVDQU 384(CX), Y4
+	VMOVDQU 416(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y0, Y0
-	VMOVDQU 448(CX), Y3
-	VMOVDQU 480(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y1, Y1
+	VMOVDQU 448(CX), Y4
+	VMOVDQU 480(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y1, Y1
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 4 to 2 outputs
-	VMOVDQU (R8), Y5
+	VMOVDQU (R8), Y6
 	ADDQ    $0x20, R8
-	VPSRLQ  $0x04, Y5, Y6
-	VPAND   Y2, Y5, Y5
-	VPAND   Y2, Y6, Y6
-	VMOVDQU 512(CX), Y3
-	VMOVDQU 544(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSRLQ  $0x04, Y6, Y7
+	VPAND   Y3, Y6, Y6
+	VPAND   Y3, Y7, Y7
+	VMOVDQU 512(CX), Y4
+	VMOVDQU 544(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y0, Y0
-	VMOVDQU 576(CX), Y3
-	VMOVDQU 608(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y1, Y1
+	VMOVDQU 576(CX), Y4
+	VMOVDQU 608(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y1, Y1
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 5 to 2 outputs
-	VMOVDQU (R9), Y5
+	VMOVDQU (R9), Y6
 	ADDQ    $0x20, R9
-	VPSRLQ  $0x04, Y5, Y6
-	VPAND   Y2, Y5, Y5
-	VPAND   Y2, Y6, Y6
-	VMOVDQU 640(CX), Y3
-	VMOVDQU 672(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSRLQ  $0x04, Y6, Y7
+	VPAND   Y3, Y6, Y6
+	VPAND   Y3, Y7, Y7
+	VMOVDQU 640(CX), Y4
+	VMOVDQU 672(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y0, Y0
-	VMOVDQU 704(CX), Y3
-	VMOVDQU 736(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y1, Y1
+	VMOVDQU 704(CX), Y4
+	VMOVDQU 736(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y1, Y1
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 6 to 2 outputs
-	VMOVDQU (R10), Y5
+	VMOVDQU (R10), Y6
 	ADDQ    $0x20, R10
-	VPSRLQ  $0x04, Y5, Y6
-	VPAND   Y2, Y5, Y5
-	VPAND   Y2, Y6, Y6
-	VMOVDQU 768(CX), Y3
-	VMOVDQU 800(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSRLQ  $0x04, Y6, Y7
+	VPAND   Y3, Y6, Y6
+	VPAND   Y3, Y7, Y7
+	VMOVDQU 768(CX), Y4
+	VMOVDQU 800(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y0, Y0
-	VMOVDQU 832(CX), Y3
-	VMOVDQU 864(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y1, Y1
+	VMOVDQU 832(CX), Y4
+	VMOVDQU 864(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y1, Y1
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 7 to 2 outputs
-	VMOVDQU (R11), Y5
+	VMOVDQU (R11), Y6
 	ADDQ    $0x20, R11
-	VPSRLQ  $0x04, Y5, Y6
-	VPAND   Y2, Y5, Y5
-	VPAND   Y2, Y6, Y6
-	VMOVDQU 896(CX), Y3
-	VMOVDQU 928(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSRLQ  $0x04, Y6, Y7
+	VPAND   Y3, Y6, Y6
+	VPAND   Y3, Y7, Y7
+	VMOVDQU 896(CX), Y4
+	VMOVDQU 928(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y0, Y0
-	VMOVDQU 960(CX), Y3
-	VMOVDQU 992(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y1, Y1
+	VMOVDQU 960(CX), Y4
+	VMOVDQU 992(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y1, Y1
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 8 to 2 outputs
-	VMOVDQU (R12), Y5
+	VMOVDQU (R12), Y6
 	ADDQ    $0x20, R12
-	VPSRLQ  $0x04, Y5, Y6
-	VPAND   Y2, Y5, Y5
-	VPAND   Y2, Y6, Y6
-	VMOVDQU 1024(CX), Y3
-	VMOVDQU 1056(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSRLQ  $0x04, Y6, Y7
+	VPAND   Y3, Y6, Y6
+	VPAND   Y3, Y7, Y7
+	VMOVDQU 1024(CX), Y4
+	VMOVDQU 1056(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y0, Y0
-	VMOVDQU 1088(CX), Y3
-	VMOVDQU 1120(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y1, Y1
+	VMOVDQU 1088(CX), Y4
+	VMOVDQU 1120(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y1, Y1
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y2, Y2
 
 	// Load and process 32 bytes from input 9 to 2 outputs
-	VMOVDQU (DX), Y5
+	VMOVDQU (DX), Y6
 	ADDQ    $0x20, DX
-	VPSRLQ  $0x04, Y5, Y6
-	VPAND   Y2, Y5, Y5
-	VPAND   Y2, Y6, Y6
-	VMOVDQU 1152(CX), Y3
-	VMOVDQU 1184(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSRLQ  $0x04, Y6, Y7
+	VPAND   Y3, Y6, Y6
+	VPAND   Y3, Y7, Y7
+	VMOVDQU 1152(CX), Y4
+	VMOVDQU 1184(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y0, Y0
-	VMOVDQU 1216(CX), Y3
-	VMOVDQU 1248(CX), Y4
-	VPSHUFB Y5, Y3, Y3
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y1, Y1
+	VMOVDQU 1216(CX), Y4
+	VMOVDQU 1248(CX), Y5
 	VPSHUFB Y6, Y4, Y4
-	VPXOR   Y3, Y4, Y3
-	VPXOR   Y3, Y1, Y1
+	VPSHUFB Y7, Y5, Y5
+	VPXOR   Y4, Y5, Y4
+	VPXOR   Y4, Y2, Y2
 
 	// Store 2 outputs
-	VMOVDQU Y0, (R14)
+	VMOVDQU Y1, (R14)
 	ADDQ    $0x20, R14
-	VMOVDQU Y1, (R13)
+	VMOVDQU Y2, (R13)
 	ADDQ    $0x20, R13
 
 	// Prepare for next loop
@@ -17410,11 +17628,14 @@ mulAvxTwo_10x2_loop:
 	VZEROUPPER
 
 mulAvxTwo_10x2_end:
+	MOVQ X0, BP
 	RET
 
 // func mulAvxTwo_10x3(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX2, SSE2
-TEXT ·mulAvxTwo_10x3(SB), NOSPLIT, $8-88
+TEXT ·mulAvxTwo_10x3(SB), NOSPLIT, $0-88
+	MOVQ BP, X0
+
 	// Loading no tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 68 YMM used
@@ -17457,273 +17678,273 @@ TEXT ·mulAvxTwo_10x3(SB), NOSPLIT, $8-88
 	ADDQ         R15, R11
 	ADDQ         R15, AX
 	MOVQ         $0x0000000f, R15
-	MOVQ         R15, X3
-	VPBROADCASTB X3, Y3
+	MOVQ         R15, X4
+	VPBROADCASTB X4, Y4
 	MOVQ         n+80(FP), R15
 	SHRQ         $0x05, R15
 
 mulAvxTwo_10x3_loop:
 	// Clear 3 outputs
-	VPXOR Y0, Y0, Y0
 	VPXOR Y1, Y1, Y1
 	VPXOR Y2, Y2, Y2
+	VPXOR Y3, Y3, Y3
 
 	// Load and process 32 bytes from input 0 to 3 outputs
-	VMOVDQU (DX), Y6
+	VMOVDQU (DX), Y7
 	ADDQ    $0x20, DX
-	VPSRLQ  $0x04, Y6, Y7
-	VPAND   Y3, Y6, Y6
-	VPAND   Y3, Y7, Y7
-	VMOVDQU (CX), Y4
-	VMOVDQU 32(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSRLQ  $0x04, Y7, Y8
+	VPAND   Y4, Y7, Y7
+	VPAND   Y4, Y8, Y8
+	VMOVDQU (CX), Y5
+	VMOVDQU 32(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y0, Y0
-	VMOVDQU 64(CX), Y4
-	VMOVDQU 96(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y1, Y1
+	VMOVDQU 64(CX), Y5
+	VMOVDQU 96(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y1, Y1
-	VMOVDQU 128(CX), Y4
-	VMOVDQU 160(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y2, Y2
+	VMOVDQU 128(CX), Y5
+	VMOVDQU 160(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y2, Y2
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 1 to 3 outputs
-	VMOVDQU (BX), Y6
+	VMOVDQU (BX), Y7
 	ADDQ    $0x20, BX
-	VPSRLQ  $0x04, Y6, Y7
-	VPAND   Y3, Y6, Y6
-	VPAND   Y3, Y7, Y7
-	VMOVDQU 192(CX), Y4
-	VMOVDQU 224(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSRLQ  $0x04, Y7, Y8
+	VPAND   Y4, Y7, Y7
+	VPAND   Y4, Y8, Y8
+	VMOVDQU 192(CX), Y5
+	VMOVDQU 224(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y0, Y0
-	VMOVDQU 256(CX), Y4
-	VMOVDQU 288(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y1, Y1
+	VMOVDQU 256(CX), Y5
+	VMOVDQU 288(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y1, Y1
-	VMOVDQU 320(CX), Y4
-	VMOVDQU 352(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y2, Y2
+	VMOVDQU 320(CX), Y5
+	VMOVDQU 352(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y2, Y2
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 2 to 3 outputs
-	VMOVDQU (BP), Y6
+	VMOVDQU (BP), Y7
 	ADDQ    $0x20, BP
-	VPSRLQ  $0x04, Y6, Y7
-	VPAND   Y3, Y6, Y6
-	VPAND   Y3, Y7, Y7
-	VMOVDQU 384(CX), Y4
-	VMOVDQU 416(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSRLQ  $0x04, Y7, Y8
+	VPAND   Y4, Y7, Y7
+	VPAND   Y4, Y8, Y8
+	VMOVDQU 384(CX), Y5
+	VMOVDQU 416(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y0, Y0
-	VMOVDQU 448(CX), Y4
-	VMOVDQU 480(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y1, Y1
+	VMOVDQU 448(CX), Y5
+	VMOVDQU 480(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y1, Y1
-	VMOVDQU 512(CX), Y4
-	VMOVDQU 544(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y2, Y2
+	VMOVDQU 512(CX), Y5
+	VMOVDQU 544(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y2, Y2
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 3 to 3 outputs
-	VMOVDQU (SI), Y6
+	VMOVDQU (SI), Y7
 	ADDQ    $0x20, SI
-	VPSRLQ  $0x04, Y6, Y7
-	VPAND   Y3, Y6, Y6
-	VPAND   Y3, Y7, Y7
-	VMOVDQU 576(CX), Y4
-	VMOVDQU 608(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSRLQ  $0x04, Y7, Y8
+	VPAND   Y4, Y7, Y7
+	VPAND   Y4, Y8, Y8
+	VMOVDQU 576(CX), Y5
+	VMOVDQU 608(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y0, Y0
-	VMOVDQU 640(CX), Y4
-	VMOVDQU 672(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y1, Y1
+	VMOVDQU 640(CX), Y5
+	VMOVDQU 672(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y1, Y1
-	VMOVDQU 704(CX), Y4
-	VMOVDQU 736(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y2, Y2
+	VMOVDQU 704(CX), Y5
+	VMOVDQU 736(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y2, Y2
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 4 to 3 outputs
-	VMOVDQU (DI), Y6
+	VMOVDQU (DI), Y7
 	ADDQ    $0x20, DI
-	VPSRLQ  $0x04, Y6, Y7
-	VPAND   Y3, Y6, Y6
-	VPAND   Y3, Y7, Y7
-	VMOVDQU 768(CX), Y4
-	VMOVDQU 800(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSRLQ  $0x04, Y7, Y8
+	VPAND   Y4, Y7, Y7
+	VPAND   Y4, Y8, Y8
+	VMOVDQU 768(CX), Y5
+	VMOVDQU 800(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y0, Y0
-	VMOVDQU 832(CX), Y4
-	VMOVDQU 864(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y1, Y1
+	VMOVDQU 832(CX), Y5
+	VMOVDQU 864(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y1, Y1
-	VMOVDQU 896(CX), Y4
-	VMOVDQU 928(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y2, Y2
+	VMOVDQU 896(CX), Y5
+	VMOVDQU 928(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y2, Y2
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 5 to 3 outputs
-	VMOVDQU (R8), Y6
+	VMOVDQU (R8), Y7
 	ADDQ    $0x20, R8
-	VPSRLQ  $0x04, Y6, Y7
-	VPAND   Y3, Y6, Y6
-	VPAND   Y3, Y7, Y7
-	VMOVDQU 960(CX), Y4
-	VMOVDQU 992(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSRLQ  $0x04, Y7, Y8
+	VPAND   Y4, Y7, Y7
+	VPAND   Y4, Y8, Y8
+	VMOVDQU 960(CX), Y5
+	VMOVDQU 992(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y0, Y0
-	VMOVDQU 1024(CX), Y4
-	VMOVDQU 1056(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y1, Y1
+	VMOVDQU 1024(CX), Y5
+	VMOVDQU 1056(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y1, Y1
-	VMOVDQU 1088(CX), Y4
-	VMOVDQU 1120(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y2, Y2
+	VMOVDQU 1088(CX), Y5
+	VMOVDQU 1120(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y2, Y2
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 6 to 3 outputs
-	VMOVDQU (R9), Y6
+	VMOVDQU (R9), Y7
 	ADDQ    $0x20, R9
-	VPSRLQ  $0x04, Y6, Y7
-	VPAND   Y3, Y6, Y6
-	VPAND   Y3, Y7, Y7
-	VMOVDQU 1152(CX), Y4
-	VMOVDQU 1184(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSRLQ  $0x04, Y7, Y8
+	VPAND   Y4, Y7, Y7
+	VPAND   Y4, Y8, Y8
+	VMOVDQU 1152(CX), Y5
+	VMOVDQU 1184(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y0, Y0
-	VMOVDQU 1216(CX), Y4
-	VMOVDQU 1248(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y1, Y1
+	VMOVDQU 1216(CX), Y5
+	VMOVDQU 1248(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y1, Y1
-	VMOVDQU 1280(CX), Y4
-	VMOVDQU 1312(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y2, Y2
+	VMOVDQU 1280(CX), Y5
+	VMOVDQU 1312(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y2, Y2
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 7 to 3 outputs
-	VMOVDQU (R10), Y6
+	VMOVDQU (R10), Y7
 	ADDQ    $0x20, R10
-	VPSRLQ  $0x04, Y6, Y7
-	VPAND   Y3, Y6, Y6
-	VPAND   Y3, Y7, Y7
-	VMOVDQU 1344(CX), Y4
-	VMOVDQU 1376(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSRLQ  $0x04, Y7, Y8
+	VPAND   Y4, Y7, Y7
+	VPAND   Y4, Y8, Y8
+	VMOVDQU 1344(CX), Y5
+	VMOVDQU 1376(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y0, Y0
-	VMOVDQU 1408(CX), Y4
-	VMOVDQU 1440(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y1, Y1
+	VMOVDQU 1408(CX), Y5
+	VMOVDQU 1440(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y1, Y1
-	VMOVDQU 1472(CX), Y4
-	VMOVDQU 1504(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y2, Y2
+	VMOVDQU 1472(CX), Y5
+	VMOVDQU 1504(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y2, Y2
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 8 to 3 outputs
-	VMOVDQU (R11), Y6
+	VMOVDQU (R11), Y7
 	ADDQ    $0x20, R11
-	VPSRLQ  $0x04, Y6, Y7
-	VPAND   Y3, Y6, Y6
-	VPAND   Y3, Y7, Y7
-	VMOVDQU 1536(CX), Y4
-	VMOVDQU 1568(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSRLQ  $0x04, Y7, Y8
+	VPAND   Y4, Y7, Y7
+	VPAND   Y4, Y8, Y8
+	VMOVDQU 1536(CX), Y5
+	VMOVDQU 1568(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y0, Y0
-	VMOVDQU 1600(CX), Y4
-	VMOVDQU 1632(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y1, Y1
+	VMOVDQU 1600(CX), Y5
+	VMOVDQU 1632(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y1, Y1
-	VMOVDQU 1664(CX), Y4
-	VMOVDQU 1696(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y2, Y2
+	VMOVDQU 1664(CX), Y5
+	VMOVDQU 1696(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y2, Y2
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y3, Y3
 
 	// Load and process 32 bytes from input 9 to 3 outputs
-	VMOVDQU (AX), Y6
+	VMOVDQU (AX), Y7
 	ADDQ    $0x20, AX
-	VPSRLQ  $0x04, Y6, Y7
-	VPAND   Y3, Y6, Y6
-	VPAND   Y3, Y7, Y7
-	VMOVDQU 1728(CX), Y4
-	VMOVDQU 1760(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSRLQ  $0x04, Y7, Y8
+	VPAND   Y4, Y7, Y7
+	VPAND   Y4, Y8, Y8
+	VMOVDQU 1728(CX), Y5
+	VMOVDQU 1760(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y0, Y0
-	VMOVDQU 1792(CX), Y4
-	VMOVDQU 1824(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y1, Y1
+	VMOVDQU 1792(CX), Y5
+	VMOVDQU 1824(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y1, Y1
-	VMOVDQU 1856(CX), Y4
-	VMOVDQU 1888(CX), Y5
-	VPSHUFB Y6, Y4, Y4
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y2, Y2
+	VMOVDQU 1856(CX), Y5
+	VMOVDQU 1888(CX), Y6
 	VPSHUFB Y7, Y5, Y5
-	VPXOR   Y4, Y5, Y4
-	VPXOR   Y4, Y2, Y2
+	VPSHUFB Y8, Y6, Y6
+	VPXOR   Y5, Y6, Y5
+	VPXOR   Y5, Y3, Y3
 
 	// Store 3 outputs
-	VMOVDQU Y0, (R13)
+	VMOVDQU Y1, (R13)
 	ADDQ    $0x20, R13
-	VMOVDQU Y1, (R14)
+	VMOVDQU Y2, (R14)
 	ADDQ    $0x20, R14
-	VMOVDQU Y2, (R12)
+	VMOVDQU Y3, (R12)
 	ADDQ    $0x20, R12
 
 	// Prepare for next loop
@@ -17732,11 +17953,14 @@ mulAvxTwo_10x3_loop:
 	VZEROUPPER
 
 mulAvxTwo_10x3_end:
+	MOVQ X0, BP
 	RET
 
 // func mulAvxTwo_10x4(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX2, SSE2
-TEXT ·mulAvxTwo_10x4(SB), NOSPLIT, $8-88
+TEXT ·mulAvxTwo_10x4(SB), NOSPLIT, $0-88
+	MOVQ BP, X0
+
 	// Loading no tables to registers
 	// Destination kept on stack
 	// Full registers estimated 89 YMM used
@@ -17771,335 +17995,335 @@ TEXT ·mulAvxTwo_10x4(SB), NOSPLIT, $8-88
 	ADDQ         R14, R12
 	ADDQ         R14, DX
 	MOVQ         $0x0000000f, R15
-	MOVQ         R15, X4
-	VPBROADCASTB X4, Y4
+	MOVQ         R15, X5
+	VPBROADCASTB X5, Y5
 
 mulAvxTwo_10x4_loop:
 	// Clear 4 outputs
-	VPXOR Y0, Y0, Y0
 	VPXOR Y1, Y1, Y1
 	VPXOR Y2, Y2, Y2
 	VPXOR Y3, Y3, Y3
+	VPXOR Y4, Y4, Y4
 
 	// Load and process 32 bytes from input 0 to 4 outputs
-	VMOVDQU (BX), Y7
+	VMOVDQU (BX), Y8
 	ADDQ    $0x20, BX
-	VPSRLQ  $0x04, Y7, Y8
-	VPAND   Y4, Y7, Y7
-	VPAND   Y4, Y8, Y8
-	VMOVDQU (CX), Y5
-	VMOVDQU 32(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSRLQ  $0x04, Y8, Y9
+	VPAND   Y5, Y8, Y8
+	VPAND   Y5, Y9, Y9
+	VMOVDQU (CX), Y6
+	VMOVDQU 32(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y0, Y0
-	VMOVDQU 64(CX), Y5
-	VMOVDQU 96(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y1, Y1
+	VMOVDQU 64(CX), Y6
+	VMOVDQU 96(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y1, Y1
-	VMOVDQU 128(CX), Y5
-	VMOVDQU 160(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y2, Y2
+	VMOVDQU 128(CX), Y6
+	VMOVDQU 160(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y2, Y2
-	VMOVDQU 192(CX), Y5
-	VMOVDQU 224(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y3, Y3
+	VMOVDQU 192(CX), Y6
+	VMOVDQU 224(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y3, Y3
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 1 to 4 outputs
-	VMOVDQU (BP), Y7
+	VMOVDQU (BP), Y8
 	ADDQ    $0x20, BP
-	VPSRLQ  $0x04, Y7, Y8
-	VPAND   Y4, Y7, Y7
-	VPAND   Y4, Y8, Y8
-	VMOVDQU 256(CX), Y5
-	VMOVDQU 288(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSRLQ  $0x04, Y8, Y9
+	VPAND   Y5, Y8, Y8
+	VPAND   Y5, Y9, Y9
+	VMOVDQU 256(CX), Y6
+	VMOVDQU 288(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y0, Y0
-	VMOVDQU 320(CX), Y5
-	VMOVDQU 352(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y1, Y1
+	VMOVDQU 320(CX), Y6
+	VMOVDQU 352(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y1, Y1
-	VMOVDQU 384(CX), Y5
-	VMOVDQU 416(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y2, Y2
+	VMOVDQU 384(CX), Y6
+	VMOVDQU 416(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y2, Y2
-	VMOVDQU 448(CX), Y5
-	VMOVDQU 480(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y3, Y3
+	VMOVDQU 448(CX), Y6
+	VMOVDQU 480(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y3, Y3
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 2 to 4 outputs
-	VMOVDQU (SI), Y7
+	VMOVDQU (SI), Y8
 	ADDQ    $0x20, SI
-	VPSRLQ  $0x04, Y7, Y8
-	VPAND   Y4, Y7, Y7
-	VPAND   Y4, Y8, Y8
-	VMOVDQU 512(CX), Y5
-	VMOVDQU 544(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSRLQ  $0x04, Y8, Y9
+	VPAND   Y5, Y8, Y8
+	VPAND   Y5, Y9, Y9
+	VMOVDQU 512(CX), Y6
+	VMOVDQU 544(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y0, Y0
-	VMOVDQU 576(CX), Y5
-	VMOVDQU 608(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y1, Y1
+	VMOVDQU 576(CX), Y6
+	VMOVDQU 608(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y1, Y1
-	VMOVDQU 640(CX), Y5
-	VMOVDQU 672(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y2, Y2
+	VMOVDQU 640(CX), Y6
+	VMOVDQU 672(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y2, Y2
-	VMOVDQU 704(CX), Y5
-	VMOVDQU 736(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y3, Y3
+	VMOVDQU 704(CX), Y6
+	VMOVDQU 736(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y3, Y3
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 3 to 4 outputs
-	VMOVDQU (DI), Y7
+	VMOVDQU (DI), Y8
 	ADDQ    $0x20, DI
-	VPSRLQ  $0x04, Y7, Y8
-	VPAND   Y4, Y7, Y7
-	VPAND   Y4, Y8, Y8
-	VMOVDQU 768(CX), Y5
-	VMOVDQU 800(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSRLQ  $0x04, Y8, Y9
+	VPAND   Y5, Y8, Y8
+	VPAND   Y5, Y9, Y9
+	VMOVDQU 768(CX), Y6
+	VMOVDQU 800(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y0, Y0
-	VMOVDQU 832(CX), Y5
-	VMOVDQU 864(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y1, Y1
+	VMOVDQU 832(CX), Y6
+	VMOVDQU 864(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y1, Y1
-	VMOVDQU 896(CX), Y5
-	VMOVDQU 928(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y2, Y2
+	VMOVDQU 896(CX), Y6
+	VMOVDQU 928(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y2, Y2
-	VMOVDQU 960(CX), Y5
-	VMOVDQU 992(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y3, Y3
+	VMOVDQU 960(CX), Y6
+	VMOVDQU 992(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y3, Y3
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 4 to 4 outputs
-	VMOVDQU (R8), Y7
+	VMOVDQU (R8), Y8
 	ADDQ    $0x20, R8
-	VPSRLQ  $0x04, Y7, Y8
-	VPAND   Y4, Y7, Y7
-	VPAND   Y4, Y8, Y8
-	VMOVDQU 1024(CX), Y5
-	VMOVDQU 1056(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSRLQ  $0x04, Y8, Y9
+	VPAND   Y5, Y8, Y8
+	VPAND   Y5, Y9, Y9
+	VMOVDQU 1024(CX), Y6
+	VMOVDQU 1056(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y0, Y0
-	VMOVDQU 1088(CX), Y5
-	VMOVDQU 1120(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y1, Y1
+	VMOVDQU 1088(CX), Y6
+	VMOVDQU 1120(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y1, Y1
-	VMOVDQU 1152(CX), Y5
-	VMOVDQU 1184(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y2, Y2
+	VMOVDQU 1152(CX), Y6
+	VMOVDQU 1184(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y2, Y2
-	VMOVDQU 1216(CX), Y5
-	VMOVDQU 1248(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y3, Y3
+	VMOVDQU 1216(CX), Y6
+	VMOVDQU 1248(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y3, Y3
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 5 to 4 outputs
-	VMOVDQU (R9), Y7
+	VMOVDQU (R9), Y8
 	ADDQ    $0x20, R9
-	VPSRLQ  $0x04, Y7, Y8
-	VPAND   Y4, Y7, Y7
-	VPAND   Y4, Y8, Y8
-	VMOVDQU 1280(CX), Y5
-	VMOVDQU 1312(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSRLQ  $0x04, Y8, Y9
+	VPAND   Y5, Y8, Y8
+	VPAND   Y5, Y9, Y9
+	VMOVDQU 1280(CX), Y6
+	VMOVDQU 1312(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y0, Y0
-	VMOVDQU 1344(CX), Y5
-	VMOVDQU 1376(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y1, Y1
+	VMOVDQU 1344(CX), Y6
+	VMOVDQU 1376(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y1, Y1
-	VMOVDQU 1408(CX), Y5
-	VMOVDQU 1440(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y2, Y2
+	VMOVDQU 1408(CX), Y6
+	VMOVDQU 1440(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y2, Y2
-	VMOVDQU 1472(CX), Y5
-	VMOVDQU 1504(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y3, Y3
+	VMOVDQU 1472(CX), Y6
+	VMOVDQU 1504(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y3, Y3
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 6 to 4 outputs
-	VMOVDQU (R10), Y7
+	VMOVDQU (R10), Y8
 	ADDQ    $0x20, R10
-	VPSRLQ  $0x04, Y7, Y8
-	VPAND   Y4, Y7, Y7
-	VPAND   Y4, Y8, Y8
-	VMOVDQU 1536(CX), Y5
-	VMOVDQU 1568(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSRLQ  $0x04, Y8, Y9
+	VPAND   Y5, Y8, Y8
+	VPAND   Y5, Y9, Y9
+	VMOVDQU 1536(CX), Y6
+	VMOVDQU 1568(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y0, Y0
-	VMOVDQU 1600(CX), Y5
-	VMOVDQU 1632(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y1, Y1
+	VMOVDQU 1600(CX), Y6
+	VMOVDQU 1632(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y1, Y1
-	VMOVDQU 1664(CX), Y5
-	VMOVDQU 1696(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y2, Y2
+	VMOVDQU 1664(CX), Y6
+	VMOVDQU 1696(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y2, Y2
-	VMOVDQU 1728(CX), Y5
-	VMOVDQU 1760(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y3, Y3
+	VMOVDQU 1728(CX), Y6
+	VMOVDQU 1760(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y3, Y3
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 7 to 4 outputs
-	VMOVDQU (R11), Y7
+	VMOVDQU (R11), Y8
 	ADDQ    $0x20, R11
-	VPSRLQ  $0x04, Y7, Y8
-	VPAND   Y4, Y7, Y7
-	VPAND   Y4, Y8, Y8
-	VMOVDQU 1792(CX), Y5
-	VMOVDQU 1824(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSRLQ  $0x04, Y8, Y9
+	VPAND   Y5, Y8, Y8
+	VPAND   Y5, Y9, Y9
+	VMOVDQU 1792(CX), Y6
+	VMOVDQU 1824(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y0, Y0
-	VMOVDQU 1856(CX), Y5
-	VMOVDQU 1888(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y1, Y1
+	VMOVDQU 1856(CX), Y6
+	VMOVDQU 1888(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y1, Y1
-	VMOVDQU 1920(CX), Y5
-	VMOVDQU 1952(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y2, Y2
+	VMOVDQU 1920(CX), Y6
+	VMOVDQU 1952(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y2, Y2
-	VMOVDQU 1984(CX), Y5
-	VMOVDQU 2016(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y3, Y3
+	VMOVDQU 1984(CX), Y6
+	VMOVDQU 2016(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y3, Y3
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 8 to 4 outputs
-	VMOVDQU (R12), Y7
+	VMOVDQU (R12), Y8
 	ADDQ    $0x20, R12
-	VPSRLQ  $0x04, Y7, Y8
-	VPAND   Y4, Y7, Y7
-	VPAND   Y4, Y8, Y8
-	VMOVDQU 2048(CX), Y5
-	VMOVDQU 2080(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSRLQ  $0x04, Y8, Y9
+	VPAND   Y5, Y8, Y8
+	VPAND   Y5, Y9, Y9
+	VMOVDQU 2048(CX), Y6
+	VMOVDQU 2080(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y0, Y0
-	VMOVDQU 2112(CX), Y5
-	VMOVDQU 2144(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y1, Y1
+	VMOVDQU 2112(CX), Y6
+	VMOVDQU 2144(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y1, Y1
-	VMOVDQU 2176(CX), Y5
-	VMOVDQU 2208(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y2, Y2
+	VMOVDQU 2176(CX), Y6
+	VMOVDQU 2208(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y2, Y2
-	VMOVDQU 2240(CX), Y5
-	VMOVDQU 2272(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y3, Y3
+	VMOVDQU 2240(CX), Y6
+	VMOVDQU 2272(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y3, Y3
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y4, Y4
 
 	// Load and process 32 bytes from input 9 to 4 outputs
-	VMOVDQU (DX), Y7
+	VMOVDQU (DX), Y8
 	ADDQ    $0x20, DX
-	VPSRLQ  $0x04, Y7, Y8
-	VPAND   Y4, Y7, Y7
-	VPAND   Y4, Y8, Y8
-	VMOVDQU 2304(CX), Y5
-	VMOVDQU 2336(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSRLQ  $0x04, Y8, Y9
+	VPAND   Y5, Y8, Y8
+	VPAND   Y5, Y9, Y9
+	VMOVDQU 2304(CX), Y6
+	VMOVDQU 2336(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y0, Y0
-	VMOVDQU 2368(CX), Y5
-	VMOVDQU 2400(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y1, Y1
+	VMOVDQU 2368(CX), Y6
+	VMOVDQU 2400(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y1, Y1
-	VMOVDQU 2432(CX), Y5
-	VMOVDQU 2464(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y2, Y2
+	VMOVDQU 2432(CX), Y6
+	VMOVDQU 2464(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y2, Y2
-	VMOVDQU 2496(CX), Y5
-	VMOVDQU 2528(CX), Y6
-	VPSHUFB Y7, Y5, Y5
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y3, Y3
+	VMOVDQU 2496(CX), Y6
+	VMOVDQU 2528(CX), Y7
 	VPSHUFB Y8, Y6, Y6
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y5, Y3, Y3
+	VPSHUFB Y9, Y7, Y7
+	VPXOR   Y6, Y7, Y6
+	VPXOR   Y6, Y4, Y4
 
 	// Store 4 outputs
 	MOVQ    (R13), R15
-	VMOVDQU Y0, (R15)(R14*1)
-	MOVQ    24(R13), R15
 	VMOVDQU Y1, (R15)(R14*1)
-	MOVQ    48(R13), R15
+	MOVQ    24(R13), R15
 	VMOVDQU Y2, (R15)(R14*1)
-	MOVQ    72(R13), R15
+	MOVQ    48(R13), R15
 	VMOVDQU Y3, (R15)(R14*1)
+	MOVQ    72(R13), R15
+	VMOVDQU Y4, (R15)(R14*1)
 
 	// Prepare for next loop
 	ADDQ $0x20, R14
@@ -18108,11 +18332,14 @@ mulAvxTwo_10x4_loop:
 	VZEROUPPER
 
 mulAvxTwo_10x4_end:
+	MOVQ X0, BP
 	RET
 
 // func mulAvxTwo_10x5(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX2, SSE2
-TEXT ·mulAvxTwo_10x5(SB), NOSPLIT, $8-88
+TEXT ·mulAvxTwo_10x5(SB), NOSPLIT, $0-88
+	MOVQ BP, X0
+
 	// Loading no tables to registers
 	// Destination kept on stack
 	// Full registers estimated 110 YMM used
@@ -18147,398 +18374,398 @@ TEXT ·mulAvxTwo_10x5(SB), NOSPLIT, $8-88
 	ADDQ         R14, R12
 	ADDQ         R14, DX
 	MOVQ         $0x0000000f, R15
-	MOVQ         R15, X5
-	VPBROADCASTB X5, Y5
+	MOVQ         R15, X6
+	VPBROADCASTB X6, Y6
 
 mulAvxTwo_10x5_loop:
 	// Clear 5 outputs
-	VPXOR Y0, Y0, Y0
 	VPXOR Y1, Y1, Y1
 	VPXOR Y2, Y2, Y2
 	VPXOR Y3, Y3, Y3
 	VPXOR Y4, Y4, Y4
+	VPXOR Y5, Y5, Y5
 
 	// Load and process 32 bytes from input 0 to 5 outputs
-	VMOVDQU (BX), Y8
+	VMOVDQU (BX), Y9
 	ADDQ    $0x20, BX
-	VPSRLQ  $0x04, Y8, Y9
-	VPAND   Y5, Y8, Y8
-	VPAND   Y5, Y9, Y9
-	VMOVDQU (CX), Y6
-	VMOVDQU 32(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSRLQ  $0x04, Y9, Y10
+	VPAND   Y6, Y9, Y9
+	VPAND   Y6, Y10, Y10
+	VMOVDQU (CX), Y7
+	VMOVDQU 32(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y0, Y0
-	VMOVDQU 64(CX), Y6
-	VMOVDQU 96(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y1, Y1
+	VMOVDQU 64(CX), Y7
+	VMOVDQU 96(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y1, Y1
-	VMOVDQU 128(CX), Y6
-	VMOVDQU 160(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y2, Y2
+	VMOVDQU 128(CX), Y7
+	VMOVDQU 160(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y2, Y2
-	VMOVDQU 192(CX), Y6
-	VMOVDQU 224(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y3, Y3
+	VMOVDQU 192(CX), Y7
+	VMOVDQU 224(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y3, Y3
-	VMOVDQU 256(CX), Y6
-	VMOVDQU 288(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y4, Y4
+	VMOVDQU 256(CX), Y7
+	VMOVDQU 288(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y4, Y4
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 1 to 5 outputs
-	VMOVDQU (BP), Y8
+	VMOVDQU (BP), Y9
 	ADDQ    $0x20, BP
-	VPSRLQ  $0x04, Y8, Y9
-	VPAND   Y5, Y8, Y8
-	VPAND   Y5, Y9, Y9
-	VMOVDQU 320(CX), Y6
-	VMOVDQU 352(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSRLQ  $0x04, Y9, Y10
+	VPAND   Y6, Y9, Y9
+	VPAND   Y6, Y10, Y10
+	VMOVDQU 320(CX), Y7
+	VMOVDQU 352(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y0, Y0
-	VMOVDQU 384(CX), Y6
-	VMOVDQU 416(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y1, Y1
+	VMOVDQU 384(CX), Y7
+	VMOVDQU 416(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y1, Y1
-	VMOVDQU 448(CX), Y6
-	VMOVDQU 480(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y2, Y2
+	VMOVDQU 448(CX), Y7
+	VMOVDQU 480(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y2, Y2
-	VMOVDQU 512(CX), Y6
-	VMOVDQU 544(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y3, Y3
+	VMOVDQU 512(CX), Y7
+	VMOVDQU 544(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y3, Y3
-	VMOVDQU 576(CX), Y6
-	VMOVDQU 608(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y4, Y4
+	VMOVDQU 576(CX), Y7
+	VMOVDQU 608(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y4, Y4
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 2 to 5 outputs
-	VMOVDQU (SI), Y8
+	VMOVDQU (SI), Y9
 	ADDQ    $0x20, SI
-	VPSRLQ  $0x04, Y8, Y9
-	VPAND   Y5, Y8, Y8
-	VPAND   Y5, Y9, Y9
-	VMOVDQU 640(CX), Y6
-	VMOVDQU 672(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSRLQ  $0x04, Y9, Y10
+	VPAND   Y6, Y9, Y9
+	VPAND   Y6, Y10, Y10
+	VMOVDQU 640(CX), Y7
+	VMOVDQU 672(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y0, Y0
-	VMOVDQU 704(CX), Y6
-	VMOVDQU 736(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y1, Y1
+	VMOVDQU 704(CX), Y7
+	VMOVDQU 736(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y1, Y1
-	VMOVDQU 768(CX), Y6
-	VMOVDQU 800(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y2, Y2
+	VMOVDQU 768(CX), Y7
+	VMOVDQU 800(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y2, Y2
-	VMOVDQU 832(CX), Y6
-	VMOVDQU 864(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y3, Y3
+	VMOVDQU 832(CX), Y7
+	VMOVDQU 864(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y3, Y3
-	VMOVDQU 896(CX), Y6
-	VMOVDQU 928(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y4, Y4
+	VMOVDQU 896(CX), Y7
+	VMOVDQU 928(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y4, Y4
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 3 to 5 outputs
-	VMOVDQU (DI), Y8
+	VMOVDQU (DI), Y9
 	ADDQ    $0x20, DI
-	VPSRLQ  $0x04, Y8, Y9
-	VPAND   Y5, Y8, Y8
-	VPAND   Y5, Y9, Y9
-	VMOVDQU 960(CX), Y6
-	VMOVDQU 992(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSRLQ  $0x04, Y9, Y10
+	VPAND   Y6, Y9, Y9
+	VPAND   Y6, Y10, Y10
+	VMOVDQU 960(CX), Y7
+	VMOVDQU 992(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y0, Y0
-	VMOVDQU 1024(CX), Y6
-	VMOVDQU 1056(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y1, Y1
+	VMOVDQU 1024(CX), Y7
+	VMOVDQU 1056(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y1, Y1
-	VMOVDQU 1088(CX), Y6
-	VMOVDQU 1120(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y2, Y2
+	VMOVDQU 1088(CX), Y7
+	VMOVDQU 1120(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y2, Y2
-	VMOVDQU 1152(CX), Y6
-	VMOVDQU 1184(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y3, Y3
+	VMOVDQU 1152(CX), Y7
+	VMOVDQU 1184(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y3, Y3
-	VMOVDQU 1216(CX), Y6
-	VMOVDQU 1248(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y4, Y4
+	VMOVDQU 1216(CX), Y7
+	VMOVDQU 1248(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y4, Y4
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 4 to 5 outputs
-	VMOVDQU (R8), Y8
+	VMOVDQU (R8), Y9
 	ADDQ    $0x20, R8
-	VPSRLQ  $0x04, Y8, Y9
-	VPAND   Y5, Y8, Y8
-	VPAND   Y5, Y9, Y9
-	VMOVDQU 1280(CX), Y6
-	VMOVDQU 1312(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSRLQ  $0x04, Y9, Y10
+	VPAND   Y6, Y9, Y9
+	VPAND   Y6, Y10, Y10
+	VMOVDQU 1280(CX), Y7
+	VMOVDQU 1312(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y0, Y0
-	VMOVDQU 1344(CX), Y6
-	VMOVDQU 1376(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y1, Y1
+	VMOVDQU 1344(CX), Y7
+	VMOVDQU 1376(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y1, Y1
-	VMOVDQU 1408(CX), Y6
-	VMOVDQU 1440(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y2, Y2
+	VMOVDQU 1408(CX), Y7
+	VMOVDQU 1440(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y2, Y2
-	VMOVDQU 1472(CX), Y6
-	VMOVDQU 1504(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y3, Y3
+	VMOVDQU 1472(CX), Y7
+	VMOVDQU 1504(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y3, Y3
-	VMOVDQU 1536(CX), Y6
-	VMOVDQU 1568(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y4, Y4
+	VMOVDQU 1536(CX), Y7
+	VMOVDQU 1568(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y4, Y4
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 5 to 5 outputs
-	VMOVDQU (R9), Y8
+	VMOVDQU (R9), Y9
 	ADDQ    $0x20, R9
-	VPSRLQ  $0x04, Y8, Y9
-	VPAND   Y5, Y8, Y8
-	VPAND   Y5, Y9, Y9
-	VMOVDQU 1600(CX), Y6
-	VMOVDQU 1632(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSRLQ  $0x04, Y9, Y10
+	VPAND   Y6, Y9, Y9
+	VPAND   Y6, Y10, Y10
+	VMOVDQU 1600(CX), Y7
+	VMOVDQU 1632(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y0, Y0
-	VMOVDQU 1664(CX), Y6
-	VMOVDQU 1696(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y1, Y1
+	VMOVDQU 1664(CX), Y7
+	VMOVDQU 1696(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y1, Y1
-	VMOVDQU 1728(CX), Y6
-	VMOVDQU 1760(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y2, Y2
+	VMOVDQU 1728(CX), Y7
+	VMOVDQU 1760(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y2, Y2
-	VMOVDQU 1792(CX), Y6
-	VMOVDQU 1824(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y3, Y3
+	VMOVDQU 1792(CX), Y7
+	VMOVDQU 1824(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y3, Y3
-	VMOVDQU 1856(CX), Y6
-	VMOVDQU 1888(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y4, Y4
+	VMOVDQU 1856(CX), Y7
+	VMOVDQU 1888(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y4, Y4
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 6 to 5 outputs
-	VMOVDQU (R10), Y8
+	VMOVDQU (R10), Y9
 	ADDQ    $0x20, R10
-	VPSRLQ  $0x04, Y8, Y9
-	VPAND   Y5, Y8, Y8
-	VPAND   Y5, Y9, Y9
-	VMOVDQU 1920(CX), Y6
-	VMOVDQU 1952(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSRLQ  $0x04, Y9, Y10
+	VPAND   Y6, Y9, Y9
+	VPAND   Y6, Y10, Y10
+	VMOVDQU 1920(CX), Y7
+	VMOVDQU 1952(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y0, Y0
-	VMOVDQU 1984(CX), Y6
-	VMOVDQU 2016(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y1, Y1
+	VMOVDQU 1984(CX), Y7
+	VMOVDQU 2016(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y1, Y1
-	VMOVDQU 2048(CX), Y6
-	VMOVDQU 2080(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y2, Y2
+	VMOVDQU 2048(CX), Y7
+	VMOVDQU 2080(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y2, Y2
-	VMOVDQU 2112(CX), Y6
-	VMOVDQU 2144(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y3, Y3
+	VMOVDQU 2112(CX), Y7
+	VMOVDQU 2144(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y3, Y3
-	VMOVDQU 2176(CX), Y6
-	VMOVDQU 2208(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y4, Y4
+	VMOVDQU 2176(CX), Y7
+	VMOVDQU 2208(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y4, Y4
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 7 to 5 outputs
-	VMOVDQU (R11), Y8
+	VMOVDQU (R11), Y9
 	ADDQ    $0x20, R11
-	VPSRLQ  $0x04, Y8, Y9
-	VPAND   Y5, Y8, Y8
-	VPAND   Y5, Y9, Y9
-	VMOVDQU 2240(CX), Y6
-	VMOVDQU 2272(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSRLQ  $0x04, Y9, Y10
+	VPAND   Y6, Y9, Y9
+	VPAND   Y6, Y10, Y10
+	VMOVDQU 2240(CX), Y7
+	VMOVDQU 2272(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y0, Y0
-	VMOVDQU 2304(CX), Y6
-	VMOVDQU 2336(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y1, Y1
+	VMOVDQU 2304(CX), Y7
+	VMOVDQU 2336(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y1, Y1
-	VMOVDQU 2368(CX), Y6
-	VMOVDQU 2400(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y2, Y2
+	VMOVDQU 2368(CX), Y7
+	VMOVDQU 2400(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y2, Y2
-	VMOVDQU 2432(CX), Y6
-	VMOVDQU 2464(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y3, Y3
+	VMOVDQU 2432(CX), Y7
+	VMOVDQU 2464(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y3, Y3
-	VMOVDQU 2496(CX), Y6
-	VMOVDQU 2528(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y4, Y4
+	VMOVDQU 2496(CX), Y7
+	VMOVDQU 2528(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y4, Y4
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 8 to 5 outputs
-	VMOVDQU (R12), Y8
+	VMOVDQU (R12), Y9
 	ADDQ    $0x20, R12
-	VPSRLQ  $0x04, Y8, Y9
-	VPAND   Y5, Y8, Y8
-	VPAND   Y5, Y9, Y9
-	VMOVDQU 2560(CX), Y6
-	VMOVDQU 2592(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSRLQ  $0x04, Y9, Y10
+	VPAND   Y6, Y9, Y9
+	VPAND   Y6, Y10, Y10
+	VMOVDQU 2560(CX), Y7
+	VMOVDQU 2592(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y0, Y0
-	VMOVDQU 2624(CX), Y6
-	VMOVDQU 2656(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y1, Y1
+	VMOVDQU 2624(CX), Y7
+	VMOVDQU 2656(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y1, Y1
-	VMOVDQU 2688(CX), Y6
-	VMOVDQU 2720(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y2, Y2
+	VMOVDQU 2688(CX), Y7
+	VMOVDQU 2720(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y2, Y2
-	VMOVDQU 2752(CX), Y6
-	VMOVDQU 2784(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y3, Y3
+	VMOVDQU 2752(CX), Y7
+	VMOVDQU 2784(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y3, Y3
-	VMOVDQU 2816(CX), Y6
-	VMOVDQU 2848(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y4, Y4
+	VMOVDQU 2816(CX), Y7
+	VMOVDQU 2848(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y4, Y4
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y5, Y5
 
 	// Load and process 32 bytes from input 9 to 5 outputs
-	VMOVDQU (DX), Y8
+	VMOVDQU (DX), Y9
 	ADDQ    $0x20, DX
-	VPSRLQ  $0x04, Y8, Y9
-	VPAND   Y5, Y8, Y8
-	VPAND   Y5, Y9, Y9
-	VMOVDQU 2880(CX), Y6
-	VMOVDQU 2912(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSRLQ  $0x04, Y9, Y10
+	VPAND   Y6, Y9, Y9
+	VPAND   Y6, Y10, Y10
+	VMOVDQU 2880(CX), Y7
+	VMOVDQU 2912(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y0, Y0
-	VMOVDQU 2944(CX), Y6
-	VMOVDQU 2976(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y1, Y1
+	VMOVDQU 2944(CX), Y7
+	VMOVDQU 2976(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y1, Y1
-	VMOVDQU 3008(CX), Y6
-	VMOVDQU 3040(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y2, Y2
+	VMOVDQU 3008(CX), Y7
+	VMOVDQU 3040(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y2, Y2
-	VMOVDQU 3072(CX), Y6
-	VMOVDQU 3104(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y3, Y3
+	VMOVDQU 3072(CX), Y7
+	VMOVDQU 3104(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y3, Y3
-	VMOVDQU 3136(CX), Y6
-	VMOVDQU 3168(CX), Y7
-	VPSHUFB Y8, Y6, Y6
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y4, Y4
+	VMOVDQU 3136(CX), Y7
+	VMOVDQU 3168(CX), Y8
 	VPSHUFB Y9, Y7, Y7
-	VPXOR   Y6, Y7, Y6
-	VPXOR   Y6, Y4, Y4
+	VPSHUFB Y10, Y8, Y8
+	VPXOR   Y7, Y8, Y7
+	VPXOR   Y7, Y5, Y5
 
 	// Store 5 outputs
 	MOVQ    (R13), R15
-	VMOVDQU Y0, (R15)(R14*1)
-	MOVQ    24(R13), R15
 	VMOVDQU Y1, (R15)(R14*1)
-	MOVQ    48(R13), R15
+	MOVQ    24(R13), R15
 	VMOVDQU Y2, (R15)(R14*1)
-	MOVQ    72(R13), R15
+	MOVQ    48(R13), R15
 	VMOVDQU Y3, (R15)(R14*1)
-	MOVQ    96(R13), R15
+	MOVQ    72(R13), R15
 	VMOVDQU Y4, (R15)(R14*1)
+	MOVQ    96(R13), R15
+	VMOVDQU Y5, (R15)(R14*1)
 
 	// Prepare for next loop
 	ADDQ $0x20, R14
@@ -18547,11 +18774,14 @@ mulAvxTwo_10x5_loop:
 	VZEROUPPER
 
 mulAvxTwo_10x5_end:
+	MOVQ X0, BP
 	RET
 
 // func mulAvxTwo_10x6(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX2, SSE2
-TEXT ·mulAvxTwo_10x6(SB), NOSPLIT, $8-88
+TEXT ·mulAvxTwo_10x6(SB), NOSPLIT, $0-88
+	MOVQ BP, X0
+
 	// Loading no tables to registers
 	// Destination kept on stack
 	// Full registers estimated 131 YMM used
@@ -18586,514 +18816,11 @@ TEXT ·mulAvxTwo_10x6(SB), NOSPLIT, $8-88
 	ADDQ         R14, R12
 	ADDQ         R14, DX
 	MOVQ         $0x0000000f, R15
-	MOVQ         R15, X6
-	VPBROADCASTB X6, Y6
-
-mulAvxTwo_10x6_loop:
-	// Clear 6 outputs
-	VPXOR Y0, Y0, Y0
-	VPXOR Y1, Y1, Y1
-	VPXOR Y2, Y2, Y2
-	VPXOR Y3, Y3, Y3
-	VPXOR Y4, Y4, Y4
-	VPXOR Y5, Y5, Y5
-
-	// Load and process 32 bytes from input 0 to 6 outputs
-	VMOVDQU (BX), Y9
-	ADDQ    $0x20, BX
-	VPSRLQ  $0x04, Y9, Y10
-	VPAND   Y6, Y9, Y9
-	VPAND   Y6, Y10, Y10
-	VMOVDQU (CX), Y7
-	VMOVDQU 32(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y0, Y0
-	VMOVDQU 64(CX), Y7
-	VMOVDQU 96(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y1, Y1
-	VMOVDQU 128(CX), Y7
-	VMOVDQU 160(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y2, Y2
-	VMOVDQU 192(CX), Y7
-	VMOVDQU 224(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y3, Y3
-	VMOVDQU 256(CX), Y7
-	VMOVDQU 288(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y4, Y4
-	VMOVDQU 320(CX), Y7
-	VMOVDQU 352(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y5, Y5
-
-	// Load and process 32 bytes from input 1 to 6 outputs
-	VMOVDQU (BP), Y9
-	ADDQ    $0x20, BP
-	VPSRLQ  $0x04, Y9, Y10
-	VPAND   Y6, Y9, Y9
-	VPAND   Y6, Y10, Y10
-	VMOVDQU 384(CX), Y7
-	VMOVDQU 416(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y0, Y0
-	VMOVDQU 448(CX), Y7
-	VMOVDQU 480(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y1, Y1
-	VMOVDQU 512(CX), Y7
-	VMOVDQU 544(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y2, Y2
-	VMOVDQU 576(CX), Y7
-	VMOVDQU 608(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y3, Y3
-	VMOVDQU 640(CX), Y7
-	VMOVDQU 672(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y4, Y4
-	VMOVDQU 704(CX), Y7
-	VMOVDQU 736(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y5, Y5
-
-	// Load and process 32 bytes from input 2 to 6 outputs
-	VMOVDQU (SI), Y9
-	ADDQ    $0x20, SI
-	VPSRLQ  $0x04, Y9, Y10
-	VPAND   Y6, Y9, Y9
-	VPAND   Y6, Y10, Y10
-	VMOVDQU 768(CX), Y7
-	VMOVDQU 800(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y0, Y0
-	VMOVDQU 832(CX), Y7
-	VMOVDQU 864(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y1, Y1
-	VMOVDQU 896(CX), Y7
-	VMOVDQU 928(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y2, Y2
-	VMOVDQU 960(CX), Y7
-	VMOVDQU 992(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y3, Y3
-	VMOVDQU 1024(CX), Y7
-	VMOVDQU 1056(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y4, Y4
-	VMOVDQU 1088(CX), Y7
-	VMOVDQU 1120(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y5, Y5
-
-	// Load and process 32 bytes from input 3 to 6 outputs
-	VMOVDQU (DI), Y9
-	ADDQ    $0x20, DI
-	VPSRLQ  $0x04, Y9, Y10
-	VPAND   Y6, Y9, Y9
-	VPAND   Y6, Y10, Y10
-	VMOVDQU 1152(CX), Y7
-	VMOVDQU 1184(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y0, Y0
-	VMOVDQU 1216(CX), Y7
-	VMOVDQU 1248(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y1, Y1
-	VMOVDQU 1280(CX), Y7
-	VMOVDQU 1312(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y2, Y2
-	VMOVDQU 1344(CX), Y7
-	VMOVDQU 1376(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y3, Y3
-	VMOVDQU 1408(CX), Y7
-	VMOVDQU 1440(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y4, Y4
-	VMOVDQU 1472(CX), Y7
-	VMOVDQU 1504(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y5, Y5
-
-	// Load and process 32 bytes from input 4 to 6 outputs
-	VMOVDQU (R8), Y9
-	ADDQ    $0x20, R8
-	VPSRLQ  $0x04, Y9, Y10
-	VPAND   Y6, Y9, Y9
-	VPAND   Y6, Y10, Y10
-	VMOVDQU 1536(CX), Y7
-	VMOVDQU 1568(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y0, Y0
-	VMOVDQU 1600(CX), Y7
-	VMOVDQU 1632(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y1, Y1
-	VMOVDQU 1664(CX), Y7
-	VMOVDQU 1696(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y2, Y2
-	VMOVDQU 1728(CX), Y7
-	VMOVDQU 1760(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y3, Y3
-	VMOVDQU 1792(CX), Y7
-	VMOVDQU 1824(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y4, Y4
-	VMOVDQU 1856(CX), Y7
-	VMOVDQU 1888(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y5, Y5
-
-	// Load and process 32 bytes from input 5 to 6 outputs
-	VMOVDQU (R9), Y9
-	ADDQ    $0x20, R9
-	VPSRLQ  $0x04, Y9, Y10
-	VPAND   Y6, Y9, Y9
-	VPAND   Y6, Y10, Y10
-	VMOVDQU 1920(CX), Y7
-	VMOVDQU 1952(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y0, Y0
-	VMOVDQU 1984(CX), Y7
-	VMOVDQU 2016(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y1, Y1
-	VMOVDQU 2048(CX), Y7
-	VMOVDQU 2080(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y2, Y2
-	VMOVDQU 2112(CX), Y7
-	VMOVDQU 2144(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y3, Y3
-	VMOVDQU 2176(CX), Y7
-	VMOVDQU 2208(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y4, Y4
-	VMOVDQU 2240(CX), Y7
-	VMOVDQU 2272(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y5, Y5
-
-	// Load and process 32 bytes from input 6 to 6 outputs
-	VMOVDQU (R10), Y9
-	ADDQ    $0x20, R10
-	VPSRLQ  $0x04, Y9, Y10
-	VPAND   Y6, Y9, Y9
-	VPAND   Y6, Y10, Y10
-	VMOVDQU 2304(CX), Y7
-	VMOVDQU 2336(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y0, Y0
-	VMOVDQU 2368(CX), Y7
-	VMOVDQU 2400(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y1, Y1
-	VMOVDQU 2432(CX), Y7
-	VMOVDQU 2464(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y2, Y2
-	VMOVDQU 2496(CX), Y7
-	VMOVDQU 2528(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y3, Y3
-	VMOVDQU 2560(CX), Y7
-	VMOVDQU 2592(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y4, Y4
-	VMOVDQU 2624(CX), Y7
-	VMOVDQU 2656(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y5, Y5
-
-	// Load and process 32 bytes from input 7 to 6 outputs
-	VMOVDQU (R11), Y9
-	ADDQ    $0x20, R11
-	VPSRLQ  $0x04, Y9, Y10
-	VPAND   Y6, Y9, Y9
-	VPAND   Y6, Y10, Y10
-	VMOVDQU 2688(CX), Y7
-	VMOVDQU 2720(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y0, Y0
-	VMOVDQU 2752(CX), Y7
-	VMOVDQU 2784(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y1, Y1
-	VMOVDQU 2816(CX), Y7
-	VMOVDQU 2848(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y2, Y2
-	VMOVDQU 2880(CX), Y7
-	VMOVDQU 2912(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y3, Y3
-	VMOVDQU 2944(CX), Y7
-	VMOVDQU 2976(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y4, Y4
-	VMOVDQU 3008(CX), Y7
-	VMOVDQU 3040(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y5, Y5
-
-	// Load and process 32 bytes from input 8 to 6 outputs
-	VMOVDQU (R12), Y9
-	ADDQ    $0x20, R12
-	VPSRLQ  $0x04, Y9, Y10
-	VPAND   Y6, Y9, Y9
-	VPAND   Y6, Y10, Y10
-	VMOVDQU 3072(CX), Y7
-	VMOVDQU 3104(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y0, Y0
-	VMOVDQU 3136(CX), Y7
-	VMOVDQU 3168(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y1, Y1
-	VMOVDQU 3200(CX), Y7
-	VMOVDQU 3232(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y2, Y2
-	VMOVDQU 3264(CX), Y7
-	VMOVDQU 3296(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y3, Y3
-	VMOVDQU 3328(CX), Y7
-	VMOVDQU 3360(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y4, Y4
-	VMOVDQU 3392(CX), Y7
-	VMOVDQU 3424(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y5, Y5
-
-	// Load and process 32 bytes from input 9 to 6 outputs
-	VMOVDQU (DX), Y9
-	ADDQ    $0x20, DX
-	VPSRLQ  $0x04, Y9, Y10
-	VPAND   Y6, Y9, Y9
-	VPAND   Y6, Y10, Y10
-	VMOVDQU 3456(CX), Y7
-	VMOVDQU 3488(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y0, Y0
-	VMOVDQU 3520(CX), Y7
-	VMOVDQU 3552(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y1, Y1
-	VMOVDQU 3584(CX), Y7
-	VMOVDQU 3616(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y2, Y2
-	VMOVDQU 3648(CX), Y7
-	VMOVDQU 3680(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y3, Y3
-	VMOVDQU 3712(CX), Y7
-	VMOVDQU 3744(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y4, Y4
-	VMOVDQU 3776(CX), Y7
-	VMOVDQU 3808(CX), Y8
-	VPSHUFB Y9, Y7, Y7
-	VPSHUFB Y10, Y8, Y8
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y7, Y5, Y5
-
-	// Store 6 outputs
-	MOVQ    (R13), R15
-	VMOVDQU Y0, (R15)(R14*1)
-	MOVQ    24(R13), R15
-	VMOVDQU Y1, (R15)(R14*1)
-	MOVQ    48(R13), R15
-	VMOVDQU Y2, (R15)(R14*1)
-	MOVQ    72(R13), R15
-	VMOVDQU Y3, (R15)(R14*1)
-	MOVQ    96(R13), R15
-	VMOVDQU Y4, (R15)(R14*1)
-	MOVQ    120(R13), R15
-	VMOVDQU Y5, (R15)(R14*1)
-
-	// Prepare for next loop
-	ADDQ $0x20, R14
-	DECQ AX
-	JNZ  mulAvxTwo_10x6_loop
-	VZEROUPPER
-
-mulAvxTwo_10x6_end:
-	RET
-
-// func mulAvxTwo_10x7(matrix []byte, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX2, SSE2
-TEXT ·mulAvxTwo_10x7(SB), NOSPLIT, $8-88
-	// Loading no tables to registers
-	// Destination kept on stack
-	// Full registers estimated 152 YMM used
-	MOVQ  n+80(FP), AX
-	MOVQ  matrix_base+0(FP), CX
-	SHRQ  $0x05, AX
-	TESTQ AX, AX
-	JZ    mulAvxTwo_10x7_end
-	MOVQ  in_base+24(FP), DX
-	MOVQ  (DX), BX
-	MOVQ  24(DX), BP
-	MOVQ  48(DX), SI
-	MOVQ  72(DX), DI
-	MOVQ  96(DX), R8
-	MOVQ  120(DX), R9
-	MOVQ  144(DX), R10
-	MOVQ  168(DX), R11
-	MOVQ  192(DX), R12
-	MOVQ  216(DX), DX
-	MOVQ  out_base+48(FP), R13
-	MOVQ  start+72(FP), R14
-
-	// Add start offset to input
-	ADDQ         R14, BX
-	ADDQ         R14, BP
-	ADDQ         R14, SI
-	ADDQ         R14, DI
-	ADDQ         R14, R8
-	ADDQ         R14, R9
-	ADDQ         R14, R10
-	ADDQ         R14, R11
-	ADDQ         R14, R12
-	ADDQ         R14, DX
-	MOVQ         $0x0000000f, R15
 	MOVQ         R15, X7
 	VPBROADCASTB X7, Y7
 
-mulAvxTwo_10x7_loop:
-	// Clear 7 outputs
-	VPXOR Y0, Y0, Y0
+mulAvxTwo_10x6_loop:
+	// Clear 6 outputs
 	VPXOR Y1, Y1, Y1
 	VPXOR Y2, Y2, Y2
 	VPXOR Y3, Y3, Y3
@@ -19101,7 +18828,7 @@ mulAvxTwo_10x7_loop:
 	VPXOR Y5, Y5, Y5
 	VPXOR Y6, Y6, Y6
 
-	// Load and process 32 bytes from input 0 to 7 outputs
+	// Load and process 32 bytes from input 0 to 6 outputs
 	VMOVDQU (BX), Y10
 	ADDQ    $0x20, BX
 	VPSRLQ  $0x04, Y10, Y11
@@ -19112,252 +18839,259 @@ mulAvxTwo_10x7_loop:
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y0, Y0
+	VPXOR   Y8, Y1, Y1
 	VMOVDQU 64(CX), Y8
 	VMOVDQU 96(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y1, Y1
+	VPXOR   Y8, Y2, Y2
 	VMOVDQU 128(CX), Y8
 	VMOVDQU 160(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y2, Y2
+	VPXOR   Y8, Y3, Y3
 	VMOVDQU 192(CX), Y8
 	VMOVDQU 224(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y3, Y3
+	VPXOR   Y8, Y4, Y4
 	VMOVDQU 256(CX), Y8
 	VMOVDQU 288(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y4, Y4
+	VPXOR   Y8, Y5, Y5
 	VMOVDQU 320(CX), Y8
 	VMOVDQU 352(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y5, Y5
-	VMOVDQU 384(CX), Y8
-	VMOVDQU 416(CX), Y9
-	VPSHUFB Y10, Y8, Y8
-	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
 	VPXOR   Y8, Y6, Y6
 
-	// Load and process 32 bytes from input 1 to 7 outputs
+	// Load and process 32 bytes from input 1 to 6 outputs
 	VMOVDQU (BP), Y10
 	ADDQ    $0x20, BP
 	VPSRLQ  $0x04, Y10, Y11
 	VPAND   Y7, Y10, Y10
 	VPAND   Y7, Y11, Y11
+	VMOVDQU 384(CX), Y8
+	VMOVDQU 416(CX), Y9
+	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y1, Y1
 	VMOVDQU 448(CX), Y8
 	VMOVDQU 480(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y0, Y0
+	VPXOR   Y8, Y2, Y2
 	VMOVDQU 512(CX), Y8
 	VMOVDQU 544(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y1, Y1
+	VPXOR   Y8, Y3, Y3
 	VMOVDQU 576(CX), Y8
 	VMOVDQU 608(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y2, Y2
+	VPXOR   Y8, Y4, Y4
 	VMOVDQU 640(CX), Y8
 	VMOVDQU 672(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y3, Y3
+	VPXOR   Y8, Y5, Y5
 	VMOVDQU 704(CX), Y8
 	VMOVDQU 736(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y4, Y4
-	VMOVDQU 768(CX), Y8
-	VMOVDQU 800(CX), Y9
-	VPSHUFB Y10, Y8, Y8
-	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y5, Y5
-	VMOVDQU 832(CX), Y8
-	VMOVDQU 864(CX), Y9
-	VPSHUFB Y10, Y8, Y8
-	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
 	VPXOR   Y8, Y6, Y6
 
-	// Load and process 32 bytes from input 2 to 7 outputs
+	// Load and process 32 bytes from input 2 to 6 outputs
 	VMOVDQU (SI), Y10
 	ADDQ    $0x20, SI
 	VPSRLQ  $0x04, Y10, Y11
 	VPAND   Y7, Y10, Y10
 	VPAND   Y7, Y11, Y11
+	VMOVDQU 768(CX), Y8
+	VMOVDQU 800(CX), Y9
+	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y1, Y1
+	VMOVDQU 832(CX), Y8
+	VMOVDQU 864(CX), Y9
+	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y2, Y2
 	VMOVDQU 896(CX), Y8
 	VMOVDQU 928(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y0, Y0
+	VPXOR   Y8, Y3, Y3
 	VMOVDQU 960(CX), Y8
 	VMOVDQU 992(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y1, Y1
+	VPXOR   Y8, Y4, Y4
 	VMOVDQU 1024(CX), Y8
 	VMOVDQU 1056(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y2, Y2
+	VPXOR   Y8, Y5, Y5
 	VMOVDQU 1088(CX), Y8
 	VMOVDQU 1120(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y3, Y3
-	VMOVDQU 1152(CX), Y8
-	VMOVDQU 1184(CX), Y9
-	VPSHUFB Y10, Y8, Y8
-	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y4, Y4
-	VMOVDQU 1216(CX), Y8
-	VMOVDQU 1248(CX), Y9
-	VPSHUFB Y10, Y8, Y8
-	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y5, Y5
-	VMOVDQU 1280(CX), Y8
-	VMOVDQU 1312(CX), Y9
-	VPSHUFB Y10, Y8, Y8
-	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
 	VPXOR   Y8, Y6, Y6
 
-	// Load and process 32 bytes from input 3 to 7 outputs
+	// Load and process 32 bytes from input 3 to 6 outputs
 	VMOVDQU (DI), Y10
 	ADDQ    $0x20, DI
 	VPSRLQ  $0x04, Y10, Y11
 	VPAND   Y7, Y10, Y10
 	VPAND   Y7, Y11, Y11
+	VMOVDQU 1152(CX), Y8
+	VMOVDQU 1184(CX), Y9
+	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y1, Y1
+	VMOVDQU 1216(CX), Y8
+	VMOVDQU 1248(CX), Y9
+	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y2, Y2
+	VMOVDQU 1280(CX), Y8
+	VMOVDQU 1312(CX), Y9
+	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y3, Y3
 	VMOVDQU 1344(CX), Y8
 	VMOVDQU 1376(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y0, Y0
+	VPXOR   Y8, Y4, Y4
 	VMOVDQU 1408(CX), Y8
 	VMOVDQU 1440(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y1, Y1
+	VPXOR   Y8, Y5, Y5
 	VMOVDQU 1472(CX), Y8
 	VMOVDQU 1504(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y2, Y2
-	VMOVDQU 1536(CX), Y8
-	VMOVDQU 1568(CX), Y9
-	VPSHUFB Y10, Y8, Y8
-	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y3, Y3
-	VMOVDQU 1600(CX), Y8
-	VMOVDQU 1632(CX), Y9
-	VPSHUFB Y10, Y8, Y8
-	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y4, Y4
-	VMOVDQU 1664(CX), Y8
-	VMOVDQU 1696(CX), Y9
-	VPSHUFB Y10, Y8, Y8
-	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y5, Y5
-	VMOVDQU 1728(CX), Y8
-	VMOVDQU 1760(CX), Y9
-	VPSHUFB Y10, Y8, Y8
-	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
 	VPXOR   Y8, Y6, Y6
 
-	// Load and process 32 bytes from input 4 to 7 outputs
+	// Load and process 32 bytes from input 4 to 6 outputs
 	VMOVDQU (R8), Y10
 	ADDQ    $0x20, R8
 	VPSRLQ  $0x04, Y10, Y11
 	VPAND   Y7, Y10, Y10
 	VPAND   Y7, Y11, Y11
+	VMOVDQU 1536(CX), Y8
+	VMOVDQU 1568(CX), Y9
+	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y1, Y1
+	VMOVDQU 1600(CX), Y8
+	VMOVDQU 1632(CX), Y9
+	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y2, Y2
+	VMOVDQU 1664(CX), Y8
+	VMOVDQU 1696(CX), Y9
+	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y3, Y3
+	VMOVDQU 1728(CX), Y8
+	VMOVDQU 1760(CX), Y9
+	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y4, Y4
 	VMOVDQU 1792(CX), Y8
 	VMOVDQU 1824(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y0, Y0
+	VPXOR   Y8, Y5, Y5
 	VMOVDQU 1856(CX), Y8
 	VMOVDQU 1888(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y1, Y1
-	VMOVDQU 1920(CX), Y8
-	VMOVDQU 1952(CX), Y9
-	VPSHUFB Y10, Y8, Y8
-	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y2, Y2
-	VMOVDQU 1984(CX), Y8
-	VMOVDQU 2016(CX), Y9
-	VPSHUFB Y10, Y8, Y8
-	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y3, Y3
-	VMOVDQU 2048(CX), Y8
-	VMOVDQU 2080(CX), Y9
-	VPSHUFB Y10, Y8, Y8
-	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y4, Y4
-	VMOVDQU 2112(CX), Y8
-	VMOVDQU 2144(CX), Y9
-	VPSHUFB Y10, Y8, Y8
-	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y5, Y5
-	VMOVDQU 2176(CX), Y8
-	VMOVDQU 2208(CX), Y9
-	VPSHUFB Y10, Y8, Y8
-	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
 	VPXOR   Y8, Y6, Y6
 
-	// Load and process 32 bytes from input 5 to 7 outputs
+	// Load and process 32 bytes from input 5 to 6 outputs
 	VMOVDQU (R9), Y10
 	ADDQ    $0x20, R9
 	VPSRLQ  $0x04, Y10, Y11
 	VPAND   Y7, Y10, Y10
 	VPAND   Y7, Y11, Y11
+	VMOVDQU 1920(CX), Y8
+	VMOVDQU 1952(CX), Y9
+	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y1, Y1
+	VMOVDQU 1984(CX), Y8
+	VMOVDQU 2016(CX), Y9
+	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y2, Y2
+	VMOVDQU 2048(CX), Y8
+	VMOVDQU 2080(CX), Y9
+	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y3, Y3
+	VMOVDQU 2112(CX), Y8
+	VMOVDQU 2144(CX), Y9
+	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y4, Y4
+	VMOVDQU 2176(CX), Y8
+	VMOVDQU 2208(CX), Y9
+	VPSHUFB Y10, Y8, Y8
+	VPSHUFB Y11, Y9, Y9
+	VPXOR   Y8, Y9, Y8
+	VPXOR   Y8, Y5, Y5
 	VMOVDQU 2240(CX), Y8
 	VMOVDQU 2272(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y0, Y0
+	VPXOR   Y8, Y6, Y6
+
+	// Load and process 32 bytes from input 6 to 6 outputs
+	VMOVDQU (R10), Y10
+	ADDQ    $0x20, R10
+	VPSRLQ  $0x04, Y10, Y11
+	VPAND   Y7, Y10, Y10
+	VPAND   Y7, Y11, Y11
 	VMOVDQU 2304(CX), Y8
 	VMOVDQU 2336(CX), Y9
 	VPSHUFB Y10, Y8, Y8
@@ -19395,9 +19129,9 @@ mulAvxTwo_10x7_loop:
 	VPXOR   Y8, Y9, Y8
 	VPXOR   Y8, Y6, Y6
 
-	// Load and process 32 bytes from input 6 to 7 outputs
-	VMOVDQU (R10), Y10
-	ADDQ    $0x20, R10
+	// Load and process 32 bytes from input 7 to 6 outputs
+	VMOVDQU (R11), Y10
+	ADDQ    $0x20, R11
 	VPSRLQ  $0x04, Y10, Y11
 	VPAND   Y7, Y10, Y10
 	VPAND   Y7, Y11, Y11
@@ -19406,227 +19140,161 @@ mulAvxTwo_10x7_loop:
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y0, Y0
+	VPXOR   Y8, Y1, Y1
 	VMOVDQU 2752(CX), Y8
 	VMOVDQU 2784(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y1, Y1
+	VPXOR   Y8, Y2, Y2
 	VMOVDQU 2816(CX), Y8
 	VMOVDQU 2848(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y2, Y2
+	VPXOR   Y8, Y3, Y3
 	VMOVDQU 2880(CX), Y8
 	VMOVDQU 2912(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y3, Y3
+	VPXOR   Y8, Y4, Y4
 	VMOVDQU 2944(CX), Y8
 	VMOVDQU 2976(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y4, Y4
+	VPXOR   Y8, Y5, Y5
 	VMOVDQU 3008(CX), Y8
 	VMOVDQU 3040(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y5, Y5
-	VMOVDQU 3072(CX), Y8
-	VMOVDQU 3104(CX), Y9
-	VPSHUFB Y10, Y8, Y8
-	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
 	VPXOR   Y8, Y6, Y6
 
-	// Load and process 32 bytes from input 7 to 7 outputs
-	VMOVDQU (R11), Y10
-	ADDQ    $0x20, R11
-	VPSRLQ  $0x04, Y10, Y11
-	VPAND   Y7, Y10, Y10
-	VPAND   Y7, Y11, Y11
-	VMOVDQU 3136(CX), Y8
-	VMOVDQU 3168(CX), Y9
-	VPSHUFB Y10, Y8, Y8
-	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y0, Y0
-	VMOVDQU 3200(CX), Y8
-	VMOVDQU 3232(CX), Y9
-	VPSHUFB Y10, Y8, Y8
-	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y1, Y1
-	VMOVDQU 3264(CX), Y8
-	VMOVDQU 3296(CX), Y9
-	VPSHUFB Y10, Y8, Y8
-	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y2, Y2
-	VMOVDQU 3328(CX), Y8
-	VMOVDQU 3360(CX), Y9
-	VPSHUFB Y10, Y8, Y8
-	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y3, Y3
-	VMOVDQU 3392(CX), Y8
-	VMOVDQU 3424(CX), Y9
-	VPSHUFB Y10, Y8, Y8
-	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y4, Y4
-	VMOVDQU 3456(CX), Y8
-	VMOVDQU 3488(CX), Y9
-	VPSHUFB Y10, Y8, Y8
-	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y5, Y5
-	VMOVDQU 3520(CX), Y8
-	VMOVDQU 3552(CX), Y9
-	VPSHUFB Y10, Y8, Y8
-	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y6, Y6
-
-	// Load and process 32 bytes from input 8 to 7 outputs
+	// Load and process 32 bytes from input 8 to 6 outputs
 	VMOVDQU (R12), Y10
 	ADDQ    $0x20, R12
 	VPSRLQ  $0x04, Y10, Y11
 	VPAND   Y7, Y10, Y10
 	VPAND   Y7, Y11, Y11
-	VMOVDQU 3584(CX), Y8
-	VMOVDQU 3616(CX), Y9
-	VPSHUFB Y10, Y8, Y8
-	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y0, Y0
-	VMOVDQU 3648(CX), Y8
-	VMOVDQU 3680(CX), Y9
+	VMOVDQU 3072(CX), Y8
+	VMOVDQU 3104(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
 	VPXOR   Y8, Y1, Y1
-	VMOVDQU 3712(CX), Y8
-	VMOVDQU 3744(CX), Y9
+	VMOVDQU 3136(CX), Y8
+	VMOVDQU 3168(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
 	VPXOR   Y8, Y2, Y2
-	VMOVDQU 3776(CX), Y8
-	VMOVDQU 3808(CX), Y9
+	VMOVDQU 3200(CX), Y8
+	VMOVDQU 3232(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
 	VPXOR   Y8, Y3, Y3
-	VMOVDQU 3840(CX), Y8
-	VMOVDQU 3872(CX), Y9
+	VMOVDQU 3264(CX), Y8
+	VMOVDQU 3296(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
 	VPXOR   Y8, Y4, Y4
-	VMOVDQU 3904(CX), Y8
-	VMOVDQU 3936(CX), Y9
+	VMOVDQU 3328(CX), Y8
+	VMOVDQU 3360(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
 	VPXOR   Y8, Y5, Y5
-	VMOVDQU 3968(CX), Y8
-	VMOVDQU 4000(CX), Y9
+	VMOVDQU 3392(CX), Y8
+	VMOVDQU 3424(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
 	VPXOR   Y8, Y6, Y6
 
-	// Load and process 32 bytes from input 9 to 7 outputs
+	// Load and process 32 bytes from input 9 to 6 outputs
 	VMOVDQU (DX), Y10
 	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y10, Y11
 	VPAND   Y7, Y10, Y10
 	VPAND   Y7, Y11, Y11
-	VMOVDQU 4032(CX), Y8
-	VMOVDQU 4064(CX), Y9
-	VPSHUFB Y10, Y8, Y8
-	VPSHUFB Y11, Y9, Y9
-	VPXOR   Y8, Y9, Y8
-	VPXOR   Y8, Y0, Y0
-	VMOVDQU 4096(CX), Y8
-	VMOVDQU 4128(CX), Y9
+	VMOVDQU 3456(CX), Y8
+	VMOVDQU 3488(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
 	VPXOR   Y8, Y1, Y1
-	VMOVDQU 4160(CX), Y8
-	VMOVDQU 4192(CX), Y9
+	VMOVDQU 3520(CX), Y8
+	VMOVDQU 3552(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
 	VPXOR   Y8, Y2, Y2
-	VMOVDQU 4224(CX), Y8
-	VMOVDQU 4256(CX), Y9
+	VMOVDQU 3584(CX), Y8
+	VMOVDQU 3616(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
 	VPXOR   Y8, Y3, Y3
-	VMOVDQU 4288(CX), Y8
-	VMOVDQU 4320(CX), Y9
+	VMOVDQU 3648(CX), Y8
+	VMOVDQU 3680(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
 	VPXOR   Y8, Y4, Y4
-	VMOVDQU 4352(CX), Y8
-	VMOVDQU 4384(CX), Y9
+	VMOVDQU 3712(CX), Y8
+	VMOVDQU 3744(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
 	VPXOR   Y8, Y5, Y5
-	VMOVDQU 4416(CX), Y8
-	VMOVDQU 4448(CX), Y9
+	VMOVDQU 3776(CX), Y8
+	VMOVDQU 3808(CX), Y9
 	VPSHUFB Y10, Y8, Y8
 	VPSHUFB Y11, Y9, Y9
 	VPXOR   Y8, Y9, Y8
 	VPXOR   Y8, Y6, Y6
 
-	// Store 7 outputs
+	// Store 6 outputs
 	MOVQ    (R13), R15
-	VMOVDQU Y0, (R15)(R14*1)
-	MOVQ    24(R13), R15
 	VMOVDQU Y1, (R15)(R14*1)
-	MOVQ    48(R13), R15
+	MOVQ    24(R13), R15
 	VMOVDQU Y2, (R15)(R14*1)
-	MOVQ    72(R13), R15
+	MOVQ    48(R13), R15
 	VMOVDQU Y3, (R15)(R14*1)
-	MOVQ    96(R13), R15
+	MOVQ    72(R13), R15
 	VMOVDQU Y4, (R15)(R14*1)
-	MOVQ    120(R13), R15
+	MOVQ    96(R13), R15
 	VMOVDQU Y5, (R15)(R14*1)
-	MOVQ    144(R13), R15
+	MOVQ    120(R13), R15
 	VMOVDQU Y6, (R15)(R14*1)
 
 	// Prepare for next loop
 	ADDQ $0x20, R14
 	DECQ AX
-	JNZ  mulAvxTwo_10x7_loop
+	JNZ  mulAvxTwo_10x6_loop
 	VZEROUPPER
 
-mulAvxTwo_10x7_end:
+mulAvxTwo_10x6_end:
+	MOVQ X0, BP
 	RET
 
-// func mulAvxTwo_10x8(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxTwo_10x7(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX2, SSE2
-TEXT ·mulAvxTwo_10x8(SB), NOSPLIT, $8-88
+TEXT ·mulAvxTwo_10x7(SB), NOSPLIT, $0-88
+	MOVQ BP, X0
+
 	// Loading no tables to registers
 	// Destination kept on stack
-	// Full registers estimated 173 YMM used
+	// Full registers estimated 152 YMM used
 	MOVQ  n+80(FP), AX
 	MOVQ  matrix_base+0(FP), CX
 	SHRQ  $0x05, AX
 	TESTQ AX, AX
-	JZ    mulAvxTwo_10x8_end
+	JZ    mulAvxTwo_10x7_end
 	MOVQ  in_base+24(FP), DX
 	MOVQ  (DX), BX
 	MOVQ  24(DX), BP
@@ -19656,9 +19324,8 @@ TEXT ·mulAvxTwo_10x8(SB), NOSPLIT, $8-88
 	MOVQ         R15, X8
 	VPBROADCASTB X8, Y8
 
-mulAvxTwo_10x8_loop:
-	// Clear 8 outputs
-	VPXOR Y0, Y0, Y0
+mulAvxTwo_10x7_loop:
+	// Clear 7 outputs
 	VPXOR Y1, Y1, Y1
 	VPXOR Y2, Y2, Y2
 	VPXOR Y3, Y3, Y3
@@ -19667,7 +19334,7 @@ mulAvxTwo_10x8_loop:
 	VPXOR Y6, Y6, Y6
 	VPXOR Y7, Y7, Y7
 
-	// Load and process 32 bytes from input 0 to 8 outputs
+	// Load and process 32 bytes from input 0 to 7 outputs
 	VMOVDQU (BX), Y11
 	ADDQ    $0x20, BX
 	VPSRLQ  $0x04, Y11, Y12
@@ -19678,337 +19345,344 @@ mulAvxTwo_10x8_loop:
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y0, Y0
+	VPXOR   Y9, Y1, Y1
 	VMOVDQU 64(CX), Y9
 	VMOVDQU 96(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y1, Y1
+	VPXOR   Y9, Y2, Y2
 	VMOVDQU 128(CX), Y9
 	VMOVDQU 160(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y2, Y2
+	VPXOR   Y9, Y3, Y3
 	VMOVDQU 192(CX), Y9
 	VMOVDQU 224(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y3, Y3
+	VPXOR   Y9, Y4, Y4
 	VMOVDQU 256(CX), Y9
 	VMOVDQU 288(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y4, Y4
+	VPXOR   Y9, Y5, Y5
 	VMOVDQU 320(CX), Y9
 	VMOVDQU 352(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y5, Y5
+	VPXOR   Y9, Y6, Y6
 	VMOVDQU 384(CX), Y9
 	VMOVDQU 416(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y6, Y6
-	VMOVDQU 448(CX), Y9
-	VMOVDQU 480(CX), Y10
-	VPSHUFB Y11, Y9, Y9
-	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
 	VPXOR   Y9, Y7, Y7
 
-	// Load and process 32 bytes from input 1 to 8 outputs
+	// Load and process 32 bytes from input 1 to 7 outputs
 	VMOVDQU (BP), Y11
 	ADDQ    $0x20, BP
 	VPSRLQ  $0x04, Y11, Y12
 	VPAND   Y8, Y11, Y11
 	VPAND   Y8, Y12, Y12
+	VMOVDQU 448(CX), Y9
+	VMOVDQU 480(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y1, Y1
 	VMOVDQU 512(CX), Y9
 	VMOVDQU 544(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y0, Y0
+	VPXOR   Y9, Y2, Y2
 	VMOVDQU 576(CX), Y9
 	VMOVDQU 608(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y1, Y1
+	VPXOR   Y9, Y3, Y3
 	VMOVDQU 640(CX), Y9
 	VMOVDQU 672(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y2, Y2
+	VPXOR   Y9, Y4, Y4
 	VMOVDQU 704(CX), Y9
 	VMOVDQU 736(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y3, Y3
+	VPXOR   Y9, Y5, Y5
 	VMOVDQU 768(CX), Y9
 	VMOVDQU 800(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y4, Y4
+	VPXOR   Y9, Y6, Y6
 	VMOVDQU 832(CX), Y9
 	VMOVDQU 864(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y5, Y5
-	VMOVDQU 896(CX), Y9
-	VMOVDQU 928(CX), Y10
-	VPSHUFB Y11, Y9, Y9
-	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y6, Y6
-	VMOVDQU 960(CX), Y9
-	VMOVDQU 992(CX), Y10
-	VPSHUFB Y11, Y9, Y9
-	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
 	VPXOR   Y9, Y7, Y7
 
-	// Load and process 32 bytes from input 2 to 8 outputs
+	// Load and process 32 bytes from input 2 to 7 outputs
 	VMOVDQU (SI), Y11
 	ADDQ    $0x20, SI
 	VPSRLQ  $0x04, Y11, Y12
 	VPAND   Y8, Y11, Y11
 	VPAND   Y8, Y12, Y12
+	VMOVDQU 896(CX), Y9
+	VMOVDQU 928(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y1, Y1
+	VMOVDQU 960(CX), Y9
+	VMOVDQU 992(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y2, Y2
 	VMOVDQU 1024(CX), Y9
 	VMOVDQU 1056(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y0, Y0
+	VPXOR   Y9, Y3, Y3
 	VMOVDQU 1088(CX), Y9
 	VMOVDQU 1120(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y1, Y1
+	VPXOR   Y9, Y4, Y4
 	VMOVDQU 1152(CX), Y9
 	VMOVDQU 1184(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y2, Y2
+	VPXOR   Y9, Y5, Y5
 	VMOVDQU 1216(CX), Y9
 	VMOVDQU 1248(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y3, Y3
+	VPXOR   Y9, Y6, Y6
 	VMOVDQU 1280(CX), Y9
 	VMOVDQU 1312(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y4, Y4
-	VMOVDQU 1344(CX), Y9
-	VMOVDQU 1376(CX), Y10
-	VPSHUFB Y11, Y9, Y9
-	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y5, Y5
-	VMOVDQU 1408(CX), Y9
-	VMOVDQU 1440(CX), Y10
-	VPSHUFB Y11, Y9, Y9
-	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y6, Y6
-	VMOVDQU 1472(CX), Y9
-	VMOVDQU 1504(CX), Y10
-	VPSHUFB Y11, Y9, Y9
-	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
 	VPXOR   Y9, Y7, Y7
 
-	// Load and process 32 bytes from input 3 to 8 outputs
+	// Load and process 32 bytes from input 3 to 7 outputs
 	VMOVDQU (DI), Y11
 	ADDQ    $0x20, DI
 	VPSRLQ  $0x04, Y11, Y12
 	VPAND   Y8, Y11, Y11
 	VPAND   Y8, Y12, Y12
+	VMOVDQU 1344(CX), Y9
+	VMOVDQU 1376(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y1, Y1
+	VMOVDQU 1408(CX), Y9
+	VMOVDQU 1440(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y2, Y2
+	VMOVDQU 1472(CX), Y9
+	VMOVDQU 1504(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y3, Y3
 	VMOVDQU 1536(CX), Y9
 	VMOVDQU 1568(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y0, Y0
+	VPXOR   Y9, Y4, Y4
 	VMOVDQU 1600(CX), Y9
 	VMOVDQU 1632(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y1, Y1
+	VPXOR   Y9, Y5, Y5
 	VMOVDQU 1664(CX), Y9
 	VMOVDQU 1696(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y2, Y2
+	VPXOR   Y9, Y6, Y6
 	VMOVDQU 1728(CX), Y9
 	VMOVDQU 1760(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y3, Y3
-	VMOVDQU 1792(CX), Y9
-	VMOVDQU 1824(CX), Y10
-	VPSHUFB Y11, Y9, Y9
-	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y4, Y4
-	VMOVDQU 1856(CX), Y9
-	VMOVDQU 1888(CX), Y10
-	VPSHUFB Y11, Y9, Y9
-	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y5, Y5
-	VMOVDQU 1920(CX), Y9
-	VMOVDQU 1952(CX), Y10
-	VPSHUFB Y11, Y9, Y9
-	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y6, Y6
-	VMOVDQU 1984(CX), Y9
-	VMOVDQU 2016(CX), Y10
-	VPSHUFB Y11, Y9, Y9
-	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
 	VPXOR   Y9, Y7, Y7
 
-	// Load and process 32 bytes from input 4 to 8 outputs
+	// Load and process 32 bytes from input 4 to 7 outputs
 	VMOVDQU (R8), Y11
 	ADDQ    $0x20, R8
 	VPSRLQ  $0x04, Y11, Y12
 	VPAND   Y8, Y11, Y11
 	VPAND   Y8, Y12, Y12
+	VMOVDQU 1792(CX), Y9
+	VMOVDQU 1824(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y1, Y1
+	VMOVDQU 1856(CX), Y9
+	VMOVDQU 1888(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y2, Y2
+	VMOVDQU 1920(CX), Y9
+	VMOVDQU 1952(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y3, Y3
+	VMOVDQU 1984(CX), Y9
+	VMOVDQU 2016(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y4, Y4
 	VMOVDQU 2048(CX), Y9
 	VMOVDQU 2080(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y0, Y0
+	VPXOR   Y9, Y5, Y5
 	VMOVDQU 2112(CX), Y9
 	VMOVDQU 2144(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y1, Y1
+	VPXOR   Y9, Y6, Y6
 	VMOVDQU 2176(CX), Y9
 	VMOVDQU 2208(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y2, Y2
-	VMOVDQU 2240(CX), Y9
-	VMOVDQU 2272(CX), Y10
-	VPSHUFB Y11, Y9, Y9
-	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y3, Y3
-	VMOVDQU 2304(CX), Y9
-	VMOVDQU 2336(CX), Y10
-	VPSHUFB Y11, Y9, Y9
-	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y4, Y4
-	VMOVDQU 2368(CX), Y9
-	VMOVDQU 2400(CX), Y10
-	VPSHUFB Y11, Y9, Y9
-	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y5, Y5
-	VMOVDQU 2432(CX), Y9
-	VMOVDQU 2464(CX), Y10
-	VPSHUFB Y11, Y9, Y9
-	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y6, Y6
-	VMOVDQU 2496(CX), Y9
-	VMOVDQU 2528(CX), Y10
-	VPSHUFB Y11, Y9, Y9
-	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
 	VPXOR   Y9, Y7, Y7
 
-	// Load and process 32 bytes from input 5 to 8 outputs
+	// Load and process 32 bytes from input 5 to 7 outputs
 	VMOVDQU (R9), Y11
 	ADDQ    $0x20, R9
 	VPSRLQ  $0x04, Y11, Y12
 	VPAND   Y8, Y11, Y11
 	VPAND   Y8, Y12, Y12
+	VMOVDQU 2240(CX), Y9
+	VMOVDQU 2272(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y1, Y1
+	VMOVDQU 2304(CX), Y9
+	VMOVDQU 2336(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y2, Y2
+	VMOVDQU 2368(CX), Y9
+	VMOVDQU 2400(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y3, Y3
+	VMOVDQU 2432(CX), Y9
+	VMOVDQU 2464(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y4, Y4
+	VMOVDQU 2496(CX), Y9
+	VMOVDQU 2528(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y5, Y5
 	VMOVDQU 2560(CX), Y9
 	VMOVDQU 2592(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y0, Y0
+	VPXOR   Y9, Y6, Y6
 	VMOVDQU 2624(CX), Y9
 	VMOVDQU 2656(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y1, Y1
-	VMOVDQU 2688(CX), Y9
-	VMOVDQU 2720(CX), Y10
-	VPSHUFB Y11, Y9, Y9
-	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y2, Y2
-	VMOVDQU 2752(CX), Y9
-	VMOVDQU 2784(CX), Y10
-	VPSHUFB Y11, Y9, Y9
-	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y3, Y3
-	VMOVDQU 2816(CX), Y9
-	VMOVDQU 2848(CX), Y10
-	VPSHUFB Y11, Y9, Y9
-	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y4, Y4
-	VMOVDQU 2880(CX), Y9
-	VMOVDQU 2912(CX), Y10
-	VPSHUFB Y11, Y9, Y9
-	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y5, Y5
-	VMOVDQU 2944(CX), Y9
-	VMOVDQU 2976(CX), Y10
-	VPSHUFB Y11, Y9, Y9
-	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y6, Y6
-	VMOVDQU 3008(CX), Y9
-	VMOVDQU 3040(CX), Y10
-	VPSHUFB Y11, Y9, Y9
-	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
 	VPXOR   Y9, Y7, Y7
 
-	// Load and process 32 bytes from input 6 to 8 outputs
+	// Load and process 32 bytes from input 6 to 7 outputs
 	VMOVDQU (R10), Y11
 	ADDQ    $0x20, R10
 	VPSRLQ  $0x04, Y11, Y12
 	VPAND   Y8, Y11, Y11
 	VPAND   Y8, Y12, Y12
+	VMOVDQU 2688(CX), Y9
+	VMOVDQU 2720(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y1, Y1
+	VMOVDQU 2752(CX), Y9
+	VMOVDQU 2784(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y2, Y2
+	VMOVDQU 2816(CX), Y9
+	VMOVDQU 2848(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y3, Y3
+	VMOVDQU 2880(CX), Y9
+	VMOVDQU 2912(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y4, Y4
+	VMOVDQU 2944(CX), Y9
+	VMOVDQU 2976(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y5, Y5
+	VMOVDQU 3008(CX), Y9
+	VMOVDQU 3040(CX), Y10
+	VPSHUFB Y11, Y9, Y9
+	VPSHUFB Y12, Y10, Y10
+	VPXOR   Y9, Y10, Y9
+	VPXOR   Y9, Y6, Y6
 	VMOVDQU 3072(CX), Y9
 	VMOVDQU 3104(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y0, Y0
+	VPXOR   Y9, Y7, Y7
+
+	// Load and process 32 bytes from input 7 to 7 outputs
+	VMOVDQU (R11), Y11
+	ADDQ    $0x20, R11
+	VPSRLQ  $0x04, Y11, Y12
+	VPAND   Y8, Y11, Y11
+	VPAND   Y8, Y12, Y12
 	VMOVDQU 3136(CX), Y9
 	VMOVDQU 3168(CX), Y10
 	VPSHUFB Y11, Y9, Y9
@@ -20052,9 +19726,9 @@ mulAvxTwo_10x8_loop:
 	VPXOR   Y9, Y10, Y9
 	VPXOR   Y9, Y7, Y7
 
-	// Load and process 32 bytes from input 7 to 8 outputs
-	VMOVDQU (R11), Y11
-	ADDQ    $0x20, R11
+	// Load and process 32 bytes from input 8 to 7 outputs
+	VMOVDQU (R12), Y11
+	ADDQ    $0x20, R12
 	VPSRLQ  $0x04, Y11, Y12
 	VPAND   Y8, Y11, Y11
 	VPAND   Y8, Y12, Y12
@@ -20063,177 +19737,739 @@ mulAvxTwo_10x8_loop:
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y0, Y0
+	VPXOR   Y9, Y1, Y1
 	VMOVDQU 3648(CX), Y9
 	VMOVDQU 3680(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y1, Y1
+	VPXOR   Y9, Y2, Y2
 	VMOVDQU 3712(CX), Y9
 	VMOVDQU 3744(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y2, Y2
+	VPXOR   Y9, Y3, Y3
 	VMOVDQU 3776(CX), Y9
 	VMOVDQU 3808(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y3, Y3
+	VPXOR   Y9, Y4, Y4
 	VMOVDQU 3840(CX), Y9
 	VMOVDQU 3872(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y4, Y4
+	VPXOR   Y9, Y5, Y5
 	VMOVDQU 3904(CX), Y9
 	VMOVDQU 3936(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y5, Y5
+	VPXOR   Y9, Y6, Y6
 	VMOVDQU 3968(CX), Y9
 	VMOVDQU 4000(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y6, Y6
-	VMOVDQU 4032(CX), Y9
-	VMOVDQU 4064(CX), Y10
-	VPSHUFB Y11, Y9, Y9
-	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
 	VPXOR   Y9, Y7, Y7
 
-	// Load and process 32 bytes from input 8 to 8 outputs
-	VMOVDQU (R12), Y11
-	ADDQ    $0x20, R12
-	VPSRLQ  $0x04, Y11, Y12
-	VPAND   Y8, Y11, Y11
-	VPAND   Y8, Y12, Y12
-	VMOVDQU 4096(CX), Y9
-	VMOVDQU 4128(CX), Y10
-	VPSHUFB Y11, Y9, Y9
-	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y0, Y0
-	VMOVDQU 4160(CX), Y9
-	VMOVDQU 4192(CX), Y10
-	VPSHUFB Y11, Y9, Y9
-	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y1, Y1
-	VMOVDQU 4224(CX), Y9
-	VMOVDQU 4256(CX), Y10
-	VPSHUFB Y11, Y9, Y9
-	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y2, Y2
-	VMOVDQU 4288(CX), Y9
-	VMOVDQU 4320(CX), Y10
-	VPSHUFB Y11, Y9, Y9
-	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y3, Y3
-	VMOVDQU 4352(CX), Y9
-	VMOVDQU 4384(CX), Y10
-	VPSHUFB Y11, Y9, Y9
-	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y4, Y4
-	VMOVDQU 4416(CX), Y9
-	VMOVDQU 4448(CX), Y10
-	VPSHUFB Y11, Y9, Y9
-	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y5, Y5
-	VMOVDQU 4480(CX), Y9
-	VMOVDQU 4512(CX), Y10
-	VPSHUFB Y11, Y9, Y9
-	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y6, Y6
-	VMOVDQU 4544(CX), Y9
-	VMOVDQU 4576(CX), Y10
-	VPSHUFB Y11, Y9, Y9
-	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y7, Y7
-
-	// Load and process 32 bytes from input 9 to 8 outputs
+	// Load and process 32 bytes from input 9 to 7 outputs
 	VMOVDQU (DX), Y11
 	ADDQ    $0x20, DX
 	VPSRLQ  $0x04, Y11, Y12
 	VPAND   Y8, Y11, Y11
 	VPAND   Y8, Y12, Y12
-	VMOVDQU 4608(CX), Y9
-	VMOVDQU 4640(CX), Y10
-	VPSHUFB Y11, Y9, Y9
-	VPSHUFB Y12, Y10, Y10
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y9, Y0, Y0
-	VMOVDQU 4672(CX), Y9
-	VMOVDQU 4704(CX), Y10
+	VMOVDQU 4032(CX), Y9
+	VMOVDQU 4064(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
 	VPXOR   Y9, Y1, Y1
-	VMOVDQU 4736(CX), Y9
-	VMOVDQU 4768(CX), Y10
+	VMOVDQU 4096(CX), Y9
+	VMOVDQU 4128(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
 	VPXOR   Y9, Y2, Y2
-	VMOVDQU 4800(CX), Y9
-	VMOVDQU 4832(CX), Y10
+	VMOVDQU 4160(CX), Y9
+	VMOVDQU 4192(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
 	VPXOR   Y9, Y3, Y3
-	VMOVDQU 4864(CX), Y9
-	VMOVDQU 4896(CX), Y10
+	VMOVDQU 4224(CX), Y9
+	VMOVDQU 4256(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
 	VPXOR   Y9, Y4, Y4
-	VMOVDQU 4928(CX), Y9
-	VMOVDQU 4960(CX), Y10
+	VMOVDQU 4288(CX), Y9
+	VMOVDQU 4320(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
 	VPXOR   Y9, Y5, Y5
-	VMOVDQU 4992(CX), Y9
-	VMOVDQU 5024(CX), Y10
+	VMOVDQU 4352(CX), Y9
+	VMOVDQU 4384(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
 	VPXOR   Y9, Y6, Y6
-	VMOVDQU 5056(CX), Y9
-	VMOVDQU 5088(CX), Y10
+	VMOVDQU 4416(CX), Y9
+	VMOVDQU 4448(CX), Y10
 	VPSHUFB Y11, Y9, Y9
 	VPSHUFB Y12, Y10, Y10
 	VPXOR   Y9, Y10, Y9
 	VPXOR   Y9, Y7, Y7
 
+	// Store 7 outputs
+	MOVQ    (R13), R15
+	VMOVDQU Y1, (R15)(R14*1)
+	MOVQ    24(R13), R15
+	VMOVDQU Y2, (R15)(R14*1)
+	MOVQ    48(R13), R15
+	VMOVDQU Y3, (R15)(R14*1)
+	MOVQ    72(R13), R15
+	VMOVDQU Y4, (R15)(R14*1)
+	MOVQ    96(R13), R15
+	VMOVDQU Y5, (R15)(R14*1)
+	MOVQ    120(R13), R15
+	VMOVDQU Y6, (R15)(R14*1)
+	MOVQ    144(R13), R15
+	VMOVDQU Y7, (R15)(R14*1)
+
+	// Prepare for next loop
+	ADDQ $0x20, R14
+	DECQ AX
+	JNZ  mulAvxTwo_10x7_loop
+	VZEROUPPER
+
+mulAvxTwo_10x7_end:
+	MOVQ X0, BP
+	RET
+
+// func mulAvxTwo_10x8(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+// Requires: AVX, AVX2, SSE2
+TEXT ·mulAvxTwo_10x8(SB), NOSPLIT, $0-88
+	MOVQ BP, X0
+
+	// Loading no tables to registers
+	// Destination kept on stack
+	// Full registers estimated 173 YMM used
+	MOVQ  n+80(FP), AX
+	MOVQ  matrix_base+0(FP), CX
+	SHRQ  $0x05, AX
+	TESTQ AX, AX
+	JZ    mulAvxTwo_10x8_end
+	MOVQ  in_base+24(FP), DX
+	MOVQ  (DX), BX
+	MOVQ  24(DX), BP
+	MOVQ  48(DX), SI
+	MOVQ  72(DX), DI
+	MOVQ  96(DX), R8
+	MOVQ  120(DX), R9
+	MOVQ  144(DX), R10
+	MOVQ  168(DX), R11
+	MOVQ  192(DX), R12
+	MOVQ  216(DX), DX
+	MOVQ  out_base+48(FP), R13
+	MOVQ  start+72(FP), R14
+
+	// Add start offset to input
+	ADDQ         R14, BX
+	ADDQ         R14, BP
+	ADDQ         R14, SI
+	ADDQ         R14, DI
+	ADDQ         R14, R8
+	ADDQ         R14, R9
+	ADDQ         R14, R10
+	ADDQ         R14, R11
+	ADDQ         R14, R12
+	ADDQ         R14, DX
+	MOVQ         $0x0000000f, R15
+	MOVQ         R15, X9
+	VPBROADCASTB X9, Y9
+
+mulAvxTwo_10x8_loop:
+	// Clear 8 outputs
+	VPXOR Y1, Y1, Y1
+	VPXOR Y2, Y2, Y2
+	VPXOR Y3, Y3, Y3
+	VPXOR Y4, Y4, Y4
+	VPXOR Y5, Y5, Y5
+	VPXOR Y6, Y6, Y6
+	VPXOR Y7, Y7, Y7
+	VPXOR Y8, Y8, Y8
+
+	// Load and process 32 bytes from input 0 to 8 outputs
+	VMOVDQU (BX), Y12
+	ADDQ    $0x20, BX
+	VPSRLQ  $0x04, Y12, Y13
+	VPAND   Y9, Y12, Y12
+	VPAND   Y9, Y13, Y13
+	VMOVDQU (CX), Y10
+	VMOVDQU 32(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y1, Y1
+	VMOVDQU 64(CX), Y10
+	VMOVDQU 96(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y2, Y2
+	VMOVDQU 128(CX), Y10
+	VMOVDQU 160(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y3, Y3
+	VMOVDQU 192(CX), Y10
+	VMOVDQU 224(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y4, Y4
+	VMOVDQU 256(CX), Y10
+	VMOVDQU 288(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y5, Y5
+	VMOVDQU 320(CX), Y10
+	VMOVDQU 352(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y6, Y6
+	VMOVDQU 384(CX), Y10
+	VMOVDQU 416(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y7, Y7
+	VMOVDQU 448(CX), Y10
+	VMOVDQU 480(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y8, Y8
+
+	// Load and process 32 bytes from input 1 to 8 outputs
+	VMOVDQU (BP), Y12
+	ADDQ    $0x20, BP
+	VPSRLQ  $0x04, Y12, Y13
+	VPAND   Y9, Y12, Y12
+	VPAND   Y9, Y13, Y13
+	VMOVDQU 512(CX), Y10
+	VMOVDQU 544(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y1, Y1
+	VMOVDQU 576(CX), Y10
+	VMOVDQU 608(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y2, Y2
+	VMOVDQU 640(CX), Y10
+	VMOVDQU 672(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y3, Y3
+	VMOVDQU 704(CX), Y10
+	VMOVDQU 736(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y4, Y4
+	VMOVDQU 768(CX), Y10
+	VMOVDQU 800(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y5, Y5
+	VMOVDQU 832(CX), Y10
+	VMOVDQU 864(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y6, Y6
+	VMOVDQU 896(CX), Y10
+	VMOVDQU 928(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y7, Y7
+	VMOVDQU 960(CX), Y10
+	VMOVDQU 992(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y8, Y8
+
+	// Load and process 32 bytes from input 2 to 8 outputs
+	VMOVDQU (SI), Y12
+	ADDQ    $0x20, SI
+	VPSRLQ  $0x04, Y12, Y13
+	VPAND   Y9, Y12, Y12
+	VPAND   Y9, Y13, Y13
+	VMOVDQU 1024(CX), Y10
+	VMOVDQU 1056(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y1, Y1
+	VMOVDQU 1088(CX), Y10
+	VMOVDQU 1120(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y2, Y2
+	VMOVDQU 1152(CX), Y10
+	VMOVDQU 1184(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y3, Y3
+	VMOVDQU 1216(CX), Y10
+	VMOVDQU 1248(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y4, Y4
+	VMOVDQU 1280(CX), Y10
+	VMOVDQU 1312(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y5, Y5
+	VMOVDQU 1344(CX), Y10
+	VMOVDQU 1376(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y6, Y6
+	VMOVDQU 1408(CX), Y10
+	VMOVDQU 1440(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y7, Y7
+	VMOVDQU 1472(CX), Y10
+	VMOVDQU 1504(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y8, Y8
+
+	// Load and process 32 bytes from input 3 to 8 outputs
+	VMOVDQU (DI), Y12
+	ADDQ    $0x20, DI
+	VPSRLQ  $0x04, Y12, Y13
+	VPAND   Y9, Y12, Y12
+	VPAND   Y9, Y13, Y13
+	VMOVDQU 1536(CX), Y10
+	VMOVDQU 1568(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y1, Y1
+	VMOVDQU 1600(CX), Y10
+	VMOVDQU 1632(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y2, Y2
+	VMOVDQU 1664(CX), Y10
+	VMOVDQU 1696(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y3, Y3
+	VMOVDQU 1728(CX), Y10
+	VMOVDQU 1760(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y4, Y4
+	VMOVDQU 1792(CX), Y10
+	VMOVDQU 1824(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y5, Y5
+	VMOVDQU 1856(CX), Y10
+	VMOVDQU 1888(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y6, Y6
+	VMOVDQU 1920(CX), Y10
+	VMOVDQU 1952(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y7, Y7
+	VMOVDQU 1984(CX), Y10
+	VMOVDQU 2016(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y8, Y8
+
+	// Load and process 32 bytes from input 4 to 8 outputs
+	VMOVDQU (R8), Y12
+	ADDQ    $0x20, R8
+	VPSRLQ  $0x04, Y12, Y13
+	VPAND   Y9, Y12, Y12
+	VPAND   Y9, Y13, Y13
+	VMOVDQU 2048(CX), Y10
+	VMOVDQU 2080(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y1, Y1
+	VMOVDQU 2112(CX), Y10
+	VMOVDQU 2144(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y2, Y2
+	VMOVDQU 2176(CX), Y10
+	VMOVDQU 2208(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y3, Y3
+	VMOVDQU 2240(CX), Y10
+	VMOVDQU 2272(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y4, Y4
+	VMOVDQU 2304(CX), Y10
+	VMOVDQU 2336(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y5, Y5
+	VMOVDQU 2368(CX), Y10
+	VMOVDQU 2400(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y6, Y6
+	VMOVDQU 2432(CX), Y10
+	VMOVDQU 2464(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y7, Y7
+	VMOVDQU 2496(CX), Y10
+	VMOVDQU 2528(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y8, Y8
+
+	// Load and process 32 bytes from input 5 to 8 outputs
+	VMOVDQU (R9), Y12
+	ADDQ    $0x20, R9
+	VPSRLQ  $0x04, Y12, Y13
+	VPAND   Y9, Y12, Y12
+	VPAND   Y9, Y13, Y13
+	VMOVDQU 2560(CX), Y10
+	VMOVDQU 2592(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y1, Y1
+	VMOVDQU 2624(CX), Y10
+	VMOVDQU 2656(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y2, Y2
+	VMOVDQU 2688(CX), Y10
+	VMOVDQU 2720(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y3, Y3
+	VMOVDQU 2752(CX), Y10
+	VMOVDQU 2784(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y4, Y4
+	VMOVDQU 2816(CX), Y10
+	VMOVDQU 2848(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y5, Y5
+	VMOVDQU 2880(CX), Y10
+	VMOVDQU 2912(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y6, Y6
+	VMOVDQU 2944(CX), Y10
+	VMOVDQU 2976(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y7, Y7
+	VMOVDQU 3008(CX), Y10
+	VMOVDQU 3040(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y8, Y8
+
+	// Load and process 32 bytes from input 6 to 8 outputs
+	VMOVDQU (R10), Y12
+	ADDQ    $0x20, R10
+	VPSRLQ  $0x04, Y12, Y13
+	VPAND   Y9, Y12, Y12
+	VPAND   Y9, Y13, Y13
+	VMOVDQU 3072(CX), Y10
+	VMOVDQU 3104(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y1, Y1
+	VMOVDQU 3136(CX), Y10
+	VMOVDQU 3168(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y2, Y2
+	VMOVDQU 3200(CX), Y10
+	VMOVDQU 3232(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y3, Y3
+	VMOVDQU 3264(CX), Y10
+	VMOVDQU 3296(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y4, Y4
+	VMOVDQU 3328(CX), Y10
+	VMOVDQU 3360(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y5, Y5
+	VMOVDQU 3392(CX), Y10
+	VMOVDQU 3424(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y6, Y6
+	VMOVDQU 3456(CX), Y10
+	VMOVDQU 3488(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y7, Y7
+	VMOVDQU 3520(CX), Y10
+	VMOVDQU 3552(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y8, Y8
+
+	// Load and process 32 bytes from input 7 to 8 outputs
+	VMOVDQU (R11), Y12
+	ADDQ    $0x20, R11
+	VPSRLQ  $0x04, Y12, Y13
+	VPAND   Y9, Y12, Y12
+	VPAND   Y9, Y13, Y13
+	VMOVDQU 3584(CX), Y10
+	VMOVDQU 3616(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y1, Y1
+	VMOVDQU 3648(CX), Y10
+	VMOVDQU 3680(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y2, Y2
+	VMOVDQU 3712(CX), Y10
+	VMOVDQU 3744(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y3, Y3
+	VMOVDQU 3776(CX), Y10
+	VMOVDQU 3808(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y4, Y4
+	VMOVDQU 3840(CX), Y10
+	VMOVDQU 3872(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y5, Y5
+	VMOVDQU 3904(CX), Y10
+	VMOVDQU 3936(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y6, Y6
+	VMOVDQU 3968(CX), Y10
+	VMOVDQU 4000(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y7, Y7
+	VMOVDQU 4032(CX), Y10
+	VMOVDQU 4064(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y8, Y8
+
+	// Load and process 32 bytes from input 8 to 8 outputs
+	VMOVDQU (R12), Y12
+	ADDQ    $0x20, R12
+	VPSRLQ  $0x04, Y12, Y13
+	VPAND   Y9, Y12, Y12
+	VPAND   Y9, Y13, Y13
+	VMOVDQU 4096(CX), Y10
+	VMOVDQU 4128(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y1, Y1
+	VMOVDQU 4160(CX), Y10
+	VMOVDQU 4192(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y2, Y2
+	VMOVDQU 4224(CX), Y10
+	VMOVDQU 4256(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y3, Y3
+	VMOVDQU 4288(CX), Y10
+	VMOVDQU 4320(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y4, Y4
+	VMOVDQU 4352(CX), Y10
+	VMOVDQU 4384(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y5, Y5
+	VMOVDQU 4416(CX), Y10
+	VMOVDQU 4448(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y6, Y6
+	VMOVDQU 4480(CX), Y10
+	VMOVDQU 4512(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y7, Y7
+	VMOVDQU 4544(CX), Y10
+	VMOVDQU 4576(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y8, Y8
+
+	// Load and process 32 bytes from input 9 to 8 outputs
+	VMOVDQU (DX), Y12
+	ADDQ    $0x20, DX
+	VPSRLQ  $0x04, Y12, Y13
+	VPAND   Y9, Y12, Y12
+	VPAND   Y9, Y13, Y13
+	VMOVDQU 4608(CX), Y10
+	VMOVDQU 4640(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y1, Y1
+	VMOVDQU 4672(CX), Y10
+	VMOVDQU 4704(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y2, Y2
+	VMOVDQU 4736(CX), Y10
+	VMOVDQU 4768(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y3, Y3
+	VMOVDQU 4800(CX), Y10
+	VMOVDQU 4832(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y4, Y4
+	VMOVDQU 4864(CX), Y10
+	VMOVDQU 4896(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y5, Y5
+	VMOVDQU 4928(CX), Y10
+	VMOVDQU 4960(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y6, Y6
+	VMOVDQU 4992(CX), Y10
+	VMOVDQU 5024(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y7, Y7
+	VMOVDQU 5056(CX), Y10
+	VMOVDQU 5088(CX), Y11
+	VPSHUFB Y12, Y10, Y10
+	VPSHUFB Y13, Y11, Y11
+	VPXOR   Y10, Y11, Y10
+	VPXOR   Y10, Y8, Y8
+
 	// Store 8 outputs
 	MOVQ    (R13), R15
-	VMOVDQU Y0, (R15)(R14*1)
-	MOVQ    24(R13), R15
 	VMOVDQU Y1, (R15)(R14*1)
-	MOVQ    48(R13), R15
+	MOVQ    24(R13), R15
 	VMOVDQU Y2, (R15)(R14*1)
-	MOVQ    72(R13), R15
+	MOVQ    48(R13), R15
 	VMOVDQU Y3, (R15)(R14*1)
-	MOVQ    96(R13), R15
+	MOVQ    72(R13), R15
 	VMOVDQU Y4, (R15)(R14*1)
-	MOVQ    120(R13), R15
+	MOVQ    96(R13), R15
 	VMOVDQU Y5, (R15)(R14*1)
-	MOVQ    144(R13), R15
+	MOVQ    120(R13), R15
 	VMOVDQU Y6, (R15)(R14*1)
-	MOVQ    168(R13), R15
+	MOVQ    144(R13), R15
 	VMOVDQU Y7, (R15)(R14*1)
+	MOVQ    168(R13), R15
+	VMOVDQU Y8, (R15)(R14*1)
 
 	// Prepare for next loop
 	ADDQ $0x20, R14
@@ -20242,4 +20478,5 @@ mulAvxTwo_10x8_loop:
 	VZEROUPPER
 
 mulAvxTwo_10x8_end:
+	MOVQ X0, BP
 	RET
