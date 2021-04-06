@@ -2,6 +2,8 @@ github.com/mmcloughlin/avo v0.0.0-20200523003940-8618366ab67f h1:/JqZBJ6QTIYMbga
 github.com/mmcloughlin/avo v0.0.0-20200523003940-8618366ab67f/go.mod h1:wqKykBG2QzQDJEzvRkcS8x6MiSJkF52hXZsXcjaB3ls=
 github.com/mmcloughlin/avo v0.0.0-20201130012700-45c8ae10fd12 h1:JJvkIBIdkzz71+2UD6CHfjDC2O3fCZJ98KUaB70gr00=
 github.com/mmcloughlin/avo v0.0.0-20201130012700-45c8ae10fd12/go.mod h1:6aKT4zZIrpGqB3RpFU14ByCSSyKY6LfJz4J/JJChHfI=
+github.com/mmcloughlin/avo v0.0.0-20210104032911-599bdd1269f4 h1:ExoghBBFY7A3RzgkAOq0XbHs9zaT/bHq7xysgyp3z3Q=
+github.com/mmcloughlin/avo v0.0.0-20210104032911-599bdd1269f4/go.mod h1:6aKT4zZIrpGqB3RpFU14ByCSSyKY6LfJz4J/JJChHfI=
 github.com/yuin/goldmark v1.1.27/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 github.com/yuin/goldmark v1.2.1/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 golang.org/x/arch v0.0.0-20190909030613-46d78d1859ac/go.mod h1:flIaEI6LNU6xOCD5PaJvn9wGP0agmIOqjrtsKGRguv4=
