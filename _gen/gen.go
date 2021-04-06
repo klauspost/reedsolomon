@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/mmcloughlin/avo/attr"
 	. "github.com/mmcloughlin/avo/build"
 	"github.com/mmcloughlin/avo/buildtags"
 	. "github.com/mmcloughlin/avo/operand"
@@ -124,8 +125,16 @@ func genMulAvx2(name string, inputs int, outputs int, xor bool) {
 		}
 	}
 
-	TEXT(name, 0, fmt.Sprintf("func(matrix []byte, in [][]byte, out [][]byte, start, n int)"))
+	TEXT(name, attr.NOSPLIT, fmt.Sprintf("func(matrix []byte, in [][]byte, out [][]byte, start, n int)"))
 
+	var restore = func() {}
+	if est == 16 {
+		// If we don't have space in XMM, alloc on frame.
+		AllocLocal(8)
+	} else {
+		// Save in XMM..
+		restore = saveBP()
+	}
 	// SWITCH DEFINITION:
 	s := fmt.Sprintf("			mulAvxTwo_%dx%d(matrix, in, out, start, n)\n", inputs, outputs)
 	s += fmt.Sprintf("\t\t\t\treturn n\n")
@@ -149,7 +158,11 @@ func genMulAvx2(name string, inputs int, outputs int, xor bool) {
 
 	length := Load(Param("n"), GP64())
 	matrixBase := GP64()
-	MOVQ(Param("matrix").Base().MustAddr(), matrixBase)
+	addr, err := Param("matrix").Base().Resolve()
+	if err != nil {
+		panic(err)
+	}
+	MOVQ(addr.Addr, matrixBase)
 	SHRQ(U8(perLoopBits), length)
 	TESTQ(length, length)
 	JZ(LabelRef(name + "_end"))
@@ -171,7 +184,11 @@ func genMulAvx2(name string, inputs int, outputs int, xor bool) {
 
 	inPtrs := make([]reg.GPVirtual, inputs)
 	inSlicePtr := GP64()
-	MOVQ(Param("in").Base().MustAddr(), inSlicePtr)
+	addr, err = Param("in").Base().Resolve()
+	if err != nil {
+		panic(err)
+	}
+	MOVQ(addr.Addr, inSlicePtr)
 	for i := range inPtrs {
 		ptr := GP64()
 		MOVQ(Mem{Base: inSlicePtr, Disp: i * 24}, ptr)
@@ -180,9 +197,13 @@ func genMulAvx2(name string, inputs int, outputs int, xor bool) {
 	// Destination
 	dst := make([]reg.VecVirtual, outputs)
 	dstPtr := make([]reg.GPVirtual, outputs)
-	outBase := Param("out").Base().MustAddr()
+	addr, err = Param("out").Base().Resolve()
+	if err != nil {
+		panic(err)
+	}
+	outBase := addr.Addr
 	outSlicePtr := GP64()
-	MOVQ(outBase, outSlicePtr)
+	MOVQ(addr.Addr, outSlicePtr)
 	for i := range dst {
 		dst[i] = YMM()
 		if !regDst {
@@ -194,7 +215,12 @@ func genMulAvx2(name string, inputs int, outputs int, xor bool) {
 	}
 
 	offset := GP64()
-	MOVQ(Param("start").MustAddr(), offset)
+	addr, err = Param("start").Resolve()
+	if err != nil {
+		panic(err)
+	}
+
+	MOVQ(addr.Addr, offset)
 	if regDst {
 		Comment("Add start offset to output")
 		for _, ptr := range dstPtr {
@@ -296,5 +322,15 @@ func genMulAvx2(name string, inputs int, outputs int, xor bool) {
 	VZEROUPPER()
 
 	Label(name + "_end")
+	restore()
 	RET()
+}
+
+// saveBP will save RBP in an XMM register and restore it when returning.
+func saveBP() (restore func()) {
+	x := XMM()
+	MOVQ(reg.RBP, x)
+	return func() {
+		MOVQ(x, reg.RBP)
+	}
 }
