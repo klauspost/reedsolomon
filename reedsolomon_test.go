@@ -790,6 +790,10 @@ func benchmarkEncode(b *testing.B, dataShards, parityShards, shardSize int) {
 	}
 }
 
+func BenchmarkEncode2x1x1M(b *testing.B) {
+	benchmarkEncode(b, 2, 1, 1024*1024)
+}
+
 func BenchmarkEncode10x2x10000(b *testing.B) {
 	benchmarkEncode(b, 10, 2, 10000)
 }
