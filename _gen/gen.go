@@ -1,6 +1,6 @@
 //+build generate
 
-//go:generate go run gen.go -out ../galois_gen_amd64.s -stubs ../galois_gen_amd64.go
+//go:generate go run gen.go -out ../galois_gen_amd64.s -stubs ../galois_gen_amd64.go -pkg=reedsolomon
 //go:generate gofmt -w ../galois_gen_switch_amd64.go
 
 package main
@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/mmcloughlin/avo/attr"
 	. "github.com/mmcloughlin/avo/build"
 	"github.com/mmcloughlin/avo/buildtags"
 	. "github.com/mmcloughlin/avo/operand"
@@ -127,7 +128,7 @@ func genMulAvx2(name string, inputs int, outputs int, xor bool) {
 		}
 	}
 
-	TEXT(name, 0, fmt.Sprintf("func(matrix []byte, in [][]byte, out [][]byte, start, n int)"))
+	TEXT(name, attr.NOSPLIT, fmt.Sprintf("func(matrix []byte, in [][]byte, out [][]byte, start, n int)"))
 
 	// SWITCH DEFINITION:
 	s := fmt.Sprintf("			mulAvxTwo_%dx%d(matrix, in, out, start, n)\n", inputs, outputs)
@@ -152,7 +153,11 @@ func genMulAvx2(name string, inputs int, outputs int, xor bool) {
 
 	length := Load(Param("n"), GP64())
 	matrixBase := GP64()
-	MOVQ(Param("matrix").Base().MustAddr(), matrixBase)
+	addr, err := Param("matrix").Base().Resolve()
+	if err != nil {
+		panic(err)
+	}
+	MOVQ(addr.Addr, matrixBase)
 	SHRQ(U8(perLoopBits), length)
 	TESTQ(length, length)
 	JZ(LabelRef(name + "_end"))
@@ -174,7 +179,11 @@ func genMulAvx2(name string, inputs int, outputs int, xor bool) {
 
 	inPtrs := make([]reg.GPVirtual, inputs)
 	inSlicePtr := GP64()
-	MOVQ(Param("in").Base().MustAddr(), inSlicePtr)
+	addr, err = Param("in").Base().Resolve()
+	if err != nil {
+		panic(err)
+	}
+	MOVQ(addr.Addr, inSlicePtr)
 	for i := range inPtrs {
 		ptr := GP64()
 		MOVQ(Mem{Base: inSlicePtr, Disp: i * 24}, ptr)
@@ -183,9 +192,13 @@ func genMulAvx2(name string, inputs int, outputs int, xor bool) {
 	// Destination
 	dst := make([]reg.VecVirtual, outputs)
 	dstPtr := make([]reg.GPVirtual, outputs)
-	outBase := Param("out").Base().MustAddr()
+	addr, err = Param("out").Base().Resolve()
+	if err != nil {
+		panic(err)
+	}
+	outBase := addr.Addr
 	outSlicePtr := GP64()
-	MOVQ(outBase, outSlicePtr)
+	MOVQ(addr.Addr, outSlicePtr)
 	for i := range dst {
 		dst[i] = YMM()
 		if !regDst {
@@ -197,7 +210,12 @@ func genMulAvx2(name string, inputs int, outputs int, xor bool) {
 	}
 
 	offset := GP64()
-	MOVQ(Param("start").MustAddr(), offset)
+	addr, err = Param("start").Resolve()
+	if err != nil {
+		panic(err)
+	}
+
+	MOVQ(addr.Addr, offset)
 	if regDst {
 		Comment("Add start offset to output")
 		for _, ptr := range dstPtr {
@@ -368,7 +386,11 @@ func genMulAvx2Sixty64(name string, inputs int, outputs int, xor bool) {
 
 	length := Load(Param("n"), GP64())
 	matrixBase := GP64()
-	MOVQ(Param("matrix").Base().MustAddr(), matrixBase)
+	addr, err := Param("matrix").Base().Resolve()
+	if err != nil {
+		panic(err)
+	}
+	MOVQ(addr.Addr, matrixBase)
 	SHRQ(U8(perLoopBits), length)
 	TESTQ(length, length)
 	JZ(LabelRef(name + "_end"))
@@ -390,7 +412,11 @@ func genMulAvx2Sixty64(name string, inputs int, outputs int, xor bool) {
 
 	inPtrs := make([]reg.GPVirtual, inputs)
 	inSlicePtr := GP64()
-	MOVQ(Param("in").Base().MustAddr(), inSlicePtr)
+	addr, err = Param("in").Base().Resolve()
+	if err != nil {
+		panic(err)
+	}
+	MOVQ(addr.Addr, inSlicePtr)
 	for i := range inPtrs {
 		ptr := GP64()
 		MOVQ(Mem{Base: inSlicePtr, Disp: i * 24}, ptr)
@@ -400,8 +426,13 @@ func genMulAvx2Sixty64(name string, inputs int, outputs int, xor bool) {
 	dst := make([]reg.VecVirtual, outputs)
 	dst2 := make([]reg.VecVirtual, outputs)
 	dstPtr := make([]reg.GPVirtual, outputs)
-	outBase := Param("out").Base().MustAddr()
+	addr, err = Param("out").Base().Resolve()
+	if err != nil {
+		panic(err)
+	}
+	outBase := addr.Addr
 	outSlicePtr := GP64()
+	MOVQ(addr.Addr, outSlicePtr)
 	MOVQ(outBase, outSlicePtr)
 	for i := range dst {
 		dst[i] = YMM()
@@ -415,7 +446,12 @@ func genMulAvx2Sixty64(name string, inputs int, outputs int, xor bool) {
 	}
 
 	offset := GP64()
-	MOVQ(Param("start").MustAddr(), offset)
+	addr, err = Param("start").Resolve()
+	if err != nil {
+		panic(err)
+	}
+
+	MOVQ(addr.Addr, offset)
 	if regDst {
 		Comment("Add start offset to output")
 		for _, ptr := range dstPtr {
