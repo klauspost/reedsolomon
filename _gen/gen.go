@@ -35,7 +35,7 @@ func main() {
 	Constraint(buildtags.Not("nogen").ToConstraint())
 	Constraint(buildtags.Term("gc").ToConstraint())
 
-	const perLoopBits = 6
+	const perLoopBits = 5
 	const perLoop = 1 << perLoopBits
 
 	for i := 1; i <= inputMax; i++ {
@@ -364,7 +364,8 @@ func genMulAvx2Sixty64(name string, inputs int, outputs int, xor bool) {
 	TEXT(name, 0, fmt.Sprintf("func(matrix []byte, in [][]byte, out [][]byte, start, n int)"))
 
 	// SWITCH DEFINITION:
-	s := fmt.Sprintf("			mulAvxTwo_%dx%d_64(matrix, in, out, start, n)\n", inputs, outputs)
+	s := fmt.Sprintf("n = (n>>%d)<<%d\n", perLoopBits, perLoopBits)
+	s += fmt.Sprintf("			mulAvxTwo_%dx%d_64(matrix, in, out, start, n)\n", inputs, outputs)
 	s += fmt.Sprintf("\t\t\t\treturn n\n")
 	switchDefs[inputs-1][outputs-1] = s
 
