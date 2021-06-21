@@ -11,7 +11,7 @@ import "fmt"
 
 const avx2CodeGen = true
 const maxAvx2Inputs = 10
-const maxAvx2Outputs = 8
+const maxAvx2Outputs = 10
 
 func galMulSlicesAvx2(matrix []byte, in, out [][]byte, start, stop int) int {
 	n := stop - start
@@ -21,13 +21,16 @@ func galMulSlicesAvx2(matrix []byte, in, out [][]byte, start, stop int) int {
 	case 1:
 		switch len(out) {
 		case 1:
-			mulAvxTwo_1x1(matrix, in, out, start, n)
+			n = (n >> 6) << 6
+			mulAvxTwo_1x1_64(matrix, in, out, start, n)
 			return n
 		case 2:
-			mulAvxTwo_1x2(matrix, in, out, start, n)
+			n = (n >> 6) << 6
+			mulAvxTwo_1x2_64(matrix, in, out, start, n)
 			return n
 		case 3:
-			mulAvxTwo_1x3(matrix, in, out, start, n)
+			n = (n >> 6) << 6
+			mulAvxTwo_1x3_64(matrix, in, out, start, n)
 			return n
 		case 4:
 			mulAvxTwo_1x4(matrix, in, out, start, n)
@@ -44,17 +47,26 @@ func galMulSlicesAvx2(matrix []byte, in, out [][]byte, start, stop int) int {
 		case 8:
 			mulAvxTwo_1x8(matrix, in, out, start, n)
 			return n
+		case 9:
+			mulAvxTwo_1x9(matrix, in, out, start, n)
+			return n
+		case 10:
+			mulAvxTwo_1x10(matrix, in, out, start, n)
+			return n
 		}
 	case 2:
 		switch len(out) {
 		case 1:
-			mulAvxTwo_2x1(matrix, in, out, start, n)
+			n = (n >> 6) << 6
+			mulAvxTwo_2x1_64(matrix, in, out, start, n)
 			return n
 		case 2:
-			mulAvxTwo_2x2(matrix, in, out, start, n)
+			n = (n >> 6) << 6
+			mulAvxTwo_2x2_64(matrix, in, out, start, n)
 			return n
 		case 3:
-			mulAvxTwo_2x3(matrix, in, out, start, n)
+			n = (n >> 6) << 6
+			mulAvxTwo_2x3_64(matrix, in, out, start, n)
 			return n
 		case 4:
 			mulAvxTwo_2x4(matrix, in, out, start, n)
@@ -71,17 +83,26 @@ func galMulSlicesAvx2(matrix []byte, in, out [][]byte, start, stop int) int {
 		case 8:
 			mulAvxTwo_2x8(matrix, in, out, start, n)
 			return n
+		case 9:
+			mulAvxTwo_2x9(matrix, in, out, start, n)
+			return n
+		case 10:
+			mulAvxTwo_2x10(matrix, in, out, start, n)
+			return n
 		}
 	case 3:
 		switch len(out) {
 		case 1:
-			mulAvxTwo_3x1(matrix, in, out, start, n)
+			n = (n >> 6) << 6
+			mulAvxTwo_3x1_64(matrix, in, out, start, n)
 			return n
 		case 2:
-			mulAvxTwo_3x2(matrix, in, out, start, n)
+			n = (n >> 6) << 6
+			mulAvxTwo_3x2_64(matrix, in, out, start, n)
 			return n
 		case 3:
-			mulAvxTwo_3x3(matrix, in, out, start, n)
+			n = (n >> 6) << 6
+			mulAvxTwo_3x3_64(matrix, in, out, start, n)
 			return n
 		case 4:
 			mulAvxTwo_3x4(matrix, in, out, start, n)
@@ -98,17 +119,26 @@ func galMulSlicesAvx2(matrix []byte, in, out [][]byte, start, stop int) int {
 		case 8:
 			mulAvxTwo_3x8(matrix, in, out, start, n)
 			return n
+		case 9:
+			mulAvxTwo_3x9(matrix, in, out, start, n)
+			return n
+		case 10:
+			mulAvxTwo_3x10(matrix, in, out, start, n)
+			return n
 		}
 	case 4:
 		switch len(out) {
 		case 1:
-			mulAvxTwo_4x1(matrix, in, out, start, n)
+			n = (n >> 6) << 6
+			mulAvxTwo_4x1_64(matrix, in, out, start, n)
 			return n
 		case 2:
-			mulAvxTwo_4x2(matrix, in, out, start, n)
+			n = (n >> 6) << 6
+			mulAvxTwo_4x2_64(matrix, in, out, start, n)
 			return n
 		case 3:
-			mulAvxTwo_4x3(matrix, in, out, start, n)
+			n = (n >> 6) << 6
+			mulAvxTwo_4x3_64(matrix, in, out, start, n)
 			return n
 		case 4:
 			mulAvxTwo_4x4(matrix, in, out, start, n)
@@ -125,17 +155,26 @@ func galMulSlicesAvx2(matrix []byte, in, out [][]byte, start, stop int) int {
 		case 8:
 			mulAvxTwo_4x8(matrix, in, out, start, n)
 			return n
+		case 9:
+			mulAvxTwo_4x9(matrix, in, out, start, n)
+			return n
+		case 10:
+			mulAvxTwo_4x10(matrix, in, out, start, n)
+			return n
 		}
 	case 5:
 		switch len(out) {
 		case 1:
-			mulAvxTwo_5x1(matrix, in, out, start, n)
+			n = (n >> 6) << 6
+			mulAvxTwo_5x1_64(matrix, in, out, start, n)
 			return n
 		case 2:
-			mulAvxTwo_5x2(matrix, in, out, start, n)
+			n = (n >> 6) << 6
+			mulAvxTwo_5x2_64(matrix, in, out, start, n)
 			return n
 		case 3:
-			mulAvxTwo_5x3(matrix, in, out, start, n)
+			n = (n >> 6) << 6
+			mulAvxTwo_5x3_64(matrix, in, out, start, n)
 			return n
 		case 4:
 			mulAvxTwo_5x4(matrix, in, out, start, n)
@@ -152,17 +191,26 @@ func galMulSlicesAvx2(matrix []byte, in, out [][]byte, start, stop int) int {
 		case 8:
 			mulAvxTwo_5x8(matrix, in, out, start, n)
 			return n
+		case 9:
+			mulAvxTwo_5x9(matrix, in, out, start, n)
+			return n
+		case 10:
+			mulAvxTwo_5x10(matrix, in, out, start, n)
+			return n
 		}
 	case 6:
 		switch len(out) {
 		case 1:
-			mulAvxTwo_6x1(matrix, in, out, start, n)
+			n = (n >> 6) << 6
+			mulAvxTwo_6x1_64(matrix, in, out, start, n)
 			return n
 		case 2:
-			mulAvxTwo_6x2(matrix, in, out, start, n)
+			n = (n >> 6) << 6
+			mulAvxTwo_6x2_64(matrix, in, out, start, n)
 			return n
 		case 3:
-			mulAvxTwo_6x3(matrix, in, out, start, n)
+			n = (n >> 6) << 6
+			mulAvxTwo_6x3_64(matrix, in, out, start, n)
 			return n
 		case 4:
 			mulAvxTwo_6x4(matrix, in, out, start, n)
@@ -179,17 +227,26 @@ func galMulSlicesAvx2(matrix []byte, in, out [][]byte, start, stop int) int {
 		case 8:
 			mulAvxTwo_6x8(matrix, in, out, start, n)
 			return n
+		case 9:
+			mulAvxTwo_6x9(matrix, in, out, start, n)
+			return n
+		case 10:
+			mulAvxTwo_6x10(matrix, in, out, start, n)
+			return n
 		}
 	case 7:
 		switch len(out) {
 		case 1:
-			mulAvxTwo_7x1(matrix, in, out, start, n)
+			n = (n >> 6) << 6
+			mulAvxTwo_7x1_64(matrix, in, out, start, n)
 			return n
 		case 2:
-			mulAvxTwo_7x2(matrix, in, out, start, n)
+			n = (n >> 6) << 6
+			mulAvxTwo_7x2_64(matrix, in, out, start, n)
 			return n
 		case 3:
-			mulAvxTwo_7x3(matrix, in, out, start, n)
+			n = (n >> 6) << 6
+			mulAvxTwo_7x3_64(matrix, in, out, start, n)
 			return n
 		case 4:
 			mulAvxTwo_7x4(matrix, in, out, start, n)
@@ -206,17 +263,26 @@ func galMulSlicesAvx2(matrix []byte, in, out [][]byte, start, stop int) int {
 		case 8:
 			mulAvxTwo_7x8(matrix, in, out, start, n)
 			return n
+		case 9:
+			mulAvxTwo_7x9(matrix, in, out, start, n)
+			return n
+		case 10:
+			mulAvxTwo_7x10(matrix, in, out, start, n)
+			return n
 		}
 	case 8:
 		switch len(out) {
 		case 1:
-			mulAvxTwo_8x1(matrix, in, out, start, n)
+			n = (n >> 6) << 6
+			mulAvxTwo_8x1_64(matrix, in, out, start, n)
 			return n
 		case 2:
-			mulAvxTwo_8x2(matrix, in, out, start, n)
+			n = (n >> 6) << 6
+			mulAvxTwo_8x2_64(matrix, in, out, start, n)
 			return n
 		case 3:
-			mulAvxTwo_8x3(matrix, in, out, start, n)
+			n = (n >> 6) << 6
+			mulAvxTwo_8x3_64(matrix, in, out, start, n)
 			return n
 		case 4:
 			mulAvxTwo_8x4(matrix, in, out, start, n)
@@ -233,17 +299,26 @@ func galMulSlicesAvx2(matrix []byte, in, out [][]byte, start, stop int) int {
 		case 8:
 			mulAvxTwo_8x8(matrix, in, out, start, n)
 			return n
+		case 9:
+			mulAvxTwo_8x9(matrix, in, out, start, n)
+			return n
+		case 10:
+			mulAvxTwo_8x10(matrix, in, out, start, n)
+			return n
 		}
 	case 9:
 		switch len(out) {
 		case 1:
-			mulAvxTwo_9x1(matrix, in, out, start, n)
+			n = (n >> 6) << 6
+			mulAvxTwo_9x1_64(matrix, in, out, start, n)
 			return n
 		case 2:
-			mulAvxTwo_9x2(matrix, in, out, start, n)
+			n = (n >> 6) << 6
+			mulAvxTwo_9x2_64(matrix, in, out, start, n)
 			return n
 		case 3:
-			mulAvxTwo_9x3(matrix, in, out, start, n)
+			n = (n >> 6) << 6
+			mulAvxTwo_9x3_64(matrix, in, out, start, n)
 			return n
 		case 4:
 			mulAvxTwo_9x4(matrix, in, out, start, n)
@@ -260,17 +335,26 @@ func galMulSlicesAvx2(matrix []byte, in, out [][]byte, start, stop int) int {
 		case 8:
 			mulAvxTwo_9x8(matrix, in, out, start, n)
 			return n
+		case 9:
+			mulAvxTwo_9x9(matrix, in, out, start, n)
+			return n
+		case 10:
+			mulAvxTwo_9x10(matrix, in, out, start, n)
+			return n
 		}
 	case 10:
 		switch len(out) {
 		case 1:
-			mulAvxTwo_10x1(matrix, in, out, start, n)
+			n = (n >> 6) << 6
+			mulAvxTwo_10x1_64(matrix, in, out, start, n)
 			return n
 		case 2:
-			mulAvxTwo_10x2(matrix, in, out, start, n)
+			n = (n >> 6) << 6
+			mulAvxTwo_10x2_64(matrix, in, out, start, n)
 			return n
 		case 3:
-			mulAvxTwo_10x3(matrix, in, out, start, n)
+			n = (n >> 6) << 6
+			mulAvxTwo_10x3_64(matrix, in, out, start, n)
 			return n
 		case 4:
 			mulAvxTwo_10x4(matrix, in, out, start, n)
@@ -286,6 +370,12 @@ func galMulSlicesAvx2(matrix []byte, in, out [][]byte, start, stop int) int {
 			return n
 		case 8:
 			mulAvxTwo_10x8(matrix, in, out, start, n)
+			return n
+		case 9:
+			mulAvxTwo_10x9(matrix, in, out, start, n)
+			return n
+		case 10:
+			mulAvxTwo_10x10(matrix, in, out, start, n)
 			return n
 		}
 	}
