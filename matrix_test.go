@@ -90,8 +90,8 @@ func TestMatrixIdentity(t *testing.T) {
 func TestMatrixMultiply(t *testing.T) {
 	m1, err := newMatrixData(
 		[][]byte{
-			[]byte{1, 2},
-			[]byte{3, 4},
+			{1, 2},
+			{3, 4},
 		})
 	if err != nil {
 		t.Fatal(err)
@@ -99,8 +99,8 @@ func TestMatrixMultiply(t *testing.T) {
 
 	m2, err := newMatrixData(
 		[][]byte{
-			[]byte{5, 6},
-			[]byte{7, 8},
+			{5, 6},
+			{7, 8},
 		})
 	if err != nil {
 		t.Fatal(err)
@@ -131,9 +131,9 @@ func TestMatrixInverse(t *testing.T) {
 		{
 			// input data to construct the matrix.
 			[][]byte{
-				[]byte{56, 23, 98},
-				[]byte{3, 100, 200},
-				[]byte{45, 201, 123},
+				{56, 23, 98},
+				{3, 100, 200},
+				{45, 201, 123},
 			},
 			// expected Inverse matrix.
 			"[[175, 133, 33], [130, 13, 245], [112, 35, 126]]",
@@ -146,11 +146,11 @@ func TestMatrixInverse(t *testing.T) {
 		{
 			// input data to construct the matrix.
 			[][]byte{
-				[]byte{1, 0, 0, 0, 0},
-				[]byte{0, 1, 0, 0, 0},
-				[]byte{0, 0, 0, 1, 0},
-				[]byte{0, 0, 0, 0, 1},
-				[]byte{7, 7, 6, 6, 1},
+				{1, 0, 0, 0, 0},
+				{0, 1, 0, 0, 0},
+				{0, 0, 0, 1, 0},
+				{0, 0, 0, 0, 1},
+				{7, 7, 6, 6, 1},
 			},
 			// expectedInverse matrix.
 			"[[1, 0, 0, 0, 0]," +
@@ -166,9 +166,9 @@ func TestMatrixInverse(t *testing.T) {
 		// expected to fail with errNotSquare.
 		{
 			[][]byte{
-				[]byte{56, 23},
-				[]byte{3, 100},
-				[]byte{45, 201},
+				{56, 23},
+				{3, 100},
+				{45, 201},
 			},
 			"",
 			false,
@@ -179,8 +179,8 @@ func TestMatrixInverse(t *testing.T) {
 		{
 
 			[][]byte{
-				[]byte{4, 2},
-				[]byte{12, 6},
+				{4, 2},
+				{12, 6},
 			},
 			"",
 			false,

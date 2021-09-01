@@ -1,4 +1,5 @@
-//+build !amd64 noasm appengine gccgo
+//go:build !amd64 || noasm || appengine || gccgo
+// +build !amd64 noasm appengine gccgo
 
 // Copyright 2020, Klaus Post, see LICENSE for details.
 
