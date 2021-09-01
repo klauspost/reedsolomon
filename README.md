@@ -1,8 +1,6 @@
 # Reed-Solomon
-[![GoDoc][1]][2] [![Build Status][3]][4]
+[![Go Reference](https://pkg.go.dev/badge/github.com/klauspost/reedsolomon.svg)](https://pkg.go.dev/github.com/klauspost/reedsolomon) [![Build Status][3]][4]
 
-[1]: https://godoc.org/github.com/klauspost/reedsolomon?status.svg
-[2]: https://pkg.go.dev/github.com/klauspost/reedsolomon?tab=doc
 [3]: https://travis-ci.org/klauspost/reedsolomon.svg?branch=master
 [4]: https://travis-ci.org/klauspost/reedsolomon
 
