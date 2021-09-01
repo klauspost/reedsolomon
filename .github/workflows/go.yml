@@ -61,7 +61,28 @@ jobs:
     - name: Build examples
       run: go build examples/simple-decoder.go&&go build examples/simple-encoder.go&&go build examples/stream-decoder.go&&go build examples/stream-encoder.go
 
-    - name: Test Races Extended
+    - name: Test Races, noasm, 1 cpu
       env:
         CGO_ENABLED: 1
-      run: go test -tags=noasm -cpu=1 -short -race .&&go test -tags=noasm -cpu=4 -short -race .&&go test -no-avx512 -short -race .&&go test -no-avx512 -no-avx2 -short -race .&&go test -no-avx512 -no-avx2 -no-ssse3 -short -race .
+      run: go test -tags=noasm -cpu=1 -short -race .
+
+    - name: Test Races, noasm, 4 cpu
+      env:
+        CGO_ENABLED: 1
+      run: go test -tags=noasm -cpu=4 -short -race .
+
+    - name: Test Races, no avx512
+      env:
+        CGO_ENABLED: 1
+      run: go test -no-avx512 -short -race .
+
+    - name: Test Races, no avx2
+      env:
+        CGO_ENABLED: 1
+      run: go test -no-avx512 -no-avx2 -short -race .
+
+    - name: Test Races, no ssse3
+      env:
+        CGO_ENABLED: 1
+      run: go test -no-avx512 -no-avx2 -no-ssse3 -short -race .
+
