@@ -1,6 +1,7 @@
-//+build !amd64 noasm appengine gccgo
-//+build !arm64 noasm appengine gccgo
-//+build !ppc64le noasm appengine gccgo
+//go:build (!amd64 || noasm || appengine || gccgo) && (!arm64 || noasm || appengine || gccgo) && (!ppc64le || noasm || appengine || gccgo)
+// +build !amd64 noasm appengine gccgo
+// +build !arm64 noasm appengine gccgo
+// +build !ppc64le noasm appengine gccgo
 
 // Copyright 2015, Klaus Post, see LICENSE for details.
 

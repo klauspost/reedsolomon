@@ -1,4 +1,5 @@
-//+build generate
+//go:build generate
+// +build generate
 
 //go:generate go run gen.go -out ../galois_gen_amd64.s -stubs ../galois_gen_amd64.go -pkg=reedsolomon
 //go:generate gofmt -w ../galois_gen_switch_amd64.go
