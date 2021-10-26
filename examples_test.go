@@ -58,6 +58,63 @@ func ExampleEncoder() {
 	// ok
 }
 
+// Simple example of how to use all functions of the EncoderIdx.
+// Note that all error checks have been removed to keep it short.
+func ExampleEncoder_EncodeIdx() {
+	const dataShards = 7
+	const erasureShards = 3
+
+	// Create some sample data
+	var data = make([]byte, 250000)
+	fillRandom(data)
+
+	// Create an encoder with 17 data and 3 parity slices.
+	enc, _ := reedsolomon.New(dataShards, erasureShards)
+
+	// Split the data into shards
+	shards, _ := enc.Split(data)
+
+	// Zero erasure shards.
+	for i := 0; i < erasureShards; i++ {
+		clear := shards[dataShards+i]
+		for j := range clear {
+			clear[j] = 0
+		}
+	}
+
+	for i := 0; i < dataShards; i++ {
+		// Encode one shard at the time.
+		// Note how this gives linear access.
+		// There is however no requirement on shards being delivered in order.
+		// All parity shards will be updated on each run.
+		_ = enc.EncodeIdx(shards[i], i, shards[dataShards:])
+	}
+
+	// Verify the parity set
+	ok, err := enc.Verify(shards)
+	if ok {
+		fmt.Println("ok")
+	} else {
+		fmt.Println(err)
+	}
+
+	// Delete two shards
+	shards[dataShards-2], shards[dataShards-2] = nil, nil
+
+	// Reconstruct the shards
+	_ = enc.Reconstruct(shards)
+
+	// Verify the data set
+	ok, err = enc.Verify(shards)
+	if ok {
+		fmt.Println("ok")
+	} else {
+		fmt.Println(err)
+	}
+	// Output: ok
+	// ok
+}
+
 // This demonstrates that shards can be arbitrary sliced and
 // merged and still remain valid.
 func ExampleEncoder_slicing() {
