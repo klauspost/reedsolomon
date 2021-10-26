@@ -32,6 +32,12 @@ type Encoder interface {
 	// data shards while this is running.
 	Encode(shards [][]byte) error
 
+	// EncodeIdx will add parity for a single data shard.
+	// Parity shards should start out as 0. The caller must zero them.
+	// Data shards must be delivered exactly once. There is no check for this.
+	// The parity shards will always be updated and the data shards will remain the same.
+	EncodeIdx(dataShard []byte, idx int, parity [][]byte) error
+
 	// Verify returns true if the parity shards contain correct data.
 	// The data is the same format as Encode. No data is modified, so
 	// you are allowed to read from data while this is running.
@@ -393,6 +399,48 @@ func (r *reedSolomon) Encode(shards [][]byte) error {
 
 	// Do the coding.
 	r.codeSomeShards(r.parity, shards[0:r.DataShards], output, r.ParityShards, len(shards[0]))
+	return nil
+}
+
+// EncodeIdx will add parity for a single data shard.
+// Parity shards should start out zeroed. The caller must zero them before first call.
+// Data shards should only be delivered once. There is no check for this.
+// The parity shards will always be updated and the data shards will remain the unchanged.
+func (r *reedSolomon) EncodeIdx(dataShard []byte, idx int, parity [][]byte) error {
+	if len(parity) != r.ParityShards {
+		return ErrTooFewShards
+	}
+	if len(parity) == 0 {
+		return nil
+	}
+	if idx < 0 || idx >= r.DataShards {
+		return ErrInvShardNum
+	}
+	err := checkShards(parity, false)
+	if err != nil {
+		return err
+	}
+	if len(parity[0]) != len(dataShard) {
+		return ErrShardSize
+	}
+
+	// Process using no goroutines for now.
+	start, end := 0, r.o.perRound
+	if end > len(dataShard) {
+		end = len(dataShard)
+	}
+
+	for start < len(dataShard) {
+		in := dataShard[start:end]
+		for iRow := 0; iRow < r.ParityShards; iRow++ {
+			galMulSliceXor(r.parity[iRow][idx], in, parity[iRow][start:end], &r.o)
+		}
+		start = end
+		end += r.o.perRound
+		if end > len(dataShard) {
+			end = len(dataShard)
+		}
+	}
 	return nil
 }
 
