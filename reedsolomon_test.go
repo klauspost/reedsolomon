@@ -178,9 +178,11 @@ func TestEncoding(t *testing.T) {
 		t.Run(fmt.Sprintf("opt-%d", i), func(t *testing.T) {
 			testEncoding(t, o...)
 		})
-		t.Run(fmt.Sprintf("idx-opt-%d", i), func(t *testing.T) {
-			testEncodingIdx(t, o...)
-		})
+		if !testing.Short() {
+			t.Run(fmt.Sprintf("idx-opt-%d", i), func(t *testing.T) {
+				testEncodingIdx(t, o...)
+			})
+		}
 	}
 }
 
