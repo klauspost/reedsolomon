@@ -68,7 +68,7 @@ func ExampleEncoder_EncodeIdx() {
 	var data = make([]byte, 250000)
 	fillRandom(data)
 
-	// Create an encoder with 17 data and 3 parity slices.
+	// Create an encoder with 7 data and 3 parity slices.
 	enc, _ := reedsolomon.New(dataShards, erasureShards)
 
 	// Split the data into shards

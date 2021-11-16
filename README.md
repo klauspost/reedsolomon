@@ -24,6 +24,15 @@ go get -u github.com/klauspost/reedsolomon
 Using Go modules recommended.
 
 # Changes
+## 2021
+
+* Add progressive shard encoding.
+* Wider AVX2 loops
+* Limit concurrency on AVX2, since we are likely memory bound.
+* Allow 0 parity shards.
+* Allow disabling inversion cache.
+* Faster AVX2 encoding.
+
 
 ## May 2020
 
@@ -207,6 +216,49 @@ To join a data set, use the `Join()` function, which will join the shards and wr
 ```Go
    // Join a data set and write it to io.Discard.
    err = enc.Join(io.Discard, data, len(bigfile))
+```
+
+# Progressive encoding
+
+It is possible to encode individual shards using EncodeIdx:
+
+```Go
+	// EncodeIdx will add parity for a single data shard.
+	// Parity shards should start out as 0. The caller must zero them.
+	// Data shards must be delivered exactly once. There is no check for this.
+	// The parity shards will always be updated and the data shards will remain the same.
+	EncodeIdx(dataShard []byte, idx int, parity [][]byte) error
+```
+
+This allows progressively encoding the parity by sending individual data shards.
+There is no requirement on shards being delivered in order, 
+but when sent in order it allows encoding shards one at the time,
+effectively allowing the operation to be streaming. 
+
+The result will be the same as encoding all shards at once.
+There is a minor speed penalty using this method, so send 
+shards at once if they are available.
+
+## Example
+
+```Go
+func test() {
+    // Create an encoder with 7 data and 3 parity slices.
+    enc, _ := reedsolomon.New(7, 3)
+
+    // This will be our output parity.
+    parity := make([][]byte, 3)
+    for i := range parity {
+        parity[i] = make([]byte, 10000)
+    }
+
+    for i := 0; i < 7; i++ {
+        // Send data shards one at the time.
+        _ = enc.EncodeIdx(make([]byte, 10000), i, parity)
+    }
+
+    // parity now contains parity, as if all data was sent in one call.
+}
 ```
 
 # Streaming/Merging
