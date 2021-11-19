@@ -33,7 +33,7 @@ func galMulSliceXor(c byte, in, out []byte, o *options) {
 	}
 }
 
-// slice galois add
+// simple slice xor
 func sliceXor(in, out []byte, _ *options) {
 	for len(out) >= 32 {
 		inS := in[:32]
