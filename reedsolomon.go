@@ -952,6 +952,7 @@ func (r *reedSolomon) Split(data []byte) ([][]byte, error) {
 	if len(data) == 0 {
 		return nil, ErrShortData
 	}
+	dataLen := len(data)
 	// Calculate number of bytes per data shard.
 	perShard := (len(data) + r.DataShards - 1) / r.DataShards
 
@@ -967,6 +968,10 @@ func (r *reedSolomon) Split(data []byte) ([][]byte, error) {
 		padding = make([]byte, r.Shards*perShard-perShard*fullShards)
 		copy(padding, data[perShard*fullShards:])
 		data = data[0 : perShard*fullShards]
+	} else {
+		for i := dataLen; i < dataLen+r.DataShards; i++ {
+			data[i] = 0
+		}
 	}
 
 	// Split into equal-length shards.
