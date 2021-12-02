@@ -28,6 +28,7 @@ func TestMain(m *testing.M) {
 }
 
 func testOptions(o ...Option) []Option {
+	o = append(o, WithFastOneParityMatrix())
 	if *noSSSE3 {
 		o = append(o, withSSSE3(false))
 	}

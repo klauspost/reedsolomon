@@ -7,6 +7,8 @@
 
 package reedsolomon
 
+import "encoding/binary"
+
 func galMulSlice(c byte, in, out []byte, o *options) {
 	out = out[:len(in)]
 	if c == 1 {
@@ -22,9 +24,7 @@ func galMulSlice(c byte, in, out []byte, o *options) {
 func galMulSliceXor(c byte, in, out []byte, o *options) {
 	out = out[:len(in)]
 	if c == 1 {
-		for n, input := range in {
-			out[n] ^= input
-		}
+		sliceXor(in, out, o)
 		return
 	}
 	mt := mulTable[c][:256]
@@ -33,8 +33,21 @@ func galMulSliceXor(c byte, in, out []byte, o *options) {
 	}
 }
 
-// slice galois add
-func sliceXor(in, out []byte, o *options) {
+// simple slice xor
+func sliceXor(in, out []byte, _ *options) {
+	for len(out) >= 32 {
+		inS := in[:32]
+		v0 := binary.LittleEndian.Uint64(out[:]) ^ binary.LittleEndian.Uint64(inS[:])
+		v1 := binary.LittleEndian.Uint64(out[8:]) ^ binary.LittleEndian.Uint64(inS[8:])
+		v2 := binary.LittleEndian.Uint64(out[16:]) ^ binary.LittleEndian.Uint64(inS[16:])
+		v3 := binary.LittleEndian.Uint64(out[24:]) ^ binary.LittleEndian.Uint64(inS[24:])
+		binary.LittleEndian.PutUint64(out[:], v0)
+		binary.LittleEndian.PutUint64(out[8:], v1)
+		binary.LittleEndian.PutUint64(out[16:], v2)
+		binary.LittleEndian.PutUint64(out[24:], v3)
+		out = out[32:]
+		in = in[32:]
+	}
 	for n, input := range in {
 		out[n] ^= input
 	}

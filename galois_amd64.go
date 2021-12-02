@@ -114,7 +114,7 @@ func galMulSliceXor(c byte, in, out []byte, o *options) {
 	}
 }
 
-// slice galois add
+// simple slice xor
 func sliceXor(in, out []byte, o *options) {
 	if o.useSSE2 {
 		if len(in) >= bigSwitchover {
