@@ -243,8 +243,6 @@ func genMulAvx2(name string, inputs int, outputs int, xor bool) {
 	Label(name + "_loop")
 	if xor {
 		Commentf("Load %d outputs", outputs)
-	} else {
-		Commentf("Clear %d outputs", outputs)
 	}
 	for i := range dst {
 		if xor {
@@ -261,8 +259,6 @@ func genMulAvx2(name string, inputs int, outputs int, xor bool) {
 			if prefetchDst > 0 {
 				PREFETCHT0(Mem{Base: ptr, Disp: prefetchDst, Index: offset, Scale: 1})
 			}
-		} else {
-			VPXOR(dst[i], dst[i], dst[i])
 		}
 	}
 
@@ -288,8 +284,13 @@ func genMulAvx2(name string, inputs int, outputs int, xor bool) {
 				VPSHUFB(inLow, inLo[i*outputs+j], lookLow)
 				VPSHUFB(inHigh, inHi[i*outputs+j], lookHigh)
 			}
-			VPXOR(lookLow, lookHigh, lookLow)
-			VPXOR(lookLow, dst[j], dst[j])
+			if i == 0 && !xor {
+				// We don't have any existing data, write directly.
+				VPXOR(lookLow, lookHigh, dst[j])
+			} else {
+				VPXOR(lookLow, lookHigh, lookLow)
+				VPXOR(lookLow, dst[j], dst[j])
+			}
 		}
 	}
 	Commentf("Store %d outputs", outputs)
@@ -480,8 +481,6 @@ func genMulAvx2Sixty64(name string, inputs int, outputs int, xor bool) {
 	Label(name + "_loop")
 	if xor {
 		Commentf("Load %d outputs", outputs)
-	} else {
-		Commentf("Clear %d outputs", outputs)
 	}
 	for i := range dst {
 		if xor {
@@ -498,9 +497,6 @@ func genMulAvx2Sixty64(name string, inputs int, outputs int, xor bool) {
 			if prefetchDst > 0 {
 				PREFETCHT0(Mem{Base: ptr, Disp: prefetchDst, Index: offset, Scale: 1})
 			}
-		} else {
-			VPXOR(dst[i], dst[i], dst[i])
-			VPXOR(dst2[i], dst2[i], dst2[i])
 		}
 	}
 
@@ -536,10 +532,16 @@ func genMulAvx2Sixty64(name string, inputs int, outputs int, xor bool) {
 				VPSHUFB(inHigh, inHi[i*outputs+j], lookHigh)
 				VPSHUFB(in2High, inHi[i*outputs+j], lookHigh2)
 			}
-			VPXOR(lookLow, lookHigh, lookLow)
-			VPXOR(lookLow2, lookHigh2, lookLow2)
-			VPXOR(lookLow, dst[j], dst[j])
-			VPXOR(lookLow2, dst2[j], dst2[j])
+			if i == 0 && !xor {
+				// We don't have any existing data, write directly.
+				VPXOR(lookLow, lookHigh, dst[j])
+				VPXOR(lookLow2, lookHigh2, dst2[j])
+			} else {
+				VPXOR(lookLow, lookHigh, lookLow)
+				VPXOR(lookLow2, lookHigh2, lookLow2)
+				VPXOR(lookLow, dst[j], dst[j])
+				VPXOR(lookLow2, dst2[j], dst2[j])
+			}
 		}
 	}
 	Commentf("Store %d outputs", outputs)
