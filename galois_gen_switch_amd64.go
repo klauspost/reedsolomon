@@ -7,7 +7,6 @@ package reedsolomon
 
 import (
 	"fmt"
-	"math"
 )
 
 const (
@@ -15,7 +14,7 @@ const (
 	maxAvx2Inputs  = 10
 	maxAvx2Outputs = 10
 	minAvx2Size    = 64
-	avxSizeMask    = math.MaxInt - (minAvx2Size - 1)
+	avxSizeMask    = maxInt - (minAvx2Size - 1)
 )
 
 func galMulSlicesAvx2(matrix []byte, in, out [][]byte, start, stop int) int {

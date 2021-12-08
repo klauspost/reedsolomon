@@ -893,6 +893,7 @@ func benchmarkEncode(b *testing.B, dataShards, parityShards, shardSize int) {
 
 	b.SetBytes(int64(shardSize * (dataShards + parityShards)))
 	b.ResetTimer()
+	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
 		err = r.Encode(shards)
 		if err != nil {
@@ -913,8 +914,8 @@ func BenchmarkEncode100x20x10000(b *testing.B) {
 	benchmarkEncode(b, 100, 20, 10000)
 }
 
-func BenchmarkEncode17x30x1M(b *testing.B) {
-	benchmarkEncode(b, 17, 30, 1024*1024)
+func BenchmarkEncode17x3x1M(b *testing.B) {
+	benchmarkEncode(b, 17, 3, 1024*1024)
 }
 
 // Benchmark 10 data shards and 4 parity shards with 16MB each.
@@ -937,9 +938,9 @@ func BenchmarkEncode10x4x1M(b *testing.B) {
 	benchmarkEncode(b, 10, 4, 1024*1024)
 }
 
-// Benchmark 50 data shards and 20 parity shards with 1K each.
+// Benchmark 50 data shards and 20 parity shards with 1M each.
 func BenchmarkEncode50x20x1M(b *testing.B) {
-	benchmarkEncode(b, 50, 10, 1024)
+	benchmarkEncode(b, 50, 20, 1024*1024)
 }
 
 // Benchmark 17 data shards and 3 parity shards with 16MB each.

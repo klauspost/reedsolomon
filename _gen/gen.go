@@ -3,6 +3,7 @@
 
 //go:generate go run gen.go -out ../galois_gen_amd64.s -stubs ../galois_gen_amd64.go -pkg=reedsolomon
 //go:generate go fmt ../galois_gen_switch_amd64.go
+//go:generate go fmt ../galois_gen_amd64.go
 
 package main
 
@@ -65,7 +66,6 @@ package reedsolomon
 
 import (
 	"fmt"
-	"math"
 )
 
 `)
@@ -75,7 +75,7 @@ avx2CodeGen = true
 maxAvx2Inputs = %d
 maxAvx2Outputs = %d
 minAvx2Size = %d
-avxSizeMask = math.MaxInt - (minAvx2Size-1)
+avxSizeMask = maxInt - (minAvx2Size-1)
 )`, inputMax, outputMax, perLoop))
 	w.WriteString(`
 
