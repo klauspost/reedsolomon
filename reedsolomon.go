@@ -295,10 +295,23 @@ func New(dataShards, parityShards int, opts ...Option) (Encoder, error) {
 	// Calculate what we want per round
 	r.o.perRound = cpuid.CPU.Cache.L2
 
+	divide := parityShards + 1
 	if avx2CodeGen && r.o.useAVX2 && (dataShards > maxAvx2Inputs || parityShards > maxAvx2Outputs) {
 		// Base on L1 cache if we have many inputs.
 		r.o.perRound = cpuid.CPU.Cache.L1D
+		divide = 0
+		if dataShards > maxAvx2Inputs {
+			divide += maxAvx2Inputs
+		} else {
+			divide += dataShards
+		}
+		if parityShards > maxAvx2Inputs {
+			divide += maxAvx2Outputs
+		} else {
+			divide += parityShards
+		}
 	}
+
 	if r.o.perRound <= 0 {
 		// Set to 128K if undetectable.
 		r.o.perRound = 128 << 10
@@ -308,22 +321,17 @@ func New(dataShards, parityShards int, opts ...Option) (Encoder, error) {
 		// If multiple threads per core, make sure they don't contend for cache.
 		r.o.perRound /= cpuid.CPU.ThreadsPerCore
 	}
+
 	// 1 input + parity must fit in cache, and we add one more to be safer.
-	r.o.perRound = r.o.perRound / (1 + parityShards)
+	r.o.perRound = r.o.perRound / divide
 	// Align to 64 bytes.
 	r.o.perRound = ((r.o.perRound + 63) / 64) * 64
 
 	if r.o.minSplitSize <= 0 {
-		// Set minsplit as high as we can, but still have parity in L1.
-		cacheSize := cpuid.CPU.Cache.L1D
+		// Set minsplit as high as we can, but still have parity in L2.
+		cacheSize := cpuid.CPU.Cache.L2
 		if cacheSize <= 0 {
 			cacheSize = 32 << 10
-		}
-
-		parityShards := parityShards
-		if avx2CodeGen && r.o.useAVX2 {
-			// 50% of L1 if we use AVX2+
-			parityShards = 1
 		}
 
 		r.o.minSplitSize = cacheSize / (parityShards + 1)
@@ -357,7 +365,7 @@ func New(dataShards, parityShards int, opts ...Option) (Encoder, error) {
 
 	// Generated AVX2 does not need data to stay in L1 cache between runs.
 	// We will be purely limited by RAM speed.
-	if r.canAVX2C(avx2CodeGenMinSize, r.DataShards, r.ParityShards) && r.o.maxGoroutines > avx2CodeGenMaxGoroutines {
+	if r.canAVX2C(avx2CodeGenMinSize, maxAvx2Inputs, maxAvx2Outputs) && r.o.maxGoroutines > avx2CodeGenMaxGoroutines {
 		r.o.maxGoroutines = avx2CodeGenMaxGoroutines
 	}
 
@@ -753,18 +761,44 @@ func (r *reedSolomon) codeSomeShardsAVXP(matrixRows, inputs, outputs [][]byte, b
 	// Make a plan...
 	plan := make([]state, 0, ((len(inputs)+maxAvx2Inputs-1)/maxAvx2Inputs)*((len(outputs)+maxAvx2Outputs-1)/maxAvx2Outputs))
 
-	inIdx := 0
-	ins := inputs
 	tmp := r.mPool.Get().([]byte)
 	defer func(b []byte) {
 		r.mPool.Put(b)
 	}(tmp)
 
-	for len(ins) > 0 {
-		inPer := ins
-		if len(inPer) > maxAvx2Inputs {
-			inPer = inPer[:maxAvx2Inputs]
+	// Flips between input first to output first.
+	// We put the smallest data load in the inner loop.
+	if len(inputs) > len(outputs) {
+		inIdx := 0
+		ins := inputs
+		for len(ins) > 0 {
+			inPer := ins
+			if len(inPer) > maxAvx2Inputs {
+				inPer = inPer[:maxAvx2Inputs]
+			}
+			outs := outputs
+			outIdx := 0
+			for len(outs) > 0 {
+				outPer := outs
+				if len(outPer) > maxAvx2Outputs {
+					outPer = outPer[:maxAvx2Outputs]
+				}
+				// Generate local matrix
+				m := genAvx2Matrix(matrixRows[outIdx:], len(inPer), inIdx, len(outPer), tmp)
+				tmp = tmp[len(m):]
+				plan = append(plan, state{
+					input:  inPer,
+					output: outPer,
+					m:      m,
+					first:  inIdx == 0,
+				})
+				outIdx += len(outPer)
+				outs = outs[len(outPer):]
+			}
+			inIdx += len(inPer)
+			ins = ins[len(inPer):]
 		}
+	} else {
 		outs := outputs
 		outIdx := 0
 		for len(outs) > 0 {
@@ -772,20 +806,30 @@ func (r *reedSolomon) codeSomeShardsAVXP(matrixRows, inputs, outputs [][]byte, b
 			if len(outPer) > maxAvx2Outputs {
 				outPer = outPer[:maxAvx2Outputs]
 			}
-			// Generate local matrix
-			m := genAvx2Matrix(matrixRows[outIdx:], len(inPer), inIdx, len(outPer), tmp)
-			tmp = tmp[len(m):]
-			plan = append(plan, state{
-				input:  inPer,
-				output: outPer,
-				m:      m,
-				first:  inIdx == 0,
-			})
+
+			inIdx := 0
+			ins := inputs
+			for len(ins) > 0 {
+				inPer := ins
+				if len(inPer) > maxAvx2Inputs {
+					inPer = inPer[:maxAvx2Inputs]
+				}
+				// Generate local matrix
+				m := genAvx2Matrix(matrixRows[outIdx:], len(inPer), inIdx, len(outPer), tmp)
+				tmp = tmp[len(m):]
+				//fmt.Println("bytes:", len(inPer)*r.o.perRound, "out:", len(outPer)*r.o.perRound)
+				plan = append(plan, state{
+					input:  inPer,
+					output: outPer,
+					m:      m,
+					first:  inIdx == 0,
+				})
+				inIdx += len(inPer)
+				ins = ins[len(inPer):]
+			}
 			outIdx += len(outPer)
 			outs = outs[len(outPer):]
 		}
-		inIdx += len(inPer)
-		ins = ins[len(inPer):]
 	}
 
 	do := byteCount / gor

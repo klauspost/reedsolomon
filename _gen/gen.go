@@ -278,7 +278,10 @@ func genMulAvx2(name string, inputs int, outputs int, xor bool) {
 	}
 	Label(name + "_loop")
 
-	if xor {
+	// Load data before loop or during first iteration?
+	// No clear winner.
+	preloadInput := xor && false
+	if preloadInput {
 		Commentf("Load %d outputs", outputs)
 		for i := range dst {
 			if regDst {
@@ -310,6 +313,22 @@ func genMulAvx2(name string, inputs int, outputs int, xor bool) {
 		VPAND(lowMask, inLow, inLow)
 		VPAND(lowMask, inHigh, inHigh)
 		for j := range dst {
+			//Commentf(" xor:%v i: %v", xor, i)
+			if !preloadInput && xor && i == 0 {
+				if regDst {
+					VMOVDQU(Mem{Base: dstPtr[j]}, dst[j])
+					if prefetchDst > 0 {
+						PREFETCHT0(Mem{Base: dstPtr[j], Disp: prefetchDst})
+					}
+				} else {
+					ptr := GP64()
+					MOVQ(Mem{Base: outSlicePtr, Disp: j * 24}, ptr)
+					VMOVDQU(Mem{Base: ptr, Index: offset, Scale: 1}, dst[j])
+					if prefetchDst > 0 {
+						PREFETCHT0(Mem{Base: ptr, Disp: prefetchDst, Index: offset, Scale: 1})
+					}
+				}
+			}
 			if loadNone {
 				VMOVDQU(Mem{Base: matrixBase, Disp: 64 * (i*outputs + j)}, lookLow)
 				VMOVDQU(Mem{Base: matrixBase, Disp: 32 + 64*(i*outputs+j)}, lookHigh)
