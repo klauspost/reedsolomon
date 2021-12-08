@@ -328,8 +328,8 @@ func New(dataShards, parityShards int, opts ...Option) (Encoder, error) {
 	r.o.perRound = ((r.o.perRound + 63) / 64) * 64
 
 	if r.o.minSplitSize <= 0 {
-		// Set minsplit as high as we can, but still have parity in L2.
-		cacheSize := cpuid.CPU.Cache.L2
+		// Set minsplit as high as we can, but still have parity in L1.
+		cacheSize := cpuid.CPU.Cache.L1D
 		if cacheSize <= 0 {
 			cacheSize = 32 << 10
 		}
