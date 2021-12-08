@@ -686,8 +686,10 @@ func (r *reedSolomon) codeSomeShardsP(matrixRows, inputs, outputs [][]byte, byte
 	if useAvx2 {
 		avx2Matrix = genAvx2Matrix(matrixRows, len(inputs), 0, len(outputs), r.mPool.Get().([]byte))
 		defer r.mPool.Put(avx2Matrix)
-	} else if len(inputs)+len(outputs) > avx2CodeGenMinShards &&
+	} else if byteCount < 10<<20 && len(inputs)+len(outputs) > avx2CodeGenMinShards &&
 		r.canAVX2C(byteCount/4, maxAvx2Inputs, maxAvx2Outputs) {
+		// It appears there is a switchover point at around 10MB where
+		// Regular processing is faster...
 		r.codeSomeShardsAVXP(matrixRows, inputs, outputs, byteCount)
 		return
 	}

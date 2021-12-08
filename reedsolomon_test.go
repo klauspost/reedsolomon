@@ -990,6 +990,7 @@ func benchmarkVerify(b *testing.B, dataShards, parityShards, shardSize int) {
 
 	b.SetBytes(int64(shardSize * (dataShards + parityShards)))
 	b.ResetTimer()
+	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
 		_, err = r.Verify(shards)
 		if err != nil {
@@ -1004,7 +1005,7 @@ func BenchmarkVerify10x2x10000(b *testing.B) {
 }
 
 // Benchmark 50 data slices with 5 parity slices holding 100000 bytes each
-func BenchmarkVerify50x5x50000(b *testing.B) {
+func BenchmarkVerify50x5x100000(b *testing.B) {
 	benchmarkVerify(b, 50, 5, 100000)
 }
 
