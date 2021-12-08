@@ -17,6 +17,14 @@ func mulAvxTwo_1x1(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 //go:noescape
 func mulAvxTwo_1x1_64(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
+// mulAvxTwo_1x1Xor takes 1 inputs and produces 1 outputs.
+//go:noescape
+func mulAvxTwo_1x1Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+// mulAvxTwo_1x1_64Xor takes 1 inputs and produces 1 outputs.
+//go:noescape
+func mulAvxTwo_1x1_64Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxTwo_1x2 takes 1 inputs and produces 2 outputs.
 // The output is initialized to 0.
 //go:noescape
@@ -26,6 +34,14 @@ func mulAvxTwo_1x2(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_1x2_64(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+// mulAvxTwo_1x2Xor takes 1 inputs and produces 2 outputs.
+//go:noescape
+func mulAvxTwo_1x2Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+// mulAvxTwo_1x2_64Xor takes 1 inputs and produces 2 outputs.
+//go:noescape
+func mulAvxTwo_1x2_64Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxTwo_1x3 takes 1 inputs and produces 3 outputs.
 // The output is initialized to 0.
@@ -37,40 +53,76 @@ func mulAvxTwo_1x3(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 //go:noescape
 func mulAvxTwo_1x3_64(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
+// mulAvxTwo_1x3Xor takes 1 inputs and produces 3 outputs.
+//go:noescape
+func mulAvxTwo_1x3Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+// mulAvxTwo_1x3_64Xor takes 1 inputs and produces 3 outputs.
+//go:noescape
+func mulAvxTwo_1x3_64Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxTwo_1x4 takes 1 inputs and produces 4 outputs.
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_1x4(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+// mulAvxTwo_1x4Xor takes 1 inputs and produces 4 outputs.
+//go:noescape
+func mulAvxTwo_1x4Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxTwo_1x5 takes 1 inputs and produces 5 outputs.
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_1x5(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
+// mulAvxTwo_1x5Xor takes 1 inputs and produces 5 outputs.
+//go:noescape
+func mulAvxTwo_1x5Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxTwo_1x6 takes 1 inputs and produces 6 outputs.
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_1x6(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+// mulAvxTwo_1x6Xor takes 1 inputs and produces 6 outputs.
+//go:noescape
+func mulAvxTwo_1x6Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxTwo_1x7 takes 1 inputs and produces 7 outputs.
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_1x7(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
+// mulAvxTwo_1x7Xor takes 1 inputs and produces 7 outputs.
+//go:noescape
+func mulAvxTwo_1x7Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxTwo_1x8 takes 1 inputs and produces 8 outputs.
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_1x8(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+// mulAvxTwo_1x8Xor takes 1 inputs and produces 8 outputs.
+//go:noescape
+func mulAvxTwo_1x8Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxTwo_1x9 takes 1 inputs and produces 9 outputs.
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_1x9(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
+// mulAvxTwo_1x9Xor takes 1 inputs and produces 9 outputs.
+//go:noescape
+func mulAvxTwo_1x9Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxTwo_1x10 takes 1 inputs and produces 10 outputs.
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_1x10(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+// mulAvxTwo_1x10Xor takes 1 inputs and produces 10 outputs.
+//go:noescape
+func mulAvxTwo_1x10Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxTwo_2x1 takes 2 inputs and produces 1 outputs.
 // The output is initialized to 0.
@@ -82,6 +134,14 @@ func mulAvxTwo_2x1(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 //go:noescape
 func mulAvxTwo_2x1_64(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
+// mulAvxTwo_2x1Xor takes 2 inputs and produces 1 outputs.
+//go:noescape
+func mulAvxTwo_2x1Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+// mulAvxTwo_2x1_64Xor takes 2 inputs and produces 1 outputs.
+//go:noescape
+func mulAvxTwo_2x1_64Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxTwo_2x2 takes 2 inputs and produces 2 outputs.
 // The output is initialized to 0.
 //go:noescape
@@ -91,6 +151,14 @@ func mulAvxTwo_2x2(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_2x2_64(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+// mulAvxTwo_2x2Xor takes 2 inputs and produces 2 outputs.
+//go:noescape
+func mulAvxTwo_2x2Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+// mulAvxTwo_2x2_64Xor takes 2 inputs and produces 2 outputs.
+//go:noescape
+func mulAvxTwo_2x2_64Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxTwo_2x3 takes 2 inputs and produces 3 outputs.
 // The output is initialized to 0.
@@ -102,40 +170,76 @@ func mulAvxTwo_2x3(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 //go:noescape
 func mulAvxTwo_2x3_64(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
+// mulAvxTwo_2x3Xor takes 2 inputs and produces 3 outputs.
+//go:noescape
+func mulAvxTwo_2x3Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+// mulAvxTwo_2x3_64Xor takes 2 inputs and produces 3 outputs.
+//go:noescape
+func mulAvxTwo_2x3_64Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxTwo_2x4 takes 2 inputs and produces 4 outputs.
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_2x4(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+// mulAvxTwo_2x4Xor takes 2 inputs and produces 4 outputs.
+//go:noescape
+func mulAvxTwo_2x4Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxTwo_2x5 takes 2 inputs and produces 5 outputs.
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_2x5(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
+// mulAvxTwo_2x5Xor takes 2 inputs and produces 5 outputs.
+//go:noescape
+func mulAvxTwo_2x5Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxTwo_2x6 takes 2 inputs and produces 6 outputs.
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_2x6(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+// mulAvxTwo_2x6Xor takes 2 inputs and produces 6 outputs.
+//go:noescape
+func mulAvxTwo_2x6Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxTwo_2x7 takes 2 inputs and produces 7 outputs.
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_2x7(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
+// mulAvxTwo_2x7Xor takes 2 inputs and produces 7 outputs.
+//go:noescape
+func mulAvxTwo_2x7Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxTwo_2x8 takes 2 inputs and produces 8 outputs.
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_2x8(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+// mulAvxTwo_2x8Xor takes 2 inputs and produces 8 outputs.
+//go:noescape
+func mulAvxTwo_2x8Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxTwo_2x9 takes 2 inputs and produces 9 outputs.
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_2x9(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
+// mulAvxTwo_2x9Xor takes 2 inputs and produces 9 outputs.
+//go:noescape
+func mulAvxTwo_2x9Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxTwo_2x10 takes 2 inputs and produces 10 outputs.
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_2x10(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+// mulAvxTwo_2x10Xor takes 2 inputs and produces 10 outputs.
+//go:noescape
+func mulAvxTwo_2x10Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxTwo_3x1 takes 3 inputs and produces 1 outputs.
 // The output is initialized to 0.
@@ -147,6 +251,14 @@ func mulAvxTwo_3x1(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 //go:noescape
 func mulAvxTwo_3x1_64(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
+// mulAvxTwo_3x1Xor takes 3 inputs and produces 1 outputs.
+//go:noescape
+func mulAvxTwo_3x1Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+// mulAvxTwo_3x1_64Xor takes 3 inputs and produces 1 outputs.
+//go:noescape
+func mulAvxTwo_3x1_64Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxTwo_3x2 takes 3 inputs and produces 2 outputs.
 // The output is initialized to 0.
 //go:noescape
@@ -156,6 +268,14 @@ func mulAvxTwo_3x2(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_3x2_64(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+// mulAvxTwo_3x2Xor takes 3 inputs and produces 2 outputs.
+//go:noescape
+func mulAvxTwo_3x2Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+// mulAvxTwo_3x2_64Xor takes 3 inputs and produces 2 outputs.
+//go:noescape
+func mulAvxTwo_3x2_64Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxTwo_3x3 takes 3 inputs and produces 3 outputs.
 // The output is initialized to 0.
@@ -167,40 +287,76 @@ func mulAvxTwo_3x3(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 //go:noescape
 func mulAvxTwo_3x3_64(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
+// mulAvxTwo_3x3Xor takes 3 inputs and produces 3 outputs.
+//go:noescape
+func mulAvxTwo_3x3Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+// mulAvxTwo_3x3_64Xor takes 3 inputs and produces 3 outputs.
+//go:noescape
+func mulAvxTwo_3x3_64Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxTwo_3x4 takes 3 inputs and produces 4 outputs.
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_3x4(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+// mulAvxTwo_3x4Xor takes 3 inputs and produces 4 outputs.
+//go:noescape
+func mulAvxTwo_3x4Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxTwo_3x5 takes 3 inputs and produces 5 outputs.
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_3x5(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
+// mulAvxTwo_3x5Xor takes 3 inputs and produces 5 outputs.
+//go:noescape
+func mulAvxTwo_3x5Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxTwo_3x6 takes 3 inputs and produces 6 outputs.
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_3x6(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+// mulAvxTwo_3x6Xor takes 3 inputs and produces 6 outputs.
+//go:noescape
+func mulAvxTwo_3x6Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxTwo_3x7 takes 3 inputs and produces 7 outputs.
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_3x7(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
+// mulAvxTwo_3x7Xor takes 3 inputs and produces 7 outputs.
+//go:noescape
+func mulAvxTwo_3x7Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxTwo_3x8 takes 3 inputs and produces 8 outputs.
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_3x8(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+// mulAvxTwo_3x8Xor takes 3 inputs and produces 8 outputs.
+//go:noescape
+func mulAvxTwo_3x8Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxTwo_3x9 takes 3 inputs and produces 9 outputs.
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_3x9(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
+// mulAvxTwo_3x9Xor takes 3 inputs and produces 9 outputs.
+//go:noescape
+func mulAvxTwo_3x9Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxTwo_3x10 takes 3 inputs and produces 10 outputs.
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_3x10(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+// mulAvxTwo_3x10Xor takes 3 inputs and produces 10 outputs.
+//go:noescape
+func mulAvxTwo_3x10Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxTwo_4x1 takes 4 inputs and produces 1 outputs.
 // The output is initialized to 0.
@@ -212,6 +368,14 @@ func mulAvxTwo_4x1(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 //go:noescape
 func mulAvxTwo_4x1_64(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
+// mulAvxTwo_4x1Xor takes 4 inputs and produces 1 outputs.
+//go:noescape
+func mulAvxTwo_4x1Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+// mulAvxTwo_4x1_64Xor takes 4 inputs and produces 1 outputs.
+//go:noescape
+func mulAvxTwo_4x1_64Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxTwo_4x2 takes 4 inputs and produces 2 outputs.
 // The output is initialized to 0.
 //go:noescape
@@ -221,6 +385,14 @@ func mulAvxTwo_4x2(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_4x2_64(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+// mulAvxTwo_4x2Xor takes 4 inputs and produces 2 outputs.
+//go:noescape
+func mulAvxTwo_4x2Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+// mulAvxTwo_4x2_64Xor takes 4 inputs and produces 2 outputs.
+//go:noescape
+func mulAvxTwo_4x2_64Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxTwo_4x3 takes 4 inputs and produces 3 outputs.
 // The output is initialized to 0.
@@ -232,40 +404,76 @@ func mulAvxTwo_4x3(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 //go:noescape
 func mulAvxTwo_4x3_64(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
+// mulAvxTwo_4x3Xor takes 4 inputs and produces 3 outputs.
+//go:noescape
+func mulAvxTwo_4x3Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+// mulAvxTwo_4x3_64Xor takes 4 inputs and produces 3 outputs.
+//go:noescape
+func mulAvxTwo_4x3_64Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxTwo_4x4 takes 4 inputs and produces 4 outputs.
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_4x4(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+// mulAvxTwo_4x4Xor takes 4 inputs and produces 4 outputs.
+//go:noescape
+func mulAvxTwo_4x4Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxTwo_4x5 takes 4 inputs and produces 5 outputs.
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_4x5(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
+// mulAvxTwo_4x5Xor takes 4 inputs and produces 5 outputs.
+//go:noescape
+func mulAvxTwo_4x5Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxTwo_4x6 takes 4 inputs and produces 6 outputs.
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_4x6(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+// mulAvxTwo_4x6Xor takes 4 inputs and produces 6 outputs.
+//go:noescape
+func mulAvxTwo_4x6Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxTwo_4x7 takes 4 inputs and produces 7 outputs.
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_4x7(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
+// mulAvxTwo_4x7Xor takes 4 inputs and produces 7 outputs.
+//go:noescape
+func mulAvxTwo_4x7Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxTwo_4x8 takes 4 inputs and produces 8 outputs.
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_4x8(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+// mulAvxTwo_4x8Xor takes 4 inputs and produces 8 outputs.
+//go:noescape
+func mulAvxTwo_4x8Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxTwo_4x9 takes 4 inputs and produces 9 outputs.
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_4x9(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
+// mulAvxTwo_4x9Xor takes 4 inputs and produces 9 outputs.
+//go:noescape
+func mulAvxTwo_4x9Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxTwo_4x10 takes 4 inputs and produces 10 outputs.
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_4x10(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+// mulAvxTwo_4x10Xor takes 4 inputs and produces 10 outputs.
+//go:noescape
+func mulAvxTwo_4x10Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxTwo_5x1 takes 5 inputs and produces 1 outputs.
 // The output is initialized to 0.
@@ -277,6 +485,14 @@ func mulAvxTwo_5x1(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 //go:noescape
 func mulAvxTwo_5x1_64(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
+// mulAvxTwo_5x1Xor takes 5 inputs and produces 1 outputs.
+//go:noescape
+func mulAvxTwo_5x1Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+// mulAvxTwo_5x1_64Xor takes 5 inputs and produces 1 outputs.
+//go:noescape
+func mulAvxTwo_5x1_64Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxTwo_5x2 takes 5 inputs and produces 2 outputs.
 // The output is initialized to 0.
 //go:noescape
@@ -286,6 +502,14 @@ func mulAvxTwo_5x2(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_5x2_64(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+// mulAvxTwo_5x2Xor takes 5 inputs and produces 2 outputs.
+//go:noescape
+func mulAvxTwo_5x2Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+// mulAvxTwo_5x2_64Xor takes 5 inputs and produces 2 outputs.
+//go:noescape
+func mulAvxTwo_5x2_64Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxTwo_5x3 takes 5 inputs and produces 3 outputs.
 // The output is initialized to 0.
@@ -297,40 +521,76 @@ func mulAvxTwo_5x3(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 //go:noescape
 func mulAvxTwo_5x3_64(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
+// mulAvxTwo_5x3Xor takes 5 inputs and produces 3 outputs.
+//go:noescape
+func mulAvxTwo_5x3Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+// mulAvxTwo_5x3_64Xor takes 5 inputs and produces 3 outputs.
+//go:noescape
+func mulAvxTwo_5x3_64Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxTwo_5x4 takes 5 inputs and produces 4 outputs.
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_5x4(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+// mulAvxTwo_5x4Xor takes 5 inputs and produces 4 outputs.
+//go:noescape
+func mulAvxTwo_5x4Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxTwo_5x5 takes 5 inputs and produces 5 outputs.
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_5x5(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
+// mulAvxTwo_5x5Xor takes 5 inputs and produces 5 outputs.
+//go:noescape
+func mulAvxTwo_5x5Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxTwo_5x6 takes 5 inputs and produces 6 outputs.
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_5x6(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+// mulAvxTwo_5x6Xor takes 5 inputs and produces 6 outputs.
+//go:noescape
+func mulAvxTwo_5x6Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxTwo_5x7 takes 5 inputs and produces 7 outputs.
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_5x7(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
+// mulAvxTwo_5x7Xor takes 5 inputs and produces 7 outputs.
+//go:noescape
+func mulAvxTwo_5x7Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxTwo_5x8 takes 5 inputs and produces 8 outputs.
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_5x8(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+// mulAvxTwo_5x8Xor takes 5 inputs and produces 8 outputs.
+//go:noescape
+func mulAvxTwo_5x8Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxTwo_5x9 takes 5 inputs and produces 9 outputs.
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_5x9(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
+// mulAvxTwo_5x9Xor takes 5 inputs and produces 9 outputs.
+//go:noescape
+func mulAvxTwo_5x9Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxTwo_5x10 takes 5 inputs and produces 10 outputs.
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_5x10(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+// mulAvxTwo_5x10Xor takes 5 inputs and produces 10 outputs.
+//go:noescape
+func mulAvxTwo_5x10Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxTwo_6x1 takes 6 inputs and produces 1 outputs.
 // The output is initialized to 0.
@@ -342,6 +602,14 @@ func mulAvxTwo_6x1(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 //go:noescape
 func mulAvxTwo_6x1_64(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
+// mulAvxTwo_6x1Xor takes 6 inputs and produces 1 outputs.
+//go:noescape
+func mulAvxTwo_6x1Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+// mulAvxTwo_6x1_64Xor takes 6 inputs and produces 1 outputs.
+//go:noescape
+func mulAvxTwo_6x1_64Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxTwo_6x2 takes 6 inputs and produces 2 outputs.
 // The output is initialized to 0.
 //go:noescape
@@ -351,6 +619,14 @@ func mulAvxTwo_6x2(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_6x2_64(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+// mulAvxTwo_6x2Xor takes 6 inputs and produces 2 outputs.
+//go:noescape
+func mulAvxTwo_6x2Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+// mulAvxTwo_6x2_64Xor takes 6 inputs and produces 2 outputs.
+//go:noescape
+func mulAvxTwo_6x2_64Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxTwo_6x3 takes 6 inputs and produces 3 outputs.
 // The output is initialized to 0.
@@ -362,40 +638,76 @@ func mulAvxTwo_6x3(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 //go:noescape
 func mulAvxTwo_6x3_64(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
+// mulAvxTwo_6x3Xor takes 6 inputs and produces 3 outputs.
+//go:noescape
+func mulAvxTwo_6x3Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+// mulAvxTwo_6x3_64Xor takes 6 inputs and produces 3 outputs.
+//go:noescape
+func mulAvxTwo_6x3_64Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxTwo_6x4 takes 6 inputs and produces 4 outputs.
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_6x4(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+// mulAvxTwo_6x4Xor takes 6 inputs and produces 4 outputs.
+//go:noescape
+func mulAvxTwo_6x4Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxTwo_6x5 takes 6 inputs and produces 5 outputs.
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_6x5(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
+// mulAvxTwo_6x5Xor takes 6 inputs and produces 5 outputs.
+//go:noescape
+func mulAvxTwo_6x5Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxTwo_6x6 takes 6 inputs and produces 6 outputs.
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_6x6(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+// mulAvxTwo_6x6Xor takes 6 inputs and produces 6 outputs.
+//go:noescape
+func mulAvxTwo_6x6Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxTwo_6x7 takes 6 inputs and produces 7 outputs.
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_6x7(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
+// mulAvxTwo_6x7Xor takes 6 inputs and produces 7 outputs.
+//go:noescape
+func mulAvxTwo_6x7Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxTwo_6x8 takes 6 inputs and produces 8 outputs.
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_6x8(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+// mulAvxTwo_6x8Xor takes 6 inputs and produces 8 outputs.
+//go:noescape
+func mulAvxTwo_6x8Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxTwo_6x9 takes 6 inputs and produces 9 outputs.
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_6x9(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
+// mulAvxTwo_6x9Xor takes 6 inputs and produces 9 outputs.
+//go:noescape
+func mulAvxTwo_6x9Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxTwo_6x10 takes 6 inputs and produces 10 outputs.
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_6x10(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+// mulAvxTwo_6x10Xor takes 6 inputs and produces 10 outputs.
+//go:noescape
+func mulAvxTwo_6x10Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxTwo_7x1 takes 7 inputs and produces 1 outputs.
 // The output is initialized to 0.
@@ -407,6 +719,14 @@ func mulAvxTwo_7x1(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 //go:noescape
 func mulAvxTwo_7x1_64(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
+// mulAvxTwo_7x1Xor takes 7 inputs and produces 1 outputs.
+//go:noescape
+func mulAvxTwo_7x1Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+// mulAvxTwo_7x1_64Xor takes 7 inputs and produces 1 outputs.
+//go:noescape
+func mulAvxTwo_7x1_64Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxTwo_7x2 takes 7 inputs and produces 2 outputs.
 // The output is initialized to 0.
 //go:noescape
@@ -416,6 +736,14 @@ func mulAvxTwo_7x2(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_7x2_64(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+// mulAvxTwo_7x2Xor takes 7 inputs and produces 2 outputs.
+//go:noescape
+func mulAvxTwo_7x2Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+// mulAvxTwo_7x2_64Xor takes 7 inputs and produces 2 outputs.
+//go:noescape
+func mulAvxTwo_7x2_64Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxTwo_7x3 takes 7 inputs and produces 3 outputs.
 // The output is initialized to 0.
@@ -427,40 +755,76 @@ func mulAvxTwo_7x3(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 //go:noescape
 func mulAvxTwo_7x3_64(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
+// mulAvxTwo_7x3Xor takes 7 inputs and produces 3 outputs.
+//go:noescape
+func mulAvxTwo_7x3Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+// mulAvxTwo_7x3_64Xor takes 7 inputs and produces 3 outputs.
+//go:noescape
+func mulAvxTwo_7x3_64Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxTwo_7x4 takes 7 inputs and produces 4 outputs.
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_7x4(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+// mulAvxTwo_7x4Xor takes 7 inputs and produces 4 outputs.
+//go:noescape
+func mulAvxTwo_7x4Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxTwo_7x5 takes 7 inputs and produces 5 outputs.
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_7x5(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
+// mulAvxTwo_7x5Xor takes 7 inputs and produces 5 outputs.
+//go:noescape
+func mulAvxTwo_7x5Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxTwo_7x6 takes 7 inputs and produces 6 outputs.
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_7x6(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+// mulAvxTwo_7x6Xor takes 7 inputs and produces 6 outputs.
+//go:noescape
+func mulAvxTwo_7x6Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxTwo_7x7 takes 7 inputs and produces 7 outputs.
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_7x7(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
+// mulAvxTwo_7x7Xor takes 7 inputs and produces 7 outputs.
+//go:noescape
+func mulAvxTwo_7x7Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxTwo_7x8 takes 7 inputs and produces 8 outputs.
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_7x8(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+// mulAvxTwo_7x8Xor takes 7 inputs and produces 8 outputs.
+//go:noescape
+func mulAvxTwo_7x8Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxTwo_7x9 takes 7 inputs and produces 9 outputs.
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_7x9(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
+// mulAvxTwo_7x9Xor takes 7 inputs and produces 9 outputs.
+//go:noescape
+func mulAvxTwo_7x9Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxTwo_7x10 takes 7 inputs and produces 10 outputs.
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_7x10(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+// mulAvxTwo_7x10Xor takes 7 inputs and produces 10 outputs.
+//go:noescape
+func mulAvxTwo_7x10Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxTwo_8x1 takes 8 inputs and produces 1 outputs.
 // The output is initialized to 0.
@@ -472,6 +836,14 @@ func mulAvxTwo_8x1(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 //go:noescape
 func mulAvxTwo_8x1_64(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
+// mulAvxTwo_8x1Xor takes 8 inputs and produces 1 outputs.
+//go:noescape
+func mulAvxTwo_8x1Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+// mulAvxTwo_8x1_64Xor takes 8 inputs and produces 1 outputs.
+//go:noescape
+func mulAvxTwo_8x1_64Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxTwo_8x2 takes 8 inputs and produces 2 outputs.
 // The output is initialized to 0.
 //go:noescape
@@ -481,6 +853,14 @@ func mulAvxTwo_8x2(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_8x2_64(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+// mulAvxTwo_8x2Xor takes 8 inputs and produces 2 outputs.
+//go:noescape
+func mulAvxTwo_8x2Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+// mulAvxTwo_8x2_64Xor takes 8 inputs and produces 2 outputs.
+//go:noescape
+func mulAvxTwo_8x2_64Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxTwo_8x3 takes 8 inputs and produces 3 outputs.
 // The output is initialized to 0.
@@ -492,40 +872,76 @@ func mulAvxTwo_8x3(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 //go:noescape
 func mulAvxTwo_8x3_64(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
+// mulAvxTwo_8x3Xor takes 8 inputs and produces 3 outputs.
+//go:noescape
+func mulAvxTwo_8x3Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+// mulAvxTwo_8x3_64Xor takes 8 inputs and produces 3 outputs.
+//go:noescape
+func mulAvxTwo_8x3_64Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxTwo_8x4 takes 8 inputs and produces 4 outputs.
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_8x4(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+// mulAvxTwo_8x4Xor takes 8 inputs and produces 4 outputs.
+//go:noescape
+func mulAvxTwo_8x4Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxTwo_8x5 takes 8 inputs and produces 5 outputs.
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_8x5(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
+// mulAvxTwo_8x5Xor takes 8 inputs and produces 5 outputs.
+//go:noescape
+func mulAvxTwo_8x5Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxTwo_8x6 takes 8 inputs and produces 6 outputs.
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_8x6(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+// mulAvxTwo_8x6Xor takes 8 inputs and produces 6 outputs.
+//go:noescape
+func mulAvxTwo_8x6Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxTwo_8x7 takes 8 inputs and produces 7 outputs.
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_8x7(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
+// mulAvxTwo_8x7Xor takes 8 inputs and produces 7 outputs.
+//go:noescape
+func mulAvxTwo_8x7Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxTwo_8x8 takes 8 inputs and produces 8 outputs.
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_8x8(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+// mulAvxTwo_8x8Xor takes 8 inputs and produces 8 outputs.
+//go:noescape
+func mulAvxTwo_8x8Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxTwo_8x9 takes 8 inputs and produces 9 outputs.
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_8x9(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
+// mulAvxTwo_8x9Xor takes 8 inputs and produces 9 outputs.
+//go:noescape
+func mulAvxTwo_8x9Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxTwo_8x10 takes 8 inputs and produces 10 outputs.
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_8x10(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+// mulAvxTwo_8x10Xor takes 8 inputs and produces 10 outputs.
+//go:noescape
+func mulAvxTwo_8x10Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxTwo_9x1 takes 9 inputs and produces 1 outputs.
 // The output is initialized to 0.
@@ -537,6 +953,14 @@ func mulAvxTwo_9x1(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 //go:noescape
 func mulAvxTwo_9x1_64(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
+// mulAvxTwo_9x1Xor takes 9 inputs and produces 1 outputs.
+//go:noescape
+func mulAvxTwo_9x1Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+// mulAvxTwo_9x1_64Xor takes 9 inputs and produces 1 outputs.
+//go:noescape
+func mulAvxTwo_9x1_64Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxTwo_9x2 takes 9 inputs and produces 2 outputs.
 // The output is initialized to 0.
 //go:noescape
@@ -546,6 +970,14 @@ func mulAvxTwo_9x2(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_9x2_64(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+// mulAvxTwo_9x2Xor takes 9 inputs and produces 2 outputs.
+//go:noescape
+func mulAvxTwo_9x2Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+// mulAvxTwo_9x2_64Xor takes 9 inputs and produces 2 outputs.
+//go:noescape
+func mulAvxTwo_9x2_64Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxTwo_9x3 takes 9 inputs and produces 3 outputs.
 // The output is initialized to 0.
@@ -557,40 +989,76 @@ func mulAvxTwo_9x3(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 //go:noescape
 func mulAvxTwo_9x3_64(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
+// mulAvxTwo_9x3Xor takes 9 inputs and produces 3 outputs.
+//go:noescape
+func mulAvxTwo_9x3Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+// mulAvxTwo_9x3_64Xor takes 9 inputs and produces 3 outputs.
+//go:noescape
+func mulAvxTwo_9x3_64Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxTwo_9x4 takes 9 inputs and produces 4 outputs.
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_9x4(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+// mulAvxTwo_9x4Xor takes 9 inputs and produces 4 outputs.
+//go:noescape
+func mulAvxTwo_9x4Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxTwo_9x5 takes 9 inputs and produces 5 outputs.
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_9x5(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
+// mulAvxTwo_9x5Xor takes 9 inputs and produces 5 outputs.
+//go:noescape
+func mulAvxTwo_9x5Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxTwo_9x6 takes 9 inputs and produces 6 outputs.
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_9x6(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+// mulAvxTwo_9x6Xor takes 9 inputs and produces 6 outputs.
+//go:noescape
+func mulAvxTwo_9x6Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxTwo_9x7 takes 9 inputs and produces 7 outputs.
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_9x7(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
+// mulAvxTwo_9x7Xor takes 9 inputs and produces 7 outputs.
+//go:noescape
+func mulAvxTwo_9x7Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxTwo_9x8 takes 9 inputs and produces 8 outputs.
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_9x8(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+// mulAvxTwo_9x8Xor takes 9 inputs and produces 8 outputs.
+//go:noescape
+func mulAvxTwo_9x8Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxTwo_9x9 takes 9 inputs and produces 9 outputs.
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_9x9(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
+// mulAvxTwo_9x9Xor takes 9 inputs and produces 9 outputs.
+//go:noescape
+func mulAvxTwo_9x9Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxTwo_9x10 takes 9 inputs and produces 10 outputs.
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_9x10(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+// mulAvxTwo_9x10Xor takes 9 inputs and produces 10 outputs.
+//go:noescape
+func mulAvxTwo_9x10Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxTwo_10x1 takes 10 inputs and produces 1 outputs.
 // The output is initialized to 0.
@@ -602,6 +1070,14 @@ func mulAvxTwo_10x1(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 //go:noescape
 func mulAvxTwo_10x1_64(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
+// mulAvxTwo_10x1Xor takes 10 inputs and produces 1 outputs.
+//go:noescape
+func mulAvxTwo_10x1Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+// mulAvxTwo_10x1_64Xor takes 10 inputs and produces 1 outputs.
+//go:noescape
+func mulAvxTwo_10x1_64Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxTwo_10x2 takes 10 inputs and produces 2 outputs.
 // The output is initialized to 0.
 //go:noescape
@@ -611,6 +1087,14 @@ func mulAvxTwo_10x2(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_10x2_64(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+// mulAvxTwo_10x2Xor takes 10 inputs and produces 2 outputs.
+//go:noescape
+func mulAvxTwo_10x2Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+// mulAvxTwo_10x2_64Xor takes 10 inputs and produces 2 outputs.
+//go:noescape
+func mulAvxTwo_10x2_64Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxTwo_10x3 takes 10 inputs and produces 3 outputs.
 // The output is initialized to 0.
@@ -622,37 +1106,73 @@ func mulAvxTwo_10x3(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 //go:noescape
 func mulAvxTwo_10x3_64(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
+// mulAvxTwo_10x3Xor takes 10 inputs and produces 3 outputs.
+//go:noescape
+func mulAvxTwo_10x3Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+// mulAvxTwo_10x3_64Xor takes 10 inputs and produces 3 outputs.
+//go:noescape
+func mulAvxTwo_10x3_64Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxTwo_10x4 takes 10 inputs and produces 4 outputs.
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_10x4(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+// mulAvxTwo_10x4Xor takes 10 inputs and produces 4 outputs.
+//go:noescape
+func mulAvxTwo_10x4Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxTwo_10x5 takes 10 inputs and produces 5 outputs.
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_10x5(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
+// mulAvxTwo_10x5Xor takes 10 inputs and produces 5 outputs.
+//go:noescape
+func mulAvxTwo_10x5Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxTwo_10x6 takes 10 inputs and produces 6 outputs.
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_10x6(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+// mulAvxTwo_10x6Xor takes 10 inputs and produces 6 outputs.
+//go:noescape
+func mulAvxTwo_10x6Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxTwo_10x7 takes 10 inputs and produces 7 outputs.
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_10x7(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
+// mulAvxTwo_10x7Xor takes 10 inputs and produces 7 outputs.
+//go:noescape
+func mulAvxTwo_10x7Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxTwo_10x8 takes 10 inputs and produces 8 outputs.
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_10x8(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+// mulAvxTwo_10x8Xor takes 10 inputs and produces 8 outputs.
+//go:noescape
+func mulAvxTwo_10x8Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxTwo_10x9 takes 10 inputs and produces 9 outputs.
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_10x9(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
+// mulAvxTwo_10x9Xor takes 10 inputs and produces 9 outputs.
+//go:noescape
+func mulAvxTwo_10x9Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxTwo_10x10 takes 10 inputs and produces 10 outputs.
 // The output is initialized to 0.
 //go:noescape
 func mulAvxTwo_10x10(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+// mulAvxTwo_10x10Xor takes 10 inputs and produces 10 outputs.
+//go:noescape
+func mulAvxTwo_10x10Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)

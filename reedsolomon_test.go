@@ -191,7 +191,7 @@ func TestEncoding(t *testing.T) {
 // note that par1 matric will fail on some combinations.
 var testSizes = [][2]int{
 	{1, 0}, {3, 0}, {5, 0}, {8, 0}, {10, 0}, {12, 0}, {14, 0}, {41, 0}, {49, 0},
-	{1, 1}, {1, 2}, {3, 3}, {3, 1}, {5, 3}, {8, 4}, {10, 30}, {12, 10}, {14, 7}, {41, 17}, {49, 1}}
+	{1, 1}, {1, 2}, {3, 3}, {3, 1}, {5, 3}, {8, 4}, {10, 30}, {12, 10}, {14, 7}, {41, 17}, {49, 1}, {5, 20}}
 var testDataSizes = []int{10, 100, 1000, 10001, 100003, 1000055}
 var testDataSizesShort = []int{10, 10001, 100003}
 
@@ -913,8 +913,8 @@ func BenchmarkEncode100x20x10000(b *testing.B) {
 	benchmarkEncode(b, 100, 20, 10000)
 }
 
-func BenchmarkEncode17x3x1M(b *testing.B) {
-	benchmarkEncode(b, 17, 3, 1024*1024)
+func BenchmarkEncode17x30x1M(b *testing.B) {
+	benchmarkEncode(b, 17, 30, 1024*1024)
 }
 
 // Benchmark 10 data shards and 4 parity shards with 16MB each.
@@ -937,9 +937,9 @@ func BenchmarkEncode10x4x1M(b *testing.B) {
 	benchmarkEncode(b, 10, 4, 1024*1024)
 }
 
-// Benchmark 50 data shards and 20 parity shards with 1MB each.
+// Benchmark 50 data shards and 20 parity shards with 1K each.
 func BenchmarkEncode50x20x1M(b *testing.B) {
-	benchmarkEncode(b, 50, 20, 1024*1024)
+	benchmarkEncode(b, 50, 10, 1024)
 }
 
 // Benchmark 17 data shards and 3 parity shards with 16MB each.
@@ -1359,11 +1359,11 @@ func TestCodeSomeShards(t *testing.T) {
 	shards, _ := enc.Split(data)
 
 	old := runtime.GOMAXPROCS(1)
-	r.codeSomeShards(r.parity, shards[:r.DataShards], shards[r.DataShards:], r.ParityShards, len(shards[0]))
+	r.codeSomeShards(r.parity, shards[:r.DataShards], shards[r.DataShards:r.DataShards+r.ParityShards], len(shards[0]))
 
 	// hopefully more than 1 CPU
 	runtime.GOMAXPROCS(runtime.NumCPU())
-	r.codeSomeShards(r.parity, shards[:r.DataShards], shards[r.DataShards:], r.ParityShards, len(shards[0]))
+	r.codeSomeShards(r.parity, shards[:r.DataShards], shards[r.DataShards:r.DataShards+r.ParityShards], len(shards[0]))
 
 	// reset MAXPROCS, otherwise testing complains
 	runtime.GOMAXPROCS(old)
@@ -1642,7 +1642,9 @@ func benchmarkParallel(b *testing.B, dataShards, parityShards, shardSize int) {
 	c := runtime.GOMAXPROCS(0)
 
 	// Note that concurrency also affects total data size and will make caches less effective.
-	b.Log("Total data:", (c*dataShards*shardSize)>>20, "MiB", "parity:", (c*parityShards*shardSize)>>20, "MiB")
+	if testing.Verbose() {
+		b.Log("Total data:", (c*dataShards*shardSize)>>20, "MiB", "parity:", (c*parityShards*shardSize)>>20, "MiB")
+	}
 	// Create independent shards
 	shardsCh := make(chan [][]byte, c)
 	for i := 0; i < c; i++ {

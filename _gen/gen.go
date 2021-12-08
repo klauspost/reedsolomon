@@ -2,7 +2,7 @@
 // +build generate
 
 //go:generate go run gen.go -out ../galois_gen_amd64.s -stubs ../galois_gen_amd64.go -pkg=reedsolomon
-//go:generate gofmt -w ../galois_gen_switch_amd64.go
+//go:generate go fmt ../galois_gen_switch_amd64.go
 
 package main
 
@@ -36,14 +36,15 @@ func main() {
 	Constraint(buildtags.Not("nogen").ToConstraint())
 	Constraint(buildtags.Term("gc").ToConstraint())
 
-	const perLoopBits = 5
+	const perLoopBits = 6
 	const perLoop = 1 << perLoopBits
 
 	for i := 1; i <= inputMax; i++ {
 		for j := 1; j <= outputMax; j++ {
-			//genMulAvx2(fmt.Sprintf("mulAvxTwoXor_%dx%d", i, j), i, j, true)
 			genMulAvx2(fmt.Sprintf("mulAvxTwo_%dx%d", i, j), i, j, false)
 			genMulAvx2Sixty64(fmt.Sprintf("mulAvxTwo_%dx%d_64", i, j), i, j, false)
+			genMulAvx2(fmt.Sprintf("mulAvxTwo_%dx%dXor", i, j), i, j, true)
+			genMulAvx2Sixty64(fmt.Sprintf("mulAvxTwo_%dx%d_64Xor", i, j), i, j, true)
 		}
 	}
 	f, err := os.Create("../galois_gen_switch_amd64.go")
@@ -62,22 +63,49 @@ func main() {
 
 package reedsolomon
 
-import "fmt"
+import (
+	"fmt"
+	"math"
+)
 
 `)
 
-	w.WriteString("const avx2CodeGen = true\n")
-	w.WriteString(fmt.Sprintf("const maxAvx2Inputs = %d\nconst maxAvx2Outputs = %d\n", inputMax, outputMax))
+	w.WriteString(fmt.Sprintf(`const (
+avx2CodeGen = true
+maxAvx2Inputs = %d
+maxAvx2Outputs = %d
+minAvx2Size = %d
+avxSizeMask = math.MaxInt - (minAvx2Size-1)
+)`, inputMax, outputMax, perLoop))
 	w.WriteString(`
 
 func galMulSlicesAvx2(matrix []byte, in, out [][]byte, start, stop int) int {
-	n := stop-start
+	n := (stop-start) & avxSizeMask
+
 `)
 
-	w.WriteString(fmt.Sprintf("n = (n>>%d)<<%d\n\n", perLoopBits, perLoopBits))
 	w.WriteString(`switch len(in) {
 `)
 	for in, defs := range switchDefs[:] {
+		w.WriteString(fmt.Sprintf("		case %d:\n			switch len(out) {\n", in+1))
+		for out, def := range defs[:] {
+			w.WriteString(fmt.Sprintf("				case %d:\n", out+1))
+			w.WriteString(def)
+		}
+		w.WriteString("}\n")
+	}
+	w.WriteString(`}
+	panic(fmt.Sprintf("unhandled size: %dx%d", len(in), len(out)))
+}
+
+func galMulSlicesAvx2Xor(matrix []byte, in, out [][]byte, start, stop int) int {
+	n := (stop-start) & avxSizeMask
+
+`)
+
+	w.WriteString(`switch len(in) {
+`)
+	for in, defs := range switchDefsX[:] {
 		w.WriteString(fmt.Sprintf("		case %d:\n			switch len(out) {\n", in+1))
 		for out, def := range defs[:] {
 			w.WriteString(fmt.Sprintf("				case %d:\n", out+1))
@@ -129,12 +157,21 @@ func genMulAvx2(name string, inputs int, outputs int, xor bool) {
 		}
 	}
 
+	x := ""
+	if xor {
+		x = "Xor"
+	}
+
 	TEXT(name, attr.NOSPLIT, fmt.Sprintf("func(matrix []byte, in [][]byte, out [][]byte, start, n int)"))
 
 	// SWITCH DEFINITION:
-	s := fmt.Sprintf("			mulAvxTwo_%dx%d(matrix, in, out, start, n)\n", inputs, outputs)
+	s := fmt.Sprintf("			mulAvxTwo_%dx%d%s(matrix, in, out, start, n)\n", inputs, outputs, x)
 	s += fmt.Sprintf("\t\t\t\treturn n\n")
-	switchDefs[inputs-1][outputs-1] = s
+	if xor {
+		switchDefsX[inputs-1][outputs-1] = s
+	} else {
+		switchDefs[inputs-1][outputs-1] = s
+	}
 
 	if loadNone {
 		Comment("Loading no tables to registers")
@@ -197,7 +234,6 @@ func genMulAvx2(name string, inputs int, outputs int, xor bool) {
 	if err != nil {
 		panic(err)
 	}
-	outBase := addr.Addr
 	outSlicePtr := GP64()
 	MOVQ(addr.Addr, outSlicePtr)
 	for i := range dst {
@@ -241,11 +277,10 @@ func genMulAvx2(name string, inputs int, outputs int, xor bool) {
 		SHRQ(U8(perLoopBits), length)
 	}
 	Label(name + "_loop")
+
 	if xor {
 		Commentf("Load %d outputs", outputs)
-	}
-	for i := range dst {
-		if xor {
+		for i := range dst {
 			if regDst {
 				VMOVDQU(Mem{Base: dstPtr[i]}, dst[i])
 				if prefetchDst > 0 {
@@ -254,7 +289,7 @@ func genMulAvx2(name string, inputs int, outputs int, xor bool) {
 				continue
 			}
 			ptr := GP64()
-			MOVQ(outBase, ptr)
+			MOVQ(Mem{Base: outSlicePtr, Disp: i * 24}, ptr)
 			VMOVDQU(Mem{Base: ptr, Index: offset, Scale: 1}, dst[i])
 			if prefetchDst > 0 {
 				PREFETCHT0(Mem{Base: ptr, Disp: prefetchDst, Index: offset, Scale: 1})
@@ -341,35 +376,42 @@ func genMulAvx2Sixty64(name string, inputs int, outputs int, xor bool) {
 	// Load shuffle masks on every use.
 	var loadNone bool
 	// Use registers for destination registers.
-	var regDst = false
+	var regDst = true
 	var reloadLength = false
 
 	// lo, hi, 1 in, 1 out, 2 tmp, 1 mask
-	est := total*2 + outputs + 5
+	est := total*4 + outputs + 7
 	if outputs == 1 {
 		// We don't need to keep a copy of the input if only 1 output.
 		est -= 2
 	}
 
-	if true || est > 16 {
+	if est > 16 {
 		loadNone = true
 		// We run out of GP registers first, now.
 		if inputs+outputs > 13 {
 			regDst = false
 		}
 		// Save one register by reloading length.
-		if true || inputs+outputs > 12 && regDst {
+		if inputs+outputs > 12 && regDst {
 			reloadLength = true
 		}
 	}
 
 	TEXT(name, 0, fmt.Sprintf("func(matrix []byte, in [][]byte, out [][]byte, start, n int)"))
-
+	x := ""
+	if xor {
+		x = "Xor"
+	}
 	// SWITCH DEFINITION:
-	s := fmt.Sprintf("n = (n>>%d)<<%d\n", perLoopBits, perLoopBits)
-	s += fmt.Sprintf("			mulAvxTwo_%dx%d_64(matrix, in, out, start, n)\n", inputs, outputs)
+	//s := fmt.Sprintf("n = (n>>%d)<<%d\n", perLoopBits, perLoopBits)
+	s := fmt.Sprintf("			mulAvxTwo_%dx%d_64%s(matrix, in, out, start, n)\n", inputs, outputs, x)
 	s += fmt.Sprintf("\t\t\t\treturn n\n")
-	switchDefs[inputs-1][outputs-1] = s
+	if xor {
+		switchDefsX[inputs-1][outputs-1] = s
+	} else {
+		switchDefs[inputs-1][outputs-1] = s
+	}
 
 	if loadNone {
 		Comment("Loading no tables to registers")
@@ -475,25 +517,28 @@ func genMulAvx2Sixty64(name string, inputs int, outputs int, xor bool) {
 	VPBROADCASTB(lowMask.AsX(), lowMask)
 
 	if reloadLength {
+		Commentf("Reload length to save a register")
 		length = Load(Param("n"), GP64())
 		SHRQ(U8(perLoopBits), length)
 	}
 	Label(name + "_loop")
+
 	if xor {
 		Commentf("Load %d outputs", outputs)
-	}
-	for i := range dst {
-		if xor {
+		for i := range dst {
 			if regDst {
 				VMOVDQU(Mem{Base: dstPtr[i]}, dst[i])
+				VMOVDQU(Mem{Base: dstPtr[i], Disp: 32}, dst2[i])
 				if prefetchDst > 0 {
 					PREFETCHT0(Mem{Base: dstPtr[i], Disp: prefetchDst})
 				}
 				continue
 			}
 			ptr := GP64()
-			MOVQ(outBase, ptr)
+			MOVQ(Mem{Base: outSlicePtr, Disp: i * 24}, ptr)
 			VMOVDQU(Mem{Base: ptr, Index: offset, Scale: 1}, dst[i])
+			VMOVDQU(Mem{Base: ptr, Index: offset, Scale: 1, Disp: 32}, dst2[i])
+
 			if prefetchDst > 0 {
 				PREFETCHT0(Mem{Base: ptr, Disp: prefetchDst, Index: offset, Scale: 1})
 			}

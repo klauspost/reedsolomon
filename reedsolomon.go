@@ -312,6 +312,12 @@ func New(dataShards, parityShards int, opts ...Option) (Encoder, error) {
 			cacheSize = 32 << 10
 		}
 
+		parityShards := parityShards
+		if avx2CodeGen && r.o.useAVX2 {
+			// 50% of L1 if we use AVX2+
+			parityShards = 1
+		}
+
 		r.o.minSplitSize = cacheSize / (parityShards + 1)
 		// Min 1K
 		if r.o.minSplitSize < 1024 {
@@ -398,7 +404,7 @@ func (r *reedSolomon) Encode(shards [][]byte) error {
 	output := shards[r.DataShards:]
 
 	// Do the coding.
-	r.codeSomeShards(r.parity, shards[0:r.DataShards], output, r.ParityShards, len(shards[0]))
+	r.codeSomeShards(r.parity, shards[0:r.DataShards], output[:r.ParityShards], len(shards[0]))
 	return nil
 }
 
@@ -558,7 +564,7 @@ func (r *reedSolomon) Verify(shards [][]byte) (bool, error) {
 	toCheck := shards[r.DataShards:]
 
 	// Do the checking.
-	return r.checkSomeShards(r.parity, shards[0:r.DataShards], toCheck, r.ParityShards, len(shards[0])), nil
+	return r.checkSomeShards(r.parity, shards[:r.DataShards], toCheck[:r.ParityShards], len(shards[0])), nil
 }
 
 func (r *reedSolomon) canAVX2C(byteCount int, inputs, outputs int) bool {
@@ -576,19 +582,19 @@ func (r *reedSolomon) canAVX2C(byteCount int, inputs, outputs int) bool {
 // The number of outputs computed, and the
 // number of matrix rows used, is determined by
 // outputCount, which is the number of outputs to compute.
-func (r *reedSolomon) codeSomeShards(matrixRows, inputs, outputs [][]byte, outputCount, byteCount int) {
+func (r *reedSolomon) codeSomeShards(matrixRows, inputs, outputs [][]byte, byteCount int) {
 	if len(outputs) == 0 {
 		return
 	}
 	switch {
 	case r.o.useAVX512 && r.o.maxGoroutines > 1 && byteCount > r.o.minSplitSize && len(inputs) >= 4 && len(outputs) >= 2:
-		r.codeSomeShardsAvx512P(matrixRows, inputs, outputs, outputCount, byteCount)
+		r.codeSomeShardsAvx512P(matrixRows, inputs, outputs, byteCount)
 		return
 	case r.o.useAVX512 && len(inputs) >= 4 && len(outputs) >= 2:
-		r.codeSomeShardsAvx512(matrixRows, inputs, outputs, outputCount, byteCount)
+		r.codeSomeShardsAvx512(matrixRows, inputs, outputs, byteCount)
 		return
-	case r.o.maxGoroutines > 1 && byteCount > r.o.minSplitSize:
-		r.codeSomeShardsP(matrixRows, inputs, outputs, outputCount, byteCount)
+	case byteCount > r.o.minSplitSize:
+		r.codeSomeShardsP(matrixRows, inputs, outputs, byteCount)
 		return
 	}
 
@@ -598,16 +604,49 @@ func (r *reedSolomon) codeSomeShards(matrixRows, inputs, outputs [][]byte, outpu
 		end = len(inputs[0])
 	}
 	if r.canAVX2C(byteCount, len(inputs), len(outputs)) {
-		m := genAvx2Matrix(matrixRows, len(inputs), len(outputs), r.mPool.Get().([]byte))
+		m := genAvx2Matrix(matrixRows, len(inputs), 0, len(outputs), r.mPool.Get().([]byte))
 		start += galMulSlicesAvx2(m, inputs, outputs, 0, byteCount)
 		r.mPool.Put(m)
 		end = len(inputs[0])
+	} else if len(inputs)+len(outputs) > avx2CodeGenMinShards && r.canAVX2C(byteCount, maxAvx2Inputs, maxAvx2Outputs) {
+		end = len(inputs[0])
+		inIdx := 0
+		m := r.mPool.Get().([]byte)
+		defer r.mPool.Put(m)
+		ins := inputs
+		for len(ins) > 0 {
+			inPer := ins
+			if len(inPer) > maxAvx2Inputs {
+				inPer = inPer[:maxAvx2Inputs]
+			}
+			outs := outputs
+			outIdx := 0
+			for len(outs) > 0 {
+				outPer := outs
+				if len(outPer) > maxAvx2Outputs {
+					outPer = outPer[:maxAvx2Outputs]
+				}
+				m = genAvx2Matrix(matrixRows[outIdx:], len(inPer), inIdx, len(outPer), m)
+				if inIdx == 0 {
+					galMulSlicesAvx2(m, inPer, outPer, 0, byteCount)
+				} else {
+					galMulSlicesAvx2Xor(m, inPer, outPer, 0, byteCount)
+				}
+				start = byteCount & avxSizeMask
+				outIdx += len(outPer)
+				outs = outs[len(outPer):]
+			}
+			inIdx += len(inPer)
+			ins = ins[len(inPer):]
+		}
+		if start >= end {
+			return
+		}
 	}
-
 	for start < len(inputs[0]) {
-		for c := 0; c < r.DataShards; c++ {
+		for c := 0; c < len(inputs); c++ {
 			in := inputs[c][start:end]
-			for iRow := 0; iRow < outputCount; iRow++ {
+			for iRow := 0; iRow < len(outputs); iRow++ {
 				if c == 0 {
 					galMulSlice(matrixRows[iRow][c], in, outputs[iRow][start:end], &r.o)
 				} else {
@@ -625,20 +664,58 @@ func (r *reedSolomon) codeSomeShards(matrixRows, inputs, outputs [][]byte, outpu
 
 // Perform the same as codeSomeShards, but split the workload into
 // several goroutines.
-func (r *reedSolomon) codeSomeShardsP(matrixRows, inputs, outputs [][]byte, outputCount, byteCount int) {
+func (r *reedSolomon) codeSomeShardsP(matrixRows, inputs, outputs [][]byte, byteCount int) {
 	var wg sync.WaitGroup
 	gor := r.o.maxGoroutines
 
 	var avx2Matrix []byte
 	useAvx2 := r.canAVX2C(byteCount, len(inputs), len(outputs))
 	if useAvx2 {
-		avx2Matrix = genAvx2Matrix(matrixRows, len(inputs), len(outputs), r.mPool.Get().([]byte))
+		avx2Matrix = genAvx2Matrix(matrixRows, len(inputs), 0, len(outputs), r.mPool.Get().([]byte))
 		defer r.mPool.Put(avx2Matrix)
+	} else if len(inputs)+len(outputs) > avx2CodeGenMinShards &&
+		r.canAVX2C(byteCount/4, maxAvx2Inputs, maxAvx2Outputs) {
+		r.codeSomeShardsAVXP(matrixRows, inputs, outputs, byteCount)
+		return
 	}
 
 	do := byteCount / gor
 	if do < r.o.minSplitSize {
 		do = r.o.minSplitSize
+	}
+
+	exec := func(start, stop int) {
+		if useAvx2 && stop-start >= 64 {
+			start += galMulSlicesAvx2(avx2Matrix, inputs, outputs, start, stop)
+		}
+
+		lstart, lstop := start, start+r.o.perRound
+		if lstop > stop {
+			lstop = stop
+		}
+		for lstart < stop {
+			for c := 0; c < len(inputs); c++ {
+				in := inputs[c][lstart:lstop]
+				for iRow := 0; iRow < len(outputs); iRow++ {
+					if c == 0 {
+						galMulSlice(matrixRows[iRow][c], in, outputs[iRow][lstart:lstop], &r.o)
+					} else {
+						galMulSliceXor(matrixRows[iRow][c], in, outputs[iRow][lstart:lstop], &r.o)
+					}
+				}
+			}
+			lstart = lstop
+			lstop += r.o.perRound
+			if lstop > stop {
+				lstop = stop
+			}
+		}
+		wg.Done()
+	}
+	if gor <= 1 {
+		wg.Add(1)
+		exec(0, byteCount)
+		return
 	}
 
 	// Make sizes divisible by 64
@@ -650,43 +727,151 @@ func (r *reedSolomon) codeSomeShardsP(matrixRows, inputs, outputs [][]byte, outp
 		}
 
 		wg.Add(1)
-		go func(start, stop int) {
-			if useAvx2 && stop-start >= 64 {
-				start += galMulSlicesAvx2(avx2Matrix, inputs, outputs, start, stop)
-			}
-
-			lstart, lstop := start, start+r.o.perRound
-			if lstop > stop {
-				lstop = stop
-			}
-			for lstart < stop {
-				for c := 0; c < r.DataShards; c++ {
-					in := inputs[c][lstart:lstop]
-					for iRow := 0; iRow < outputCount; iRow++ {
-						if c == 0 {
-							galMulSlice(matrixRows[iRow][c], in, outputs[iRow][lstart:lstop], &r.o)
-						} else {
-							galMulSliceXor(matrixRows[iRow][c], in, outputs[iRow][lstart:lstop], &r.o)
-						}
-					}
-				}
-				lstart = lstop
-				lstop += r.o.perRound
-				if lstop > stop {
-					lstop = stop
-				}
-			}
-			wg.Done()
-		}(start, start+do)
+		go exec(start, start+do)
 		start += do
 	}
 	wg.Wait()
 }
 
+// Perform the same as codeSomeShards, but split the workload into
+// several goroutines.
+func (r *reedSolomon) codeSomeShardsAVXP(matrixRows, inputs, outputs [][]byte, byteCount int) {
+	var wg sync.WaitGroup
+	gor := r.o.maxGoroutines
+
+	type state struct {
+		input         [][]byte
+		output        [][]byte
+		m             []byte
+		first         bool
+		inIdx, outIdx int
+	}
+	// Make a plan...
+	plan := make([]state, 0, ((len(inputs)+maxAvx2Inputs-1)/maxAvx2Inputs)*((len(outputs)+maxAvx2Outputs-1)/maxAvx2Outputs))
+
+	inIdx := 0
+	ins := inputs
+	for len(ins) > 0 {
+		inPer := ins
+		if len(inPer) > maxAvx2Inputs {
+			inPer = inPer[:maxAvx2Inputs]
+		}
+		outs := outputs
+		outIdx := 0
+		for len(outs) > 0 {
+			outPer := outs
+			if len(outPer) > maxAvx2Outputs {
+				outPer = outPer[:maxAvx2Outputs]
+			}
+			// TODO: A single temp buffer could be used...
+			m := genAvx2Matrix(matrixRows[outIdx:], len(inPer), inIdx, len(outPer), r.mPool.Get().([]byte))
+			plan = append(plan, state{
+				input:  inPer,
+				output: outPer,
+				m:      m,
+				first:  inIdx == 0,
+				inIdx:  inIdx,
+				outIdx: outIdx,
+			})
+			outIdx += len(outPer)
+			outs = outs[len(outPer):]
+		}
+		inIdx += len(inPer)
+		ins = ins[len(inPer):]
+	}
+
+	do := byteCount / gor
+	if do < r.o.minSplitSize {
+		do = r.o.minSplitSize
+	}
+
+	exec := func(start, stop int) {
+		//fmt.Println("goroutine, start, stop:", start, stop)
+		lstart, lstop := start, start+r.o.perRound
+		if lstop > stop {
+			lstop = stop
+		}
+		for lstart < stop {
+			if lstop-lstart >= minAvx2Size {
+				// Execute plan...
+				for _, p := range plan {
+					if true {
+						if p.first {
+							galMulSlicesAvx2(p.m, p.input, p.output, lstart, lstop)
+						} else {
+							galMulSlicesAvx2Xor(p.m, p.input, p.output, lstart, lstop)
+						}
+					} else {
+						// Equivalent to...
+						for c, in := range p.input {
+							in = in[lstart:lstop]
+							for iRow, out := range p.output {
+								if p.first && c == 0 {
+									galMulSlice(matrixRows[iRow+p.outIdx][c+p.inIdx], in, out[lstart:lstop], &r.o)
+								} else {
+									galMulSliceXor(matrixRows[iRow+p.outIdx][c+p.inIdx], in, out[lstart:lstop], &r.o)
+								}
+							}
+						}
+					}
+				}
+				lstart += (lstop - lstart) & avxSizeMask
+				if lstart == lstop {
+					lstop += r.o.perRound
+					if lstop > stop {
+						lstop = stop
+					}
+					continue
+				}
+			}
+			//fmt.Println("Remain:", lstart, lstop)
+			// TODO: Maybe faster to swap input/output.
+			for c := range inputs {
+				in := inputs[c][lstart:lstop]
+				for iRow := 0; iRow < len(outputs); iRow++ {
+					if c == 0 {
+						galMulSlice(matrixRows[iRow][c], in, outputs[iRow][lstart:lstop], &r.o)
+					} else {
+						galMulSliceXor(matrixRows[iRow][c], in, outputs[iRow][lstart:lstop], &r.o)
+					}
+				}
+			}
+			lstart = lstop
+			lstop += r.o.perRound
+			if lstop > stop {
+				lstop = stop
+			}
+		}
+		wg.Done()
+	}
+	if gor == 1 {
+		wg.Add(1)
+		exec(0, byteCount)
+		return
+	}
+
+	// Make sizes divisible by 64
+	do = (do + 63) & (^63)
+	start := 0
+	for start < byteCount {
+		if start+do > byteCount {
+			do = byteCount - start
+		}
+
+		wg.Add(1)
+		go exec(start, start+do)
+		start += do
+	}
+	wg.Wait()
+	for _, p := range plan {
+		r.mPool.Put(p.m)
+	}
+}
+
 // checkSomeShards is mostly the same as codeSomeShards,
 // except this will check values and return
 // as soon as a difference is found.
-func (r *reedSolomon) checkSomeShards(matrixRows, inputs, toCheck [][]byte, outputCount, byteCount int) bool {
+func (r *reedSolomon) checkSomeShards(matrixRows, inputs, toCheck [][]byte, byteCount int) bool {
 	if len(toCheck) == 0 {
 		return true
 	}
@@ -695,7 +880,7 @@ func (r *reedSolomon) checkSomeShards(matrixRows, inputs, toCheck [][]byte, outp
 	for i := range outputs {
 		outputs[i] = make([]byte, byteCount)
 	}
-	r.codeSomeShards(matrixRows, inputs, outputs, outputCount, byteCount)
+	r.codeSomeShards(matrixRows, inputs, outputs, byteCount)
 
 	for i, calc := range outputs {
 		if !bytes.Equal(calc, toCheck[i]) {
@@ -902,7 +1087,7 @@ func (r *reedSolomon) reconstruct(shards [][]byte, dataOnly bool) error {
 			outputCount++
 		}
 	}
-	r.codeSomeShards(matrixRows, subShards, outputs[:outputCount], outputCount, shardSize)
+	r.codeSomeShards(matrixRows, subShards, outputs[:outputCount], shardSize)
 
 	if dataOnly {
 		// Exit out early if we are only interested in the data shards
@@ -928,7 +1113,7 @@ func (r *reedSolomon) reconstruct(shards [][]byte, dataOnly bool) error {
 			outputCount++
 		}
 	}
-	r.codeSomeShards(matrixRows, shards[:r.DataShards], outputs[:outputCount], outputCount, shardSize)
+	r.codeSomeShards(matrixRows, shards[:r.DataShards], outputs[:outputCount], shardSize)
 	return nil
 }
 
