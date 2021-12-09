@@ -901,7 +901,7 @@ func galExp(a byte, n int) byte {
 	return expTable[logResult]
 }
 
-func genAvx2Matrix(matrixRows [][]byte, inputs, outputs int, dst []byte) []byte {
+func genAvx2Matrix(matrixRows [][]byte, inputs, inIdx, outputs int, dst []byte) []byte {
 	if !avx2CodeGen {
 		panic("codegen not enabled")
 	}
@@ -915,7 +915,7 @@ func genAvx2Matrix(matrixRows [][]byte, inputs, outputs int, dst []byte) []byte 
 		dst = dst[:wantBytes]
 	}
 	for i, row := range matrixRows[:outputs] {
-		for j, idx := range row[:inputs] {
+		for j, idx := range row[inIdx : inIdx+inputs] {
 			dstIdx := (j*outputs + i) * 64
 			dstPart := dst[dstIdx:]
 			dstPart = dstPart[:64]

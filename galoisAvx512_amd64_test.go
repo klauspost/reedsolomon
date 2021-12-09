@@ -331,9 +331,9 @@ func testCodeSomeShardsAvx512WithLength(t *testing.T, ds, ps, l int, parallel bo
 	}
 
 	if parallel {
-		r.codeSomeShardsAvx512P(r.parity, shards[:r.DataShards], shards[r.DataShards:], r.ParityShards, len(shards[0]))
+		r.codeSomeShardsAvx512P(r.parity, shards[:r.DataShards], shards[r.DataShards:], len(shards[0]))
 	} else {
-		r.codeSomeShardsAvx512(r.parity, shards[:r.DataShards], shards[r.DataShards:], r.ParityShards, len(shards[0]))
+		r.codeSomeShardsAvx512(r.parity, shards[:r.DataShards], shards[r.DataShards:r.DataShards+r.ParityShards], len(shards[0]))
 	}
 
 	correct, _ := r.Verify(shards)
