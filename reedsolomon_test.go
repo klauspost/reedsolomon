@@ -1063,6 +1063,7 @@ func benchmarkReconstruct(b *testing.B, dataShards, parityShards, shardSize int)
 
 	b.SetBytes(int64(shardSize * (dataShards + parityShards)))
 	b.ResetTimer()
+	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
 		corruptRandom(shards, dataShards, parityShards)
 
@@ -1137,6 +1138,7 @@ func benchmarkReconstructData(b *testing.B, dataShards, parityShards, shardSize 
 
 	b.SetBytes(int64(shardSize * (dataShards + parityShards)))
 	b.ResetTimer()
+	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
 		corruptRandomData(shards, dataShards, parityShards)
 
@@ -1190,6 +1192,7 @@ func benchmarkReconstructP(b *testing.B, dataShards, parityShards, shardSize int
 
 	b.SetBytes(int64(shardSize * (dataShards + parityShards)))
 	b.ResetTimer()
+	b.ReportAllocs()
 
 	b.RunParallel(func(pb *testing.PB) {
 		shards := make([][]byte, parityShards+dataShards)
