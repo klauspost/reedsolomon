@@ -86,3 +86,5 @@ jobs:
         CGO_ENABLED: 1
       run: go test -no-avx512 -no-avx2 -no-ssse3 -short -race .
 
+    - name: Test Microarch v4
+      run: go run testlevel.go 4;if [ $? -eq 0 ]; then GOAMD64=v4 go test ./...; else true; fi
