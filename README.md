@@ -26,6 +26,7 @@ Using Go modules recommended.
 # Changes
 ## 2021
 
+* Use `GOAMD64=v4` to enable faster AVX2.
 * Add progressive shard encoding.
 * Wider AVX2 loops
 * Limit concurrency on AVX2, since we are likely memory bound.

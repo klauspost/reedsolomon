@@ -127,8 +127,8 @@ func VPXOR3way(a, b, dst reg.VecVirtual) {
 	// AVX512F and AVX512VL required
 	VPTERNLOGD(U8(0x96), a, b, dst)
 	Comment("#else")
-	VPXOR(a, dst, dst)
-	VPXOR(b, dst, dst)
+	VPXOR(a, dst, dst) // dst = a^dst
+	VPXOR(b, dst, dst) // dst = (a^dst)^b
 	Comment("#endif")
 }
 
@@ -597,10 +597,10 @@ func genMulAvx2Sixty64(name string, inputs int, outputs int, xor bool) {
 			if loadNone {
 				VMOVDQU(Mem{Base: matrixBase, Disp: 64 * (i*outputs + j)}, lookLow)
 				VMOVDQU(Mem{Base: matrixBase, Disp: 32 + 64*(i*outputs+j)}, lookHigh)
-				VPSHUFB(inLow, lookLow, lookLow)
 				VPSHUFB(in2Low, lookLow, lookLow2)
-				VPSHUFB(inHigh, lookHigh, lookHigh)
+				VPSHUFB(inLow, lookLow, lookLow) // Reuse lookLow to save a reg
 				VPSHUFB(in2High, lookHigh, lookHigh2)
+				VPSHUFB(inHigh, lookHigh, lookHigh) // Reuse lookHigh to save a reg
 			} else {
 				VPSHUFB(inLow, inLo[i*outputs+j], lookLow)
 				VPSHUFB(in2Low, inLo[i*outputs+j], lookLow2)
