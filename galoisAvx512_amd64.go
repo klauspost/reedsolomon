@@ -104,7 +104,7 @@ func setupMatrix84(matrixRows [][]byte, inputOffset, outputOffset int, matrix *[
 // Invoke AVX512 routine for single output row in parallel
 func galMulAVX512Parallel81(in, out [][]byte, matrixRows [][]byte, inputOffset, outputOffset, start, stop int, matrix81 *[matrixSize81]byte) {
 	done := stop - start
-	if done <= 0 {
+	if done <= 0 || len(in) == 0 || len(out) == 0 {
 		return
 	}
 
@@ -139,7 +139,7 @@ func galMulAVX512Parallel81(in, out [][]byte, matrixRows [][]byte, inputOffset, 
 // Invoke AVX512 routine for 2 output rows in parallel
 func galMulAVX512Parallel82(in, out [][]byte, matrixRows [][]byte, inputOffset, outputOffset, start, stop int, matrix82 *[matrixSize82]byte) {
 	done := stop - start
-	if done <= 0 {
+	if done <= 0 || len(in) == 0 || len(out) == 0 {
 		return
 	}
 
@@ -174,7 +174,7 @@ func galMulAVX512Parallel82(in, out [][]byte, matrixRows [][]byte, inputOffset, 
 // Invoke AVX512 routine for 4 output rows in parallel
 func galMulAVX512Parallel84(in, out [][]byte, matrixRows [][]byte, inputOffset, outputOffset, start, stop int, matrix84 *[matrixSize84]byte) {
 	done := stop - start
-	if done <= 0 {
+	if done <= 0 || len(in) == 0 || len(out) == 0 {
 		return
 	}
 
