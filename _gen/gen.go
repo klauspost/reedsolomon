@@ -4,6 +4,7 @@
 //go:generate go run gen.go -out ../galois_gen_amd64.s -stubs ../galois_gen_amd64.go -pkg=reedsolomon
 //go:generate go fmt ../galois_gen_switch_amd64.go
 //go:generate go fmt ../galois_gen_amd64.go
+//go:generate go run cleanup.go ../galois_gen_amd64.s
 
 package main
 
@@ -118,6 +119,17 @@ func galMulSlicesAvx2Xor(matrix []byte, in, out [][]byte, start, stop int) int {
 }
 `)
 	Generate()
+}
+
+// VPXOR3way will 3-way xor a and b and dst.
+func VPXOR3way(a, b, dst reg.VecVirtual) {
+	Comment("#ifdef GOAMD64_v4")
+	// AVX512F and AVX512VL required
+	VPTERNLOGD(U8(0x96), a, b, dst)
+	Comment("#else")
+	VPXOR(a, dst, dst) // dst = a^dst
+	VPXOR(b, dst, dst) // dst = (a^dst)^b
+	Comment("#endif")
 }
 
 func genMulAvx2(name string, inputs int, outputs int, xor bool) {
@@ -342,8 +354,7 @@ func genMulAvx2(name string, inputs int, outputs int, xor bool) {
 				// We don't have any existing data, write directly.
 				VPXOR(lookLow, lookHigh, dst[j])
 			} else {
-				VPXOR(lookLow, lookHigh, lookLow)
-				VPXOR(lookLow, dst[j], dst[j])
+				VPXOR3way(lookLow, lookHigh, dst[j])
 			}
 		}
 	}
@@ -587,9 +598,9 @@ func genMulAvx2Sixty64(name string, inputs int, outputs int, xor bool) {
 				VMOVDQU(Mem{Base: matrixBase, Disp: 64 * (i*outputs + j)}, lookLow)
 				VMOVDQU(Mem{Base: matrixBase, Disp: 32 + 64*(i*outputs+j)}, lookHigh)
 				VPSHUFB(in2Low, lookLow, lookLow2)
-				VPSHUFB(inLow, lookLow, lookLow)
+				VPSHUFB(inLow, lookLow, lookLow) // Reuse lookLow to save a reg
 				VPSHUFB(in2High, lookHigh, lookHigh2)
-				VPSHUFB(inHigh, lookHigh, lookHigh)
+				VPSHUFB(inHigh, lookHigh, lookHigh) // Reuse lookHigh to save a reg
 			} else {
 				VPSHUFB(inLow, inLo[i*outputs+j], lookLow)
 				VPSHUFB(in2Low, inLo[i*outputs+j], lookLow2)
@@ -601,10 +612,8 @@ func genMulAvx2Sixty64(name string, inputs int, outputs int, xor bool) {
 				VPXOR(lookLow, lookHigh, dst[j])
 				VPXOR(lookLow2, lookHigh2, dst2[j])
 			} else {
-				VPXOR(lookLow, lookHigh, lookLow)
-				VPXOR(lookLow2, lookHigh2, lookLow2)
-				VPXOR(lookLow, dst[j], dst[j])
-				VPXOR(lookLow2, dst2[j], dst2[j])
+				VPXOR3way(lookLow, lookHigh, dst[j])
+				VPXOR3way(lookLow2, lookHigh2, dst2[j])
 			}
 		}
 	}
