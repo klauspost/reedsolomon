@@ -38,6 +38,17 @@ func main() {
 	Constraint(buildtags.Not("nogen").ToConstraint())
 	Constraint(buildtags.Term("gc").ToConstraint())
 
+	TEXT("_dummy_", 0, "func()")
+	Comment("#ifdef GOAMD64_v4")
+	Comment("#define XOR3WAY(ignore, a, b, dst)\\")
+	Comment("@\tVPTERNLOGD $0x96, a, b, dst")
+	Comment("#else")
+	Comment("#define XOR3WAY(ignore, a, b, dst)\\")
+	Comment("@\tVPXOR a, dst, dst\\")
+	Comment("@\tVPXOR b, dst, dst")
+	Comment("#endif")
+	RET()
+
 	const perLoopBits = 6
 	const perLoop = 1 << perLoopBits
 
@@ -123,13 +134,8 @@ func galMulSlicesAvx2Xor(matrix []byte, in, out [][]byte, start, stop int) int {
 
 // VPXOR3way will 3-way xor a and b and dst.
 func VPXOR3way(a, b, dst reg.VecVirtual) {
-	Comment("#ifdef GOAMD64_v4")
-	// AVX512F and AVX512VL required
-	VPTERNLOGD(U8(0x96), a, b, dst)
-	Comment("#else")
-	VPXOR(a, dst, dst) // dst = a^dst
-	VPXOR(b, dst, dst) // dst = (a^dst)^b
-	Comment("#endif")
+	// VPTERNLOGQ is replaced by XOR3WAY - we just use an equivalent operation
+	VPTERNLOGQ(U8(0), a, b, dst)
 }
 
 func genMulAvx2(name string, inputs int, outputs int, xor bool) {
