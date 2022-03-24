@@ -21,7 +21,19 @@ func main() {
 		if err != nil {
 			log.Fatalln(err)
 		}
-		data = bytes.Replace(data, []byte("\t// #"), []byte("#"), -1)
+		data = bytes.ReplaceAll(data, []byte("\t// #"), []byte("#"))
+		data = bytes.ReplaceAll(data, []byte("\t// @"), []byte(""))
+		data = bytes.ReplaceAll(data, []byte("VPTERNLOGQ"), []byte("XOR3WAY("))
+		split := bytes.Split(data, []byte("\n"))
+		// Add closing ')'
+		want := []byte("\tXOR3WAY(")
+		for i, b := range split {
+			if bytes.Contains(b, want) {
+				b = []byte(string(b) + ")")
+				split[i] = b
+			}
+		}
+		data = bytes.Join(split, []byte("\n"))
 		data, err = asmfmt.Format(bytes.NewBuffer(data))
 		if err != nil {
 			log.Fatalln(err)

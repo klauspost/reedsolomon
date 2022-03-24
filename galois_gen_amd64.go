@@ -5,6 +5,8 @@
 
 package reedsolomon
 
+func _dummy_()
+
 // mulAvxTwo_1x1 takes 1 inputs and produces 1 outputs.
 // The output is initialized to 0.
 //go:noescape
