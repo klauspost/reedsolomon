@@ -30,16 +30,16 @@ func TestMain(m *testing.M) {
 func testOptions(o ...Option) []Option {
 	o = append(o, WithFastOneParityMatrix())
 	if *noSSSE3 {
-		o = append(o, withSSSE3(false))
+		o = append(o, WithSSSE3(false))
 	}
 	if *noSSE2 {
-		o = append(o, withSSE2(false))
+		o = append(o, WithSSE2(false))
 	}
 	if *noAVX2 {
-		o = append(o, withAVX2(false))
+		o = append(o, WithAVX2(false))
 	}
 	if *noAVX512 {
-		o = append(o, withAVX512(false))
+		o = append(o, WithAVX512(false))
 	}
 	return o
 }
@@ -138,10 +138,10 @@ func testOpts() [][]Option {
 	opts := [][]Option{
 		{WithPAR1Matrix()}, {WithCauchyMatrix()},
 		{WithFastOneParityMatrix()}, {WithPAR1Matrix(), WithFastOneParityMatrix()}, {WithCauchyMatrix(), WithFastOneParityMatrix()},
-		{WithMaxGoroutines(1), WithMinSplitSize(500), withSSSE3(false), withAVX2(false), withAVX512(false)},
-		{WithMaxGoroutines(5000), WithMinSplitSize(50), withSSSE3(false), withAVX2(false), withAVX512(false)},
-		{WithMaxGoroutines(5000), WithMinSplitSize(500000), withSSSE3(false), withAVX2(false), withAVX512(false)},
-		{WithMaxGoroutines(1), WithMinSplitSize(500000), withSSSE3(false), withAVX2(false), withAVX512(false)},
+		{WithMaxGoroutines(1), WithMinSplitSize(500), WithSSSE3(false), WithAVX2(false), WithAVX512(false)},
+		{WithMaxGoroutines(5000), WithMinSplitSize(50), WithSSSE3(false), WithAVX2(false), WithAVX512(false)},
+		{WithMaxGoroutines(5000), WithMinSplitSize(500000), WithSSSE3(false), WithAVX2(false), WithAVX512(false)},
+		{WithMaxGoroutines(1), WithMinSplitSize(500000), WithSSSE3(false), WithAVX2(false), WithAVX512(false)},
 		{WithAutoGoroutines(50000), WithMinSplitSize(500)},
 		{WithInversionCache(false)},
 	}
@@ -149,19 +149,19 @@ func testOpts() [][]Option {
 		if defaultOptions.useSSSE3 {
 			n := make([]Option, len(o), len(o)+1)
 			copy(n, o)
-			n = append(n, withSSSE3(true))
+			n = append(n, WithSSSE3(true))
 			opts = append(opts, n)
 		}
 		if defaultOptions.useAVX2 {
 			n := make([]Option, len(o), len(o)+1)
 			copy(n, o)
-			n = append(n, withAVX2(true))
+			n = append(n, WithAVX2(true))
 			opts = append(opts, n)
 		}
 		if defaultOptions.useAVX512 {
 			n := make([]Option, len(o), len(o)+1)
 			copy(n, o)
-			n = append(n, withAVX512(true))
+			n = append(n, WithAVX512(true))
 			opts = append(opts, n)
 		}
 	}
