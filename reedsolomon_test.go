@@ -623,6 +623,32 @@ func testReconstructData(t *testing.T, o ...Option) {
 		t.Fatal(err)
 	}
 
+	// Reconstruct 3 shards with 3 data and 5 parity shards
+	shardsCopy := make([][]byte, 13)
+	copy(shardsCopy, shards)
+	shardsCopy[2] = nil
+	shardsCopy[3] = nil
+	shardsCopy[4] = nil
+	shardsCopy[5] = nil
+	shardsCopy[6] = nil
+
+	shardsRequired := make([]bool, 8)
+	shardsRequired[3] = true
+	shardsRequired[4] = true
+	err = r.ReconstructSome(shardsCopy, shardsRequired)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if 0 != bytes.Compare(shardsCopy[3], shards[3]) ||
+		0 != bytes.Compare(shardsCopy[4], shards[4]) {
+		t.Fatal("ReconstructSome did not reconstruct required shards correctly")
+	}
+
+	if shardsCopy[2] != nil || shardsCopy[5] != nil || shardsCopy[6] != nil {
+		t.Fatal("ReconstructSome reconstructed extra shards")
+	}
+
 	// Reconstruct with 10 shards present. Use pre-allocated memory for one of them.
 	shards[0] = nil
 	shards[2] = nil
