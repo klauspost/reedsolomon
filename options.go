@@ -20,6 +20,7 @@ type options struct {
 	useCauchy                             bool
 	fastOneParity                         bool
 	inversionCache                        bool
+	customMatrix                          [][]byte
 
 	// stream options
 	concReads  bool
@@ -182,5 +183,17 @@ func WithCauchyMatrix() Option {
 func WithFastOneParityMatrix() Option {
 	return func(o *options) {
 		o.fastOneParity = true
+	}
+}
+
+// WithCustomMatrix causes the encoder to use the manually specified matrix.
+// customMatrix represents only the parity chunks.
+// customMatrix must have at least ParityShards rows and DataShards columns.
+// It can be used for interoperability with libraries which generate
+// the matrix differently or to implement more complex coding schemes like LRC
+// (locally reconstructible codes).
+func WithCustomMatrix(customMatrix [][]byte) Option {
+	return func(o *options) {
+		o.customMatrix = customMatrix
 	}
 }

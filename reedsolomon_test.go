@@ -587,6 +587,69 @@ func testReconstruct(t *testing.T, o ...Option) {
 	}
 }
 
+func TestReconstructCustom(t *testing.T) {
+	perShard := 50000
+	r, err := New(4, 3, WithCustomMatrix([][]byte{
+		{1, 1, 0, 0},
+		{0, 0, 1, 1},
+		{1, 2, 3, 4},
+	}))
+	if err != nil {
+		t.Fatal(err)
+	}
+	shards := make([][]byte, 7)
+	for s := range shards {
+		shards[s] = make([]byte, perShard)
+	}
+
+	rand.Seed(0)
+	for s := 0; s < len(shards); s++ {
+		fillRandom(shards[s])
+	}
+
+	err = r.Encode(shards)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Reconstruct with 1 shard absent.
+	shards1 := make([][]byte, len(shards))
+	copy(shards1, shards)
+	shards1[0] = nil
+
+	err = r.Reconstruct(shards1)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	ok, err := r.Verify(shards)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !ok {
+		t.Fatal("Verification failed")
+	}
+
+	// Reconstruct with 3 shards absent.
+	copy(shards1, shards)
+	shards1[0] = nil
+	shards1[1] = nil
+	shards1[2] = nil
+
+	err = r.Reconstruct(shards1)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	ok, err = r.Verify(shards)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !ok {
+		t.Fatal("Verification failed")
+	}
+}
+
 func TestReconstructData(t *testing.T) {
 	testReconstructData(t)
 	for i, o := range testOpts() {
