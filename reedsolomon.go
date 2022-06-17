@@ -279,6 +279,22 @@ func New(dataShards, parityShards int, opts ...Option) (Encoder, error) {
 
 	var err error
 	switch {
+	case r.o.customMatrix != nil:
+		if len(r.o.customMatrix) < parityShards {
+			return nil, errors.New("coding matrix must contain at least parityShards rows")
+		}
+		r.m = make([][]byte, r.Shards)
+		for i := 0; i < dataShards; i++ {
+			r.m[i] = make([]byte, dataShards)
+			r.m[i][i] = 1
+		}
+		for k, row := range r.o.customMatrix {
+			if len(row) < dataShards {
+				return nil, errors.New("coding matrix must contain at least dataShards columns")
+			}
+			r.m[dataShards+k] = make([]byte, dataShards)
+			copy(r.m[dataShards+k], row)
+		}
 	case r.o.fastOneParity && parityShards == 1:
 		r.m, err = buildXorMatrix(dataShards, r.Shards)
 	case r.o.useCauchy:
