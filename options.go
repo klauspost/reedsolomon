@@ -130,25 +130,33 @@ func WithStreamBlockSize(n int) Option {
 	}
 }
 
-func withSSSE3(enabled bool) Option {
+// WithSSSE3 allows to enable/disable SSSE3 instructions.
+// If not set, SSSE3 will be turned on or off automatically based on CPU ID information.
+func WithSSSE3(enabled bool) Option {
 	return func(o *options) {
 		o.useSSSE3 = enabled
 	}
 }
 
-func withAVX2(enabled bool) Option {
+// WithAVX2 allows to enable/disable AVX2 instructions.
+// If not set, AVX2 will be turned on or off automatically based on CPU ID information.
+func WithAVX2(enabled bool) Option {
 	return func(o *options) {
 		o.useAVX2 = enabled
 	}
 }
 
-func withSSE2(enabled bool) Option {
+// WithSSE2 allows to enable/disable SSE2 instructions.
+// If not set, SSE2 will be turned on or off automatically based on CPU ID information.
+func WithSSE2(enabled bool) Option {
 	return func(o *options) {
 		o.useSSE2 = enabled
 	}
 }
 
-func withAVX512(enabled bool) Option {
+// WithAVX512 allows to enable/disable AVX512 instructions.
+// If not set, AVX512 will be turned on or off automatically based on CPU ID information.
+func WithAVX512(enabled bool) Option {
 	return func(o *options) {
 		o.useAVX512 = enabled
 	}
