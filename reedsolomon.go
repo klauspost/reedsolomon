@@ -77,6 +77,24 @@ type Encoder interface {
 	// calling the Verify function is likely to fail.
 	ReconstructData(shards [][]byte) error
 
+	// ReconstructSome will recreate only requested data shards, if possible.
+	//
+	// Given a list of shards, some of which contain data, fills in the
+	// data shards indicated by true values in the "required" parameter.
+	// The length of "required" array must be equal to DataShards.
+	//
+	// The length of "shards" array must be equal to Shards.
+	// You indicate that a shard is missing by setting it to nil or zero-length.
+	// If a shard is zero-length but has sufficient capacity, that memory will
+	// be used, otherwise a new []byte will be allocated.
+	//
+	// If there are too few shards to reconstruct the missing
+	// ones, ErrTooFewShards will be returned.
+	//
+	// As the reconstructed shard set may contain missing parity shards,
+	// calling the Verify function is likely to fail.
+	ReconstructSome(shards [][]byte, required []bool) error
+
 	// Update parity is use for change a few data shards and update it's parity.
 	// Input 'newDatashards' containing data shards changed.
 	// Input 'shards' containing old data shards (if data shard not changed, it can be nil) and old parity shards.
@@ -995,7 +1013,7 @@ func shardSize(shards [][]byte) int {
 // The reconstructed shard set is complete, but integrity is not verified.
 // Use the Verify function to check if data set is ok.
 func (r *reedSolomon) Reconstruct(shards [][]byte) error {
-	return r.reconstruct(shards, false)
+	return r.reconstruct(shards, false, nil)
 }
 
 // ReconstructData will recreate any missing data shards, if possible.
@@ -1014,19 +1032,39 @@ func (r *reedSolomon) Reconstruct(shards [][]byte) error {
 // As the reconstructed shard set may contain missing parity shards,
 // calling the Verify function is likely to fail.
 func (r *reedSolomon) ReconstructData(shards [][]byte) error {
-	return r.reconstruct(shards, true)
+	return r.reconstruct(shards, true, nil)
+}
+
+// ReconstructSome will recreate only requested data shards, if possible.
+//
+// Given a list of shards, some of which contain data, fills in the
+// data shards indicated by true values in the "required" parameter.
+// The length of "required" array must be equal to DataShards.
+//
+// The length of "shards" array must be equal to Shards.
+// You indicate that a shard is missing by setting it to nil or zero-length.
+// If a shard is zero-length but has sufficient capacity, that memory will
+// be used, otherwise a new []byte will be allocated.
+//
+// If there are too few shards to reconstruct the missing
+// ones, ErrTooFewShards will be returned.
+//
+// As the reconstructed shard set may contain missing parity shards,
+// calling the Verify function is likely to fail.
+func (r *reedSolomon) ReconstructSome(shards [][]byte, required []bool) error {
+	return r.reconstruct(shards, true, required)
 }
 
 // reconstruct will recreate the missing data shards, and unless
 // dataOnly is true, also the missing parity shards
 //
-// The length of the array must be equal to Shards.
+// The length of "shards" array must be equal to Shards.
 // You indicate that a shard is missing by setting it to nil.
 //
 // If there are too few shards to reconstruct the missing
 // ones, ErrTooFewShards will be returned.
-func (r *reedSolomon) reconstruct(shards [][]byte, dataOnly bool) error {
-	if len(shards) != r.Shards {
+func (r *reedSolomon) reconstruct(shards [][]byte, dataOnly bool, required []bool) error {
+	if len(shards) != r.Shards || required != nil && len(required) < r.DataShards {
 		return ErrTooFewShards
 	}
 	// Check arguments.
@@ -1041,15 +1079,19 @@ func (r *reedSolomon) reconstruct(shards [][]byte, dataOnly bool) error {
 	// nothing to do.
 	numberPresent := 0
 	dataPresent := 0
+	missingRequired := 0
 	for i := 0; i < r.Shards; i++ {
 		if len(shards[i]) != 0 {
 			numberPresent++
 			if i < r.DataShards {
 				dataPresent++
 			}
+		} else if required != nil && required[i] {
+			missingRequired++
 		}
 	}
-	if numberPresent == r.Shards || dataOnly && dataPresent == r.DataShards {
+	if numberPresent == r.Shards || dataOnly && dataPresent == r.DataShards ||
+		required != nil && missingRequired == 0 {
 		// Cool.  All of the shards data data.  We don't
 		// need to do anything.
 		return nil
@@ -1127,7 +1169,7 @@ func (r *reedSolomon) reconstruct(shards [][]byte, dataOnly bool) error {
 	outputCount := 0
 
 	for iShard := 0; iShard < r.DataShards; iShard++ {
-		if len(shards[iShard]) == 0 {
+		if len(shards[iShard]) == 0 && (required == nil || required[iShard]) {
 			if cap(shards[iShard]) >= shardSize {
 				shards[iShard] = shards[iShard][0:shardSize]
 			} else {
@@ -1153,7 +1195,7 @@ func (r *reedSolomon) reconstruct(shards [][]byte, dataOnly bool) error {
 	// data shards were missing.
 	outputCount = 0
 	for iShard := r.DataShards; iShard < r.Shards; iShard++ {
-		if len(shards[iShard]) == 0 {
+		if len(shards[iShard]) == 0 && (required == nil || required[iShard]) {
 			if cap(shards[iShard]) >= shardSize {
 				shards[iShard] = shards[iShard][0:shardSize]
 			} else {

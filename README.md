@@ -188,6 +188,17 @@ If you are only interested in the data shards (for reading purposes) you can cal
     err := enc.ReconstructData(data)
 ```
 
+If you don't need all data shards you can use `ReconstructSome()`:
+
+```Go
+    // Delete two data shards
+    data[3] = nil
+    data[7] = nil
+    
+    // Reconstruct just the shard 3
+    err := enc.ReconstructSome(data, []bool{false, false, false, true, false, false, false, false})
+```
+
 So to sum up reconstruction:
 * The number of data/parity shards must match the numbers used for encoding.
 * The order of shards must be the same as used when encoding.
