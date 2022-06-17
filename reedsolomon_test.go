@@ -654,7 +654,7 @@ func TestReconstructData(t *testing.T) {
 	testReconstructData(t)
 	for i, o := range testOpts() {
 		t.Run(fmt.Sprintf("options %d", i), func(t *testing.T) {
-			testReconstruct(t, o...)
+			testReconstructData(t, o...)
 		})
 	}
 }
