@@ -64,12 +64,12 @@ jobs:
     - name: Test Races, noasm, 1 cpu
       env:
         CGO_ENABLED: 1
-      run: go test -tags=noasm -cpu=1 -short -race .
+      run: go test -tags=noasm -cpu=1 -short -race -timeout 20m .
 
     - name: Test Races, noasm, 4 cpu
       env:
         CGO_ENABLED: 1
-      run: go test -tags=noasm -cpu=4 -short -race .
+      run: go test -tags=noasm -cpu=4 -short -race -timeout 20m .
 
     - name: Test Races, no avx512
       env:

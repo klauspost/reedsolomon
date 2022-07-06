@@ -191,7 +191,9 @@ func TestEncoding(t *testing.T) {
 // note that par1 matric will fail on some combinations.
 var testSizes = [][2]int{
 	{1, 0}, {3, 0}, {5, 0}, {8, 0}, {10, 0}, {12, 0}, {14, 0}, {41, 0}, {49, 0},
-	{1, 1}, {1, 2}, {3, 3}, {3, 1}, {5, 3}, {8, 4}, {10, 30}, {12, 10}, {14, 7}, {41, 17}, {49, 1}, {5, 20}}
+	{1, 1}, {1, 2}, {3, 3}, {3, 1}, {5, 3}, {8, 4}, {10, 30}, {12, 10}, {14, 7}, {41, 17}, {49, 1}, {5, 20},
+	{256, 1},
+}
 var testDataSizes = []int{10, 100, 1000, 10001, 100003, 1000055}
 var testDataSizesShort = []int{10, 10001, 100003}
 
@@ -201,10 +203,14 @@ func testEncoding(t *testing.T, o ...Option) {
 		rng := rand.New(rand.NewSource(0xabadc0cac01a))
 		t.Run(fmt.Sprintf("%dx%d", data, parity), func(t *testing.T) {
 			sz := testDataSizes
-			if testing.Short() {
+			if testing.Short() || data+parity > 256 {
 				sz = testDataSizesShort
 			}
 			for _, perShard := range sz {
+				if data+parity > 256 {
+					// Round up to 64 bytes.
+					perShard = (perShard + 63) &^ 63
+				}
 				t.Run(fmt.Sprint(perShard), func(t *testing.T) {
 
 					r, err := New(data, parity, testOptions(o...)...)
@@ -295,6 +301,9 @@ func testEncodingIdx(t *testing.T, o ...Option) {
 		data, parity := size[0], size[1]
 		rng := rand.New(rand.NewSource(0xabadc0cac01a))
 		t.Run(fmt.Sprintf("%dx%d", data, parity), func(t *testing.T) {
+			if data+parity > 256 {
+				t.Skip("EncodingIdx not supported for total shards > 256")
+			}
 			sz := testDataSizes
 			if testing.Short() {
 				sz = testDataSizesShort
@@ -1663,11 +1672,11 @@ func TestNew(t *testing.T) {
 		{255, 1, nil},
 		{255, 0, nil},
 		{1, 0, nil},
-		{256, 256, ErrMaxShardNum},
+		{65536, 65536, ErrMaxShardNum},
 
 		{0, 1, ErrInvShardNum},
 		{1, -1, ErrInvShardNum},
-		{256, 1, ErrMaxShardNum},
+		{65636, 1, ErrMaxShardNum},
 
 		// overflow causes r.Shards to be negative
 		{256, int(^uint(0) >> 1), errInvalidRowSize},
