@@ -147,6 +147,10 @@ type rsStream struct {
 // you want to use. You can reuse this encoder.
 // Note that the maximum number of data shards is 256.
 func NewStream(dataShards, parityShards int, o ...Option) (StreamEncoder, error) {
+	if dataShards+parityShards > 256 {
+		return nil, ErrMaxShardNum
+	}
+
 	r := rsStream{o: defaultOptions}
 	for _, opt := range o {
 		opt(&r.o)

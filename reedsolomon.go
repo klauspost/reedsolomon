@@ -270,9 +270,17 @@ func buildXorMatrix(dataShards, totalShards int) (matrix, error) {
 // New creates a new encoder and initializes it to
 // the number of data shards and parity shards that
 // you want to use. You can reuse this encoder.
-// Note that the maximum number of total shards is 256.
+// Note that the maximum number of total shards is 65536, with some
+// restrictions for a total larger than 256:
+//
+//   - Shard sizes must be multiple of 64
+//   - The methods Join/Split/Update/EncodeIdx are not supported
+//
 // If no options are supplied, default options are used.
 func New(dataShards, parityShards int, opts ...Option) (Encoder, error) {
+	if dataShards+parityShards > 256 {
+		return newFF16(dataShards, parityShards, opts...)
+	}
 	r := reedSolomon{
 		DataShards:   dataShards,
 		ParityShards: parityShards,
@@ -285,10 +293,6 @@ func New(dataShards, parityShards int, opts ...Option) (Encoder, error) {
 	}
 	if dataShards <= 0 || parityShards < 0 {
 		return nil, ErrInvShardNum
-	}
-
-	if dataShards+parityShards > 256 {
-		return nil, ErrMaxShardNum
 	}
 
 	if parityShards == 0 {
