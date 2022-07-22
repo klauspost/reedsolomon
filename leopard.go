@@ -857,10 +857,6 @@ func initFFTSkew() {
 func initMul16LUT() {
 	mul16LUTs = &[order]mul16LUT{}
 
-	if cpuid.CPU.Has(cpuid.AVX2) {
-		multiply256LUT = &[order][16 * 8]byte{}
-	}
-
 	// For each log_m multiplicand:
 	for log_m := 0; log_m < order; log_m++ {
 		lut := &mul16LUTs[log_m]
@@ -876,19 +872,23 @@ func initMul16LUT() {
 			shift += 4
 		}
 	}
-	for logM := range multiply256LUT[:] {
-		// For each 4 bits of the finite field width in bits:
-		shift := 0
-		for i := 0; i < 4; i++ {
-			// Construct 16 entry LUT for PSHUFB
-			prodLo := multiply256LUT[logM][i*16 : i*16+16]
-			prodHi := multiply256LUT[logM][4*16+i*16 : 4*16+i*16+16]
-			for x := range prodLo[:] {
-				prod := mulLog(ffe(x<<shift), ffe(logM))
-				prodLo[x] = byte(prod)
-				prodHi[x] = byte(prod >> 8)
+	if cpuid.CPU.Has(cpuid.AVX2) {
+		multiply256LUT = &[order][16 * 8]byte{}
+
+		for logM := range multiply256LUT[:] {
+			// For each 4 bits of the finite field width in bits:
+			shift := 0
+			for i := 0; i < 4; i++ {
+				// Construct 16 entry LUT for PSHUFB
+				prodLo := multiply256LUT[logM][i*16 : i*16+16]
+				prodHi := multiply256LUT[logM][4*16+i*16 : 4*16+i*16+16]
+				for x := range prodLo[:] {
+					prod := mulLog(ffe(x<<shift), ffe(logM))
+					prodLo[x] = byte(prod)
+					prodHi[x] = byte(prod >> 8)
+				}
+				shift += 4
 			}
-			shift += 4
 		}
 	}
 }
