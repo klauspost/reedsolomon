@@ -64,3 +64,23 @@ func sliceXor(in, out []byte, o *options) {
 		}
 	}
 }
+
+// 2-way butterfly forward
+func fftDIT2(x, y []byte, log_m ffe, o *options) {
+	// Reference version:
+	refMulAdd(x, y, log_m)
+	// 64 byte aligned, always full.
+	galXorNEON(x, y)
+}
+
+// 2-way butterfly
+func ifftDIT2(x, y []byte, log_m ffe, o *options) {
+	// 64 byte aligned, always full.
+	galXorNEON(x, y)
+	// Reference version:
+	refMulAdd(x, y, log_m)
+}
+
+func mulgf16(x, y []byte, log_m ffe, o *options) {
+	refMul(x, y, log_m)
+}

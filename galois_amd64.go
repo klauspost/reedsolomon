@@ -138,3 +138,42 @@ func sliceXor(in, out []byte, o *options) {
 		out[i] ^= in[i]
 	}
 }
+
+// 2-way butterfly forward
+func fftDIT2(x, y []byte, log_m ffe, o *options) {
+	if o.useAVX2 {
+		if len(x) > 0 {
+			tmp := &multiply256LUT[log_m]
+			fftDIT2_avx2(x, y, tmp)
+		}
+	} else {
+		// Reference version:
+		refMulAdd(x, y, log_m)
+		sliceXor(x, y, o)
+	}
+}
+
+// 2-way butterfly
+func ifftDIT2(x, y []byte, log_m ffe, o *options) {
+	if o.useAVX2 {
+		if len(x) > 0 {
+			tmp := &multiply256LUT[log_m]
+			ifftDIT2_avx2(x, y, tmp)
+		}
+	} else {
+		// Reference version:
+		sliceXor(x, y, o)
+		refMulAdd(x, y, log_m)
+	}
+}
+
+func mulgf16(x, y []byte, log_m ffe, o *options) {
+	if o.useAVX2 {
+		if len(x) > 0 {
+			tmp := &multiply256LUT[log_m]
+			mulgf16_avx2(x, y, tmp)
+		}
+	} else {
+		refMul(x, y, log_m)
+	}
+}

@@ -1176,3 +1176,9 @@ func mulAvxTwo_10x10(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // mulAvxTwo_10x10Xor takes 10 inputs and produces 10 outputs.
 //go:noescape
 func mulAvxTwo_10x10Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+func ifftDIT2_avx2(x []byte, y []byte, table *[128]uint8)
+
+func fftDIT2_avx2(x []byte, y []byte, table *[128]uint8)
+
+func mulgf16_avx2(x []byte, y []byte, table *[128]uint8)

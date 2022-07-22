@@ -72,3 +72,21 @@ func sliceXor(in, out []byte, o *options) {
 		out[n] ^= input
 	}
 }
+
+// 2-way butterfly forward
+func fftDIT2(x, y []byte, log_m ffe, o *options) {
+	// Reference version:
+	refMulAdd(x, y, log_m)
+	sliceXor(x, y, o)
+}
+
+// 2-way butterfly inverse
+func ifftDIT2(x, y []byte, log_m ffe, o *options) {
+	// Reference version:
+	sliceXor(x, y, o)
+	refMulAdd(x, y, log_m)
+}
+
+func mulgf16(x, y []byte, log_m ffe, o *options) {
+	refMul(x, y, log_m)
+}
