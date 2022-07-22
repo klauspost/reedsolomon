@@ -1191,7 +1191,7 @@ func BenchmarkReconstruct10x2x10000(b *testing.B) {
 
 // Benchmark 10 data slices with 2 parity slices holding 10000 bytes each
 func BenchmarkReconstruct500x200x10K(b *testing.B) {
-	benchmarkReconstruct(b, 500, 200, 100<<10)
+	benchmarkReconstruct(b, 500, 200, 10<<10)
 }
 
 // Benchmark 50 data slices with 5 parity slices holding 100000 bytes each

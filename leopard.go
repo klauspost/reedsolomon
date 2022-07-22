@@ -264,7 +264,7 @@ func (r *reedSolomonFF16) reconstruct(shards [][]byte, recoverAll bool) error {
 		return err
 	}
 
-	shardSize := len(shards[0])
+	shardSize := shardSize(shards)
 	if shardSize%64 != 0 {
 		return ErrShardSize
 	}
@@ -391,7 +391,6 @@ func (r *reedSolomonFF16) reconstruct(shards [][]byte, recoverAll bool) error {
 			mulgf16(shards[i], work[i+m], modulus-errLocs[i+m], &r.o)
 		}
 	}
-
 	return nil
 }
 
