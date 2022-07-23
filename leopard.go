@@ -81,7 +81,8 @@ var (
 var mul16LUTs *[order]mul16LUT
 
 type mul16LUT struct {
-	LUT [4 * 16]ffe
+	Lo [256]ffe
+	Hi [256]ffe
 }
 
 // Stores lookup for avx2
@@ -607,7 +608,7 @@ func ifftDIT4(work [][]byte, dist int, log_m01, log_m23, log_m02 ffe, o *options
 
 // Reference version of muladd: x[] ^= y[] * log_m
 func refMulAdd(x, y []byte, log_m ffe) {
-	lut := &mul16LUTs[log_m].LUT
+	lut := &mul16LUTs[log_m]
 
 	for off := 0; off < len(x); off += 64 {
 		loA := y[off : off+32]
@@ -615,11 +616,7 @@ func refMulAdd(x, y []byte, log_m ffe) {
 		hiA = hiA[:len(loA)]
 		for i, lo := range loA {
 			hi := hiA[i]
-			prod :=
-				lut[lo&15] ^
-					lut[((lo>>4)+16)&63] ^
-					lut[((hi&15)+32)&63] ^
-					lut[((hi>>4)+48)&63]
+			prod := lut.Lo[lo] ^ lut.Hi[hi]
 
 			x[off+i] ^= byte(prod)
 			x[off+i+32] ^= byte(prod >> 8)
@@ -642,7 +639,7 @@ func slicesXor(v1, v2 [][]byte, o *options) {
 
 // Reference version of mul: x[] = y[] * log_m
 func refMul(x, y []byte, log_m ffe) {
-	lut := mul16LUTs[log_m].LUT
+	lut := &mul16LUTs[log_m]
 
 	for off := 0; off < len(x); off += 64 {
 		loA := y[off : off+32]
@@ -650,12 +647,7 @@ func refMul(x, y []byte, log_m ffe) {
 		hiA = hiA[:len(loA)]
 		for i, lo := range loA {
 			hi := hiA[i]
-
-			prod :=
-				lut[lo&15] ^
-					lut[((lo>>4)+16)&63] ^
-					lut[((hi&15)+32)&63] ^
-					lut[((hi>>4)+48)&63]
+			prod := lut.Lo[lo] ^ lut.Hi[hi]
 
 			x[off+i] = byte(prod)
 			x[off+i+32] = byte(prod >> 8)
@@ -859,10 +851,9 @@ func initMul16LUT() {
 
 	// For each log_m multiplicand:
 	for log_m := 0; log_m < order; log_m++ {
-		lut := &mul16LUTs[log_m]
-
+		var tmp [64]ffe
 		for nibble, shift := 0, 0; nibble < 4; {
-			nibble_lut := lut.LUT[nibble*16:]
+			nibble_lut := tmp[nibble*16:]
 
 			for xnibble := 0; xnibble < 16; xnibble++ {
 				prod := mulLog(ffe(xnibble<<shift), ffe(log_m))
@@ -870,6 +861,11 @@ func initMul16LUT() {
 			}
 			nibble++
 			shift += 4
+		}
+		lut := &mul16LUTs[log_m]
+		for i := range lut.Lo[:] {
+			lut.Lo[i] = tmp[i&15] ^ tmp[((i>>4)+16)]
+			lut.Hi[i] = tmp[((i&15)+32)] ^ tmp[((i>>4)+48)]
 		}
 	}
 	if cpuid.CPU.Has(cpuid.AVX2) {
