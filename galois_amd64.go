@@ -132,6 +132,9 @@ func sliceXor(in, out []byte, o *options) {
 			in = in[done:]
 			out = out[done:]
 		}
+	} else {
+		sliceXorGo(in, out, o)
+		return
 	}
 	out = out[:len(in)]
 	for i := range in {

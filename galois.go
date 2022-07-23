@@ -6,6 +6,8 @@
 
 package reedsolomon
 
+import "encoding/binary"
+
 const (
 	// The number of elements in the field.
 	fieldSize = 256
@@ -928,4 +930,25 @@ func genAvx2Matrix(matrixRows [][]byte, inputs, inIdx, outputs int, dst []byte) 
 		}
 	}
 	return dst
+}
+
+// xor slices writing to out.
+func sliceXorGo(in, out []byte, _ *options) {
+	for len(out) >= 32 {
+		inS := in[:32]
+		v0 := binary.LittleEndian.Uint64(out[:8]) ^ binary.LittleEndian.Uint64(inS[:8])
+		v1 := binary.LittleEndian.Uint64(out[8:16]) ^ binary.LittleEndian.Uint64(inS[8:16])
+		v2 := binary.LittleEndian.Uint64(out[16:24]) ^ binary.LittleEndian.Uint64(inS[16:24])
+		v3 := binary.LittleEndian.Uint64(out[24:32]) ^ binary.LittleEndian.Uint64(inS[24:32])
+		binary.LittleEndian.PutUint64(out[:8], v0)
+		binary.LittleEndian.PutUint64(out[8:16], v1)
+		binary.LittleEndian.PutUint64(out[16:24], v2)
+		binary.LittleEndian.PutUint64(out[24:32], v3)
+		out = out[32:]
+		in = in[32:]
+	}
+	out = out[:len(in)]
+	for n, input := range in {
+		out[n] ^= input
+	}
 }
