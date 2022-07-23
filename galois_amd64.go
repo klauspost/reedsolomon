@@ -146,6 +146,11 @@ func fftDIT2(x, y []byte, log_m ffe, o *options) {
 			tmp := &multiply256LUT[log_m]
 			fftDIT2_avx2(x, y, tmp)
 		}
+	} else if o.useSSSE3 {
+		if len(x) > 0 {
+			tmp := &multiply256LUT[log_m]
+			fftDIT2_ssse3(x, y, tmp)
+		}
 	} else {
 		// Reference version:
 		refMulAdd(x, y, log_m)
@@ -160,6 +165,11 @@ func ifftDIT2(x, y []byte, log_m ffe, o *options) {
 			tmp := &multiply256LUT[log_m]
 			ifftDIT2_avx2(x, y, tmp)
 		}
+	} else if o.useSSSE3 {
+		if len(x) > 0 {
+			tmp := &multiply256LUT[log_m]
+			ifftDIT2_ssse3(x, y, tmp)
+		}
 	} else {
 		// Reference version:
 		sliceXor(x, y, o)
@@ -172,6 +182,11 @@ func mulgf16(x, y []byte, log_m ffe, o *options) {
 		if len(x) > 0 {
 			tmp := &multiply256LUT[log_m]
 			mulgf16_avx2(x, y, tmp)
+		}
+	} else if o.useSSSE3 {
+		if len(x) > 0 {
+			tmp := &multiply256LUT[log_m]
+			mulgf16_ssse3(x, y, tmp)
 		}
 	} else {
 		refMul(x, y, log_m)
