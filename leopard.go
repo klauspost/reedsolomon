@@ -868,7 +868,7 @@ func initMul16LUT() {
 			lut.Hi[i] = tmp[((i&15)+32)] ^ tmp[((i>>4)+48)]
 		}
 	}
-	if cpuid.CPU.Has(cpuid.AVX2) {
+	if cpuid.CPU.Has(cpuid.SSSE3) || cpuid.CPU.Has(cpuid.AVX2) {
 		multiply256LUT = &[order][16 * 8]byte{}
 
 		for logM := range multiply256LUT[:] {
