@@ -581,8 +581,7 @@ func ifftDITEncoder(data [][]byte, mtrunc int, work [][]byte, xorRes [][]byte, m
 	}
 }
 
-// 4-way butterfly
-func ifftDIT4(work [][]byte, dist int, log_m01, log_m23, log_m02 ffe, o *options) {
+func ifftDIT4Ref(work [][]byte, dist int, log_m01, log_m23, log_m02 ffe, o *options) {
 	// First layer:
 	if log_m01 == modulus {
 		sliceXor(work[0], work[dist], o)

@@ -1183,6 +1183,8 @@ func fftDIT2_avx2(x []byte, y []byte, table *[128]uint8)
 
 func mulgf16_avx2(x []byte, y []byte, table *[128]uint8)
 
+func ifftDIT4_avx2(work [][]byte, dist int, table01 *[128]uint8, table23 *[128]uint8, table02 *[128]uint8, logMask uint8)
+
 func ifftDIT2_ssse3(x []byte, y []byte, table *[128]uint8)
 
 func fftDIT2_ssse3(x []byte, y []byte, table *[128]uint8)

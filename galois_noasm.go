@@ -40,6 +40,11 @@ func init() {
 	defaultOptions.useAVX512 = false
 }
 
+// 4-way butterfly
+func ifftDIT4(work [][]byte, dist int, log_m01, log_m23, log_m02 ffe, o *options) {
+	ifftDIT4Ref(work, dist, log_m01, log_m23, log_m02, o)
+}
+
 // 2-way butterfly forward
 func fftDIT2(x, y []byte, log_m ffe, o *options) {
 	// Reference version:

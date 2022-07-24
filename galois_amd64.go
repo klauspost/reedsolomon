@@ -142,6 +142,30 @@ func sliceXor(in, out []byte, o *options) {
 	}
 }
 
+// 4-way butterfly
+func ifftDIT4(work [][]byte, dist int, log_m01, log_m23, log_m02 ffe, o *options) {
+	if o.useAVX2 {
+		if len(work[0]) > 0 {
+			var mask uint8
+			if log_m01 == modulus {
+				mask |= 1 << 0
+			}
+			if log_m23 == modulus {
+				mask |= 1 << 1
+			}
+			if log_m02 == modulus {
+				mask |= 1 << 2
+			}
+			t01 := &multiply256LUT[log_m01]
+			t23 := &multiply256LUT[log_m23]
+			t02 := &multiply256LUT[log_m02]
+			ifftDIT4_avx2(work, dist*24, t01, t23, t02, mask)
+		}
+		return
+	}
+	ifftDIT4Ref(work, dist, log_m01, log_m23, log_m02, o)
+}
+
 // 2-way butterfly forward
 func fftDIT2(x, y []byte, log_m ffe, o *options) {
 	if o.useAVX2 {

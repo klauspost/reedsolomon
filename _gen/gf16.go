@@ -13,7 +13,32 @@ import (
 )
 
 type table256 struct {
-	Lo, Hi reg.VecVirtual
+	Lo, Hi               reg.VecVirtual
+	loadLo128, loadHi128 *Mem
+	loadLo256, loadHi256 *Mem
+}
+
+func (t *table256) prepare() {
+	if t.loadLo128 != nil {
+		t.Lo = YMM()
+		// Load and expand tables
+		VBROADCASTI128(*t.loadLo128, t.Lo)
+	}
+	if t.loadHi128 != nil {
+		t.Hi = YMM()
+		// Load and expand tables
+		VBROADCASTI128(*t.loadHi128, t.Hi)
+	}
+	if t.loadLo256 != nil {
+		t.Lo = YMM()
+		// Load and expand tables
+		VMOVDQU(*t.loadLo256, t.Lo)
+	}
+	if t.loadHi256 != nil {
+		t.Hi = YMM()
+		// Load and expand tables
+		VMOVDQU(*t.loadHi256, t.Hi)
+	}
 }
 
 // table128 contains memory pointers to tables
@@ -162,6 +187,142 @@ func genGF16() {
 		VZEROUPPER()
 		RET()
 	}
+	{
+		TEXT("ifftDIT4_avx2", attr.NOSPLIT, fmt.Sprintf("func(work [][]byte, dist int, table01 *[8*16]uint8, table23 *[8*16]uint8, table02 *[8*16]uint8, logMask uint8)"))
+		Comment("dist must be multiplied by 24 (size of slice header)")
+		Comment("logmask must be log_m01==kModulus, log_m23==kModulus, log_m02==kModulus from lowest to bit 3")
+
+		// Unpack tables to stack. Slower.
+		const unpackTables = false
+
+		table01Ptr := Load(Param("table01"), GP64())
+		table23Ptr := Load(Param("table23"), GP64())
+		table02Ptr := Load(Param("table02"), GP64())
+
+		// Prepare table pointers.
+		table01 := [4]table256{}
+		table23 := [4]table256{}
+		table02 := [4]table256{}
+		for i := range table01 {
+			if unpackTables {
+				toStack := func(m Mem) *Mem {
+					stack := AllocLocal(32)
+					y := YMM()
+					VBROADCASTI128(m, y)
+					VMOVDQU(y, stack)
+					return &stack
+				}
+
+				table01[i].loadLo256 = toStack(Mem{Base: table01Ptr, Disp: i * 16})
+				table23[i].loadLo256 = toStack(Mem{Base: table23Ptr, Disp: i * 16})
+				table02[i].loadLo256 = toStack(Mem{Base: table02Ptr, Disp: i * 16})
+
+				table01[i].loadHi256 = toStack(Mem{Base: table01Ptr, Disp: i*16 + 16*4})
+				table23[i].loadHi256 = toStack(Mem{Base: table23Ptr, Disp: i*16 + 16*4})
+				table02[i].loadHi256 = toStack(Mem{Base: table02Ptr, Disp: i*16 + 16*4})
+			} else {
+				table01[i].loadLo128 = &Mem{Base: table01Ptr, Disp: i * 16}
+				table23[i].loadLo128 = &Mem{Base: table23Ptr, Disp: i * 16}
+				table02[i].loadLo128 = &Mem{Base: table02Ptr, Disp: i * 16}
+
+				table01[i].loadHi128 = &Mem{Base: table01Ptr, Disp: i*16 + 16*4}
+				table23[i].loadHi128 = &Mem{Base: table23Ptr, Disp: i*16 + 16*4}
+				table02[i].loadHi128 = &Mem{Base: table02Ptr, Disp: i*16 + 16*4}
+			}
+		}
+		// Generate mask
+		ctx.clrMask = YMM()
+		tmpMask := GP64()
+		MOVQ(U32(15), tmpMask)
+		MOVQ(tmpMask, ctx.clrMask.AsX())
+		VPBROADCASTB(ctx.clrMask.AsX(), ctx.clrMask)
+
+		dist := Load(Param("dist"), GP64())
+
+		// Pointers to each "work"
+		var work [4]reg.GPVirtual
+		workTable := Load(Param("work").Base(), GP64()) // &work[0]
+		bytes := GP64()
+
+		// Load length of work[0]
+		MOVQ(Mem{Base: workTable, Disp: 8}, bytes)
+
+		offset := GP64()
+		XORQ(offset, offset)
+		for i := range work {
+			work[i] = GP64()
+			// work[i] = &workTable[dist*i]
+			MOVQ(Mem{Base: workTable, Index: offset, Scale: 1}, work[i])
+			if i < len(work)-1 {
+				ADDQ(dist, offset)
+			}
+		}
+		var workRegLo [4]reg.VecVirtual
+		var workRegHi [4]reg.VecVirtual
+
+		workRegLo[0], workRegHi[0] = YMM(), YMM()
+		workRegLo[1], workRegHi[1] = YMM(), YMM()
+
+		mask := Load(Param("logMask"), GP64())
+		Label("loop")
+		VMOVDQU(Mem{Base: work[0], Disp: 0}, workRegLo[0])
+		VMOVDQU(Mem{Base: work[0], Disp: 32}, workRegHi[0])
+		VMOVDQU(Mem{Base: work[1], Disp: 0}, workRegLo[1])
+		VMOVDQU(Mem{Base: work[1], Disp: 32}, workRegHi[1])
+
+		// First layer:
+		VPXOR(workRegLo[0], workRegLo[1], workRegLo[1])
+		VPXOR(workRegHi[0], workRegHi[1], workRegHi[1])
+
+		// Test bit 0
+		BTQ(U8(0), mask)
+		JC(LabelRef("skip_m01"))
+		leoMulAdd256(ctx, workRegLo[0], workRegHi[0], workRegLo[1], workRegHi[1], table01)
+
+		Label("skip_m01")
+		workRegLo[2], workRegHi[2] = YMM(), YMM()
+		workRegLo[3], workRegHi[3] = YMM(), YMM()
+		VMOVDQU(Mem{Base: work[2], Disp: 0}, workRegLo[2])
+		VMOVDQU(Mem{Base: work[2], Disp: 32}, workRegHi[2])
+		VMOVDQU(Mem{Base: work[3], Disp: 0}, workRegLo[3])
+		VMOVDQU(Mem{Base: work[3], Disp: 32}, workRegHi[3])
+
+		VPXOR(workRegLo[2], workRegLo[3], workRegLo[3])
+		VPXOR(workRegHi[2], workRegHi[3], workRegHi[3])
+
+		// Test bit 1
+		BTQ(U8(1), mask)
+		JC(LabelRef("skip_m23"))
+		leoMulAdd256(ctx, workRegLo[2], workRegHi[2], workRegLo[3], workRegHi[3], table23)
+		Label("skip_m23")
+
+		// Second layer:
+		VPXOR(workRegLo[0], workRegLo[2], workRegLo[2])
+		VPXOR(workRegHi[0], workRegHi[2], workRegHi[2])
+		VPXOR(workRegLo[1], workRegLo[3], workRegLo[3])
+		VPXOR(workRegHi[1], workRegHi[3], workRegHi[3])
+
+		// Test bit 2
+		BTQ(U8(2), mask)
+		JC(LabelRef("skip_m02"))
+		leoMulAdd256(ctx, workRegLo[0], workRegHi[0], workRegLo[2], workRegHi[2], table02)
+		leoMulAdd256(ctx, workRegLo[1], workRegHi[1], workRegLo[3], workRegHi[3], table02)
+		Label("skip_m02")
+
+		// Store + Next loop:
+		for i := range work {
+			VMOVDQU(workRegLo[i], Mem{Base: work[i], Disp: 0})
+			VMOVDQU(workRegHi[i], Mem{Base: work[i], Disp: 32})
+			ADDQ(U8(64), work[i])
+		}
+
+		SUBQ(U8(64), bytes)
+		JNZ(LabelRef("loop"))
+
+		VZEROUPPER()
+		RET()
+	}
+
 	// SSSE3:
 	{
 		TEXT("ifftDIT2_ssse3", attr.NOSPLIT, fmt.Sprintf("func(x, y []byte, table  *[8*16]uint8)"))
@@ -318,7 +479,7 @@ func genGF16() {
 
 }
 
-// xLo, xHi updated
+// xLo, xHi updated, yLo, yHi preserved...
 func leoMulAdd256(ctx gf16ctx, xLo, xHi, yLo, yHi reg.VecVirtual, table [4]table256) {
 	prodLo, prodHi := leoMul256(ctx, yLo, yHi, table)
 	VPXOR(xLo, prodLo, xLo)
@@ -332,9 +493,11 @@ func leoMul256(ctx gf16ctx, lo, hi reg.VecVirtual, table [4]table256) (prodLo, p
 	VPAND(ctx.clrMask, lo, data0)    // data0 = lo&0xf
 	VPAND(ctx.clrMask, data1, data1) // data 1 = data1 &0xf
 	prodLo, prodHi = YMM(), YMM()
+	table[0].prepare()
 	VPSHUFB(data0, table[0].Lo, prodLo)
 	VPSHUFB(data0, table[0].Hi, prodHi)
 	tmpLo, tmpHi := YMM(), YMM()
+	table[1].prepare()
 	VPSHUFB(data1, table[1].Lo, tmpLo)
 	VPSHUFB(data1, table[1].Hi, tmpHi)
 	VPXOR(prodLo, tmpLo, prodLo)
@@ -347,10 +510,12 @@ func leoMul256(ctx gf16ctx, lo, hi reg.VecVirtual, table [4]table256) (prodLo, p
 	VPAND(ctx.clrMask, data1, data1)
 
 	tmpLo, tmpHi = YMM(), YMM() // Realloc to break dep
+	table[2].prepare()
 	VPSHUFB(data0, table[2].Lo, tmpLo)
 	VPSHUFB(data0, table[2].Hi, tmpHi)
 	VPXOR(prodLo, tmpLo, prodLo)
 	VPXOR(prodHi, tmpHi, prodHi)
+	table[3].prepare()
 	VPSHUFB(data1, table[3].Lo, tmpLo)
 	VPSHUFB(data1, table[3].Hi, tmpHi)
 	VPXOR(prodLo, tmpLo, prodLo)

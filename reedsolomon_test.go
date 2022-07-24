@@ -14,6 +14,7 @@ import (
 	"math/rand"
 	"os"
 	"runtime"
+	"strconv"
 	"testing"
 )
 
@@ -1009,6 +1010,13 @@ func BenchmarkEncode2x1x1M(b *testing.B) {
 
 func BenchmarkEncode500x200x10K(b *testing.B) {
 	benchmarkEncode(b, 500, 200, 10<<10)
+}
+
+func BenchmarkEncodeLeopard(b *testing.B) {
+	size := (64 << 20) / 800 / 64 * 64
+	b.Run(strconv.Itoa(size), func(b *testing.B) {
+		benchmarkEncode(b, 800, 200, size)
+	})
 }
 
 func BenchmarkEncode10x2x10000(b *testing.B) {
