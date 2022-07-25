@@ -63592,6 +63592,410 @@ loop:
 	VZEROUPPER
 	RET
 
+// func ifftDIT4_avx512(work [][]byte, dist int, table01 *[128]uint8, table23 *[128]uint8, table02 *[128]uint8, logMask uint8)
+// Requires: AVX, AVX2, AVX512F, SSE2
+TEXT ·ifftDIT4_avx512(SB), NOSPLIT, $0-57
+	// dist must be multiplied by 24 (size of slice header)
+	// logmask must be log_m01==kModulus, log_m23==kModulus, log_m02==kModulus from lowest to bit 3
+	MOVQ           table01+32(FP), AX
+	MOVQ           table23+40(FP), CX
+	MOVQ           table02+48(FP), DX
+	VBROADCASTI128 (AX), Y1
+	VBROADCASTI128 64(AX), Y0
+	VMOVAPS        Z1, Z16
+	VMOVAPS        Z0, Z17
+	VBROADCASTI128 (CX), Y1
+	VBROADCASTI128 64(CX), Y0
+	VMOVAPS        Z1, Z18
+	VMOVAPS        Z0, Z19
+	VBROADCASTI128 (DX), Y1
+	VBROADCASTI128 64(DX), Y0
+	VMOVAPS        Z1, Z20
+	VMOVAPS        Z0, Z21
+	VBROADCASTI128 16(AX), Y1
+	VBROADCASTI128 80(AX), Y0
+	VMOVAPS        Z1, Z22
+	VMOVAPS        Z0, Z23
+	VBROADCASTI128 16(CX), Y1
+	VBROADCASTI128 80(CX), Y0
+	VMOVAPS        Z1, Z24
+	VMOVAPS        Z0, Z25
+	VBROADCASTI128 16(DX), Y1
+	VBROADCASTI128 80(DX), Y0
+	VMOVAPS        Z1, Z26
+	VMOVAPS        Z0, Z27
+	MOVQ           $0x0000000f, BX
+	MOVQ           BX, X0
+	VPBROADCASTB   X0, Y0
+	MOVQ           dist+24(FP), BX
+	MOVQ           work_base+0(FP), SI
+	MOVQ           8(SI), DI
+	XORQ           R8, R8
+	MOVQ           (SI)(R8*1), R9
+	ADDQ           BX, R8
+	MOVQ           (SI)(R8*1), R10
+	ADDQ           BX, R8
+	MOVQ           (SI)(R8*1), R11
+	ADDQ           BX, R8
+	MOVQ           (SI)(R8*1), BX
+	MOVBQZX        logMask+56(FP), SI
+
+loop:
+	VMOVDQU        (R9), Y1
+	VMOVDQU        32(R9), Y2
+	VMOVDQU        (R10), Y3
+	VMOVDQU        32(R10), Y4
+	VPXOR          Y1, Y3, Y3
+	VPXOR          Y2, Y4, Y4
+	BTQ            $0x00, SI
+	JC             skip_m01
+	VPSRLQ         $0x04, Y3, Y6
+	VPAND          Y0, Y3, Y5
+	VPAND          Y0, Y6, Y6
+	VPSHUFB        Y5, Y16, Y7
+	VPSHUFB        Y5, Y17, Y5
+	VPSHUFB        Y6, Y22, Y8
+	VPSHUFB        Y6, Y23, Y6
+	VPXOR          Y7, Y8, Y7
+	VPXOR          Y5, Y6, Y5
+	VPAND          Y4, Y0, Y6
+	VPSRLQ         $0x04, Y4, Y8
+	VPAND          Y0, Y8, Y8
+	VBROADCASTI128 32(AX), Y9
+	VBROADCASTI128 96(AX), Y10
+	VPSHUFB        Y6, Y9, Y9
+	VPSHUFB        Y6, Y10, Y6
+	VPXOR          Y7, Y9, Y7
+	VPXOR          Y5, Y6, Y5
+	VBROADCASTI128 48(AX), Y9
+	VBROADCASTI128 112(AX), Y6
+	VPSHUFB        Y8, Y9, Y9
+	VPSHUFB        Y8, Y6, Y6
+	VPXOR          Y7, Y9, Y7
+	VPXOR          Y5, Y6, Y5
+	VPXOR          Y1, Y7, Y1
+	VPXOR          Y2, Y5, Y2
+
+skip_m01:
+	VMOVDQU        (R11), Y5
+	VMOVDQU        32(R11), Y6
+	VMOVDQU        (BX), Y7
+	VMOVDQU        32(BX), Y8
+	VPXOR          Y5, Y7, Y7
+	VPXOR          Y6, Y8, Y8
+	BTQ            $0x01, SI
+	JC             skip_m23
+	VPSRLQ         $0x04, Y7, Y10
+	VPAND          Y0, Y7, Y9
+	VPAND          Y0, Y10, Y10
+	VPSHUFB        Y9, Y18, Y11
+	VPSHUFB        Y9, Y19, Y9
+	VPSHUFB        Y10, Y24, Y12
+	VPSHUFB        Y10, Y25, Y10
+	VPXOR          Y11, Y12, Y11
+	VPXOR          Y9, Y10, Y9
+	VPAND          Y8, Y0, Y10
+	VPSRLQ         $0x04, Y8, Y12
+	VPAND          Y0, Y12, Y12
+	VBROADCASTI128 32(CX), Y13
+	VBROADCASTI128 96(CX), Y14
+	VPSHUFB        Y10, Y13, Y13
+	VPSHUFB        Y10, Y14, Y10
+	VPXOR          Y11, Y13, Y11
+	VPXOR          Y9, Y10, Y9
+	VBROADCASTI128 48(CX), Y13
+	VBROADCASTI128 112(CX), Y10
+	VPSHUFB        Y12, Y13, Y13
+	VPSHUFB        Y12, Y10, Y10
+	VPXOR          Y11, Y13, Y11
+	VPXOR          Y9, Y10, Y9
+	VPXOR          Y5, Y11, Y5
+	VPXOR          Y6, Y9, Y6
+
+skip_m23:
+	VPXOR          Y1, Y5, Y5
+	VPXOR          Y2, Y6, Y6
+	VPXOR          Y3, Y7, Y7
+	VPXOR          Y4, Y8, Y8
+	BTQ            $0x02, SI
+	JC             skip_m02
+	VPSRLQ         $0x04, Y5, Y10
+	VPAND          Y0, Y5, Y9
+	VPAND          Y0, Y10, Y10
+	VPSHUFB        Y9, Y20, Y11
+	VPSHUFB        Y9, Y21, Y9
+	VPSHUFB        Y10, Y26, Y12
+	VPSHUFB        Y10, Y27, Y10
+	VPXOR          Y11, Y12, Y11
+	VPXOR          Y9, Y10, Y9
+	VPAND          Y6, Y0, Y10
+	VPSRLQ         $0x04, Y6, Y12
+	VPAND          Y0, Y12, Y12
+	VBROADCASTI128 32(DX), Y13
+	VBROADCASTI128 96(DX), Y14
+	VPSHUFB        Y10, Y13, Y13
+	VPSHUFB        Y10, Y14, Y10
+	VPXOR          Y11, Y13, Y11
+	VPXOR          Y9, Y10, Y9
+	VBROADCASTI128 48(DX), Y13
+	VBROADCASTI128 112(DX), Y10
+	VPSHUFB        Y12, Y13, Y13
+	VPSHUFB        Y12, Y10, Y10
+	VPXOR          Y11, Y13, Y11
+	VPXOR          Y9, Y10, Y9
+	VPXOR          Y1, Y11, Y1
+	VPXOR          Y2, Y9, Y2
+	VPSRLQ         $0x04, Y7, Y10
+	VPAND          Y0, Y7, Y9
+	VPAND          Y0, Y10, Y10
+	VPSHUFB        Y9, Y20, Y11
+	VPSHUFB        Y9, Y21, Y9
+	VPSHUFB        Y10, Y26, Y12
+	VPSHUFB        Y10, Y27, Y10
+	VPXOR          Y11, Y12, Y11
+	VPXOR          Y9, Y10, Y9
+	VPAND          Y8, Y0, Y10
+	VPSRLQ         $0x04, Y8, Y12
+	VPAND          Y0, Y12, Y12
+	VBROADCASTI128 32(DX), Y13
+	VBROADCASTI128 96(DX), Y14
+	VPSHUFB        Y10, Y13, Y13
+	VPSHUFB        Y10, Y14, Y10
+	VPXOR          Y11, Y13, Y11
+	VPXOR          Y9, Y10, Y9
+	VBROADCASTI128 48(DX), Y13
+	VBROADCASTI128 112(DX), Y10
+	VPSHUFB        Y12, Y13, Y13
+	VPSHUFB        Y12, Y10, Y10
+	VPXOR          Y11, Y13, Y11
+	VPXOR          Y9, Y10, Y9
+	VPXOR          Y3, Y11, Y3
+	VPXOR          Y4, Y9, Y4
+
+skip_m02:
+	VMOVDQU Y1, (R9)
+	VMOVDQU Y2, 32(R9)
+	ADDQ    $0x40, R9
+	VMOVDQU Y3, (R10)
+	VMOVDQU Y4, 32(R10)
+	ADDQ    $0x40, R10
+	VMOVDQU Y5, (R11)
+	VMOVDQU Y6, 32(R11)
+	ADDQ    $0x40, R11
+	VMOVDQU Y7, (BX)
+	VMOVDQU Y8, 32(BX)
+	ADDQ    $0x40, BX
+	SUBQ    $0x40, DI
+	JNZ     loop
+	VZEROUPPER
+	RET
+
+// func fftDIT4_avx512(work [][]byte, dist int, table01 *[128]uint8, table23 *[128]uint8, table02 *[128]uint8, logMask uint8)
+// Requires: AVX, AVX2, AVX512F, SSE2
+TEXT ·fftDIT4_avx512(SB), NOSPLIT, $0-57
+	// dist must be multiplied by 24 (size of slice header)
+	// logmask must be log_m01==kModulus, log_m23==kModulus, log_m02==kModulus from lowest to bit 3
+	MOVQ           table01+32(FP), AX
+	MOVQ           table23+40(FP), CX
+	MOVQ           table02+48(FP), DX
+	VBROADCASTI128 (AX), Y1
+	VBROADCASTI128 64(AX), Y0
+	VMOVAPS        Z1, Z16
+	VMOVAPS        Z0, Z17
+	VBROADCASTI128 (CX), Y1
+	VBROADCASTI128 64(CX), Y0
+	VMOVAPS        Z1, Z18
+	VMOVAPS        Z0, Z19
+	VBROADCASTI128 (DX), Y1
+	VBROADCASTI128 64(DX), Y0
+	VMOVAPS        Z1, Z20
+	VMOVAPS        Z0, Z21
+	VBROADCASTI128 16(AX), Y1
+	VBROADCASTI128 80(AX), Y0
+	VMOVAPS        Z1, Z22
+	VMOVAPS        Z0, Z23
+	VBROADCASTI128 16(CX), Y1
+	VBROADCASTI128 80(CX), Y0
+	VMOVAPS        Z1, Z24
+	VMOVAPS        Z0, Z25
+	VBROADCASTI128 16(DX), Y1
+	VBROADCASTI128 80(DX), Y0
+	VMOVAPS        Z1, Z26
+	VMOVAPS        Z0, Z27
+	VBROADCASTI128 32(AX), Y1
+	VBROADCASTI128 96(AX), Y0
+	VMOVAPS        Z1, Z28
+	VMOVAPS        Z0, Z29
+	VBROADCASTI128 32(CX), Y1
+	VBROADCASTI128 96(CX), Y0
+	VMOVAPS        Z1, Z30
+	VMOVAPS        Z0, Z31
+	MOVQ           $0x0000000f, BX
+	MOVQ           BX, X0
+	VPBROADCASTB   X0, Y0
+	MOVQ           dist+24(FP), BX
+	MOVQ           work_base+0(FP), SI
+	MOVQ           8(SI), DI
+	XORQ           R8, R8
+	MOVQ           (SI)(R8*1), R9
+	ADDQ           BX, R8
+	MOVQ           (SI)(R8*1), R10
+	ADDQ           BX, R8
+	MOVQ           (SI)(R8*1), R11
+	ADDQ           BX, R8
+	MOVQ           (SI)(R8*1), BX
+	MOVBQZX        logMask+56(FP), SI
+
+loop:
+	VMOVDQU        (R9), Y1
+	VMOVDQU        32(R9), Y2
+	VMOVDQU        (R10), Y3
+	VMOVDQU        32(R10), Y4
+	VMOVDQU        (R11), Y5
+	VMOVDQU        32(R11), Y6
+	VMOVDQU        (BX), Y7
+	VMOVDQU        32(BX), Y8
+	BTQ            $0x00, SI
+	JC             skip_m02
+	VPSRLQ         $0x04, Y5, Y10
+	VPAND          Y0, Y5, Y9
+	VPAND          Y0, Y10, Y10
+	VPSHUFB        Y9, Y20, Y11
+	VPSHUFB        Y9, Y21, Y9
+	VPSHUFB        Y10, Y26, Y12
+	VPSHUFB        Y10, Y27, Y10
+	VPXOR          Y11, Y12, Y11
+	VPXOR          Y9, Y10, Y9
+	VPAND          Y6, Y0, Y10
+	VPSRLQ         $0x04, Y6, Y12
+	VPAND          Y0, Y12, Y12
+	VBROADCASTI128 32(DX), Y13
+	VBROADCASTI128 96(DX), Y14
+	VPSHUFB        Y10, Y13, Y13
+	VPSHUFB        Y10, Y14, Y10
+	VPXOR          Y11, Y13, Y11
+	VPXOR          Y9, Y10, Y9
+	VBROADCASTI128 48(DX), Y13
+	VBROADCASTI128 112(DX), Y10
+	VPSHUFB        Y12, Y13, Y13
+	VPSHUFB        Y12, Y10, Y10
+	VPXOR          Y11, Y13, Y11
+	VPXOR          Y9, Y10, Y9
+	VPXOR          Y1, Y11, Y1
+	VPXOR          Y2, Y9, Y2
+	VPSRLQ         $0x04, Y7, Y10
+	VPAND          Y0, Y7, Y9
+	VPAND          Y0, Y10, Y10
+	VPSHUFB        Y9, Y20, Y11
+	VPSHUFB        Y9, Y21, Y9
+	VPSHUFB        Y10, Y26, Y12
+	VPSHUFB        Y10, Y27, Y10
+	VPXOR          Y11, Y12, Y11
+	VPXOR          Y9, Y10, Y9
+	VPAND          Y8, Y0, Y10
+	VPSRLQ         $0x04, Y8, Y12
+	VPAND          Y0, Y12, Y12
+	VBROADCASTI128 32(DX), Y13
+	VBROADCASTI128 96(DX), Y14
+	VPSHUFB        Y10, Y13, Y13
+	VPSHUFB        Y10, Y14, Y10
+	VPXOR          Y11, Y13, Y11
+	VPXOR          Y9, Y10, Y9
+	VBROADCASTI128 48(DX), Y13
+	VBROADCASTI128 112(DX), Y10
+	VPSHUFB        Y12, Y13, Y13
+	VPSHUFB        Y12, Y10, Y10
+	VPXOR          Y11, Y13, Y11
+	VPXOR          Y9, Y10, Y9
+	VPXOR          Y3, Y11, Y3
+	VPXOR          Y4, Y9, Y4
+
+skip_m02:
+	VPXOR          Y1, Y5, Y5
+	VPXOR          Y2, Y6, Y6
+	VPXOR          Y3, Y7, Y7
+	VPXOR          Y4, Y8, Y8
+	BTQ            $0x01, SI
+	JC             skip_m01
+	VPSRLQ         $0x04, Y3, Y10
+	VPAND          Y0, Y3, Y9
+	VPAND          Y0, Y10, Y10
+	VPSHUFB        Y9, Y16, Y11
+	VPSHUFB        Y9, Y17, Y9
+	VPSHUFB        Y10, Y22, Y12
+	VPSHUFB        Y10, Y23, Y10
+	VPXOR          Y11, Y12, Y11
+	VPXOR          Y9, Y10, Y9
+	VPAND          Y4, Y0, Y10
+	VPSRLQ         $0x04, Y4, Y12
+	VPAND          Y0, Y12, Y12
+	VBROADCASTI128 32(AX), Y13
+	VBROADCASTI128 96(AX), Y13
+	VPSHUFB        Y10, Y28, Y13
+	VPSHUFB        Y10, Y29, Y10
+	VPXOR          Y11, Y13, Y11
+	VPXOR          Y9, Y10, Y9
+	VBROADCASTI128 48(AX), Y13
+	VBROADCASTI128 112(AX), Y10
+	VPSHUFB        Y12, Y13, Y13
+	VPSHUFB        Y12, Y10, Y10
+	VPXOR          Y11, Y13, Y11
+	VPXOR          Y9, Y10, Y9
+	VPXOR          Y1, Y11, Y1
+	VPXOR          Y2, Y9, Y2
+
+skip_m01:
+	VPXOR          Y1, Y3, Y3
+	VPXOR          Y2, Y4, Y4
+	VMOVDQU        Y1, (R9)
+	VMOVDQU        Y2, 32(R9)
+	ADDQ           $0x40, R9
+	VMOVDQU        Y3, (R10)
+	VMOVDQU        Y4, 32(R10)
+	ADDQ           $0x40, R10
+	BTQ            $0x02, SI
+	JC             skip_m23
+	VPSRLQ         $0x04, Y7, Y2
+	VPAND          Y0, Y7, Y1
+	VPAND          Y0, Y2, Y2
+	VPSHUFB        Y1, Y18, Y3
+	VPSHUFB        Y1, Y19, Y1
+	VPSHUFB        Y2, Y24, Y4
+	VPSHUFB        Y2, Y25, Y2
+	VPXOR          Y3, Y4, Y3
+	VPXOR          Y1, Y2, Y1
+	VPAND          Y8, Y0, Y2
+	VPSRLQ         $0x04, Y8, Y4
+	VPAND          Y0, Y4, Y4
+	VBROADCASTI128 32(CX), Y9
+	VBROADCASTI128 96(CX), Y9
+	VPSHUFB        Y2, Y30, Y9
+	VPSHUFB        Y2, Y31, Y2
+	VPXOR          Y3, Y9, Y3
+	VPXOR          Y1, Y2, Y1
+	VBROADCASTI128 48(CX), Y9
+	VBROADCASTI128 112(CX), Y2
+	VPSHUFB        Y4, Y9, Y9
+	VPSHUFB        Y4, Y2, Y2
+	VPXOR          Y3, Y9, Y3
+	VPXOR          Y1, Y2, Y1
+	VPXOR          Y5, Y3, Y5
+	VPXOR          Y6, Y1, Y6
+
+skip_m23:
+	VPXOR   Y5, Y7, Y7
+	VPXOR   Y6, Y8, Y8
+	VMOVDQU Y5, (R11)
+	VMOVDQU Y6, 32(R11)
+	ADDQ    $0x40, R11
+	VMOVDQU Y7, (BX)
+	VMOVDQU Y8, 32(BX)
+	ADDQ    $0x40, BX
+	SUBQ    $0x40, DI
+	JNZ     loop
+	VZEROUPPER
+	RET
+
 // func ifftDIT4_avx2(work [][]byte, dist int, table01 *[128]uint8, table23 *[128]uint8, table02 *[128]uint8, logMask uint8)
 // Requires: AVX, AVX2, SSE2
 TEXT ·ifftDIT4_avx2(SB), NOSPLIT, $0-57
@@ -63771,6 +64175,196 @@ skip_m02:
 	VMOVDQU Y3, (R10)
 	VMOVDQU Y4, 32(R10)
 	ADDQ    $0x40, R10
+	VMOVDQU Y5, (R11)
+	VMOVDQU Y6, 32(R11)
+	ADDQ    $0x40, R11
+	VMOVDQU Y7, (BX)
+	VMOVDQU Y8, 32(BX)
+	ADDQ    $0x40, BX
+	SUBQ    $0x40, DI
+	JNZ     loop
+	VZEROUPPER
+	RET
+
+// func fftDIT4_avx2(work [][]byte, dist int, table01 *[128]uint8, table23 *[128]uint8, table02 *[128]uint8, logMask uint8)
+// Requires: AVX, AVX2, SSE2
+TEXT ·fftDIT4_avx2(SB), NOSPLIT, $0-57
+	// dist must be multiplied by 24 (size of slice header)
+	// logmask must be log_m01==kModulus, log_m23==kModulus, log_m02==kModulus from lowest to bit 3
+	MOVQ         table01+32(FP), AX
+	MOVQ         table23+40(FP), CX
+	MOVQ         table02+48(FP), DX
+	MOVQ         $0x0000000f, BX
+	MOVQ         BX, X0
+	VPBROADCASTB X0, Y0
+	MOVQ         dist+24(FP), BX
+	MOVQ         work_base+0(FP), SI
+	MOVQ         8(SI), DI
+	XORQ         R8, R8
+	MOVQ         (SI)(R8*1), R9
+	ADDQ         BX, R8
+	MOVQ         (SI)(R8*1), R10
+	ADDQ         BX, R8
+	MOVQ         (SI)(R8*1), R11
+	ADDQ         BX, R8
+	MOVQ         (SI)(R8*1), BX
+	MOVBQZX      logMask+56(FP), SI
+
+loop:
+	VMOVDQU        (R9), Y1
+	VMOVDQU        32(R9), Y2
+	VMOVDQU        (R10), Y3
+	VMOVDQU        32(R10), Y4
+	VMOVDQU        (R11), Y5
+	VMOVDQU        32(R11), Y6
+	VMOVDQU        (BX), Y7
+	VMOVDQU        32(BX), Y8
+	BTQ            $0x00, SI
+	JC             skip_m02
+	VPSRLQ         $0x04, Y5, Y10
+	VPAND          Y0, Y5, Y9
+	VPAND          Y0, Y10, Y10
+	VBROADCASTI128 (DX), Y11
+	VBROADCASTI128 64(DX), Y12
+	VPSHUFB        Y9, Y11, Y11
+	VPSHUFB        Y9, Y12, Y9
+	VBROADCASTI128 16(DX), Y12
+	VBROADCASTI128 80(DX), Y13
+	VPSHUFB        Y10, Y12, Y12
+	VPSHUFB        Y10, Y13, Y10
+	VPXOR          Y11, Y12, Y11
+	VPXOR          Y9, Y10, Y9
+	VPAND          Y6, Y0, Y10
+	VPSRLQ         $0x04, Y6, Y12
+	VPAND          Y0, Y12, Y12
+	VBROADCASTI128 32(DX), Y13
+	VBROADCASTI128 96(DX), Y14
+	VPSHUFB        Y10, Y13, Y13
+	VPSHUFB        Y10, Y14, Y10
+	VPXOR          Y11, Y13, Y11
+	VPXOR          Y9, Y10, Y9
+	VBROADCASTI128 48(DX), Y13
+	VBROADCASTI128 112(DX), Y10
+	VPSHUFB        Y12, Y13, Y13
+	VPSHUFB        Y12, Y10, Y10
+	VPXOR          Y11, Y13, Y11
+	VPXOR          Y9, Y10, Y9
+	VPXOR          Y1, Y11, Y1
+	VPXOR          Y2, Y9, Y2
+	VPSRLQ         $0x04, Y7, Y10
+	VPAND          Y0, Y7, Y9
+	VPAND          Y0, Y10, Y10
+	VBROADCASTI128 (DX), Y11
+	VBROADCASTI128 64(DX), Y12
+	VPSHUFB        Y9, Y11, Y11
+	VPSHUFB        Y9, Y12, Y9
+	VBROADCASTI128 16(DX), Y12
+	VBROADCASTI128 80(DX), Y13
+	VPSHUFB        Y10, Y12, Y12
+	VPSHUFB        Y10, Y13, Y10
+	VPXOR          Y11, Y12, Y11
+	VPXOR          Y9, Y10, Y9
+	VPAND          Y8, Y0, Y10
+	VPSRLQ         $0x04, Y8, Y12
+	VPAND          Y0, Y12, Y12
+	VBROADCASTI128 32(DX), Y13
+	VBROADCASTI128 96(DX), Y14
+	VPSHUFB        Y10, Y13, Y13
+	VPSHUFB        Y10, Y14, Y10
+	VPXOR          Y11, Y13, Y11
+	VPXOR          Y9, Y10, Y9
+	VBROADCASTI128 48(DX), Y13
+	VBROADCASTI128 112(DX), Y10
+	VPSHUFB        Y12, Y13, Y13
+	VPSHUFB        Y12, Y10, Y10
+	VPXOR          Y11, Y13, Y11
+	VPXOR          Y9, Y10, Y9
+	VPXOR          Y3, Y11, Y3
+	VPXOR          Y4, Y9, Y4
+
+skip_m02:
+	VPXOR          Y1, Y5, Y5
+	VPXOR          Y2, Y6, Y6
+	VPXOR          Y3, Y7, Y7
+	VPXOR          Y4, Y8, Y8
+	BTQ            $0x01, SI
+	JC             skip_m01
+	VPSRLQ         $0x04, Y3, Y10
+	VPAND          Y0, Y3, Y9
+	VPAND          Y0, Y10, Y10
+	VBROADCASTI128 (AX), Y11
+	VBROADCASTI128 64(AX), Y12
+	VPSHUFB        Y9, Y11, Y11
+	VPSHUFB        Y9, Y12, Y9
+	VBROADCASTI128 16(AX), Y12
+	VBROADCASTI128 80(AX), Y13
+	VPSHUFB        Y10, Y12, Y12
+	VPSHUFB        Y10, Y13, Y10
+	VPXOR          Y11, Y12, Y11
+	VPXOR          Y9, Y10, Y9
+	VPAND          Y4, Y0, Y10
+	VPSRLQ         $0x04, Y4, Y12
+	VPAND          Y0, Y12, Y12
+	VBROADCASTI128 32(AX), Y13
+	VBROADCASTI128 96(AX), Y14
+	VPSHUFB        Y10, Y13, Y13
+	VPSHUFB        Y10, Y14, Y10
+	VPXOR          Y11, Y13, Y11
+	VPXOR          Y9, Y10, Y9
+	VBROADCASTI128 48(AX), Y13
+	VBROADCASTI128 112(AX), Y10
+	VPSHUFB        Y12, Y13, Y13
+	VPSHUFB        Y12, Y10, Y10
+	VPXOR          Y11, Y13, Y11
+	VPXOR          Y9, Y10, Y9
+	VPXOR          Y1, Y11, Y1
+	VPXOR          Y2, Y9, Y2
+
+skip_m01:
+	VPXOR          Y1, Y3, Y3
+	VPXOR          Y2, Y4, Y4
+	VMOVDQU        Y1, (R9)
+	VMOVDQU        Y2, 32(R9)
+	ADDQ           $0x40, R9
+	VMOVDQU        Y3, (R10)
+	VMOVDQU        Y4, 32(R10)
+	ADDQ           $0x40, R10
+	BTQ            $0x02, SI
+	JC             skip_m23
+	VPSRLQ         $0x04, Y7, Y2
+	VPAND          Y0, Y7, Y1
+	VPAND          Y0, Y2, Y2
+	VBROADCASTI128 (CX), Y3
+	VBROADCASTI128 64(CX), Y4
+	VPSHUFB        Y1, Y3, Y3
+	VPSHUFB        Y1, Y4, Y1
+	VBROADCASTI128 16(CX), Y4
+	VBROADCASTI128 80(CX), Y9
+	VPSHUFB        Y2, Y4, Y4
+	VPSHUFB        Y2, Y9, Y2
+	VPXOR          Y3, Y4, Y3
+	VPXOR          Y1, Y2, Y1
+	VPAND          Y8, Y0, Y2
+	VPSRLQ         $0x04, Y8, Y4
+	VPAND          Y0, Y4, Y4
+	VBROADCASTI128 32(CX), Y9
+	VBROADCASTI128 96(CX), Y10
+	VPSHUFB        Y2, Y9, Y9
+	VPSHUFB        Y2, Y10, Y2
+	VPXOR          Y3, Y9, Y3
+	VPXOR          Y1, Y2, Y1
+	VBROADCASTI128 48(CX), Y9
+	VBROADCASTI128 112(CX), Y2
+	VPSHUFB        Y4, Y9, Y9
+	VPSHUFB        Y4, Y2, Y2
+	VPXOR          Y3, Y9, Y3
+	VPXOR          Y1, Y2, Y1
+	VPXOR          Y5, Y3, Y5
+	VPXOR          Y6, Y1, Y6
+
+skip_m23:
+	VPXOR   Y5, Y7, Y7
+	VPXOR   Y6, Y8, Y8
 	VMOVDQU Y5, (R11)
 	VMOVDQU Y6, 32(R11)
 	ADDQ    $0x40, R11

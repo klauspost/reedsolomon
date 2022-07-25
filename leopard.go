@@ -485,7 +485,7 @@ func fftDIT(work [][]byte, mtrunc, m int, skewLUT []ffe, o *options) {
 }
 
 // 4-way butterfly
-func fftDIT4(work [][]byte, dist int, log_m01, log_m23, log_m02 ffe, o *options) {
+func fftDIT4Ref(work [][]byte, dist int, log_m01, log_m23, log_m02 ffe, o *options) {
 	// First layer:
 	if log_m02 == modulus {
 		sliceXor(work[0], work[dist*2], o)

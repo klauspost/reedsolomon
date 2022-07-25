@@ -1177,16 +1177,32 @@ func mulAvxTwo_10x10(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 //go:noescape
 func mulAvxTwo_10x10Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
+//go:noescape
 func ifftDIT2_avx2(x []byte, y []byte, table *[128]uint8)
 
+//go:noescape
 func fftDIT2_avx2(x []byte, y []byte, table *[128]uint8)
 
+//go:noescape
 func mulgf16_avx2(x []byte, y []byte, table *[128]uint8)
 
+//go:noescape
+func ifftDIT4_avx512(work [][]byte, dist int, table01 *[128]uint8, table23 *[128]uint8, table02 *[128]uint8, logMask uint8)
+
+//go:noescape
+func fftDIT4_avx512(work [][]byte, dist int, table01 *[128]uint8, table23 *[128]uint8, table02 *[128]uint8, logMask uint8)
+
+//go:noescape
 func ifftDIT4_avx2(work [][]byte, dist int, table01 *[128]uint8, table23 *[128]uint8, table02 *[128]uint8, logMask uint8)
 
+//go:noescape
+func fftDIT4_avx2(work [][]byte, dist int, table01 *[128]uint8, table23 *[128]uint8, table02 *[128]uint8, logMask uint8)
+
+//go:noescape
 func ifftDIT2_ssse3(x []byte, y []byte, table *[128]uint8)
 
+//go:noescape
 func fftDIT2_ssse3(x []byte, y []byte, table *[128]uint8)
 
+//go:noescape
 func mulgf16_ssse3(x []byte, y []byte, table *[128]uint8)
