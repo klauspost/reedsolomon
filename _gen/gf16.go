@@ -223,10 +223,11 @@ func genGF16() {
 			table01 := [4]table256{}
 			table23 := [4]table256{}
 			table02 := [4]table256{}
-			usedZmm := 0
-			for i := range table01 {
-				if avx512 && len(extZMMs)-usedZmm >= 6 {
-					fill := func(t *table256, ptr reg.Register) {
+			if avx512 {
+				usedZmm := 0
+				fill := func(t *[4]table256, ptr reg.Register) {
+					for i := range table01 {
+						t := &t[i]
 						if len(extZMMs)-usedZmm >= 2 {
 							tmpLo, tmpHi := YMM(), YMM()
 							t.useZmmLo, t.useZmmHi = &extZMMs[usedZmm], &extZMMs[usedZmm+1]
@@ -237,18 +238,17 @@ func genGF16() {
 							VMOVAPS(tmpLo.AsZ(), *t.useZmmLo)
 							VMOVAPS(tmpHi.AsZ(), *t.useZmmHi)
 						} else {
-							table01[i].loadLo128 = &Mem{Base: table01Ptr, Disp: i * 16}
-							table23[i].loadLo128 = &Mem{Base: table23Ptr, Disp: i * 16}
-							table02[i].loadLo128 = &Mem{Base: table02Ptr, Disp: i * 16}
-
-							table01[i].loadHi128 = &Mem{Base: table01Ptr, Disp: i*16 + 16*4}
-							table23[i].loadHi128 = &Mem{Base: table23Ptr, Disp: i*16 + 16*4}
-							table02[i].loadHi128 = &Mem{Base: table02Ptr, Disp: i*16 + 16*4}
+							t.loadLo128 = &Mem{Base: ptr, Disp: i * 16}
+							t.loadHi128 = &Mem{Base: ptr, Disp: i*16 + 16*4}
 						}
 					}
-					fill(&table01[i], table01Ptr)
-					fill(&table23[i], table23Ptr)
-					fill(&table02[i], table02Ptr)
+				}
+				fill(&table02, table02Ptr)
+				fill(&table01, table01Ptr)
+				fill(&table23, table23Ptr)
+			}
+			for i := range table01 {
+				if avx512 {
 					continue
 				}
 
@@ -387,10 +387,11 @@ func genGF16() {
 			table01 := [4]table256{}
 			table23 := [4]table256{}
 			table02 := [4]table256{}
-			usedZmm := 0
-			for i := range table01 {
-				if avx512 && len(extZMMs)-usedZmm >= 2 {
-					fill := func(t *table256, ptr reg.Register) {
+			if avx512 {
+				usedZmm := 0
+				fill := func(t *[4]table256, ptr reg.Register) {
+					for i := range table01 {
+						t := &t[i]
 						if len(extZMMs)-usedZmm >= 2 {
 							tmpLo, tmpHi := YMM(), YMM()
 							t.useZmmLo, t.useZmmHi = &extZMMs[usedZmm], &extZMMs[usedZmm+1]
@@ -401,18 +402,17 @@ func genGF16() {
 							VMOVAPS(tmpLo.AsZ(), *t.useZmmLo)
 							VMOVAPS(tmpHi.AsZ(), *t.useZmmHi)
 						} else {
-							table01[i].loadLo128 = &Mem{Base: table01Ptr, Disp: i * 16}
-							table23[i].loadLo128 = &Mem{Base: table23Ptr, Disp: i * 16}
-							table02[i].loadLo128 = &Mem{Base: table02Ptr, Disp: i * 16}
-
-							table01[i].loadHi128 = &Mem{Base: table01Ptr, Disp: i*16 + 16*4}
-							table23[i].loadHi128 = &Mem{Base: table23Ptr, Disp: i*16 + 16*4}
-							table02[i].loadHi128 = &Mem{Base: table02Ptr, Disp: i*16 + 16*4}
+							t.loadLo128 = &Mem{Base: ptr, Disp: i * 16}
+							t.loadHi128 = &Mem{Base: ptr, Disp: i*16 + 16*4}
 						}
 					}
-					fill(&table01[i], table01Ptr)
-					fill(&table23[i], table23Ptr)
-					fill(&table02[i], table02Ptr)
+				}
+				fill(&table02, table02Ptr)
+				fill(&table01, table01Ptr)
+				fill(&table23, table23Ptr)
+			}
+			for i := range table01 {
+				if avx512 {
 					continue
 				}
 				if unpackTables {
@@ -480,10 +480,11 @@ func genGF16() {
 			Label("loop")
 			VMOVDQU(Mem{Base: work[0], Disp: 0}, workRegLo[0])
 			VMOVDQU(Mem{Base: work[0], Disp: 32}, workRegHi[0])
-			VMOVDQU(Mem{Base: work[1], Disp: 0}, workRegLo[1])
-			VMOVDQU(Mem{Base: work[1], Disp: 32}, workRegHi[1])
 			VMOVDQU(Mem{Base: work[2], Disp: 0}, workRegLo[2])
 			VMOVDQU(Mem{Base: work[2], Disp: 32}, workRegHi[2])
+
+			VMOVDQU(Mem{Base: work[1], Disp: 0}, workRegLo[1])
+			VMOVDQU(Mem{Base: work[1], Disp: 32}, workRegHi[1])
 			VMOVDQU(Mem{Base: work[3], Disp: 0}, workRegLo[3])
 			VMOVDQU(Mem{Base: work[3], Disp: 32}, workRegHi[3])
 
