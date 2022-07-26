@@ -141,11 +141,11 @@ func TestSplitJoinLeo(t *testing.T) {
 	}
 
 	buf := new(bytes.Buffer)
-	err = enc.Join(buf, shards, 50)
+	err = enc.Join(buf, shards, 5000)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !bytes.Equal(buf.Bytes(), data[:50]) {
+	if !bytes.Equal(buf.Bytes(), data[:5000]) {
 		t.Fatal("recovered data does match original")
 	}
 
@@ -154,7 +154,7 @@ func TestSplitJoinLeo(t *testing.T) {
 		t.Errorf("expected %v, got %v", ErrTooFewShards, err)
 	}
 
-	err = enc.Join(buf, shards, len(data)+1)
+	err = enc.Join(buf, shards, len(data)+500*64)
 	if err != ErrShortData {
 		t.Errorf("expected %v, got %v", ErrShortData, err)
 	}
