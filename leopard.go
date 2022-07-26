@@ -17,6 +17,8 @@ import (
 	"math/bits"
 	"sync"
 	"unsafe"
+
+	"github.com/klauspost/cpuid/v2"
 )
 
 // reedSolomonFF16 is like reedSolomon but for more than 256 total shards.
@@ -24,6 +26,8 @@ type reedSolomonFF16 struct {
 	DataShards   int // Number of data shards, should not be modified.
 	ParityShards int // Number of parity shards, should not be modified.
 	Shards       int // Total number of shards. Calculated, and should not be modified.
+
+	workPool sync.Pool
 
 	o options
 }
@@ -77,8 +81,14 @@ var (
 var mul16LUTs *[order]mul16LUT
 
 type mul16LUT struct {
-	LUT [4 * 16]ffe
+	// Contains Lo product as a single lookup.
+	// Should be XORed with Hi lookup for result.
+	Lo [256]ffe
+	Hi [256]ffe
 }
+
+// Stores lookup for avx2
+var multiply256LUT *[order][8 * 16]byte
 
 func (r *reedSolomonFF16) Encode(shards [][]byte) error {
 	if len(shards) != r.Shards {
@@ -98,11 +108,23 @@ func (r *reedSolomonFF16) encode(shards [][]byte) error {
 	}
 
 	m := ceilPow2(r.ParityShards)
-
-	work := make([][]byte, m*2)
-	for i := range work {
-		work[i] = make([]byte, shardSize)
+	var work [][]byte
+	if w, ok := r.workPool.Get().([][]byte); ok {
+		work = w
 	}
+	if cap(work) >= m*2 {
+		work = work[:m*2]
+	} else {
+		work = make([][]byte, m*2)
+	}
+	for i := range work {
+		if cap(work[i]) < shardSize {
+			work[i] = make([]byte, shardSize)
+		} else {
+			work[i] = work[i][:shardSize]
+		}
+	}
+	defer r.workPool.Put(work)
 
 	mtrunc := m
 	if r.DataShards < mtrunc {
@@ -245,7 +267,7 @@ func (r *reedSolomonFF16) reconstruct(shards [][]byte, recoverAll bool) error {
 		return err
 	}
 
-	shardSize := len(shards[0])
+	shardSize := shardSize(shards)
 	if shardSize%64 != 0 {
 		return ErrShardSize
 	}
@@ -278,16 +300,29 @@ func (r *reedSolomonFF16) reconstruct(shards [][]byte, recoverAll bool) error {
 
 	fwht(errLocs[:], order, order)
 
-	work := make([][]byte, n)
-	for i := range work {
-		work[i] = make([]byte, shardSize)
+	var work [][]byte
+	if w, ok := r.workPool.Get().([][]byte); ok {
+		work = w
 	}
+	if cap(work) >= n {
+		work = work[:n]
+	} else {
+		work = make([][]byte, n)
+	}
+	for i := range work {
+		if cap(work[i]) < shardSize {
+			work[i] = make([]byte, shardSize)
+		} else {
+			work[i] = work[i][:shardSize]
+		}
+	}
+	defer r.workPool.Put(work)
 
 	// work <- recovery data
 
 	for i := 0; i < r.ParityShards; i++ {
 		if len(shards[i+r.DataShards]) != 0 {
-			mul(work[i], shards[i+r.DataShards], errLocs[i])
+			mulgf16(work[i], shards[i+r.DataShards], errLocs[i], &r.o)
 		} else {
 			memclr(work[i])
 		}
@@ -300,7 +335,7 @@ func (r *reedSolomonFF16) reconstruct(shards [][]byte, recoverAll bool) error {
 
 	for i := 0; i < r.DataShards; i++ {
 		if len(shards[i]) != 0 {
-			mul(work[m+i], shards[i], errLocs[m+i])
+			mulgf16(work[m+i], shards[i], errLocs[m+i], &r.o)
 		} else {
 			memclr(work[m+i])
 		}
@@ -353,13 +388,12 @@ func (r *reedSolomonFF16) reconstruct(shards [][]byte, recoverAll bool) error {
 		}
 		if i >= r.DataShards {
 			// Parity shard.
-			mul(shards[i], work[i-r.DataShards], modulus-errLocs[i-r.DataShards])
+			mulgf16(shards[i], work[i-r.DataShards], modulus-errLocs[i-r.DataShards], &r.o)
 		} else {
 			// Data shard.
-			mul(shards[i], work[i+m], modulus-errLocs[i+m])
+			mulgf16(shards[i], work[i+m], modulus-errLocs[i+m], &r.o)
 		}
 	}
-
 	return nil
 }
 
@@ -453,7 +487,7 @@ func fftDIT(work [][]byte, mtrunc, m int, skewLUT []ffe, o *options) {
 }
 
 // 4-way butterfly
-func fftDIT4(work [][]byte, dist int, log_m01, log_m23, log_m02 ffe, o *options) {
+func fftDIT4Ref(work [][]byte, dist int, log_m01, log_m23, log_m02 ffe, o *options) {
 	// First layer:
 	if log_m02 == modulus {
 		sliceXor(work[0], work[dist*2], o)
@@ -475,13 +509,6 @@ func fftDIT4(work [][]byte, dist int, log_m01, log_m23, log_m02 ffe, o *options)
 	} else {
 		fftDIT2(work[dist*2], work[dist*3], log_m23, o)
 	}
-}
-
-// 2-way butterfly
-func fftDIT2(x, y []byte, log_m ffe, o *options) {
-	// Reference version:
-	refMulAdd(x, y, log_m)
-	sliceXor(x, y, o)
 }
 
 // Unrolled IFFT for encoder
@@ -556,8 +583,7 @@ func ifftDITEncoder(data [][]byte, mtrunc int, work [][]byte, xorRes [][]byte, m
 	}
 }
 
-// 4-way butterfly
-func ifftDIT4(work [][]byte, dist int, log_m01, log_m23, log_m02 ffe, o *options) {
+func ifftDIT4Ref(work [][]byte, dist int, log_m01, log_m23, log_m02 ffe, o *options) {
 	// First layer:
 	if log_m01 == modulus {
 		sliceXor(work[0], work[dist], o)
@@ -581,31 +607,24 @@ func ifftDIT4(work [][]byte, dist int, log_m01, log_m23, log_m02 ffe, o *options
 	}
 }
 
-// 2-way butterfly
-func ifftDIT2(x, y []byte, log_m ffe, o *options) {
-	// Reference version:
-	sliceXor(x, y, o)
-	refMulAdd(x, y, log_m)
-}
-
 // Reference version of muladd: x[] ^= y[] * log_m
 func refMulAdd(x, y []byte, log_m ffe) {
-	lut := mul16LUTs[log_m].LUT
+	lut := &mul16LUTs[log_m]
 
-	for off := 0; off < len(x); off += 64 {
-		for i := 0; i < 32; i++ {
-			lo := y[off+i]
-			hi := y[off+i+32]
+	for len(x) >= 64 {
+		// Assert sizes for no bounds checks in loop
+		hiA := y[32:64]
+		loA := y[:32]
+		dst := x[:64] // Needed, but not checked...
+		for i, lo := range loA {
+			hi := hiA[i]
+			prod := lut.Lo[lo] ^ lut.Hi[hi]
 
-			prod :=
-				lut[(lo&15)] ^
-					lut[(lo>>4)+16] ^
-					lut[(hi&15)+32] ^
-					lut[(hi>>4)+48]
-
-			x[off+i] ^= byte(prod)
-			x[off+i+32] ^= byte(prod >> 8)
+			dst[i] ^= byte(prod)
+			dst[i+32] ^= byte(prod >> 8)
 		}
+		x = x[64:]
+		y = y[64:]
 	}
 }
 
@@ -622,24 +641,17 @@ func slicesXor(v1, v2 [][]byte, o *options) {
 	}
 }
 
-func mul(x, y []byte, log_m ffe) {
-	refMul(x, y, log_m)
-}
-
 // Reference version of mul: x[] = y[] * log_m
 func refMul(x, y []byte, log_m ffe) {
-	lut := mul16LUTs[log_m].LUT
+	lut := &mul16LUTs[log_m]
 
 	for off := 0; off < len(x); off += 64 {
-		for i := 0; i < 32; i++ {
-			lo := y[off+i]
-			hi := y[off+i+32]
-
-			prod :=
-				lut[(lo&15)] ^
-					lut[(lo>>4)+16] ^
-					lut[(hi&15)+32] ^
-					lut[(hi>>4)+48]
+		loA := y[off : off+32]
+		hiA := y[off+32:]
+		hiA = hiA[:len(loA)]
+		for i, lo := range loA {
+			hi := hiA[i]
+			prod := lut.Lo[lo] ^ lut.Hi[hi]
 
 			x[off+i] = byte(prod)
 			x[off+i+32] = byte(prod >> 8)
@@ -843,10 +855,9 @@ func initMul16LUT() {
 
 	// For each log_m multiplicand:
 	for log_m := 0; log_m < order; log_m++ {
-		lut := &mul16LUTs[log_m]
-
+		var tmp [64]ffe
 		for nibble, shift := 0, 0; nibble < 4; {
-			nibble_lut := lut.LUT[nibble*16:]
+			nibble_lut := tmp[nibble*16:]
 
 			for xnibble := 0; xnibble < 16; xnibble++ {
 				prod := mulLog(ffe(xnibble<<shift), ffe(log_m))
@@ -854,6 +865,30 @@ func initMul16LUT() {
 			}
 			nibble++
 			shift += 4
+		}
+		lut := &mul16LUTs[log_m]
+		for i := range lut.Lo[:] {
+			lut.Lo[i] = tmp[i&15] ^ tmp[((i>>4)+16)]
+			lut.Hi[i] = tmp[((i&15)+32)] ^ tmp[((i>>4)+48)]
+		}
+	}
+	if cpuid.CPU.Has(cpuid.SSSE3) || cpuid.CPU.Has(cpuid.AVX2) || cpuid.CPU.Has(cpuid.AVX512F) {
+		multiply256LUT = &[order][16 * 8]byte{}
+
+		for logM := range multiply256LUT[:] {
+			// For each 4 bits of the finite field width in bits:
+			shift := 0
+			for i := 0; i < 4; i++ {
+				// Construct 16 entry LUT for PSHUFB
+				prodLo := multiply256LUT[logM][i*16 : i*16+16]
+				prodHi := multiply256LUT[logM][4*16+i*16 : 4*16+i*16+16]
+				for x := range prodLo[:] {
+					prod := mulLog(ffe(x<<shift), ffe(logM))
+					prodLo[x] = byte(prod)
+					prodHi[x] = byte(prod >> 8)
+				}
+				shift += 4
+			}
 		}
 	}
 }

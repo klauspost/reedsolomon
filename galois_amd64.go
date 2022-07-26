@@ -132,9 +132,121 @@ func sliceXor(in, out []byte, o *options) {
 			in = in[done:]
 			out = out[done:]
 		}
+	} else {
+		sliceXorGo(in, out, o)
+		return
 	}
 	out = out[:len(in)]
 	for i := range in {
 		out[i] ^= in[i]
+	}
+}
+
+// 4-way butterfly
+func ifftDIT4(work [][]byte, dist int, log_m01, log_m23, log_m02 ffe, o *options) {
+	if o.useAVX2 || o.useAVX512 {
+		if len(work[0]) > 0 {
+			var mask uint8
+			if log_m01 == modulus {
+				mask |= 1 << 0
+			}
+			if log_m23 == modulus {
+				mask |= 1 << 1
+			}
+			if log_m02 == modulus {
+				mask |= 1 << 2
+			}
+			t01 := &multiply256LUT[log_m01]
+			t23 := &multiply256LUT[log_m23]
+			t02 := &multiply256LUT[log_m02]
+			if o.useAVX512 {
+				ifftDIT4_avx512(work, dist*24, t01, t23, t02, mask)
+			} else {
+				ifftDIT4_avx2(work, dist*24, t01, t23, t02, mask)
+			}
+		}
+		return
+	}
+	ifftDIT4Ref(work, dist, log_m01, log_m23, log_m02, o)
+}
+
+func fftDIT4(work [][]byte, dist int, log_m01, log_m23, log_m02 ffe, o *options) {
+	if o.useAVX2 || o.useAVX512 {
+		if len(work[0]) > 0 {
+			var mask uint8
+			if log_m02 == modulus {
+				mask |= 1 << 0
+			}
+			if log_m01 == modulus {
+				mask |= 1 << 1
+			}
+			if log_m23 == modulus {
+				mask |= 1 << 2
+			}
+			t01 := &multiply256LUT[log_m01]
+			t23 := &multiply256LUT[log_m23]
+			t02 := &multiply256LUT[log_m02]
+			if o.useAVX512 {
+				fftDIT4_avx512(work, dist*24, t01, t23, t02, mask)
+			} else {
+				fftDIT4_avx2(work, dist*24, t01, t23, t02, mask)
+			}
+		}
+		return
+	}
+	fftDIT4Ref(work, dist, log_m01, log_m23, log_m02, o)
+}
+
+// 2-way butterfly forward
+func fftDIT2(x, y []byte, log_m ffe, o *options) {
+	if o.useAVX2 {
+		if len(x) > 0 {
+			tmp := &multiply256LUT[log_m]
+			fftDIT2_avx2(x, y, tmp)
+		}
+	} else if o.useSSSE3 {
+		if len(x) > 0 {
+			tmp := &multiply256LUT[log_m]
+			fftDIT2_ssse3(x, y, tmp)
+		}
+	} else {
+		// Reference version:
+		refMulAdd(x, y, log_m)
+		sliceXor(x, y, o)
+	}
+}
+
+// 2-way butterfly
+func ifftDIT2(x, y []byte, log_m ffe, o *options) {
+	if o.useAVX2 {
+		if len(x) > 0 {
+			tmp := &multiply256LUT[log_m]
+			ifftDIT2_avx2(x, y, tmp)
+		}
+	} else if o.useSSSE3 {
+		if len(x) > 0 {
+			tmp := &multiply256LUT[log_m]
+			ifftDIT2_ssse3(x, y, tmp)
+		}
+	} else {
+		// Reference version:
+		sliceXor(x, y, o)
+		refMulAdd(x, y, log_m)
+	}
+}
+
+func mulgf16(x, y []byte, log_m ffe, o *options) {
+	if o.useAVX2 {
+		if len(x) > 0 {
+			tmp := &multiply256LUT[log_m]
+			mulgf16_avx2(x, y, tmp)
+		}
+	} else if o.useSSSE3 {
+		if len(x) > 0 {
+			tmp := &multiply256LUT[log_m]
+			mulgf16_ssse3(x, y, tmp)
+		}
+	} else {
+		refMul(x, y, log_m)
 	}
 }

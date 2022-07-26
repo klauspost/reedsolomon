@@ -14,6 +14,7 @@ import (
 	"math/rand"
 	"os"
 	"runtime"
+	"strconv"
 	"testing"
 )
 
@@ -192,7 +193,7 @@ func TestEncoding(t *testing.T) {
 var testSizes = [][2]int{
 	{1, 0}, {3, 0}, {5, 0}, {8, 0}, {10, 0}, {12, 0}, {14, 0}, {41, 0}, {49, 0},
 	{1, 1}, {1, 2}, {3, 3}, {3, 1}, {5, 3}, {8, 4}, {10, 30}, {12, 10}, {14, 7}, {41, 17}, {49, 1}, {5, 20},
-	{256, 1},
+	{256, 20}, {500, 300}, {2945, 129},
 }
 var testDataSizes = []int{10, 100, 1000, 10001, 100003, 1000055}
 var testDataSizesShort = []int{10, 10001, 100003}
@@ -208,6 +209,9 @@ func testEncoding(t *testing.T, o ...Option) {
 			}
 			for _, perShard := range sz {
 				if data+parity > 256 {
+					if perShard > 1000 {
+						t.Skip("long tests not needed. Not length sensitive")
+					}
 					// Round up to 64 bytes.
 					perShard = (perShard + 63) &^ 63
 				}
@@ -1004,6 +1008,22 @@ func BenchmarkEncode2x1x1M(b *testing.B) {
 	benchmarkEncode(b, 2, 1, 1024*1024)
 }
 
+// Benchmark 800 data slices with 200 parity slices
+func BenchmarkEncode800x200(b *testing.B) {
+	for size := 64; size <= 1<<20; size *= 4 {
+		b.Run(fmt.Sprintf("%v", size), func(b *testing.B) {
+			benchmarkEncode(b, 800, 200, size)
+		})
+	}
+}
+
+func BenchmarkEncodeLeopard(b *testing.B) {
+	size := (64 << 20) / 800 / 64 * 64
+	b.Run(strconv.Itoa(size), func(b *testing.B) {
+		benchmarkEncode(b, 800, 200, size)
+	})
+}
+
 func BenchmarkEncode10x2x10000(b *testing.B) {
 	benchmarkEncode(b, 10, 2, 10000)
 }
@@ -1097,6 +1117,15 @@ func benchmarkVerify(b *testing.B, dataShards, parityShards, shardSize int) {
 	}
 }
 
+// Benchmark 800 data slices with 200 parity slices
+func BenchmarkVerify800x200(b *testing.B) {
+	for size := 64; size <= 1<<20; size *= 4 {
+		b.Run(fmt.Sprintf("%v", size), func(b *testing.B) {
+			benchmarkVerify(b, 800, 200, size)
+		})
+	}
+}
+
 // Benchmark 10 data slices with 2 parity slices holding 10000 bytes each
 func BenchmarkVerify10x2x10000(b *testing.B) {
 	benchmarkVerify(b, 10, 2, 10000)
@@ -1177,6 +1206,15 @@ func BenchmarkReconstruct10x2x10000(b *testing.B) {
 	benchmarkReconstruct(b, 10, 2, 10000)
 }
 
+// Benchmark 800 data slices with 200 parity slices
+func BenchmarkReconstruct800x200(b *testing.B) {
+	for size := 64; size <= 1<<20; size *= 4 {
+		b.Run(fmt.Sprintf("%v", size), func(b *testing.B) {
+			benchmarkReconstruct(b, 800, 200, size)
+		})
+	}
+}
+
 // Benchmark 50 data slices with 5 parity slices holding 100000 bytes each
 func BenchmarkReconstruct50x5x50000(b *testing.B) {
 	benchmarkReconstruct(b, 50, 5, 100000)
@@ -1250,6 +1288,15 @@ func benchmarkReconstructData(b *testing.B, dataShards, parityShards, shardSize 
 // Benchmark 10 data slices with 2 parity slices holding 10000 bytes each
 func BenchmarkReconstructData10x2x10000(b *testing.B) {
 	benchmarkReconstructData(b, 10, 2, 10000)
+}
+
+// Benchmark 800 data slices with 200 parity slices
+func BenchmarkReconstructData800x200(b *testing.B) {
+	for size := 64; size <= 1<<20; size *= 4 {
+		b.Run(fmt.Sprintf("%v", size), func(b *testing.B) {
+			benchmarkReconstructData(b, 800, 200, size)
+		})
+	}
 }
 
 // Benchmark 50 data slices with 5 parity slices holding 100000 bytes each

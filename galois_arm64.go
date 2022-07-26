@@ -64,3 +64,33 @@ func sliceXor(in, out []byte, o *options) {
 		}
 	}
 }
+
+// 4-way butterfly
+func ifftDIT4(work [][]byte, dist int, log_m01, log_m23, log_m02 ffe, o *options) {
+	ifftDIT4Ref(work, dist, log_m01, log_m23, log_m02, o)
+}
+
+// 4-way butterfly
+func fftDIT4(work [][]byte, dist int, log_m01, log_m23, log_m02 ffe, o *options) {
+	fftDIT4Ref(work, dist, log_m01, log_m23, log_m02, o)
+}
+
+// 2-way butterfly forward
+func fftDIT2(x, y []byte, log_m ffe, o *options) {
+	// Reference version:
+	refMulAdd(x, y, log_m)
+	// 64 byte aligned, always full.
+	galXorNEON(x, y)
+}
+
+// 2-way butterfly
+func ifftDIT2(x, y []byte, log_m ffe, o *options) {
+	// 64 byte aligned, always full.
+	galXorNEON(x, y)
+	// Reference version:
+	refMulAdd(x, y, log_m)
+}
+
+func mulgf16(x, y []byte, log_m ffe, o *options) {
+	refMul(x, y, log_m)
+}
