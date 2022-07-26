@@ -611,17 +611,20 @@ func ifftDIT4Ref(work [][]byte, dist int, log_m01, log_m23, log_m02 ffe, o *opti
 func refMulAdd(x, y []byte, log_m ffe) {
 	lut := &mul16LUTs[log_m]
 
-	for off := 0; off < len(x); off += 64 {
-		loA := y[off : off+32]
-		hiA := y[off+32:]
-		hiA = hiA[:len(loA)]
+	for len(x) >= 64 {
+		// Assert sizes for no bounds checks in loop
+		hiA := y[32:64]
+		loA := y[:32]
+		dst := x[:64] // Needed, but not checked...
 		for i, lo := range loA {
 			hi := hiA[i]
 			prod := lut.Lo[lo] ^ lut.Hi[hi]
 
-			x[off+i] ^= byte(prod)
-			x[off+i+32] ^= byte(prod >> 8)
+			dst[i] ^= byte(prod)
+			dst[i+32] ^= byte(prod >> 8)
 		}
+		x = x[64:]
+		y = y[64:]
 	}
 }
 
