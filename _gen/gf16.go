@@ -20,33 +20,41 @@ type table256 struct {
 }
 
 func (t *table256) prepare() {
-	if t.loadLo128 != nil {
-		t.Lo = YMM()
-		// Load and expand tables
-		VBROADCASTI128(*t.loadLo128, t.Lo)
-	}
+	t.prepareLo()
+	t.prepareHi()
+}
+
+func (t *table256) prepareHi() {
 	if t.loadHi128 != nil {
 		t.Hi = YMM()
 		// Load and expand tables
 		VBROADCASTI128(*t.loadHi128, t.Hi)
-	}
-	if t.loadLo256 != nil {
-		t.Lo = YMM()
-		// Load and expand tables
-		VMOVDQU(*t.loadLo256, t.Lo)
 	}
 	if t.loadHi256 != nil {
 		t.Hi = YMM()
 		// Load and expand tables
 		VMOVDQU(*t.loadHi256, t.Hi)
 	}
-	if t.useZmmLo != nil {
-		r := *t.useZmmLo
-		t.Lo = r.AsY()
-	}
 	if t.useZmmHi != nil {
 		r := *t.useZmmHi
 		t.Hi = r.AsY()
+	}
+}
+
+func (t *table256) prepareLo() {
+	if t.loadLo128 != nil {
+		t.Lo = YMM()
+		// Load and expand tables
+		VBROADCASTI128(*t.loadLo128, t.Lo)
+	}
+	if t.loadLo256 != nil {
+		t.Lo = YMM()
+		// Load and expand tables
+		VMOVDQU(*t.loadLo256, t.Lo)
+	}
+	if t.useZmmLo != nil {
+		r := *t.useZmmLo
+		t.Lo = r.AsY()
 	}
 }
 
@@ -58,6 +66,7 @@ type table128 struct {
 type gf16ctx struct {
 	clrMask    reg.VecVirtual
 	clrMask128 reg.VecVirtual
+	avx512     bool
 }
 
 func genGF16() {
@@ -205,6 +214,7 @@ func genGF16() {
 		if avx512 {
 			suffix = "avx512"
 		}
+		ctx.avx512 = avx512
 		extZMMs := []reg.VecPhysical{reg.Z16, reg.Z17, reg.Z18, reg.Z19, reg.Z20, reg.Z21, reg.Z22, reg.Z23, reg.Z24, reg.Z25, reg.Z26, reg.Z27, reg.Z28, reg.Z29, reg.Z30, reg.Z31}
 		{
 			TEXT("ifftDIT4_"+suffix, attr.NOSPLIT, fmt.Sprintf("func(work [][]byte, dist int, table01 *[8*16]uint8, table23 *[8*16]uint8, table02 *[8*16]uint8, logMask uint8)"))
@@ -543,6 +553,7 @@ func genGF16() {
 		}
 	}
 	// SSSE3:
+	ctx.avx512 = false
 	{
 		TEXT("ifftDIT2_ssse3", attr.NOSPLIT, fmt.Sprintf("func(x, y []byte, table  *[8*16]uint8)"))
 		Pragma("noescape")
@@ -703,9 +714,47 @@ func genGF16() {
 
 // xLo, xHi updated, yLo, yHi preserved...
 func leoMulAdd256(ctx gf16ctx, xLo, xHi, yLo, yHi reg.VecVirtual, table [4]table256) {
-	prodLo, prodHi := leoMul256(ctx, yLo, yHi, table)
-	VPXOR(xLo, prodLo, xLo)
-	VPXOR(xHi, prodHi, xHi)
+	// inlined:
+	// prodLo, prodHi := leoMul256(ctx, yLo, yHi, table)
+	lo := yLo
+	hi := yHi
+	data0, data1 := YMM(), YMM()
+	VPSRLQ(U8(4), lo, data1)         // data1 = lo >> 4
+	VPAND(ctx.clrMask, lo, data0)    // data0 = lo&0xf
+	VPAND(ctx.clrMask, data1, data1) // data 1 = data1 &0xf
+	prodLo, prodHi := YMM(), YMM()
+	table[0].prepare()
+	VPSHUFB(data0, table[0].Lo, prodLo)
+	VPSHUFB(data0, table[0].Hi, prodHi)
+	tmpLo, tmpHi := YMM(), YMM()
+	table[1].prepare()
+	VPSHUFB(data1, table[1].Lo, tmpLo)
+	VPSHUFB(data1, table[1].Hi, tmpHi)
+	VPXOR(prodLo, tmpLo, prodLo)
+	VPXOR(prodHi, tmpHi, prodHi)
+
+	// Now process high
+	data0, data1 = YMM(), YMM() // Realloc to break dep
+	VPAND(hi, ctx.clrMask, data0)
+	VPSRLQ(U8(4), hi, data1)
+	VPAND(ctx.clrMask, data1, data1)
+
+	tmpLo, tmpHi = YMM(), YMM() // Realloc to break dep
+	table[2].prepare()
+	VPSHUFB(data0, table[2].Lo, tmpLo)
+	VPSHUFB(data0, table[2].Hi, tmpHi)
+	VPXOR(prodLo, tmpLo, prodLo)
+	VPXOR(prodHi, tmpHi, prodHi)
+	table[3].prepare()
+	VPSHUFB(data1, table[3].Lo, tmpLo)
+	VPSHUFB(data1, table[3].Hi, tmpHi)
+	if ctx.avx512 {
+		VPTERNLOGD(U8(0x96), prodLo, tmpLo, xLo)
+		VPTERNLOGD(U8(0x96), prodHi, tmpHi, xHi)
+	} else {
+		VPXOR3way(prodLo, tmpLo, xLo)
+		VPXOR3way(prodHi, tmpHi, xHi)
+	}
 }
 
 // leoMul256 lo, hi preserved...

@@ -81,6 +81,8 @@ var (
 var mul16LUTs *[order]mul16LUT
 
 type mul16LUT struct {
+	// Contains Lo product as a single lookup.
+	// Should be XORed with Hi lookup for result.
 	Lo [256]ffe
 	Hi [256]ffe
 }

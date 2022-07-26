@@ -63422,7 +63422,7 @@ mulAvxTwo_10x10Xor_end:
 	RET
 
 // func ifftDIT2_avx2(x []byte, y []byte, table *[128]uint8)
-// Requires: AVX, AVX2, SSE2
+// Requires: AVX, AVX2, AVX512F, AVX512VL, SSE2
 TEXT ·ifftDIT2_avx2(SB), NOSPLIT, $0-56
 	MOVQ           table+48(FP), AX
 	VBROADCASTI128 (AX), Y0
@@ -63467,10 +63467,8 @@ loop:
 	VPXOR   Y11, Y13, Y11
 	VPSHUFB Y12, Y6, Y15
 	VPSHUFB Y12, Y7, Y13
-	VPXOR   Y14, Y15, Y14
-	VPXOR   Y11, Y13, Y11
-	VPXOR   Y9, Y14, Y9
-	VPXOR   Y10, Y11, Y10
+	XOR3WAY( $0x00, Y14, Y15, Y9)
+	XOR3WAY( $0x00, Y11, Y13, Y10)
 	VMOVDQU Y9, (CX)
 	VMOVDQU Y10, 32(CX)
 	ADDQ    $0x40, CX
@@ -63481,7 +63479,7 @@ loop:
 	RET
 
 // func fftDIT2_avx2(x []byte, y []byte, table *[128]uint8)
-// Requires: AVX, AVX2, SSE2
+// Requires: AVX, AVX2, AVX512F, AVX512VL, SSE2
 TEXT ·fftDIT2_avx2(SB), NOSPLIT, $0-56
 	MOVQ           table+48(FP), AX
 	VBROADCASTI128 (AX), Y0
@@ -63522,10 +63520,8 @@ loop:
 	VPXOR   Y11, Y13, Y11
 	VPSHUFB Y12, Y6, Y15
 	VPSHUFB Y12, Y7, Y13
-	VPXOR   Y14, Y15, Y14
-	VPXOR   Y11, Y13, Y11
-	VPXOR   Y9, Y14, Y9
-	VPXOR   Y10, Y11, Y10
+	XOR3WAY( $0x00, Y14, Y15, Y9)
+	XOR3WAY( $0x00, Y11, Y13, Y10)
 	VMOVDQU Y9, (CX)
 	VMOVDQU Y10, 32(CX)
 	VMOVDQU (DX), Y11
@@ -63593,7 +63589,7 @@ loop:
 	RET
 
 // func ifftDIT4_avx512(work [][]byte, dist int, table01 *[128]uint8, table23 *[128]uint8, table02 *[128]uint8, logMask uint8)
-// Requires: AVX, AVX2, AVX512F, SSE2
+// Requires: AVX, AVX2, AVX512F, AVX512VL, SSE2
 TEXT ·ifftDIT4_avx512(SB), NOSPLIT, $0-57
 	// dist must be multiplied by 24 (size of slice header)
 	// logmask must be log_m01==kModulus, log_m23==kModulus, log_m02==kModulus from lowest to bit 3
@@ -63649,36 +63645,34 @@ TEXT ·ifftDIT4_avx512(SB), NOSPLIT, $0-57
 	MOVBQZX        logMask+56(FP), DX
 
 loop:
-	VMOVDQU (DI), Y1
-	VMOVDQU 32(DI), Y2
-	VMOVDQU (R8), Y3
-	VMOVDQU 32(R8), Y4
-	VPXOR   Y1, Y3, Y3
-	VPXOR   Y2, Y4, Y4
-	BTQ     $0x00, DX
-	JC      skip_m01
-	VPSRLQ  $0x04, Y3, Y6
-	VPAND   Y0, Y3, Y5
-	VPAND   Y0, Y6, Y6
-	VPSHUFB Y5, Y24, Y7
-	VPSHUFB Y5, Y25, Y5
-	VPSHUFB Y6, Y26, Y8
-	VPSHUFB Y6, Y27, Y6
-	VPXOR   Y7, Y8, Y7
-	VPXOR   Y5, Y6, Y5
-	VPAND   Y4, Y0, Y6
-	VPSRLQ  $0x04, Y4, Y8
-	VPAND   Y0, Y8, Y8
-	VPSHUFB Y6, Y28, Y9
-	VPSHUFB Y6, Y29, Y6
-	VPXOR   Y7, Y9, Y7
-	VPXOR   Y5, Y6, Y5
-	VPSHUFB Y8, Y30, Y9
-	VPSHUFB Y8, Y31, Y6
-	VPXOR   Y7, Y9, Y7
-	VPXOR   Y5, Y6, Y5
-	VPXOR   Y1, Y7, Y1
-	VPXOR   Y2, Y5, Y2
+	VMOVDQU    (DI), Y1
+	VMOVDQU    32(DI), Y2
+	VMOVDQU    (R8), Y3
+	VMOVDQU    32(R8), Y4
+	VPXOR      Y1, Y3, Y3
+	VPXOR      Y2, Y4, Y4
+	BTQ        $0x00, DX
+	JC         skip_m01
+	VPSRLQ     $0x04, Y3, Y6
+	VPAND      Y0, Y3, Y5
+	VPAND      Y0, Y6, Y6
+	VPSHUFB    Y5, Y24, Y7
+	VPSHUFB    Y5, Y25, Y5
+	VPSHUFB    Y6, Y26, Y8
+	VPSHUFB    Y6, Y27, Y6
+	VPXOR      Y7, Y8, Y7
+	VPXOR      Y5, Y6, Y5
+	VPAND      Y4, Y0, Y6
+	VPSRLQ     $0x04, Y4, Y8
+	VPAND      Y0, Y8, Y8
+	VPSHUFB    Y6, Y28, Y9
+	VPSHUFB    Y6, Y29, Y6
+	VPXOR      Y7, Y9, Y7
+	VPXOR      Y5, Y6, Y5
+	VPSHUFB    Y8, Y30, Y9
+	VPSHUFB    Y8, Y31, Y6
+	VPTERNLOGD $0x96, Y7, Y9, Y1
+	VPTERNLOGD $0x96, Y5, Y6, Y2
 
 skip_m01:
 	VMOVDQU        (R9), Y5
@@ -63715,62 +63709,56 @@ skip_m01:
 	VBROADCASTI128 112(CX), Y10
 	VPSHUFB        Y12, Y13, Y13
 	VPSHUFB        Y12, Y10, Y10
-	VPXOR          Y11, Y13, Y11
-	VPXOR          Y9, Y10, Y9
-	VPXOR          Y5, Y11, Y5
-	VPXOR          Y6, Y9, Y6
+	VPTERNLOGD     $0x96, Y11, Y13, Y5
+	VPTERNLOGD     $0x96, Y9, Y10, Y6
 
 skip_m23:
-	VPXOR   Y1, Y5, Y5
-	VPXOR   Y2, Y6, Y6
-	VPXOR   Y3, Y7, Y7
-	VPXOR   Y4, Y8, Y8
-	BTQ     $0x02, DX
-	JC      skip_m02
-	VPSRLQ  $0x04, Y5, Y10
-	VPAND   Y0, Y5, Y9
-	VPAND   Y0, Y10, Y10
-	VPSHUFB Y9, Y16, Y11
-	VPSHUFB Y9, Y17, Y9
-	VPSHUFB Y10, Y18, Y12
-	VPSHUFB Y10, Y19, Y10
-	VPXOR   Y11, Y12, Y11
-	VPXOR   Y9, Y10, Y9
-	VPAND   Y6, Y0, Y10
-	VPSRLQ  $0x04, Y6, Y12
-	VPAND   Y0, Y12, Y12
-	VPSHUFB Y10, Y20, Y13
-	VPSHUFB Y10, Y21, Y10
-	VPXOR   Y11, Y13, Y11
-	VPXOR   Y9, Y10, Y9
-	VPSHUFB Y12, Y22, Y13
-	VPSHUFB Y12, Y23, Y10
-	VPXOR   Y11, Y13, Y11
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y1, Y11, Y1
-	VPXOR   Y2, Y9, Y2
-	VPSRLQ  $0x04, Y7, Y10
-	VPAND   Y0, Y7, Y9
-	VPAND   Y0, Y10, Y10
-	VPSHUFB Y9, Y16, Y11
-	VPSHUFB Y9, Y17, Y9
-	VPSHUFB Y10, Y18, Y12
-	VPSHUFB Y10, Y19, Y10
-	VPXOR   Y11, Y12, Y11
-	VPXOR   Y9, Y10, Y9
-	VPAND   Y8, Y0, Y10
-	VPSRLQ  $0x04, Y8, Y12
-	VPAND   Y0, Y12, Y12
-	VPSHUFB Y10, Y20, Y13
-	VPSHUFB Y10, Y21, Y10
-	VPXOR   Y11, Y13, Y11
-	VPXOR   Y9, Y10, Y9
-	VPSHUFB Y12, Y22, Y13
-	VPSHUFB Y12, Y23, Y10
-	VPXOR   Y11, Y13, Y11
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y3, Y11, Y3
-	VPXOR   Y4, Y9, Y4
+	VPXOR      Y1, Y5, Y5
+	VPXOR      Y2, Y6, Y6
+	VPXOR      Y3, Y7, Y7
+	VPXOR      Y4, Y8, Y8
+	BTQ        $0x02, DX
+	JC         skip_m02
+	VPSRLQ     $0x04, Y5, Y10
+	VPAND      Y0, Y5, Y9
+	VPAND      Y0, Y10, Y10
+	VPSHUFB    Y9, Y16, Y11
+	VPSHUFB    Y9, Y17, Y9
+	VPSHUFB    Y10, Y18, Y12
+	VPSHUFB    Y10, Y19, Y10
+	VPXOR      Y11, Y12, Y11
+	VPXOR      Y9, Y10, Y9
+	VPAND      Y6, Y0, Y10
+	VPSRLQ     $0x04, Y6, Y12
+	VPAND      Y0, Y12, Y12
+	VPSHUFB    Y10, Y20, Y13
+	VPSHUFB    Y10, Y21, Y10
+	VPXOR      Y11, Y13, Y11
+	VPXOR      Y9, Y10, Y9
+	VPSHUFB    Y12, Y22, Y13
+	VPSHUFB    Y12, Y23, Y10
+	VPTERNLOGD $0x96, Y11, Y13, Y1
+	VPTERNLOGD $0x96, Y9, Y10, Y2
+	VPSRLQ     $0x04, Y7, Y10
+	VPAND      Y0, Y7, Y9
+	VPAND      Y0, Y10, Y10
+	VPSHUFB    Y9, Y16, Y11
+	VPSHUFB    Y9, Y17, Y9
+	VPSHUFB    Y10, Y18, Y12
+	VPSHUFB    Y10, Y19, Y10
+	VPXOR      Y11, Y12, Y11
+	VPXOR      Y9, Y10, Y9
+	VPAND      Y8, Y0, Y10
+	VPSRLQ     $0x04, Y8, Y12
+	VPAND      Y0, Y12, Y12
+	VPSHUFB    Y10, Y20, Y13
+	VPSHUFB    Y10, Y21, Y10
+	VPXOR      Y11, Y13, Y11
+	VPXOR      Y9, Y10, Y9
+	VPSHUFB    Y12, Y22, Y13
+	VPSHUFB    Y12, Y23, Y10
+	VPTERNLOGD $0x96, Y11, Y13, Y3
+	VPTERNLOGD $0x96, Y9, Y10, Y4
 
 skip_m02:
 	VMOVDQU Y1, (DI)
@@ -63791,7 +63779,7 @@ skip_m02:
 	RET
 
 // func fftDIT4_avx512(work [][]byte, dist int, table01 *[128]uint8, table23 *[128]uint8, table02 *[128]uint8, logMask uint8)
-// Requires: AVX, AVX2, AVX512F, SSE2
+// Requires: AVX, AVX2, AVX512F, AVX512VL, SSE2
 TEXT ·fftDIT4_avx512(SB), NOSPLIT, $0-57
 	// dist must be multiplied by 24 (size of slice header)
 	// logmask must be log_m01==kModulus, log_m23==kModulus, log_m02==kModulus from lowest to bit 3
@@ -63847,90 +63835,84 @@ TEXT ·fftDIT4_avx512(SB), NOSPLIT, $0-57
 	MOVBQZX        logMask+56(FP), DX
 
 loop:
-	VMOVDQU (DI), Y1
-	VMOVDQU 32(DI), Y2
-	VMOVDQU (R9), Y5
-	VMOVDQU 32(R9), Y6
-	VMOVDQU (R8), Y3
-	VMOVDQU 32(R8), Y4
-	VMOVDQU (AX), Y7
-	VMOVDQU 32(AX), Y8
-	BTQ     $0x00, DX
-	JC      skip_m02
-	VPSRLQ  $0x04, Y5, Y10
-	VPAND   Y0, Y5, Y9
-	VPAND   Y0, Y10, Y10
-	VPSHUFB Y9, Y16, Y11
-	VPSHUFB Y9, Y17, Y9
-	VPSHUFB Y10, Y18, Y12
-	VPSHUFB Y10, Y19, Y10
-	VPXOR   Y11, Y12, Y11
-	VPXOR   Y9, Y10, Y9
-	VPAND   Y6, Y0, Y10
-	VPSRLQ  $0x04, Y6, Y12
-	VPAND   Y0, Y12, Y12
-	VPSHUFB Y10, Y20, Y13
-	VPSHUFB Y10, Y21, Y10
-	VPXOR   Y11, Y13, Y11
-	VPXOR   Y9, Y10, Y9
-	VPSHUFB Y12, Y22, Y13
-	VPSHUFB Y12, Y23, Y10
-	VPXOR   Y11, Y13, Y11
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y1, Y11, Y1
-	VPXOR   Y2, Y9, Y2
-	VPSRLQ  $0x04, Y7, Y10
-	VPAND   Y0, Y7, Y9
-	VPAND   Y0, Y10, Y10
-	VPSHUFB Y9, Y16, Y11
-	VPSHUFB Y9, Y17, Y9
-	VPSHUFB Y10, Y18, Y12
-	VPSHUFB Y10, Y19, Y10
-	VPXOR   Y11, Y12, Y11
-	VPXOR   Y9, Y10, Y9
-	VPAND   Y8, Y0, Y10
-	VPSRLQ  $0x04, Y8, Y12
-	VPAND   Y0, Y12, Y12
-	VPSHUFB Y10, Y20, Y13
-	VPSHUFB Y10, Y21, Y10
-	VPXOR   Y11, Y13, Y11
-	VPXOR   Y9, Y10, Y9
-	VPSHUFB Y12, Y22, Y13
-	VPSHUFB Y12, Y23, Y10
-	VPXOR   Y11, Y13, Y11
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y3, Y11, Y3
-	VPXOR   Y4, Y9, Y4
+	VMOVDQU    (DI), Y1
+	VMOVDQU    32(DI), Y2
+	VMOVDQU    (R9), Y5
+	VMOVDQU    32(R9), Y6
+	VMOVDQU    (R8), Y3
+	VMOVDQU    32(R8), Y4
+	VMOVDQU    (AX), Y7
+	VMOVDQU    32(AX), Y8
+	BTQ        $0x00, DX
+	JC         skip_m02
+	VPSRLQ     $0x04, Y5, Y10
+	VPAND      Y0, Y5, Y9
+	VPAND      Y0, Y10, Y10
+	VPSHUFB    Y9, Y16, Y11
+	VPSHUFB    Y9, Y17, Y9
+	VPSHUFB    Y10, Y18, Y12
+	VPSHUFB    Y10, Y19, Y10
+	VPXOR      Y11, Y12, Y11
+	VPXOR      Y9, Y10, Y9
+	VPAND      Y6, Y0, Y10
+	VPSRLQ     $0x04, Y6, Y12
+	VPAND      Y0, Y12, Y12
+	VPSHUFB    Y10, Y20, Y13
+	VPSHUFB    Y10, Y21, Y10
+	VPXOR      Y11, Y13, Y11
+	VPXOR      Y9, Y10, Y9
+	VPSHUFB    Y12, Y22, Y13
+	VPSHUFB    Y12, Y23, Y10
+	VPTERNLOGD $0x96, Y11, Y13, Y1
+	VPTERNLOGD $0x96, Y9, Y10, Y2
+	VPSRLQ     $0x04, Y7, Y10
+	VPAND      Y0, Y7, Y9
+	VPAND      Y0, Y10, Y10
+	VPSHUFB    Y9, Y16, Y11
+	VPSHUFB    Y9, Y17, Y9
+	VPSHUFB    Y10, Y18, Y12
+	VPSHUFB    Y10, Y19, Y10
+	VPXOR      Y11, Y12, Y11
+	VPXOR      Y9, Y10, Y9
+	VPAND      Y8, Y0, Y10
+	VPSRLQ     $0x04, Y8, Y12
+	VPAND      Y0, Y12, Y12
+	VPSHUFB    Y10, Y20, Y13
+	VPSHUFB    Y10, Y21, Y10
+	VPXOR      Y11, Y13, Y11
+	VPXOR      Y9, Y10, Y9
+	VPSHUFB    Y12, Y22, Y13
+	VPSHUFB    Y12, Y23, Y10
+	VPTERNLOGD $0x96, Y11, Y13, Y3
+	VPTERNLOGD $0x96, Y9, Y10, Y4
 
 skip_m02:
-	VPXOR   Y1, Y5, Y5
-	VPXOR   Y2, Y6, Y6
-	VPXOR   Y3, Y7, Y7
-	VPXOR   Y4, Y8, Y8
-	BTQ     $0x01, DX
-	JC      skip_m01
-	VPSRLQ  $0x04, Y3, Y10
-	VPAND   Y0, Y3, Y9
-	VPAND   Y0, Y10, Y10
-	VPSHUFB Y9, Y24, Y11
-	VPSHUFB Y9, Y25, Y9
-	VPSHUFB Y10, Y26, Y12
-	VPSHUFB Y10, Y27, Y10
-	VPXOR   Y11, Y12, Y11
-	VPXOR   Y9, Y10, Y9
-	VPAND   Y4, Y0, Y10
-	VPSRLQ  $0x04, Y4, Y12
-	VPAND   Y0, Y12, Y12
-	VPSHUFB Y10, Y28, Y13
-	VPSHUFB Y10, Y29, Y10
-	VPXOR   Y11, Y13, Y11
-	VPXOR   Y9, Y10, Y9
-	VPSHUFB Y12, Y30, Y13
-	VPSHUFB Y12, Y31, Y10
-	VPXOR   Y11, Y13, Y11
-	VPXOR   Y9, Y10, Y9
-	VPXOR   Y1, Y11, Y1
-	VPXOR   Y2, Y9, Y2
+	VPXOR      Y1, Y5, Y5
+	VPXOR      Y2, Y6, Y6
+	VPXOR      Y3, Y7, Y7
+	VPXOR      Y4, Y8, Y8
+	BTQ        $0x01, DX
+	JC         skip_m01
+	VPSRLQ     $0x04, Y3, Y10
+	VPAND      Y0, Y3, Y9
+	VPAND      Y0, Y10, Y10
+	VPSHUFB    Y9, Y24, Y11
+	VPSHUFB    Y9, Y25, Y9
+	VPSHUFB    Y10, Y26, Y12
+	VPSHUFB    Y10, Y27, Y10
+	VPXOR      Y11, Y12, Y11
+	VPXOR      Y9, Y10, Y9
+	VPAND      Y4, Y0, Y10
+	VPSRLQ     $0x04, Y4, Y12
+	VPAND      Y0, Y12, Y12
+	VPSHUFB    Y10, Y28, Y13
+	VPSHUFB    Y10, Y29, Y10
+	VPXOR      Y11, Y13, Y11
+	VPXOR      Y9, Y10, Y9
+	VPSHUFB    Y12, Y30, Y13
+	VPSHUFB    Y12, Y31, Y10
+	VPTERNLOGD $0x96, Y11, Y13, Y1
+	VPTERNLOGD $0x96, Y9, Y10, Y2
 
 skip_m01:
 	VPXOR          Y1, Y3, Y3
@@ -63969,10 +63951,8 @@ skip_m01:
 	VBROADCASTI128 112(CX), Y2
 	VPSHUFB        Y4, Y9, Y9
 	VPSHUFB        Y4, Y2, Y2
-	VPXOR          Y3, Y9, Y3
-	VPXOR          Y1, Y2, Y1
-	VPXOR          Y5, Y3, Y5
-	VPXOR          Y6, Y1, Y6
+	VPTERNLOGD     $0x96, Y3, Y9, Y5
+	VPTERNLOGD     $0x96, Y1, Y2, Y6
 
 skip_m23:
 	VPXOR   Y5, Y7, Y7
@@ -63989,7 +63969,7 @@ skip_m23:
 	RET
 
 // func ifftDIT4_avx2(work [][]byte, dist int, table01 *[128]uint8, table23 *[128]uint8, table02 *[128]uint8, logMask uint8)
-// Requires: AVX, AVX2, SSE2
+// Requires: AVX, AVX2, AVX512F, AVX512VL, SSE2
 TEXT ·ifftDIT4_avx2(SB), NOSPLIT, $0-57
 	// dist must be multiplied by 24 (size of slice header)
 	// logmask must be log_m01==kModulus, log_m23==kModulus, log_m02==kModulus from lowest to bit 3
@@ -64047,10 +64027,8 @@ loop:
 	VBROADCASTI128 112(AX), Y6
 	VPSHUFB        Y8, Y9, Y9
 	VPSHUFB        Y8, Y6, Y6
-	VPXOR          Y7, Y9, Y7
-	VPXOR          Y5, Y6, Y5
-	VPXOR          Y1, Y7, Y1
-	VPXOR          Y2, Y5, Y2
+	XOR3WAY(     $0x00, Y7, Y9, Y1)
+	XOR3WAY(     $0x00, Y5, Y6, Y2)
 
 skip_m01:
 	VMOVDQU        (R11), Y5
@@ -64087,10 +64065,8 @@ skip_m01:
 	VBROADCASTI128 112(CX), Y10
 	VPSHUFB        Y12, Y13, Y13
 	VPSHUFB        Y12, Y10, Y10
-	VPXOR          Y11, Y13, Y11
-	VPXOR          Y9, Y10, Y9
-	VPXOR          Y5, Y11, Y5
-	VPXOR          Y6, Y9, Y6
+	XOR3WAY(     $0x00, Y11, Y13, Y5)
+	XOR3WAY(     $0x00, Y9, Y10, Y6)
 
 skip_m23:
 	VPXOR          Y1, Y5, Y5
@@ -64125,10 +64101,8 @@ skip_m23:
 	VBROADCASTI128 112(DX), Y10
 	VPSHUFB        Y12, Y13, Y13
 	VPSHUFB        Y12, Y10, Y10
-	VPXOR          Y11, Y13, Y11
-	VPXOR          Y9, Y10, Y9
-	VPXOR          Y1, Y11, Y1
-	VPXOR          Y2, Y9, Y2
+	XOR3WAY(     $0x00, Y11, Y13, Y1)
+	XOR3WAY(     $0x00, Y9, Y10, Y2)
 	VPSRLQ         $0x04, Y7, Y10
 	VPAND          Y0, Y7, Y9
 	VPAND          Y0, Y10, Y10
@@ -64155,10 +64129,8 @@ skip_m23:
 	VBROADCASTI128 112(DX), Y10
 	VPSHUFB        Y12, Y13, Y13
 	VPSHUFB        Y12, Y10, Y10
-	VPXOR          Y11, Y13, Y11
-	VPXOR          Y9, Y10, Y9
-	VPXOR          Y3, Y11, Y3
-	VPXOR          Y4, Y9, Y4
+	XOR3WAY(     $0x00, Y11, Y13, Y3)
+	XOR3WAY(     $0x00, Y9, Y10, Y4)
 
 skip_m02:
 	VMOVDQU Y1, (R9)
@@ -64179,7 +64151,7 @@ skip_m02:
 	RET
 
 // func fftDIT4_avx2(work [][]byte, dist int, table01 *[128]uint8, table23 *[128]uint8, table02 *[128]uint8, logMask uint8)
-// Requires: AVX, AVX2, SSE2
+// Requires: AVX, AVX2, AVX512F, AVX512VL, SSE2
 TEXT ·fftDIT4_avx2(SB), NOSPLIT, $0-57
 	// dist must be multiplied by 24 (size of slice header)
 	// logmask must be log_m01==kModulus, log_m23==kModulus, log_m02==kModulus from lowest to bit 3
@@ -64239,10 +64211,8 @@ loop:
 	VBROADCASTI128 112(DX), Y10
 	VPSHUFB        Y12, Y13, Y13
 	VPSHUFB        Y12, Y10, Y10
-	VPXOR          Y11, Y13, Y11
-	VPXOR          Y9, Y10, Y9
-	VPXOR          Y1, Y11, Y1
-	VPXOR          Y2, Y9, Y2
+	XOR3WAY(     $0x00, Y11, Y13, Y1)
+	XOR3WAY(     $0x00, Y9, Y10, Y2)
 	VPSRLQ         $0x04, Y7, Y10
 	VPAND          Y0, Y7, Y9
 	VPAND          Y0, Y10, Y10
@@ -64269,10 +64239,8 @@ loop:
 	VBROADCASTI128 112(DX), Y10
 	VPSHUFB        Y12, Y13, Y13
 	VPSHUFB        Y12, Y10, Y10
-	VPXOR          Y11, Y13, Y11
-	VPXOR          Y9, Y10, Y9
-	VPXOR          Y3, Y11, Y3
-	VPXOR          Y4, Y9, Y4
+	XOR3WAY(     $0x00, Y11, Y13, Y3)
+	XOR3WAY(     $0x00, Y9, Y10, Y4)
 
 skip_m02:
 	VPXOR          Y1, Y5, Y5
@@ -64307,10 +64275,8 @@ skip_m02:
 	VBROADCASTI128 112(AX), Y10
 	VPSHUFB        Y12, Y13, Y13
 	VPSHUFB        Y12, Y10, Y10
-	VPXOR          Y11, Y13, Y11
-	VPXOR          Y9, Y10, Y9
-	VPXOR          Y1, Y11, Y1
-	VPXOR          Y2, Y9, Y2
+	XOR3WAY(     $0x00, Y11, Y13, Y1)
+	XOR3WAY(     $0x00, Y9, Y10, Y2)
 
 skip_m01:
 	VPXOR          Y1, Y3, Y3
@@ -64349,10 +64315,8 @@ skip_m01:
 	VBROADCASTI128 112(CX), Y2
 	VPSHUFB        Y4, Y9, Y9
 	VPSHUFB        Y4, Y2, Y2
-	VPXOR          Y3, Y9, Y3
-	VPXOR          Y1, Y2, Y1
-	VPXOR          Y5, Y3, Y5
-	VPXOR          Y6, Y1, Y6
+	XOR3WAY(     $0x00, Y3, Y9, Y5)
+	XOR3WAY(     $0x00, Y1, Y2, Y6)
 
 skip_m23:
 	VPXOR   Y5, Y7, Y7
