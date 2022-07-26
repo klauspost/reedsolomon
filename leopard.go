@@ -207,7 +207,43 @@ func (r *reedSolomonFF16) EncodeIdx(dataShard []byte, idx int, parity [][]byte) 
 }
 
 func (r *reedSolomonFF16) Join(dst io.Writer, shards [][]byte, outSize int) error {
-	return errors.New("not implemented")
+	// Do we have enough shards?
+	if len(shards) < r.DataShards {
+		return ErrTooFewShards
+	}
+	shards = shards[:r.DataShards]
+
+	// Do we have enough data?
+	size := 0
+	for _, shard := range shards {
+		if shard == nil {
+			return ErrReconstructRequired
+		}
+		size += len(shard)
+
+		// Do we have enough data already?
+		if size >= outSize {
+			break
+		}
+	}
+	if size < outSize {
+		return ErrShortData
+	}
+
+	// Copy data to dst
+	write := outSize
+	for _, shard := range shards {
+		if write < len(shard) {
+			_, err := dst.Write(shard[:write])
+			return err
+		}
+		n, err := dst.Write(shard)
+		if err != nil {
+			return err
+		}
+		write -= n
+	}
+	return nil
 }
 
 func (r *reedSolomonFF16) Update(shards [][]byte, newDatashards [][]byte) error {
@@ -215,7 +251,46 @@ func (r *reedSolomonFF16) Update(shards [][]byte, newDatashards [][]byte) error 
 }
 
 func (r *reedSolomonFF16) Split(data []byte) ([][]byte, error) {
-	return nil, errors.New("not implemented")
+	if len(data) == 0 {
+		return nil, ErrShortData
+	}
+	dataLen := len(data)
+	// Calculate number of bytes per data shard.
+	perShard := (len(data) + r.DataShards - 1) / r.DataShards
+	perShard = ((perShard + 63) / 64) * 64
+
+	if cap(data) > len(data) {
+		data = data[:cap(data)]
+	}
+
+	// Only allocate memory if necessary
+	var padding []byte
+	if len(data) < (r.Shards * perShard) {
+		// calculate maximum number of full shards in `data` slice
+		fullShards := len(data) / perShard
+		padding = make([]byte, r.Shards*perShard-perShard*fullShards)
+		copy(padding, data[perShard*fullShards:])
+		data = data[0 : perShard*fullShards]
+	} else {
+		for i := dataLen; i < dataLen+r.DataShards; i++ {
+			data[i] = 0
+		}
+	}
+
+	// Split into equal-length shards.
+	dst := make([][]byte, r.Shards)
+	i := 0
+	for ; i < len(dst) && len(data) >= perShard; i++ {
+		dst[i] = data[:perShard:perShard]
+		data = data[perShard:]
+	}
+
+	for j := 0; i+j < len(dst); j++ {
+		dst[i+j] = padding[:perShard:perShard]
+		padding = padding[perShard:]
+	}
+
+	return dst, nil
 }
 
 func (r *reedSolomonFF16) ReconstructSome(shards [][]byte, required []bool) error {
@@ -265,6 +340,29 @@ func (r *reedSolomonFF16) reconstruct(shards [][]byte, recoverAll bool) error {
 
 	if err := checkShards(shards, true); err != nil {
 		return err
+	}
+
+	// Quick check: are all of the shards present?  If so, there's
+	// nothing to do.
+	numberPresent := 0
+	dataPresent := 0
+	for i := 0; i < r.Shards; i++ {
+		if len(shards[i]) != 0 {
+			numberPresent++
+			if i < r.DataShards {
+				dataPresent++
+			}
+		}
+	}
+	if numberPresent == r.Shards || !recoverAll && dataPresent == r.DataShards {
+		// Cool.  All of the shards data data.  We don't
+		// need to do anything.
+		return nil
+	}
+
+	// Check if we have enough to reconstruct.
+	if numberPresent < r.DataShards {
+		return ErrTooFewShards
 	}
 
 	shardSize := shardSize(shards)
