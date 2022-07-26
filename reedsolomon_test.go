@@ -1008,8 +1008,13 @@ func BenchmarkEncode2x1x1M(b *testing.B) {
 	benchmarkEncode(b, 2, 1, 1024*1024)
 }
 
-func BenchmarkEncode500x200x10K(b *testing.B) {
-	benchmarkEncode(b, 500, 200, 10<<10)
+// Benchmark 800 data slices with 200 parity slices
+func BenchmarkEncode800x200(b *testing.B) {
+	for size := 64; size <= 1<<20; size *= 4 {
+		b.Run(fmt.Sprintf("%v", size), func(b *testing.B) {
+			benchmarkEncode(b, 800, 200, size)
+		})
+	}
 }
 
 func BenchmarkEncodeLeopard(b *testing.B) {
@@ -1112,9 +1117,13 @@ func benchmarkVerify(b *testing.B, dataShards, parityShards, shardSize int) {
 	}
 }
 
-// Benchmark 10 data slices with 2 parity slices holding 10K bytes each
-func BenchmarkVerify500x200x10000(b *testing.B) {
-	benchmarkVerify(b, 500, 200, 10<<10)
+// Benchmark 800 data slices with 200 parity slices
+func BenchmarkVerify800x200(b *testing.B) {
+	for size := 64; size <= 1<<20; size *= 4 {
+		b.Run(fmt.Sprintf("%v", size), func(b *testing.B) {
+			benchmarkVerify(b, 800, 200, size)
+		})
+	}
 }
 
 // Benchmark 10 data slices with 2 parity slices holding 10000 bytes each
@@ -1197,9 +1206,13 @@ func BenchmarkReconstruct10x2x10000(b *testing.B) {
 	benchmarkReconstruct(b, 10, 2, 10000)
 }
 
-// Benchmark 10 data slices with 2 parity slices holding 10000 bytes each
-func BenchmarkReconstruct500x200x10K(b *testing.B) {
-	benchmarkReconstruct(b, 500, 200, 10<<10)
+// Benchmark 800 data slices with 200 parity slices
+func BenchmarkReconstruct800x200(b *testing.B) {
+	for size := 64; size <= 1<<20; size *= 4 {
+		b.Run(fmt.Sprintf("%v", size), func(b *testing.B) {
+			benchmarkReconstruct(b, 800, 200, size)
+		})
+	}
 }
 
 // Benchmark 50 data slices with 5 parity slices holding 100000 bytes each
@@ -1277,9 +1290,13 @@ func BenchmarkReconstructData10x2x10000(b *testing.B) {
 	benchmarkReconstructData(b, 10, 2, 10000)
 }
 
-// Benchmark 10 data slices with 2 parity slices holding 10000 bytes each
-func BenchmarkReconstructData500x200x10K(b *testing.B) {
-	benchmarkReconstructData(b, 500, 200, 10<<10)
+// Benchmark 800 data slices with 200 parity slices
+func BenchmarkReconstructData800x200(b *testing.B) {
+	for size := 64; size <= 1<<20; size *= 4 {
+		b.Run(fmt.Sprintf("%v", size), func(b *testing.B) {
+			benchmarkReconstructData(b, 800, 200, size)
+		})
+	}
 }
 
 // Benchmark 50 data slices with 5 parity slices holding 100000 bytes each
