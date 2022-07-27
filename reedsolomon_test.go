@@ -1017,6 +1017,15 @@ func BenchmarkEncode800x200(b *testing.B) {
 	}
 }
 
+// Benchmark 1K with symmetric shard sizes.
+func BenchmarkEncode1K(b *testing.B) {
+	for shards := 16; shards < 65536; shards *= 2 {
+		b.Run(fmt.Sprintf("%vx%v", shards, shards), func(b *testing.B) {
+			benchmarkEncode(b, shards, shards, 1024)
+		})
+	}
+}
+
 func BenchmarkEncodeLeopard(b *testing.B) {
 	size := (64 << 20) / 800 / 64 * 64
 	b.Run(strconv.Itoa(size), func(b *testing.B) {

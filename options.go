@@ -21,6 +21,7 @@ type options struct {
 	fastOneParity                         bool
 	inversionCache                        bool
 	customMatrix                          [][]byte
+	withLeopard                           *bool
 
 	// stream options
 	concReads  bool
@@ -203,5 +204,13 @@ func WithFastOneParityMatrix() Option {
 func WithCustomMatrix(customMatrix [][]byte) Option {
 	return func(o *options) {
 		o.customMatrix = customMatrix
+	}
+}
+
+// WithLeopard will always use leopard for encoding.
+// Note that Leopard places certain restrictions on use see other documentation.
+func WithLeopard(enabled bool) Option {
+	return func(o *options) {
+		o.withLeopard = &enabled
 	}
 }
