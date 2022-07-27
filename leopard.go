@@ -355,7 +355,7 @@ func (r *reedSolomonFF16) reconstruct(shards [][]byte, recoverAll bool) error {
 		}
 	}
 	if numberPresent == r.Shards || !recoverAll && dataPresent == r.DataShards {
-		// Cool.  All of the shards data data.  We don't
+		// Cool. All of the shards have data. We don't
 		// need to do anything.
 		return nil
 	}

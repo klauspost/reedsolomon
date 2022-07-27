@@ -1096,7 +1096,7 @@ func (r *reedSolomon) reconstruct(shards [][]byte, dataOnly bool, required []boo
 	}
 	if numberPresent == r.Shards || dataOnly && dataPresent == r.DataShards ||
 		required != nil && missingRequired == 0 {
-		// Cool.  All of the shards data data.  We don't
+		// Cool. All of the shards have data. We don't
 		// need to do anything.
 		return nil
 	}
