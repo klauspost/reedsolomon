@@ -1004,6 +1004,40 @@ func benchmarkEncode(b *testing.B, dataShards, parityShards, shardSize int) {
 	}
 }
 
+func benchmarkDecode(b *testing.B, dataShards, parityShards, shardSize int) {
+	r, err := New(dataShards, parityShards, testOptions(WithAutoGoroutines(shardSize))...)
+	if err != nil {
+		b.Fatal(err)
+	}
+	shards := make([][]byte, dataShards+parityShards)
+	for s := range shards {
+		shards[s] = make([]byte, shardSize)
+	}
+
+	rand.Seed(0)
+	for s := 0; s < dataShards; s++ {
+		fillRandom(shards[s])
+	}
+	if err := r.Encode(shards); err != nil {
+		b.Fatal(err)
+	}
+
+	b.SetBytes(int64(shardSize * (dataShards + parityShards)))
+	b.ResetTimer()
+	b.ReportAllocs()
+	for i := 0; i < b.N; i++ {
+		// Clear maximum number of data shards.
+		for s := 0; s < parityShards; s++ {
+			shards[s] = nil
+		}
+
+		err = r.Reconstruct(shards)
+		if err != nil {
+			b.Fatal(err)
+		}
+	}
+}
+
 func BenchmarkEncode2x1x1M(b *testing.B) {
 	benchmarkEncode(b, 2, 1, 1024*1024)
 }
@@ -1017,11 +1051,20 @@ func BenchmarkEncode800x200(b *testing.B) {
 	}
 }
 
-// Benchmark 1K with symmetric shard sizes.
+// Benchmark 1K encode with symmetric shard sizes.
 func BenchmarkEncode1K(b *testing.B) {
 	for shards := 16; shards < 65536; shards *= 2 {
 		b.Run(fmt.Sprintf("%vx%v", shards, shards), func(b *testing.B) {
 			benchmarkEncode(b, shards, shards, 1024)
+		})
+	}
+}
+
+// Benchmark 1K decode with symmetric shard sizes.
+func BenchmarkDecode1K(b *testing.B) {
+	for shards := 16; shards < 65536; shards *= 2 {
+		b.Run(fmt.Sprintf("%vx%v", shards, shards), func(b *testing.B) {
+			benchmarkDecode(b, shards, shards, 1024)
 		})
 	}
 }
