@@ -390,13 +390,13 @@ func (r *reedSolomonFF16) reconstruct(shards [][]byte, recoverAll bool) error {
 	}
 	// Evaluate error locator polynomial
 
-	fwht(errLocs[:], order, m+r.DataShards)
+	fwht(&errLocs, order, m+r.DataShards)
 
 	for i := 0; i < order; i++ {
 		errLocs[i] = ffe((uint(errLocs[i]) * uint(logWalsh[i])) % modulus)
 	}
 
-	fwht(errLocs[:], order, order)
+	fwht(&errLocs, order, order)
 
 	var work [][]byte
 	if w, ok := r.workPool.Get().([][]byte); ok {
@@ -798,7 +798,7 @@ func ceilPow2(n int) int {
 // Decimation in time (DIT) Fast Walsh-Hadamard Transform
 // Unrolls pairs of layers to perform cross-layer operations in registers
 // mtrunc: Number of elements that are non-zero at the front of data
-func fwht(data []ffe, m, mtrunc int) {
+func fwht(data *[order]ffe, m, mtrunc int) {
 	// Decimation in time: Unroll 2 layers at a time
 	dist := 1
 	dist4 := 4
@@ -806,8 +806,28 @@ func fwht(data []ffe, m, mtrunc int) {
 		// For each set of dist*4 elements:
 		for r := 0; r < mtrunc; r += dist4 {
 			// For each set of dist elements:
-			for i := r; i < r+dist; i++ {
-				fwht4(data[i:], dist)
+			// Use 16 bit indices to avoid bounds check on [65536]ffe.
+			dist := uint16(dist)
+			off := uint16(r)
+			for i := uint16(0); i < dist; i++ {
+				// fwht4(data[i:], dist) inlined...
+				// Reading values appear faster than updating pointers.
+				// Casting to uint is not faster.
+				t0 := data[off]
+				t1 := data[off+dist]
+				t2 := data[off+dist*2]
+				t3 := data[off+dist*3]
+
+				t0, t1 = fwht2alt(t0, t1)
+				t2, t3 = fwht2alt(t2, t3)
+				t0, t2 = fwht2alt(t0, t2)
+				t1, t3 = fwht2alt(t1, t3)
+
+				data[off] = t0
+				data[off+dist] = t1
+				data[off+dist*2] = t2
+				data[off+dist*3] = t3
+				off++
 			}
 		}
 		dist = dist4
@@ -816,7 +836,8 @@ func fwht(data []ffe, m, mtrunc int) {
 
 	// If there is one layer left:
 	if dist < m {
-		for i := 0; i < dist; i++ {
+		dist := uint16(dist)
+		for i := uint16(0); i < dist; i++ {
 			fwht2(&data[i], &data[i+dist])
 		}
 	}
@@ -842,6 +863,11 @@ func fwht2(a, b *ffe) {
 	dif := subMod(*a, *b)
 	*a = sum
 	*b = dif
+}
+
+// fwht2alt is as fwht2, but returns result.
+func fwht2alt(a, b ffe) (ffe, ffe) {
+	return addMod(a, b), subMod(a, b)
 }
 
 var initOnce sync.Once
@@ -945,7 +971,7 @@ func initFFTSkew() {
 	}
 	logWalsh[0] = 0
 
-	fwht(logWalsh[:], order, order)
+	fwht(logWalsh, order, order)
 }
 
 func initMul16LUT() {
