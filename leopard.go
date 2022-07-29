@@ -809,15 +809,14 @@ func fwht(data *[order]ffe, m, mtrunc int) {
 			// Use 16 bit indices to avoid bounds check on [65536]ffe.
 			dist := uint16(dist)
 			off := uint16(r)
-			s2 := dist << 1
 			for i := uint16(0); i < dist; i++ {
 				// fwht4(data[i:], dist) inlined...
 				// Reading values appear faster than updating pointers.
 				// Casting to uint is not faster.
 				t0 := data[off]
-				t1 := data[dist+off]
-				t2 := data[s2+off]
-				t3 := data[s2+dist+off]
+				t1 := data[off+dist]
+				t2 := data[off+dist*2]
+				t3 := data[off+dist*3]
 
 				t0, t1 = fwht2alt(t0, t1)
 				t2, t3 = fwht2alt(t2, t3)
@@ -825,9 +824,9 @@ func fwht(data *[order]ffe, m, mtrunc int) {
 				t1, t3 = fwht2alt(t1, t3)
 
 				data[off] = t0
-				data[dist+off] = t1
-				data[s2+off] = t2
-				data[s2+dist+off] = t3
+				data[off+dist] = t1
+				data[off+dist*2] = t2
+				data[off+dist*3] = t3
 				off++
 			}
 		}
