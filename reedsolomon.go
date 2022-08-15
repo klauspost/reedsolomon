@@ -191,6 +191,87 @@ func buildMatrix(dataShards, totalShards int) (matrix, error) {
 	return vm.Multiply(topInv)
 }
 
+// buildMatrixJerasure creates the same encoding matrix as Jerasure library
+//
+// The top square of the matrix is guaranteed to be an identity
+// matrix, which means that the data shards are unchanged after
+// encoding.
+func buildMatrixJerasure(dataShards, totalShards int) (matrix, error) {
+	// Start with a Vandermonde matrix.  This matrix would work,
+	// in theory, but doesn't have the property that the data
+	// shards are unchanged after encoding.
+	vm, err := vandermonde(totalShards, dataShards)
+	if err != nil {
+		return nil, err
+	}
+
+	// Jerasure does this:
+	// first row is always 100..00
+	vm[0][0] = 1
+	for i := 1; i < dataShards; i++ {
+		vm[0][i] = 0
+	}
+	// last row is always 000..01
+	for i := 0; i < dataShards-1; i++ {
+		vm[totalShards-1][i] = 0
+	}
+	vm[totalShards-1][dataShards-1] = 1
+
+	for i := 0; i < dataShards; i++ {
+		// Find the row where i'th col is not 0
+		r := i
+		for ; r < totalShards && vm[r][i] == 0; r++ {
+		}
+		if r != i {
+			// Swap it with i'th row if not already
+			t := vm[r]
+			vm[r] = vm[i]
+			vm[i] = t
+		}
+		// Multiply by the inverted matrix (same as vm.Multiply(vm[0:dataShards].Invert()))
+		if vm[i][i] != 1 {
+			// Make vm[i][i] = 1 by dividing the column by vm[i][i]
+			tmp := galDivide(1, vm[i][i])
+			for j := 0; j < totalShards; j++ {
+				vm[j][i] = galMultiply(vm[j][i], tmp)
+			}
+		}
+		for j := 0; j < dataShards; j++ {
+			// Make vm[i][j] = 0 where j != i by adding vm[i][j]*vm[.][i] to each column
+			tmp := vm[i][j]
+			if j != i && tmp != 0 {
+				for r := 0; r < totalShards; r++ {
+					vm[r][j] = galAdd(vm[r][j], galMultiply(tmp, vm[r][i]))
+				}
+			}
+		}
+	}
+
+	// Make vm[dataShards] row all ones - divide each column j by vm[dataShards][j]
+	for j := 0; j < dataShards; j++ {
+		tmp := vm[dataShards][j]
+		if tmp != 1 {
+			tmp = galDivide(1, tmp)
+			for i := dataShards; i < totalShards; i++ {
+				vm[i][j] = galMultiply(vm[i][j], tmp)
+			}
+		}
+	}
+
+	// Make vm[dataShards...totalShards-1][0] column all ones - divide each row
+	for i := dataShards + 1; i < totalShards; i++ {
+		tmp := vm[i][0]
+		if tmp != 1 {
+			tmp = galDivide(1, tmp)
+			for j := 0; j < dataShards; j++ {
+				vm[i][j] = galMultiply(vm[i][j], tmp)
+			}
+		}
+	}
+
+	return vm, nil
+}
+
 // buildMatrixPAR1 creates the matrix to use for encoding according to
 // the PARv1 spec, given the number of data shards and the number of
 // total shards. Note that the method they use is buggy, and may lead
@@ -323,6 +404,8 @@ func New(dataShards, parityShards int, opts ...Option) (Encoder, error) {
 		r.m, err = buildMatrixCauchy(dataShards, r.Shards)
 	case r.o.usePAR1Matrix:
 		r.m, err = buildMatrixPAR1(dataShards, r.Shards)
+	case r.o.useJerasureMatrix:
+		r.m, err = buildMatrixJerasure(dataShards, r.Shards)
 	default:
 		r.m, err = buildMatrix(dataShards, r.Shards)
 	}
