@@ -110,6 +110,35 @@ func findSingularSubMatrix(m matrix) (matrix, error) {
 	return nil, nil
 }
 
+func TestBuildMatrixJerasure(t *testing.T) {
+	totalShards := 12
+	dataShards := 8
+	m, err := buildMatrixJerasure(dataShards, totalShards)
+	if err != nil {
+		t.Fatal(err)
+	}
+	refMatrix := matrix{
+		{1, 1, 1, 1, 1, 1, 1, 1},
+		{1, 55, 39, 73, 84, 181, 225, 217},
+		{1, 39, 217, 161, 92, 60, 172, 90},
+		{1, 172, 70, 235, 143, 34, 200, 101},
+	}
+	for i := 0; i < 8; i++ {
+		for j := 0; j < 8; j++ {
+			if i != j && m[i][j] != 0 || i == j && m[i][j] != 1 {
+				t.Fatal("Top part of the matrix is not identity")
+			}
+		}
+	}
+	for i := 0; i < 4; i++ {
+		for j := 0; j < 8; j++ {
+			if m[8+i][j] != refMatrix[i][j] {
+				t.Fatal("Coding matrix for EC 8+4 differs from Jerasure")
+			}
+		}
+	}
+}
+
 func TestBuildMatrixPAR1Singular(t *testing.T) {
 	totalShards := 8
 	dataShards := 4
