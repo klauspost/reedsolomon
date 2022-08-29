@@ -89,3 +89,23 @@ jobs:
     - name: Test Microarch v4
       shell: bash {0}
       run: go run testlevel.go 4;if [ $? -eq 0 ]; then GOAMD64=v4 go test -no-avx512 ./...; else true; fi
+
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.19.x
+
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Generate
+        working-directory: ./_gen
+        run: go generate -v -x
+
+      - name: Git Status
+        run: |
+          git diff
+          test -z "$(git status --porcelain)"
