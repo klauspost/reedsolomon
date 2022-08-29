@@ -11,6 +11,9 @@ This is a Go port of the [JavaReedSolomon](https://github.com/Backblaze/JavaReed
 
 For an introduction on erasure coding, see the post on the [Backblaze blog](https://www.backblaze.com/blog/reed-solomon/).
 
+For encoding high shard counts (>256) a Leopard implementation is used.
+For most platforms this performs close to the original Leopard implementation in terms of speed. 
+
 Package home: https://github.com/klauspost/reedsolomon
 
 Godoc: https://pkg.go.dev/github.com/klauspost/reedsolomon?tab=doc
@@ -24,6 +27,12 @@ go get -u github.com/klauspost/reedsolomon
 Using Go modules recommended.
 
 # Changes
+
+## 2022
+
+* Leopard GF16 mode added, for up to 63336 shards. 
+* [WithJerasureMatrix](https://pkg.go.dev/github.com/klauspost/reedsolomon?tab=doc#WithJerasureMatrix) allows constructing a [Jerasure](https://github.com/tsuraan/Jerasure) compatible matrix.
+
 ## 2021
 
 * Use `GOAMD64=v4` to enable faster AVX2.
@@ -34,6 +43,8 @@ Using Go modules recommended.
 * Allow disabling inversion cache.
 * Faster AVX2 encoding.
 
+<details>
+	<summary>See older changes</summary>
 
 ## May 2020
 
@@ -97,6 +108,8 @@ The [`StreamEncoder`](https://godoc.org/github.com/klauspost/reedsolomon#StreamE
 handles this without modifying the interface. 
 This is a good lesson on why returning interfaces is not a good design.
 
+</details>
+
 # Usage
 
 This section assumes you know the basics of Reed-Solomon encoding. 
@@ -106,23 +119,19 @@ This package performs the calculation of the parity sets. The usage is therefore
 
 First of all, you need to choose your distribution of data and parity shards. 
 A 'good' distribution is very subjective, and will depend a lot on your usage scenario. 
-A good starting point is above 5 and below 257 data shards (the maximum supported number), 
-and the number of parity shards to be 2 or above, and below the number of data shards.
 
 To create an encoder with 10 data shards (where your data goes) and 3 parity shards (calculated):
 ```Go
     enc, err := reedsolomon.New(10, 3)
 ```
 This encoder will work for all parity sets with this distribution of data and parity shards. 
-The error will only be set if you specify 0 or negative values in any of the parameters, 
-or if you specify more than 256 data shards.
 
 If you will primarily be using it with one shard size it is recommended to use 
 [`WithAutoGoroutines(shardSize)`](https://pkg.go.dev/github.com/klauspost/reedsolomon?tab=doc#WithAutoGoroutines)
 as an additional parameter. This will attempt to calculate the optimal number of goroutines to use for the best speed.
 It is not required that all shards are this size. 
 
-The you send and receive data  is a simple slice of byte slices; `[][]byte`. 
+Then you send and receive data that is a simple slice of byte slices; `[][]byte`. 
 In the example above, the top slice must have a length of 13.
 
 ```Go
@@ -358,8 +367,43 @@ Example of how to supply options:
      enc, err := reedsolomon.New(10, 3, WithMaxGoroutines(25))
  ```
 
+# Leopard Compatible GF16
+
+When you encode more than 256 shards the library will switch to a [Leopard-RS](https://github.com/catid/leopard) implementation.
+
+This allows encoding up to 65536 shards (data+parity) with the following limitations, similar to leopard:
+
+* The original and recovery data must not exceed 65536 pieces.
+* The shard size *must*  each be a multiple of 64 bytes.
+* Each buffer should have the same number of bytes.
+* Even the last shard must be rounded up to the block size.
+
+|                 | Regular | Leopard |
+|-----------------|---------|---------|
+| Encode          | ✓       | ✓       |
+| EncodeIdx       | ✓       | -       |
+| Verify          | ✓       | ✓       |
+| Reconstruct     | ✓       | ✓       |
+| ReconstructData | ✓       | ✓       |
+| ReconstructSome | ✓       | ✓ (+)   |
+| Update          | ✓       | -       |
+| Split           | ✓       | ✓       |
+| Join            | ✓       | ✓       |
+
+* (+) Same as calling `ReconstructData`.
+
+The Split/Join functions will help to split an input to the proper sizes.
+
+Speed can be expected to be `O(N*log(N))`, compared to the `O(N*N)`. 
+Reconstruction matrix calculation is more time-consuming, 
+so be sure to include that as part of any benchmark you run.  
+
+For now SSSE3, AVX2 and AVX512 assembly are available on AMD64 platforms.
+
+Leopard mode currently always runs as a single goroutine, since multiple gorouties doesn't provide any worthwhile speedup.
 
 # Performance
+
 Performance depends mainly on the number of parity shards. 
 In rough terms, doubling the number of parity shards will double the encoding time.
 
@@ -402,7 +446,7 @@ BenchmarkReconstruct50x20x1M-8       1364.35      4189.79      3.07x
 BenchmarkReconstruct10x4x16M-8       1484.35      5779.53      3.89x
 ```
 
-# Performance on AVX512
+## AVX512
 
 The performance on AVX512 has been accelerated for Intel CPUs. 
 This gives speedups on a per-core basis typically up to 2x compared to 
@@ -417,7 +461,7 @@ In doing so it is possible to minimize the memory bandwidth required for loading
 At the same time the calculations are performed in the 512-bit wide ZMM registers and the surplus of ZMM 
 registers (32 in total) is used to keep more data around (most notably the matrix coefficients).
 
-# Performance on ARM64 NEON
+## ARM64 NEON
 
 By exploiting NEON instructions the performance for ARM has been accelerated. 
 Below are the performance numbers for a single core on an EC2 m6g.16xlarge (Graviton2) instance (Amazon Linux 2):
