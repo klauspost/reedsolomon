@@ -8,7 +8,6 @@
 // Package reedsolomon enables Erasure Coding in Go
 //
 // For usage and examples, see https://github.com/klauspost/reedsolomon
-//
 package reedsolomon
 
 import (
