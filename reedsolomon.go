@@ -358,19 +358,26 @@ func buildXorMatrix(dataShards, totalShards int) (matrix, error) {
 //
 // If no options are supplied, default options are used.
 func New(dataShards, parityShards int, opts ...Option) (Encoder, error) {
-	if dataShards+parityShards > 256 {
-		return newFF16(dataShards, parityShards, opts...)
+	o := defaultOptions
+	for _, opt := range opts {
+		opt(&o)
 	}
+
+	if (dataShards+parityShards > 256 && o.withLeopard == nil) ||
+		(o.withLeopard != nil && *o.withLeopard == true) {
+		return newFF16(dataShards, parityShards, o)
+	}
+	if dataShards+parityShards > 256 {
+		return nil, ErrMaxShardNum
+	}
+
 	r := reedSolomon{
 		DataShards:   dataShards,
 		ParityShards: parityShards,
 		Shards:       dataShards + parityShards,
-		o:            defaultOptions,
+		o:            o,
 	}
 
-	for _, opt := range opts {
-		opt(&r.o)
-	}
 	if dataShards <= 0 || parityShards < 0 {
 		return nil, ErrInvShardNum
 	}

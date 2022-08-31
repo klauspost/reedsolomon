@@ -33,7 +33,7 @@ type reedSolomonFF16 struct {
 }
 
 // newFF16 is like New, but for more than 256 total shards.
-func newFF16(dataShards, parityShards int, opts ...Option) (*reedSolomonFF16, error) {
+func newFF16(dataShards, parityShards int, opt options) (*reedSolomonFF16, error) {
 	initConstants()
 
 	if dataShards <= 0 || parityShards < 0 {
@@ -48,10 +48,7 @@ func newFF16(dataShards, parityShards int, opts ...Option) (*reedSolomonFF16, er
 		DataShards:   dataShards,
 		ParityShards: parityShards,
 		Shards:       dataShards + parityShards,
-		o:            defaultOptions,
-	}
-	for _, opt := range opts {
-		opt(&r.o)
+		o:            opt,
 	}
 	return r, nil
 }
