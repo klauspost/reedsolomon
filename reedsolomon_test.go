@@ -178,6 +178,10 @@ func testOpts() [][]Option {
 		{WithJerasureMatrix()},
 		{WithLeopardGF16(true)},
 	}
+	if testing.Short() {
+		opts = opts[:5]
+		return opts
+	}
 	for _, o := range opts[:] {
 		if defaultOptions.useSSSE3 {
 			n := make([]Option, len(o), len(o)+1)
@@ -201,13 +205,19 @@ func testOpts() [][]Option {
 	return opts
 }
 
+func parallelIfNotShort(t *testing.T) {
+	if !testing.Short() {
+		t.Parallel()
+	}
+}
+
 func TestEncoding(t *testing.T) {
 	t.Run("default", func(t *testing.T) {
-		t.Parallel()
+		parallelIfNotShort(t)
 		testEncoding(t, testOptions()...)
 	})
 	t.Run("default-dx", func(t *testing.T) {
-		t.Parallel()
+		parallelIfNotShort(t)
 		testEncodingIdx(t, testOptions()...)
 	})
 	// Spread somewhat, but don't overload...
@@ -215,7 +225,7 @@ func TestEncoding(t *testing.T) {
 	to2 := to[len(to)/2:]
 	to = to[:len(to)/2]
 	t.Run("reg", func(t *testing.T) {
-		t.Parallel()
+		parallelIfNotShort(t)
 		for i, o := range to {
 			t.Run(fmt.Sprintf("opt-%d", i), func(t *testing.T) {
 				testEncoding(t, o...)
@@ -223,7 +233,7 @@ func TestEncoding(t *testing.T) {
 		}
 	})
 	t.Run("reg2", func(t *testing.T) {
-		t.Parallel()
+		parallelIfNotShort(t)
 		for i, o := range to2 {
 			t.Run(fmt.Sprintf("opt-%d", i), func(t *testing.T) {
 				testEncoding(t, o...)
@@ -232,7 +242,7 @@ func TestEncoding(t *testing.T) {
 	})
 	if !testing.Short() {
 		t.Run("idx", func(t *testing.T) {
-			t.Parallel()
+			parallelIfNotShort(t)
 			for i, o := range to {
 				t.Run(fmt.Sprintf("idx-opt-%d", i), func(t *testing.T) {
 					testEncodingIdx(t, o...)
@@ -240,7 +250,7 @@ func TestEncoding(t *testing.T) {
 			}
 		})
 		t.Run("idx2", func(t *testing.T) {
-			t.Parallel()
+			parallelIfNotShort(t)
 			for i, o := range to2 {
 				t.Run(fmt.Sprintf("idx-opt-%d", i), func(t *testing.T) {
 					testEncodingIdx(t, o...)
@@ -471,7 +481,7 @@ func testEncodingIdx(t *testing.T, o ...Option) {
 }
 
 func TestUpdate(t *testing.T) {
-	t.Parallel()
+	parallelIfNotShort(t)
 	for i, o := range testOpts() {
 		t.Run(fmt.Sprintf("options %d", i), func(t *testing.T) {
 			testUpdate(t, o...)
@@ -594,7 +604,7 @@ func testUpdate(t *testing.T, o ...Option) {
 }
 
 func TestReconstruct(t *testing.T) {
-	t.Parallel()
+	parallelIfNotShort(t)
 	testReconstruct(t)
 	for i, o := range testOpts() {
 		t.Run(fmt.Sprintf("options %d", i), func(t *testing.T) {
@@ -744,7 +754,7 @@ func TestReconstructCustom(t *testing.T) {
 }
 
 func TestReconstructData(t *testing.T) {
-	t.Parallel()
+	parallelIfNotShort(t)
 	testReconstructData(t)
 	for i, o := range testOpts() {
 		t.Run(fmt.Sprintf("options %d", i), func(t *testing.T) {
@@ -892,6 +902,7 @@ func testReconstructData(t *testing.T, o ...Option) {
 }
 
 func TestReconstructPAR1Singular(t *testing.T) {
+	parallelIfNotShort(t)
 	perShard := 50
 	r, err := New(4, 4, testOptions(WithPAR1Matrix())...)
 	if err != nil {
@@ -929,7 +940,7 @@ func TestReconstructPAR1Singular(t *testing.T) {
 }
 
 func TestVerify(t *testing.T) {
-	t.Parallel()
+	parallelIfNotShort(t)
 	testVerify(t)
 	for i, o := range testOpts() {
 		t.Run(fmt.Sprintf("options %d", i), func(t *testing.T) {
@@ -1517,7 +1528,7 @@ func BenchmarkReconstructP10x5x20000(b *testing.B) {
 }
 
 func TestEncoderReconstruct(t *testing.T) {
-	t.Parallel()
+	parallelIfNotShort(t)
 	testEncoderReconstruct(t)
 	for _, o := range testOpts() {
 		testEncoderReconstruct(t, o...)
@@ -1669,7 +1680,7 @@ func TestStandardMatrices(t *testing.T) {
 	for i := 1; i < 256; i++ {
 		i := i
 		t.Run(fmt.Sprintf("x%d", i), func(t *testing.T) {
-			t.Parallel()
+			parallelIfNotShort(t)
 			// i == n.o. datashards
 			var shards = make([][]byte, 255)
 			for p := range shards {
@@ -1730,7 +1741,7 @@ func TestCauchyMatrices(t *testing.T) {
 	for i := 1; i < 256; i++ {
 		i := i
 		t.Run(fmt.Sprintf("x%d", i), func(t *testing.T) {
-			t.Parallel()
+			parallelIfNotShort(t)
 			var shards = make([][]byte, 255)
 			for p := range shards {
 				v := byte(i)
@@ -1790,7 +1801,7 @@ func TestPar1Matrices(t *testing.T) {
 	for i := 1; i < 256; i++ {
 		i := i
 		t.Run(fmt.Sprintf("x%d", i), func(t *testing.T) {
-			t.Parallel()
+			parallelIfNotShort(t)
 			var shards = make([][]byte, 255)
 			for p := range shards {
 				v := byte(i)
