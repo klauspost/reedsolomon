@@ -222,9 +222,12 @@ func WithCustomMatrix(customMatrix [][]byte) Option {
 	}
 }
 
-// WithLeopard will always use leopard for encoding.
+// WithLeopardGF16 will always use leopard GF16 for encoding,
+// even when there is less than 256 shards.
+// This will likely improve reconstruction time for some setups.
+// This is not compatible with Leopard output for <= 256 shards.
 // Note that Leopard places certain restrictions on use see other documentation.
-func WithLeopard(enabled bool) Option {
+func WithLeopardGF16(enabled bool) Option {
 	return func(o *options) {
 		o.withLeopard = &enabled
 	}

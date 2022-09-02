@@ -9,6 +9,7 @@ package reedsolomon
 
 import (
 	"bytes"
+	"errors"
 	"flag"
 	"fmt"
 	"math/rand"
@@ -174,6 +175,8 @@ func testOpts() [][]Option {
 		{WithMaxGoroutines(1), WithMinSplitSize(500000), WithSSSE3(false), WithAVX2(false), WithAVX512(false)},
 		{WithAutoGoroutines(50000), WithMinSplitSize(500)},
 		{WithInversionCache(false)},
+		{WithJerasureMatrix()},
+		{WithLeopardGF16(true)},
 	}
 	for _, o := range opts[:] {
 		if defaultOptions.useSSSE3 {
@@ -200,25 +203,56 @@ func testOpts() [][]Option {
 
 func TestEncoding(t *testing.T) {
 	t.Run("default", func(t *testing.T) {
+		t.Parallel()
 		testEncoding(t, testOptions()...)
 	})
 	t.Run("default-dx", func(t *testing.T) {
+		t.Parallel()
 		testEncodingIdx(t, testOptions()...)
 	})
-	for i, o := range testOpts() {
-		t.Run(fmt.Sprintf("opt-%d", i), func(t *testing.T) {
-			testEncoding(t, o...)
-		})
-		if !testing.Short() {
-			t.Run(fmt.Sprintf("idx-opt-%d", i), func(t *testing.T) {
-				testEncodingIdx(t, o...)
+	// Spread somewhat, but don't overload...
+	to := testOpts()
+	to2 := to[len(to)/2:]
+	to = to[:len(to)/2]
+	t.Run("reg", func(t *testing.T) {
+		t.Parallel()
+		for i, o := range to {
+			t.Run(fmt.Sprintf("opt-%d", i), func(t *testing.T) {
+				testEncoding(t, o...)
 			})
 		}
+	})
+	t.Run("reg2", func(t *testing.T) {
+		t.Parallel()
+		for i, o := range to2 {
+			t.Run(fmt.Sprintf("opt-%d", i), func(t *testing.T) {
+				testEncoding(t, o...)
+			})
+		}
+	})
+	if !testing.Short() {
+		t.Run("idx", func(t *testing.T) {
+			t.Parallel()
+			for i, o := range to {
+				t.Run(fmt.Sprintf("idx-opt-%d", i), func(t *testing.T) {
+					testEncodingIdx(t, o...)
+				})
+			}
+		})
+		t.Run("idx2", func(t *testing.T) {
+			t.Parallel()
+			for i, o := range to2 {
+				t.Run(fmt.Sprintf("idx-opt-%d", i), func(t *testing.T) {
+					testEncodingIdx(t, o...)
+				})
+			}
+		})
+
 	}
 }
 
 // matrix sizes to test.
-// note that par1 matric will fail on some combinations.
+// note that par1 matrix will fail on some combinations.
 var testSizes = [][2]int{
 	{1, 0}, {3, 0}, {5, 0}, {8, 0}, {10, 0}, {12, 0}, {14, 0}, {41, 0}, {49, 0},
 	{1, 1}, {1, 2}, {3, 3}, {3, 1}, {5, 3}, {8, 4}, {10, 30}, {12, 10}, {14, 7}, {41, 17}, {49, 1}, {5, 20},
@@ -237,19 +271,16 @@ func testEncoding(t *testing.T, o ...Option) {
 				sz = testDataSizesShort
 			}
 			for _, perShard := range sz {
-				if data+parity > 256 {
-					if perShard > 1000 {
-						t.Skip("long tests not needed. Not length sensitive")
-					}
-					// Round up to 64 bytes.
-					perShard = (perShard + 63) &^ 63
+				r, err := New(data, parity, testOptions(o...)...)
+				if err != nil {
+					t.Fatal(err)
 				}
+
+				mul := r.(Extensions).ShardSizeMultiple()
+				perShard = ((perShard + mul - 1) / mul) * mul
+
 				t.Run(fmt.Sprint(perShard), func(t *testing.T) {
 
-					r, err := New(data, parity, testOptions(o...)...)
-					if err != nil {
-						t.Fatal(err)
-					}
 					shards := make([][]byte, data+parity)
 					for s := range shards {
 						shards[s] = make([]byte, perShard)
@@ -334,20 +365,25 @@ func testEncodingIdx(t *testing.T, o ...Option) {
 		data, parity := size[0], size[1]
 		rng := rand.New(rand.NewSource(0xabadc0cac01a))
 		t.Run(fmt.Sprintf("%dx%d", data, parity), func(t *testing.T) {
-			if data+parity > 256 {
-				t.Skip("EncodingIdx not supported for total shards > 256")
-			}
+
 			sz := testDataSizes
 			if testing.Short() {
 				sz = testDataSizesShort
 			}
 			for _, perShard := range sz {
+				r, err := New(data, parity, testOptions(o...)...)
+				if err != nil {
+					t.Fatal(err)
+				}
+				if err := r.EncodeIdx(nil, 0, nil); err == ErrNotSupported {
+					t.Skip(err)
+					return
+				}
+				mul := r.(Extensions).ShardSizeMultiple()
+				perShard = ((perShard + mul - 1) / mul) * mul
+
 				t.Run(fmt.Sprint(perShard), func(t *testing.T) {
 
-					r, err := New(data, parity, testOptions(o...)...)
-					if err != nil {
-						t.Fatal(err)
-					}
 					shards := make([][]byte, data+parity)
 					for s := range shards {
 						shards[s] = make([]byte, perShard)
@@ -435,6 +471,7 @@ func testEncodingIdx(t *testing.T, o ...Option) {
 }
 
 func TestUpdate(t *testing.T) {
+	t.Parallel()
 	for i, o := range testOpts() {
 		t.Run(fmt.Sprintf("options %d", i), func(t *testing.T) {
 			testUpdate(t, o...)
@@ -452,11 +489,15 @@ func testUpdate(t *testing.T, o ...Option) {
 				sz = []int{50000}
 			}
 			for _, perShard := range sz {
+				r, err := New(data, parity, testOptions(o...)...)
+				if err != nil {
+					t.Fatal(err)
+				}
+				mul := r.(Extensions).ShardSizeMultiple()
+				perShard = ((perShard + mul - 1) / mul) * mul
+
 				t.Run(fmt.Sprint(perShard), func(t *testing.T) {
-					r, err := New(data, parity, testOptions(o...)...)
-					if err != nil {
-						t.Fatal(err)
-					}
+
 					shards := make([][]byte, data+parity)
 					for s := range shards {
 						shards[s] = make([]byte, perShard)
@@ -484,6 +525,10 @@ func testUpdate(t *testing.T, o ...Option) {
 						fillRandom(newdatashards[s])
 						err = r.Update(shards, newdatashards)
 						if err != nil {
+							if errors.Is(err, ErrNotSupported) {
+								t.Skip(err)
+								return
+							}
 							t.Fatal(err)
 						}
 						shards[s] = newdatashards[s]
@@ -549,6 +594,7 @@ func testUpdate(t *testing.T, o ...Option) {
 }
 
 func TestReconstruct(t *testing.T) {
+	t.Parallel()
 	testReconstruct(t)
 	for i, o := range testOpts() {
 		t.Run(fmt.Sprintf("options %d", i), func(t *testing.T) {
@@ -563,6 +609,11 @@ func testReconstruct(t *testing.T, o ...Option) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	xt := r.(Extensions)
+	mul := xt.ShardSizeMultiple()
+	perShard = ((perShard + mul - 1) / mul) * mul
+
+	t.Log(perShard)
 	shards := make([][]byte, 13)
 	for s := range shards {
 		shards[s] = make([]byte, perShard)
@@ -693,6 +744,7 @@ func TestReconstructCustom(t *testing.T) {
 }
 
 func TestReconstructData(t *testing.T) {
+	t.Parallel()
 	testReconstructData(t)
 	for i, o := range testOpts() {
 		t.Run(fmt.Sprintf("options %d", i), func(t *testing.T) {
@@ -707,6 +759,9 @@ func testReconstructData(t *testing.T, o ...Option) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	mul := r.(Extensions).ShardSizeMultiple()
+	perShard = ((perShard + mul - 1) / mul) * mul
+
 	shards := make([][]byte, 13)
 	for s := range shards {
 		shards[s] = make([]byte, perShard)
@@ -751,7 +806,8 @@ func testReconstructData(t *testing.T, o ...Option) {
 	}
 
 	if shardsCopy[2] != nil || shardsCopy[5] != nil || shardsCopy[6] != nil {
-		t.Fatal("ReconstructSome reconstructed extra shards")
+		// This is expected in some cases.
+		t.Log("ReconstructSome reconstructed extra shards")
 	}
 
 	// Reconstruct with 10 shards present. Use pre-allocated memory for one of them.
@@ -873,6 +929,7 @@ func TestReconstructPAR1Singular(t *testing.T) {
 }
 
 func TestVerify(t *testing.T) {
+	t.Parallel()
 	testVerify(t)
 	for i, o := range testOpts() {
 		t.Run(fmt.Sprintf("options %d", i), func(t *testing.T) {
@@ -887,6 +944,9 @@ func testVerify(t *testing.T, o ...Option) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	mul := r.(Extensions).ShardSizeMultiple()
+	perShard = ((perShard + mul - 1) / mul) * mul
+
 	shards := make([][]byte, 14)
 	for s := range shards {
 		shards[s] = make([]byte, perShard)
@@ -1457,6 +1517,7 @@ func BenchmarkReconstructP10x5x20000(b *testing.B) {
 }
 
 func TestEncoderReconstruct(t *testing.T) {
+	t.Parallel()
 	testEncoderReconstruct(t)
 	for _, o := range testOpts() {
 		testEncoderReconstruct(t, o...)
@@ -1465,7 +1526,7 @@ func TestEncoderReconstruct(t *testing.T) {
 
 func testEncoderReconstruct(t *testing.T, o ...Option) {
 	// Create some sample data
-	var data = make([]byte, 250000)
+	var data = make([]byte, 250<<10)
 	fillRandom(data)
 
 	// Create 5 data slices of 50000 elements each
@@ -1590,11 +1651,11 @@ func TestCodeSomeShards(t *testing.T) {
 	shards, _ := enc.Split(data)
 
 	old := runtime.GOMAXPROCS(1)
-	r.codeSomeShards(r.parity, shards[:r.DataShards], shards[r.DataShards:r.DataShards+r.ParityShards], len(shards[0]))
+	r.codeSomeShards(r.parity, shards[:r.dataShards], shards[r.dataShards:r.dataShards+r.parityShards], len(shards[0]))
 
 	// hopefully more than 1 CPU
 	runtime.GOMAXPROCS(runtime.NumCPU())
-	r.codeSomeShards(r.parity, shards[:r.DataShards], shards[r.DataShards:r.DataShards+r.ParityShards], len(shards[0]))
+	r.codeSomeShards(r.parity, shards[:r.dataShards], shards[r.dataShards:r.dataShards+r.parityShards], len(shards[0]))
 
 	// reset MAXPROCS, otherwise testing complains
 	runtime.GOMAXPROCS(old)
