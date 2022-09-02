@@ -1446,16 +1446,100 @@ func fftDIT2_avx2(x []byte, y []byte, table *[128]uint8)
 func mulgf16_avx2(x []byte, y []byte, table *[128]uint8)
 
 //go:noescape
-func ifftDIT4_avx512(work [][]byte, dist int, table01 *[128]uint8, table23 *[128]uint8, table02 *[128]uint8, logMask uint8)
+func ifftDIT4_avx512_0(work [][]byte, dist int, table01 *[128]uint8, table23 *[128]uint8, table02 *[128]uint8)
 
 //go:noescape
-func fftDIT4_avx512(work [][]byte, dist int, table01 *[128]uint8, table23 *[128]uint8, table02 *[128]uint8, logMask uint8)
+func fftDIT4_avx512_0(work [][]byte, dist int, table01 *[128]uint8, table23 *[128]uint8, table02 *[128]uint8)
 
 //go:noescape
-func ifftDIT4_avx2(work [][]byte, dist int, table01 *[128]uint8, table23 *[128]uint8, table02 *[128]uint8, logMask uint8)
+func ifftDIT4_avx512_1(work [][]byte, dist int, table01 *[128]uint8, table23 *[128]uint8, table02 *[128]uint8)
 
 //go:noescape
-func fftDIT4_avx2(work [][]byte, dist int, table01 *[128]uint8, table23 *[128]uint8, table02 *[128]uint8, logMask uint8)
+func fftDIT4_avx512_1(work [][]byte, dist int, table01 *[128]uint8, table23 *[128]uint8, table02 *[128]uint8)
+
+//go:noescape
+func ifftDIT4_avx512_2(work [][]byte, dist int, table01 *[128]uint8, table23 *[128]uint8, table02 *[128]uint8)
+
+//go:noescape
+func fftDIT4_avx512_2(work [][]byte, dist int, table01 *[128]uint8, table23 *[128]uint8, table02 *[128]uint8)
+
+//go:noescape
+func ifftDIT4_avx512_3(work [][]byte, dist int, table01 *[128]uint8, table23 *[128]uint8, table02 *[128]uint8)
+
+//go:noescape
+func fftDIT4_avx512_3(work [][]byte, dist int, table01 *[128]uint8, table23 *[128]uint8, table02 *[128]uint8)
+
+//go:noescape
+func ifftDIT4_avx512_4(work [][]byte, dist int, table01 *[128]uint8, table23 *[128]uint8, table02 *[128]uint8)
+
+//go:noescape
+func fftDIT4_avx512_4(work [][]byte, dist int, table01 *[128]uint8, table23 *[128]uint8, table02 *[128]uint8)
+
+//go:noescape
+func ifftDIT4_avx512_5(work [][]byte, dist int, table01 *[128]uint8, table23 *[128]uint8, table02 *[128]uint8)
+
+//go:noescape
+func fftDIT4_avx512_5(work [][]byte, dist int, table01 *[128]uint8, table23 *[128]uint8, table02 *[128]uint8)
+
+//go:noescape
+func ifftDIT4_avx512_6(work [][]byte, dist int, table01 *[128]uint8, table23 *[128]uint8, table02 *[128]uint8)
+
+//go:noescape
+func fftDIT4_avx512_6(work [][]byte, dist int, table01 *[128]uint8, table23 *[128]uint8, table02 *[128]uint8)
+
+//go:noescape
+func ifftDIT4_avx512_7(work [][]byte, dist int, table01 *[128]uint8, table23 *[128]uint8, table02 *[128]uint8)
+
+//go:noescape
+func fftDIT4_avx512_7(work [][]byte, dist int, table01 *[128]uint8, table23 *[128]uint8, table02 *[128]uint8)
+
+//go:noescape
+func ifftDIT4_avx2_0(work [][]byte, dist int, table01 *[128]uint8, table23 *[128]uint8, table02 *[128]uint8)
+
+//go:noescape
+func fftDIT4_avx2_0(work [][]byte, dist int, table01 *[128]uint8, table23 *[128]uint8, table02 *[128]uint8)
+
+//go:noescape
+func ifftDIT4_avx2_1(work [][]byte, dist int, table01 *[128]uint8, table23 *[128]uint8, table02 *[128]uint8)
+
+//go:noescape
+func fftDIT4_avx2_1(work [][]byte, dist int, table01 *[128]uint8, table23 *[128]uint8, table02 *[128]uint8)
+
+//go:noescape
+func ifftDIT4_avx2_2(work [][]byte, dist int, table01 *[128]uint8, table23 *[128]uint8, table02 *[128]uint8)
+
+//go:noescape
+func fftDIT4_avx2_2(work [][]byte, dist int, table01 *[128]uint8, table23 *[128]uint8, table02 *[128]uint8)
+
+//go:noescape
+func ifftDIT4_avx2_3(work [][]byte, dist int, table01 *[128]uint8, table23 *[128]uint8, table02 *[128]uint8)
+
+//go:noescape
+func fftDIT4_avx2_3(work [][]byte, dist int, table01 *[128]uint8, table23 *[128]uint8, table02 *[128]uint8)
+
+//go:noescape
+func ifftDIT4_avx2_4(work [][]byte, dist int, table01 *[128]uint8, table23 *[128]uint8, table02 *[128]uint8)
+
+//go:noescape
+func fftDIT4_avx2_4(work [][]byte, dist int, table01 *[128]uint8, table23 *[128]uint8, table02 *[128]uint8)
+
+//go:noescape
+func ifftDIT4_avx2_5(work [][]byte, dist int, table01 *[128]uint8, table23 *[128]uint8, table02 *[128]uint8)
+
+//go:noescape
+func fftDIT4_avx2_5(work [][]byte, dist int, table01 *[128]uint8, table23 *[128]uint8, table02 *[128]uint8)
+
+//go:noescape
+func ifftDIT4_avx2_6(work [][]byte, dist int, table01 *[128]uint8, table23 *[128]uint8, table02 *[128]uint8)
+
+//go:noescape
+func fftDIT4_avx2_6(work [][]byte, dist int, table01 *[128]uint8, table23 *[128]uint8, table02 *[128]uint8)
+
+//go:noescape
+func ifftDIT4_avx2_7(work [][]byte, dist int, table01 *[128]uint8, table23 *[128]uint8, table02 *[128]uint8)
+
+//go:noescape
+func fftDIT4_avx2_7(work [][]byte, dist int, table01 *[128]uint8, table23 *[128]uint8, table02 *[128]uint8)
 
 //go:noescape
 func ifftDIT2_ssse3(x []byte, y []byte, table *[128]uint8)
