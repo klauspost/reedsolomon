@@ -178,10 +178,7 @@ func testOpts() [][]Option {
 		{WithJerasureMatrix()},
 		{WithLeopardGF16(true)},
 	}
-	if testing.Short() {
-		opts = opts[:5]
-		return opts
-	}
+
 	for _, o := range opts[:] {
 		if defaultOptions.useSSSE3 {
 			n := make([]Option, len(o), len(o)+1)
@@ -216,10 +213,13 @@ func TestEncoding(t *testing.T) {
 		parallelIfNotShort(t)
 		testEncoding(t, testOptions()...)
 	})
-	t.Run("default-dx", func(t *testing.T) {
+	t.Run("default-idx", func(t *testing.T) {
 		parallelIfNotShort(t)
 		testEncodingIdx(t, testOptions()...)
 	})
+	if testing.Short() {
+		return
+	}
 	// Spread somewhat, but don't overload...
 	to := testOpts()
 	to2 := to[len(to)/2:]
