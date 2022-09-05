@@ -17,6 +17,7 @@ import (
 	"runtime"
 	"strconv"
 	"testing"
+	"time"
 )
 
 var noSSE2 = flag.Bool("no-sse2", !defaultOptions.useSSE2, "Disable SSE2")
@@ -279,6 +280,9 @@ func testEncoding(t *testing.T, o ...Option) {
 			sz := testDataSizes
 			if testing.Short() || data+parity > 256 {
 				sz = testDataSizesShort
+				if raceEnabled {
+					sz = testDataSizesShort[:1]
+				}
 			}
 			for _, perShard := range sz {
 				r, err := New(data, parity, testOptions(o...)...)
@@ -490,7 +494,6 @@ func TestUpdate(t *testing.T) {
 }
 
 func testUpdate(t *testing.T, o ...Option) {
-	rand.Seed(0)
 	for _, size := range [][2]int{{10, 3}, {17, 2}} {
 		data, parity := size[0], size[1]
 		t.Run(fmt.Sprintf("%dx%d", data, parity), func(t *testing.T) {
@@ -629,7 +632,6 @@ func testReconstruct(t *testing.T, o ...Option) {
 		shards[s] = make([]byte, perShard)
 	}
 
-	rand.Seed(0)
 	for s := 0; s < 13; s++ {
 		fillRandom(shards[s])
 	}
@@ -705,7 +707,6 @@ func TestReconstructCustom(t *testing.T) {
 		shards[s] = make([]byte, perShard)
 	}
 
-	rand.Seed(0)
 	for s := 0; s < len(shards); s++ {
 		fillRandom(shards[s])
 	}
@@ -777,7 +778,6 @@ func testReconstructData(t *testing.T, o ...Option) {
 		shards[s] = make([]byte, perShard)
 	}
 
-	rand.Seed(0)
 	for s := 0; s < 13; s++ {
 		fillRandom(shards[s])
 	}
@@ -913,7 +913,6 @@ func TestReconstructPAR1Singular(t *testing.T) {
 		shards[s] = make([]byte, perShard)
 	}
 
-	rand.Seed(0)
 	for s := 0; s < 8; s++ {
 		fillRandom(shards[s])
 	}
@@ -963,7 +962,6 @@ func testVerify(t *testing.T, o ...Option) {
 		shards[s] = make([]byte, perShard)
 	}
 
-	rand.Seed(0)
 	for s := 0; s < 10; s++ {
 		fillRandom(shards[s])
 	}
@@ -1069,8 +1067,9 @@ func TestOneEncode(t *testing.T) {
 }
 
 func fillRandom(p []byte) {
+	rng := rand.New(rand.NewSource(time.Now().UnixNano()))
 	for i := 0; i < len(p); i += 7 {
-		val := rand.Int63()
+		val := rng.Int63()
 		for j := 0; i+j < len(p) && j < 7; j++ {
 			p[i+j] = byte(val)
 			val >>= 8
@@ -1088,7 +1087,6 @@ func benchmarkEncode(b *testing.B, dataShards, parityShards, shardSize int) {
 		shards[s] = make([]byte, shardSize)
 	}
 
-	rand.Seed(0)
 	for s := 0; s < dataShards; s++ {
 		fillRandom(shards[s])
 	}
@@ -1114,7 +1112,6 @@ func benchmarkDecode(b *testing.B, dataShards, parityShards, shardSize int) {
 		shards[s] = make([]byte, shardSize)
 	}
 
-	rand.Seed(0)
 	for s := 0; s < dataShards; s++ {
 		fillRandom(shards[s])
 	}
@@ -1249,7 +1246,6 @@ func benchmarkVerify(b *testing.B, dataShards, parityShards, shardSize int) {
 		shards[s] = make([]byte, shardSize)
 	}
 
-	rand.Seed(0)
 	for s := 0; s < dataShards; s++ {
 		fillRandom(shards[s])
 	}
@@ -1331,7 +1327,6 @@ func benchmarkReconstruct(b *testing.B, dataShards, parityShards, shardSize int)
 		shards[s] = make([]byte, shardSize)
 	}
 
-	rand.Seed(0)
 	for s := 0; s < dataShards; s++ {
 		fillRandom(shards[s])
 	}
@@ -1415,7 +1410,6 @@ func benchmarkReconstructData(b *testing.B, dataShards, parityShards, shardSize 
 		shards[s] = make([]byte, shardSize)
 	}
 
-	rand.Seed(0)
 	for s := 0; s < dataShards; s++ {
 		fillRandom(shards[s])
 	}
@@ -1497,7 +1491,6 @@ func benchmarkReconstructP(b *testing.B, dataShards, parityShards, shardSize int
 			shards[s] = make([]byte, shardSize)
 		}
 
-		rand.Seed(0)
 		for s := 0; s < dataShards; s++ {
 			fillRandom(shards[s])
 		}
@@ -1614,7 +1607,6 @@ func testEncoderReconstruct(t *testing.T, o ...Option) {
 
 func TestSplitJoin(t *testing.T) {
 	var data = make([]byte, 250000)
-	rand.Seed(0)
 	fillRandom(data)
 
 	enc, _ := New(5, 3, testOptions()...)
@@ -1951,7 +1943,6 @@ func benchmarkParallel(b *testing.B, dataShards, parityShards, shardSize int) {
 	// Create independent shards
 	shardsCh := make(chan [][]byte, c)
 	for i := 0; i < c; i++ {
-		rand.Seed(int64(i))
 		shards := make([][]byte, dataShards+parityShards)
 		for s := range shards {
 			shards[s] = make([]byte, shardSize)

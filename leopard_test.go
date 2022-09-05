@@ -2,7 +2,6 @@ package reedsolomon
 
 import (
 	"bytes"
-	"math/rand"
 	"testing"
 )
 
@@ -126,7 +125,6 @@ func TestEncoderReconstructFailLeo(t *testing.T) {
 
 func TestSplitJoinLeo(t *testing.T) {
 	var data = make([]byte, (250<<10)-1)
-	rand.Seed(0)
 	fillRandom(data)
 
 	enc, _ := New(500, 300, testOptions()...)
