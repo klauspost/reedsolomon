@@ -1,8 +1,5 @@
 # Reed-Solomon
-[![Go Reference](https://pkg.go.dev/badge/github.com/klauspost/reedsolomon.svg)](https://pkg.go.dev/github.com/klauspost/reedsolomon) [![Build Status][3]][4]
-
-[3]: https://travis-ci.org/klauspost/reedsolomon.svg?branch=master
-[4]: https://travis-ci.org/klauspost/reedsolomon
+[![Go Reference](https://pkg.go.dev/badge/github.com/klauspost/reedsolomon.svg)](https://pkg.go.dev/github.com/klauspost/reedsolomon) [![Go](https://github.com/klauspost/reedsolomon/actions/workflows/go.yml/badge.svg)](https://github.com/klauspost/reedsolomon/actions/workflows/go.yml)
 
 Reed-Solomon Erasure Coding in Go, with speeds exceeding 1GB/s/cpu core implemented in pure Go.
 
