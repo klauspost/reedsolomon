@@ -144,58 +144,71 @@ func sliceXor(in, out []byte, o *options) {
 
 // 4-way butterfly
 func ifftDIT4(work [][]byte, dist int, log_m01, log_m23, log_m02 ffe, o *options) {
-	if o.useAVX2 || o.useAVX512 {
-		if len(work[0]) > 0 {
-			var mask uint8
-			if log_m01 == modulus {
-				mask |= 1 << 0
-			}
+	if len(work[0]) == 0 {
+		return
+	}
+
+	t01 := &multiply256LUT[log_m01]
+	t23 := &multiply256LUT[log_m23]
+	t02 := &multiply256LUT[log_m02]
+	if o.useAVX512 {
+		if log_m01 == modulus {
 			if log_m23 == modulus {
-				mask |= 1 << 1
-			}
-			if log_m02 == modulus {
-				mask |= 1 << 2
-			}
-			t01 := &multiply256LUT[log_m01]
-			t23 := &multiply256LUT[log_m23]
-			t02 := &multiply256LUT[log_m02]
-			if o.useAVX512 {
-				switch mask {
-				case 0:
-					ifftDIT4_avx512_0(work, dist*24, t01, t23, t02)
-				case 1:
-					ifftDIT4_avx512_1(work, dist*24, t01, t23, t02)
-				case 2:
-					ifftDIT4_avx512_2(work, dist*24, t01, t23, t02)
-				case 3:
-					ifftDIT4_avx512_3(work, dist*24, t01, t23, t02)
-				case 4:
-					ifftDIT4_avx512_4(work, dist*24, t01, t23, t02)
-				case 5:
-					ifftDIT4_avx512_5(work, dist*24, t01, t23, t02)
-				case 6:
-					ifftDIT4_avx512_6(work, dist*24, t01, t23, t02)
-				case 7:
+				if log_m02 == modulus {
 					ifftDIT4_avx512_7(work, dist*24, t01, t23, t02)
+				} else {
+					ifftDIT4_avx512_3(work, dist*24, t01, t23, t02)
 				}
 			} else {
-				switch mask {
-				case 0:
-					ifftDIT4_avx2_0(work, dist*24, t01, t23, t02)
-				case 1:
-					ifftDIT4_avx2_1(work, dist*24, t01, t23, t02)
-				case 2:
-					ifftDIT4_avx2_2(work, dist*24, t01, t23, t02)
-				case 3:
-					ifftDIT4_avx2_3(work, dist*24, t01, t23, t02)
-				case 4:
-					ifftDIT4_avx2_4(work, dist*24, t01, t23, t02)
-				case 5:
-					ifftDIT4_avx2_5(work, dist*24, t01, t23, t02)
-				case 6:
-					ifftDIT4_avx2_6(work, dist*24, t01, t23, t02)
-				case 7:
+				if log_m02 == modulus {
+					ifftDIT4_avx512_5(work, dist*24, t01, t23, t02)
+				} else {
+					ifftDIT4_avx512_1(work, dist*24, t01, t23, t02)
+				}
+			}
+		} else {
+			if log_m23 == modulus {
+				if log_m02 == modulus {
+					ifftDIT4_avx512_6(work, dist*24, t01, t23, t02)
+				} else {
+					ifftDIT4_avx512_2(work, dist*24, t01, t23, t02)
+				}
+			} else {
+				if log_m02 == modulus {
+					ifftDIT4_avx512_4(work, dist*24, t01, t23, t02)
+				} else {
+					ifftDIT4_avx512_0(work, dist*24, t01, t23, t02)
+				}
+			}
+		}
+		return
+	} else if o.useAVX2 {
+		if log_m01 == modulus {
+			if log_m23 == modulus {
+				if log_m02 == modulus {
 					ifftDIT4_avx2_7(work, dist*24, t01, t23, t02)
+				} else {
+					ifftDIT4_avx2_3(work, dist*24, t01, t23, t02)
+				}
+			} else {
+				if log_m02 == modulus {
+					ifftDIT4_avx2_5(work, dist*24, t01, t23, t02)
+				} else {
+					ifftDIT4_avx2_1(work, dist*24, t01, t23, t02)
+				}
+			}
+		} else {
+			if log_m23 == modulus {
+				if log_m02 == modulus {
+					ifftDIT4_avx2_6(work, dist*24, t01, t23, t02)
+				} else {
+					ifftDIT4_avx2_2(work, dist*24, t01, t23, t02)
+				}
+			} else {
+				if log_m02 == modulus {
+					ifftDIT4_avx2_4(work, dist*24, t01, t23, t02)
+				} else {
+					ifftDIT4_avx2_0(work, dist*24, t01, t23, t02)
 				}
 			}
 		}
@@ -205,58 +218,71 @@ func ifftDIT4(work [][]byte, dist int, log_m01, log_m23, log_m02 ffe, o *options
 }
 
 func fftDIT4(work [][]byte, dist int, log_m01, log_m23, log_m02 ffe, o *options) {
-	if o.useAVX2 || o.useAVX512 {
-		if len(work[0]) > 0 {
-			var mask uint8
-			if log_m02 == modulus {
-				mask |= 1 << 0
-			}
+	if len(work[0]) == 0 {
+		return
+	}
+
+	t01 := &multiply256LUT[log_m01]
+	t23 := &multiply256LUT[log_m23]
+	t02 := &multiply256LUT[log_m02]
+	if o.useAVX512 {
+		if log_m02 == modulus {
 			if log_m01 == modulus {
-				mask |= 1 << 1
-			}
-			if log_m23 == modulus {
-				mask |= 1 << 2
-			}
-			t01 := &multiply256LUT[log_m01]
-			t23 := &multiply256LUT[log_m23]
-			t02 := &multiply256LUT[log_m02]
-			if o.useAVX512 {
-				switch mask {
-				case 0:
-					fftDIT4_avx512_0(work, dist*24, t01, t23, t02)
-				case 1:
-					fftDIT4_avx512_1(work, dist*24, t01, t23, t02)
-				case 2:
-					fftDIT4_avx512_2(work, dist*24, t01, t23, t02)
-				case 3:
-					fftDIT4_avx512_3(work, dist*24, t01, t23, t02)
-				case 4:
-					fftDIT4_avx512_4(work, dist*24, t01, t23, t02)
-				case 5:
-					fftDIT4_avx512_5(work, dist*24, t01, t23, t02)
-				case 6:
-					fftDIT4_avx512_6(work, dist*24, t01, t23, t02)
-				case 7:
+				if log_m23 == modulus {
 					fftDIT4_avx512_7(work, dist*24, t01, t23, t02)
+				} else {
+					fftDIT4_avx512_3(work, dist*24, t01, t23, t02)
 				}
 			} else {
-				switch mask {
-				case 0:
-					fftDIT4_avx2_0(work, dist*24, t01, t23, t02)
-				case 1:
-					fftDIT4_avx2_1(work, dist*24, t01, t23, t02)
-				case 2:
-					fftDIT4_avx2_2(work, dist*24, t01, t23, t02)
-				case 3:
-					fftDIT4_avx2_3(work, dist*24, t01, t23, t02)
-				case 4:
-					fftDIT4_avx2_4(work, dist*24, t01, t23, t02)
-				case 5:
-					fftDIT4_avx2_5(work, dist*24, t01, t23, t02)
-				case 6:
-					fftDIT4_avx2_6(work, dist*24, t01, t23, t02)
-				case 7:
+				if log_m23 == modulus {
+					fftDIT4_avx512_5(work, dist*24, t01, t23, t02)
+				} else {
+					fftDIT4_avx512_1(work, dist*24, t01, t23, t02)
+				}
+			}
+		} else {
+			if log_m01 == modulus {
+				if log_m23 == modulus {
+					fftDIT4_avx512_6(work, dist*24, t01, t23, t02)
+				} else {
+					fftDIT4_avx512_2(work, dist*24, t01, t23, t02)
+				}
+			} else {
+				if log_m23 == modulus {
+					fftDIT4_avx512_4(work, dist*24, t01, t23, t02)
+				} else {
+					fftDIT4_avx512_0(work, dist*24, t01, t23, t02)
+				}
+			}
+		}
+		return
+	} else if o.useAVX2 {
+		if log_m02 == modulus {
+			if log_m01 == modulus {
+				if log_m23 == modulus {
 					fftDIT4_avx2_7(work, dist*24, t01, t23, t02)
+				} else {
+					fftDIT4_avx2_3(work, dist*24, t01, t23, t02)
+				}
+			} else {
+				if log_m23 == modulus {
+					fftDIT4_avx2_5(work, dist*24, t01, t23, t02)
+				} else {
+					fftDIT4_avx2_1(work, dist*24, t01, t23, t02)
+				}
+			}
+		} else {
+			if log_m01 == modulus {
+				if log_m23 == modulus {
+					fftDIT4_avx2_6(work, dist*24, t01, t23, t02)
+				} else {
+					fftDIT4_avx2_2(work, dist*24, t01, t23, t02)
+				}
+			} else {
+				if log_m23 == modulus {
+					fftDIT4_avx2_4(work, dist*24, t01, t23, t02)
+				} else {
+					fftDIT4_avx2_0(work, dist*24, t01, t23, t02)
 				}
 			}
 		}
