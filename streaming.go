@@ -223,18 +223,18 @@ func (r *rsStream) createSlice() [][]byte {
 // will be returned. If a parity writer returns an error, a
 // StreamWriteError will be returned.
 func (r *rsStream) Encode(data []io.Reader, parity []io.Writer) error {
-	if len(data) != r.r.DataShards {
+	if len(data) != r.r.dataShards {
 		return ErrTooFewShards
 	}
 
-	if len(parity) != r.r.ParityShards {
+	if len(parity) != r.r.parityShards {
 		return ErrTooFewShards
 	}
 
 	all := r.createSlice()
 	defer r.blockPool.Put(all)
-	in := all[:r.r.DataShards]
-	out := all[r.r.DataShards:]
+	in := all[:r.r.dataShards]
+	out := all[r.r.dataShards:]
 	read := 0
 
 	for {
@@ -429,7 +429,7 @@ func cWriteShards(out []io.Writer, in [][]byte) error {
 // If a shard stream returns an error, a StreamReadError type error
 // will be returned.
 func (r *rsStream) Verify(shards []io.Reader) (bool, error) {
-	if len(shards) != r.r.Shards {
+	if len(shards) != r.r.totalShards {
 		return false, ErrTooFewShards
 	}
 
@@ -476,10 +476,10 @@ var ErrReconstructMismatch = errors.New("valid shards and fill shards are mutual
 // However its integrity is not automatically verified.
 // Use the Verify function to check in case the data set is complete.
 func (r *rsStream) Reconstruct(valid []io.Reader, fill []io.Writer) error {
-	if len(valid) != r.r.Shards {
+	if len(valid) != r.r.totalShards {
 		return ErrTooFewShards
 	}
-	if len(fill) != r.r.Shards {
+	if len(fill) != r.r.totalShards {
 		return ErrTooFewShards
 	}
 
@@ -490,7 +490,7 @@ func (r *rsStream) Reconstruct(valid []io.Reader, fill []io.Writer) error {
 		if valid[i] != nil && fill[i] != nil {
 			return ErrReconstructMismatch
 		}
-		if i >= r.r.DataShards && fill[i] != nil {
+		if i >= r.r.dataShards && fill[i] != nil {
 			reconDataOnly = false
 		}
 	}
@@ -534,12 +534,12 @@ func (r *rsStream) Reconstruct(valid []io.Reader, fill []io.Writer) error {
 // If the total data size is less than outSize, ErrShortData will be returned.
 func (r *rsStream) Join(dst io.Writer, shards []io.Reader, outSize int64) error {
 	// Do we have enough shards?
-	if len(shards) < r.r.DataShards {
+	if len(shards) < r.r.dataShards {
 		return ErrTooFewShards
 	}
 
 	// Trim off parity shards if any
-	shards = shards[:r.r.DataShards]
+	shards = shards[:r.r.dataShards]
 	for i := range shards {
 		if shards[i] == nil {
 			return StreamReadError{Err: ErrShardNoData, Stream: i}
@@ -575,7 +575,7 @@ func (r *rsStream) Split(data io.Reader, dst []io.Writer, size int64) error {
 	if size == 0 {
 		return ErrShortData
 	}
-	if len(dst) != r.r.DataShards {
+	if len(dst) != r.r.dataShards {
 		return ErrInvShardNum
 	}
 
@@ -586,10 +586,10 @@ func (r *rsStream) Split(data io.Reader, dst []io.Writer, size int64) error {
 	}
 
 	// Calculate number of bytes per shard.
-	perShard := (size + int64(r.r.DataShards) - 1) / int64(r.r.DataShards)
+	perShard := (size + int64(r.r.dataShards) - 1) / int64(r.r.dataShards)
 
 	// Pad data to r.Shards*perShard.
-	padding := make([]byte, (int64(r.r.Shards)*perShard)-size)
+	padding := make([]byte, (int64(r.r.totalShards)*perShard)-size)
 	data = io.MultiReader(data, bytes.NewBuffer(padding))
 
 	// Split into equal-length shards and copy.

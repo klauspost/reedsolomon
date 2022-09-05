@@ -12,7 +12,6 @@ package reedsolomon
 
 import (
 	"bytes"
-	"errors"
 	"io"
 	"math/bits"
 	"sync"
@@ -21,11 +20,11 @@ import (
 	"github.com/klauspost/cpuid/v2"
 )
 
-// reedSolomonFF16 is like reedSolomon but for more than 256 total shards.
-type reedSolomonFF16 struct {
-	DataShards   int // Number of data shards, should not be modified.
-	ParityShards int // Number of parity shards, should not be modified.
-	Shards       int // Total number of shards. Calculated, and should not be modified.
+// leopardFF16 is like reedSolomon but for more than 256 total shards.
+type leopardFF16 struct {
+	dataShards   int // Number of data shards, should not be modified.
+	parityShards int // Number of parity shards, should not be modified.
+	totalShards  int // Total number of shards. Calculated, and should not be modified.
 
 	workPool sync.Pool
 
@@ -33,10 +32,10 @@ type reedSolomonFF16 struct {
 }
 
 // newFF16 is like New, but for more than 256 total shards.
-func newFF16(dataShards, parityShards int, opt options) (*reedSolomonFF16, error) {
+func newFF16(dataShards, parityShards int, opt options) (*leopardFF16, error) {
 	initConstants()
 
-	if dataShards <= 0 || parityShards < 0 {
+	if dataShards <= 0 || parityShards <= 0 {
 		return nil, ErrInvShardNum
 	}
 
@@ -44,13 +43,31 @@ func newFF16(dataShards, parityShards int, opt options) (*reedSolomonFF16, error
 		return nil, ErrMaxShardNum
 	}
 
-	r := &reedSolomonFF16{
-		DataShards:   dataShards,
-		ParityShards: parityShards,
-		Shards:       dataShards + parityShards,
+	r := &leopardFF16{
+		dataShards:   dataShards,
+		parityShards: parityShards,
+		totalShards:  dataShards + parityShards,
 		o:            opt,
 	}
 	return r, nil
+}
+
+var _ = Extensions(&leopardFF16{})
+
+func (r *leopardFF16) ShardSizeMultiple() int {
+	return 64
+}
+
+func (r *leopardFF16) DataShards() int {
+	return r.dataShards
+}
+
+func (r *leopardFF16) ParityShards() int {
+	return r.parityShards
+}
+
+func (r *leopardFF16) TotalShards() int {
+	return r.parityShards
 }
 
 type ffe uint16
@@ -87,8 +104,8 @@ type mul16LUT struct {
 // Stores lookup for avx2
 var multiply256LUT *[order][8 * 16]byte
 
-func (r *reedSolomonFF16) Encode(shards [][]byte) error {
-	if len(shards) != r.Shards {
+func (r *leopardFF16) Encode(shards [][]byte) error {
+	if len(shards) != r.totalShards {
 		return ErrTooFewShards
 	}
 
@@ -98,13 +115,13 @@ func (r *reedSolomonFF16) Encode(shards [][]byte) error {
 	return r.encode(shards)
 }
 
-func (r *reedSolomonFF16) encode(shards [][]byte) error {
-	shardSize := len(shards[0])
+func (r *leopardFF16) encode(shards [][]byte) error {
+	shardSize := shardSize(shards)
 	if shardSize%64 != 0 {
 		return ErrShardSize
 	}
 
-	m := ceilPow2(r.ParityShards)
+	m := ceilPow2(r.parityShards)
 	var work [][]byte
 	if w, ok := r.workPool.Get().([][]byte); ok {
 		work = w
@@ -124,15 +141,15 @@ func (r *reedSolomonFF16) encode(shards [][]byte) error {
 	defer r.workPool.Put(work)
 
 	mtrunc := m
-	if r.DataShards < mtrunc {
-		mtrunc = r.DataShards
+	if r.dataShards < mtrunc {
+		mtrunc = r.dataShards
 	}
 
 	skewLUT := fftSkew[m-1:]
 
 	sh := shards
 	ifftDITEncoder(
-		sh[:r.DataShards],
+		sh[:r.dataShards],
 		mtrunc,
 		work,
 		nil, // No xor output
@@ -141,13 +158,13 @@ func (r *reedSolomonFF16) encode(shards [][]byte) error {
 		&r.o,
 	)
 
-	lastCount := r.DataShards % m
-	if m >= r.DataShards {
+	lastCount := r.dataShards % m
+	if m >= r.dataShards {
 		goto skip_body
 	}
 
 	// For sets of m data pieces:
-	for i := m; i+m <= r.DataShards; i += m {
+	for i := m; i+m <= r.dataShards; i += m {
 		sh = sh[m:]
 		skewLUT = skewLUT[m:]
 
@@ -184,31 +201,31 @@ func (r *reedSolomonFF16) encode(shards [][]byte) error {
 
 skip_body:
 	// work <- FFT(work, m, 0)
-	fftDIT(work, r.ParityShards, m, fftSkew[:], &r.o)
+	fftDIT(work, r.parityShards, m, fftSkew[:], &r.o)
 
-	for i, w := range work[:r.ParityShards] {
-		sh := shards[i+r.DataShards]
+	for i, w := range work[:r.parityShards] {
+		sh := shards[i+r.dataShards]
 		if cap(sh) >= shardSize {
 			sh = append(sh[:0], w...)
 		} else {
 			sh = w
 		}
-		shards[i+r.DataShards] = sh
+		shards[i+r.dataShards] = sh
 	}
 
 	return nil
 }
 
-func (r *reedSolomonFF16) EncodeIdx(dataShard []byte, idx int, parity [][]byte) error {
-	return errors.New("not implemented")
+func (r *leopardFF16) EncodeIdx(dataShard []byte, idx int, parity [][]byte) error {
+	return ErrNotSupported
 }
 
-func (r *reedSolomonFF16) Join(dst io.Writer, shards [][]byte, outSize int) error {
+func (r *leopardFF16) Join(dst io.Writer, shards [][]byte, outSize int) error {
 	// Do we have enough shards?
-	if len(shards) < r.DataShards {
+	if len(shards) < r.dataShards {
 		return ErrTooFewShards
 	}
-	shards = shards[:r.DataShards]
+	shards = shards[:r.dataShards]
 
 	// Do we have enough data?
 	size := 0
@@ -243,17 +260,17 @@ func (r *reedSolomonFF16) Join(dst io.Writer, shards [][]byte, outSize int) erro
 	return nil
 }
 
-func (r *reedSolomonFF16) Update(shards [][]byte, newDatashards [][]byte) error {
-	return errors.New("not implemented")
+func (r *leopardFF16) Update(shards [][]byte, newDatashards [][]byte) error {
+	return ErrNotSupported
 }
 
-func (r *reedSolomonFF16) Split(data []byte) ([][]byte, error) {
+func (r *leopardFF16) Split(data []byte) ([][]byte, error) {
 	if len(data) == 0 {
 		return nil, ErrShortData
 	}
 	dataLen := len(data)
 	// Calculate number of bytes per data shard.
-	perShard := (len(data) + r.DataShards - 1) / r.DataShards
+	perShard := (len(data) + r.dataShards - 1) / r.dataShards
 	perShard = ((perShard + 63) / 64) * 64
 
 	if cap(data) > len(data) {
@@ -262,20 +279,20 @@ func (r *reedSolomonFF16) Split(data []byte) ([][]byte, error) {
 
 	// Only allocate memory if necessary
 	var padding []byte
-	if len(data) < (r.Shards * perShard) {
+	if len(data) < (r.totalShards * perShard) {
 		// calculate maximum number of full shards in `data` slice
 		fullShards := len(data) / perShard
-		padding = make([]byte, r.Shards*perShard-perShard*fullShards)
+		padding = make([]byte, r.totalShards*perShard-perShard*fullShards)
 		copy(padding, data[perShard*fullShards:])
 		data = data[0 : perShard*fullShards]
 	} else {
-		for i := dataLen; i < dataLen+r.DataShards; i++ {
+		for i := dataLen; i < dataLen+r.dataShards; i++ {
 			data[i] = 0
 		}
 	}
 
 	// Split into equal-length shards.
-	dst := make([][]byte, r.Shards)
+	dst := make([][]byte, r.totalShards)
 	i := 0
 	for ; i < len(dst) && len(data) >= perShard; i++ {
 		dst[i] = data[:perShard:perShard]
@@ -290,20 +307,20 @@ func (r *reedSolomonFF16) Split(data []byte) ([][]byte, error) {
 	return dst, nil
 }
 
-func (r *reedSolomonFF16) ReconstructSome(shards [][]byte, required []bool) error {
+func (r *leopardFF16) ReconstructSome(shards [][]byte, required []bool) error {
 	return r.ReconstructData(shards)
 }
 
-func (r *reedSolomonFF16) Reconstruct(shards [][]byte) error {
+func (r *leopardFF16) Reconstruct(shards [][]byte) error {
 	return r.reconstruct(shards, true)
 }
 
-func (r *reedSolomonFF16) ReconstructData(shards [][]byte) error {
+func (r *leopardFF16) ReconstructData(shards [][]byte) error {
 	return r.reconstruct(shards, false)
 }
 
-func (r *reedSolomonFF16) Verify(shards [][]byte) (bool, error) {
-	if len(shards) != r.Shards {
+func (r *leopardFF16) Verify(shards [][]byte) (bool, error) {
+	if len(shards) != r.totalShards {
 		return false, ErrTooFewShards
 	}
 	if err := checkShards(shards, false); err != nil {
@@ -312,9 +329,9 @@ func (r *reedSolomonFF16) Verify(shards [][]byte) (bool, error) {
 
 	// Re-encode parity shards to temporary storage.
 	shardSize := len(shards[0])
-	outputs := make([][]byte, r.Shards)
-	copy(outputs, shards[:r.DataShards])
-	for i := r.DataShards; i < r.Shards; i++ {
+	outputs := make([][]byte, r.totalShards)
+	copy(outputs, shards[:r.dataShards])
+	for i := r.dataShards; i < r.totalShards; i++ {
 		outputs[i] = make([]byte, shardSize)
 	}
 	if err := r.Encode(outputs); err != nil {
@@ -322,7 +339,7 @@ func (r *reedSolomonFF16) Verify(shards [][]byte) (bool, error) {
 	}
 
 	// Compare.
-	for i := r.DataShards; i < r.Shards; i++ {
+	for i := r.dataShards; i < r.totalShards; i++ {
 		if !bytes.Equal(outputs[i], shards[i]) {
 			return false, nil
 		}
@@ -330,8 +347,8 @@ func (r *reedSolomonFF16) Verify(shards [][]byte) (bool, error) {
 	return true, nil
 }
 
-func (r *reedSolomonFF16) reconstruct(shards [][]byte, recoverAll bool) error {
-	if len(shards) != r.Shards {
+func (r *leopardFF16) reconstruct(shards [][]byte, recoverAll bool) error {
+	if len(shards) != r.totalShards {
 		return ErrTooFewShards
 	}
 
@@ -343,22 +360,22 @@ func (r *reedSolomonFF16) reconstruct(shards [][]byte, recoverAll bool) error {
 	// nothing to do.
 	numberPresent := 0
 	dataPresent := 0
-	for i := 0; i < r.Shards; i++ {
+	for i := 0; i < r.totalShards; i++ {
 		if len(shards[i]) != 0 {
 			numberPresent++
-			if i < r.DataShards {
+			if i < r.dataShards {
 				dataPresent++
 			}
 		}
 	}
-	if numberPresent == r.Shards || !recoverAll && dataPresent == r.DataShards {
+	if numberPresent == r.totalShards || !recoverAll && dataPresent == r.dataShards {
 		// Cool. All of the shards have data. We don't
 		// need to do anything.
 		return nil
 	}
 
 	// Check if we have enough to reconstruct.
-	if numberPresent < r.DataShards {
+	if numberPresent < r.dataShards {
 		return ErrTooFewShards
 	}
 
@@ -367,27 +384,27 @@ func (r *reedSolomonFF16) reconstruct(shards [][]byte, recoverAll bool) error {
 		return ErrShardSize
 	}
 
-	m := ceilPow2(r.ParityShards)
-	n := ceilPow2(m + r.DataShards)
+	m := ceilPow2(r.parityShards)
+	n := ceilPow2(m + r.dataShards)
 
 	// Fill in error locations.
 	var errLocs [order]ffe
-	for i := 0; i < r.ParityShards; i++ {
-		if len(shards[i+r.DataShards]) == 0 {
+	for i := 0; i < r.parityShards; i++ {
+		if len(shards[i+r.dataShards]) == 0 {
 			errLocs[i] = 1
 		}
 	}
-	for i := r.ParityShards; i < m; i++ {
+	for i := r.parityShards; i < m; i++ {
 		errLocs[i] = 1
 	}
-	for i := 0; i < r.DataShards; i++ {
+	for i := 0; i < r.dataShards; i++ {
 		if len(shards[i]) == 0 {
 			errLocs[i+m] = 1
 		}
 	}
 	// Evaluate error locator polynomial
 
-	fwht(&errLocs, order, m+r.DataShards)
+	fwht(&errLocs, order, m+r.dataShards)
 
 	for i := 0; i < order; i++ {
 		errLocs[i] = ffe((uint(errLocs[i]) * uint(logWalsh[i])) % modulus)
@@ -415,34 +432,34 @@ func (r *reedSolomonFF16) reconstruct(shards [][]byte, recoverAll bool) error {
 
 	// work <- recovery data
 
-	for i := 0; i < r.ParityShards; i++ {
-		if len(shards[i+r.DataShards]) != 0 {
-			mulgf16(work[i], shards[i+r.DataShards], errLocs[i], &r.o)
+	for i := 0; i < r.parityShards; i++ {
+		if len(shards[i+r.dataShards]) != 0 {
+			mulgf16(work[i], shards[i+r.dataShards], errLocs[i], &r.o)
 		} else {
 			memclr(work[i])
 		}
 	}
-	for i := r.ParityShards; i < m; i++ {
+	for i := r.parityShards; i < m; i++ {
 		memclr(work[i])
 	}
 
 	// work <- original data
 
-	for i := 0; i < r.DataShards; i++ {
+	for i := 0; i < r.dataShards; i++ {
 		if len(shards[i]) != 0 {
 			mulgf16(work[m+i], shards[i], errLocs[m+i], &r.o)
 		} else {
 			memclr(work[m+i])
 		}
 	}
-	for i := m + r.DataShards; i < n; i++ {
+	for i := m + r.dataShards; i < n; i++ {
 		memclr(work[i])
 	}
 
 	// work <- IFFT(work, n, 0)
 
 	ifftDITDecoder(
-		m+r.DataShards,
+		m+r.dataShards,
 		work,
 		n,
 		fftSkew[:],
@@ -458,7 +475,7 @@ func (r *reedSolomonFF16) reconstruct(shards [][]byte, recoverAll bool) error {
 
 	// work <- FFT(work, n, 0) truncated to m + dataShards
 
-	outputCount := m + r.DataShards
+	outputCount := m + r.dataShards
 
 	fftDIT(work, outputCount, n, fftSkew[:], &r.o)
 
@@ -468,9 +485,9 @@ func (r *reedSolomonFF16) reconstruct(shards [][]byte, recoverAll bool) error {
 	//  mul_mem(x, y, log_m, ) equals x[] = y[] * log_m
 	//
 	// mem layout: [Recovery Data (Power of Two = M)] [Original Data (K)] [Zero Padding out to N]
-	end := r.DataShards
+	end := r.dataShards
 	if recoverAll {
-		end = r.Shards
+		end = r.totalShards
 	}
 	for i := 0; i < end; i++ {
 		if len(shards[i]) != 0 {
@@ -481,9 +498,9 @@ func (r *reedSolomonFF16) reconstruct(shards [][]byte, recoverAll bool) error {
 		} else {
 			shards[i] = make([]byte, shardSize)
 		}
-		if i >= r.DataShards {
+		if i >= r.dataShards {
 			// Parity shard.
-			mulgf16(shards[i], work[i-r.DataShards], modulus-errLocs[i-r.DataShards], &r.o)
+			mulgf16(shards[i], work[i-r.dataShards], modulus-errLocs[i-r.dataShards], &r.o)
 		} else {
 			// Data shard.
 			mulgf16(shards[i], work[i+m], modulus-errLocs[i+m], &r.o)

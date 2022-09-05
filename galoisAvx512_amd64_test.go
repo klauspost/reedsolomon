@@ -326,14 +326,14 @@ func testCodeSomeShardsAvx512WithLength(t *testing.T, ds, ps, l int, parallel bo
 	shards, _ := enc.Split(data)
 
 	// Fill shards to encode with garbage
-	for i := r.DataShards; i < r.DataShards+r.ParityShards; i++ {
+	for i := r.dataShards; i < r.dataShards+r.parityShards; i++ {
 		rand.Read(shards[i])
 	}
 
 	if parallel {
-		r.codeSomeShardsAvx512P(r.parity, shards[:r.DataShards], shards[r.DataShards:], len(shards[0]))
+		r.codeSomeShardsAvx512P(r.parity, shards[:r.dataShards], shards[r.dataShards:], len(shards[0]))
 	} else {
-		r.codeSomeShardsAvx512(r.parity, shards[:r.DataShards], shards[r.DataShards:r.DataShards+r.ParityShards], len(shards[0]))
+		r.codeSomeShardsAvx512(r.parity, shards[:r.dataShards], shards[r.dataShards:r.dataShards+r.parityShards], len(shards[0]))
 	}
 
 	correct, _ := r.Verify(shards)

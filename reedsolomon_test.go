@@ -9,6 +9,7 @@ package reedsolomon
 
 import (
 	"bytes"
+	"errors"
 	"flag"
 	"fmt"
 	"math/rand"
@@ -16,6 +17,7 @@ import (
 	"runtime"
 	"strconv"
 	"testing"
+	"time"
 )
 
 var noSSE2 = flag.Bool("no-sse2", !defaultOptions.useSSE2, "Disable SSE2")
@@ -174,7 +176,10 @@ func testOpts() [][]Option {
 		{WithMaxGoroutines(1), WithMinSplitSize(500000), WithSSSE3(false), WithAVX2(false), WithAVX512(false)},
 		{WithAutoGoroutines(50000), WithMinSplitSize(500)},
 		{WithInversionCache(false)},
+		{WithJerasureMatrix()},
+		{WithLeopardGF16(true)},
 	}
+
 	for _, o := range opts[:] {
 		if defaultOptions.useSSSE3 {
 			n := make([]Option, len(o), len(o)+1)
@@ -198,27 +203,67 @@ func testOpts() [][]Option {
 	return opts
 }
 
+func parallelIfNotShort(t *testing.T) {
+	if !testing.Short() {
+		t.Parallel()
+	}
+}
+
 func TestEncoding(t *testing.T) {
 	t.Run("default", func(t *testing.T) {
+		parallelIfNotShort(t)
 		testEncoding(t, testOptions()...)
 	})
-	t.Run("default-dx", func(t *testing.T) {
+	t.Run("default-idx", func(t *testing.T) {
+		parallelIfNotShort(t)
 		testEncodingIdx(t, testOptions()...)
 	})
-	for i, o := range testOpts() {
-		t.Run(fmt.Sprintf("opt-%d", i), func(t *testing.T) {
-			testEncoding(t, o...)
-		})
-		if !testing.Short() {
-			t.Run(fmt.Sprintf("idx-opt-%d", i), func(t *testing.T) {
-				testEncodingIdx(t, o...)
+	if testing.Short() {
+		return
+	}
+	// Spread somewhat, but don't overload...
+	to := testOpts()
+	to2 := to[len(to)/2:]
+	to = to[:len(to)/2]
+	t.Run("reg", func(t *testing.T) {
+		parallelIfNotShort(t)
+		for i, o := range to {
+			t.Run(fmt.Sprintf("opt-%d", i), func(t *testing.T) {
+				testEncoding(t, o...)
 			})
 		}
+	})
+	t.Run("reg2", func(t *testing.T) {
+		parallelIfNotShort(t)
+		for i, o := range to2 {
+			t.Run(fmt.Sprintf("opt-%d", i), func(t *testing.T) {
+				testEncoding(t, o...)
+			})
+		}
+	})
+	if !testing.Short() {
+		t.Run("idx", func(t *testing.T) {
+			parallelIfNotShort(t)
+			for i, o := range to {
+				t.Run(fmt.Sprintf("idx-opt-%d", i), func(t *testing.T) {
+					testEncodingIdx(t, o...)
+				})
+			}
+		})
+		t.Run("idx2", func(t *testing.T) {
+			parallelIfNotShort(t)
+			for i, o := range to2 {
+				t.Run(fmt.Sprintf("idx-opt-%d", i), func(t *testing.T) {
+					testEncodingIdx(t, o...)
+				})
+			}
+		})
+
 	}
 }
 
 // matrix sizes to test.
-// note that par1 matric will fail on some combinations.
+// note that par1 matrix will fail on some combinations.
 var testSizes = [][2]int{
 	{1, 0}, {3, 0}, {5, 0}, {8, 0}, {10, 0}, {12, 0}, {14, 0}, {41, 0}, {49, 0},
 	{1, 1}, {1, 2}, {3, 3}, {3, 1}, {5, 3}, {8, 4}, {10, 30}, {12, 10}, {14, 7}, {41, 17}, {49, 1}, {5, 20},
@@ -235,21 +280,21 @@ func testEncoding(t *testing.T, o ...Option) {
 			sz := testDataSizes
 			if testing.Short() || data+parity > 256 {
 				sz = testDataSizesShort
+				if raceEnabled {
+					sz = testDataSizesShort[:1]
+				}
 			}
 			for _, perShard := range sz {
-				if data+parity > 256 {
-					if perShard > 1000 {
-						t.Skip("long tests not needed. Not length sensitive")
-					}
-					// Round up to 64 bytes.
-					perShard = (perShard + 63) &^ 63
+				r, err := New(data, parity, testOptions(o...)...)
+				if err != nil {
+					t.Fatal(err)
 				}
+
+				mul := r.(Extensions).ShardSizeMultiple()
+				perShard = ((perShard + mul - 1) / mul) * mul
+
 				t.Run(fmt.Sprint(perShard), func(t *testing.T) {
 
-					r, err := New(data, parity, testOptions(o...)...)
-					if err != nil {
-						t.Fatal(err)
-					}
 					shards := make([][]byte, data+parity)
 					for s := range shards {
 						shards[s] = make([]byte, perShard)
@@ -334,20 +379,25 @@ func testEncodingIdx(t *testing.T, o ...Option) {
 		data, parity := size[0], size[1]
 		rng := rand.New(rand.NewSource(0xabadc0cac01a))
 		t.Run(fmt.Sprintf("%dx%d", data, parity), func(t *testing.T) {
-			if data+parity > 256 {
-				t.Skip("EncodingIdx not supported for total shards > 256")
-			}
+
 			sz := testDataSizes
 			if testing.Short() {
 				sz = testDataSizesShort
 			}
 			for _, perShard := range sz {
+				r, err := New(data, parity, testOptions(o...)...)
+				if err != nil {
+					t.Fatal(err)
+				}
+				if err := r.EncodeIdx(nil, 0, nil); err == ErrNotSupported {
+					t.Skip(err)
+					return
+				}
+				mul := r.(Extensions).ShardSizeMultiple()
+				perShard = ((perShard + mul - 1) / mul) * mul
+
 				t.Run(fmt.Sprint(perShard), func(t *testing.T) {
 
-					r, err := New(data, parity, testOptions(o...)...)
-					if err != nil {
-						t.Fatal(err)
-					}
 					shards := make([][]byte, data+parity)
 					for s := range shards {
 						shards[s] = make([]byte, perShard)
@@ -435,6 +485,7 @@ func testEncodingIdx(t *testing.T, o ...Option) {
 }
 
 func TestUpdate(t *testing.T) {
+	parallelIfNotShort(t)
 	for i, o := range testOpts() {
 		t.Run(fmt.Sprintf("options %d", i), func(t *testing.T) {
 			testUpdate(t, o...)
@@ -443,7 +494,6 @@ func TestUpdate(t *testing.T) {
 }
 
 func testUpdate(t *testing.T, o ...Option) {
-	rand.Seed(0)
 	for _, size := range [][2]int{{10, 3}, {17, 2}} {
 		data, parity := size[0], size[1]
 		t.Run(fmt.Sprintf("%dx%d", data, parity), func(t *testing.T) {
@@ -452,11 +502,15 @@ func testUpdate(t *testing.T, o ...Option) {
 				sz = []int{50000}
 			}
 			for _, perShard := range sz {
+				r, err := New(data, parity, testOptions(o...)...)
+				if err != nil {
+					t.Fatal(err)
+				}
+				mul := r.(Extensions).ShardSizeMultiple()
+				perShard = ((perShard + mul - 1) / mul) * mul
+
 				t.Run(fmt.Sprint(perShard), func(t *testing.T) {
-					r, err := New(data, parity, testOptions(o...)...)
-					if err != nil {
-						t.Fatal(err)
-					}
+
 					shards := make([][]byte, data+parity)
 					for s := range shards {
 						shards[s] = make([]byte, perShard)
@@ -484,6 +538,10 @@ func testUpdate(t *testing.T, o ...Option) {
 						fillRandom(newdatashards[s])
 						err = r.Update(shards, newdatashards)
 						if err != nil {
+							if errors.Is(err, ErrNotSupported) {
+								t.Skip(err)
+								return
+							}
 							t.Fatal(err)
 						}
 						shards[s] = newdatashards[s]
@@ -549,6 +607,7 @@ func testUpdate(t *testing.T, o ...Option) {
 }
 
 func TestReconstruct(t *testing.T) {
+	parallelIfNotShort(t)
 	testReconstruct(t)
 	for i, o := range testOpts() {
 		t.Run(fmt.Sprintf("options %d", i), func(t *testing.T) {
@@ -563,12 +622,16 @@ func testReconstruct(t *testing.T, o ...Option) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	xt := r.(Extensions)
+	mul := xt.ShardSizeMultiple()
+	perShard = ((perShard + mul - 1) / mul) * mul
+
+	t.Log(perShard)
 	shards := make([][]byte, 13)
 	for s := range shards {
 		shards[s] = make([]byte, perShard)
 	}
 
-	rand.Seed(0)
 	for s := 0; s < 13; s++ {
 		fillRandom(shards[s])
 	}
@@ -644,7 +707,6 @@ func TestReconstructCustom(t *testing.T) {
 		shards[s] = make([]byte, perShard)
 	}
 
-	rand.Seed(0)
 	for s := 0; s < len(shards); s++ {
 		fillRandom(shards[s])
 	}
@@ -693,6 +755,7 @@ func TestReconstructCustom(t *testing.T) {
 }
 
 func TestReconstructData(t *testing.T) {
+	parallelIfNotShort(t)
 	testReconstructData(t)
 	for i, o := range testOpts() {
 		t.Run(fmt.Sprintf("options %d", i), func(t *testing.T) {
@@ -707,14 +770,16 @@ func testReconstructData(t *testing.T, o ...Option) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	mul := r.(Extensions).ShardSizeMultiple()
+	perShard = ((perShard + mul - 1) / mul) * mul
+
 	shards := make([][]byte, 13)
 	for s := range shards {
 		shards[s] = make([]byte, perShard)
 	}
 
-	rand.Seed(0)
 	for s := 0; s < 13; s++ {
-		fillRandom(shards[s])
+		fillRandom(shards[s], int64(s))
 	}
 
 	err = r.Encode(shards)
@@ -751,7 +816,8 @@ func testReconstructData(t *testing.T, o ...Option) {
 	}
 
 	if shardsCopy[2] != nil || shardsCopy[5] != nil || shardsCopy[6] != nil {
-		t.Fatal("ReconstructSome reconstructed extra shards")
+		// This is expected in some cases.
+		t.Log("ReconstructSome reconstructed extra shards")
 	}
 
 	// Reconstruct with 10 shards present. Use pre-allocated memory for one of them.
@@ -759,7 +825,7 @@ func testReconstructData(t *testing.T, o ...Option) {
 	shards[2] = nil
 	shard4 := shards[4]
 	shards[4] = shard4[:0]
-	fillRandom(shard4)
+	fillRandom(shard4, 4)
 
 	err = r.ReconstructData(shards)
 	if err != nil {
@@ -836,6 +902,7 @@ func testReconstructData(t *testing.T, o ...Option) {
 }
 
 func TestReconstructPAR1Singular(t *testing.T) {
+	parallelIfNotShort(t)
 	perShard := 50
 	r, err := New(4, 4, testOptions(WithPAR1Matrix())...)
 	if err != nil {
@@ -846,7 +913,6 @@ func TestReconstructPAR1Singular(t *testing.T) {
 		shards[s] = make([]byte, perShard)
 	}
 
-	rand.Seed(0)
 	for s := 0; s < 8; s++ {
 		fillRandom(shards[s])
 	}
@@ -873,6 +939,7 @@ func TestReconstructPAR1Singular(t *testing.T) {
 }
 
 func TestVerify(t *testing.T) {
+	parallelIfNotShort(t)
 	testVerify(t)
 	for i, o := range testOpts() {
 		t.Run(fmt.Sprintf("options %d", i), func(t *testing.T) {
@@ -887,14 +954,16 @@ func testVerify(t *testing.T, o ...Option) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	mul := r.(Extensions).ShardSizeMultiple()
+	perShard = ((perShard + mul - 1) / mul) * mul
+
 	shards := make([][]byte, 14)
 	for s := range shards {
 		shards[s] = make([]byte, perShard)
 	}
 
-	rand.Seed(0)
 	for s := 0; s < 10; s++ {
-		fillRandom(shards[s])
+		fillRandom(shards[s], 0)
 	}
 
 	err = r.Encode(shards)
@@ -911,7 +980,7 @@ func testVerify(t *testing.T, o ...Option) {
 	}
 
 	// Put in random data. Verification should fail
-	fillRandom(shards[10])
+	fillRandom(shards[10], 1)
 	ok, err = r.Verify(shards)
 	if err != nil {
 		t.Fatal(err)
@@ -925,7 +994,7 @@ func testVerify(t *testing.T, o ...Option) {
 		t.Fatal(err)
 	}
 	// Fill a data segment with random data
-	fillRandom(shards[0])
+	fillRandom(shards[0], 2)
 	ok, err = r.Verify(shards)
 	if err != nil {
 		t.Fatal(err)
@@ -997,9 +1066,14 @@ func TestOneEncode(t *testing.T) {
 
 }
 
-func fillRandom(p []byte) {
+func fillRandom(p []byte, seed ...int64) {
+	src := rand.NewSource(time.Now().UnixNano())
+	if len(seed) > 0 {
+		src = rand.NewSource(seed[0])
+	}
+	rng := rand.New(src)
 	for i := 0; i < len(p); i += 7 {
-		val := rand.Int63()
+		val := rng.Int63()
 		for j := 0; i+j < len(p) && j < 7; j++ {
 			p[i+j] = byte(val)
 			val >>= 8
@@ -1017,7 +1091,6 @@ func benchmarkEncode(b *testing.B, dataShards, parityShards, shardSize int) {
 		shards[s] = make([]byte, shardSize)
 	}
 
-	rand.Seed(0)
 	for s := 0; s < dataShards; s++ {
 		fillRandom(shards[s])
 	}
@@ -1043,7 +1116,6 @@ func benchmarkDecode(b *testing.B, dataShards, parityShards, shardSize int) {
 		shards[s] = make([]byte, shardSize)
 	}
 
-	rand.Seed(0)
 	for s := 0; s < dataShards; s++ {
 		fillRandom(shards[s])
 	}
@@ -1178,7 +1250,6 @@ func benchmarkVerify(b *testing.B, dataShards, parityShards, shardSize int) {
 		shards[s] = make([]byte, shardSize)
 	}
 
-	rand.Seed(0)
 	for s := 0; s < dataShards; s++ {
 		fillRandom(shards[s])
 	}
@@ -1260,7 +1331,6 @@ func benchmarkReconstruct(b *testing.B, dataShards, parityShards, shardSize int)
 		shards[s] = make([]byte, shardSize)
 	}
 
-	rand.Seed(0)
 	for s := 0; s < dataShards; s++ {
 		fillRandom(shards[s])
 	}
@@ -1344,7 +1414,6 @@ func benchmarkReconstructData(b *testing.B, dataShards, parityShards, shardSize 
 		shards[s] = make([]byte, shardSize)
 	}
 
-	rand.Seed(0)
 	for s := 0; s < dataShards; s++ {
 		fillRandom(shards[s])
 	}
@@ -1426,7 +1495,6 @@ func benchmarkReconstructP(b *testing.B, dataShards, parityShards, shardSize int
 			shards[s] = make([]byte, shardSize)
 		}
 
-		rand.Seed(0)
 		for s := 0; s < dataShards; s++ {
 			fillRandom(shards[s])
 		}
@@ -1457,6 +1525,7 @@ func BenchmarkReconstructP10x5x20000(b *testing.B) {
 }
 
 func TestEncoderReconstruct(t *testing.T) {
+	parallelIfNotShort(t)
 	testEncoderReconstruct(t)
 	for _, o := range testOpts() {
 		testEncoderReconstruct(t, o...)
@@ -1465,7 +1534,7 @@ func TestEncoderReconstruct(t *testing.T) {
 
 func testEncoderReconstruct(t *testing.T, o ...Option) {
 	// Create some sample data
-	var data = make([]byte, 250000)
+	var data = make([]byte, 250<<10)
 	fillRandom(data)
 
 	// Create 5 data slices of 50000 elements each
@@ -1542,7 +1611,6 @@ func testEncoderReconstruct(t *testing.T, o ...Option) {
 
 func TestSplitJoin(t *testing.T) {
 	var data = make([]byte, 250000)
-	rand.Seed(0)
 	fillRandom(data)
 
 	enc, _ := New(5, 3, testOptions()...)
@@ -1590,11 +1658,11 @@ func TestCodeSomeShards(t *testing.T) {
 	shards, _ := enc.Split(data)
 
 	old := runtime.GOMAXPROCS(1)
-	r.codeSomeShards(r.parity, shards[:r.DataShards], shards[r.DataShards:r.DataShards+r.ParityShards], len(shards[0]))
+	r.codeSomeShards(r.parity, shards[:r.dataShards], shards[r.dataShards:r.dataShards+r.parityShards], len(shards[0]))
 
 	// hopefully more than 1 CPU
 	runtime.GOMAXPROCS(runtime.NumCPU())
-	r.codeSomeShards(r.parity, shards[:r.DataShards], shards[r.DataShards:r.DataShards+r.ParityShards], len(shards[0]))
+	r.codeSomeShards(r.parity, shards[:r.dataShards], shards[r.dataShards:r.dataShards+r.parityShards], len(shards[0]))
 
 	// reset MAXPROCS, otherwise testing complains
 	runtime.GOMAXPROCS(old)
@@ -1608,7 +1676,7 @@ func TestStandardMatrices(t *testing.T) {
 	for i := 1; i < 256; i++ {
 		i := i
 		t.Run(fmt.Sprintf("x%d", i), func(t *testing.T) {
-			t.Parallel()
+			parallelIfNotShort(t)
 			// i == n.o. datashards
 			var shards = make([][]byte, 255)
 			for p := range shards {
@@ -1669,7 +1737,7 @@ func TestCauchyMatrices(t *testing.T) {
 	for i := 1; i < 256; i++ {
 		i := i
 		t.Run(fmt.Sprintf("x%d", i), func(t *testing.T) {
-			t.Parallel()
+			parallelIfNotShort(t)
 			var shards = make([][]byte, 255)
 			for p := range shards {
 				v := byte(i)
@@ -1729,7 +1797,7 @@ func TestPar1Matrices(t *testing.T) {
 	for i := 1; i < 256; i++ {
 		i := i
 		t.Run(fmt.Sprintf("x%d", i), func(t *testing.T) {
-			t.Parallel()
+			parallelIfNotShort(t)
 			var shards = make([][]byte, 255)
 			for p := range shards {
 				v := byte(i)
@@ -1879,7 +1947,6 @@ func benchmarkParallel(b *testing.B, dataShards, parityShards, shardSize int) {
 	// Create independent shards
 	shardsCh := make(chan [][]byte, c)
 	for i := 0; i < c; i++ {
-		rand.Seed(int64(i))
 		shards := make([][]byte, dataShards+parityShards)
 		for s := range shards {
 			shards[s] = make([]byte, shardSize)

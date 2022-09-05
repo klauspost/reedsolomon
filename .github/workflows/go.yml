@@ -32,12 +32,12 @@ jobs:
       run: go test ./...
 
     - name: Test Noasm
-      run: go test -tags=noasm&&go test -no-avx512&&go test -no-avx512 -no-avx2&&go test -no-avx512 -no-avx2 -no-ssse3
+      run: go test -tags=noasm -short&&go test -short -no-avx512&&go test -short -no-avx512 -no-avx2&&go test -no-avx512 -no-avx2 -no-ssse3 -short
 
     - name: Test Race
       env:
         CGO_ENABLED: 1
-      run: go test -cpu="1,4" -short -race -v .
+      run: go test -cpu="1,4" -short -race -v -timeout 20m .
 
   build-special:
     env:
