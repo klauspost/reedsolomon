@@ -779,7 +779,7 @@ func testReconstructData(t *testing.T, o ...Option) {
 	}
 
 	for s := 0; s < 13; s++ {
-		fillRandom(shards[s])
+		fillRandom(shards[s], int64(s))
 	}
 
 	err = r.Encode(shards)
@@ -825,7 +825,7 @@ func testReconstructData(t *testing.T, o ...Option) {
 	shards[2] = nil
 	shard4 := shards[4]
 	shards[4] = shard4[:0]
-	fillRandom(shard4)
+	fillRandom(shard4, 4)
 
 	err = r.ReconstructData(shards)
 	if err != nil {
@@ -963,7 +963,7 @@ func testVerify(t *testing.T, o ...Option) {
 	}
 
 	for s := 0; s < 10; s++ {
-		fillRandom(shards[s])
+		fillRandom(shards[s], 0)
 	}
 
 	err = r.Encode(shards)
@@ -980,7 +980,7 @@ func testVerify(t *testing.T, o ...Option) {
 	}
 
 	// Put in random data. Verification should fail
-	fillRandom(shards[10])
+	fillRandom(shards[10], 1)
 	ok, err = r.Verify(shards)
 	if err != nil {
 		t.Fatal(err)
@@ -994,7 +994,7 @@ func testVerify(t *testing.T, o ...Option) {
 		t.Fatal(err)
 	}
 	// Fill a data segment with random data
-	fillRandom(shards[0])
+	fillRandom(shards[0], 2)
 	ok, err = r.Verify(shards)
 	if err != nil {
 		t.Fatal(err)
@@ -1066,8 +1066,12 @@ func TestOneEncode(t *testing.T) {
 
 }
 
-func fillRandom(p []byte) {
-	rng := rand.New(rand.NewSource(time.Now().UnixNano()))
+func fillRandom(p []byte, seed ...int64) {
+	src := rand.NewSource(time.Now().UnixNano())
+	if len(seed) > 0 {
+		src = rand.NewSource(seed[0])
+	}
+	rng := rand.New(src)
 	for i := 0; i < len(p); i += 7 {
 		val := rng.Int63()
 		for j := 0; i+j < len(p) && j < 7; j++ {
