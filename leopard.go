@@ -374,6 +374,9 @@ func (r *leopardFF16) reconstruct(shards [][]byte, recoverAll bool) error {
 		return nil
 	}
 
+	// Use only if we are missing less than 1/4 parity.
+	useBits := r.totalShards-numberPresent <= r.parityShards/4
+
 	// Check if we have enough to reconstruct.
 	if numberPresent < r.dataShards {
 		return ErrTooFewShards
@@ -387,7 +390,10 @@ func (r *leopardFF16) reconstruct(shards [][]byte, recoverAll bool) error {
 	m := ceilPow2(r.parityShards)
 	n := ceilPow2(m + r.dataShards)
 
+	const LEO_ERROR_BITFIELD_OPT = true
+
 	// Fill in error locations.
+	var errorBits errorBitfield
 	var errLocs [order]ffe
 	for i := 0; i < r.parityShards; i++ {
 		if len(shards[i+r.dataShards]) == 0 {
@@ -400,10 +406,17 @@ func (r *leopardFF16) reconstruct(shards [][]byte, recoverAll bool) error {
 	for i := 0; i < r.dataShards; i++ {
 		if len(shards[i]) == 0 {
 			errLocs[i+m] = 1
+			if LEO_ERROR_BITFIELD_OPT && useBits {
+				errorBits.set(i + m)
+			}
 		}
 	}
-	// Evaluate error locator polynomial
 
+	if LEO_ERROR_BITFIELD_OPT && useBits {
+		errorBits.prepare()
+	}
+
+	// Evaluate error locator polynomial
 	fwht(&errLocs, order, m+r.dataShards)
 
 	for i := 0; i < order; i++ {
@@ -477,7 +490,11 @@ func (r *leopardFF16) reconstruct(shards [][]byte, recoverAll bool) error {
 
 	outputCount := m + r.dataShards
 
-	fftDIT(work, outputCount, n, fftSkew[:], &r.o)
+	if LEO_ERROR_BITFIELD_OPT && useBits {
+		errorBits.fftDIT(work, uint(outputCount), uint(n), fftSkew[:], &r.o)
+	} else {
+		fftDIT(work, outputCount, n, fftSkew[:], &r.o)
+	}
 
 	// Reveal erasures
 	//
@@ -1026,6 +1043,145 @@ func initMul16LUT() {
 					prodHi[x] = byte(prod >> 8)
 				}
 				shift += 4
+			}
+		}
+	}
+}
+
+const kWordMips = 5
+const kWords = order / 64
+const kBigMips = 6
+const kBigWords = (kWords + 63) / 64
+const kBiggestMips = 4
+
+type errorBitfield struct {
+	Words        [kWordMips][kWords]uint64
+	BigWords     [kBigMips][kBigWords]uint64
+	BiggestWords [kBiggestMips]uint64
+}
+
+func (e *errorBitfield) set(i int) {
+	e.Words[0][i/64] |= uint64(1) << (i % 64)
+}
+
+func (e *errorBitfield) isNeeded(mipLevel int, bit uint) bool {
+	if mipLevel >= 16 {
+		return true
+	}
+	if mipLevel >= 12 {
+		bit /= 4096
+		return 0 != (e.BiggestWords[mipLevel-12] & (uint64(1) << bit))
+	}
+	if mipLevel >= 6 {
+		bit /= 64
+		return 0 != (e.BigWords[mipLevel-6][bit/64] & (uint64(1) << (bit % 64)))
+	}
+	return 0 != (e.Words[mipLevel-1][bit/64] & (uint64(1) << (bit % 64)))
+}
+
+var kHiMasks = [5]uint64{
+	0xAAAAAAAAAAAAAAAA,
+	0xCCCCCCCCCCCCCCCC,
+	0xF0F0F0F0F0F0F0F0,
+	0xFF00FF00FF00FF00,
+	0xFFFF0000FFFF0000,
+}
+
+func (e *errorBitfield) prepare() {
+	// First mip level is for final layer of FFT: pairs of data
+	for i := 0; i < kWords; i++ {
+		w_i := e.Words[0][i]
+		hi2lo0 := w_i | ((w_i & kHiMasks[0]) >> 1)
+		lo2hi0 := (w_i & (kHiMasks[0] >> 1)) << 1
+		w_i = hi2lo0 | lo2hi0
+		e.Words[0][i] = w_i
+
+		bits := 2
+		for j := 1; j < kWordMips; j++ {
+			hi2lo_j := w_i | ((w_i & kHiMasks[j]) >> bits)
+			lo2hi_j := (w_i & (kHiMasks[j] >> bits)) << bits
+			w_i = hi2lo_j | lo2hi_j
+			e.Words[j][i] = w_i
+			bits <<= 1
+		}
+	}
+
+	for i := 0; i < kBigWords; i++ {
+		w_i := uint64(0)
+		bit := uint64(1)
+		src := e.Words[kWordMips-1][i*64 : i*64+64]
+		for _, w := range src {
+			w_i |= (w | (w >> 32) | (w << 32)) & bit
+			bit <<= 1
+		}
+		e.BigWords[0][i] = w_i
+		bits := 1
+		for j := 1; j < kBigMips; j++ {
+			hi2lo_j := w_i | ((w_i & kHiMasks[j-1]) >> bits)
+			lo2hi_j := (w_i & (kHiMasks[j-1] >> bits)) << bits
+			w_i = hi2lo_j | lo2hi_j
+			e.BigWords[j][i] = w_i
+			bits <<= 1
+		}
+	}
+
+	w_i := uint64(0)
+	bit := uint64(1)
+	for _, w := range e.BigWords[kBigMips-1][:kBigWords] {
+		w_i |= (w | (w >> 32) | (w << 32)) & bit
+		bit <<= 1
+	}
+	e.BiggestWords[0] = w_i
+
+	bits := uint64(1)
+	for j := 1; j < kBiggestMips; j++ {
+		hi2lo_j := w_i | ((w_i & kHiMasks[j-1]) >> bits)
+		lo2hi_j := (w_i & (kHiMasks[j-1] >> bits)) << bits
+		w_i = hi2lo_j | lo2hi_j
+		e.BiggestWords[j] = w_i
+		bits <<= 1
+	}
+}
+
+func (e *errorBitfield) fftDIT(work [][]byte, nTruncated, n uint, skewLUT []ffe, o *options) {
+	mipLevel := bits.Len32(uint32(n)) - 1
+
+	dist4 := n
+	for dist := n >> 2; dist != 0; dist >>= 2 {
+		for r := uint(0); r < nTruncated; r += dist4 {
+			if !e.isNeeded(mipLevel, r) {
+				continue
+			}
+			iEnd := r + dist
+
+			logM01 := skewLUT[iEnd-1]
+			logM02 := skewLUT[iEnd+dist-1]
+			logM23 := skewLUT[iEnd+dist*2-1]
+			for i := r; i < iEnd; i++ {
+				fftDIT4(
+					work[i:],
+					int(dist),
+					logM01,
+					logM23,
+					logM02,
+					o)
+			}
+		}
+
+		dist4 = dist
+		mipLevel -= 2
+	}
+	if dist4 == 2 {
+		for r := uint(0); r < nTruncated; r += 2 {
+			if !e.isNeeded(mipLevel, r) {
+				continue
+			}
+
+			logM := skewLUT[r+1-1]
+			if logM == modulus {
+				sliceXor(work[r], work[r+1], o)
+			} else {
+				fftDIT2(work[r], work[r+1], logM, o)
 			}
 		}
 	}
