@@ -1107,7 +1107,7 @@ func benchmarkEncode(b *testing.B, dataShards, parityShards, shardSize int, opts
 	}
 }
 
-func benchmarkDecode(b *testing.B, dataShards, parityShards, shardSize int, opts ...Option) {
+func benchmarkDecode(b *testing.B, dataShards, parityShards, shardSize, deleteShards int, opts ...Option) {
 	opts = append(testOptions(WithAutoGoroutines(shardSize)), opts...)
 	r, err := New(dataShards, parityShards, opts...)
 	if err != nil {
@@ -1130,7 +1130,7 @@ func benchmarkDecode(b *testing.B, dataShards, parityShards, shardSize int, opts
 	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
 		// Clear maximum number of data shards.
-		for s := 0; s < parityShards; s++ {
+		for s := 0; s < deleteShards; s++ {
 			shards[s] = nil
 		}
 
@@ -1176,11 +1176,17 @@ func BenchmarkDecode1K(b *testing.B) {
 		b.Run(fmt.Sprintf("%v+%v", shards, shards), func(b *testing.B) {
 			if shards*2 <= 256 {
 				b.Run(fmt.Sprint("cauchy"), func(b *testing.B) {
-					benchmarkDecode(b, shards, shards, 1024, WithCauchyMatrix(), WithInversionCache(false))
+					benchmarkDecode(b, shards, shards, 1024, shards, WithCauchyMatrix(), WithInversionCache(false))
+				})
+				b.Run(fmt.Sprint("cauchy-single"), func(b *testing.B) {
+					benchmarkDecode(b, shards, shards, 1024, 1, WithCauchyMatrix(), WithInversionCache(false))
 				})
 			}
 			b.Run(fmt.Sprint("leopard-gf16"), func(b *testing.B) {
-				benchmarkDecode(b, shards, shards, 1024, WithLeopardGF16(true))
+				benchmarkDecode(b, shards, shards, 1024, shards, WithLeopardGF16(true))
+			})
+			b.Run(fmt.Sprint("leopard-gf16-single"), func(b *testing.B) {
+				benchmarkDecode(b, shards, shards, 1024, 1, WithLeopardGF16(true))
 			})
 		})
 	}
