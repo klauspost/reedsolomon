@@ -13,7 +13,7 @@ For most platforms this performs close to the original Leopard implementation in
 
 Package home: https://github.com/klauspost/reedsolomon
 
-Godoc: https://pkg.go.dev/github.com/klauspost/reedsolomon?tab=doc
+Godoc: https://pkg.go.dev/github.com/klauspost/reedsolomon
 
 # Installation
 To get the package use the standard:
@@ -21,7 +21,7 @@ To get the package use the standard:
 go get -u github.com/klauspost/reedsolomon
 ```
 
-Using Go modules recommended.
+Using Go modules is recommended.
 
 # Changes
 
@@ -351,6 +351,8 @@ There is no buffering or timeouts/retry specified. If you want to add that, you 
 For complete examples of a streaming encoder and decoder see the 
 [examples folder](https://github.com/klauspost/reedsolomon/tree/master/examples).
 
+GF16 (more than 256 shards) is not supported by the streaming interface. 
+
 # Advanced Options
 
 You can modify internal options which affects how jobs are split between and processed by goroutines.
@@ -449,26 +451,15 @@ For reference each shard is 1MB random data, and 16 CPU cores are used for encod
 
 | Data | Parity | Go MB/s | SSSE3 MB/s | AVX2 MB/s |
 |------|--------|---------|------------|-----------|
-| 5    | 2      | 14287   | 66355      | 108755    |
-| 8    | 8      | 5569    | 34298      | 70516     |
-| 10   | 4      | 6766    | 48237      | 93875     |
-| 50   | 20     | 1540    | 12130      | 22090     |
+| 5    | 2      | 20,772  | 66,355     | 108,755   |
+| 8    | 8      | 6,815   | 38,338     | 70,516    |
+| 10   | 4      | 9,245   | 48,237     | 93,875    |
+| 50   | 20     | 2,063   | 12,130     | 22,828    |
 
 The throughput numbers here is the size of the encoded data and parity shards.
 
 If `runtime.GOMAXPROCS()` is set to a value higher than 1, 
 the encoder will use multiple goroutines to perform the calculations in `Verify`, `Encode` and `Reconstruct`.
-
-Example of performance scaling on AMD Ryzen 3950X - 16 physical cores, 32 logical cores, AVX 2.
-The example uses 10 blocks with 1MB data each and 4 parity blocks.
-
-| Threads | Speed      |
-|---------|------------|
-| 1       | 9979 MB/s  |
-| 2       | 18870 MB/s |
-| 4       | 33697 MB/s |
-| 8       | 51531 MB/s |
-| 16      | 59204 MB/s |
 
 
 Benchmarking `Reconstruct()` followed by a `Verify()` (=`all`) versus just calling `ReconstructData()` (=`data`) gives the following result:
@@ -483,20 +474,7 @@ BenchmarkReconstruct50x20x1M-8       1364.35      4189.79      3.07x
 BenchmarkReconstruct10x4x16M-8       1484.35      5779.53      3.89x
 ```
 
-## AVX512
-
-The performance on AVX512 has been accelerated for Intel CPUs. 
-This gives speedups on a per-core basis typically up to 2x compared to 
-AVX2 as can be seen in the following table:
-
-```
-[...]
-```
-
-This speedup has been achieved by computing multiple parity blocks in parallel as opposed to one after the other. 
-In doing so it is possible to minimize the memory bandwidth required for loading all data shards. 
-At the same time the calculations are performed in the 512-bit wide ZMM registers and the surplus of ZMM 
-registers (32 in total) is used to keep more data around (most notably the matrix coefficients).
+The performance on AVX512 has been accelerated for CPUs when available.
 
 ## ARM64 NEON
 
@@ -513,7 +491,7 @@ BenchmarkGaloisXor1M-64        10000    100322 ns/op        10452.13 MB/s
 # Performance on ppc64le
 
 The performance for ppc64le has been accelerated. 
-This gives roughly a 10x performance improvement on this architecture as can been seen below:
+This gives roughly a 10x performance improvement on this architecture as can be seen below:
 
 ```
 benchmark                      old MB/s     new MB/s     speedup
@@ -523,9 +501,6 @@ BenchmarkGaloisXor128K-160     862.02       7905.00      9.17x
 BenchmarkGaloisXor1M-160       784.60       6296.65      8.03x
 ```
 
-# asm2plan9s
-
-[asm2plan9s](https://github.com/fwessels/asm2plan9s) is used for assembling the AVX2 instructions into their BYTE/WORD/LONG equivalents.
 
 # Links
 * [Backblaze Open Sources Reed-Solomon Erasure Coding Source Code](https://www.backblaze.com/blog/reed-solomon/).
@@ -536,6 +511,7 @@ BenchmarkGaloisXor1M-160       784.60       6296.65      8.03x
 * [reed-solomon-erasure](https://github.com/darrenldl/reed-solomon-erasure). Compatible Rust implementation.
 * [go-erasure](https://github.com/somethingnew2-0/go-erasure). A similar library using cgo, slower in my tests.
 * [Screaming Fast Galois Field Arithmetic](http://www.snia.org/sites/default/files2/SDC2013/presentations/NewThinking/EthanMiller_Screaming_Fast_Galois_Field%20Arithmetic_SIMD%20Instructions.pdf). Basis for SSE3 optimizations.
+* [Leopard-RS](https://github.com/catid/leopard) C library used as basis for GF16 implementation.
 
 # License
 
