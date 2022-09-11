@@ -399,6 +399,46 @@ For now SSSE3, AVX2 and AVX512 assembly are available on AMD64 platforms.
 
 Leopard mode currently always runs as a single goroutine, since multiple gorouties doesn't provide any worthwhile speedup.
 
+## Forcing Leopard GF16
+
+The `WithLeopardGF16(true)` can be used to use Leopard GF16 for all operations. 
+This is *not* compatible with the Leopard library that has a separate GF8 implementation.
+
+Benchmark Encoding and Reconstructing *1KB* shards with variable number of shards.
+For Cauchy matrix the inversion cache is disabled for a more "fair" test.
+Speed is total shard size for each operation. Data shard throughput is speed/2.
+AVX2 is used.
+
+| Encoder      | Shards      | Encode        | Reconstruct  |
+|--------------|-------------|---------------|--------------|
+| Cauchy       | 4+4         | 23076.83 MB/s | 3048.86 MB/s |
+| Cauchy       | 8+8         | 15206.87 MB/s | 3041.99 MB/s |
+| Cauchy       | 16+16       | 7427.47 MB/s  | 1384.58 MB/s |
+| Cauchy       | 32+32       | 3785.64 MB/s  | 557.60 MB/s  |
+| Cauchy       | 64+64       | 1911.93 MB/s  | 160.54 MB/s  |
+| Cauchy       | 128+128     | 963.83 MB/s   | 42.81 MB/s   |
+| Leopard GF16 | 4+4         | 18468.32 MB/s | 10.45 MB/s   |
+| Leopard GF16 | 8+8         | 10293.79 MB/s | 20.83 MB/s   |
+| Leopard GF16 | 16+16       | 12386.04 MB/s | 40.80 MB/s   |
+| Leopard GF16 | 32+32       | 7347.35 MB/s  | 81.15 MB/s   |
+| Leopard GF16 | 64+64       | 8299.63 MB/s  | 150.47 MB/s  |
+| Leopard GF16 | 128+128     | 5629.04 MB/s  | 278.84 MB/s  |
+| Leopard GF16 | 256+256     | 6158.66 MB/s  | 454.14 MB/s  |
+| Leopard GF16 | 512+512     | 4418.58 MB/s  | 685.75 MB/s  |
+| Leopard GF16 | 1024+1024   | 4778.05 MB/s  | 814.51 MB/s  |
+| Leopard GF16 | 2048+2048   | 3417.05 MB/s  | 911.64 MB/s  |
+| Leopard GF16 | 4096+4096   | 3209.41 MB/s  | 729.13 MB/s  |
+| Leopard GF16 | 8192+8192   | 2034.11 MB/s  | 604.52 MB/s  |
+| Leopard GF16 | 16384+16384 | 1525.88 MB/s  | 486.74 MB/s  |
+| Leopard GF16 | 32768+32768 | 1138.67 MB/s  | 482.81 MB/s  |
+
+"Traditional" encoding is faster until somewhere between 16 and 32 shards.
+Leopard provides fast encoding in all cases, but shows a significant overhead for reconstruction.
+
+Calculating the reconstruction matrix takes a significant amount of computation. 
+With bigger shards that will be smaller. Arguably, fewer shards typically also means bigger shards.
+Due to the high shard count caching reconstruction matrices generally isn't feasible for Leopard. 
+
 # Performance
 
 Performance depends mainly on the number of parity shards. 
