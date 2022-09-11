@@ -1089,13 +1089,13 @@ func (e *errorBitfield) isNeededFn(mipLevel int) func(bit int) bool {
 		w := e.BigWords[mipLevel-6][:]
 		return func(bit int) bool {
 			bit /= 64
-			return 0 != (w[bit/64] & (uint64(1) << (bit % 64)))
+			return 0 != (w[bit/64] & (uint64(1) << (bit & 63)))
 		}
 	}
 	if mipLevel > 0 {
 		w := e.Words[mipLevel-1][:]
 		return func(bit int) bool {
-			return 0 != (w[bit/64] & (uint64(1) << (bit % 64)))
+			return 0 != (w[bit/64] & (uint64(1) << (bit & 63)))
 		}
 	}
 	return nil
