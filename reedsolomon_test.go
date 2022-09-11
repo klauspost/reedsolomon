@@ -1081,8 +1081,9 @@ func fillRandom(p []byte, seed ...int64) {
 	}
 }
 
-func benchmarkEncode(b *testing.B, dataShards, parityShards, shardSize int) {
-	r, err := New(dataShards, parityShards, testOptions(WithAutoGoroutines(shardSize))...)
+func benchmarkEncode(b *testing.B, dataShards, parityShards, shardSize int, opts ...Option) {
+	opts = append(testOptions(WithAutoGoroutines(shardSize)), opts...)
+	r, err := New(dataShards, parityShards, opts...)
 	if err != nil {
 		b.Fatal(err)
 	}
@@ -1106,8 +1107,9 @@ func benchmarkEncode(b *testing.B, dataShards, parityShards, shardSize int) {
 	}
 }
 
-func benchmarkDecode(b *testing.B, dataShards, parityShards, shardSize int) {
-	r, err := New(dataShards, parityShards, testOptions(WithAutoGoroutines(shardSize))...)
+func benchmarkDecode(b *testing.B, dataShards, parityShards, shardSize int, opts ...Option) {
+	opts = append(testOptions(WithAutoGoroutines(shardSize)), opts...)
+	r, err := New(dataShards, parityShards, opts...)
 	if err != nil {
 		b.Fatal(err)
 	}
@@ -1154,18 +1156,32 @@ func BenchmarkEncode800x200(b *testing.B) {
 
 // Benchmark 1K encode with symmetric shard sizes.
 func BenchmarkEncode1K(b *testing.B) {
-	for shards := 16; shards < 65536; shards *= 2 {
-		b.Run(fmt.Sprintf("%vx%v", shards, shards), func(b *testing.B) {
-			benchmarkEncode(b, shards, shards, 1024)
+	for shards := 4; shards < 65536; shards *= 2 {
+		b.Run(fmt.Sprintf("%v+%v", shards, shards), func(b *testing.B) {
+			if shards*2 <= 256 {
+				b.Run(fmt.Sprint("cauchy"), func(b *testing.B) {
+					benchmarkEncode(b, shards, shards, 1024, WithCauchyMatrix())
+				})
+			}
+			b.Run(fmt.Sprint("leopard-gf16"), func(b *testing.B) {
+				benchmarkEncode(b, shards, shards, 1024, WithLeopardGF16(true))
+			})
 		})
 	}
 }
 
 // Benchmark 1K decode with symmetric shard sizes.
 func BenchmarkDecode1K(b *testing.B) {
-	for shards := 16; shards < 65536; shards *= 2 {
-		b.Run(fmt.Sprintf("%vx%v", shards, shards), func(b *testing.B) {
-			benchmarkDecode(b, shards, shards, 1024)
+	for shards := 4; shards < 65536; shards *= 2 {
+		b.Run(fmt.Sprintf("%v+%v", shards, shards), func(b *testing.B) {
+			if shards*2 <= 256 {
+				b.Run(fmt.Sprint("cauchy"), func(b *testing.B) {
+					benchmarkDecode(b, shards, shards, 1024, WithCauchyMatrix(), WithInversionCache(false))
+				})
+			}
+			b.Run(fmt.Sprint("leopard-gf16"), func(b *testing.B) {
+				benchmarkDecode(b, shards, shards, 1024, WithLeopardGF16(true))
+			})
 		})
 	}
 }
