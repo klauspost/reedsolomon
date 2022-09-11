@@ -398,15 +398,21 @@ func (r *leopardFF16) reconstruct(shards [][]byte, recoverAll bool) error {
 	for i := 0; i < r.parityShards; i++ {
 		if len(shards[i+r.dataShards]) == 0 {
 			errLocs[i] = 1
+			if LEO_ERROR_BITFIELD_OPT && recoverAll {
+				errorBits.set(i)
+			}
 		}
 	}
 	for i := r.parityShards; i < m; i++ {
 		errLocs[i] = 1
+		if LEO_ERROR_BITFIELD_OPT && recoverAll {
+			errorBits.set(i)
+		}
 	}
 	for i := 0; i < r.dataShards; i++ {
 		if len(shards[i]) == 0 {
 			errLocs[i+m] = 1
-			if LEO_ERROR_BITFIELD_OPT && useBits {
+			if LEO_ERROR_BITFIELD_OPT {
 				errorBits.set(i + m)
 			}
 		}
@@ -491,7 +497,7 @@ func (r *leopardFF16) reconstruct(shards [][]byte, recoverAll bool) error {
 	outputCount := m + r.dataShards
 
 	if LEO_ERROR_BITFIELD_OPT && useBits {
-		errorBits.fftDIT(work, uint(outputCount), uint(n), fftSkew[:], &r.o)
+		errorBits.fftDIT(work, outputCount, n, fftSkew[:], &r.o)
 	} else {
 		fftDIT(work, outputCount, n, fftSkew[:], &r.o)
 	}
@@ -1054,6 +1060,8 @@ const kBigMips = 6
 const kBigWords = (kWords + 63) / 64
 const kBiggestMips = 4
 
+// errorBitfield contains progressive errors to help indicate which
+// shards need reconstruction.
 type errorBitfield struct {
 	Words        [kWordMips][kWords]uint64
 	BigWords     [kBigMips][kBigWords]uint64
@@ -1061,7 +1069,36 @@ type errorBitfield struct {
 }
 
 func (e *errorBitfield) set(i int) {
-	e.Words[0][i/64] |= uint64(1) << (i % 64)
+	e.Words[0][i/64] |= uint64(1) << (i & 63)
+}
+
+func (e *errorBitfield) isNeededFn(mipLevel int) func(bit int) bool {
+	if mipLevel >= 16 {
+		return func(bit int) bool {
+			return true
+		}
+	}
+	if mipLevel >= 12 {
+		w := e.BiggestWords[mipLevel-12]
+		return func(bit int) bool {
+			bit /= 4096
+			return 0 != (w & (uint64(1) << bit))
+		}
+	}
+	if mipLevel >= 6 {
+		w := e.BigWords[mipLevel-6][:]
+		return func(bit int) bool {
+			bit /= 64
+			return 0 != (w[bit/64] & (uint64(1) << (bit % 64)))
+		}
+	}
+	if mipLevel > 0 {
+		w := e.Words[mipLevel-1][:]
+		return func(bit int) bool {
+			return 0 != (w[bit/64] & (uint64(1) << (bit % 64)))
+		}
+	}
+	return nil
 }
 
 func (e *errorBitfield) isNeeded(mipLevel int, bit uint) bool {
@@ -1115,6 +1152,7 @@ func (e *errorBitfield) prepare() {
 			bit <<= 1
 		}
 		e.BigWords[0][i] = w_i
+
 		bits := 1
 		for j := 1; j < kBigMips; j++ {
 			hi2lo_j := w_i | ((w_i & kHiMasks[j-1]) >> bits)
@@ -1143,41 +1181,49 @@ func (e *errorBitfield) prepare() {
 	}
 }
 
-func (e *errorBitfield) fftDIT(work [][]byte, nTruncated, n uint, skewLUT []ffe, o *options) {
-	mipLevel := bits.Len32(uint32(n)) - 1
+func (e *errorBitfield) fftDIT(work [][]byte, mtrunc, m int, skewLUT []ffe, o *options) {
+	// Decimation in time: Unroll 2 layers at a time
+	mipLevel := bits.Len32(uint32(m)) - 1
 
-	dist4 := n
-	for dist := n >> 2; dist != 0; dist >>= 2 {
-		for r := uint(0); r < nTruncated; r += dist4 {
-			if !e.isNeeded(mipLevel, r) {
+	dist4 := m
+	dist := m >> 2
+	needed := e.isNeededFn(mipLevel)
+	for dist != 0 {
+		// For each set of dist*4 elements:
+		for r := 0; r < mtrunc; r += dist4 {
+			if !needed(r) {
 				continue
 			}
 			iEnd := r + dist
-
 			logM01 := skewLUT[iEnd-1]
 			logM02 := skewLUT[iEnd+dist-1]
 			logM23 := skewLUT[iEnd+dist*2-1]
+
+			// For each set of dist elements:
 			for i := r; i < iEnd; i++ {
 				fftDIT4(
 					work[i:],
-					int(dist),
+					dist,
 					logM01,
 					logM23,
 					logM02,
 					o)
 			}
 		}
-
 		dist4 = dist
+		dist >>= 2
 		mipLevel -= 2
+		needed = e.isNeededFn(mipLevel)
 	}
+
+	// If there is one layer left:
 	if dist4 == 2 {
-		for r := uint(0); r < nTruncated; r += 2 {
-			if !e.isNeeded(mipLevel, r) {
+		for r := 0; r < mtrunc; r += 2 {
+			if !needed(r) {
 				continue
 			}
-
 			logM := skewLUT[r+1-1]
+
 			if logM == modulus {
 				sliceXor(work[r], work[r+1], o)
 			} else {
