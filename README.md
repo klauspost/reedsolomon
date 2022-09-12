@@ -27,7 +27,7 @@ Using Go modules is recommended.
 
 ## 2022
 
-* Leopard GF16 mode added, for up to 63336 shards. 
+* [Leopard GF16](https://github.com/klauspost/reedsolomon#leopard-compatible-gf16) mode added, for up to 65536 shards. 
 * [WithJerasureMatrix](https://pkg.go.dev/github.com/klauspost/reedsolomon?tab=doc#WithJerasureMatrix) allows constructing a [Jerasure](https://github.com/tsuraan/Jerasure) compatible matrix.
 
 ## 2021
