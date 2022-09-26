@@ -178,6 +178,7 @@ func testOpts() [][]Option {
 		{WithInversionCache(false)},
 		{WithJerasureMatrix()},
 		{WithLeopardGF16(true)},
+		{WithLeopardGF(true)},
 	}
 
 	for _, o := range opts[:] {
