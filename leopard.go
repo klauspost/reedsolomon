@@ -67,7 +67,7 @@ func (r *leopardFF16) ParityShards() int {
 }
 
 func (r *leopardFF16) TotalShards() int {
-	return r.parityShards
+	return r.totalShards
 }
 
 type ffe uint16
