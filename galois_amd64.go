@@ -217,6 +217,11 @@ func ifftDIT4(work [][]byte, dist int, log_m01, log_m23, log_m02 ffe, o *options
 	ifftDIT4Ref(work, dist, log_m01, log_m23, log_m02, o)
 }
 
+// 4-way butterfly
+func ifftDIT48(work [][]byte, dist int, log_m01, log_m23, log_m02 ffe8, o *options) {
+	ifftDIT4Ref8(work, dist, log_m01, log_m23, log_m02, o)
+}
+
 func fftDIT4(work [][]byte, dist int, log_m01, log_m23, log_m02 ffe, o *options) {
 	if len(work[0]) == 0 {
 		return
@@ -291,6 +296,11 @@ func fftDIT4(work [][]byte, dist int, log_m01, log_m23, log_m02 ffe, o *options)
 	fftDIT4Ref(work, dist, log_m01, log_m23, log_m02, o)
 }
 
+// 4-way butterfly
+func fftDIT48(work [][]byte, dist int, log_m01, log_m23, log_m02 ffe8, o *options) {
+	fftDIT4Ref8(work, dist, log_m01, log_m23, log_m02, o)
+}
+
 // 2-way butterfly forward
 func fftDIT2(x, y []byte, log_m ffe, o *options) {
 	if o.useAVX2 {
@@ -308,6 +318,37 @@ func fftDIT2(x, y []byte, log_m ffe, o *options) {
 		refMulAdd(x, y, log_m)
 		sliceXor(x, y, o)
 	}
+}
+
+// 2-way butterfly forward
+func fftDIT28(x, y []byte, log_m ffe8, o *options) {
+	// Reference version:
+	mulAdd8(x, y, log_m, o)
+	sliceXor(x, y, o)
+}
+
+// 2-way butterfly inverse
+func ifftDIT28(x, y []byte, log_m ffe8, o *options) {
+	// Reference version:
+	sliceXorGo(x, y, o)
+	refMulAdd8(x, y, log_m)
+}
+
+func mulAdd8(out, in []byte, log_m ffe8, o *options) {
+	if o.useAVX2 {
+		t := &multiply256LUT8[log_m]
+		galMulAVX2Xor_64(t[:16], t[16:32], in, out)
+		done := (len(in) >> 6) << 6
+		in = in[done:]
+		out = out[done:]
+	} else if o.useSSSE3 {
+		t := &multiply256LUT8[log_m]
+		galMulSSSE3Xor(t[:16], t[16:32], in, out)
+		done := (len(in) >> 4) << 4
+		in = in[done:]
+		out = out[done:]
+	}
+	refMulAdd8(in, out, log_m)
 }
 
 // 2-way butterfly
@@ -342,5 +383,26 @@ func mulgf16(x, y []byte, log_m ffe, o *options) {
 		}
 	} else {
 		refMul(x, y, log_m)
+	}
+}
+
+func mulgf8(out, in []byte, log_m ffe8, o *options) {
+	if o.useAVX2 {
+		t := &multiply256LUT8[log_m]
+		galMulAVX2_64(t[:16], t[16:32], in, out)
+		done := (len(in) >> 6) << 6
+		in = in[done:]
+		out = out[done:]
+	} else if o.useSSSE3 {
+		t := &multiply256LUT8[log_m]
+		galMulSSSE3(t[:16], t[16:32], in, out)
+		done := (len(in) >> 4) << 4
+		in = in[done:]
+		out = out[done:]
+	}
+	out = out[:len(in)]
+	mt := mul8LUTs[log_m].Value[:]
+	for i := range in {
+		out[i] = byte(mt[in[i]])
 	}
 }

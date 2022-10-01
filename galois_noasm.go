@@ -46,14 +46,31 @@ func ifftDIT4(work [][]byte, dist int, log_m01, log_m23, log_m02 ffe, o *options
 }
 
 // 4-way butterfly
+func ifftDIT48(work [][]byte, dist int, log_m01, log_m23, log_m02 ffe8, o *options) {
+	ifftDIT4Ref8(work, dist, log_m01, log_m23, log_m02, o)
+}
+
+// 4-way butterfly
 func fftDIT4(work [][]byte, dist int, log_m01, log_m23, log_m02 ffe, o *options) {
 	fftDIT4Ref(work, dist, log_m01, log_m23, log_m02, o)
+}
+
+// 4-way butterfly
+func fftDIT48(work [][]byte, dist int, log_m01, log_m23, log_m02 ffe8, o *options) {
+	fftDIT4Ref8(work, dist, log_m01, log_m23, log_m02, o)
 }
 
 // 2-way butterfly forward
 func fftDIT2(x, y []byte, log_m ffe, o *options) {
 	// Reference version:
 	refMulAdd(x, y, log_m)
+	sliceXorGo(x, y, o)
+}
+
+// 2-way butterfly forward
+func fftDIT28(x, y []byte, log_m ffe8, o *options) {
+	// Reference version:
+	refMulAdd8(x, y, log_m)
 	sliceXorGo(x, y, o)
 }
 
@@ -64,6 +81,17 @@ func ifftDIT2(x, y []byte, log_m ffe, o *options) {
 	refMulAdd(x, y, log_m)
 }
 
+// 2-way butterfly inverse
+func ifftDIT28(x, y []byte, log_m ffe8, o *options) {
+	// Reference version:
+	sliceXorGo(x, y, o)
+	refMulAdd8(x, y, log_m)
+}
+
 func mulgf16(x, y []byte, log_m ffe, o *options) {
 	refMul(x, y, log_m)
+}
+
+func mulgf8(x, y []byte, log_m ffe8, o *options) {
+	refMul8(x, y, log_m)
 }

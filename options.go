@@ -22,7 +22,7 @@ type options struct {
 	fastOneParity                         bool
 	inversionCache                        bool
 	customMatrix                          [][]byte
-	withLeopard                           *bool
+	withLeopard                           leopardMode
 
 	// stream options
 	concReads  bool
@@ -42,6 +42,20 @@ var defaultOptions = options{
 	useAVX2:   cpuid.CPU.Supports(cpuid.AVX2),
 	useAVX512: cpuid.CPU.Supports(cpuid.AVX512F, cpuid.AVX512BW),
 }
+
+// leopardMode controls the use of leopard GF in encoding and decoding.
+type leopardMode int
+
+const (
+	// leopardAsNeeded only switches to leopard 16-bit when there are more than
+	// 256 shards.
+	leopardAsNeeded leopardMode = iota
+	// leopardGF16 uses leopard in 16-bit mode for all shard counts.
+	leopardGF16
+	// leopardAlways uses 8-bit leopard for shards less than or equal to 256,
+	// 16-bit leopard otherwise.
+	leopardAlways
+)
 
 func init() {
 	if runtime.GOMAXPROCS(0) <= 1 {
@@ -229,6 +243,24 @@ func WithCustomMatrix(customMatrix [][]byte) Option {
 // Note that Leopard places certain restrictions on use see other documentation.
 func WithLeopardGF16(enabled bool) Option {
 	return func(o *options) {
-		o.withLeopard = &enabled
+		if enabled {
+			o.withLeopard = leopardGF16
+		} else {
+			o.withLeopard = leopardAsNeeded
+		}
+	}
+}
+
+// WithLeopardGF will use leopard GF for encoding, even when there are fewer than
+// 256 shards.
+// This will likely improve reconstruction time for some setups.
+// Note that Leopard places certain restrictions on use see other documentation.
+func WithLeopardGF(enabled bool) Option {
+	return func(o *options) {
+		if enabled {
+			o.withLeopard = leopardAlways
+		} else {
+			o.withLeopard = leopardAsNeeded
+		}
 	}
 }
