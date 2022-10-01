@@ -13,6 +13,7 @@ package reedsolomon
 import (
 	"bytes"
 	"io"
+	"math/bits"
 	"sync"
 
 	"github.com/klauspost/cpuid/v2"
@@ -388,7 +389,7 @@ func (r *leopardFF8) reconstruct(shards [][]byte, recoverAll bool) error {
 	const LEO_ERROR_BITFIELD_OPT = true
 
 	// Fill in error locations.
-	var errorBits errorBitfield
+	var errorBits errorBitfield8
 	var errLocs [order8]ffe8
 	for i := 0; i < r.parityShards; i++ {
 		if len(shards[i+r.dataShards]) == 0 {
@@ -1003,6 +1004,115 @@ func initMul8LUT() {
 					prod[x] = byte(mulLog8(ffe8(x<<shift), ffe8(logM)))
 				}
 				shift += 4
+			}
+		}
+	}
+}
+
+const kWords8 = order8 / 64
+
+// errorBitfield contains progressive errors to help indicate which
+// shards need reconstruction.
+type errorBitfield8 struct {
+	Words [7][kWords8]uint64
+}
+
+func (e *errorBitfield8) set(i int) {
+	e.Words[0][i/64] |= uint64(1) << (i & 63)
+}
+
+func (e *errorBitfield8) isNeededFn(mipLevel int) func(bit int) bool {
+	if mipLevel >= 8 {
+		return func(bit int) bool {
+			return true
+		}
+	}
+	w := e.Words[mipLevel-1][:]
+	return func(bit int) bool {
+		return 0 != (w[bit/64] & (uint64(1) << (bit & 63)))
+	}
+}
+
+func (e *errorBitfield8) prepare() {
+	// First mip level is for final layer of FFT: pairs of data
+	for i := 0; i < kWords8; i++ {
+		w_i := e.Words[0][i]
+		hi2lo0 := w_i | ((w_i & kHiMasks[0]) >> 1)
+		lo2hi0 := (w_i & (kHiMasks[0] >> 1)) << 1
+		w_i = hi2lo0 | lo2hi0
+		e.Words[0][i] = w_i
+
+		bits := 2
+		for j := 1; j < 5; j++ {
+			hi2lo_j := w_i | ((w_i & kHiMasks[j]) >> bits)
+			lo2hi_j := (w_i & (kHiMasks[j] >> bits)) << bits
+			w_i = hi2lo_j | lo2hi_j
+			e.Words[j][i] = w_i
+			bits <<= 1
+		}
+	}
+
+	for i := 0; i < kWords8; i++ {
+		w := e.Words[4][i]
+		w |= w >> 32
+		w |= w << 32
+		e.Words[5][i] = w
+	}
+
+	for i := 0; i < kWords8; i += 2 {
+		t := e.Words[5][i] | e.Words[5][i+1]
+		e.Words[6][i] = t
+		e.Words[6][i+1] = t
+	}
+}
+
+func (e *errorBitfield8) fftDIT(work [][]byte, mtrunc, m int, skewLUT []ffe8, o *options) {
+	// Decimation in time: Unroll 2 layers at a time
+	mipLevel := bits.Len32(uint32(m)) - 1
+
+	dist4 := m
+	dist := m >> 2
+	needed := e.isNeededFn(mipLevel)
+	for dist != 0 {
+		// For each set of dist*4 elements:
+		for r := 0; r < mtrunc; r += dist4 {
+			if !needed(r) {
+				continue
+			}
+			iEnd := r + dist
+			logM01 := skewLUT[iEnd-1]
+			logM02 := skewLUT[iEnd+dist-1]
+			logM23 := skewLUT[iEnd+dist*2-1]
+
+			// For each set of dist elements:
+			for i := r; i < iEnd; i++ {
+				fftDIT48(
+					work[i:],
+					dist,
+					logM01,
+					logM23,
+					logM02,
+					o)
+			}
+		}
+		dist4 = dist
+		dist >>= 2
+		mipLevel -= 2
+		needed = e.isNeededFn(mipLevel)
+	}
+
+	// If there is one layer left:
+	if dist4 == 2 {
+		for r := 0; r < mtrunc; r += 2 {
+			if !needed(r) {
+				continue
+			}
+			logM := skewLUT[r+1-1]
+
+			if logM == modulus8 {
+				sliceXor(work[r], work[r+1], o)
+			} else {
+				fftDIT28(work[r], work[r+1], logM, o)
 			}
 		}
 	}
