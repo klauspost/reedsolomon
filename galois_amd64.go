@@ -323,8 +323,32 @@ func fftDIT2(x, y []byte, log_m ffe, o *options) {
 // 2-way butterfly forward
 func fftDIT28(x, y []byte, log_m ffe8, o *options) {
 	// Reference version:
-	refMulAdd8(x, y, log_m)
+	mulAdd8(x, y, log_m, o)
+	sliceXor(x, y, o)
+}
+
+// 2-way butterfly inverse
+func ifftDIT28(x, y []byte, log_m ffe8, o *options) {
+	// Reference version:
 	sliceXorGo(x, y, o)
+	refMulAdd8(x, y, log_m)
+}
+
+func mulAdd8(out, in []byte, log_m ffe8, o *options) {
+	if o.useAVX2 {
+		t := &multiply256LUT8[log_m]
+		galMulAVX2Xor_64(t[:16], t[16:32], in, out)
+		done := (len(in) >> 6) << 6
+		in = in[done:]
+		out = out[done:]
+	} else if o.useSSSE3 {
+		t := &multiply256LUT8[log_m]
+		galMulSSSE3Xor(t[:16], t[16:32], in, out)
+		done := (len(in) >> 4) << 4
+		in = in[done:]
+		out = out[done:]
+	}
+	refMulAdd8(in, out, log_m)
 }
 
 // 2-way butterfly
@@ -346,13 +370,6 @@ func ifftDIT2(x, y []byte, log_m ffe, o *options) {
 	}
 }
 
-// 2-way butterfly inverse
-func ifftDIT28(x, y []byte, log_m ffe8, o *options) {
-	// Reference version:
-	sliceXorGo(x, y, o)
-	refMulAdd8(x, y, log_m)
-}
-
 func mulgf16(x, y []byte, log_m ffe, o *options) {
 	if o.useAVX2 {
 		if len(x) > 0 {
@@ -369,6 +386,23 @@ func mulgf16(x, y []byte, log_m ffe, o *options) {
 	}
 }
 
-func mulgf8(x, y []byte, log_m ffe8, o *options) {
-	refMul8(x, y, log_m)
+func mulgf8(out, in []byte, log_m ffe8, o *options) {
+	if o.useAVX2 {
+		t := &multiply256LUT8[log_m]
+		galMulAVX2_64(t[:16], t[16:32], in, out)
+		done := (len(in) >> 6) << 6
+		in = in[done:]
+		out = out[done:]
+	} else if o.useSSSE3 {
+		t := &multiply256LUT8[log_m]
+		galMulSSSE3(t[:16], t[16:32], in, out)
+		done := (len(in) >> 4) << 4
+		in = in[done:]
+		out = out[done:]
+	}
+	out = out[:len(in)]
+	mt := mul8LUTs[log_m].Value[:]
+	for i := range in {
+		out[i] = byte(mt[in[i]])
+	}
 }
