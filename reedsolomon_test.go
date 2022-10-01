@@ -1096,6 +1096,11 @@ func benchmarkEncode(b *testing.B, dataShards, parityShards, shardSize int, opts
 	for s := 0; s < dataShards; s++ {
 		fillRandom(shards[s])
 	}
+	// Warm up so initialization is eliminated.
+	err = r.Encode(shards)
+	if err != nil {
+		b.Fatal(err)
+	}
 
 	b.SetBytes(int64(shardSize * (dataShards + parityShards)))
 	b.ResetTimer()
