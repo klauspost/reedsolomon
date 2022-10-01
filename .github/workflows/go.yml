@@ -90,6 +90,18 @@ jobs:
       shell: bash {0}
       run: go run testlevel.go 4;if [ $? -eq 0 ]; then GOAMD64=v4 go test -no-avx512 ./...; else true; fi
 
+    - name: Builds on ARM64
+      env:
+        GOOS: linux
+        GOARCH: arm64
+      run: go build .&&go build examples/simple-decoder.go&&go build examples/simple-encoder.go&&go build examples/stream-decoder.go&&go build examples/stream-encoder.go
+
+    - name: Build on PPC64LE
+      env:
+        GOOS: linux
+        GOARCH: ppc64le
+      run: go build .&&go build examples/simple-decoder.go&&go build examples/simple-encoder.go&&go build examples/stream-decoder.go&&go build examples/stream-encoder.go
+
   generate:
     runs-on: ubuntu-latest
     steps:

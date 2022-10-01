@@ -96,8 +96,8 @@ func fftDIT2(x, y []byte, log_m ffe, o *options) {
 // 2-way butterfly forward
 func fftDIT28(x, y []byte, log_m ffe8, o *options) {
 	// Reference version:
-	refMulAdd8(x, y, log_m)
-	sliceXorGo(x, y, o)
+	mulAdd8(x, y, log_m, o)
+	sliceXor(x, y, o)
 }
 
 // 2-way butterfly
@@ -111,14 +111,36 @@ func ifftDIT2(x, y []byte, log_m ffe, o *options) {
 // 2-way butterfly inverse
 func ifftDIT28(x, y []byte, log_m ffe8, o *options) {
 	// Reference version:
-	sliceXorGo(x, y, o)
-	refMulAdd8(x, y, log_m)
+	sliceXor(x, y, o)
+	mulAdd8(x, y, log_m, o)
 }
 
 func mulgf16(x, y []byte, log_m ffe, o *options) {
 	refMul(x, y, log_m)
 }
 
-func mulgf8(x, y []byte, log_m ffe8, o *options) {
-	refMul8(x, y, log_m)
+func mulAdd8(out, in []byte, log_m ffe8, o *options) {
+	t := &multiply256LUT8[log_m]
+	galMulXorNEON(t[:16], t[16:32], in, out)
+	done := (len(in) >> 5) << 5
+	in = in[done:]
+	if len(in) > 0 {
+		out = out[done:]
+		refMulAdd8(in, out, log_m)
+	}
+}
+
+func mulgf8(out, in []byte, log_m ffe8, o *options) {
+	var done int
+	t := &multiply256LUT8[log_m]
+	galMulNEON(t[:16], t[16:32], in, out)
+	done = (len(in) >> 5) << 5
+
+	remain := len(in) - done
+	if remain > 0 {
+		mt := mul8LUTs[log_m].Value[:]
+		for i := done; i < len(in); i++ {
+			out[i] ^= byte(mt[in[i]])
+		}
+	}
 }
