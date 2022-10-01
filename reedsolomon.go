@@ -179,7 +179,7 @@ func (r *reedSolomon) ParityShards() int {
 }
 
 func (r *reedSolomon) TotalShards() int {
-	return r.parityShards
+	return r.totalShards
 }
 
 // ErrInvShardNum will be returned by New, if you attempt to create

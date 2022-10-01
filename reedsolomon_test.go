@@ -290,8 +290,20 @@ func testEncoding(t *testing.T, o ...Option) {
 				if err != nil {
 					t.Fatal(err)
 				}
-
-				mul := r.(Extensions).ShardSizeMultiple()
+				x := r.(Extensions)
+				if want, got := data, x.DataShards(); want != got {
+					t.Errorf("DataShards returned %d, want %d", got, want)
+				}
+				if want, got := parity, x.ParityShards(); want != got {
+					t.Errorf("ParityShards returned %d, want %d", got, want)
+				}
+				if want, got := parity+data, x.TotalShards(); want != got {
+					t.Errorf("TotalShards returned %d, want %d", got, want)
+				}
+				mul := x.ShardSizeMultiple()
+				if mul <= 0 {
+					t.Fatalf("Got unexpected ShardSizeMultiple: %d", mul)
+				}
 				perShard = ((perShard + mul - 1) / mul) * mul
 
 				t.Run(fmt.Sprint(perShard), func(t *testing.T) {
