@@ -331,7 +331,7 @@ func fftDIT28(x, y []byte, log_m ffe8, o *options) {
 func ifftDIT28(x, y []byte, log_m ffe8, o *options) {
 	// Reference version:
 	sliceXorGo(x, y, o)
-	refMulAdd8(x, y, log_m)
+	mulAdd8(x, y, log_m, o)
 }
 
 func mulAdd8(out, in []byte, log_m ffe8, o *options) {
