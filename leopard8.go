@@ -14,6 +14,7 @@ import (
 	"bytes"
 	"io"
 	"math/bits"
+	"runtime"
 	"sync"
 
 	"github.com/klauspost/cpuid/v2"
@@ -991,7 +992,7 @@ func initMul8LUT() {
 			lut.Value[i] = tmp[i&15] ^ tmp[((i>>4)+16)]
 		}
 	}
-	if cpuid.CPU.Has(cpuid.SSSE3) || cpuid.CPU.Has(cpuid.AVX2) || cpuid.CPU.Has(cpuid.AVX512F) {
+	if cpuid.CPU.Has(cpuid.SSSE3) || cpuid.CPU.Has(cpuid.AVX2) || cpuid.CPU.Has(cpuid.AVX512F) || runtime.GOARCH == "arm64" {
 		multiply256LUT8 = &[order8][16 * 2]byte{}
 
 		for logM := range multiply256LUT8[:] {
