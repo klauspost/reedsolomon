@@ -1172,6 +1172,9 @@ func BenchmarkEncode1K(b *testing.B) {
 			b.Run(fmt.Sprint("leopard-gf16"), func(b *testing.B) {
 				benchmarkEncode(b, shards, shards, 1024, WithLeopardGF16(true))
 			})
+			b.Run(fmt.Sprint("leopard-gf8"), func(b *testing.B) {
+				benchmarkEncode(b, shards, shards, 1024, WithLeopardGF(true))
+			})
 		})
 	}
 }
@@ -1193,6 +1196,12 @@ func BenchmarkDecode1K(b *testing.B) {
 			})
 			b.Run(fmt.Sprint("leopard-gf16-single"), func(b *testing.B) {
 				benchmarkDecode(b, shards, shards, 1024, 1, WithLeopardGF16(true))
+			})
+			b.Run(fmt.Sprint("leopard-gf8"), func(b *testing.B) {
+				benchmarkDecode(b, shards, shards, 1024, shards, WithLeopardGF(true))
+			})
+			b.Run(fmt.Sprint("leopard-gf8-single"), func(b *testing.B) {
+				benchmarkDecode(b, shards, shards, 1024, 1, WithLeopardGF(true))
 			})
 		})
 	}
