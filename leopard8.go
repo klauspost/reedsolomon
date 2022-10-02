@@ -14,10 +14,7 @@ import (
 	"bytes"
 	"io"
 	"math/bits"
-	"runtime"
 	"sync"
-
-	"github.com/klauspost/cpuid/v2"
 )
 
 // leopardFF8 is like reedSolomon but for the 8-bit "leopard" implementation.
@@ -992,7 +989,9 @@ func initMul8LUT() {
 			lut.Value[i] = tmp[i&15] ^ tmp[((i>>4)+16)]
 		}
 	}
-	if cpuid.CPU.Has(cpuid.SSSE3) || cpuid.CPU.Has(cpuid.AVX2) || cpuid.CPU.Has(cpuid.AVX512F) || runtime.GOARCH == "arm64" {
+	// Always initialize assembly tables.
+	// Not as big resource hog as gf16.
+	if true {
 		multiply256LUT8 = &[order8][16 * 2]byte{}
 
 		for logM := range multiply256LUT8[:] {

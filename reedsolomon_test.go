@@ -1180,12 +1180,12 @@ func BenchmarkEncode1K(b *testing.B) {
 				b.Run(fmt.Sprint("cauchy"), func(b *testing.B) {
 					benchmarkEncode(b, shards, shards, 1024, WithCauchyMatrix())
 				})
+				b.Run(fmt.Sprint("leopard-gf8"), func(b *testing.B) {
+					benchmarkEncode(b, shards, shards, 1024, WithLeopardGF(true))
+				})
 			}
 			b.Run(fmt.Sprint("leopard-gf16"), func(b *testing.B) {
 				benchmarkEncode(b, shards, shards, 1024, WithLeopardGF16(true))
-			})
-			b.Run(fmt.Sprint("leopard-gf8"), func(b *testing.B) {
-				benchmarkEncode(b, shards, shards, 1024, WithLeopardGF(true))
 			})
 		})
 	}
@@ -1202,18 +1202,18 @@ func BenchmarkDecode1K(b *testing.B) {
 				b.Run(fmt.Sprint("cauchy-single"), func(b *testing.B) {
 					benchmarkDecode(b, shards, shards, 1024, 1, WithCauchyMatrix(), WithInversionCache(false))
 				})
+				b.Run(fmt.Sprint("leopard-gf8"), func(b *testing.B) {
+					benchmarkDecode(b, shards, shards, 1024, shards, WithLeopardGF(true), WithInversionCache(false))
+				})
+				b.Run(fmt.Sprint("leopard-gf8-single"), func(b *testing.B) {
+					benchmarkDecode(b, shards, shards, 1024, 1, WithLeopardGF(true), WithInversionCache(false))
+				})
 			}
 			b.Run(fmt.Sprint("leopard-gf16"), func(b *testing.B) {
 				benchmarkDecode(b, shards, shards, 1024, shards, WithLeopardGF16(true))
 			})
 			b.Run(fmt.Sprint("leopard-gf16-single"), func(b *testing.B) {
 				benchmarkDecode(b, shards, shards, 1024, 1, WithLeopardGF16(true))
-			})
-			b.Run(fmt.Sprint("leopard-gf8"), func(b *testing.B) {
-				benchmarkDecode(b, shards, shards, 1024, shards, WithLeopardGF(true))
-			})
-			b.Run(fmt.Sprint("leopard-gf8-single"), func(b *testing.B) {
-				benchmarkDecode(b, shards, shards, 1024, 1, WithLeopardGF(true))
 			})
 		})
 	}
@@ -1261,6 +1261,11 @@ func BenchmarkEncode10x4x1M(b *testing.B) {
 // Benchmark 50 data shards and 20 parity shards with 1M each.
 func BenchmarkEncode50x20x1M(b *testing.B) {
 	benchmarkEncode(b, 50, 20, 1024*1024)
+}
+
+// Benchmark 50 data shards and 20 parity shards with 1M each.
+func BenchmarkEncodeLeopard50x20x1M(b *testing.B) {
+	benchmarkEncode(b, 50, 20, 1024*1024, WithLeopardGF(true))
 }
 
 // Benchmark 17 data shards and 3 parity shards with 16MB each.

@@ -1,6 +1,8 @@
 //go:build generate
 // +build generate
 
+// Copyright 2022+, Klaus Post. See LICENSE for details.
+
 //go:generate go run -tags=generate . -out ../galois_gen_amd64.s -stubs ../galois_gen_amd64.go -pkg=reedsolomon
 //go:generate go fmt ../galois_gen_switch_amd64.go
 //go:generate go fmt ../galois_gen_amd64.go
@@ -130,6 +132,7 @@ func galMulSlicesAvx2Xor(matrix []byte, in, out [][]byte, start, stop int) int {
 }
 `)
 	genGF16()
+	genGF8()
 	Generate()
 }
 
