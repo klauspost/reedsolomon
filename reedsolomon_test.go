@@ -1263,6 +1263,11 @@ func BenchmarkEncode50x20x1M(b *testing.B) {
 	benchmarkEncode(b, 50, 20, 1024*1024)
 }
 
+// Benchmark 50 data shards and 20 parity shards with 1M each.
+func BenchmarkEncodeLeopard50x20x1M(b *testing.B) {
+	benchmarkEncode(b, 50, 20, 1024*1024, WithLeopardGF(true))
+}
+
 // Benchmark 17 data shards and 3 parity shards with 16MB each.
 func BenchmarkEncode17x3x16M(b *testing.B) {
 	benchmarkEncode(b, 17, 3, 16*1024*1024)
