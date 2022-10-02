@@ -1549,3 +1549,9 @@ func fftDIT2_ssse3(x []byte, y []byte, table *[128]uint8)
 
 //go:noescape
 func mulgf16_ssse3(x []byte, y []byte, table *[128]uint8)
+
+//go:noescape
+func ifftDIT28_avx2(x []byte, y []byte, table *[32]uint8)
+
+//go:noescape
+func fftDIT28_avx2(x []byte, y []byte, table *[32]uint8)

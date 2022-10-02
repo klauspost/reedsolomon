@@ -67607,3 +67607,97 @@ loop:
 	SUBQ   $0x40, AX
 	JNZ    loop
 	RET
+
+// func ifftDIT28_avx2(x []byte, y []byte, table *[32]uint8)
+// Requires: AVX, AVX2, AVX512F, AVX512VL, SSE2
+TEXT ·ifftDIT28_avx2(SB), NOSPLIT, $0-56
+	MOVQ           table+48(FP), AX
+	VBROADCASTI128 (AX), Y0
+	VBROADCASTI128 16(AX), Y1
+	MOVQ           x_len+8(FP), AX
+	MOVQ           x_base+0(FP), CX
+	MOVQ           y_base+24(FP), DX
+	MOVQ           $0x0000000f, BX
+	MOVQ           BX, X2
+	VPBROADCASTB   X2, Y2
+
+loop:
+	VMOVDQU (CX), Y3
+	VMOVDQU 32(CX), Y4
+	VMOVDQU (DX), Y5
+	VMOVDQU 32(DX), Y6
+	VPXOR   Y5, Y3, Y5
+	VPXOR   Y6, Y4, Y6
+	VMOVDQU Y5, (DX)
+	VMOVDQU Y6, 32(DX)
+
+	// LEO_MULADD_256
+	VPAND   Y5, Y2, Y7
+	VPSRLQ  $0x04, Y5, Y5
+	VPSHUFB Y7, Y0, Y7
+	VPAND   Y5, Y2, Y5
+	VPSHUFB Y5, Y1, Y5
+	XOR3WAY( $0x00, Y7, Y5, Y3)
+
+	// LEO_MULADD_256
+	VPAND   Y6, Y2, Y5
+	VPSRLQ  $0x04, Y6, Y6
+	VPSHUFB Y5, Y0, Y5
+	VPAND   Y6, Y2, Y6
+	VPSHUFB Y6, Y1, Y6
+	XOR3WAY( $0x00, Y5, Y6, Y4)
+	VMOVDQU Y3, (CX)
+	VMOVDQU Y4, 32(CX)
+	ADDQ    $0x40, CX
+	ADDQ    $0x40, DX
+	SUBQ    $0x40, AX
+	JA      loop
+	VZEROUPPER
+	RET
+
+// func fftDIT28_avx2(x []byte, y []byte, table *[32]uint8)
+// Requires: AVX, AVX2, AVX512F, AVX512VL, SSE2
+TEXT ·fftDIT28_avx2(SB), NOSPLIT, $0-56
+	MOVQ           table+48(FP), AX
+	VBROADCASTI128 (AX), Y0
+	VBROADCASTI128 16(AX), Y1
+	MOVQ           x_len+8(FP), AX
+	MOVQ           x_base+0(FP), CX
+	MOVQ           y_base+24(FP), DX
+	MOVQ           $0x0000000f, BX
+	MOVQ           BX, X2
+	VPBROADCASTB   X2, Y2
+
+loop:
+	VMOVDQU (CX), Y3
+	VMOVDQU 32(CX), Y4
+	VMOVDQU (DX), Y5
+	VMOVDQU 32(DX), Y6
+
+	// LEO_MULADD_256
+	VPAND   Y5, Y2, Y7
+	VPSRLQ  $0x04, Y5, Y8
+	VPSHUFB Y7, Y0, Y7
+	VPAND   Y8, Y2, Y8
+	VPSHUFB Y8, Y1, Y8
+	XOR3WAY( $0x00, Y7, Y8, Y3)
+
+	// LEO_MULADD_256
+	VPAND   Y6, Y2, Y7
+	VPSRLQ  $0x04, Y6, Y8
+	VPSHUFB Y7, Y0, Y7
+	VPAND   Y8, Y2, Y8
+	VPSHUFB Y8, Y1, Y8
+	XOR3WAY( $0x00, Y7, Y8, Y4)
+	VMOVDQU Y3, (CX)
+	VMOVDQU Y4, 32(CX)
+	VPXOR   Y5, Y3, Y5
+	VPXOR   Y6, Y4, Y6
+	VMOVDQU Y5, (DX)
+	VMOVDQU Y6, 32(DX)
+	ADDQ    $0x40, CX
+	ADDQ    $0x40, DX
+	SUBQ    $0x40, AX
+	JA      loop
+	VZEROUPPER
+	RET

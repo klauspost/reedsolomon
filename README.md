@@ -419,6 +419,12 @@ AVX2 is used.
 | Cauchy       | 32+32       | 3785.64 MB/s  | 557.60 MB/s  | 4660.27 MB/s |
 | Cauchy       | 64+64       | 1911.93 MB/s  | 160.54 MB/s  | 2864.63 MB/s |
 | Cauchy       | 128+128     | 963.83 MB/s   | 42.81 MB/s   | 1597.93 MB/s |
+| Leopard GF8  | 4+4         | 13420.75 MB/s | 1783.32 MB/s | 2050.21 MB/s |
+| Leopard GF8  | 8+8         | 10546.67 MB/s | 2195.46 MB/s | 2459.33MB/s  |
+| Leopard GF8  | 16+16       | 8098.77 MB/s  | 2156.18 MB/s | 2415.34 MB/s |
+| Leopard GF8  | 32+32       | 6608.65 MB/s  | 1947.35 MB/s | 2201.76 MB/s |
+| Leopard GF8  | 64+64       | 5430.00 MB/s  | 1751.27 MB/s | 1957.16 MB/s |
+| Leopard GF8  | 128+128     | 4675.54 MB/s  | 1543.52 MB/s | 1707.63 MB/s |
 | Leopard GF16 | 4+4         | 18468.32 MB/s | 10.45 MB/s   | 10.30 MB/s   |
 | Leopard GF16 | 8+8         | 10293.79 MB/s | 20.83 MB/s   | 20.51 MB/s   |
 | Leopard GF16 | 16+16       | 12386.04 MB/s | 40.80 MB/s   | 40.47 MB/s   |

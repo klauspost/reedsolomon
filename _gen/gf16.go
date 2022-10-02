@@ -1,6 +1,8 @@
 //go:build generate
 // +build generate
 
+// Copyright 2022+, Klaus Post. See LICENSE for details.
+
 package main
 
 import (
