@@ -24,12 +24,6 @@ func sSE2XorSlice(in, out []byte)
 func galMulAVX2Xor_64(low, high, in, out []byte)
 
 //go:noescape
-func galMulAVX2PreXor_64(low, high, in, out []byte)
-
-//go:noescape
-func galMulAVX2PostXor_64(low, high, in, out []byte)
-
-//go:noescape
 func galMulAVX2_64(low, high, in, out []byte)
 
 //go:noescape
