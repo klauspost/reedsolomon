@@ -412,32 +412,32 @@ See table below for speed with different number of shards.
 To enable Leopard GF8 mode use `WithLeopardGF(true)`.
 
 Benchmark Encoding and Reconstructing *1KB* shards with variable number of shards.
-For Cauchy matrix the inversion cache is disabled for a more "fair" test.
+All implementation use inversion cache when available.
 Speed is total shard size for each operation. Data shard throughput is speed/2.
 AVX2 is used.
 
-| Encoder      | Shards      | Encode         | Recover All  | Recover One  |
-|--------------|-------------|----------------|--------------|--------------|
-| Cauchy       | 4+4         | 23076.83 MB/s  | 3048.86 MB/s | 5620.84 MB/s |
-| Cauchy       | 8+8         | 15206.87 MB/s  | 3041.99 MB/s | 7173.71 MB/s |
-| Cauchy       | 16+16       | 7427.47 MB/s   | 1384.58 MB/s | 6343.85 MB/s |
-| Cauchy       | 32+32       | 3785.64 MB/s   | 557.60 MB/s  | 4660.27 MB/s |
-| Cauchy       | 64+64       | 1911.93 MB/s   | 160.54 MB/s  | 2864.63 MB/s |
-| Cauchy       | 128+128     | 963.83 MB/s    | 42.81 MB/s   | 1597.93 MB/s |
-| Leopard GF8  | 4+4         | 17061.28 MB/s  | 3099.06 MB/s | 4096.78 MB/s |
-| Leopard GF8  | 8+8         | 10546.67 MB/s  | 2925.92 MB/s | 3964.00 MB/s |
-| Leopard GF8  | 16+16       | 10961.37  MB/s | 2328.40 MB/s | 3110.22 MB/s |
-| Leopard GF8  | 32+32       | 7111.47 MB/s   | 2374.61 MB/s | 3220.75 MB/s |
-| Leopard GF8  | 64+64       | 7468.57 MB/s   | 2055.41 MB/s | 3061.81 MB/s |
-| Leopard GF8  | 128+128     | 5479.99 MB/s   | 1953.21 MB/s | 2815.15 MB/s |
-| Leopard GF16 | 256+256     | 6158.66 MB/s   | 454.14 MB/s  | 506.70 MB/s  |
-| Leopard GF16 | 512+512     | 4418.58 MB/s   | 685.75 MB/s  | 801.63 MB/s  |
-| Leopard GF16 | 1024+1024   | 4778.05 MB/s   | 814.51 MB/s  | 1080.19 MB/s |
-| Leopard GF16 | 2048+2048   | 3417.05 MB/s   | 911.64 MB/s  | 1179.48 MB/s |
-| Leopard GF16 | 4096+4096   | 3209.41 MB/s   | 729.13 MB/s  | 1135.06 MB/s |
-| Leopard GF16 | 8192+8192   | 2034.11 MB/s   | 604.52 MB/s  | 842.13 MB/s  |
-| Leopard GF16 | 16384+16384 | 1525.88 MB/s   | 486.74 MB/s  | 750.01 MB/s  |
-| Leopard GF16 | 32768+32768 | 1138.67 MB/s   | 482.81 MB/s  | 712.73 MB/s  |
+| Encoder      | Shards      | Encode         | Recover All  | Recover One    |
+|--------------|-------------|----------------|--------------|----------------|
+| Cauchy       | 4+4         | 23076.83 MB/s  | 5444.02 MB/s | 10834.67 MB/s  |
+| Cauchy       | 8+8         | 15206.87 MB/s  | 4223.42 MB/s | 16181.62  MB/s |
+| Cauchy       | 16+16       | 7427.47 MB/s   | 3305.84 MB/s | 22480.41  MB/s |
+| Cauchy       | 32+32       | 3785.64 MB/s   | 2300.07 MB/s | 26181.31  MB/s |
+| Cauchy       | 64+64       | 1911.93 MB/s   | 1368.51 MB/s | 27992.93 MB/s  |
+| Cauchy       | 128+128     | 963.83 MB/s    | 1327.56 MB/s | 32866.86 MB/s  |
+| Leopard GF8  | 4+4         | 17061.28 MB/s  | 3099.06 MB/s | 4096.78 MB/s   |
+| Leopard GF8  | 8+8         | 10546.67 MB/s  | 2925.92 MB/s | 3964.00 MB/s   |
+| Leopard GF8  | 16+16       | 10961.37  MB/s | 2328.40 MB/s | 3110.22 MB/s   |
+| Leopard GF8  | 32+32       | 7111.47 MB/s   | 2374.61 MB/s | 3220.75 MB/s   |
+| Leopard GF8  | 64+64       | 7468.57 MB/s   | 2055.41 MB/s | 3061.81 MB/s   |
+| Leopard GF8  | 128+128     | 5479.99 MB/s   | 1953.21 MB/s | 2815.15 MB/s   |
+| Leopard GF16 | 256+256     | 6158.66 MB/s   | 454.14 MB/s  | 506.70 MB/s    |
+| Leopard GF16 | 512+512     | 4418.58 MB/s   | 685.75 MB/s  | 801.63 MB/s    |
+| Leopard GF16 | 1024+1024   | 4778.05 MB/s   | 814.51 MB/s  | 1080.19 MB/s   |
+| Leopard GF16 | 2048+2048   | 3417.05 MB/s   | 911.64 MB/s  | 1179.48 MB/s   |
+| Leopard GF16 | 4096+4096   | 3209.41 MB/s   | 729.13 MB/s  | 1135.06 MB/s   |
+| Leopard GF16 | 8192+8192   | 2034.11 MB/s   | 604.52 MB/s  | 842.13 MB/s    |
+| Leopard GF16 | 16384+16384 | 1525.88 MB/s   | 486.74 MB/s  | 750.01 MB/s    |
+| Leopard GF16 | 32768+32768 | 1138.67 MB/s   | 482.81 MB/s  | 712.73 MB/s    |
 
 "Traditional" encoding is faster until somewhere between 16 and 32 shards.
 Leopard provides fast encoding in all cases, but shows a significant overhead for reconstruction.

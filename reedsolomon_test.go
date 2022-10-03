@@ -1199,8 +1199,14 @@ func BenchmarkDecode1K(b *testing.B) {
 				b.Run(fmt.Sprint("cauchy"), func(b *testing.B) {
 					benchmarkDecode(b, shards, shards, 1024, shards, WithCauchyMatrix(), WithInversionCache(false))
 				})
+				b.Run(fmt.Sprint("cauchy-inv"), func(b *testing.B) {
+					benchmarkDecode(b, shards, shards, 1024, shards, WithCauchyMatrix(), WithInversionCache(true))
+				})
 				b.Run(fmt.Sprint("cauchy-single"), func(b *testing.B) {
 					benchmarkDecode(b, shards, shards, 1024, 1, WithCauchyMatrix(), WithInversionCache(false))
+				})
+				b.Run(fmt.Sprint("cauchy-single-inv"), func(b *testing.B) {
+					benchmarkDecode(b, shards, shards, 1024, 1, WithCauchyMatrix(), WithInversionCache(true))
 				})
 				b.Run(fmt.Sprint("leopard-gf8"), func(b *testing.B) {
 					benchmarkDecode(b, shards, shards, 1024, shards, WithLeopardGF(true), WithInversionCache(false))
