@@ -399,12 +399,17 @@ so be sure to include that as part of any benchmark you run.
 
 For now SSSE3, AVX2 and AVX512 assembly are available on AMD64 platforms.
 
-Leopard mode currently always runs as a single goroutine, since multiple gorouties doesn't provide any worthwhile speedup.
+Leopard mode currently always runs as a single goroutine, since multiple 
+goroutines doesn't provide any worthwhile speedup.
 
-## Forcing Leopard GF16
+## Leopard GF8
 
-The `WithLeopardGF16(true)` can be used to use Leopard GF16 for all operations. 
-This is *not* compatible with the Leopard library that has a separate GF8 implementation.
+It is possible to replace the default reed-solomon encoder with a leopard compatible one.
+This will typically be faster when dealing with more than 20-30 shards.
+Note that the limitations listed above also applies to this mode. 
+See table below for speed with different number of shards.
+
+To enable Leopard GF8 mode use `WithLeopardGF(true)`.
 
 Benchmark Encoding and Reconstructing *1KB* shards with variable number of shards.
 For Cauchy matrix the inversion cache is disabled for a more "fair" test.
@@ -419,18 +424,12 @@ AVX2 is used.
 | Cauchy       | 32+32       | 3785.64 MB/s   | 557.60 MB/s  | 4660.27 MB/s |
 | Cauchy       | 64+64       | 1911.93 MB/s   | 160.54 MB/s  | 2864.63 MB/s |
 | Cauchy       | 128+128     | 963.83 MB/s    | 42.81 MB/s   | 1597.93 MB/s |
-| Leopard GF8  | 4+4         | 17061.28 MB/s  | 1825.17 MB/s | 2113.80 MB/s |
-| Leopard GF8  | 8+8         | 10546.67 MB/s  | 2518.78 MB/s | 2886.37 MB/s |
-| Leopard GF8  | 16+16       | 10961.37  MB/s | 2370.10 MB/s | 2719.13 MB/s |
-| Leopard GF8  | 32+32       | 7111.47 MB/s   | 2374.61 MB/s | 2765.06 MB/s |
-| Leopard GF8  | 64+64       | 7468.57 MB/s   | 2055.41 MB/s | 2340.14 MB/s |
-| Leopard GF8  | 128+128     | 5479.99 MB/s   | 1953.21 MB/s | 2213.36 MB/s |
-| Leopard GF16 | 4+4         | 18468.32 MB/s  | 10.45 MB/s   | 10.30 MB/s   |
-| Leopard GF16 | 8+8         | 10293.79 MB/s  | 20.83 MB/s   | 20.51 MB/s   |
-| Leopard GF16 | 16+16       | 12386.04 MB/s  | 40.80 MB/s   | 40.47 MB/s   |
-| Leopard GF16 | 32+32       | 7347.35 MB/s   | 81.15 MB/s   | 79.80 MB/s   |
-| Leopard GF16 | 64+64       | 8299.63 MB/s   | 150.47 MB/s  | 154.15 MB/s  |
-| Leopard GF16 | 128+128     | 5629.04 MB/s   | 278.84 MB/s  | 289.15 MB/s  |
+| Leopard GF8  | 4+4         | 17061.28 MB/s  | 3099.06 MB/s | 4096.78 MB/s |
+| Leopard GF8  | 8+8         | 10546.67 MB/s  | 2925.92 MB/s | 3964.00 MB/s |
+| Leopard GF8  | 16+16       | 10961.37  MB/s | 2328.40 MB/s | 3110.22 MB/s |
+| Leopard GF8  | 32+32       | 7111.47 MB/s   | 2374.61 MB/s | 3220.75 MB/s |
+| Leopard GF8  | 64+64       | 7468.57 MB/s   | 2055.41 MB/s | 3061.81 MB/s |
+| Leopard GF8  | 128+128     | 5479.99 MB/s   | 1953.21 MB/s | 2815.15 MB/s |
 | Leopard GF16 | 256+256     | 6158.66 MB/s   | 454.14 MB/s  | 506.70 MB/s  |
 | Leopard GF16 | 512+512     | 4418.58 MB/s   | 685.75 MB/s  | 801.63 MB/s  |
 | Leopard GF16 | 1024+1024   | 4778.05 MB/s   | 814.51 MB/s  | 1080.19 MB/s |
