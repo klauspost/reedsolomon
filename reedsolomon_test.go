@@ -1205,8 +1205,14 @@ func BenchmarkDecode1K(b *testing.B) {
 				b.Run(fmt.Sprint("leopard-gf8"), func(b *testing.B) {
 					benchmarkDecode(b, shards, shards, 1024, shards, WithLeopardGF(true), WithInversionCache(false))
 				})
+				b.Run(fmt.Sprint("leopard-gf8-inv"), func(b *testing.B) {
+					benchmarkDecode(b, shards, shards, 1024, shards, WithLeopardGF(true), WithInversionCache(true))
+				})
 				b.Run(fmt.Sprint("leopard-gf8-single"), func(b *testing.B) {
 					benchmarkDecode(b, shards, shards, 1024, 1, WithLeopardGF(true), WithInversionCache(false))
+				})
+				b.Run(fmt.Sprint("leopard-gf8-single-inv"), func(b *testing.B) {
+					benchmarkDecode(b, shards, shards, 1024, 1, WithLeopardGF(true), WithInversionCache(true))
 				})
 			}
 			b.Run(fmt.Sprint("leopard-gf16"), func(b *testing.B) {

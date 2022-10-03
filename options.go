@@ -21,6 +21,7 @@ type options struct {
 	useCauchy                             bool
 	fastOneParity                         bool
 	inversionCache                        bool
+	forcedInversionCache                  bool
 	customMatrix                          [][]byte
 	withLeopard                           leopardMode
 
@@ -130,10 +131,11 @@ func WithConcurrentStreamWrites(enabled bool) Option {
 
 // WithInversionCache allows to control the inversion cache.
 // This will cache reconstruction matrices so they can be reused.
-// Enabled by default.
+// Enabled by default, or <= 64 shards for Leopard encoding.
 func WithInversionCache(enabled bool) Option {
 	return func(o *options) {
 		o.inversionCache = enabled
+		o.forcedInversionCache = true
 	}
 }
 

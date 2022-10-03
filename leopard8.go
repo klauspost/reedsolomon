@@ -12,6 +12,7 @@ package reedsolomon
 
 import (
 	"bytes"
+	"encoding/binary"
 	"io"
 	"math/bits"
 	"sync"
@@ -23,9 +24,18 @@ type leopardFF8 struct {
 	parityShards int // Number of parity shards, should not be modified.
 	totalShards  int // Total number of shards. Calculated, and should not be modified.
 
-	workPool sync.Pool
+	workPool    sync.Pool
+	inversion   map[[inversion8Bytes]byte]leopardGF8cache
+	inversionMu sync.Mutex
 
 	o options
+}
+
+const inversion8Bytes = 256 / 8
+
+type leopardGF8cache struct {
+	errorLocs [256]ffe8
+	bits      *errorBitfield8
 }
 
 // newFF8 is like New, but for the 8-bit "leopard" implementation.
@@ -45,6 +55,11 @@ func newFF8(dataShards, parityShards int, opt options) (*leopardFF8, error) {
 		parityShards: parityShards,
 		totalShards:  dataShards + parityShards,
 		o:            opt,
+	}
+	if opt.inversionCache && (r.totalShards <= 64 || opt.forcedInversionCache) {
+		// Inversion cache is relatively ineffective for big shard counts and takes up potentially lots of memory
+		// r.totalShards is not covering the space, but an estimate.
+		r.inversion = make(map[[inversion8Bytes]byte]leopardGF8cache, r.totalShards)
 	}
 	return r, nil
 }
@@ -368,9 +383,6 @@ func (r *leopardFF8) reconstruct(shards [][]byte, recoverAll bool) error {
 		return nil
 	}
 
-	// Use only if we are missing less than 1/4 parity.
-	useBits := r.totalShards-numberPresent <= r.parityShards/4
-
 	// Check if we have enough to reconstruct.
 	if numberPresent < r.dataShards {
 		return ErrTooFewShards
@@ -380,6 +392,10 @@ func (r *leopardFF8) reconstruct(shards [][]byte, recoverAll bool) error {
 	if shardSize%64 != 0 {
 		return ErrShardSize
 	}
+
+	// Use only if we are missing less than 1/4 parity,
+	// And we are restoring a significant amount of data.
+	useBits := r.totalShards-numberPresent <= r.parityShards/4 && shardSize*r.totalShards >= 64<<10
 
 	m := ceilPow2(r.parityShards)
 	n := ceilPow2(m + r.dataShards)
@@ -412,18 +428,55 @@ func (r *leopardFF8) reconstruct(shards [][]byte, recoverAll bool) error {
 		}
 	}
 
-	if LEO_ERROR_BITFIELD_OPT && useBits {
-		errorBits.prepare()
+	var gotInversion bool
+	if LEO_ERROR_BITFIELD_OPT && r.inversion != nil {
+		cacheID := errorBits.cacheID()
+		r.inversionMu.Lock()
+		if inv, ok := r.inversion[cacheID]; ok {
+			r.inversionMu.Unlock()
+			errLocs = inv.errorLocs
+			if inv.bits != nil && useBits {
+				errorBits = *inv.bits
+				useBits = true
+			} else {
+				useBits = false
+			}
+			gotInversion = true
+		} else {
+			r.inversionMu.Unlock()
+		}
 	}
 
-	// Evaluate error locator polynomial8
-	fwht8(&errLocs, order8, m+r.dataShards)
+	if !gotInversion {
+		// No inversion...
+		if LEO_ERROR_BITFIELD_OPT && useBits {
+			errorBits.prepare()
+		}
 
-	for i := 0; i < order8; i++ {
-		errLocs[i] = ffe8((uint(errLocs[i]) * uint(logWalsh8[i])) % modulus8)
+		// Evaluate error locator polynomial8
+		fwht8(&errLocs, order8, m+r.dataShards)
+
+		for i := 0; i < order8; i++ {
+			errLocs[i] = ffe8((uint(errLocs[i]) * uint(logWalsh8[i])) % modulus8)
+		}
+
+		fwht8(&errLocs, order8, order8)
+
+		if r.inversion != nil {
+			c := leopardGF8cache{
+				errorLocs: errLocs,
+			}
+			if useBits {
+				// Heap alloc
+				var x errorBitfield8
+				x = errorBits
+				c.bits = &x
+			}
+			r.inversionMu.Lock()
+			r.inversion[errorBits.cacheID()] = c
+			r.inversionMu.Unlock()
+		}
 	}
-
-	fwht8(&errLocs, order8, order8)
 
 	var work [][]byte
 	if w, ok := r.workPool.Get().([][]byte); ok {
@@ -490,7 +543,11 @@ func (r *leopardFF8) reconstruct(shards [][]byte, recoverAll bool) error {
 
 	outputCount := m + r.dataShards
 
-	fftDIT8(work, outputCount, n, fftSkew8[:], &r.o)
+	if LEO_ERROR_BITFIELD_OPT && useBits {
+		errorBits.fftDIT8(work, outputCount, n, fftSkew8[:], &r.o)
+	} else {
+		fftDIT8(work, outputCount, n, fftSkew8[:], &r.o)
+	}
 
 	// Reveal erasures
 	//
@@ -1018,19 +1075,23 @@ type errorBitfield8 struct {
 }
 
 func (e *errorBitfield8) set(i int) {
-	e.Words[0][i/64] |= uint64(1) << (i & 63)
+	e.Words[0][(i/64)&3] |= uint64(1) << (i & 63)
 }
 
-func (e *errorBitfield8) isNeededFn(mipLevel int) func(bit int) bool {
-	if mipLevel >= 8 {
-		return func(bit int) bool {
-			return true
-		}
+func (e *errorBitfield8) cacheID() [inversion8Bytes]byte {
+	var res [inversion8Bytes]byte
+	binary.LittleEndian.PutUint64(res[0:8], e.Words[0][0])
+	binary.LittleEndian.PutUint64(res[8:16], e.Words[0][1])
+	binary.LittleEndian.PutUint64(res[16:24], e.Words[0][2])
+	binary.LittleEndian.PutUint64(res[24:32], e.Words[0][3])
+	return res
+}
+
+func (e *errorBitfield8) isNeeded(mipLevel, bit int) bool {
+	if mipLevel >= 8 || mipLevel <= 0 {
+		return true
 	}
-	w := e.Words[mipLevel-1][:]
-	return func(bit int) bool {
-		return 0 != (w[bit/64] & (uint64(1) << (bit & 63)))
-	}
+	return 0 != (e.Words[mipLevel-1][bit/64] & (uint64(1) << (bit & 63)))
 }
 
 func (e *errorBitfield8) prepare() {
@@ -1066,17 +1127,16 @@ func (e *errorBitfield8) prepare() {
 	}
 }
 
-func (e *errorBitfield8) fftDIT(work [][]byte, mtrunc, m int, skewLUT []ffe8, o *options) {
+func (e *errorBitfield8) fftDIT8(work [][]byte, mtrunc, m int, skewLUT []ffe8, o *options) {
 	// Decimation in time: Unroll 2 layers at a time
 	mipLevel := bits.Len32(uint32(m)) - 1
 
 	dist4 := m
 	dist := m >> 2
-	needed := e.isNeededFn(mipLevel)
 	for dist != 0 {
 		// For each set of dist*4 elements:
 		for r := 0; r < mtrunc; r += dist4 {
-			if !needed(r) {
+			if !e.isNeeded(mipLevel, r) {
 				continue
 			}
 			iEnd := r + dist
@@ -1098,13 +1158,12 @@ func (e *errorBitfield8) fftDIT(work [][]byte, mtrunc, m int, skewLUT []ffe8, o 
 		dist4 = dist
 		dist >>= 2
 		mipLevel -= 2
-		needed = e.isNeededFn(mipLevel)
 	}
 
 	// If there is one layer left:
 	if dist4 == 2 {
 		for r := 0; r < mtrunc; r += 2 {
-			if !needed(r) {
+			if !e.isNeeded(mipLevel, r) {
 				continue
 			}
 			logM := skewLUT[r+1-1]
