@@ -27,6 +27,7 @@ Using Go modules is recommended.
 
 ## 2022
 
+* [Leopard GF8](https://github.com/klauspost/reedsolomon#leopard-gf8) mode added, for faster processing of medium shard counts.
 * [Leopard GF16](https://github.com/klauspost/reedsolomon#leopard-compatible-gf16) mode added, for up to 65536 shards. 
 * [WithJerasureMatrix](https://pkg.go.dev/github.com/klauspost/reedsolomon?tab=doc#WithJerasureMatrix) allows constructing a [Jerasure](https://github.com/tsuraan/Jerasure) compatible matrix.
 
