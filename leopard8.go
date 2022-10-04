@@ -89,6 +89,9 @@ const (
 	order8      = 1 << bitwidth8
 	modulus8    = order8 - 1
 	polynomial8 = 0x11D
+
+	// Encode in blocks of this size.
+	workSize8 = 8 << 10
 )
 
 var (
@@ -137,16 +140,21 @@ func (r *leopardFF8) encode(shards [][]byte) error {
 	}
 	if cap(work) >= m*2 {
 		work = work[:m*2]
+		for i := range work {
+			if cap(work[i]) < workSize8 {
+				work[i] = make([]byte, workSize8)
+			} else {
+				work[i] = work[i][:workSize8]
+			}
+		}
 	} else {
 		work = make([][]byte, m*2)
-	}
-	for i := range work {
-		if cap(work[i]) < shardSize {
-			work[i] = make([]byte, shardSize)
-		} else {
-			work[i] = work[i][:shardSize]
+		all := make([]byte, m*2*workSize8)
+		for i := range work {
+			work[i] = all[i*workSize8 : i*workSize8+workSize8]
 		}
 	}
+
 	defer r.workPool.Put(work)
 
 	mtrunc := m
@@ -156,70 +164,86 @@ func (r *leopardFF8) encode(shards [][]byte) error {
 
 	skewLUT := fftSkew8[m-1:]
 
-	sh := shards
-	ifftDITEncoder8(
-		sh[:r.dataShards],
-		mtrunc,
-		work,
-		nil, // No xor output
-		m,
-		skewLUT,
-		&r.o,
-	)
-
-	lastCount := r.dataShards % m
-	if m >= r.dataShards {
-		goto skip_body
-	}
-
-	// For sets of m data pieces:
-	for i := m; i+m <= r.dataShards; i += m {
-		sh = sh[m:]
-		skewLUT = skewLUT[m:]
-
-		// work <- work xor IFFT(data + i, m, m + i)
-
-		ifftDITEncoder8(
-			sh, // data source
-			m,
-			work[m:], // temporary workspace
-			work,     // xor destination
-			m,
-			skewLUT,
-			&r.o,
-		)
-	}
-
-	// Handle final partial set of m pieces:
-	if lastCount != 0 {
-		sh = sh[m:]
-		skewLUT = skewLUT[m:]
-
-		// work <- work xor IFFT(data + i, m, m + i)
-
-		ifftDITEncoder8(
-			sh, // data source
-			lastCount,
-			work[m:], // temporary workspace
-			work,     // xor destination
-			m,
-			skewLUT,
-			&r.o,
-		)
-	}
-
-skip_body:
-	// work <- FFT(work, m, 0)
-	fftDIT8(work, r.parityShards, m, fftSkew8[:], &r.o)
-
-	for i, w := range work[:r.parityShards] {
-		sh := shards[i+r.dataShards]
-		if cap(sh) >= shardSize {
-			sh = append(sh[:0], w...)
-		} else {
-			sh = w
+	// Split large shards.
+	// More likely on lower shard count.
+	off := 0
+	sh := make([][]byte, len(shards))
+	for off < shardSize {
+		sh := sh
+		end := off + workSize8
+		if end > shardSize {
+			end = shardSize
+			sz := shardSize - off
+			for i := range work {
+				// Last iteration only...
+				work[i] = work[i][:sz]
+			}
 		}
-		shards[i+r.dataShards] = sh
+		for i := range shards {
+			sh[i] = shards[i][off:end]
+		}
+		ifftDITEncoder8(
+			sh[:r.dataShards],
+			mtrunc,
+			work,
+			nil, // No xor output
+			m,
+			skewLUT,
+			&r.o,
+		)
+
+		lastCount := r.dataShards % m
+		skewLUT2 := skewLUT
+		if m >= r.dataShards {
+			goto skip_body
+		}
+
+		// For sets of m data pieces:
+		for i := m; i+m <= r.dataShards; i += m {
+			sh = sh[m:]
+			skewLUT2 = skewLUT2[m:]
+
+			// work <- work xor IFFT(data + i, m, m + i)
+
+			ifftDITEncoder8(
+				sh, // data source
+				m,
+				work[m:], // temporary workspace
+				work,     // xor destination
+				m,
+				skewLUT2,
+				&r.o,
+			)
+		}
+
+		// Handle final partial set of m pieces:
+		if lastCount != 0 {
+			sh = sh[m:]
+			skewLUT2 = skewLUT2[m:]
+
+			// work <- work xor IFFT(data + i, m, m + i)
+
+			ifftDITEncoder8(
+				sh, // data source
+				lastCount,
+				work[m:], // temporary workspace
+				work,     // xor destination
+				m,
+				skewLUT2,
+				&r.o,
+			)
+		}
+
+	skip_body:
+		// work <- FFT(work, m, 0)
+		fftDIT8(work, r.parityShards, m, fftSkew8[:], &r.o)
+
+		for i, w := range work[:r.parityShards] {
+			sh := shards[i+r.dataShards]
+			sh = append(sh[:off], w[:end-off]...)
+			shards[i+r.dataShards] = sh
+		}
+		off += workSize8
 	}
 
 	return nil
@@ -484,97 +508,137 @@ func (r *leopardFF8) reconstruct(shards [][]byte, recoverAll bool) error {
 	}
 	if cap(work) >= n {
 		work = work[:n]
+		for i := range work {
+			if cap(work[i]) < workSize8 {
+				work[i] = make([]byte, workSize8)
+			} else {
+				work[i] = work[i][:workSize8]
+			}
+		}
+
 	} else {
 		work = make([][]byte, n)
-	}
-	for i := range work {
-		if cap(work[i]) < shardSize {
-			work[i] = make([]byte, shardSize)
-		} else {
-			work[i] = work[i][:shardSize]
+		all := make([]byte, n*workSize8)
+		for i := range work {
+			work[i] = all[i*workSize8 : i*workSize8+workSize8]
 		}
 	}
 	defer r.workPool.Put(work)
 
 	// work <- recovery data
 
-	for i := 0; i < r.parityShards; i++ {
-		if len(shards[i+r.dataShards]) != 0 {
-			mulgf8(work[i], shards[i+r.dataShards], errLocs[i], &r.o)
-		} else {
-			memclr(work[i])
-		}
-	}
-	for i := r.parityShards; i < m; i++ {
-		memclr(work[i])
-	}
+	// Split large shards.
+	// More likely on lower shard count.
+	sh := make([][]byte, len(shards))
+	// Copy...
+	copy(sh, shards)
 
-	// work <- original data
-
-	for i := 0; i < r.dataShards; i++ {
-		if len(shards[i]) != 0 {
-			mulgf8(work[m+i], shards[i], errLocs[m+i], &r.o)
-		} else {
-			memclr(work[m+i])
-		}
-	}
-	for i := m + r.dataShards; i < n; i++ {
-		memclr(work[i])
-	}
-
-	// work <- IFFT(work, n, 0)
-
-	ifftDITDecoder8(
-		m+r.dataShards,
-		work,
-		n,
-		fftSkew8[:],
-		&r.o,
-	)
-
-	// work <- FormalDerivative(work, n)
-
-	for i := 1; i < n; i++ {
-		width := ((i ^ (i - 1)) + 1) >> 1
-		slicesXor(work[i-width:i], work[i:i+width], &r.o)
-	}
-
-	// work <- FFT(work, n, 0) truncated to m + dataShards
-
-	outputCount := m + r.dataShards
-
-	if LEO_ERROR_BITFIELD_OPT && useBits {
-		errorBits.fftDIT8(work, outputCount, n, fftSkew8[:], &r.o)
-	} else {
-		fftDIT8(work, outputCount, n, fftSkew8[:], &r.o)
-	}
-
-	// Reveal erasures
-	//
-	//  Original = -ErrLocator * FFT( Derivative( IFFT( ErrLocator * ReceivedData ) ) )
-	//  mul_mem(x, y, log_m, ) equals x[] = y[] * log_m
-	//
-	// mem layout: [Recovery Data (Power of Two = M)] [Original Data (K)] [Zero Padding out to N]
-	end := r.dataShards
-	if recoverAll {
-		end = r.totalShards
-	}
-	for i := 0; i < end; i++ {
-		if len(shards[i]) != 0 {
+	// Add output
+	for i, sh := range shards {
+		if !recoverAll && i >= r.dataShards {
 			continue
 		}
-		if cap(shards[i]) >= shardSize {
-			shards[i] = shards[i][:shardSize]
-		} else {
-			shards[i] = make([]byte, shardSize)
+		if len(sh) == 0 {
+			if cap(sh) >= shardSize {
+				shards[i] = sh[:shardSize]
+			} else {
+				shards[i] = make([]byte, shardSize)
+			}
 		}
-		if i >= r.dataShards {
-			// Parity shard.
-			mulgf8(shards[i], work[i-r.dataShards], modulus8-errLocs[i-r.dataShards], &r.o)
-		} else {
-			// Data shard.
-			mulgf8(shards[i], work[i+m], modulus8-errLocs[i+m], &r.o)
+	}
+
+	off := 0
+	for off < shardSize {
+		endSlice := off + workSize8
+		if endSlice > shardSize {
+			endSlice = shardSize
+			sz := shardSize - off
+			// Last iteration only
+			for i := range work {
+				work[i] = work[i][:sz]
+			}
 		}
+		for i := range shards {
+			if len(sh[i]) != 0 {
+				sh[i] = shards[i][off:endSlice]
+			}
+		}
+		for i := 0; i < r.parityShards; i++ {
+			if len(sh[i+r.dataShards]) != 0 {
+				mulgf8(work[i], sh[i+r.dataShards], errLocs[i], &r.o)
+			} else {
+				memclr(work[i])
+			}
+		}
+		for i := r.parityShards; i < m; i++ {
+			memclr(work[i])
+		}
+
+		// work <- original data
+
+		for i := 0; i < r.dataShards; i++ {
+			if len(sh[i]) != 0 {
+				mulgf8(work[m+i], sh[i], errLocs[m+i], &r.o)
+			} else {
+				memclr(work[m+i])
+			}
+		}
+		for i := m + r.dataShards; i < n; i++ {
+			memclr(work[i])
+		}
+
+		// work <- IFFT(work, n, 0)
+
+		ifftDITDecoder8(
+			m+r.dataShards,
+			work,
+			n,
+			fftSkew8[:],
+			&r.o,
+		)
+
+		// work <- FormalDerivative(work, n)
+
+		for i := 1; i < n; i++ {
+			width := ((i ^ (i - 1)) + 1) >> 1
+			slicesXor(work[i-width:i], work[i:i+width], &r.o)
+		}
+
+		// work <- FFT(work, n, 0) truncated to m + dataShards
+
+		outputCount := m + r.dataShards
+
+		if LEO_ERROR_BITFIELD_OPT && useBits {
+			errorBits.fftDIT8(work, outputCount, n, fftSkew8[:], &r.o)
+		} else {
+			fftDIT8(work, outputCount, n, fftSkew8[:], &r.o)
+		}
+
+		// Reveal erasures
+		//
+		//  Original = -ErrLocator * FFT( Derivative( IFFT( ErrLocator * ReceivedData ) ) )
+		//  mul_mem(x, y, log_m, ) equals x[] = y[] * log_m
+		//
+		// mem layout: [Recovery Data (Power of Two = M)] [Original Data (K)] [Zero Padding out to N]
+		end := r.dataShards
+		if recoverAll {
+			end = r.totalShards
+		}
+		// Restore
+		for i := 0; i < end; i++ {
+			if len(sh[i]) != 0 {
+				continue
+			}
+
+			if i >= r.dataShards {
+				// Parity shard.
+				mulgf8(shards[i][off:endSlice], work[i-r.dataShards], modulus8-errLocs[i-r.dataShards], &r.o)
+			} else {
+				// Data shard.
+				mulgf8(shards[i][off:endSlice], work[i+m], modulus8-errLocs[i+m], &r.o)
+			}
+		}
+		off += workSize8
 	}
 	return nil
 }

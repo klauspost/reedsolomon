@@ -1387,8 +1387,10 @@ func corruptRandom(shards [][]byte, dataShards, parityShards int) {
 	}
 }
 
-func benchmarkReconstruct(b *testing.B, dataShards, parityShards, shardSize int) {
-	r, err := New(dataShards, parityShards, testOptions(WithAutoGoroutines(shardSize))...)
+func benchmarkReconstruct(b *testing.B, dataShards, parityShards, shardSize int, opts ...Option) {
+	o := []Option{WithAutoGoroutines(shardSize)}
+	o = append(o, opts...)
+	r, err := New(dataShards, parityShards, testOptions(o...)...)
 	if err != nil {
 		b.Fatal(err)
 	}
@@ -1455,6 +1457,11 @@ func BenchmarkReconstruct10x4x1M(b *testing.B) {
 // Benchmark 5 data slices with 2 parity slices holding 1MB bytes each
 func BenchmarkReconstruct50x20x1M(b *testing.B) {
 	benchmarkReconstruct(b, 50, 20, 1024*1024)
+}
+
+// Benchmark 5 data slices with 2 parity slices holding 1MB bytes each
+func BenchmarkReconstructLeopard50x20x1M(b *testing.B) {
+	benchmarkReconstruct(b, 50, 20, 1024*1024, WithLeopardGF(true), WithInversionCache(true))
 }
 
 // Benchmark 10 data slices with 4 parity slices holding 16MB bytes each
