@@ -385,12 +385,20 @@ func leo8MulAdd256(ctx gf8ctx, x, y reg.VecVirtual, table table256) {
 	Comment("LEO_MULADD_256")
 	lo, hi := YMM(), YMM()
 
-	VPAND(y, ctx.clrMask, lo)
+	if ctx.avx512 {
+		VPANDD(y, ctx.clrMask, lo)
+	} else {
+		VPAND(y, ctx.clrMask, lo)
+	}
 	VPSRLQ(U8(4), y, hi)
 	VPSHUFB(lo, table.Lo, lo)
 
 	// Do high
-	VPAND(hi, ctx.clrMask, hi)
+	if ctx.avx512 {
+		VPANDD(hi, ctx.clrMask, hi)
+	} else {
+		VPAND(hi, ctx.clrMask, hi)
+	}
 	VPSHUFB(hi, table.Hi, hi)
 	if ctx.avx512 {
 		VPTERNLOGD(U8(0x96), lo, hi, x)
