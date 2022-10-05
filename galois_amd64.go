@@ -29,6 +29,9 @@ func galMulAVX2_64(low, high, in, out []byte)
 //go:noescape
 func sSE2XorSlice_64(in, out []byte)
 
+//go:noescape
+func avx2XorSlice_64(in, out []byte)
+
 // This is what the assembler routines do in blocks of 16 bytes:
 /*
 func galMulSSSE3(low, high, in, out []byte) {
@@ -121,10 +124,17 @@ func galMulSliceXor(c byte, in, out []byte, o *options) {
 func sliceXor(in, out []byte, o *options) {
 	if o.useSSE2 {
 		if len(in) >= bigSwitchover {
-			sSE2XorSlice_64(in, out)
-			done := (len(in) >> 6) << 6
-			in = in[done:]
-			out = out[done:]
+			if o.useAVX2 {
+				avx2XorSlice_64(in, out)
+				done := (len(in) >> 6) << 6
+				in = in[done:]
+				out = out[done:]
+			} else {
+				sSE2XorSlice_64(in, out)
+				done := (len(in) >> 6) << 6
+				in = in[done:]
+				out = out[done:]
+			}
 		}
 		if len(in) >= 16 {
 			sSE2XorSlice(in, out)
