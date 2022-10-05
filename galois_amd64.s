@@ -363,3 +363,32 @@ loopback_xor_sse2_64:
 
 done_xor_sse2_64:
 	RET
+
+// func avx2XorSlice_64(in, out []byte)
+TEXT ·avx2XorSlice_64(SB), 7, $0
+	MOVQ in+0(FP), SI     // SI: &in
+	MOVQ in_len+8(FP), R9 // R9: len(in)
+	MOVQ out+24(FP), DX   // DX: &out
+	SHRQ $6, R9           // len(in) / 64
+	CMPQ R9, $0
+	JEQ  done_xor_avx2_64
+
+loopback_xor_avx2_64:
+	VMOVDQU (SI), Y0
+	VMOVDQU 32(SI), Y2
+	VMOVDQU (DX), Y1
+	VMOVDQU 32(DX), Y3
+	VPXOR   Y0, Y1, Y1
+	VPXOR   Y2, Y3, Y3
+	VMOVDQU Y1, (DX)
+	VMOVDQU Y3, 32(DX)
+
+	ADDQ $64, SI              // in+=64
+	ADDQ $64, DX              // out+=64
+	SUBQ $1, R9
+	JNZ  loopback_xor_avx2_64
+	VZEROUPPER
+
+done_xor_avx2_64:
+
+	RET
