@@ -23,7 +23,7 @@ jobs:
         go-version: ${{ matrix.go-version }}
 
     - name: CPU support
-      run: cat /proc/cpuinfo || true
+      run: go install github.com/klauspost/cpuid/v2/cmd/cpuid@latest&&cpuid
 
     - name: Checkout code
       uses: actions/checkout@v2
