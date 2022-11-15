@@ -725,9 +725,11 @@ func genMulAvx512GFNI(name string, inputs int, outputs int, xor bool) {
 	var reloadLength = false
 
 	est := total + outputs + 2
-
+	// When we can't hold all, keep this many in registers.
+	inReg := 0
 	if est > 32 {
 		loadNone = true
+		inReg = 32 - outputs - 3
 		// We run out of GP registers first, now.
 		if inputs+outputs > 13 {
 			regDst = false
@@ -754,7 +756,7 @@ func genMulAvx512GFNI(name string, inputs int, outputs int, xor bool) {
 	}
 
 	if loadNone {
-		Comment("Loading no tables to registers")
+		Commentf("Loading only %d tables to registers", inReg)
 	} else {
 		// loadNone == false
 		Comment("Loading all tables to registers")
@@ -783,7 +785,7 @@ func genMulAvx512GFNI(name string, inputs int, outputs int, xor bool) {
 	matrix := make([]reg.VecVirtual, total)
 
 	for i := range matrix {
-		if loadNone {
+		if loadNone && i > inReg {
 			break
 		}
 		table := ZMM()
@@ -882,8 +884,9 @@ func genMulAvx512GFNI(name string, inputs int, outputs int, xor bool) {
 		ADDQ(U8(perLoop), inPtrs[i])
 
 		for j := range dst {
-			if loadNone {
-				VBROADCASTF32X2(Mem{Base: matrixBase, Disp: 8 * (i*outputs + j)}, look)
+			idx := i*outputs + j
+			if loadNone && idx > inReg {
+				VBROADCASTF32X2(Mem{Base: matrixBase, Disp: 8 * idx}, look)
 				if i == 0 && !xor {
 					VALIGNQ(U8(0), in, look, dst[j])
 				} else {
