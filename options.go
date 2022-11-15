@@ -42,7 +42,7 @@ var defaultOptions = options{
 	useSSE2:   cpuid.CPU.Supports(cpuid.SSE2),
 	useAVX2:   cpuid.CPU.Supports(cpuid.AVX2),
 	useAVX512: cpuid.CPU.Supports(cpuid.AVX512F, cpuid.AVX512BW, cpuid.AVX512VL),
-	useGFNI:   cpuid.CPU.Supports(cpuid.AVX512F, cpuid.AVX512BW, cpuid.AVX512VL, cpuid.GFNI, cpuid.AVX512DQ),
+	useGFNI:   cpuid.CPU.Supports(cpuid.AVX512F, cpuid.GFNI, cpuid.AVX512DQ),
 }
 
 // leopardMode controls the use of leopard GF in encoding and decoding.
