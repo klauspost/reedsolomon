@@ -870,11 +870,22 @@ func (r *reedSolomon) codeSomeShardsP(matrixRows, inputs, outputs [][]byte, byte
 	gor := r.o.maxGoroutines
 
 	var avx2Matrix []byte
+	var gfniMatrix []uint64
 	useAvx2 := r.canAVX2C(byteCount, len(inputs), len(outputs))
-	if useAvx2 {
+	useGFNI := r.canGFNI(byteCount, len(inputs), len(outputs))
+	if useGFNI {
+		var tmp [maxAvx2Inputs * maxAvx2Outputs]uint64
+		gfniMatrix = genGFNIMatrix(matrixRows, len(inputs), 0, len(outputs), tmp[:])
+	} else if useAvx2 {
 		avx2Matrix = genAvx2Matrix(matrixRows, len(inputs), 0, len(outputs), r.mPool.Get().([]byte))
 		defer r.mPool.Put(avx2Matrix)
-	} else if byteCount < 10<<20 && len(inputs)+len(outputs) > avx2CodeGenMinShards &&
+	} else if r.o.useGFNI && byteCount < 10<<20 && len(inputs)+len(outputs) > avx2CodeGenMinShards &&
+		r.canAVX2C(byteCount/4, maxAvx2Inputs, maxAvx2Outputs) {
+		// It appears there is a switchover point at around 10MB where
+		// Regular processing is faster...
+		r.codeSomeShardsAVXP(matrixRows, inputs, outputs, byteCount)
+		return
+	} else if r.o.useAVX2 && byteCount < 10<<20 && len(inputs)+len(outputs) > avx2CodeGenMinShards &&
 		r.canAVX2C(byteCount/4, maxAvx2Inputs, maxAvx2Outputs) {
 		// It appears there is a switchover point at around 10MB where
 		// Regular processing is faster...
@@ -888,8 +899,12 @@ func (r *reedSolomon) codeSomeShardsP(matrixRows, inputs, outputs [][]byte, byte
 	}
 
 	exec := func(start, stop int) {
-		if useAvx2 && stop-start >= 64 {
-			start += galMulSlicesAvx2(avx2Matrix, inputs, outputs, start, stop)
+		if stop-start >= 64 {
+			if useGFNI {
+				start += galMulSlicesGFNI(gfniMatrix, inputs, outputs, start, stop)
+			} else if useAvx2 {
+				start += galMulSlicesAvx2(avx2Matrix, inputs, outputs, start, stop)
+			}
 		}
 
 		lstart, lstop := start, start+r.o.perRound
@@ -1040,6 +1055,154 @@ func (r *reedSolomon) codeSomeShardsAVXP(matrixRows, inputs, outputs [][]byte, b
 						galMulSlicesAvx2(p.m, p.input, p.output, lstart, lstop)
 					} else {
 						galMulSlicesAvx2Xor(p.m, p.input, p.output, lstart, lstop)
+					}
+				}
+				lstart += (lstop - lstart) & avxSizeMask
+				if lstart == lstop {
+					lstop += r.o.perRound
+					if lstop > stop {
+						lstop = stop
+					}
+					continue
+				}
+			}
+
+			for c := range inputs {
+				in := inputs[c][lstart:lstop]
+				for iRow := 0; iRow < len(outputs); iRow++ {
+					if c == 0 {
+						galMulSlice(matrixRows[iRow][c], in, outputs[iRow][lstart:lstop], &r.o)
+					} else {
+						galMulSliceXor(matrixRows[iRow][c], in, outputs[iRow][lstart:lstop], &r.o)
+					}
+				}
+			}
+			lstart = lstop
+			lstop += r.o.perRound
+			if lstop > stop {
+				lstop = stop
+			}
+		}
+		wg.Done()
+	}
+	if gor == 1 {
+		wg.Add(1)
+		exec(0, byteCount)
+		return
+	}
+
+	// Make sizes divisible by 64
+	do = (do + 63) & (^63)
+	start := 0
+	for start < byteCount {
+		if start+do > byteCount {
+			do = byteCount - start
+		}
+
+		wg.Add(1)
+		go exec(start, start+do)
+		start += do
+	}
+	wg.Wait()
+}
+
+// Perform the same as codeSomeShards, but split the workload into
+// several goroutines.
+func (r *reedSolomon) codeSomeShardsGFNI(matrixRows, inputs, outputs [][]byte, byteCount int) {
+	var wg sync.WaitGroup
+	gor := r.o.maxGoroutines
+
+	type state struct {
+		input  [][]byte
+		output [][]byte
+		m      []uint64
+		first  bool
+	}
+	// Make a plan...
+	plan := make([]state, 0, ((len(inputs)+maxAvx2Inputs-1)/maxAvx2Inputs)*((len(outputs)+maxAvx2Outputs-1)/maxAvx2Outputs))
+
+	// Flips between input first to output first.
+	// We put the smallest data load in the inner loop.
+	if len(inputs) > len(outputs) {
+		inIdx := 0
+		ins := inputs
+		for len(ins) > 0 {
+			inPer := ins
+			if len(inPer) > maxAvx2Inputs {
+				inPer = inPer[:maxAvx2Inputs]
+			}
+			outs := outputs
+			outIdx := 0
+			for len(outs) > 0 {
+				outPer := outs
+				if len(outPer) > maxAvx2Outputs {
+					outPer = outPer[:maxAvx2Outputs]
+				}
+				// Generate local matrix
+				m := genGFNIMatrix(matrixRows[outIdx:], len(inPer), inIdx, len(outPer), make([]uint64, len(inPer)*len(outPer)))
+				plan = append(plan, state{
+					input:  inPer,
+					output: outPer,
+					m:      m,
+					first:  inIdx == 0,
+				})
+				outIdx += len(outPer)
+				outs = outs[len(outPer):]
+			}
+			inIdx += len(inPer)
+			ins = ins[len(inPer):]
+		}
+	} else {
+		outs := outputs
+		outIdx := 0
+		for len(outs) > 0 {
+			outPer := outs
+			if len(outPer) > maxAvx2Outputs {
+				outPer = outPer[:maxAvx2Outputs]
+			}
+
+			inIdx := 0
+			ins := inputs
+			for len(ins) > 0 {
+				inPer := ins
+				if len(inPer) > maxAvx2Inputs {
+					inPer = inPer[:maxAvx2Inputs]
+				}
+				// Generate local matrix
+				m := genGFNIMatrix(matrixRows[outIdx:], len(inPer), inIdx, len(outPer), make([]uint64, len(inPer)*len(outPer)))
+				//fmt.Println("bytes:", len(inPer)*r.o.perRound, "out:", len(outPer)*r.o.perRound)
+				plan = append(plan, state{
+					input:  inPer,
+					output: outPer,
+					m:      m,
+					first:  inIdx == 0,
+				})
+				inIdx += len(inPer)
+				ins = ins[len(inPer):]
+			}
+			outIdx += len(outPer)
+			outs = outs[len(outPer):]
+		}
+	}
+
+	do := byteCount / gor
+	if do < r.o.minSplitSize {
+		do = r.o.minSplitSize
+	}
+
+	exec := func(start, stop int) {
+		lstart, lstop := start, start+r.o.perRound
+		if lstop > stop {
+			lstop = stop
+		}
+		for lstart < stop {
+			if lstop-lstart >= minAvx2Size {
+				// Execute plan...
+				for _, p := range plan {
+					if p.first {
+						galMulSlicesGFNI(p.m, p.input, p.output, lstart, lstop)
+					} else {
+						galMulSlicesGFNIXor(p.m, p.input, p.output, lstart, lstop)
 					}
 				}
 				lstart += (lstop - lstart) & avxSizeMask
