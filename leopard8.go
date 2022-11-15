@@ -769,10 +769,6 @@ func ifftDITEncoder8(data [][]byte, mtrunc int, work [][]byte, xorRes [][]byte, 
 		memclr(work[i])
 	}
 
-	// I tried splitting up the first few layers into L3-cache sized blocks but
-	// found that it only provides about 5% performance boost, which is not
-	// worth the extra complexity.
-
 	// Decimation in time: Unroll 2 layers at a time
 	dist := 1
 	dist4 := 4

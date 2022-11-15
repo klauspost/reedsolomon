@@ -753,6 +753,12 @@ func (r *reedSolomon) canAVX2C(byteCount int, inputs, outputs int) bool {
 		inputs <= maxAvx2Inputs && outputs <= maxAvx2Outputs
 }
 
+func (r *reedSolomon) canGFNI(byteCount int, inputs, outputs int) bool {
+	return avx2CodeGen && r.o.useGFNI &&
+		byteCount >= avx2CodeGenMinSize && inputs+outputs >= avx2CodeGenMinShards &&
+		inputs <= maxAvx2Inputs && outputs <= maxAvx2Outputs
+}
+
 // Multiplies a subset of rows from a coding matrix by a full set of
 // input totalShards to produce some output totalShards.
 // 'matrixRows' is The rows from the matrix to use.
@@ -783,12 +789,18 @@ func (r *reedSolomon) codeSomeShards(matrixRows, inputs, outputs [][]byte, byteC
 	if end > len(inputs[0]) {
 		end = len(inputs[0])
 	}
-	if r.canAVX2C(byteCount, len(inputs), len(outputs)) {
+	if r.canGFNI(byteCount, len(inputs), len(outputs)) {
+		var gfni [maxAvx2Inputs * maxAvx2Outputs]uint64
+		m := genGFNIMatrix(matrixRows, len(inputs), 0, len(outputs), gfni[:])
+		start += galMulSlicesGFNI(m, inputs, outputs, 0, byteCount)
+		end = len(inputs[0])
+	} else if r.canAVX2C(byteCount, len(inputs), len(outputs)) {
 		m := genAvx2Matrix(matrixRows, len(inputs), 0, len(outputs), r.mPool.Get().([]byte))
 		start += galMulSlicesAvx2(m, inputs, outputs, 0, byteCount)
 		r.mPool.Put(m)
 		end = len(inputs[0])
 	} else if len(inputs)+len(outputs) > avx2CodeGenMinShards && r.canAVX2C(byteCount, maxAvx2Inputs, maxAvx2Outputs) {
+		var gfni [maxAvx2Inputs * maxAvx2Outputs]uint64
 		end = len(inputs[0])
 		inIdx := 0
 		m := r.mPool.Get().([]byte)
@@ -806,11 +818,20 @@ func (r *reedSolomon) codeSomeShards(matrixRows, inputs, outputs [][]byte, byteC
 				if len(outPer) > maxAvx2Outputs {
 					outPer = outPer[:maxAvx2Outputs]
 				}
-				m = genAvx2Matrix(matrixRows[outIdx:], len(inPer), inIdx, len(outPer), m)
-				if inIdx == 0 {
-					galMulSlicesAvx2(m, inPer, outPer, 0, byteCount)
+				if r.o.useGFNI {
+					m := genGFNIMatrix(matrixRows[outIdx:], len(inPer), inIdx, len(outPer), gfni[:])
+					if inIdx == 0 {
+						galMulSlicesGFNI(m, inputs, outputs, 0, byteCount)
+					} else {
+						galMulSlicesGFNIXor(m, inputs, outputs, 0, byteCount)
+					}
 				} else {
-					galMulSlicesAvx2Xor(m, inPer, outPer, 0, byteCount)
+					m = genAvx2Matrix(matrixRows[outIdx:], len(inPer), inIdx, len(outPer), m)
+					if inIdx == 0 {
+						galMulSlicesAvx2(m, inPer, outPer, 0, byteCount)
+					} else {
+						galMulSlicesAvx2Xor(m, inPer, outPer, 0, byteCount)
+					}
 				}
 				start = byteCount & avxSizeMask
 				outIdx += len(outPer)
