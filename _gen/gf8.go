@@ -410,39 +410,34 @@ func genGF8() {
 
 			Label("loop")
 			var workReg [4]reg.VecVirtual
-
-			workReg[0] = ZMM()
-			workReg[1] = ZMM()
-
-			VMOVDQU64(Mem{Base: work[0], Disp: 0}, workReg[0])
-			VMOVDQU64(Mem{Base: work[1], Disp: 0}, workReg[1])
+			for i := range workReg[:] {
+				workReg[i] = ZMM()
+				VMOVDQU64(Mem{Base: work[i], Disp: 0}, workReg[i])
+			}
 
 			// work1_reg = _mm256_xor_si256(work0_reg, work1_reg);
 			VXORPD(workReg[1], workReg[0], workReg[1])
 			if (skipMask & 1) == 0 {
-				leo8MulAdd512(ctx, workReg[0], workReg[1], t01)
+				leo8MulAdd512(ctx, workReg[0], workReg[1], t01, nil)
 			}
-
-			workReg[2] = ZMM()
-			workReg[3] = ZMM()
-			VMOVDQU64(Mem{Base: work[2], Disp: 0}, workReg[2])
-			VMOVDQU64(Mem{Base: work[3], Disp: 0}, workReg[3])
 
 			//work3_reg = _mm256_xor_si256(work2_reg, work3_reg)
 			VXORPD(workReg[2], workReg[3], workReg[3])
 			if (skipMask & 2) == 0 {
-				leo8MulAdd512(ctx, workReg[2], workReg[3], t23)
+				leo8MulAdd512(ctx, workReg[2], workReg[3], t23, workReg[0])
+			} else {
+				// Merged above when run...
+				VXORPD(workReg[0], workReg[2], workReg[2])
 			}
 
 			// Second layer:
 			// work2_reg = _mm256_xor_si256(work0_reg, work2_reg);
 			// work3_reg = _mm256_xor_si256(work1_reg, work3_reg);
-			VXORPD(workReg[0], workReg[2], workReg[2])
 			VXORPD(workReg[1], workReg[3], workReg[3])
 
 			if (skipMask & 4) == 0 {
-				leo8MulAdd512(ctx, workReg[0], workReg[2], t02)
-				leo8MulAdd512(ctx, workReg[1], workReg[3], t02)
+				leo8MulAdd512(ctx, workReg[0], workReg[2], t02, nil)
+				leo8MulAdd512(ctx, workReg[1], workReg[3], t02, nil)
 			}
 
 			// Store + Next loop:
@@ -499,17 +494,13 @@ func genGF8() {
 
 			for i := range workReg {
 				workReg[i] = ZMM()
+				VMOVDQU64(Mem{Base: work[i], Disp: 0}, workReg[i])
 			}
-
-			VMOVDQU64(Mem{Base: work[0], Disp: 0}, workReg[0])
-			VMOVDQU64(Mem{Base: work[2], Disp: 0}, workReg[2])
-			VMOVDQU64(Mem{Base: work[1], Disp: 0}, workReg[1])
-			VMOVDQU64(Mem{Base: work[3], Disp: 0}, workReg[3])
 
 			// work1_reg = _mm256_xor_si256(work0_reg, work1_reg);
 			if (skipMask & 1) == 0 {
-				leo8MulAdd512(ctx, workReg[0], workReg[2], t02)
-				leo8MulAdd512(ctx, workReg[1], workReg[3], t02)
+				leo8MulAdd512(ctx, workReg[0], workReg[2], t02, nil)
+				leo8MulAdd512(ctx, workReg[1], workReg[3], t02, nil)
 			}
 			// work2_reg = _mm256_xor_si256(work0_reg, work2_reg);
 			// work3_reg = _mm256_xor_si256(work1_reg, work3_reg);
@@ -518,13 +509,13 @@ func genGF8() {
 
 			// Second layer:
 			if (skipMask & 2) == 0 {
-				leo8MulAdd512(ctx, workReg[0], workReg[1], t01)
+				leo8MulAdd512(ctx, workReg[0], workReg[1], t01, nil)
 			}
 			//work1_reg = _mm256_xor_si256(work0_reg, work1_reg);
 			VXORPD(workReg[1], workReg[0], workReg[1])
 
 			if (skipMask & 4) == 0 {
-				leo8MulAdd512(ctx, workReg[2], workReg[3], t23)
+				leo8MulAdd512(ctx, workReg[2], workReg[3], t23, nil)
 			}
 			// work3_reg = _mm256_xor_si256(work2_reg, work3_reg);
 			VXORPD(workReg[2], workReg[3], workReg[3])
@@ -561,10 +552,14 @@ func leo8MulAdd256(ctx gf8ctx, x, y reg.VecVirtual, table table256) {
 }
 
 // multiply y with table and xor result into x.
-func leo8MulAdd512(ctx gf8ctx, x, y reg.VecVirtual, table table512) {
+func leo8MulAdd512(ctx gf8ctx, x reg.VecVirtual, y reg.VecVirtual, table table512, z reg.VecVirtual) {
 	Comment("LEO_MULADD_512")
 	tmp := ZMM()
 	// Converted to VGF2P8AFFINEQB
 	VALIGNQ(U8(0), table, y, tmp)
-	VXORPD(x, tmp, x)
+	if z == nil {
+		VXORPD(x, tmp, x)
+	} else {
+		VPTERNLOGD(U8(0x96), tmp, z, x)
+	}
 }
