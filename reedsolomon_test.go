@@ -204,6 +204,12 @@ func testOpts() [][]Option {
 			n = append(n, WithAVX512(true))
 			opts = append(opts, n)
 		}
+		if defaultOptions.useGFNI {
+			n := make([]Option, len(o), len(o)+1)
+			copy(n, o)
+			n = append(n, WithGFNI(false))
+			opts = append(opts, n)
+		}
 	}
 	return opts
 }

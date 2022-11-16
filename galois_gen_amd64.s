@@ -13493,7 +13493,7 @@ mulAvxTwo_3x8_end:
 // func mulGFNI_3x8_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_3x8_64(SB), $0-88
-	// Loading only 21 tables to registers
+	// Loading 22 of 24 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 34 YMM used
 	MOVQ            n+80(FP), AX
@@ -13638,7 +13638,7 @@ mulGFNI_3x8_64_end:
 // func mulGFNI_3x8_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_3x8_64Xor(SB), $0-88
-	// Loading only 21 tables to registers
+	// Loading 22 of 24 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 34 YMM used
 	MOVQ            n+80(FP), AX
@@ -14252,7 +14252,7 @@ mulAvxTwo_3x9_end:
 // func mulGFNI_3x9_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_3x9_64(SB), $8-88
-	// Loading only 20 tables to registers
+	// Loading 21 of 27 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 38 YMM used
 	MOVQ            n+80(FP), AX
@@ -14409,7 +14409,7 @@ mulGFNI_3x9_64_end:
 // func mulGFNI_3x9_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_3x9_64Xor(SB), $8-88
-	// Loading only 20 tables to registers
+	// Loading 21 of 27 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 38 YMM used
 	MOVQ            n+80(FP), AX
@@ -15078,7 +15078,7 @@ mulAvxTwo_3x10_end:
 // func mulGFNI_3x10_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_3x10_64(SB), $8-88
-	// Loading only 19 tables to registers
+	// Loading 20 of 30 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 42 YMM used
 	MOVQ            n+80(FP), AX
@@ -15251,7 +15251,7 @@ mulGFNI_3x10_64_end:
 // func mulGFNI_3x10_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_3x10_64Xor(SB), $8-88
-	// Loading only 19 tables to registers
+	// Loading 20 of 30 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 42 YMM used
 	MOVQ            n+80(FP), AX
@@ -20124,7 +20124,7 @@ mulAvxTwo_4x7_end:
 // func mulGFNI_4x7_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_4x7_64(SB), $0-88
-	// Loading only 22 tables to registers
+	// Loading 23 of 28 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 37 YMM used
 	MOVQ            n+80(FP), AX
@@ -20284,7 +20284,7 @@ mulGFNI_4x7_64_end:
 // func mulGFNI_4x7_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_4x7_64Xor(SB), $0-88
-	// Loading only 22 tables to registers
+	// Loading 23 of 28 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 37 YMM used
 	MOVQ            n+80(FP), AX
@@ -20965,7 +20965,7 @@ mulAvxTwo_4x8_end:
 // func mulGFNI_4x8_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_4x8_64(SB), $8-88
-	// Loading only 21 tables to registers
+	// Loading 22 of 32 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 42 YMM used
 	MOVQ            n+80(FP), AX
@@ -21140,7 +21140,7 @@ mulGFNI_4x8_64_end:
 // func mulGFNI_4x8_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_4x8_64Xor(SB), $8-88
-	// Loading only 21 tables to registers
+	// Loading 22 of 32 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 42 YMM used
 	MOVQ            n+80(FP), AX
@@ -21889,7 +21889,7 @@ mulAvxTwo_4x9_end:
 // func mulGFNI_4x9_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_4x9_64(SB), $8-88
-	// Loading only 20 tables to registers
+	// Loading 21 of 36 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 47 YMM used
 	MOVQ            n+80(FP), AX
@@ -22083,7 +22083,7 @@ mulGFNI_4x9_64_end:
 // func mulGFNI_4x9_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_4x9_64Xor(SB), $8-88
-	// Loading only 20 tables to registers
+	// Loading 21 of 36 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 47 YMM used
 	MOVQ            n+80(FP), AX
@@ -22881,7 +22881,7 @@ mulAvxTwo_4x10_end:
 // func mulGFNI_4x10_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_4x10_64(SB), $0-88
-	// Loading only 19 tables to registers
+	// Loading 20 of 40 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 52 YMM used
 	MOVQ            n+80(FP), AX
@@ -23065,7 +23065,7 @@ mulGFNI_4x10_64_end:
 // func mulGFNI_4x10_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_4x10_64Xor(SB), $0-88
-	// Loading only 19 tables to registers
+	// Loading 20 of 40 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 52 YMM used
 	MOVQ            n+80(FP), AX
@@ -27848,7 +27848,7 @@ mulAvxTwo_5x6_end:
 // func mulGFNI_5x6_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_5x6_64(SB), $0-88
-	// Loading only 23 tables to registers
+	// Loading 24 of 30 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 38 YMM used
 	MOVQ            n+80(FP), AX
@@ -28017,7 +28017,7 @@ mulGFNI_5x6_64_end:
 // func mulGFNI_5x6_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_5x6_64Xor(SB), $0-88
-	// Loading only 23 tables to registers
+	// Loading 24 of 30 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 38 YMM used
 	MOVQ            n+80(FP), AX
@@ -28739,7 +28739,7 @@ mulAvxTwo_5x7_end:
 // func mulGFNI_5x7_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_5x7_64(SB), $8-88
-	// Loading only 22 tables to registers
+	// Loading 23 of 35 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 44 YMM used
 	MOVQ            n+80(FP), AX
@@ -28926,7 +28926,7 @@ mulGFNI_5x7_64_end:
 // func mulGFNI_5x7_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_5x7_64Xor(SB), $8-88
-	// Loading only 22 tables to registers
+	// Loading 23 of 35 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 44 YMM used
 	MOVQ            n+80(FP), AX
@@ -29729,7 +29729,7 @@ mulAvxTwo_5x8_end:
 // func mulGFNI_5x8_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_5x8_64(SB), $8-88
-	// Loading only 21 tables to registers
+	// Loading 22 of 40 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 50 YMM used
 	MOVQ            n+80(FP), AX
@@ -29938,7 +29938,7 @@ mulGFNI_5x8_64_end:
 // func mulGFNI_5x8_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_5x8_64Xor(SB), $8-88
-	// Loading only 21 tables to registers
+	// Loading 22 of 40 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 50 YMM used
 	MOVQ            n+80(FP), AX
@@ -30805,7 +30805,7 @@ mulAvxTwo_5x9_end:
 // func mulGFNI_5x9_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_5x9_64(SB), $0-88
-	// Loading only 20 tables to registers
+	// Loading 21 of 45 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 56 YMM used
 	MOVQ            n+80(FP), AX
@@ -31009,7 +31009,7 @@ mulGFNI_5x9_64_end:
 // func mulGFNI_5x9_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_5x9_64Xor(SB), $0-88
-	// Loading only 20 tables to registers
+	// Loading 21 of 45 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 56 YMM used
 	MOVQ            n+80(FP), AX
@@ -31927,7 +31927,7 @@ mulAvxTwo_5x10_end:
 // func mulGFNI_5x10_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_5x10_64(SB), $0-88
-	// Loading only 19 tables to registers
+	// Loading 20 of 50 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 62 YMM used
 	MOVQ            n+80(FP), AX
@@ -32147,7 +32147,7 @@ mulGFNI_5x10_64_end:
 // func mulGFNI_5x10_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_5x10_64Xor(SB), $0-88
-	// Loading only 19 tables to registers
+	// Loading 20 of 50 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 62 YMM used
 	MOVQ            n+80(FP), AX
@@ -36719,7 +36719,7 @@ mulAvxTwo_6x5_end:
 // func mulGFNI_6x5_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_6x5_64(SB), $0-88
-	// Loading only 24 tables to registers
+	// Loading 25 of 30 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 37 YMM used
 	MOVQ            n+80(FP), AX
@@ -36891,7 +36891,7 @@ mulGFNI_6x5_64_end:
 // func mulGFNI_6x5_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_6x5_64Xor(SB), $0-88
-	// Loading only 24 tables to registers
+	// Loading 25 of 30 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 37 YMM used
 	MOVQ            n+80(FP), AX
@@ -37628,7 +37628,7 @@ mulAvxTwo_6x6_end:
 // func mulGFNI_6x6_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_6x6_64(SB), $8-88
-	// Loading only 23 tables to registers
+	// Loading 24 of 36 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 44 YMM used
 	MOVQ            n+80(FP), AX
@@ -37821,7 +37821,7 @@ mulGFNI_6x6_64_end:
 // func mulGFNI_6x6_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_6x6_64Xor(SB), $8-88
-	// Loading only 23 tables to registers
+	// Loading 24 of 36 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 44 YMM used
 	MOVQ            n+80(FP), AX
@@ -38652,7 +38652,7 @@ mulAvxTwo_6x7_end:
 // func mulGFNI_6x7_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_6x7_64(SB), $8-88
-	// Loading only 22 tables to registers
+	// Loading 23 of 42 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 51 YMM used
 	MOVQ            n+80(FP), AX
@@ -38870,7 +38870,7 @@ mulGFNI_6x7_64_end:
 // func mulGFNI_6x7_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_6x7_64Xor(SB), $8-88
-	// Loading only 22 tables to registers
+	// Loading 23 of 42 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 51 YMM used
 	MOVQ            n+80(FP), AX
@@ -39780,7 +39780,7 @@ mulAvxTwo_6x8_end:
 // func mulGFNI_6x8_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_6x8_64(SB), $0-88
-	// Loading only 21 tables to registers
+	// Loading 22 of 48 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 58 YMM used
 	MOVQ            n+80(FP), AX
@@ -39998,7 +39998,7 @@ mulGFNI_6x8_64_end:
 // func mulGFNI_6x8_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_6x8_64Xor(SB), $0-88
-	// Loading only 21 tables to registers
+	// Loading 22 of 48 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 58 YMM used
 	MOVQ            n+80(FP), AX
@@ -40974,7 +40974,7 @@ mulAvxTwo_6x9_end:
 // func mulGFNI_6x9_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_6x9_64(SB), $0-88
-	// Loading only 20 tables to registers
+	// Loading 21 of 54 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 65 YMM used
 	MOVQ            n+80(FP), AX
@@ -41211,7 +41211,7 @@ mulGFNI_6x9_64_end:
 // func mulGFNI_6x9_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_6x9_64Xor(SB), $0-88
-	// Loading only 20 tables to registers
+	// Loading 21 of 54 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 65 YMM used
 	MOVQ            n+80(FP), AX
@@ -42275,7 +42275,7 @@ mulAvxTwo_6x10_end:
 // func mulGFNI_6x10_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_6x10_64(SB), $0-88
-	// Loading only 19 tables to registers
+	// Loading 20 of 60 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 72 YMM used
 	MOVQ            n+80(FP), AX
@@ -42531,7 +42531,7 @@ mulGFNI_6x10_64_end:
 // func mulGFNI_6x10_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_6x10_64Xor(SB), $0-88
-	// Loading only 19 tables to registers
+	// Loading 20 of 60 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 72 YMM used
 	MOVQ            n+80(FP), AX
@@ -46791,7 +46791,7 @@ mulAvxTwo_7x4_end:
 // func mulGFNI_7x4_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_7x4_64(SB), $0-88
-	// Loading only 25 tables to registers
+	// Loading 26 of 28 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 34 YMM used
 	MOVQ            n+80(FP), AX
@@ -46960,7 +46960,7 @@ mulGFNI_7x4_64_end:
 // func mulGFNI_7x4_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_7x4_64Xor(SB), $0-88
-	// Loading only 25 tables to registers
+	// Loading 26 of 28 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 34 YMM used
 	MOVQ            n+80(FP), AX
@@ -47686,7 +47686,7 @@ mulAvxTwo_7x5_end:
 // func mulGFNI_7x5_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_7x5_64(SB), $8-88
-	// Loading only 24 tables to registers
+	// Loading 25 of 35 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 42 YMM used
 	MOVQ            n+80(FP), AX
@@ -47879,7 +47879,7 @@ mulGFNI_7x5_64_end:
 // func mulGFNI_7x5_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_7x5_64Xor(SB), $8-88
-	// Loading only 24 tables to registers
+	// Loading 25 of 35 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 42 YMM used
 	MOVQ            n+80(FP), AX
@@ -48712,7 +48712,7 @@ mulAvxTwo_7x6_end:
 // func mulGFNI_7x6_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_7x6_64(SB), $8-88
-	// Loading only 23 tables to registers
+	// Loading 24 of 42 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 50 YMM used
 	MOVQ            n+80(FP), AX
@@ -48933,7 +48933,7 @@ mulGFNI_7x6_64_end:
 // func mulGFNI_7x6_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_7x6_64Xor(SB), $8-88
-	// Loading only 23 tables to registers
+	// Loading 24 of 42 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 50 YMM used
 	MOVQ            n+80(FP), AX
@@ -49860,7 +49860,7 @@ mulAvxTwo_7x7_end:
 // func mulGFNI_7x7_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_7x7_64(SB), $0-88
-	// Loading only 22 tables to registers
+	// Loading 23 of 49 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 58 YMM used
 	MOVQ            n+80(FP), AX
@@ -50086,7 +50086,7 @@ mulGFNI_7x7_64_end:
 // func mulGFNI_7x7_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_7x7_64Xor(SB), $0-88
-	// Loading only 22 tables to registers
+	// Loading 23 of 49 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 58 YMM used
 	MOVQ            n+80(FP), AX
@@ -51094,7 +51094,7 @@ mulAvxTwo_7x8_end:
 // func mulGFNI_7x8_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_7x8_64(SB), $0-88
-	// Loading only 21 tables to registers
+	// Loading 22 of 56 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 66 YMM used
 	MOVQ            n+80(FP), AX
@@ -51342,7 +51342,7 @@ mulGFNI_7x8_64_end:
 // func mulGFNI_7x8_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_7x8_64Xor(SB), $0-88
-	// Loading only 21 tables to registers
+	// Loading 22 of 56 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 66 YMM used
 	MOVQ            n+80(FP), AX
@@ -52451,7 +52451,7 @@ mulAvxTwo_7x9_end:
 // func mulGFNI_7x9_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_7x9_64(SB), $0-88
-	// Loading only 20 tables to registers
+	// Loading 21 of 63 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 74 YMM used
 	MOVQ            n+80(FP), AX
@@ -52721,7 +52721,7 @@ mulGFNI_7x9_64_end:
 // func mulGFNI_7x9_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_7x9_64Xor(SB), $0-88
-	// Loading only 20 tables to registers
+	// Loading 21 of 63 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 74 YMM used
 	MOVQ            n+80(FP), AX
@@ -53931,7 +53931,7 @@ mulAvxTwo_7x10_end:
 // func mulGFNI_7x10_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_7x10_64(SB), $0-88
-	// Loading only 19 tables to registers
+	// Loading 20 of 70 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 82 YMM used
 	MOVQ            n+80(FP), AX
@@ -54223,7 +54223,7 @@ mulGFNI_7x10_64_end:
 // func mulGFNI_7x10_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_7x10_64Xor(SB), $0-88
-	// Loading only 19 tables to registers
+	// Loading 20 of 70 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 82 YMM used
 	MOVQ            n+80(FP), AX
@@ -58967,7 +58967,7 @@ mulAvxTwo_8x4_end:
 // func mulGFNI_8x4_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_8x4_64(SB), $8-88
-	// Loading only 25 tables to registers
+	// Loading 26 of 32 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 38 YMM used
 	MOVQ            n+80(FP), AX
@@ -59154,7 +59154,7 @@ mulGFNI_8x4_64_end:
 // func mulGFNI_8x4_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_8x4_64Xor(SB), $8-88
-	// Loading only 25 tables to registers
+	// Loading 26 of 32 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 38 YMM used
 	MOVQ            n+80(FP), AX
@@ -59963,7 +59963,7 @@ mulAvxTwo_8x5_end:
 // func mulGFNI_8x5_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_8x5_64(SB), $8-88
-	// Loading only 24 tables to registers
+	// Loading 25 of 40 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 47 YMM used
 	MOVQ            n+80(FP), AX
@@ -60181,7 +60181,7 @@ mulGFNI_8x5_64_end:
 // func mulGFNI_8x5_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_8x5_64Xor(SB), $8-88
-	// Loading only 24 tables to registers
+	// Loading 25 of 40 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 47 YMM used
 	MOVQ            n+80(FP), AX
@@ -61099,7 +61099,7 @@ mulAvxTwo_8x6_end:
 // func mulGFNI_8x6_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_8x6_64(SB), $0-88
-	// Loading only 23 tables to registers
+	// Loading 24 of 48 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 56 YMM used
 	MOVQ            n+80(FP), AX
@@ -61327,7 +61327,7 @@ mulGFNI_8x6_64_end:
 // func mulGFNI_8x6_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_8x6_64Xor(SB), $0-88
-	// Loading only 23 tables to registers
+	// Loading 24 of 48 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 56 YMM used
 	MOVQ            n+80(FP), AX
@@ -62341,7 +62341,7 @@ mulAvxTwo_8x7_end:
 // func mulGFNI_8x7_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_8x7_64(SB), $0-88
-	// Loading only 22 tables to registers
+	// Loading 23 of 56 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 65 YMM used
 	MOVQ            n+80(FP), AX
@@ -62594,7 +62594,7 @@ mulGFNI_8x7_64_end:
 // func mulGFNI_8x7_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_8x7_64Xor(SB), $0-88
-	// Loading only 22 tables to registers
+	// Loading 23 of 56 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 65 YMM used
 	MOVQ            n+80(FP), AX
@@ -63722,7 +63722,7 @@ mulAvxTwo_8x8_end:
 // func mulGFNI_8x8_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_8x8_64(SB), $0-88
-	// Loading only 21 tables to registers
+	// Loading 22 of 64 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 74 YMM used
 	MOVQ            n+80(FP), AX
@@ -64000,7 +64000,7 @@ mulGFNI_8x8_64_end:
 // func mulGFNI_8x8_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_8x8_64Xor(SB), $0-88
-	// Loading only 21 tables to registers
+	// Loading 22 of 64 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 74 YMM used
 	MOVQ            n+80(FP), AX
@@ -65242,7 +65242,7 @@ mulAvxTwo_8x9_end:
 // func mulGFNI_8x9_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_8x9_64(SB), $0-88
-	// Loading only 20 tables to registers
+	// Loading 21 of 72 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 83 YMM used
 	MOVQ            n+80(FP), AX
@@ -65545,7 +65545,7 @@ mulGFNI_8x9_64_end:
 // func mulGFNI_8x9_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_8x9_64Xor(SB), $0-88
-	// Loading only 20 tables to registers
+	// Loading 21 of 72 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 83 YMM used
 	MOVQ            n+80(FP), AX
@@ -66901,7 +66901,7 @@ mulAvxTwo_8x10_end:
 // func mulGFNI_8x10_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_8x10_64(SB), $0-88
-	// Loading only 19 tables to registers
+	// Loading 20 of 80 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 92 YMM used
 	MOVQ            n+80(FP), AX
@@ -67229,7 +67229,7 @@ mulGFNI_8x10_64_end:
 // func mulGFNI_8x10_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_8x10_64Xor(SB), $0-88
-	// Loading only 19 tables to registers
+	// Loading 20 of 80 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 92 YMM used
 	MOVQ            n+80(FP), AX
@@ -72459,7 +72459,7 @@ mulAvxTwo_9x4_end:
 // func mulGFNI_9x4_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_9x4_64(SB), $8-88
-	// Loading only 25 tables to registers
+	// Loading 26 of 36 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 42 YMM used
 	MOVQ            n+80(FP), AX
@@ -72668,7 +72668,7 @@ mulGFNI_9x4_64_end:
 // func mulGFNI_9x4_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_9x4_64Xor(SB), $8-88
-	// Loading only 25 tables to registers
+	// Loading 26 of 36 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 42 YMM used
 	MOVQ            n+80(FP), AX
@@ -73551,7 +73551,7 @@ mulAvxTwo_9x5_end:
 // func mulGFNI_9x5_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_9x5_64(SB), $0-88
-	// Loading only 24 tables to registers
+	// Loading 25 of 45 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 52 YMM used
 	MOVQ            n+80(FP), AX
@@ -73775,7 +73775,7 @@ mulGFNI_9x5_64_end:
 // func mulGFNI_9x5_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_9x5_64Xor(SB), $0-88
-	// Loading only 24 tables to registers
+	// Loading 25 of 45 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 52 YMM used
 	MOVQ            n+80(FP), AX
@@ -74769,7 +74769,7 @@ mulAvxTwo_9x6_end:
 // func mulGFNI_9x6_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_9x6_64(SB), $0-88
-	// Loading only 23 tables to registers
+	// Loading 24 of 54 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 62 YMM used
 	MOVQ            n+80(FP), AX
@@ -75021,7 +75021,7 @@ mulGFNI_9x6_64_end:
 // func mulGFNI_9x6_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_9x6_64Xor(SB), $0-88
-	// Loading only 23 tables to registers
+	// Loading 24 of 54 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 62 YMM used
 	MOVQ            n+80(FP), AX
@@ -76142,7 +76142,7 @@ mulAvxTwo_9x7_end:
 // func mulGFNI_9x7_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_9x7_64(SB), $0-88
-	// Loading only 22 tables to registers
+	// Loading 23 of 63 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 72 YMM used
 	MOVQ            n+80(FP), AX
@@ -76422,7 +76422,7 @@ mulGFNI_9x7_64_end:
 // func mulGFNI_9x7_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_9x7_64Xor(SB), $0-88
-	// Loading only 22 tables to registers
+	// Loading 23 of 63 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 72 YMM used
 	MOVQ            n+80(FP), AX
@@ -77670,7 +77670,7 @@ mulAvxTwo_9x8_end:
 // func mulGFNI_9x8_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_9x8_64(SB), $0-88
-	// Loading only 21 tables to registers
+	// Loading 22 of 72 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 82 YMM used
 	MOVQ            n+80(FP), AX
@@ -77978,7 +77978,7 @@ mulGFNI_9x8_64_end:
 // func mulGFNI_9x8_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_9x8_64Xor(SB), $0-88
-	// Loading only 21 tables to registers
+	// Loading 22 of 72 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 82 YMM used
 	MOVQ            n+80(FP), AX
@@ -79353,7 +79353,7 @@ mulAvxTwo_9x9_end:
 // func mulGFNI_9x9_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_9x9_64(SB), $0-88
-	// Loading only 20 tables to registers
+	// Loading 21 of 81 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 92 YMM used
 	MOVQ            n+80(FP), AX
@@ -79689,7 +79689,7 @@ mulGFNI_9x9_64_end:
 // func mulGFNI_9x9_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_9x9_64Xor(SB), $0-88
-	// Loading only 20 tables to registers
+	// Loading 21 of 81 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 92 YMM used
 	MOVQ            n+80(FP), AX
@@ -81191,7 +81191,7 @@ mulAvxTwo_9x10_end:
 // func mulGFNI_9x10_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_9x10_64(SB), $0-88
-	// Loading only 19 tables to registers
+	// Loading 20 of 90 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 102 YMM used
 	MOVQ            n+80(FP), AX
@@ -81555,7 +81555,7 @@ mulGFNI_9x10_64_end:
 // func mulGFNI_9x10_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_9x10_64Xor(SB), $0-88
-	// Loading only 19 tables to registers
+	// Loading 20 of 90 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 102 YMM used
 	MOVQ            n+80(FP), AX
@@ -85831,7 +85831,7 @@ mulAvxTwo_10x3_64_end:
 // func mulGFNI_10x3_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_10x3_64(SB), $8-88
-	// Loading only 26 tables to registers
+	// Loading 27 of 30 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 35 YMM used
 	MOVQ            n+80(FP), AX
@@ -86025,7 +86025,7 @@ mulGFNI_10x3_64_end:
 // func mulGFNI_10x3_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_10x3_64Xor(SB), $8-88
-	// Loading only 26 tables to registers
+	// Loading 27 of 30 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 35 YMM used
 	MOVQ            n+80(FP), AX
@@ -87278,7 +87278,7 @@ mulAvxTwo_10x4_end:
 // func mulGFNI_10x4_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_10x4_64(SB), $8-88
-	// Loading only 25 tables to registers
+	// Loading 26 of 40 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 46 YMM used
 	MOVQ            n+80(FP), AX
@@ -87492,7 +87492,7 @@ mulGFNI_10x4_64_end:
 // func mulGFNI_10x4_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_10x4_64Xor(SB), $8-88
-	// Loading only 25 tables to registers
+	// Loading 26 of 40 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 46 YMM used
 	MOVQ            n+80(FP), AX
@@ -88440,7 +88440,7 @@ mulAvxTwo_10x5_end:
 // func mulGFNI_10x5_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_10x5_64(SB), $8-88
-	// Loading only 24 tables to registers
+	// Loading 25 of 50 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 57 YMM used
 	MOVQ            n+80(FP), AX
@@ -88685,7 +88685,7 @@ mulGFNI_10x5_64_end:
 // func mulGFNI_10x5_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_10x5_64Xor(SB), $8-88
-	// Loading only 24 tables to registers
+	// Loading 25 of 50 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 57 YMM used
 	MOVQ            n+80(FP), AX
@@ -89773,7 +89773,7 @@ mulAvxTwo_10x6_end:
 // func mulGFNI_10x6_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_10x6_64(SB), $8-88
-	// Loading only 23 tables to registers
+	// Loading 24 of 60 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 68 YMM used
 	MOVQ            n+80(FP), AX
@@ -90049,7 +90049,7 @@ mulGFNI_10x6_64_end:
 // func mulGFNI_10x6_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_10x6_64Xor(SB), $8-88
-	// Loading only 23 tables to registers
+	// Loading 24 of 60 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 68 YMM used
 	MOVQ            n+80(FP), AX
@@ -91277,7 +91277,7 @@ mulAvxTwo_10x7_end:
 // func mulGFNI_10x7_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_10x7_64(SB), $8-88
-	// Loading only 22 tables to registers
+	// Loading 23 of 70 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 79 YMM used
 	MOVQ            n+80(FP), AX
@@ -91584,7 +91584,7 @@ mulGFNI_10x7_64_end:
 // func mulGFNI_10x7_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_10x7_64Xor(SB), $8-88
-	// Loading only 22 tables to registers
+	// Loading 23 of 70 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 79 YMM used
 	MOVQ            n+80(FP), AX
@@ -92952,7 +92952,7 @@ mulAvxTwo_10x8_end:
 // func mulGFNI_10x8_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_10x8_64(SB), $8-88
-	// Loading only 21 tables to registers
+	// Loading 22 of 80 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 90 YMM used
 	MOVQ            n+80(FP), AX
@@ -93290,7 +93290,7 @@ mulGFNI_10x8_64_end:
 // func mulGFNI_10x8_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_10x8_64Xor(SB), $8-88
-	// Loading only 21 tables to registers
+	// Loading 22 of 80 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 90 YMM used
 	MOVQ            n+80(FP), AX
@@ -94798,7 +94798,7 @@ mulAvxTwo_10x9_end:
 // func mulGFNI_10x9_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_10x9_64(SB), $8-88
-	// Loading only 20 tables to registers
+	// Loading 21 of 90 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 101 YMM used
 	MOVQ            n+80(FP), AX
@@ -95167,7 +95167,7 @@ mulGFNI_10x9_64_end:
 // func mulGFNI_10x9_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_10x9_64Xor(SB), $8-88
-	// Loading only 20 tables to registers
+	// Loading 21 of 90 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 101 YMM used
 	MOVQ            n+80(FP), AX
@@ -96815,7 +96815,7 @@ mulAvxTwo_10x10_end:
 // func mulGFNI_10x10_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_10x10_64(SB), $8-88
-	// Loading only 19 tables to registers
+	// Loading 20 of 100 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 112 YMM used
 	MOVQ            n+80(FP), AX
@@ -97215,7 +97215,7 @@ mulGFNI_10x10_64_end:
 // func mulGFNI_10x10_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·mulGFNI_10x10_64Xor(SB), $8-88
-	// Loading only 19 tables to registers
+	// Loading 20 of 100 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 112 YMM used
 	MOVQ            n+80(FP), AX

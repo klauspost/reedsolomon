@@ -729,7 +729,7 @@ func genMulAvx512GFNI(name string, inputs int, outputs int, xor bool) {
 	inReg := 0
 	if est > 32 {
 		loadNone = true
-		inReg = 32 - outputs - 3
+		inReg = 32 - outputs - 2
 		// We run out of GP registers first, now.
 		if inputs+outputs > 13 {
 			regDst = false
@@ -756,7 +756,7 @@ func genMulAvx512GFNI(name string, inputs int, outputs int, xor bool) {
 	}
 
 	if loadNone {
-		Commentf("Loading only %d tables to registers", inReg)
+		Commentf("Loading %d of %d tables to registers", inReg, inputs*outputs)
 	} else {
 		// loadNone == false
 		Comment("Loading all tables to registers")
@@ -785,7 +785,7 @@ func genMulAvx512GFNI(name string, inputs int, outputs int, xor bool) {
 	matrix := make([]reg.VecVirtual, total)
 
 	for i := range matrix {
-		if loadNone && i > inReg {
+		if loadNone && i >= inReg {
 			break
 		}
 		table := ZMM()
@@ -885,18 +885,22 @@ func genMulAvx512GFNI(name string, inputs int, outputs int, xor bool) {
 
 		for j := range dst {
 			idx := i*outputs + j
-			if loadNone && idx > inReg {
+			if loadNone && idx >= inReg {
 				VBROADCASTF32X2(Mem{Base: matrixBase, Disp: 8 * idx}, look)
 				if i == 0 && !xor {
+					// Converted to VGF2P8AFFINEQB
 					VALIGNQ(U8(0), in, look, dst[j])
 				} else {
+					// Converted to VGF2P8AFFINEQB
 					VALIGNQ(U8(0), in, look, look)
 					VXORPD(dst[j], look, dst[j])
 				}
 			} else {
 				if i == 0 && !xor {
+					// Converted to VGF2P8AFFINEQB
 					VALIGNQ(U8(0), in, matrix[i*outputs+j], dst[j])
 				} else {
+					// Converted to VGF2P8AFFINEQB
 					VALIGNQ(U8(0), in, matrix[i*outputs+j], look)
 					VXORPD(dst[j], look, dst[j])
 				}

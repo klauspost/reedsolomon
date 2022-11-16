@@ -773,12 +773,14 @@ func (r *reedSolomon) codeSomeShards(matrixRows, inputs, outputs [][]byte, byteC
 		return
 	}
 	switch {
-	case r.o.useAVX512 && r.o.maxGoroutines > 1 && byteCount > r.o.minSplitSize && len(inputs) >= 4 && len(outputs) >= 2:
-		r.codeSomeShardsAvx512P(matrixRows, inputs, outputs, byteCount)
-		return
-	case r.o.useAVX512 && len(inputs) >= 4 && len(outputs) >= 2:
-		r.codeSomeShardsAvx512(matrixRows, inputs, outputs, byteCount)
-		return
+	/*
+		case r.o.useAVX512 && r.o.maxGoroutines > 1 && byteCount > r.o.minSplitSize && len(inputs) >= 4 && len(outputs) >= 2:
+			r.codeSomeShardsAvx512P(matrixRows, inputs, outputs, byteCount)
+			return
+		case r.o.useAVX512 && len(inputs) >= 4 && len(outputs) >= 2:
+			r.codeSomeShardsAvx512(matrixRows, inputs, outputs, byteCount)
+			return
+	*/
 	case byteCount > r.o.minSplitSize:
 		r.codeSomeShardsP(matrixRows, inputs, outputs, byteCount)
 		return
@@ -821,9 +823,9 @@ func (r *reedSolomon) codeSomeShards(matrixRows, inputs, outputs [][]byte, byteC
 				if r.o.useGFNI {
 					m := genGFNIMatrix(matrixRows[outIdx:], len(inPer), inIdx, len(outPer), gfni[:])
 					if inIdx == 0 {
-						galMulSlicesGFNI(m, inputs, outputs, 0, byteCount)
+						galMulSlicesGFNI(m, inPer, outPer, 0, byteCount)
 					} else {
-						galMulSlicesGFNIXor(m, inputs, outputs, 0, byteCount)
+						galMulSlicesGFNIXor(m, inPer, outPer, 0, byteCount)
 					}
 				} else {
 					m = genAvx2Matrix(matrixRows[outIdx:], len(inPer), inIdx, len(outPer), m)
