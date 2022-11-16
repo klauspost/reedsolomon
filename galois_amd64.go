@@ -235,35 +235,35 @@ func ifftDIT48(work [][]byte, dist int, log_m01, log_m23, log_m02 ffe8, o *optio
 
 	if o.useAVX512 {
 		// Note that these currently require that length is multiple of 64.
-		t01 := &multiply256LUT8[log_m01]
-		t23 := &multiply256LUT8[log_m23]
-		t02 := &multiply256LUT8[log_m02]
+		t01 := gf2p811dMulMatrices[log_m01]
+		t23 := gf2p811dMulMatrices[log_m23]
+		t02 := gf2p811dMulMatrices[log_m02]
 		if log_m01 == modulus8 {
 			if log_m23 == modulus8 {
 				if log_m02 == modulus8 {
-					ifftDIT48_avx512_7(work, dist*24, t01, t23, t02)
+					ifftDIT48_gfni_7(work, dist*24, t01, t23, t02)
 				} else {
-					ifftDIT48_avx512_3(work, dist*24, t01, t23, t02)
+					ifftDIT48_gfni_3(work, dist*24, t01, t23, t02)
 				}
 			} else {
 				if log_m02 == modulus8 {
-					ifftDIT48_avx512_5(work, dist*24, t01, t23, t02)
+					ifftDIT48_gfni_5(work, dist*24, t01, t23, t02)
 				} else {
-					ifftDIT48_avx512_1(work, dist*24, t01, t23, t02)
+					ifftDIT48_gfni_1(work, dist*24, t01, t23, t02)
 				}
 			}
 		} else {
 			if log_m23 == modulus8 {
 				if log_m02 == modulus8 {
-					ifftDIT48_avx512_6(work, dist*24, t01, t23, t02)
+					ifftDIT48_gfni_6(work, dist*24, t01, t23, t02)
 				} else {
-					ifftDIT48_avx512_2(work, dist*24, t01, t23, t02)
+					ifftDIT48_gfni_2(work, dist*24, t01, t23, t02)
 				}
 			} else {
 				if log_m02 == modulus8 {
-					ifftDIT48_avx512_4(work, dist*24, t01, t23, t02)
+					ifftDIT48_gfni_4(work, dist*24, t01, t23, t02)
 				} else {
-					ifftDIT48_avx512_0(work, dist*24, t01, t23, t02)
+					ifftDIT48_gfni_0(work, dist*24, t01, t23, t02)
 				}
 			}
 		}
@@ -389,36 +389,36 @@ func fftDIT48(work [][]byte, dist int, log_m01, log_m23, log_m02 ffe8, o *option
 	}
 
 	if o.useAVX512 {
-		t01 := &multiply256LUT8[log_m01]
-		t23 := &multiply256LUT8[log_m23]
-		t02 := &multiply256LUT8[log_m02]
+		t01 := gf2p811dMulMatrices[log_m01]
+		t23 := gf2p811dMulMatrices[log_m23]
+		t02 := gf2p811dMulMatrices[log_m02]
 		// Note that these currently require that length is multiple of 64.
 		if log_m02 == modulus8 {
 			if log_m01 == modulus8 {
 				if log_m23 == modulus8 {
-					fftDIT48_avx512_7(work, dist*24, t01, t23, t02)
+					fftDIT48_gfni_7(work, dist*24, t01, t23, t02)
 				} else {
-					fftDIT48_avx512_3(work, dist*24, t01, t23, t02)
+					fftDIT48_gfni_3(work, dist*24, t01, t23, t02)
 				}
 			} else {
 				if log_m23 == modulus8 {
-					fftDIT48_avx512_5(work, dist*24, t01, t23, t02)
+					fftDIT48_gfni_5(work, dist*24, t01, t23, t02)
 				} else {
-					fftDIT48_avx512_1(work, dist*24, t01, t23, t02)
+					fftDIT48_gfni_1(work, dist*24, t01, t23, t02)
 				}
 			}
 		} else {
 			if log_m01 == modulus8 {
 				if log_m23 == modulus8 {
-					fftDIT48_avx512_6(work, dist*24, t01, t23, t02)
+					fftDIT48_gfni_6(work, dist*24, t01, t23, t02)
 				} else {
-					fftDIT48_avx512_2(work, dist*24, t01, t23, t02)
+					fftDIT48_gfni_2(work, dist*24, t01, t23, t02)
 				}
 			} else {
 				if log_m23 == modulus8 {
-					fftDIT48_avx512_4(work, dist*24, t01, t23, t02)
+					fftDIT48_gfni_4(work, dist*24, t01, t23, t02)
 				} else {
-					fftDIT48_avx512_0(work, dist*24, t01, t23, t02)
+					fftDIT48_gfni_0(work, dist*24, t01, t23, t02)
 				}
 			}
 		}

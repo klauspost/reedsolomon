@@ -2663,22 +2663,10 @@ func ifftDIT48_avx2_0(work [][]byte, dist int, t01 *[32]uint8, t23 *[32]uint8, t
 func fftDIT48_avx2_0(work [][]byte, dist int, t01 *[32]uint8, t23 *[32]uint8, t02 *[32]uint8)
 
 //go:noescape
-func ifftDIT48_avx512_0(work [][]byte, dist int, t01 *[32]uint8, t23 *[32]uint8, t02 *[32]uint8)
-
-//go:noescape
-func fftDIT48_avx512_0(work [][]byte, dist int, t01 *[32]uint8, t23 *[32]uint8, t02 *[32]uint8)
-
-//go:noescape
 func ifftDIT48_avx2_1(work [][]byte, dist int, t01 *[32]uint8, t23 *[32]uint8, t02 *[32]uint8)
 
 //go:noescape
 func fftDIT48_avx2_1(work [][]byte, dist int, t01 *[32]uint8, t23 *[32]uint8, t02 *[32]uint8)
-
-//go:noescape
-func ifftDIT48_avx512_1(work [][]byte, dist int, t01 *[32]uint8, t23 *[32]uint8, t02 *[32]uint8)
-
-//go:noescape
-func fftDIT48_avx512_1(work [][]byte, dist int, t01 *[32]uint8, t23 *[32]uint8, t02 *[32]uint8)
 
 //go:noescape
 func ifftDIT48_avx2_2(work [][]byte, dist int, t01 *[32]uint8, t23 *[32]uint8, t02 *[32]uint8)
@@ -2687,22 +2675,10 @@ func ifftDIT48_avx2_2(work [][]byte, dist int, t01 *[32]uint8, t23 *[32]uint8, t
 func fftDIT48_avx2_2(work [][]byte, dist int, t01 *[32]uint8, t23 *[32]uint8, t02 *[32]uint8)
 
 //go:noescape
-func ifftDIT48_avx512_2(work [][]byte, dist int, t01 *[32]uint8, t23 *[32]uint8, t02 *[32]uint8)
-
-//go:noescape
-func fftDIT48_avx512_2(work [][]byte, dist int, t01 *[32]uint8, t23 *[32]uint8, t02 *[32]uint8)
-
-//go:noescape
 func ifftDIT48_avx2_3(work [][]byte, dist int, t01 *[32]uint8, t23 *[32]uint8, t02 *[32]uint8)
 
 //go:noescape
 func fftDIT48_avx2_3(work [][]byte, dist int, t01 *[32]uint8, t23 *[32]uint8, t02 *[32]uint8)
-
-//go:noescape
-func ifftDIT48_avx512_3(work [][]byte, dist int, t01 *[32]uint8, t23 *[32]uint8, t02 *[32]uint8)
-
-//go:noescape
-func fftDIT48_avx512_3(work [][]byte, dist int, t01 *[32]uint8, t23 *[32]uint8, t02 *[32]uint8)
 
 //go:noescape
 func ifftDIT48_avx2_4(work [][]byte, dist int, t01 *[32]uint8, t23 *[32]uint8, t02 *[32]uint8)
@@ -2711,22 +2687,10 @@ func ifftDIT48_avx2_4(work [][]byte, dist int, t01 *[32]uint8, t23 *[32]uint8, t
 func fftDIT48_avx2_4(work [][]byte, dist int, t01 *[32]uint8, t23 *[32]uint8, t02 *[32]uint8)
 
 //go:noescape
-func ifftDIT48_avx512_4(work [][]byte, dist int, t01 *[32]uint8, t23 *[32]uint8, t02 *[32]uint8)
-
-//go:noescape
-func fftDIT48_avx512_4(work [][]byte, dist int, t01 *[32]uint8, t23 *[32]uint8, t02 *[32]uint8)
-
-//go:noescape
 func ifftDIT48_avx2_5(work [][]byte, dist int, t01 *[32]uint8, t23 *[32]uint8, t02 *[32]uint8)
 
 //go:noescape
 func fftDIT48_avx2_5(work [][]byte, dist int, t01 *[32]uint8, t23 *[32]uint8, t02 *[32]uint8)
-
-//go:noescape
-func ifftDIT48_avx512_5(work [][]byte, dist int, t01 *[32]uint8, t23 *[32]uint8, t02 *[32]uint8)
-
-//go:noescape
-func fftDIT48_avx512_5(work [][]byte, dist int, t01 *[32]uint8, t23 *[32]uint8, t02 *[32]uint8)
 
 //go:noescape
 func ifftDIT48_avx2_6(work [][]byte, dist int, t01 *[32]uint8, t23 *[32]uint8, t02 *[32]uint8)
@@ -2735,19 +2699,55 @@ func ifftDIT48_avx2_6(work [][]byte, dist int, t01 *[32]uint8, t23 *[32]uint8, t
 func fftDIT48_avx2_6(work [][]byte, dist int, t01 *[32]uint8, t23 *[32]uint8, t02 *[32]uint8)
 
 //go:noescape
-func ifftDIT48_avx512_6(work [][]byte, dist int, t01 *[32]uint8, t23 *[32]uint8, t02 *[32]uint8)
-
-//go:noescape
-func fftDIT48_avx512_6(work [][]byte, dist int, t01 *[32]uint8, t23 *[32]uint8, t02 *[32]uint8)
-
-//go:noescape
 func ifftDIT48_avx2_7(work [][]byte, dist int, t01 *[32]uint8, t23 *[32]uint8, t02 *[32]uint8)
 
 //go:noescape
 func fftDIT48_avx2_7(work [][]byte, dist int, t01 *[32]uint8, t23 *[32]uint8, t02 *[32]uint8)
 
 //go:noescape
-func ifftDIT48_avx512_7(work [][]byte, dist int, t01 *[32]uint8, t23 *[32]uint8, t02 *[32]uint8)
+func ifftDIT48_gfni_0(work [][]byte, dist int, t01 uint64, t23 uint64, t02 uint64)
 
 //go:noescape
-func fftDIT48_avx512_7(work [][]byte, dist int, t01 *[32]uint8, t23 *[32]uint8, t02 *[32]uint8)
+func fftDIT48_gfni_0(work [][]byte, dist int, t01 uint64, t23 uint64, t02 uint64)
+
+//go:noescape
+func ifftDIT48_gfni_1(work [][]byte, dist int, t01 uint64, t23 uint64, t02 uint64)
+
+//go:noescape
+func fftDIT48_gfni_1(work [][]byte, dist int, t01 uint64, t23 uint64, t02 uint64)
+
+//go:noescape
+func ifftDIT48_gfni_2(work [][]byte, dist int, t01 uint64, t23 uint64, t02 uint64)
+
+//go:noescape
+func fftDIT48_gfni_2(work [][]byte, dist int, t01 uint64, t23 uint64, t02 uint64)
+
+//go:noescape
+func ifftDIT48_gfni_3(work [][]byte, dist int, t01 uint64, t23 uint64, t02 uint64)
+
+//go:noescape
+func fftDIT48_gfni_3(work [][]byte, dist int, t01 uint64, t23 uint64, t02 uint64)
+
+//go:noescape
+func ifftDIT48_gfni_4(work [][]byte, dist int, t01 uint64, t23 uint64, t02 uint64)
+
+//go:noescape
+func fftDIT48_gfni_4(work [][]byte, dist int, t01 uint64, t23 uint64, t02 uint64)
+
+//go:noescape
+func ifftDIT48_gfni_5(work [][]byte, dist int, t01 uint64, t23 uint64, t02 uint64)
+
+//go:noescape
+func fftDIT48_gfni_5(work [][]byte, dist int, t01 uint64, t23 uint64, t02 uint64)
+
+//go:noescape
+func ifftDIT48_gfni_6(work [][]byte, dist int, t01 uint64, t23 uint64, t02 uint64)
+
+//go:noescape
+func fftDIT48_gfni_6(work [][]byte, dist int, t01 uint64, t23 uint64, t02 uint64)
+
+//go:noescape
+func ifftDIT48_gfni_7(work [][]byte, dist int, t01 uint64, t23 uint64, t02 uint64)
+
+//go:noescape
+func fftDIT48_gfni_7(work [][]byte, dist int, t01 uint64, t23 uint64, t02 uint64)
