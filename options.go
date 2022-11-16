@@ -15,15 +15,15 @@ type options struct {
 	shardSize     int
 	perRound      int
 
-	useAVX512, useAVX2, useSSSE3, useSSE2 bool
-	useJerasureMatrix                     bool
-	usePAR1Matrix                         bool
-	useCauchy                             bool
-	fastOneParity                         bool
-	inversionCache                        bool
-	forcedInversionCache                  bool
-	customMatrix                          [][]byte
-	withLeopard                           leopardMode
+	useGFNI, useAVX512, useAVX2, useSSSE3, useSSE2 bool
+	useJerasureMatrix                              bool
+	usePAR1Matrix                                  bool
+	useCauchy                                      bool
+	fastOneParity                                  bool
+	inversionCache                                 bool
+	forcedInversionCache                           bool
+	customMatrix                                   [][]byte
+	withLeopard                                    leopardMode
 
 	// stream options
 	concReads  bool
@@ -42,6 +42,7 @@ var defaultOptions = options{
 	useSSE2:   cpuid.CPU.Supports(cpuid.SSE2),
 	useAVX2:   cpuid.CPU.Supports(cpuid.AVX2),
 	useAVX512: cpuid.CPU.Supports(cpuid.AVX512F, cpuid.AVX512BW, cpuid.AVX512VL),
+	useGFNI:   cpuid.CPU.Supports(cpuid.AVX512F, cpuid.GFNI, cpuid.AVX512DQ),
 }
 
 // leopardMode controls the use of leopard GF in encoding and decoding.
@@ -173,11 +174,19 @@ func WithSSE2(enabled bool) Option {
 	}
 }
 
-// WithAVX512 allows to enable/disable AVX512 instructions.
-// If not set, AVX512 will be turned on or off automatically based on CPU ID information.
+// WithAVX512 allows to enable/disable AVX512 (and GFNI) instructions.
 func WithAVX512(enabled bool) Option {
 	return func(o *options) {
 		o.useAVX512 = enabled
+		o.useGFNI = enabled
+	}
+}
+
+// WithGFNI allows to enable/disable AVX512+GFNI instructions.
+// If not set, GFNI will be turned on or off automatically based on CPU ID information.
+func WithGFNI(enabled bool) Option {
+	return func(o *options) {
+		o.useGFNI = enabled
 	}
 }
 

@@ -27,6 +27,7 @@ Using Go modules is recommended.
 
 ## 2022
 
+* [GFNI](https://github.com/klauspost/reedsolomon/pull/224) support for amd64, for up to 3x faster processing.
 * [Leopard GF8](https://github.com/klauspost/reedsolomon#leopard-gf8) mode added, for faster processing of medium shard counts.
 * [Leopard GF16](https://github.com/klauspost/reedsolomon#leopard-compatible-gf16) mode added, for up to 65536 shards. 
 * [WithJerasureMatrix](https://pkg.go.dev/github.com/klauspost/reedsolomon?tab=doc#WithJerasureMatrix) allows constructing a [Jerasure](https://github.com/tsuraan/Jerasure) compatible matrix.
@@ -480,7 +481,8 @@ BenchmarkReconstruct50x20x1M-8       1364.35      4189.79      3.07x
 BenchmarkReconstruct10x4x16M-8       1484.35      5779.53      3.89x
 ```
 
-The performance on AVX512 has been accelerated for CPUs when available.
+The package will use [GFNI](https://en.wikipedia.org/wiki/AVX-512#GFNI) instructions combined with AVX512 when these are available.
+This further improves speed by up to 3x over AVX2 code paths.
 
 ## ARM64 NEON
 

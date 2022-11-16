@@ -25,6 +25,7 @@ func main() {
 		}
 		data = bytes.ReplaceAll(data, []byte("\t// #"), []byte("#"))
 		data = bytes.ReplaceAll(data, []byte("\t// @"), []byte(""))
+		data = bytes.ReplaceAll(data, []byte("VALIGNQ"), []byte("VGF2P8AFFINEQB"))
 		data = bytes.ReplaceAll(data, []byte("VPTERNLOGQ"), []byte("XOR3WAY("))
 		split := bytes.Split(data, []byte("\n"))
 		// Add closing ')'
