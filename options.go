@@ -174,11 +174,11 @@ func WithSSE2(enabled bool) Option {
 	}
 }
 
-// WithAVX512 allows to enable/disable AVX512 instructions.
-// If not set, AVX512 will be turned on or off automatically based on CPU ID information.
+// WithAVX512 allows to enable/disable AVX512 (and GFNI) instructions.
 func WithAVX512(enabled bool) Option {
 	return func(o *options) {
 		o.useAVX512 = enabled
+		o.useGFNI = enabled
 	}
 }
 

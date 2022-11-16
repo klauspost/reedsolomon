@@ -145,6 +145,7 @@ const (
 	avx2CodeGenMinSize       = 64
 	avx2CodeGenMinShards     = 3
 	avx2CodeGenMaxGoroutines = 8
+	gfniCodeGenMaxGoroutines = 4
 
 	intSize = 32 << (^uint(0) >> 63) // 32 or 64
 	maxInt  = 1<<(intSize-1) - 1
@@ -536,6 +537,10 @@ func New(dataShards, parityShards int, opts ...Option) (Encoder, error) {
 		r.o.maxGoroutines = avx2CodeGenMaxGoroutines
 	}
 
+	if r.canGFNI(avx2CodeGenMinSize, maxAvx2Inputs, maxAvx2Outputs) && r.o.maxGoroutines > gfniCodeGenMaxGoroutines {
+		r.o.maxGoroutines = gfniCodeGenMaxGoroutines
+	}
+
 	// Inverted matrices are cached in a tree keyed by the indices
 	// of the invalid rows of the data to reconstruct.
 	// The inversion root node will have the identity matrix as
@@ -772,16 +777,7 @@ func (r *reedSolomon) codeSomeShards(matrixRows, inputs, outputs [][]byte, byteC
 	if len(outputs) == 0 {
 		return
 	}
-	switch {
-	/*
-		case r.o.useAVX512 && r.o.maxGoroutines > 1 && byteCount > r.o.minSplitSize && len(inputs) >= 4 && len(outputs) >= 2:
-			r.codeSomeShardsAvx512P(matrixRows, inputs, outputs, byteCount)
-			return
-		case r.o.useAVX512 && len(inputs) >= 4 && len(outputs) >= 2:
-			r.codeSomeShardsAvx512(matrixRows, inputs, outputs, byteCount)
-			return
-	*/
-	case byteCount > r.o.minSplitSize:
+	if byteCount > r.o.minSplitSize {
 		r.codeSomeShardsP(matrixRows, inputs, outputs, byteCount)
 		return
 	}
