@@ -233,7 +233,7 @@ func ifftDIT48(work [][]byte, dist int, log_m01, log_m23, log_m02 ffe8, o *optio
 		return
 	}
 
-	if o.useAVX512 {
+	if o.useGFNI {
 		// Note that these currently require that length is multiple of 64.
 		t01 := gf2p811dMulMatrices[log_m01]
 		t23 := gf2p811dMulMatrices[log_m23]
