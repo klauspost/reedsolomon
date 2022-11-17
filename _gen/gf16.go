@@ -21,6 +21,8 @@ type table256 struct {
 	useZmmLo, useZmmHi   *reg.VecPhysical
 }
 
+type table512 Op
+
 func (t *table256) prepare() {
 	t.prepareLo()
 	t.prepareHi()
