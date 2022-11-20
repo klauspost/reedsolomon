@@ -91,7 +91,7 @@ const (
 	polynomial8 = 0x11D
 
 	// Encode in blocks of this size.
-	workSize8 = 8 << 10
+	workSize8 = 32 << 10
 )
 
 var (
@@ -141,10 +141,12 @@ func (r *leopardFF8) encode(shards [][]byte) error {
 	if cap(work) >= m*2 {
 		work = work[:m*2]
 		for i := range work {
-			if cap(work[i]) < workSize8 {
-				work[i] = make([]byte, workSize8)
-			} else {
-				work[i] = work[i][:workSize8]
+			if i >= r.parityShards {
+				if cap(work[i]) < workSize8 {
+					work[i] = make([]byte, workSize8)
+				} else {
+					work[i] = work[i][:workSize8]
+				}
 			}
 		}
 	} else {
@@ -168,7 +170,12 @@ func (r *leopardFF8) encode(shards [][]byte) error {
 	// More likely on lower shard count.
 	off := 0
 	sh := make([][]byte, len(shards))
+
+	// work slice we can modify
+	wMod := make([][]byte, len(work))
+	copy(wMod, work)
 	for off < shardSize {
+		work := wMod
 		sh := sh
 		end := off + workSize8
 		if end > shardSize {
@@ -182,6 +189,14 @@ func (r *leopardFF8) encode(shards [][]byte) error {
 		for i := range shards {
 			sh[i] = shards[i][off:end]
 		}
+
+		// Replace work slices, so we write directly to output.
+		// Note that work has parity *before* data shards.
+		res := shards[r.dataShards:r.totalShards]
+		for i := range res {
+			work[i] = res[i][off:end]
+		}
+
 		ifftDITEncoder8(
 			sh[:r.dataShards],
 			mtrunc,
@@ -237,12 +252,6 @@ func (r *leopardFF8) encode(shards [][]byte) error {
 	skip_body:
 		// work <- FFT(work, m, 0)
 		fftDIT8(work, r.parityShards, m, fftSkew8[:], &r.o)
-
-		for i, w := range work[:r.parityShards] {
-			sh := shards[i+r.dataShards]
-			sh = append(sh[:off], w[:end-off]...)
-			shards[i+r.dataShards] = sh
-		}
 		off += workSize8
 	}
 
