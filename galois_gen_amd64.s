@@ -102713,6 +102713,140 @@ loop:
 	VZEROUPPER
 	RET
 
+// func ifftDIT48_dst_avx2_0(dst [][]byte, work [][]byte, dist int, t01 *[32]uint8, t23 *[32]uint8, t02 *[32]uint8)
+// Requires: AVX, AVX2, AVX512F, AVX512VL, SSE2
+TEXT ·ifftDIT48_dst_avx2_0(SB), NOSPLIT, $0-80
+	MOVQ           t01+56(FP), AX
+	VBROADCASTI128 16(AX), Y0
+	MOVQ           t23+64(FP), CX
+	VBROADCASTI128 (CX), Y1
+	VBROADCASTI128 16(CX), Y2
+	MOVQ           t02+72(FP), CX
+	VBROADCASTI128 (CX), Y3
+	VBROADCASTI128 16(CX), Y4
+	MOVQ           dist+48(FP), CX
+	MOVQ           work_base+24(FP), DX
+	MOVQ           dst_base+0(FP), BX
+	MOVQ           8(DX), SI
+	XORQ           DI, DI
+	MOVQ           (DX)(DI*1), R8
+	MOVQ           (BX)(DI*1), R9
+	ADDQ           CX, DI
+	MOVQ           (DX)(DI*1), R10
+	MOVQ           (BX)(DI*1), R11
+	ADDQ           CX, DI
+	MOVQ           (DX)(DI*1), R12
+	MOVQ           (BX)(DI*1), R13
+	ADDQ           CX, DI
+	MOVQ           (DX)(DI*1), CX
+	MOVQ           (BX)(DI*1), DX
+	MOVQ           $0x0000000f, BX
+	MOVQ           BX, X5
+	VPBROADCASTB   X5, Y5
+
+loop:
+	VMOVDQU        (R8), Y6
+	VMOVDQU        (R10), Y7
+	VMOVDQU        32(R8), Y8
+	VMOVDQU        32(R10), Y9
+	VPXOR          Y7, Y6, Y7
+	VPXOR          Y9, Y8, Y9
+	VBROADCASTI128 (AX), Y10
+
+	// LEO_MULADD_256
+	VPAND   Y7, Y5, Y11
+	VPSRLQ  $0x04, Y7, Y12
+	VPSHUFB Y11, Y10, Y11
+	VPAND   Y12, Y5, Y12
+	VPSHUFB Y12, Y0, Y12
+	XOR3WAY( $0x00, Y11, Y12, Y6)
+
+	// LEO_MULADD_256
+	VPAND   Y9, Y5, Y11
+	VPSRLQ  $0x04, Y9, Y12
+	VPSHUFB Y11, Y10, Y11
+	VPAND   Y12, Y5, Y12
+	VPSHUFB Y12, Y0, Y12
+	XOR3WAY( $0x00, Y11, Y12, Y8)
+	VMOVDQU (R12), Y10
+	VMOVDQU (CX), Y11
+	VMOVDQU 32(R12), Y12
+	VMOVDQU 32(CX), Y13
+	VPXOR   Y10, Y11, Y11
+	VPXOR   Y12, Y13, Y13
+
+	// LEO_MULADD_256
+	VPAND   Y11, Y5, Y14
+	VPSRLQ  $0x04, Y11, Y15
+	VPSHUFB Y14, Y1, Y14
+	VPAND   Y15, Y5, Y15
+	VPSHUFB Y15, Y2, Y15
+	XOR3WAY( $0x00, Y14, Y15, Y10)
+
+	// LEO_MULADD_256
+	VPAND   Y13, Y5, Y14
+	VPSRLQ  $0x04, Y13, Y15
+	VPSHUFB Y14, Y1, Y14
+	VPAND   Y15, Y5, Y15
+	VPSHUFB Y15, Y2, Y15
+	XOR3WAY( $0x00, Y14, Y15, Y12)
+	VPXOR   Y6, Y10, Y10
+	VPXOR   Y7, Y11, Y11
+	VPXOR   Y8, Y12, Y12
+	VPXOR   Y9, Y13, Y13
+
+	// LEO_MULADD_256
+	VPAND   Y10, Y5, Y14
+	VPSRLQ  $0x04, Y10, Y15
+	VPSHUFB Y14, Y3, Y14
+	VPAND   Y15, Y5, Y15
+	VPSHUFB Y15, Y4, Y15
+	XOR3WAY( $0x00, Y14, Y15, Y6)
+
+	// LEO_MULADD_256
+	VPAND   Y11, Y5, Y14
+	VPSRLQ  $0x04, Y11, Y15
+	VPSHUFB Y14, Y3, Y14
+	VPAND   Y15, Y5, Y15
+	VPSHUFB Y15, Y4, Y15
+	XOR3WAY( $0x00, Y14, Y15, Y7)
+
+	// LEO_MULADD_256
+	VPAND   Y12, Y5, Y14
+	VPSRLQ  $0x04, Y12, Y15
+	VPSHUFB Y14, Y3, Y14
+	VPAND   Y15, Y5, Y15
+	VPSHUFB Y15, Y4, Y15
+	XOR3WAY( $0x00, Y14, Y15, Y8)
+
+	// LEO_MULADD_256
+	VPAND   Y13, Y5, Y14
+	VPSRLQ  $0x04, Y13, Y15
+	VPSHUFB Y14, Y3, Y14
+	VPAND   Y15, Y5, Y15
+	VPSHUFB Y15, Y4, Y15
+	XOR3WAY( $0x00, Y14, Y15, Y9)
+	VMOVDQU Y6, (R9)
+	VMOVDQU Y8, 32(R9)
+	ADDQ    $0x40, R9
+	ADDQ    $0x40, R8
+	VMOVDQU Y7, (R11)
+	VMOVDQU Y9, 32(R11)
+	ADDQ    $0x40, R11
+	ADDQ    $0x40, R10
+	VMOVDQU Y10, (R13)
+	VMOVDQU Y12, 32(R13)
+	ADDQ    $0x40, R13
+	ADDQ    $0x40, R12
+	VMOVDQU Y11, (DX)
+	VMOVDQU Y13, 32(DX)
+	ADDQ    $0x40, DX
+	ADDQ    $0x40, CX
+	SUBQ    $0x40, SI
+	JA      loop
+	VZEROUPPER
+	RET
+
 // func fftDIT48_avx2_0(work [][]byte, dist int, t01 *[32]uint8, t23 *[32]uint8, t02 *[32]uint8)
 // Requires: AVX, AVX2, AVX512F, AVX512VL, SSE2
 TEXT ·fftDIT48_avx2_0(SB), NOSPLIT, $0-56
@@ -102838,6 +102972,140 @@ loop:
 	VZEROUPPER
 	RET
 
+// func fftDIT48_dst_avx2_0(dst [][]byte, work [][]byte, dist int, t01 *[32]uint8, t23 *[32]uint8, t02 *[32]uint8)
+// Requires: AVX, AVX2, AVX512F, AVX512VL, SSE2
+TEXT ·fftDIT48_dst_avx2_0(SB), NOSPLIT, $0-80
+	MOVQ           t01+56(FP), AX
+	VBROADCASTI128 16(AX), Y0
+	MOVQ           t23+64(FP), CX
+	VBROADCASTI128 16(CX), Y1
+	MOVQ           t02+72(FP), DX
+	VBROADCASTI128 (DX), Y2
+	VBROADCASTI128 16(DX), Y3
+	MOVQ           dist+48(FP), DX
+	MOVQ           work_base+24(FP), BX
+	MOVQ           8(BX), SI
+	MOVQ           dst_base+0(FP), DI
+	XORQ           R8, R8
+	MOVQ           (BX)(R8*1), R9
+	MOVQ           (DI)(R8*1), R10
+	ADDQ           DX, R8
+	MOVQ           (BX)(R8*1), R11
+	MOVQ           (DI)(R8*1), R12
+	ADDQ           DX, R8
+	MOVQ           (BX)(R8*1), R13
+	MOVQ           (DI)(R8*1), R14
+	ADDQ           DX, R8
+	MOVQ           (BX)(R8*1), DX
+	MOVQ           (DI)(R8*1), BX
+	MOVQ           $0x0000000f, DI
+	MOVQ           DI, X4
+	VPBROADCASTB   X4, Y4
+
+loop:
+	VMOVDQU (R9), Y5
+	VMOVDQU 32(R9), Y6
+	VMOVDQU (R13), Y9
+	VMOVDQU 32(R13), Y10
+	VMOVDQU (R11), Y7
+	VMOVDQU 32(R11), Y8
+	VMOVDQU (DX), Y11
+	VMOVDQU 32(DX), Y12
+
+	// LEO_MULADD_256
+	VPAND   Y9, Y4, Y13
+	VPSRLQ  $0x04, Y9, Y14
+	VPSHUFB Y13, Y2, Y13
+	VPAND   Y14, Y4, Y14
+	VPSHUFB Y14, Y3, Y14
+	XOR3WAY( $0x00, Y13, Y14, Y5)
+
+	// LEO_MULADD_256
+	VPAND   Y10, Y4, Y13
+	VPSRLQ  $0x04, Y10, Y14
+	VPSHUFB Y13, Y2, Y13
+	VPAND   Y14, Y4, Y14
+	VPSHUFB Y14, Y3, Y14
+	XOR3WAY( $0x00, Y13, Y14, Y6)
+
+	// LEO_MULADD_256
+	VPAND   Y11, Y4, Y13
+	VPSRLQ  $0x04, Y11, Y14
+	VPSHUFB Y13, Y2, Y13
+	VPAND   Y14, Y4, Y14
+	VPSHUFB Y14, Y3, Y14
+	XOR3WAY( $0x00, Y13, Y14, Y7)
+
+	// LEO_MULADD_256
+	VPAND          Y12, Y4, Y13
+	VPSRLQ         $0x04, Y12, Y14
+	VPSHUFB        Y13, Y2, Y13
+	VPAND          Y14, Y4, Y14
+	VPSHUFB        Y14, Y3, Y14
+	XOR3WAY(     $0x00, Y13, Y14, Y8)
+	VPXOR          Y5, Y9, Y9
+	VPXOR          Y7, Y11, Y11
+	VPXOR          Y6, Y10, Y10
+	VPXOR          Y8, Y12, Y12
+	VBROADCASTI128 (AX), Y13
+
+	// LEO_MULADD_256
+	VPAND   Y7, Y4, Y14
+	VPSRLQ  $0x04, Y7, Y15
+	VPSHUFB Y14, Y13, Y14
+	VPAND   Y15, Y4, Y15
+	VPSHUFB Y15, Y0, Y15
+	XOR3WAY( $0x00, Y14, Y15, Y5)
+
+	// LEO_MULADD_256
+	VPAND          Y8, Y4, Y14
+	VPSRLQ         $0x04, Y8, Y15
+	VPSHUFB        Y14, Y13, Y14
+	VPAND          Y15, Y4, Y15
+	VPSHUFB        Y15, Y0, Y15
+	XOR3WAY(     $0x00, Y14, Y15, Y6)
+	VPXOR          Y7, Y5, Y7
+	VPXOR          Y8, Y6, Y8
+	VBROADCASTI128 (CX), Y13
+
+	// LEO_MULADD_256
+	VPAND   Y11, Y4, Y14
+	VPSRLQ  $0x04, Y11, Y15
+	VPSHUFB Y14, Y13, Y14
+	VPAND   Y15, Y4, Y15
+	VPSHUFB Y15, Y1, Y15
+	XOR3WAY( $0x00, Y14, Y15, Y9)
+
+	// LEO_MULADD_256
+	VPAND   Y12, Y4, Y14
+	VPSRLQ  $0x04, Y12, Y15
+	VPSHUFB Y14, Y13, Y14
+	VPAND   Y15, Y4, Y15
+	VPSHUFB Y15, Y1, Y15
+	XOR3WAY( $0x00, Y14, Y15, Y10)
+	VPXOR   Y9, Y11, Y11
+	VPXOR   Y10, Y12, Y12
+	VMOVDQU Y5, (R10)
+	VMOVDQU Y6, 32(R10)
+	ADDQ    $0x40, R10
+	ADDQ    $0x40, R9
+	VMOVDQU Y7, (R12)
+	VMOVDQU Y8, 32(R12)
+	ADDQ    $0x40, R12
+	ADDQ    $0x40, R11
+	VMOVDQU Y9, (R14)
+	VMOVDQU Y10, 32(R14)
+	ADDQ    $0x40, R14
+	ADDQ    $0x40, R13
+	VMOVDQU Y11, (BX)
+	VMOVDQU Y12, 32(BX)
+	ADDQ    $0x40, BX
+	ADDQ    $0x40, DX
+	SUBQ    $0x40, SI
+	JA      loop
+	VZEROUPPER
+	RET
+
 // func ifftDIT48_avx2_1(work [][]byte, dist int, t01 *[32]uint8, t23 *[32]uint8, t02 *[32]uint8)
 // Requires: AVX, AVX2, AVX512F, AVX512VL, SSE2
 TEXT ·ifftDIT48_avx2_1(SB), NOSPLIT, $0-56
@@ -102944,6 +103212,121 @@ loop:
 	VZEROUPPER
 	RET
 
+// func ifftDIT48_dst_avx2_1(dst [][]byte, work [][]byte, dist int, t01 *[32]uint8, t23 *[32]uint8, t02 *[32]uint8)
+// Requires: AVX, AVX2, AVX512F, AVX512VL, SSE2
+TEXT ·ifftDIT48_dst_avx2_1(SB), NOSPLIT, $0-80
+	MOVQ           t23+64(FP), AX
+	VBROADCASTI128 (AX), Y0
+	VBROADCASTI128 16(AX), Y1
+	MOVQ           t02+72(FP), AX
+	VBROADCASTI128 (AX), Y2
+	VBROADCASTI128 16(AX), Y3
+	MOVQ           dist+48(FP), AX
+	MOVQ           work_base+24(FP), CX
+	MOVQ           dst_base+0(FP), DX
+	MOVQ           8(CX), BX
+	XORQ           SI, SI
+	MOVQ           (CX)(SI*1), DI
+	MOVQ           (DX)(SI*1), R8
+	ADDQ           AX, SI
+	MOVQ           (CX)(SI*1), R9
+	MOVQ           (DX)(SI*1), R10
+	ADDQ           AX, SI
+	MOVQ           (CX)(SI*1), R11
+	MOVQ           (DX)(SI*1), R12
+	ADDQ           AX, SI
+	MOVQ           (CX)(SI*1), AX
+	MOVQ           (DX)(SI*1), CX
+	MOVQ           $0x0000000f, DX
+	MOVQ           DX, X4
+	VPBROADCASTB   X4, Y4
+
+loop:
+	VMOVDQU (DI), Y5
+	VMOVDQU (R9), Y6
+	VMOVDQU 32(DI), Y7
+	VMOVDQU 32(R9), Y8
+	VPXOR   Y6, Y5, Y6
+	VPXOR   Y8, Y7, Y8
+	VMOVDQU (R11), Y9
+	VMOVDQU (AX), Y10
+	VMOVDQU 32(R11), Y11
+	VMOVDQU 32(AX), Y12
+	VPXOR   Y9, Y10, Y10
+	VPXOR   Y11, Y12, Y12
+
+	// LEO_MULADD_256
+	VPAND   Y10, Y4, Y13
+	VPSRLQ  $0x04, Y10, Y14
+	VPSHUFB Y13, Y0, Y13
+	VPAND   Y14, Y4, Y14
+	VPSHUFB Y14, Y1, Y14
+	XOR3WAY( $0x00, Y13, Y14, Y9)
+
+	// LEO_MULADD_256
+	VPAND   Y12, Y4, Y13
+	VPSRLQ  $0x04, Y12, Y14
+	VPSHUFB Y13, Y0, Y13
+	VPAND   Y14, Y4, Y14
+	VPSHUFB Y14, Y1, Y14
+	XOR3WAY( $0x00, Y13, Y14, Y11)
+	VPXOR   Y5, Y9, Y9
+	VPXOR   Y6, Y10, Y10
+	VPXOR   Y7, Y11, Y11
+	VPXOR   Y8, Y12, Y12
+
+	// LEO_MULADD_256
+	VPAND   Y9, Y4, Y13
+	VPSRLQ  $0x04, Y9, Y14
+	VPSHUFB Y13, Y2, Y13
+	VPAND   Y14, Y4, Y14
+	VPSHUFB Y14, Y3, Y14
+	XOR3WAY( $0x00, Y13, Y14, Y5)
+
+	// LEO_MULADD_256
+	VPAND   Y10, Y4, Y13
+	VPSRLQ  $0x04, Y10, Y14
+	VPSHUFB Y13, Y2, Y13
+	VPAND   Y14, Y4, Y14
+	VPSHUFB Y14, Y3, Y14
+	XOR3WAY( $0x00, Y13, Y14, Y6)
+
+	// LEO_MULADD_256
+	VPAND   Y11, Y4, Y13
+	VPSRLQ  $0x04, Y11, Y14
+	VPSHUFB Y13, Y2, Y13
+	VPAND   Y14, Y4, Y14
+	VPSHUFB Y14, Y3, Y14
+	XOR3WAY( $0x00, Y13, Y14, Y7)
+
+	// LEO_MULADD_256
+	VPAND   Y12, Y4, Y13
+	VPSRLQ  $0x04, Y12, Y14
+	VPSHUFB Y13, Y2, Y13
+	VPAND   Y14, Y4, Y14
+	VPSHUFB Y14, Y3, Y14
+	XOR3WAY( $0x00, Y13, Y14, Y8)
+	VMOVDQU Y5, (R8)
+	VMOVDQU Y7, 32(R8)
+	ADDQ    $0x40, R8
+	ADDQ    $0x40, DI
+	VMOVDQU Y6, (R10)
+	VMOVDQU Y8, 32(R10)
+	ADDQ    $0x40, R10
+	ADDQ    $0x40, R9
+	VMOVDQU Y9, (R12)
+	VMOVDQU Y11, 32(R12)
+	ADDQ    $0x40, R12
+	ADDQ    $0x40, R11
+	VMOVDQU Y10, (CX)
+	VMOVDQU Y12, 32(CX)
+	ADDQ    $0x40, CX
+	ADDQ    $0x40, AX
+	SUBQ    $0x40, BX
+	JA      loop
+	VZEROUPPER
+	RET
+
 // func fftDIT48_avx2_1(work [][]byte, dist int, t01 *[32]uint8, t23 *[32]uint8, t02 *[32]uint8)
 // Requires: AVX, AVX2, AVX512F, AVX512VL, SSE2
 TEXT ·fftDIT48_avx2_1(SB), NOSPLIT, $0-56
@@ -103028,6 +103411,105 @@ loop:
 	ADDQ    $0x40, R8
 	VMOVDQU Y11, (AX)
 	VMOVDQU Y12, 32(AX)
+	ADDQ    $0x40, AX
+	SUBQ    $0x40, DX
+	JA      loop
+	VZEROUPPER
+	RET
+
+// func fftDIT48_dst_avx2_1(dst [][]byte, work [][]byte, dist int, t01 *[32]uint8, t23 *[32]uint8, t02 *[32]uint8)
+// Requires: AVX, AVX2, AVX512F, AVX512VL, SSE2
+TEXT ·fftDIT48_dst_avx2_1(SB), NOSPLIT, $0-80
+	MOVQ           t01+56(FP), AX
+	VBROADCASTI128 (AX), Y0
+	VBROADCASTI128 16(AX), Y1
+	MOVQ           t23+64(FP), AX
+	VBROADCASTI128 (AX), Y2
+	VBROADCASTI128 16(AX), Y3
+	MOVQ           dist+48(FP), AX
+	MOVQ           work_base+24(FP), CX
+	MOVQ           8(CX), DX
+	MOVQ           dst_base+0(FP), BX
+	XORQ           SI, SI
+	MOVQ           (CX)(SI*1), DI
+	MOVQ           (BX)(SI*1), R8
+	ADDQ           AX, SI
+	MOVQ           (CX)(SI*1), R9
+	MOVQ           (BX)(SI*1), R10
+	ADDQ           AX, SI
+	MOVQ           (CX)(SI*1), R11
+	MOVQ           (BX)(SI*1), R12
+	ADDQ           AX, SI
+	MOVQ           (CX)(SI*1), AX
+	MOVQ           (BX)(SI*1), CX
+	MOVQ           $0x0000000f, BX
+	MOVQ           BX, X4
+	VPBROADCASTB   X4, Y4
+
+loop:
+	VMOVDQU (DI), Y5
+	VMOVDQU 32(DI), Y6
+	VMOVDQU (R11), Y9
+	VMOVDQU 32(R11), Y10
+	VMOVDQU (R9), Y7
+	VMOVDQU 32(R9), Y8
+	VMOVDQU (AX), Y11
+	VMOVDQU 32(AX), Y12
+	VPXOR   Y5, Y9, Y9
+	VPXOR   Y7, Y11, Y11
+	VPXOR   Y6, Y10, Y10
+	VPXOR   Y8, Y12, Y12
+
+	// LEO_MULADD_256
+	VPAND   Y7, Y4, Y13
+	VPSRLQ  $0x04, Y7, Y14
+	VPSHUFB Y13, Y0, Y13
+	VPAND   Y14, Y4, Y14
+	VPSHUFB Y14, Y1, Y14
+	XOR3WAY( $0x00, Y13, Y14, Y5)
+
+	// LEO_MULADD_256
+	VPAND   Y8, Y4, Y13
+	VPSRLQ  $0x04, Y8, Y14
+	VPSHUFB Y13, Y0, Y13
+	VPAND   Y14, Y4, Y14
+	VPSHUFB Y14, Y1, Y14
+	XOR3WAY( $0x00, Y13, Y14, Y6)
+	VPXOR   Y7, Y5, Y7
+	VPXOR   Y8, Y6, Y8
+
+	// LEO_MULADD_256
+	VPAND   Y11, Y4, Y13
+	VPSRLQ  $0x04, Y11, Y14
+	VPSHUFB Y13, Y2, Y13
+	VPAND   Y14, Y4, Y14
+	VPSHUFB Y14, Y3, Y14
+	XOR3WAY( $0x00, Y13, Y14, Y9)
+
+	// LEO_MULADD_256
+	VPAND   Y12, Y4, Y13
+	VPSRLQ  $0x04, Y12, Y14
+	VPSHUFB Y13, Y2, Y13
+	VPAND   Y14, Y4, Y14
+	VPSHUFB Y14, Y3, Y14
+	XOR3WAY( $0x00, Y13, Y14, Y10)
+	VPXOR   Y9, Y11, Y11
+	VPXOR   Y10, Y12, Y12
+	VMOVDQU Y5, (R8)
+	VMOVDQU Y6, 32(R8)
+	ADDQ    $0x40, R8
+	ADDQ    $0x40, DI
+	VMOVDQU Y7, (R10)
+	VMOVDQU Y8, 32(R10)
+	ADDQ    $0x40, R10
+	ADDQ    $0x40, R9
+	VMOVDQU Y9, (R12)
+	VMOVDQU Y10, 32(R12)
+	ADDQ    $0x40, R12
+	ADDQ    $0x40, R11
+	VMOVDQU Y11, (CX)
+	VMOVDQU Y12, 32(CX)
+	ADDQ    $0x40, CX
 	ADDQ    $0x40, AX
 	SUBQ    $0x40, DX
 	JA      loop
@@ -103140,6 +103622,121 @@ loop:
 	VZEROUPPER
 	RET
 
+// func ifftDIT48_dst_avx2_2(dst [][]byte, work [][]byte, dist int, t01 *[32]uint8, t23 *[32]uint8, t02 *[32]uint8)
+// Requires: AVX, AVX2, AVX512F, AVX512VL, SSE2
+TEXT ·ifftDIT48_dst_avx2_2(SB), NOSPLIT, $0-80
+	MOVQ           t01+56(FP), AX
+	VBROADCASTI128 (AX), Y0
+	VBROADCASTI128 16(AX), Y1
+	MOVQ           t02+72(FP), AX
+	VBROADCASTI128 (AX), Y2
+	VBROADCASTI128 16(AX), Y3
+	MOVQ           dist+48(FP), AX
+	MOVQ           work_base+24(FP), CX
+	MOVQ           dst_base+0(FP), DX
+	MOVQ           8(CX), BX
+	XORQ           SI, SI
+	MOVQ           (CX)(SI*1), DI
+	MOVQ           (DX)(SI*1), R8
+	ADDQ           AX, SI
+	MOVQ           (CX)(SI*1), R9
+	MOVQ           (DX)(SI*1), R10
+	ADDQ           AX, SI
+	MOVQ           (CX)(SI*1), R11
+	MOVQ           (DX)(SI*1), R12
+	ADDQ           AX, SI
+	MOVQ           (CX)(SI*1), AX
+	MOVQ           (DX)(SI*1), CX
+	MOVQ           $0x0000000f, DX
+	MOVQ           DX, X4
+	VPBROADCASTB   X4, Y4
+
+loop:
+	VMOVDQU (DI), Y5
+	VMOVDQU (R9), Y6
+	VMOVDQU 32(DI), Y7
+	VMOVDQU 32(R9), Y8
+	VPXOR   Y6, Y5, Y6
+	VPXOR   Y8, Y7, Y8
+
+	// LEO_MULADD_256
+	VPAND   Y6, Y4, Y9
+	VPSRLQ  $0x04, Y6, Y10
+	VPSHUFB Y9, Y0, Y9
+	VPAND   Y10, Y4, Y10
+	VPSHUFB Y10, Y1, Y10
+	XOR3WAY( $0x00, Y9, Y10, Y5)
+
+	// LEO_MULADD_256
+	VPAND   Y8, Y4, Y9
+	VPSRLQ  $0x04, Y8, Y10
+	VPSHUFB Y9, Y0, Y9
+	VPAND   Y10, Y4, Y10
+	VPSHUFB Y10, Y1, Y10
+	XOR3WAY( $0x00, Y9, Y10, Y7)
+	VMOVDQU (R11), Y9
+	VMOVDQU (AX), Y10
+	VMOVDQU 32(R11), Y11
+	VMOVDQU 32(AX), Y12
+	VPXOR   Y9, Y10, Y10
+	VPXOR   Y11, Y12, Y12
+	VPXOR   Y5, Y9, Y9
+	VPXOR   Y6, Y10, Y10
+	VPXOR   Y7, Y11, Y11
+	VPXOR   Y8, Y12, Y12
+
+	// LEO_MULADD_256
+	VPAND   Y9, Y4, Y13
+	VPSRLQ  $0x04, Y9, Y14
+	VPSHUFB Y13, Y2, Y13
+	VPAND   Y14, Y4, Y14
+	VPSHUFB Y14, Y3, Y14
+	XOR3WAY( $0x00, Y13, Y14, Y5)
+
+	// LEO_MULADD_256
+	VPAND   Y10, Y4, Y13
+	VPSRLQ  $0x04, Y10, Y14
+	VPSHUFB Y13, Y2, Y13
+	VPAND   Y14, Y4, Y14
+	VPSHUFB Y14, Y3, Y14
+	XOR3WAY( $0x00, Y13, Y14, Y6)
+
+	// LEO_MULADD_256
+	VPAND   Y11, Y4, Y13
+	VPSRLQ  $0x04, Y11, Y14
+	VPSHUFB Y13, Y2, Y13
+	VPAND   Y14, Y4, Y14
+	VPSHUFB Y14, Y3, Y14
+	XOR3WAY( $0x00, Y13, Y14, Y7)
+
+	// LEO_MULADD_256
+	VPAND   Y12, Y4, Y13
+	VPSRLQ  $0x04, Y12, Y14
+	VPSHUFB Y13, Y2, Y13
+	VPAND   Y14, Y4, Y14
+	VPSHUFB Y14, Y3, Y14
+	XOR3WAY( $0x00, Y13, Y14, Y8)
+	VMOVDQU Y5, (R8)
+	VMOVDQU Y7, 32(R8)
+	ADDQ    $0x40, R8
+	ADDQ    $0x40, DI
+	VMOVDQU Y6, (R10)
+	VMOVDQU Y8, 32(R10)
+	ADDQ    $0x40, R10
+	ADDQ    $0x40, R9
+	VMOVDQU Y9, (R12)
+	VMOVDQU Y11, 32(R12)
+	ADDQ    $0x40, R12
+	ADDQ    $0x40, R11
+	VMOVDQU Y10, (CX)
+	VMOVDQU Y12, 32(CX)
+	ADDQ    $0x40, CX
+	ADDQ    $0x40, AX
+	SUBQ    $0x40, BX
+	JA      loop
+	VZEROUPPER
+	RET
+
 // func fftDIT48_avx2_2(work [][]byte, dist int, t01 *[32]uint8, t23 *[32]uint8, t02 *[32]uint8)
 // Requires: AVX, AVX2, AVX512F, AVX512VL, SSE2
 TEXT ·fftDIT48_avx2_2(SB), NOSPLIT, $0-56
@@ -103246,6 +103843,121 @@ loop:
 	VZEROUPPER
 	RET
 
+// func fftDIT48_dst_avx2_2(dst [][]byte, work [][]byte, dist int, t01 *[32]uint8, t23 *[32]uint8, t02 *[32]uint8)
+// Requires: AVX, AVX2, AVX512F, AVX512VL, SSE2
+TEXT ·fftDIT48_dst_avx2_2(SB), NOSPLIT, $0-80
+	MOVQ           t23+64(FP), AX
+	VBROADCASTI128 (AX), Y0
+	VBROADCASTI128 16(AX), Y1
+	MOVQ           t02+72(FP), AX
+	VBROADCASTI128 (AX), Y2
+	VBROADCASTI128 16(AX), Y3
+	MOVQ           dist+48(FP), AX
+	MOVQ           work_base+24(FP), CX
+	MOVQ           8(CX), DX
+	MOVQ           dst_base+0(FP), BX
+	XORQ           SI, SI
+	MOVQ           (CX)(SI*1), DI
+	MOVQ           (BX)(SI*1), R8
+	ADDQ           AX, SI
+	MOVQ           (CX)(SI*1), R9
+	MOVQ           (BX)(SI*1), R10
+	ADDQ           AX, SI
+	MOVQ           (CX)(SI*1), R11
+	MOVQ           (BX)(SI*1), R12
+	ADDQ           AX, SI
+	MOVQ           (CX)(SI*1), AX
+	MOVQ           (BX)(SI*1), CX
+	MOVQ           $0x0000000f, BX
+	MOVQ           BX, X4
+	VPBROADCASTB   X4, Y4
+
+loop:
+	VMOVDQU (DI), Y5
+	VMOVDQU 32(DI), Y6
+	VMOVDQU (R11), Y9
+	VMOVDQU 32(R11), Y10
+	VMOVDQU (R9), Y7
+	VMOVDQU 32(R9), Y8
+	VMOVDQU (AX), Y11
+	VMOVDQU 32(AX), Y12
+
+	// LEO_MULADD_256
+	VPAND   Y9, Y4, Y13
+	VPSRLQ  $0x04, Y9, Y14
+	VPSHUFB Y13, Y2, Y13
+	VPAND   Y14, Y4, Y14
+	VPSHUFB Y14, Y3, Y14
+	XOR3WAY( $0x00, Y13, Y14, Y5)
+
+	// LEO_MULADD_256
+	VPAND   Y10, Y4, Y13
+	VPSRLQ  $0x04, Y10, Y14
+	VPSHUFB Y13, Y2, Y13
+	VPAND   Y14, Y4, Y14
+	VPSHUFB Y14, Y3, Y14
+	XOR3WAY( $0x00, Y13, Y14, Y6)
+
+	// LEO_MULADD_256
+	VPAND   Y11, Y4, Y13
+	VPSRLQ  $0x04, Y11, Y14
+	VPSHUFB Y13, Y2, Y13
+	VPAND   Y14, Y4, Y14
+	VPSHUFB Y14, Y3, Y14
+	XOR3WAY( $0x00, Y13, Y14, Y7)
+
+	// LEO_MULADD_256
+	VPAND   Y12, Y4, Y13
+	VPSRLQ  $0x04, Y12, Y14
+	VPSHUFB Y13, Y2, Y13
+	VPAND   Y14, Y4, Y14
+	VPSHUFB Y14, Y3, Y14
+	XOR3WAY( $0x00, Y13, Y14, Y8)
+	VPXOR   Y5, Y9, Y9
+	VPXOR   Y7, Y11, Y11
+	VPXOR   Y6, Y10, Y10
+	VPXOR   Y8, Y12, Y12
+	VPXOR   Y7, Y5, Y7
+	VPXOR   Y8, Y6, Y8
+
+	// LEO_MULADD_256
+	VPAND   Y11, Y4, Y13
+	VPSRLQ  $0x04, Y11, Y14
+	VPSHUFB Y13, Y0, Y13
+	VPAND   Y14, Y4, Y14
+	VPSHUFB Y14, Y1, Y14
+	XOR3WAY( $0x00, Y13, Y14, Y9)
+
+	// LEO_MULADD_256
+	VPAND   Y12, Y4, Y13
+	VPSRLQ  $0x04, Y12, Y14
+	VPSHUFB Y13, Y0, Y13
+	VPAND   Y14, Y4, Y14
+	VPSHUFB Y14, Y1, Y14
+	XOR3WAY( $0x00, Y13, Y14, Y10)
+	VPXOR   Y9, Y11, Y11
+	VPXOR   Y10, Y12, Y12
+	VMOVDQU Y5, (R8)
+	VMOVDQU Y6, 32(R8)
+	ADDQ    $0x40, R8
+	ADDQ    $0x40, DI
+	VMOVDQU Y7, (R10)
+	VMOVDQU Y8, 32(R10)
+	ADDQ    $0x40, R10
+	ADDQ    $0x40, R9
+	VMOVDQU Y9, (R12)
+	VMOVDQU Y10, 32(R12)
+	ADDQ    $0x40, R12
+	ADDQ    $0x40, R11
+	VMOVDQU Y11, (CX)
+	VMOVDQU Y12, 32(CX)
+	ADDQ    $0x40, CX
+	ADDQ    $0x40, AX
+	SUBQ    $0x40, DX
+	JA      loop
+	VZEROUPPER
+	RET
+
 // func ifftDIT48_avx2_3(work [][]byte, dist int, t01 *[32]uint8, t23 *[32]uint8, t02 *[32]uint8)
 // Requires: AVX, AVX2, AVX512F, AVX512VL, SSE2
 TEXT ·ifftDIT48_avx2_3(SB), NOSPLIT, $0-56
@@ -103333,6 +104045,102 @@ loop:
 	VZEROUPPER
 	RET
 
+// func ifftDIT48_dst_avx2_3(dst [][]byte, work [][]byte, dist int, t01 *[32]uint8, t23 *[32]uint8, t02 *[32]uint8)
+// Requires: AVX, AVX2, AVX512F, AVX512VL, SSE2
+TEXT ·ifftDIT48_dst_avx2_3(SB), NOSPLIT, $0-80
+	MOVQ           t02+72(FP), AX
+	VBROADCASTI128 (AX), Y0
+	VBROADCASTI128 16(AX), Y1
+	MOVQ           dist+48(FP), AX
+	MOVQ           work_base+24(FP), CX
+	MOVQ           dst_base+0(FP), DX
+	MOVQ           8(CX), BX
+	XORQ           SI, SI
+	MOVQ           (CX)(SI*1), DI
+	MOVQ           (DX)(SI*1), R8
+	ADDQ           AX, SI
+	MOVQ           (CX)(SI*1), R9
+	MOVQ           (DX)(SI*1), R10
+	ADDQ           AX, SI
+	MOVQ           (CX)(SI*1), R11
+	MOVQ           (DX)(SI*1), R12
+	ADDQ           AX, SI
+	MOVQ           (CX)(SI*1), AX
+	MOVQ           (DX)(SI*1), CX
+	MOVQ           $0x0000000f, DX
+	MOVQ           DX, X2
+	VPBROADCASTB   X2, Y2
+
+loop:
+	VMOVDQU (DI), Y3
+	VMOVDQU (R9), Y4
+	VMOVDQU 32(DI), Y5
+	VMOVDQU 32(R9), Y6
+	VPXOR   Y4, Y3, Y4
+	VPXOR   Y6, Y5, Y6
+	VMOVDQU (R11), Y7
+	VMOVDQU (AX), Y8
+	VMOVDQU 32(R11), Y9
+	VMOVDQU 32(AX), Y10
+	VPXOR   Y7, Y8, Y8
+	VPXOR   Y9, Y10, Y10
+	VPXOR   Y3, Y7, Y7
+	VPXOR   Y4, Y8, Y8
+	VPXOR   Y5, Y9, Y9
+	VPXOR   Y6, Y10, Y10
+
+	// LEO_MULADD_256
+	VPAND   Y7, Y2, Y11
+	VPSRLQ  $0x04, Y7, Y12
+	VPSHUFB Y11, Y0, Y11
+	VPAND   Y12, Y2, Y12
+	VPSHUFB Y12, Y1, Y12
+	XOR3WAY( $0x00, Y11, Y12, Y3)
+
+	// LEO_MULADD_256
+	VPAND   Y8, Y2, Y11
+	VPSRLQ  $0x04, Y8, Y12
+	VPSHUFB Y11, Y0, Y11
+	VPAND   Y12, Y2, Y12
+	VPSHUFB Y12, Y1, Y12
+	XOR3WAY( $0x00, Y11, Y12, Y4)
+
+	// LEO_MULADD_256
+	VPAND   Y9, Y2, Y11
+	VPSRLQ  $0x04, Y9, Y12
+	VPSHUFB Y11, Y0, Y11
+	VPAND   Y12, Y2, Y12
+	VPSHUFB Y12, Y1, Y12
+	XOR3WAY( $0x00, Y11, Y12, Y5)
+
+	// LEO_MULADD_256
+	VPAND   Y10, Y2, Y11
+	VPSRLQ  $0x04, Y10, Y12
+	VPSHUFB Y11, Y0, Y11
+	VPAND   Y12, Y2, Y12
+	VPSHUFB Y12, Y1, Y12
+	XOR3WAY( $0x00, Y11, Y12, Y6)
+	VMOVDQU Y3, (R8)
+	VMOVDQU Y5, 32(R8)
+	ADDQ    $0x40, R8
+	ADDQ    $0x40, DI
+	VMOVDQU Y4, (R10)
+	VMOVDQU Y6, 32(R10)
+	ADDQ    $0x40, R10
+	ADDQ    $0x40, R9
+	VMOVDQU Y7, (R12)
+	VMOVDQU Y9, 32(R12)
+	ADDQ    $0x40, R12
+	ADDQ    $0x40, R11
+	VMOVDQU Y8, (CX)
+	VMOVDQU Y10, 32(CX)
+	ADDQ    $0x40, CX
+	ADDQ    $0x40, AX
+	SUBQ    $0x40, BX
+	JA      loop
+	VZEROUPPER
+	RET
+
 // func fftDIT48_avx2_3(work [][]byte, dist int, t01 *[32]uint8, t23 *[32]uint8, t02 *[32]uint8)
 // Requires: AVX, AVX2, AVX512F, AVX512VL, SSE2
 TEXT ·fftDIT48_avx2_3(SB), NOSPLIT, $0-56
@@ -103398,6 +104206,86 @@ loop:
 	ADDQ    $0x40, R8
 	VMOVDQU Y9, (AX)
 	VMOVDQU Y10, 32(AX)
+	ADDQ    $0x40, AX
+	SUBQ    $0x40, DX
+	JA      loop
+	VZEROUPPER
+	RET
+
+// func fftDIT48_dst_avx2_3(dst [][]byte, work [][]byte, dist int, t01 *[32]uint8, t23 *[32]uint8, t02 *[32]uint8)
+// Requires: AVX, AVX2, AVX512F, AVX512VL, SSE2
+TEXT ·fftDIT48_dst_avx2_3(SB), NOSPLIT, $0-80
+	MOVQ           t23+64(FP), AX
+	VBROADCASTI128 (AX), Y0
+	VBROADCASTI128 16(AX), Y1
+	MOVQ           dist+48(FP), AX
+	MOVQ           work_base+24(FP), CX
+	MOVQ           8(CX), DX
+	MOVQ           dst_base+0(FP), BX
+	XORQ           SI, SI
+	MOVQ           (CX)(SI*1), DI
+	MOVQ           (BX)(SI*1), R8
+	ADDQ           AX, SI
+	MOVQ           (CX)(SI*1), R9
+	MOVQ           (BX)(SI*1), R10
+	ADDQ           AX, SI
+	MOVQ           (CX)(SI*1), R11
+	MOVQ           (BX)(SI*1), R12
+	ADDQ           AX, SI
+	MOVQ           (CX)(SI*1), AX
+	MOVQ           (BX)(SI*1), CX
+	MOVQ           $0x0000000f, BX
+	MOVQ           BX, X2
+	VPBROADCASTB   X2, Y2
+
+loop:
+	VMOVDQU (DI), Y3
+	VMOVDQU 32(DI), Y4
+	VMOVDQU (R11), Y7
+	VMOVDQU 32(R11), Y8
+	VMOVDQU (R9), Y5
+	VMOVDQU 32(R9), Y6
+	VMOVDQU (AX), Y9
+	VMOVDQU 32(AX), Y10
+	VPXOR   Y3, Y7, Y7
+	VPXOR   Y5, Y9, Y9
+	VPXOR   Y4, Y8, Y8
+	VPXOR   Y6, Y10, Y10
+	VPXOR   Y5, Y3, Y5
+	VPXOR   Y6, Y4, Y6
+
+	// LEO_MULADD_256
+	VPAND   Y9, Y2, Y11
+	VPSRLQ  $0x04, Y9, Y12
+	VPSHUFB Y11, Y0, Y11
+	VPAND   Y12, Y2, Y12
+	VPSHUFB Y12, Y1, Y12
+	XOR3WAY( $0x00, Y11, Y12, Y7)
+
+	// LEO_MULADD_256
+	VPAND   Y10, Y2, Y11
+	VPSRLQ  $0x04, Y10, Y12
+	VPSHUFB Y11, Y0, Y11
+	VPAND   Y12, Y2, Y12
+	VPSHUFB Y12, Y1, Y12
+	XOR3WAY( $0x00, Y11, Y12, Y8)
+	VPXOR   Y7, Y9, Y9
+	VPXOR   Y8, Y10, Y10
+	VMOVDQU Y3, (R8)
+	VMOVDQU Y4, 32(R8)
+	ADDQ    $0x40, R8
+	ADDQ    $0x40, DI
+	VMOVDQU Y5, (R10)
+	VMOVDQU Y6, 32(R10)
+	ADDQ    $0x40, R10
+	ADDQ    $0x40, R9
+	VMOVDQU Y7, (R12)
+	VMOVDQU Y8, 32(R12)
+	ADDQ    $0x40, R12
+	ADDQ    $0x40, R11
+	VMOVDQU Y9, (CX)
+	VMOVDQU Y10, 32(CX)
+	ADDQ    $0x40, CX
 	ADDQ    $0x40, AX
 	SUBQ    $0x40, DX
 	JA      loop
@@ -103490,6 +104378,105 @@ loop:
 	VMOVDQU Y12, 32(AX)
 	ADDQ    $0x40, AX
 	SUBQ    $0x40, DX
+	JA      loop
+	VZEROUPPER
+	RET
+
+// func ifftDIT48_dst_avx2_4(dst [][]byte, work [][]byte, dist int, t01 *[32]uint8, t23 *[32]uint8, t02 *[32]uint8)
+// Requires: AVX, AVX2, AVX512F, AVX512VL, SSE2
+TEXT ·ifftDIT48_dst_avx2_4(SB), NOSPLIT, $0-80
+	MOVQ           t01+56(FP), AX
+	VBROADCASTI128 (AX), Y0
+	VBROADCASTI128 16(AX), Y1
+	MOVQ           t23+64(FP), AX
+	VBROADCASTI128 (AX), Y2
+	VBROADCASTI128 16(AX), Y3
+	MOVQ           dist+48(FP), AX
+	MOVQ           work_base+24(FP), CX
+	MOVQ           dst_base+0(FP), DX
+	MOVQ           8(CX), BX
+	XORQ           SI, SI
+	MOVQ           (CX)(SI*1), DI
+	MOVQ           (DX)(SI*1), R8
+	ADDQ           AX, SI
+	MOVQ           (CX)(SI*1), R9
+	MOVQ           (DX)(SI*1), R10
+	ADDQ           AX, SI
+	MOVQ           (CX)(SI*1), R11
+	MOVQ           (DX)(SI*1), R12
+	ADDQ           AX, SI
+	MOVQ           (CX)(SI*1), AX
+	MOVQ           (DX)(SI*1), CX
+	MOVQ           $0x0000000f, DX
+	MOVQ           DX, X4
+	VPBROADCASTB   X4, Y4
+
+loop:
+	VMOVDQU (DI), Y5
+	VMOVDQU (R9), Y6
+	VMOVDQU 32(DI), Y7
+	VMOVDQU 32(R9), Y8
+	VPXOR   Y6, Y5, Y6
+	VPXOR   Y8, Y7, Y8
+
+	// LEO_MULADD_256
+	VPAND   Y6, Y4, Y9
+	VPSRLQ  $0x04, Y6, Y10
+	VPSHUFB Y9, Y0, Y9
+	VPAND   Y10, Y4, Y10
+	VPSHUFB Y10, Y1, Y10
+	XOR3WAY( $0x00, Y9, Y10, Y5)
+
+	// LEO_MULADD_256
+	VPAND   Y8, Y4, Y9
+	VPSRLQ  $0x04, Y8, Y10
+	VPSHUFB Y9, Y0, Y9
+	VPAND   Y10, Y4, Y10
+	VPSHUFB Y10, Y1, Y10
+	XOR3WAY( $0x00, Y9, Y10, Y7)
+	VMOVDQU (R11), Y9
+	VMOVDQU (AX), Y10
+	VMOVDQU 32(R11), Y11
+	VMOVDQU 32(AX), Y12
+	VPXOR   Y9, Y10, Y10
+	VPXOR   Y11, Y12, Y12
+
+	// LEO_MULADD_256
+	VPAND   Y10, Y4, Y13
+	VPSRLQ  $0x04, Y10, Y14
+	VPSHUFB Y13, Y2, Y13
+	VPAND   Y14, Y4, Y14
+	VPSHUFB Y14, Y3, Y14
+	XOR3WAY( $0x00, Y13, Y14, Y9)
+
+	// LEO_MULADD_256
+	VPAND   Y12, Y4, Y13
+	VPSRLQ  $0x04, Y12, Y14
+	VPSHUFB Y13, Y2, Y13
+	VPAND   Y14, Y4, Y14
+	VPSHUFB Y14, Y3, Y14
+	XOR3WAY( $0x00, Y13, Y14, Y11)
+	VPXOR   Y5, Y9, Y9
+	VPXOR   Y6, Y10, Y10
+	VPXOR   Y7, Y11, Y11
+	VPXOR   Y8, Y12, Y12
+	VMOVDQU Y5, (R8)
+	VMOVDQU Y7, 32(R8)
+	ADDQ    $0x40, R8
+	ADDQ    $0x40, DI
+	VMOVDQU Y6, (R10)
+	VMOVDQU Y8, 32(R10)
+	ADDQ    $0x40, R10
+	ADDQ    $0x40, R9
+	VMOVDQU Y9, (R12)
+	VMOVDQU Y11, 32(R12)
+	ADDQ    $0x40, R12
+	ADDQ    $0x40, R11
+	VMOVDQU Y10, (CX)
+	VMOVDQU Y12, 32(CX)
+	ADDQ    $0x40, CX
+	ADDQ    $0x40, AX
+	SUBQ    $0x40, BX
 	JA      loop
 	VZEROUPPER
 	RET
@@ -103600,6 +104587,121 @@ loop:
 	VZEROUPPER
 	RET
 
+// func fftDIT48_dst_avx2_4(dst [][]byte, work [][]byte, dist int, t01 *[32]uint8, t23 *[32]uint8, t02 *[32]uint8)
+// Requires: AVX, AVX2, AVX512F, AVX512VL, SSE2
+TEXT ·fftDIT48_dst_avx2_4(SB), NOSPLIT, $0-80
+	MOVQ           t01+56(FP), AX
+	VBROADCASTI128 (AX), Y0
+	VBROADCASTI128 16(AX), Y1
+	MOVQ           t02+72(FP), AX
+	VBROADCASTI128 (AX), Y2
+	VBROADCASTI128 16(AX), Y3
+	MOVQ           dist+48(FP), AX
+	MOVQ           work_base+24(FP), CX
+	MOVQ           8(CX), DX
+	MOVQ           dst_base+0(FP), BX
+	XORQ           SI, SI
+	MOVQ           (CX)(SI*1), DI
+	MOVQ           (BX)(SI*1), R8
+	ADDQ           AX, SI
+	MOVQ           (CX)(SI*1), R9
+	MOVQ           (BX)(SI*1), R10
+	ADDQ           AX, SI
+	MOVQ           (CX)(SI*1), R11
+	MOVQ           (BX)(SI*1), R12
+	ADDQ           AX, SI
+	MOVQ           (CX)(SI*1), AX
+	MOVQ           (BX)(SI*1), CX
+	MOVQ           $0x0000000f, BX
+	MOVQ           BX, X4
+	VPBROADCASTB   X4, Y4
+
+loop:
+	VMOVDQU (DI), Y5
+	VMOVDQU 32(DI), Y6
+	VMOVDQU (R11), Y9
+	VMOVDQU 32(R11), Y10
+	VMOVDQU (R9), Y7
+	VMOVDQU 32(R9), Y8
+	VMOVDQU (AX), Y11
+	VMOVDQU 32(AX), Y12
+
+	// LEO_MULADD_256
+	VPAND   Y9, Y4, Y13
+	VPSRLQ  $0x04, Y9, Y14
+	VPSHUFB Y13, Y2, Y13
+	VPAND   Y14, Y4, Y14
+	VPSHUFB Y14, Y3, Y14
+	XOR3WAY( $0x00, Y13, Y14, Y5)
+
+	// LEO_MULADD_256
+	VPAND   Y10, Y4, Y13
+	VPSRLQ  $0x04, Y10, Y14
+	VPSHUFB Y13, Y2, Y13
+	VPAND   Y14, Y4, Y14
+	VPSHUFB Y14, Y3, Y14
+	XOR3WAY( $0x00, Y13, Y14, Y6)
+
+	// LEO_MULADD_256
+	VPAND   Y11, Y4, Y13
+	VPSRLQ  $0x04, Y11, Y14
+	VPSHUFB Y13, Y2, Y13
+	VPAND   Y14, Y4, Y14
+	VPSHUFB Y14, Y3, Y14
+	XOR3WAY( $0x00, Y13, Y14, Y7)
+
+	// LEO_MULADD_256
+	VPAND   Y12, Y4, Y13
+	VPSRLQ  $0x04, Y12, Y14
+	VPSHUFB Y13, Y2, Y13
+	VPAND   Y14, Y4, Y14
+	VPSHUFB Y14, Y3, Y14
+	XOR3WAY( $0x00, Y13, Y14, Y8)
+	VPXOR   Y5, Y9, Y9
+	VPXOR   Y7, Y11, Y11
+	VPXOR   Y6, Y10, Y10
+	VPXOR   Y8, Y12, Y12
+
+	// LEO_MULADD_256
+	VPAND   Y7, Y4, Y13
+	VPSRLQ  $0x04, Y7, Y14
+	VPSHUFB Y13, Y0, Y13
+	VPAND   Y14, Y4, Y14
+	VPSHUFB Y14, Y1, Y14
+	XOR3WAY( $0x00, Y13, Y14, Y5)
+
+	// LEO_MULADD_256
+	VPAND   Y8, Y4, Y13
+	VPSRLQ  $0x04, Y8, Y14
+	VPSHUFB Y13, Y0, Y13
+	VPAND   Y14, Y4, Y14
+	VPSHUFB Y14, Y1, Y14
+	XOR3WAY( $0x00, Y13, Y14, Y6)
+	VPXOR   Y7, Y5, Y7
+	VPXOR   Y8, Y6, Y8
+	VPXOR   Y9, Y11, Y11
+	VPXOR   Y10, Y12, Y12
+	VMOVDQU Y5, (R8)
+	VMOVDQU Y6, 32(R8)
+	ADDQ    $0x40, R8
+	ADDQ    $0x40, DI
+	VMOVDQU Y7, (R10)
+	VMOVDQU Y8, 32(R10)
+	ADDQ    $0x40, R10
+	ADDQ    $0x40, R9
+	VMOVDQU Y9, (R12)
+	VMOVDQU Y10, 32(R12)
+	ADDQ    $0x40, R12
+	ADDQ    $0x40, R11
+	VMOVDQU Y11, (CX)
+	VMOVDQU Y12, 32(CX)
+	ADDQ    $0x40, CX
+	ADDQ    $0x40, AX
+	SUBQ    $0x40, DX
+	JA      loop
+	VZEROUPPER
+	RET
+
 // func ifftDIT48_avx2_5(work [][]byte, dist int, t01 *[32]uint8, t23 *[32]uint8, t02 *[32]uint8)
 // Requires: AVX, AVX2, AVX512F, AVX512VL, SSE2
 TEXT ·ifftDIT48_avx2_5(SB), NOSPLIT, $0-56
@@ -103667,6 +104769,86 @@ loop:
 	VMOVDQU Y10, 32(AX)
 	ADDQ    $0x40, AX
 	SUBQ    $0x40, DX
+	JA      loop
+	VZEROUPPER
+	RET
+
+// func ifftDIT48_dst_avx2_5(dst [][]byte, work [][]byte, dist int, t01 *[32]uint8, t23 *[32]uint8, t02 *[32]uint8)
+// Requires: AVX, AVX2, AVX512F, AVX512VL, SSE2
+TEXT ·ifftDIT48_dst_avx2_5(SB), NOSPLIT, $0-80
+	MOVQ           t23+64(FP), AX
+	VBROADCASTI128 (AX), Y0
+	VBROADCASTI128 16(AX), Y1
+	MOVQ           dist+48(FP), AX
+	MOVQ           work_base+24(FP), CX
+	MOVQ           dst_base+0(FP), DX
+	MOVQ           8(CX), BX
+	XORQ           SI, SI
+	MOVQ           (CX)(SI*1), DI
+	MOVQ           (DX)(SI*1), R8
+	ADDQ           AX, SI
+	MOVQ           (CX)(SI*1), R9
+	MOVQ           (DX)(SI*1), R10
+	ADDQ           AX, SI
+	MOVQ           (CX)(SI*1), R11
+	MOVQ           (DX)(SI*1), R12
+	ADDQ           AX, SI
+	MOVQ           (CX)(SI*1), AX
+	MOVQ           (DX)(SI*1), CX
+	MOVQ           $0x0000000f, DX
+	MOVQ           DX, X2
+	VPBROADCASTB   X2, Y2
+
+loop:
+	VMOVDQU (DI), Y3
+	VMOVDQU (R9), Y4
+	VMOVDQU 32(DI), Y5
+	VMOVDQU 32(R9), Y6
+	VPXOR   Y4, Y3, Y4
+	VPXOR   Y6, Y5, Y6
+	VMOVDQU (R11), Y7
+	VMOVDQU (AX), Y8
+	VMOVDQU 32(R11), Y9
+	VMOVDQU 32(AX), Y10
+	VPXOR   Y7, Y8, Y8
+	VPXOR   Y9, Y10, Y10
+
+	// LEO_MULADD_256
+	VPAND   Y8, Y2, Y11
+	VPSRLQ  $0x04, Y8, Y12
+	VPSHUFB Y11, Y0, Y11
+	VPAND   Y12, Y2, Y12
+	VPSHUFB Y12, Y1, Y12
+	XOR3WAY( $0x00, Y11, Y12, Y7)
+
+	// LEO_MULADD_256
+	VPAND   Y10, Y2, Y11
+	VPSRLQ  $0x04, Y10, Y12
+	VPSHUFB Y11, Y0, Y11
+	VPAND   Y12, Y2, Y12
+	VPSHUFB Y12, Y1, Y12
+	XOR3WAY( $0x00, Y11, Y12, Y9)
+	VPXOR   Y3, Y7, Y7
+	VPXOR   Y4, Y8, Y8
+	VPXOR   Y5, Y9, Y9
+	VPXOR   Y6, Y10, Y10
+	VMOVDQU Y3, (R8)
+	VMOVDQU Y5, 32(R8)
+	ADDQ    $0x40, R8
+	ADDQ    $0x40, DI
+	VMOVDQU Y4, (R10)
+	VMOVDQU Y6, 32(R10)
+	ADDQ    $0x40, R10
+	ADDQ    $0x40, R9
+	VMOVDQU Y7, (R12)
+	VMOVDQU Y9, 32(R12)
+	ADDQ    $0x40, R12
+	ADDQ    $0x40, R11
+	VMOVDQU Y8, (CX)
+	VMOVDQU Y10, 32(CX)
+	ADDQ    $0x40, CX
+	ADDQ    $0x40, AX
+	SUBQ    $0x40, BX
 	JA      loop
 	VZEROUPPER
 	RET
@@ -103742,6 +104924,86 @@ loop:
 	VZEROUPPER
 	RET
 
+// func fftDIT48_dst_avx2_5(dst [][]byte, work [][]byte, dist int, t01 *[32]uint8, t23 *[32]uint8, t02 *[32]uint8)
+// Requires: AVX, AVX2, AVX512F, AVX512VL, SSE2
+TEXT ·fftDIT48_dst_avx2_5(SB), NOSPLIT, $0-80
+	MOVQ           t01+56(FP), AX
+	VBROADCASTI128 (AX), Y0
+	VBROADCASTI128 16(AX), Y1
+	MOVQ           dist+48(FP), AX
+	MOVQ           work_base+24(FP), CX
+	MOVQ           8(CX), DX
+	MOVQ           dst_base+0(FP), BX
+	XORQ           SI, SI
+	MOVQ           (CX)(SI*1), DI
+	MOVQ           (BX)(SI*1), R8
+	ADDQ           AX, SI
+	MOVQ           (CX)(SI*1), R9
+	MOVQ           (BX)(SI*1), R10
+	ADDQ           AX, SI
+	MOVQ           (CX)(SI*1), R11
+	MOVQ           (BX)(SI*1), R12
+	ADDQ           AX, SI
+	MOVQ           (CX)(SI*1), AX
+	MOVQ           (BX)(SI*1), CX
+	MOVQ           $0x0000000f, BX
+	MOVQ           BX, X2
+	VPBROADCASTB   X2, Y2
+
+loop:
+	VMOVDQU (DI), Y3
+	VMOVDQU 32(DI), Y4
+	VMOVDQU (R11), Y7
+	VMOVDQU 32(R11), Y8
+	VMOVDQU (R9), Y5
+	VMOVDQU 32(R9), Y6
+	VMOVDQU (AX), Y9
+	VMOVDQU 32(AX), Y10
+	VPXOR   Y3, Y7, Y7
+	VPXOR   Y5, Y9, Y9
+	VPXOR   Y4, Y8, Y8
+	VPXOR   Y6, Y10, Y10
+
+	// LEO_MULADD_256
+	VPAND   Y5, Y2, Y11
+	VPSRLQ  $0x04, Y5, Y12
+	VPSHUFB Y11, Y0, Y11
+	VPAND   Y12, Y2, Y12
+	VPSHUFB Y12, Y1, Y12
+	XOR3WAY( $0x00, Y11, Y12, Y3)
+
+	// LEO_MULADD_256
+	VPAND   Y6, Y2, Y11
+	VPSRLQ  $0x04, Y6, Y12
+	VPSHUFB Y11, Y0, Y11
+	VPAND   Y12, Y2, Y12
+	VPSHUFB Y12, Y1, Y12
+	XOR3WAY( $0x00, Y11, Y12, Y4)
+	VPXOR   Y5, Y3, Y5
+	VPXOR   Y6, Y4, Y6
+	VPXOR   Y7, Y9, Y9
+	VPXOR   Y8, Y10, Y10
+	VMOVDQU Y3, (R8)
+	VMOVDQU Y4, 32(R8)
+	ADDQ    $0x40, R8
+	ADDQ    $0x40, DI
+	VMOVDQU Y5, (R10)
+	VMOVDQU Y6, 32(R10)
+	ADDQ    $0x40, R10
+	ADDQ    $0x40, R9
+	VMOVDQU Y7, (R12)
+	VMOVDQU Y8, 32(R12)
+	ADDQ    $0x40, R12
+	ADDQ    $0x40, R11
+	VMOVDQU Y9, (CX)
+	VMOVDQU Y10, 32(CX)
+	ADDQ    $0x40, CX
+	ADDQ    $0x40, AX
+	SUBQ    $0x40, DX
+	JA      loop
+	VZEROUPPER
+	RET
+
 // func ifftDIT48_avx2_6(work [][]byte, dist int, t01 *[32]uint8, t23 *[32]uint8, t02 *[32]uint8)
 // Requires: AVX, AVX2, AVX512F, AVX512VL, SSE2
 TEXT ·ifftDIT48_avx2_6(SB), NOSPLIT, $0-56
@@ -103809,6 +105071,86 @@ loop:
 	VMOVDQU Y10, 32(AX)
 	ADDQ    $0x40, AX
 	SUBQ    $0x40, DX
+	JA      loop
+	VZEROUPPER
+	RET
+
+// func ifftDIT48_dst_avx2_6(dst [][]byte, work [][]byte, dist int, t01 *[32]uint8, t23 *[32]uint8, t02 *[32]uint8)
+// Requires: AVX, AVX2, AVX512F, AVX512VL, SSE2
+TEXT ·ifftDIT48_dst_avx2_6(SB), NOSPLIT, $0-80
+	MOVQ           t01+56(FP), AX
+	VBROADCASTI128 (AX), Y0
+	VBROADCASTI128 16(AX), Y1
+	MOVQ           dist+48(FP), AX
+	MOVQ           work_base+24(FP), CX
+	MOVQ           dst_base+0(FP), DX
+	MOVQ           8(CX), BX
+	XORQ           SI, SI
+	MOVQ           (CX)(SI*1), DI
+	MOVQ           (DX)(SI*1), R8
+	ADDQ           AX, SI
+	MOVQ           (CX)(SI*1), R9
+	MOVQ           (DX)(SI*1), R10
+	ADDQ           AX, SI
+	MOVQ           (CX)(SI*1), R11
+	MOVQ           (DX)(SI*1), R12
+	ADDQ           AX, SI
+	MOVQ           (CX)(SI*1), AX
+	MOVQ           (DX)(SI*1), CX
+	MOVQ           $0x0000000f, DX
+	MOVQ           DX, X2
+	VPBROADCASTB   X2, Y2
+
+loop:
+	VMOVDQU (DI), Y3
+	VMOVDQU (R9), Y4
+	VMOVDQU 32(DI), Y5
+	VMOVDQU 32(R9), Y6
+	VPXOR   Y4, Y3, Y4
+	VPXOR   Y6, Y5, Y6
+
+	// LEO_MULADD_256
+	VPAND   Y4, Y2, Y7
+	VPSRLQ  $0x04, Y4, Y8
+	VPSHUFB Y7, Y0, Y7
+	VPAND   Y8, Y2, Y8
+	VPSHUFB Y8, Y1, Y8
+	XOR3WAY( $0x00, Y7, Y8, Y3)
+
+	// LEO_MULADD_256
+	VPAND   Y6, Y2, Y7
+	VPSRLQ  $0x04, Y6, Y8
+	VPSHUFB Y7, Y0, Y7
+	VPAND   Y8, Y2, Y8
+	VPSHUFB Y8, Y1, Y8
+	XOR3WAY( $0x00, Y7, Y8, Y5)
+	VMOVDQU (R11), Y7
+	VMOVDQU (AX), Y8
+	VMOVDQU 32(R11), Y9
+	VMOVDQU 32(AX), Y10
+	VPXOR   Y7, Y8, Y8
+	VPXOR   Y9, Y10, Y10
+	VPXOR   Y3, Y7, Y7
+	VPXOR   Y4, Y8, Y8
+	VPXOR   Y5, Y9, Y9
+	VPXOR   Y6, Y10, Y10
+	VMOVDQU Y3, (R8)
+	VMOVDQU Y5, 32(R8)
+	ADDQ    $0x40, R8
+	ADDQ    $0x40, DI
+	VMOVDQU Y4, (R10)
+	VMOVDQU Y6, 32(R10)
+	ADDQ    $0x40, R10
+	ADDQ    $0x40, R9
+	VMOVDQU Y7, (R12)
+	VMOVDQU Y9, 32(R12)
+	ADDQ    $0x40, R12
+	ADDQ    $0x40, R11
+	VMOVDQU Y8, (CX)
+	VMOVDQU Y10, 32(CX)
+	ADDQ    $0x40, CX
+	ADDQ    $0x40, AX
+	SUBQ    $0x40, BX
 	JA      loop
 	VZEROUPPER
 	RET
@@ -103900,6 +105242,102 @@ loop:
 	VZEROUPPER
 	RET
 
+// func fftDIT48_dst_avx2_6(dst [][]byte, work [][]byte, dist int, t01 *[32]uint8, t23 *[32]uint8, t02 *[32]uint8)
+// Requires: AVX, AVX2, AVX512F, AVX512VL, SSE2
+TEXT ·fftDIT48_dst_avx2_6(SB), NOSPLIT, $0-80
+	MOVQ           t02+72(FP), AX
+	VBROADCASTI128 (AX), Y0
+	VBROADCASTI128 16(AX), Y1
+	MOVQ           dist+48(FP), AX
+	MOVQ           work_base+24(FP), CX
+	MOVQ           8(CX), DX
+	MOVQ           dst_base+0(FP), BX
+	XORQ           SI, SI
+	MOVQ           (CX)(SI*1), DI
+	MOVQ           (BX)(SI*1), R8
+	ADDQ           AX, SI
+	MOVQ           (CX)(SI*1), R9
+	MOVQ           (BX)(SI*1), R10
+	ADDQ           AX, SI
+	MOVQ           (CX)(SI*1), R11
+	MOVQ           (BX)(SI*1), R12
+	ADDQ           AX, SI
+	MOVQ           (CX)(SI*1), AX
+	MOVQ           (BX)(SI*1), CX
+	MOVQ           $0x0000000f, BX
+	MOVQ           BX, X2
+	VPBROADCASTB   X2, Y2
+
+loop:
+	VMOVDQU (DI), Y3
+	VMOVDQU 32(DI), Y4
+	VMOVDQU (R11), Y7
+	VMOVDQU 32(R11), Y8
+	VMOVDQU (R9), Y5
+	VMOVDQU 32(R9), Y6
+	VMOVDQU (AX), Y9
+	VMOVDQU 32(AX), Y10
+
+	// LEO_MULADD_256
+	VPAND   Y7, Y2, Y11
+	VPSRLQ  $0x04, Y7, Y12
+	VPSHUFB Y11, Y0, Y11
+	VPAND   Y12, Y2, Y12
+	VPSHUFB Y12, Y1, Y12
+	XOR3WAY( $0x00, Y11, Y12, Y3)
+
+	// LEO_MULADD_256
+	VPAND   Y8, Y2, Y11
+	VPSRLQ  $0x04, Y8, Y12
+	VPSHUFB Y11, Y0, Y11
+	VPAND   Y12, Y2, Y12
+	VPSHUFB Y12, Y1, Y12
+	XOR3WAY( $0x00, Y11, Y12, Y4)
+
+	// LEO_MULADD_256
+	VPAND   Y9, Y2, Y11
+	VPSRLQ  $0x04, Y9, Y12
+	VPSHUFB Y11, Y0, Y11
+	VPAND   Y12, Y2, Y12
+	VPSHUFB Y12, Y1, Y12
+	XOR3WAY( $0x00, Y11, Y12, Y5)
+
+	// LEO_MULADD_256
+	VPAND   Y10, Y2, Y11
+	VPSRLQ  $0x04, Y10, Y12
+	VPSHUFB Y11, Y0, Y11
+	VPAND   Y12, Y2, Y12
+	VPSHUFB Y12, Y1, Y12
+	XOR3WAY( $0x00, Y11, Y12, Y6)
+	VPXOR   Y3, Y7, Y7
+	VPXOR   Y5, Y9, Y9
+	VPXOR   Y4, Y8, Y8
+	VPXOR   Y6, Y10, Y10
+	VPXOR   Y5, Y3, Y5
+	VPXOR   Y6, Y4, Y6
+	VPXOR   Y7, Y9, Y9
+	VPXOR   Y8, Y10, Y10
+	VMOVDQU Y3, (R8)
+	VMOVDQU Y4, 32(R8)
+	ADDQ    $0x40, R8
+	ADDQ    $0x40, DI
+	VMOVDQU Y5, (R10)
+	VMOVDQU Y6, 32(R10)
+	ADDQ    $0x40, R10
+	ADDQ    $0x40, R9
+	VMOVDQU Y7, (R12)
+	VMOVDQU Y8, 32(R12)
+	ADDQ    $0x40, R12
+	ADDQ    $0x40, R11
+	VMOVDQU Y9, (CX)
+	VMOVDQU Y10, 32(CX)
+	ADDQ    $0x40, CX
+	ADDQ    $0x40, AX
+	SUBQ    $0x40, DX
+	JA      loop
+	VZEROUPPER
+	RET
+
 // func ifftDIT48_avx2_7(work [][]byte, dist int, t01 *[32]uint8, t23 *[32]uint8, t02 *[32]uint8)
 // Requires: AVX, AVX2, SSE2
 TEXT ·ifftDIT48_avx2_7(SB), NOSPLIT, $0-56
@@ -103952,6 +105390,67 @@ loop:
 	VZEROUPPER
 	RET
 
+// func ifftDIT48_dst_avx2_7(dst [][]byte, work [][]byte, dist int, t01 *[32]uint8, t23 *[32]uint8, t02 *[32]uint8)
+// Requires: AVX, AVX2, SSE2
+TEXT ·ifftDIT48_dst_avx2_7(SB), NOSPLIT, $0-80
+	MOVQ         dist+48(FP), AX
+	MOVQ         work_base+24(FP), CX
+	MOVQ         dst_base+0(FP), DX
+	MOVQ         8(CX), BX
+	XORQ         SI, SI
+	MOVQ         (CX)(SI*1), DI
+	MOVQ         (DX)(SI*1), R8
+	ADDQ         AX, SI
+	MOVQ         (CX)(SI*1), R9
+	MOVQ         (DX)(SI*1), R10
+	ADDQ         AX, SI
+	MOVQ         (CX)(SI*1), R11
+	MOVQ         (DX)(SI*1), R12
+	ADDQ         AX, SI
+	MOVQ         (CX)(SI*1), AX
+	MOVQ         (DX)(SI*1), CX
+	MOVQ         $0x0000000f, DX
+	MOVQ         DX, X0
+	VPBROADCASTB X0, Y0
+
+loop:
+	VMOVDQU (DI), Y0
+	VMOVDQU (R9), Y1
+	VMOVDQU 32(DI), Y2
+	VMOVDQU 32(R9), Y3
+	VPXOR   Y1, Y0, Y1
+	VPXOR   Y3, Y2, Y3
+	VMOVDQU (R11), Y4
+	VMOVDQU (AX), Y5
+	VMOVDQU 32(R11), Y6
+	VMOVDQU 32(AX), Y7
+	VPXOR   Y4, Y5, Y5
+	VPXOR   Y6, Y7, Y7
+	VPXOR   Y0, Y4, Y4
+	VPXOR   Y1, Y5, Y5
+	VPXOR   Y2, Y6, Y6
+	VPXOR   Y3, Y7, Y7
+	VMOVDQU Y0, (R8)
+	VMOVDQU Y2, 32(R8)
+	ADDQ    $0x40, R8
+	ADDQ    $0x40, DI
+	VMOVDQU Y1, (R10)
+	VMOVDQU Y3, 32(R10)
+	ADDQ    $0x40, R10
+	ADDQ    $0x40, R9
+	VMOVDQU Y4, (R12)
+	VMOVDQU Y6, 32(R12)
+	ADDQ    $0x40, R12
+	ADDQ    $0x40, R11
+	VMOVDQU Y5, (CX)
+	VMOVDQU Y7, 32(CX)
+	ADDQ    $0x40, CX
+	ADDQ    $0x40, AX
+	SUBQ    $0x40, BX
+	JA      loop
+	VZEROUPPER
+	RET
+
 // func fftDIT48_avx2_7(work [][]byte, dist int, t01 *[32]uint8, t23 *[32]uint8, t02 *[32]uint8)
 // Requires: AVX, AVX2, SSE2
 TEXT ·fftDIT48_avx2_7(SB), NOSPLIT, $0-56
@@ -103998,6 +105497,67 @@ loop:
 	ADDQ    $0x40, R8
 	VMOVDQU Y6, (AX)
 	VMOVDQU Y7, 32(AX)
+	ADDQ    $0x40, AX
+	SUBQ    $0x40, DX
+	JA      loop
+	VZEROUPPER
+	RET
+
+// func fftDIT48_dst_avx2_7(dst [][]byte, work [][]byte, dist int, t01 *[32]uint8, t23 *[32]uint8, t02 *[32]uint8)
+// Requires: AVX, AVX2, SSE2
+TEXT ·fftDIT48_dst_avx2_7(SB), NOSPLIT, $0-80
+	MOVQ         dist+48(FP), AX
+	MOVQ         work_base+24(FP), CX
+	MOVQ         8(CX), DX
+	MOVQ         dst_base+0(FP), BX
+	XORQ         SI, SI
+	MOVQ         (CX)(SI*1), DI
+	MOVQ         (BX)(SI*1), R8
+	ADDQ         AX, SI
+	MOVQ         (CX)(SI*1), R9
+	MOVQ         (BX)(SI*1), R10
+	ADDQ         AX, SI
+	MOVQ         (CX)(SI*1), R11
+	MOVQ         (BX)(SI*1), R12
+	ADDQ         AX, SI
+	MOVQ         (CX)(SI*1), AX
+	MOVQ         (BX)(SI*1), CX
+	MOVQ         $0x0000000f, BX
+	MOVQ         BX, X0
+	VPBROADCASTB X0, Y0
+
+loop:
+	VMOVDQU (DI), Y0
+	VMOVDQU 32(DI), Y1
+	VMOVDQU (R11), Y4
+	VMOVDQU 32(R11), Y5
+	VMOVDQU (R9), Y2
+	VMOVDQU 32(R9), Y3
+	VMOVDQU (AX), Y6
+	VMOVDQU 32(AX), Y7
+	VPXOR   Y0, Y4, Y4
+	VPXOR   Y2, Y6, Y6
+	VPXOR   Y1, Y5, Y5
+	VPXOR   Y3, Y7, Y7
+	VPXOR   Y2, Y0, Y2
+	VPXOR   Y3, Y1, Y3
+	VPXOR   Y4, Y6, Y6
+	VPXOR   Y5, Y7, Y7
+	VMOVDQU Y0, (R8)
+	VMOVDQU Y1, 32(R8)
+	ADDQ    $0x40, R8
+	ADDQ    $0x40, DI
+	VMOVDQU Y2, (R10)
+	VMOVDQU Y3, 32(R10)
+	ADDQ    $0x40, R10
+	ADDQ    $0x40, R9
+	VMOVDQU Y4, (R12)
+	VMOVDQU Y5, 32(R12)
+	ADDQ    $0x40, R12
+	ADDQ    $0x40, R11
+	VMOVDQU Y6, (CX)
+	VMOVDQU Y7, 32(CX)
+	ADDQ    $0x40, CX
 	ADDQ    $0x40, AX
 	SUBQ    $0x40, DX
 	JA      loop
@@ -104059,6 +105619,70 @@ loop:
 	VZEROUPPER
 	RET
 
+// func ifftDIT48_dst_gfni_0(dst [][]byte, work [][]byte, dist int, t01 uint64, t23 uint64, t02 uint64)
+// Requires: AVX, AVX512DQ, AVX512F
+TEXT ·ifftDIT48_dst_gfni_0(SB), NOSPLIT, $0-80
+	VBROADCASTF32X2 t01+56(FP), Z0
+	VBROADCASTF32X2 t23+64(FP), Z1
+	VBROADCASTF32X2 t02+72(FP), Z2
+	MOVQ            dist+48(FP), AX
+	MOVQ            work_base+24(FP), CX
+	MOVQ            dst_base+0(FP), DX
+	MOVQ            8(CX), BX
+	XORQ            SI, SI
+	MOVQ            (CX)(SI*1), DI
+	MOVQ            (DX)(SI*1), R8
+	ADDQ            AX, SI
+	MOVQ            (CX)(SI*1), R9
+	MOVQ            (DX)(SI*1), R10
+	ADDQ            AX, SI
+	MOVQ            (CX)(SI*1), R11
+	MOVQ            (DX)(SI*1), R12
+	ADDQ            AX, SI
+	MOVQ            (CX)(SI*1), AX
+	MOVQ            (DX)(SI*1), CX
+
+loop:
+	VMOVDQU64 (DI), Z3
+	VMOVDQU64 (R9), Z4
+	VMOVDQU64 (R11), Z5
+	VMOVDQU64 (AX), Z6
+	VXORPD    Z4, Z3, Z4
+
+	// LEO_MULADD_512
+	VGF2P8AFFINEQB $0x00, Z0, Z4, Z7
+	VXORPD         Z3, Z7, Z3
+	VXORPD         Z5, Z6, Z6
+
+	// LEO_MULADD_512
+	VGF2P8AFFINEQB $0x00, Z1, Z6, Z7
+	VPTERNLOGD     $0x96, Z7, Z3, Z5
+	VXORPD         Z4, Z6, Z6
+
+	// LEO_MULADD_512
+	VGF2P8AFFINEQB $0x00, Z2, Z5, Z7
+	VXORPD         Z3, Z7, Z3
+
+	// LEO_MULADD_512
+	VGF2P8AFFINEQB $0x00, Z2, Z6, Z7
+	VXORPD         Z4, Z7, Z4
+	VMOVDQU64      Z3, (R8)
+	ADDQ           $0x40, R8
+	ADDQ           $0x40, DI
+	VMOVDQU64      Z4, (R10)
+	ADDQ           $0x40, R10
+	ADDQ           $0x40, R9
+	VMOVDQU64      Z5, (R12)
+	ADDQ           $0x40, R12
+	ADDQ           $0x40, R11
+	VMOVDQU64      Z6, (CX)
+	ADDQ           $0x40, CX
+	ADDQ           $0x40, AX
+	SUBQ           $0x40, BX
+	JA             loop
+	VZEROUPPER
+	RET
+
 // func fftDIT48_gfni_0(work [][]byte, dist int, t01 uint64, t23 uint64, t02 uint64)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·fftDIT48_gfni_0(SB), NOSPLIT, $0-56
@@ -104115,6 +105739,71 @@ loop:
 	VZEROUPPER
 	RET
 
+// func fftDIT48_dst_gfni_0(dst [][]byte, work [][]byte, dist int, t01 uint64, t23 uint64, t02 uint64)
+// Requires: AVX, AVX512DQ, AVX512F
+TEXT ·fftDIT48_dst_gfni_0(SB), NOSPLIT, $0-80
+	VBROADCASTF32X2 t01+56(FP), Z0
+	VBROADCASTF32X2 t23+64(FP), Z1
+	VBROADCASTF32X2 t02+72(FP), Z2
+	MOVQ            dist+48(FP), AX
+	MOVQ            work_base+24(FP), CX
+	MOVQ            dst_base+0(FP), DX
+	MOVQ            8(CX), BX
+	XORQ            SI, SI
+	MOVQ            (CX)(SI*1), DI
+	MOVQ            (DX)(SI*1), R8
+	ADDQ            AX, SI
+	MOVQ            (CX)(SI*1), R9
+	MOVQ            (DX)(SI*1), R10
+	ADDQ            AX, SI
+	MOVQ            (CX)(SI*1), R11
+	MOVQ            (DX)(SI*1), R12
+	ADDQ            AX, SI
+	MOVQ            (CX)(SI*1), AX
+	MOVQ            (DX)(SI*1), CX
+
+loop:
+	VMOVDQU64 (DI), Z3
+	VMOVDQU64 (R9), Z4
+	VMOVDQU64 (R11), Z5
+	VMOVDQU64 (AX), Z6
+
+	// LEO_MULADD_512
+	VGF2P8AFFINEQB $0x00, Z2, Z5, Z7
+	VXORPD         Z3, Z7, Z3
+
+	// LEO_MULADD_512
+	VGF2P8AFFINEQB $0x00, Z2, Z6, Z7
+	VXORPD         Z4, Z7, Z4
+	VXORPD         Z3, Z5, Z5
+	VXORPD         Z4, Z6, Z6
+
+	// LEO_MULADD_512
+	VGF2P8AFFINEQB $0x00, Z0, Z4, Z7
+	VXORPD         Z3, Z7, Z3
+	VXORPD         Z4, Z3, Z4
+
+	// LEO_MULADD_512
+	VGF2P8AFFINEQB $0x00, Z1, Z6, Z7
+	VXORPD         Z5, Z7, Z5
+	VXORPD         Z5, Z6, Z6
+	VMOVDQU64      Z3, (R8)
+	ADDQ           $0x40, R8
+	ADDQ           $0x40, DI
+	VMOVDQU64      Z4, (R10)
+	ADDQ           $0x40, R10
+	ADDQ           $0x40, R9
+	VMOVDQU64      Z5, (R12)
+	ADDQ           $0x40, R12
+	ADDQ           $0x40, R11
+	VMOVDQU64      Z6, (CX)
+	ADDQ           $0x40, CX
+	ADDQ           $0x40, AX
+	SUBQ           $0x40, BX
+	JA             loop
+	VZEROUPPER
+	RET
+
 // func ifftDIT48_gfni_1(work [][]byte, dist int, t01 uint64, t23 uint64, t02 uint64)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·ifftDIT48_gfni_1(SB), NOSPLIT, $0-56
@@ -104165,6 +105854,65 @@ loop:
 	VZEROUPPER
 	RET
 
+// func ifftDIT48_dst_gfni_1(dst [][]byte, work [][]byte, dist int, t01 uint64, t23 uint64, t02 uint64)
+// Requires: AVX, AVX512DQ, AVX512F
+TEXT ·ifftDIT48_dst_gfni_1(SB), NOSPLIT, $0-80
+	VBROADCASTF32X2 t23+64(FP), Z0
+	VBROADCASTF32X2 t02+72(FP), Z1
+	MOVQ            dist+48(FP), AX
+	MOVQ            work_base+24(FP), CX
+	MOVQ            dst_base+0(FP), DX
+	MOVQ            8(CX), BX
+	XORQ            SI, SI
+	MOVQ            (CX)(SI*1), DI
+	MOVQ            (DX)(SI*1), R8
+	ADDQ            AX, SI
+	MOVQ            (CX)(SI*1), R9
+	MOVQ            (DX)(SI*1), R10
+	ADDQ            AX, SI
+	MOVQ            (CX)(SI*1), R11
+	MOVQ            (DX)(SI*1), R12
+	ADDQ            AX, SI
+	MOVQ            (CX)(SI*1), AX
+	MOVQ            (DX)(SI*1), CX
+
+loop:
+	VMOVDQU64 (DI), Z2
+	VMOVDQU64 (R9), Z3
+	VMOVDQU64 (R11), Z4
+	VMOVDQU64 (AX), Z5
+	VXORPD    Z3, Z2, Z3
+	VXORPD    Z4, Z5, Z5
+
+	// LEO_MULADD_512
+	VGF2P8AFFINEQB $0x00, Z0, Z5, Z6
+	VPTERNLOGD     $0x96, Z6, Z2, Z4
+	VXORPD         Z3, Z5, Z5
+
+	// LEO_MULADD_512
+	VGF2P8AFFINEQB $0x00, Z1, Z4, Z6
+	VXORPD         Z2, Z6, Z2
+
+	// LEO_MULADD_512
+	VGF2P8AFFINEQB $0x00, Z1, Z5, Z6
+	VXORPD         Z3, Z6, Z3
+	VMOVDQU64      Z2, (R8)
+	ADDQ           $0x40, R8
+	ADDQ           $0x40, DI
+	VMOVDQU64      Z3, (R10)
+	ADDQ           $0x40, R10
+	ADDQ           $0x40, R9
+	VMOVDQU64      Z4, (R12)
+	ADDQ           $0x40, R12
+	ADDQ           $0x40, R11
+	VMOVDQU64      Z5, (CX)
+	ADDQ           $0x40, CX
+	ADDQ           $0x40, AX
+	SUBQ           $0x40, BX
+	JA             loop
+	VZEROUPPER
+	RET
+
 // func fftDIT48_gfni_1(work [][]byte, dist int, t01 uint64, t23 uint64, t02 uint64)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·fftDIT48_gfni_1(SB), NOSPLIT, $0-56
@@ -104208,6 +105956,62 @@ loop:
 	VMOVDQU64      Z5, (AX)
 	ADDQ           $0x40, AX
 	SUBQ           $0x40, DX
+	JA             loop
+	VZEROUPPER
+	RET
+
+// func fftDIT48_dst_gfni_1(dst [][]byte, work [][]byte, dist int, t01 uint64, t23 uint64, t02 uint64)
+// Requires: AVX, AVX512DQ, AVX512F
+TEXT ·fftDIT48_dst_gfni_1(SB), NOSPLIT, $0-80
+	VBROADCASTF32X2 t01+56(FP), Z0
+	VBROADCASTF32X2 t23+64(FP), Z1
+	MOVQ            dist+48(FP), AX
+	MOVQ            work_base+24(FP), CX
+	MOVQ            dst_base+0(FP), DX
+	MOVQ            8(CX), BX
+	XORQ            SI, SI
+	MOVQ            (CX)(SI*1), DI
+	MOVQ            (DX)(SI*1), R8
+	ADDQ            AX, SI
+	MOVQ            (CX)(SI*1), R9
+	MOVQ            (DX)(SI*1), R10
+	ADDQ            AX, SI
+	MOVQ            (CX)(SI*1), R11
+	MOVQ            (DX)(SI*1), R12
+	ADDQ            AX, SI
+	MOVQ            (CX)(SI*1), AX
+	MOVQ            (DX)(SI*1), CX
+
+loop:
+	VMOVDQU64 (DI), Z2
+	VMOVDQU64 (R9), Z3
+	VMOVDQU64 (R11), Z4
+	VMOVDQU64 (AX), Z5
+	VXORPD    Z2, Z4, Z4
+	VXORPD    Z3, Z5, Z5
+
+	// LEO_MULADD_512
+	VGF2P8AFFINEQB $0x00, Z0, Z3, Z6
+	VXORPD         Z2, Z6, Z2
+	VXORPD         Z3, Z2, Z3
+
+	// LEO_MULADD_512
+	VGF2P8AFFINEQB $0x00, Z1, Z5, Z6
+	VXORPD         Z4, Z6, Z4
+	VXORPD         Z4, Z5, Z5
+	VMOVDQU64      Z2, (R8)
+	ADDQ           $0x40, R8
+	ADDQ           $0x40, DI
+	VMOVDQU64      Z3, (R10)
+	ADDQ           $0x40, R10
+	ADDQ           $0x40, R9
+	VMOVDQU64      Z4, (R12)
+	ADDQ           $0x40, R12
+	ADDQ           $0x40, R11
+	VMOVDQU64      Z5, (CX)
+	ADDQ           $0x40, CX
+	ADDQ           $0x40, AX
+	SUBQ           $0x40, BX
 	JA             loop
 	VZEROUPPER
 	RET
@@ -104263,6 +106067,66 @@ loop:
 	VZEROUPPER
 	RET
 
+// func ifftDIT48_dst_gfni_2(dst [][]byte, work [][]byte, dist int, t01 uint64, t23 uint64, t02 uint64)
+// Requires: AVX, AVX512DQ, AVX512F
+TEXT ·ifftDIT48_dst_gfni_2(SB), NOSPLIT, $0-80
+	VBROADCASTF32X2 t01+56(FP), Z0
+	VBROADCASTF32X2 t02+72(FP), Z1
+	MOVQ            dist+48(FP), AX
+	MOVQ            work_base+24(FP), CX
+	MOVQ            dst_base+0(FP), DX
+	MOVQ            8(CX), BX
+	XORQ            SI, SI
+	MOVQ            (CX)(SI*1), DI
+	MOVQ            (DX)(SI*1), R8
+	ADDQ            AX, SI
+	MOVQ            (CX)(SI*1), R9
+	MOVQ            (DX)(SI*1), R10
+	ADDQ            AX, SI
+	MOVQ            (CX)(SI*1), R11
+	MOVQ            (DX)(SI*1), R12
+	ADDQ            AX, SI
+	MOVQ            (CX)(SI*1), AX
+	MOVQ            (DX)(SI*1), CX
+
+loop:
+	VMOVDQU64 (DI), Z2
+	VMOVDQU64 (R9), Z3
+	VMOVDQU64 (R11), Z4
+	VMOVDQU64 (AX), Z5
+	VXORPD    Z3, Z2, Z3
+
+	// LEO_MULADD_512
+	VGF2P8AFFINEQB $0x00, Z0, Z3, Z6
+	VXORPD         Z2, Z6, Z2
+	VXORPD         Z4, Z5, Z5
+	VXORPD         Z2, Z4, Z4
+	VXORPD         Z3, Z5, Z5
+
+	// LEO_MULADD_512
+	VGF2P8AFFINEQB $0x00, Z1, Z4, Z6
+	VXORPD         Z2, Z6, Z2
+
+	// LEO_MULADD_512
+	VGF2P8AFFINEQB $0x00, Z1, Z5, Z6
+	VXORPD         Z3, Z6, Z3
+	VMOVDQU64      Z2, (R8)
+	ADDQ           $0x40, R8
+	ADDQ           $0x40, DI
+	VMOVDQU64      Z3, (R10)
+	ADDQ           $0x40, R10
+	ADDQ           $0x40, R9
+	VMOVDQU64      Z4, (R12)
+	ADDQ           $0x40, R12
+	ADDQ           $0x40, R11
+	VMOVDQU64      Z5, (CX)
+	ADDQ           $0x40, CX
+	ADDQ           $0x40, AX
+	SUBQ           $0x40, BX
+	JA             loop
+	VZEROUPPER
+	RET
+
 // func fftDIT48_gfni_2(work [][]byte, dist int, t01 uint64, t23 uint64, t02 uint64)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·fftDIT48_gfni_2(SB), NOSPLIT, $0-56
@@ -104314,6 +106178,66 @@ loop:
 	VZEROUPPER
 	RET
 
+// func fftDIT48_dst_gfni_2(dst [][]byte, work [][]byte, dist int, t01 uint64, t23 uint64, t02 uint64)
+// Requires: AVX, AVX512DQ, AVX512F
+TEXT ·fftDIT48_dst_gfni_2(SB), NOSPLIT, $0-80
+	VBROADCASTF32X2 t23+64(FP), Z0
+	VBROADCASTF32X2 t02+72(FP), Z1
+	MOVQ            dist+48(FP), AX
+	MOVQ            work_base+24(FP), CX
+	MOVQ            dst_base+0(FP), DX
+	MOVQ            8(CX), BX
+	XORQ            SI, SI
+	MOVQ            (CX)(SI*1), DI
+	MOVQ            (DX)(SI*1), R8
+	ADDQ            AX, SI
+	MOVQ            (CX)(SI*1), R9
+	MOVQ            (DX)(SI*1), R10
+	ADDQ            AX, SI
+	MOVQ            (CX)(SI*1), R11
+	MOVQ            (DX)(SI*1), R12
+	ADDQ            AX, SI
+	MOVQ            (CX)(SI*1), AX
+	MOVQ            (DX)(SI*1), CX
+
+loop:
+	VMOVDQU64 (DI), Z2
+	VMOVDQU64 (R9), Z3
+	VMOVDQU64 (R11), Z4
+	VMOVDQU64 (AX), Z5
+
+	// LEO_MULADD_512
+	VGF2P8AFFINEQB $0x00, Z1, Z4, Z6
+	VXORPD         Z2, Z6, Z2
+
+	// LEO_MULADD_512
+	VGF2P8AFFINEQB $0x00, Z1, Z5, Z6
+	VXORPD         Z3, Z6, Z3
+	VXORPD         Z2, Z4, Z4
+	VXORPD         Z3, Z5, Z5
+	VXORPD         Z3, Z2, Z3
+
+	// LEO_MULADD_512
+	VGF2P8AFFINEQB $0x00, Z0, Z5, Z6
+	VXORPD         Z4, Z6, Z4
+	VXORPD         Z4, Z5, Z5
+	VMOVDQU64      Z2, (R8)
+	ADDQ           $0x40, R8
+	ADDQ           $0x40, DI
+	VMOVDQU64      Z3, (R10)
+	ADDQ           $0x40, R10
+	ADDQ           $0x40, R9
+	VMOVDQU64      Z4, (R12)
+	ADDQ           $0x40, R12
+	ADDQ           $0x40, R11
+	VMOVDQU64      Z5, (CX)
+	ADDQ           $0x40, CX
+	ADDQ           $0x40, AX
+	SUBQ           $0x40, BX
+	JA             loop
+	VZEROUPPER
+	RET
+
 // func ifftDIT48_gfni_3(work [][]byte, dist int, t01 uint64, t23 uint64, t02 uint64)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·ifftDIT48_gfni_3(SB), NOSPLIT, $0-56
@@ -104360,6 +106284,61 @@ loop:
 	VZEROUPPER
 	RET
 
+// func ifftDIT48_dst_gfni_3(dst [][]byte, work [][]byte, dist int, t01 uint64, t23 uint64, t02 uint64)
+// Requires: AVX, AVX512DQ, AVX512F
+TEXT ·ifftDIT48_dst_gfni_3(SB), NOSPLIT, $0-80
+	VBROADCASTF32X2 t02+72(FP), Z0
+	MOVQ            dist+48(FP), AX
+	MOVQ            work_base+24(FP), CX
+	MOVQ            dst_base+0(FP), DX
+	MOVQ            8(CX), BX
+	XORQ            SI, SI
+	MOVQ            (CX)(SI*1), DI
+	MOVQ            (DX)(SI*1), R8
+	ADDQ            AX, SI
+	MOVQ            (CX)(SI*1), R9
+	MOVQ            (DX)(SI*1), R10
+	ADDQ            AX, SI
+	MOVQ            (CX)(SI*1), R11
+	MOVQ            (DX)(SI*1), R12
+	ADDQ            AX, SI
+	MOVQ            (CX)(SI*1), AX
+	MOVQ            (DX)(SI*1), CX
+
+loop:
+	VMOVDQU64 (DI), Z1
+	VMOVDQU64 (R9), Z2
+	VMOVDQU64 (R11), Z3
+	VMOVDQU64 (AX), Z4
+	VXORPD    Z2, Z1, Z2
+	VXORPD    Z3, Z4, Z4
+	VXORPD    Z1, Z3, Z3
+	VXORPD    Z2, Z4, Z4
+
+	// LEO_MULADD_512
+	VGF2P8AFFINEQB $0x00, Z0, Z3, Z5
+	VXORPD         Z1, Z5, Z1
+
+	// LEO_MULADD_512
+	VGF2P8AFFINEQB $0x00, Z0, Z4, Z5
+	VXORPD         Z2, Z5, Z2
+	VMOVDQU64      Z1, (R8)
+	ADDQ           $0x40, R8
+	ADDQ           $0x40, DI
+	VMOVDQU64      Z2, (R10)
+	ADDQ           $0x40, R10
+	ADDQ           $0x40, R9
+	VMOVDQU64      Z3, (R12)
+	ADDQ           $0x40, R12
+	ADDQ           $0x40, R11
+	VMOVDQU64      Z4, (CX)
+	ADDQ           $0x40, CX
+	ADDQ           $0x40, AX
+	SUBQ           $0x40, BX
+	JA             loop
+	VZEROUPPER
+	RET
+
 // func fftDIT48_gfni_3(work [][]byte, dist int, t01 uint64, t23 uint64, t02 uint64)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·fftDIT48_gfni_3(SB), NOSPLIT, $0-56
@@ -104398,6 +106377,57 @@ loop:
 	VMOVDQU64      Z4, (AX)
 	ADDQ           $0x40, AX
 	SUBQ           $0x40, DX
+	JA             loop
+	VZEROUPPER
+	RET
+
+// func fftDIT48_dst_gfni_3(dst [][]byte, work [][]byte, dist int, t01 uint64, t23 uint64, t02 uint64)
+// Requires: AVX, AVX512DQ, AVX512F
+TEXT ·fftDIT48_dst_gfni_3(SB), NOSPLIT, $0-80
+	VBROADCASTF32X2 t23+64(FP), Z0
+	MOVQ            dist+48(FP), AX
+	MOVQ            work_base+24(FP), CX
+	MOVQ            dst_base+0(FP), DX
+	MOVQ            8(CX), BX
+	XORQ            SI, SI
+	MOVQ            (CX)(SI*1), DI
+	MOVQ            (DX)(SI*1), R8
+	ADDQ            AX, SI
+	MOVQ            (CX)(SI*1), R9
+	MOVQ            (DX)(SI*1), R10
+	ADDQ            AX, SI
+	MOVQ            (CX)(SI*1), R11
+	MOVQ            (DX)(SI*1), R12
+	ADDQ            AX, SI
+	MOVQ            (CX)(SI*1), AX
+	MOVQ            (DX)(SI*1), CX
+
+loop:
+	VMOVDQU64 (DI), Z1
+	VMOVDQU64 (R9), Z2
+	VMOVDQU64 (R11), Z3
+	VMOVDQU64 (AX), Z4
+	VXORPD    Z1, Z3, Z3
+	VXORPD    Z2, Z4, Z4
+	VXORPD    Z2, Z1, Z2
+
+	// LEO_MULADD_512
+	VGF2P8AFFINEQB $0x00, Z0, Z4, Z5
+	VXORPD         Z3, Z5, Z3
+	VXORPD         Z3, Z4, Z4
+	VMOVDQU64      Z1, (R8)
+	ADDQ           $0x40, R8
+	ADDQ           $0x40, DI
+	VMOVDQU64      Z2, (R10)
+	ADDQ           $0x40, R10
+	ADDQ           $0x40, R9
+	VMOVDQU64      Z3, (R12)
+	ADDQ           $0x40, R12
+	ADDQ           $0x40, R11
+	VMOVDQU64      Z4, (CX)
+	ADDQ           $0x40, CX
+	ADDQ           $0x40, AX
+	SUBQ           $0x40, BX
 	JA             loop
 	VZEROUPPER
 	RET
@@ -104444,6 +106474,61 @@ loop:
 	VMOVDQU64      Z5, (AX)
 	ADDQ           $0x40, AX
 	SUBQ           $0x40, DX
+	JA             loop
+	VZEROUPPER
+	RET
+
+// func ifftDIT48_dst_gfni_4(dst [][]byte, work [][]byte, dist int, t01 uint64, t23 uint64, t02 uint64)
+// Requires: AVX, AVX512DQ, AVX512F
+TEXT ·ifftDIT48_dst_gfni_4(SB), NOSPLIT, $0-80
+	VBROADCASTF32X2 t01+56(FP), Z0
+	VBROADCASTF32X2 t23+64(FP), Z1
+	MOVQ            dist+48(FP), AX
+	MOVQ            work_base+24(FP), CX
+	MOVQ            dst_base+0(FP), DX
+	MOVQ            8(CX), BX
+	XORQ            SI, SI
+	MOVQ            (CX)(SI*1), DI
+	MOVQ            (DX)(SI*1), R8
+	ADDQ            AX, SI
+	MOVQ            (CX)(SI*1), R9
+	MOVQ            (DX)(SI*1), R10
+	ADDQ            AX, SI
+	MOVQ            (CX)(SI*1), R11
+	MOVQ            (DX)(SI*1), R12
+	ADDQ            AX, SI
+	MOVQ            (CX)(SI*1), AX
+	MOVQ            (DX)(SI*1), CX
+
+loop:
+	VMOVDQU64 (DI), Z2
+	VMOVDQU64 (R9), Z3
+	VMOVDQU64 (R11), Z4
+	VMOVDQU64 (AX), Z5
+	VXORPD    Z3, Z2, Z3
+
+	// LEO_MULADD_512
+	VGF2P8AFFINEQB $0x00, Z0, Z3, Z6
+	VXORPD         Z2, Z6, Z2
+	VXORPD         Z4, Z5, Z5
+
+	// LEO_MULADD_512
+	VGF2P8AFFINEQB $0x00, Z1, Z5, Z6
+	VPTERNLOGD     $0x96, Z6, Z2, Z4
+	VXORPD         Z3, Z5, Z5
+	VMOVDQU64      Z2, (R8)
+	ADDQ           $0x40, R8
+	ADDQ           $0x40, DI
+	VMOVDQU64      Z3, (R10)
+	ADDQ           $0x40, R10
+	ADDQ           $0x40, R9
+	VMOVDQU64      Z4, (R12)
+	ADDQ           $0x40, R12
+	ADDQ           $0x40, R11
+	VMOVDQU64      Z5, (CX)
+	ADDQ           $0x40, CX
+	ADDQ           $0x40, AX
+	SUBQ           $0x40, BX
 	JA             loop
 	VZEROUPPER
 	RET
@@ -104499,6 +106584,66 @@ loop:
 	VZEROUPPER
 	RET
 
+// func fftDIT48_dst_gfni_4(dst [][]byte, work [][]byte, dist int, t01 uint64, t23 uint64, t02 uint64)
+// Requires: AVX, AVX512DQ, AVX512F
+TEXT ·fftDIT48_dst_gfni_4(SB), NOSPLIT, $0-80
+	VBROADCASTF32X2 t01+56(FP), Z0
+	VBROADCASTF32X2 t02+72(FP), Z1
+	MOVQ            dist+48(FP), AX
+	MOVQ            work_base+24(FP), CX
+	MOVQ            dst_base+0(FP), DX
+	MOVQ            8(CX), BX
+	XORQ            SI, SI
+	MOVQ            (CX)(SI*1), DI
+	MOVQ            (DX)(SI*1), R8
+	ADDQ            AX, SI
+	MOVQ            (CX)(SI*1), R9
+	MOVQ            (DX)(SI*1), R10
+	ADDQ            AX, SI
+	MOVQ            (CX)(SI*1), R11
+	MOVQ            (DX)(SI*1), R12
+	ADDQ            AX, SI
+	MOVQ            (CX)(SI*1), AX
+	MOVQ            (DX)(SI*1), CX
+
+loop:
+	VMOVDQU64 (DI), Z2
+	VMOVDQU64 (R9), Z3
+	VMOVDQU64 (R11), Z4
+	VMOVDQU64 (AX), Z5
+
+	// LEO_MULADD_512
+	VGF2P8AFFINEQB $0x00, Z1, Z4, Z6
+	VXORPD         Z2, Z6, Z2
+
+	// LEO_MULADD_512
+	VGF2P8AFFINEQB $0x00, Z1, Z5, Z6
+	VXORPD         Z3, Z6, Z3
+	VXORPD         Z2, Z4, Z4
+	VXORPD         Z3, Z5, Z5
+
+	// LEO_MULADD_512
+	VGF2P8AFFINEQB $0x00, Z0, Z3, Z6
+	VXORPD         Z2, Z6, Z2
+	VXORPD         Z3, Z2, Z3
+	VXORPD         Z4, Z5, Z5
+	VMOVDQU64      Z2, (R8)
+	ADDQ           $0x40, R8
+	ADDQ           $0x40, DI
+	VMOVDQU64      Z3, (R10)
+	ADDQ           $0x40, R10
+	ADDQ           $0x40, R9
+	VMOVDQU64      Z4, (R12)
+	ADDQ           $0x40, R12
+	ADDQ           $0x40, R11
+	VMOVDQU64      Z5, (CX)
+	ADDQ           $0x40, CX
+	ADDQ           $0x40, AX
+	SUBQ           $0x40, BX
+	JA             loop
+	VZEROUPPER
+	RET
+
 // func ifftDIT48_gfni_5(work [][]byte, dist int, t01 uint64, t23 uint64, t02 uint64)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·ifftDIT48_gfni_5(SB), NOSPLIT, $0-56
@@ -104536,6 +106681,56 @@ loop:
 	VMOVDQU64      Z4, (AX)
 	ADDQ           $0x40, AX
 	SUBQ           $0x40, DX
+	JA             loop
+	VZEROUPPER
+	RET
+
+// func ifftDIT48_dst_gfni_5(dst [][]byte, work [][]byte, dist int, t01 uint64, t23 uint64, t02 uint64)
+// Requires: AVX, AVX512DQ, AVX512F
+TEXT ·ifftDIT48_dst_gfni_5(SB), NOSPLIT, $0-80
+	VBROADCASTF32X2 t23+64(FP), Z0
+	MOVQ            dist+48(FP), AX
+	MOVQ            work_base+24(FP), CX
+	MOVQ            dst_base+0(FP), DX
+	MOVQ            8(CX), BX
+	XORQ            SI, SI
+	MOVQ            (CX)(SI*1), DI
+	MOVQ            (DX)(SI*1), R8
+	ADDQ            AX, SI
+	MOVQ            (CX)(SI*1), R9
+	MOVQ            (DX)(SI*1), R10
+	ADDQ            AX, SI
+	MOVQ            (CX)(SI*1), R11
+	MOVQ            (DX)(SI*1), R12
+	ADDQ            AX, SI
+	MOVQ            (CX)(SI*1), AX
+	MOVQ            (DX)(SI*1), CX
+
+loop:
+	VMOVDQU64 (DI), Z1
+	VMOVDQU64 (R9), Z2
+	VMOVDQU64 (R11), Z3
+	VMOVDQU64 (AX), Z4
+	VXORPD    Z2, Z1, Z2
+	VXORPD    Z3, Z4, Z4
+
+	// LEO_MULADD_512
+	VGF2P8AFFINEQB $0x00, Z0, Z4, Z5
+	VPTERNLOGD     $0x96, Z5, Z1, Z3
+	VXORPD         Z2, Z4, Z4
+	VMOVDQU64      Z1, (R8)
+	ADDQ           $0x40, R8
+	ADDQ           $0x40, DI
+	VMOVDQU64      Z2, (R10)
+	ADDQ           $0x40, R10
+	ADDQ           $0x40, R9
+	VMOVDQU64      Z3, (R12)
+	ADDQ           $0x40, R12
+	ADDQ           $0x40, R11
+	VMOVDQU64      Z4, (CX)
+	ADDQ           $0x40, CX
+	ADDQ           $0x40, AX
+	SUBQ           $0x40, BX
 	JA             loop
 	VZEROUPPER
 	RET
@@ -104582,6 +106777,57 @@ loop:
 	VZEROUPPER
 	RET
 
+// func fftDIT48_dst_gfni_5(dst [][]byte, work [][]byte, dist int, t01 uint64, t23 uint64, t02 uint64)
+// Requires: AVX, AVX512DQ, AVX512F
+TEXT ·fftDIT48_dst_gfni_5(SB), NOSPLIT, $0-80
+	VBROADCASTF32X2 t01+56(FP), Z0
+	MOVQ            dist+48(FP), AX
+	MOVQ            work_base+24(FP), CX
+	MOVQ            dst_base+0(FP), DX
+	MOVQ            8(CX), BX
+	XORQ            SI, SI
+	MOVQ            (CX)(SI*1), DI
+	MOVQ            (DX)(SI*1), R8
+	ADDQ            AX, SI
+	MOVQ            (CX)(SI*1), R9
+	MOVQ            (DX)(SI*1), R10
+	ADDQ            AX, SI
+	MOVQ            (CX)(SI*1), R11
+	MOVQ            (DX)(SI*1), R12
+	ADDQ            AX, SI
+	MOVQ            (CX)(SI*1), AX
+	MOVQ            (DX)(SI*1), CX
+
+loop:
+	VMOVDQU64 (DI), Z1
+	VMOVDQU64 (R9), Z2
+	VMOVDQU64 (R11), Z3
+	VMOVDQU64 (AX), Z4
+	VXORPD    Z1, Z3, Z3
+	VXORPD    Z2, Z4, Z4
+
+	// LEO_MULADD_512
+	VGF2P8AFFINEQB $0x00, Z0, Z2, Z5
+	VXORPD         Z1, Z5, Z1
+	VXORPD         Z2, Z1, Z2
+	VXORPD         Z3, Z4, Z4
+	VMOVDQU64      Z1, (R8)
+	ADDQ           $0x40, R8
+	ADDQ           $0x40, DI
+	VMOVDQU64      Z2, (R10)
+	ADDQ           $0x40, R10
+	ADDQ           $0x40, R9
+	VMOVDQU64      Z3, (R12)
+	ADDQ           $0x40, R12
+	ADDQ           $0x40, R11
+	VMOVDQU64      Z4, (CX)
+	ADDQ           $0x40, CX
+	ADDQ           $0x40, AX
+	SUBQ           $0x40, BX
+	JA             loop
+	VZEROUPPER
+	RET
+
 // func ifftDIT48_gfni_6(work [][]byte, dist int, t01 uint64, t23 uint64, t02 uint64)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·ifftDIT48_gfni_6(SB), NOSPLIT, $0-56
@@ -104620,6 +106866,57 @@ loop:
 	VMOVDQU64      Z4, (AX)
 	ADDQ           $0x40, AX
 	SUBQ           $0x40, DX
+	JA             loop
+	VZEROUPPER
+	RET
+
+// func ifftDIT48_dst_gfni_6(dst [][]byte, work [][]byte, dist int, t01 uint64, t23 uint64, t02 uint64)
+// Requires: AVX, AVX512DQ, AVX512F
+TEXT ·ifftDIT48_dst_gfni_6(SB), NOSPLIT, $0-80
+	VBROADCASTF32X2 t01+56(FP), Z0
+	MOVQ            dist+48(FP), AX
+	MOVQ            work_base+24(FP), CX
+	MOVQ            dst_base+0(FP), DX
+	MOVQ            8(CX), BX
+	XORQ            SI, SI
+	MOVQ            (CX)(SI*1), DI
+	MOVQ            (DX)(SI*1), R8
+	ADDQ            AX, SI
+	MOVQ            (CX)(SI*1), R9
+	MOVQ            (DX)(SI*1), R10
+	ADDQ            AX, SI
+	MOVQ            (CX)(SI*1), R11
+	MOVQ            (DX)(SI*1), R12
+	ADDQ            AX, SI
+	MOVQ            (CX)(SI*1), AX
+	MOVQ            (DX)(SI*1), CX
+
+loop:
+	VMOVDQU64 (DI), Z1
+	VMOVDQU64 (R9), Z2
+	VMOVDQU64 (R11), Z3
+	VMOVDQU64 (AX), Z4
+	VXORPD    Z2, Z1, Z2
+
+	// LEO_MULADD_512
+	VGF2P8AFFINEQB $0x00, Z0, Z2, Z5
+	VXORPD         Z1, Z5, Z1
+	VXORPD         Z3, Z4, Z4
+	VXORPD         Z1, Z3, Z3
+	VXORPD         Z2, Z4, Z4
+	VMOVDQU64      Z1, (R8)
+	ADDQ           $0x40, R8
+	ADDQ           $0x40, DI
+	VMOVDQU64      Z2, (R10)
+	ADDQ           $0x40, R10
+	ADDQ           $0x40, R9
+	VMOVDQU64      Z3, (R12)
+	ADDQ           $0x40, R12
+	ADDQ           $0x40, R11
+	VMOVDQU64      Z4, (CX)
+	ADDQ           $0x40, CX
+	ADDQ           $0x40, AX
+	SUBQ           $0x40, BX
 	JA             loop
 	VZEROUPPER
 	RET
@@ -104670,6 +106967,61 @@ loop:
 	VZEROUPPER
 	RET
 
+// func fftDIT48_dst_gfni_6(dst [][]byte, work [][]byte, dist int, t01 uint64, t23 uint64, t02 uint64)
+// Requires: AVX, AVX512DQ, AVX512F
+TEXT ·fftDIT48_dst_gfni_6(SB), NOSPLIT, $0-80
+	VBROADCASTF32X2 t02+72(FP), Z0
+	MOVQ            dist+48(FP), AX
+	MOVQ            work_base+24(FP), CX
+	MOVQ            dst_base+0(FP), DX
+	MOVQ            8(CX), BX
+	XORQ            SI, SI
+	MOVQ            (CX)(SI*1), DI
+	MOVQ            (DX)(SI*1), R8
+	ADDQ            AX, SI
+	MOVQ            (CX)(SI*1), R9
+	MOVQ            (DX)(SI*1), R10
+	ADDQ            AX, SI
+	MOVQ            (CX)(SI*1), R11
+	MOVQ            (DX)(SI*1), R12
+	ADDQ            AX, SI
+	MOVQ            (CX)(SI*1), AX
+	MOVQ            (DX)(SI*1), CX
+
+loop:
+	VMOVDQU64 (DI), Z1
+	VMOVDQU64 (R9), Z2
+	VMOVDQU64 (R11), Z3
+	VMOVDQU64 (AX), Z4
+
+	// LEO_MULADD_512
+	VGF2P8AFFINEQB $0x00, Z0, Z3, Z5
+	VXORPD         Z1, Z5, Z1
+
+	// LEO_MULADD_512
+	VGF2P8AFFINEQB $0x00, Z0, Z4, Z5
+	VXORPD         Z2, Z5, Z2
+	VXORPD         Z1, Z3, Z3
+	VXORPD         Z2, Z4, Z4
+	VXORPD         Z2, Z1, Z2
+	VXORPD         Z3, Z4, Z4
+	VMOVDQU64      Z1, (R8)
+	ADDQ           $0x40, R8
+	ADDQ           $0x40, DI
+	VMOVDQU64      Z2, (R10)
+	ADDQ           $0x40, R10
+	ADDQ           $0x40, R9
+	VMOVDQU64      Z3, (R12)
+	ADDQ           $0x40, R12
+	ADDQ           $0x40, R11
+	VMOVDQU64      Z4, (CX)
+	ADDQ           $0x40, CX
+	ADDQ           $0x40, AX
+	SUBQ           $0x40, BX
+	JA             loop
+	VZEROUPPER
+	RET
+
 // func ifftDIT48_gfni_7(work [][]byte, dist int, t01 uint64, t23 uint64, t02 uint64)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·ifftDIT48_gfni_7(SB), NOSPLIT, $0-56
@@ -104707,6 +107059,52 @@ loop:
 	VZEROUPPER
 	RET
 
+// func ifftDIT48_dst_gfni_7(dst [][]byte, work [][]byte, dist int, t01 uint64, t23 uint64, t02 uint64)
+// Requires: AVX, AVX512DQ, AVX512F
+TEXT ·ifftDIT48_dst_gfni_7(SB), NOSPLIT, $0-80
+	MOVQ dist+48(FP), AX
+	MOVQ work_base+24(FP), CX
+	MOVQ dst_base+0(FP), DX
+	MOVQ 8(CX), BX
+	XORQ SI, SI
+	MOVQ (CX)(SI*1), DI
+	MOVQ (DX)(SI*1), R8
+	ADDQ AX, SI
+	MOVQ (CX)(SI*1), R9
+	MOVQ (DX)(SI*1), R10
+	ADDQ AX, SI
+	MOVQ (CX)(SI*1), R11
+	MOVQ (DX)(SI*1), R12
+	ADDQ AX, SI
+	MOVQ (CX)(SI*1), AX
+	MOVQ (DX)(SI*1), CX
+
+loop:
+	VMOVDQU64 (DI), Z0
+	VMOVDQU64 (R9), Z1
+	VMOVDQU64 (R11), Z2
+	VMOVDQU64 (AX), Z3
+	VXORPD    Z1, Z0, Z1
+	VXORPD    Z2, Z3, Z3
+	VXORPD    Z0, Z2, Z2
+	VXORPD    Z1, Z3, Z3
+	VMOVDQU64 Z0, (R8)
+	ADDQ      $0x40, R8
+	ADDQ      $0x40, DI
+	VMOVDQU64 Z1, (R10)
+	ADDQ      $0x40, R10
+	ADDQ      $0x40, R9
+	VMOVDQU64 Z2, (R12)
+	ADDQ      $0x40, R12
+	ADDQ      $0x40, R11
+	VMOVDQU64 Z3, (CX)
+	ADDQ      $0x40, CX
+	ADDQ      $0x40, AX
+	SUBQ      $0x40, BX
+	JA        loop
+	VZEROUPPER
+	RET
+
 // func fftDIT48_gfni_7(work [][]byte, dist int, t01 uint64, t23 uint64, t02 uint64)
 // Requires: AVX, AVX512DQ, AVX512F
 TEXT ·fftDIT48_gfni_7(SB), NOSPLIT, $0-56
@@ -104740,6 +107138,52 @@ loop:
 	VMOVDQU64 Z3, (AX)
 	ADDQ      $0x40, AX
 	SUBQ      $0x40, DX
+	JA        loop
+	VZEROUPPER
+	RET
+
+// func fftDIT48_dst_gfni_7(dst [][]byte, work [][]byte, dist int, t01 uint64, t23 uint64, t02 uint64)
+// Requires: AVX, AVX512DQ, AVX512F
+TEXT ·fftDIT48_dst_gfni_7(SB), NOSPLIT, $0-80
+	MOVQ dist+48(FP), AX
+	MOVQ work_base+24(FP), CX
+	MOVQ dst_base+0(FP), DX
+	MOVQ 8(CX), BX
+	XORQ SI, SI
+	MOVQ (CX)(SI*1), DI
+	MOVQ (DX)(SI*1), R8
+	ADDQ AX, SI
+	MOVQ (CX)(SI*1), R9
+	MOVQ (DX)(SI*1), R10
+	ADDQ AX, SI
+	MOVQ (CX)(SI*1), R11
+	MOVQ (DX)(SI*1), R12
+	ADDQ AX, SI
+	MOVQ (CX)(SI*1), AX
+	MOVQ (DX)(SI*1), CX
+
+loop:
+	VMOVDQU64 (DI), Z0
+	VMOVDQU64 (R9), Z1
+	VMOVDQU64 (R11), Z2
+	VMOVDQU64 (AX), Z3
+	VXORPD    Z0, Z2, Z2
+	VXORPD    Z1, Z3, Z3
+	VXORPD    Z1, Z0, Z1
+	VXORPD    Z2, Z3, Z3
+	VMOVDQU64 Z0, (R8)
+	ADDQ      $0x40, R8
+	ADDQ      $0x40, DI
+	VMOVDQU64 Z1, (R10)
+	ADDQ      $0x40, R10
+	ADDQ      $0x40, R9
+	VMOVDQU64 Z2, (R12)
+	ADDQ      $0x40, R12
+	ADDQ      $0x40, R11
+	VMOVDQU64 Z3, (CX)
+	ADDQ      $0x40, CX
+	ADDQ      $0x40, AX
+	SUBQ      $0x40, BX
 	JA        loop
 	VZEROUPPER
 	RET

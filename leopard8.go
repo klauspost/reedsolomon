@@ -169,7 +169,9 @@ func (r *leopardFF8) encode(shards [][]byte) error {
 	// Split large shards.
 	// More likely on lower shard count.
 	off := 0
-	sh := make([][]byte, len(shards))
+	sh := make([][]byte, len(shards)+m)
+	tmp := sh[len(shards):]
+	sh = sh[:len(shards)]
 
 	// work slice we can modify
 	wMod := make([][]byte, len(work))
@@ -199,6 +201,7 @@ func (r *leopardFF8) encode(shards [][]byte) error {
 
 		ifftDITEncoder8(
 			sh[:r.dataShards],
+			tmp,
 			mtrunc,
 			work,
 			nil, // No xor output
@@ -222,6 +225,7 @@ func (r *leopardFF8) encode(shards [][]byte) error {
 
 			ifftDITEncoder8(
 				sh, // data source
+				tmp,
 				m,
 				work[m:], // temporary workspace
 				work,     // xor destination
@@ -240,6 +244,7 @@ func (r *leopardFF8) encode(shards [][]byte) error {
 
 			ifftDITEncoder8(
 				sh, // data source
+				tmp,
 				lastCount,
 				work[m:], // temporary workspace
 				work,     // xor destination
@@ -766,16 +771,23 @@ func fftDIT4Ref8(work [][]byte, dist int, log_m01, log_m23, log_m02 ffe8, o *opt
 	}
 }
 
+var zeroBufferPool = sync.Pool{New: func() interface{} { return make([]byte, workSize8) }}
+
 // Unrolled IFFT for encoder
-func ifftDITEncoder8(data [][]byte, mtrunc int, work [][]byte, xorRes [][]byte, m int, skewLUT []ffe8, o *options) {
+func ifftDITEncoder8(data, tmp [][]byte, mtrunc int, work [][]byte, xorRes [][]byte, m int, skewLUT []ffe8, o *options) {
 	// I tried rolling the memcpy/memset into the first layer of the FFT and
 	// found that it only yields a 4% performance improvement, which is not
 	// worth the extra complexity.
+	in := tmp[:m]
 	for i := 0; i < mtrunc; i++ {
-		copy(work[i], data[i])
+		in[i] = data[i]
 	}
-	for i := mtrunc; i < m; i++ {
-		memclr(work[i])
+	if mtrunc < m {
+		zero := zeroBufferPool.Get().([]byte)[:len(data[mtrunc])]
+		defer zeroBufferPool.Put(zero)
+		for i := mtrunc; i < m; i++ {
+			in[i] = zero
+		}
 	}
 
 	// Decimation in time: Unroll 2 layers at a time
@@ -791,14 +803,19 @@ func ifftDITEncoder8(data [][]byte, mtrunc int, work [][]byte, xorRes [][]byte, 
 
 			// For each set of dist elements:
 			for i := r; i < iend; i++ {
-				ifftDIT48(
+				ifftDIT48Dst(
 					work[i:],
+					in[i:],
 					dist,
 					log_m01,
 					log_m23,
 					log_m02,
 					o,
 				)
+				in[i] = work[i]
+				in[i+dist] = work[i+dist]
+				in[i+dist+dist] = work[i+dist+dist]
+				in[i+dist+dist+dist] = work[i+dist+dist+dist]
 			}
 		}
 
@@ -817,12 +834,19 @@ func ifftDITEncoder8(data [][]byte, mtrunc int, work [][]byte, xorRes [][]byte, 
 		}
 
 		logm := skewLUT[dist]
-
+		for i := range work[:dist] {
+			if &in[i][0] != &work[i][0] {
+				copy(work[i], in[i])
+				copy(work[i+dist], in[i+dist])
+				in[i] = work[i]
+				in[i+dist] = work[i+dist]
+			}
+		}
 		if logm == modulus8 {
-			slicesXor(work[dist:dist*2], work[:dist], o)
+			slicesXor(in[dist:dist*2], in[:dist], o)
 		} else {
 			for i := 0; i < dist; i++ {
-				ifftDIT28(work[i], work[i+dist], logm, o)
+				ifftDIT28(in[i], in[i+dist], logm, o)
 			}
 		}
 	}
@@ -830,7 +854,17 @@ func ifftDITEncoder8(data [][]byte, mtrunc int, work [][]byte, xorRes [][]byte, 
 	// I tried unrolling this but it does not provide more than 5% performance
 	// improvement for 16-bit finite fields, so it's not worth the complexity.
 	if xorRes != nil {
-		slicesXor(xorRes[:m], work[:m], o)
+		slicesXor(xorRes[:m], in[:m], o)
+	}
+	if false {
+		// Safety xfer
+		// Shouldn't be needed.
+		for i := range in {
+			if &in[i][0] != &work[i][0] {
+				copy(work[i], in[i])
+				in[i] = work[i]
+			}
+		}
 	}
 }
 
@@ -855,6 +889,39 @@ func ifftDIT4Ref8(work [][]byte, dist int, log_m01, log_m23, log_m02 ffe8, o *op
 	} else {
 		ifftDIT28(work[0], work[dist*2], log_m02, o)
 		ifftDIT28(work[dist], work[dist*3], log_m02, o)
+	}
+}
+
+func ifftDIT4DstRef8(dst, work [][]byte, dist int, log_m01, log_m23, log_m02 ffe8, o *options) {
+	// First layer:
+	copyIf := func(dst, src [][]byte, i int) {
+		if &dst[i][0] != &src[i][0] {
+			copy(dst[i], src[i])
+		}
+	}
+	copyIf(dst, work, dist)
+	copyIf(dst, work, 0)
+	if log_m01 == modulus8 {
+		sliceXor(dst[0], dst[dist], o)
+	} else {
+		ifftDIT28(dst[0], dst[dist], log_m01, o)
+	}
+
+	copyIf(dst, work, dist*3)
+	copyIf(dst, work, dist*2)
+	if log_m23 == modulus8 {
+		sliceXor(dst[dist*2], dst[dist*3], o)
+	} else {
+		ifftDIT28(dst[dist*2], dst[dist*3], log_m23, o)
+	}
+
+	// Second layer:
+	if log_m02 == modulus8 {
+		sliceXor(dst[0], dst[dist*2], o)
+		sliceXor(dst[dist], dst[dist*3], o)
+	} else {
+		ifftDIT28(dst[0], dst[dist*2], log_m02, o)
+		ifftDIT28(dst[dist], dst[dist*3], log_m02, o)
 	}
 }
 
