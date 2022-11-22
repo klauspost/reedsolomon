@@ -797,7 +797,7 @@ func ifftDITEncoder8(data, tmp [][]byte, mtrunc int, work [][]byte, xorRes [][]b
 		in[i] = data[i]
 	}
 	if mtrunc < m {
-		zero := (*zeroBufferPool)[:len(data[mtrunc])]
+		zero := (*zeroBufferPool)[:len(data[0])]
 		for i := mtrunc; i < m; i++ {
 			in[i] = zero
 		}
