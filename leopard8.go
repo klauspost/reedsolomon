@@ -25,10 +25,10 @@ type leopardFF8 struct {
 	totalShards  int // Total number of shards. Calculated, and should not be modified.
 
 	workPool    sync.Pool
+	shardPool   sync.Pool
 	inversion   map[[inversion8Bytes]byte]leopardGF8cache
 	inversionMu sync.Mutex
-
-	o options
+	o           options
 }
 
 const inversion8Bytes = 256 / 8
@@ -60,6 +60,11 @@ func newFF8(dataShards, parityShards int, opt options) (*leopardFF8, error) {
 		// Inversion cache is relatively ineffective for big shard counts and takes up potentially lots of memory
 		// r.totalShards is not covering the space, but an estimate.
 		r.inversion = make(map[[inversion8Bytes]byte]leopardGF8cache, r.totalShards)
+	}
+	m := ceilPow2(r.parityShards)
+	tmpSize := r.totalShards + m + m*2
+	r.shardPool.New = func() interface{} {
+		return make([][]byte, tmpSize)
 	}
 	return r, nil
 }
@@ -169,12 +174,20 @@ func (r *leopardFF8) encode(shards [][]byte) error {
 	// Split large shards.
 	// More likely on lower shard count.
 	off := 0
-	sh := make([][]byte, len(shards)+m)
-	tmp := sh[len(shards):]
-	sh = sh[:len(shards)]
+	shardPool := r.shardPool.Get().([][]byte)
 
+	// Slice into 3
 	// work slice we can modify
-	wMod := make([][]byte, len(work))
+	wMod := shardPool[:len(work)]
+	sh := shardPool[len(work) : len(work)+len(shards)]
+	tmp := shardPool[len(work)+len(shards) : len(work)+len(shards)+m]
+
+	defer func() {
+		for i := range shardPool {
+			shardPool[i] = nil
+		}
+		r.shardPool.Put(shardPool)
+	}()
 	copy(wMod, work)
 	for off < shardSize {
 		work := wMod
