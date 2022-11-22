@@ -784,7 +784,8 @@ func fftDIT4Ref8(work [][]byte, dist int, log_m01, log_m23, log_m02 ffe8, o *opt
 	}
 }
 
-var zeroBufferPool = sync.Pool{New: func() interface{} { return make([]byte, workSize8) }}
+// zeroBufferPool returns a pointer to a zeroed array.
+var zeroBufferPool = &[workSize8]byte{}
 
 // Unrolled IFFT for encoder
 func ifftDITEncoder8(data, tmp [][]byte, mtrunc int, work [][]byte, xorRes [][]byte, m int, skewLUT []ffe8, o *options) {
@@ -796,8 +797,7 @@ func ifftDITEncoder8(data, tmp [][]byte, mtrunc int, work [][]byte, xorRes [][]b
 		in[i] = data[i]
 	}
 	if mtrunc < m {
-		zero := zeroBufferPool.Get().([]byte)[:len(data[mtrunc])]
-		defer zeroBufferPool.Put(zero)
+		zero := (*zeroBufferPool)[:len(data[mtrunc])]
 		for i := mtrunc; i < m; i++ {
 			in[i] = zero
 		}
