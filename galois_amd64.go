@@ -5,6 +5,11 @@
 
 package reedsolomon
 
+import (
+	"bytes"
+	"fmt"
+)
+
 //go:noescape
 func galMulSSSE3(low, high, in, out []byte)
 
@@ -231,6 +236,10 @@ func ifftDIT4(work [][]byte, dist int, log_m01, log_m23, log_m02 ffe, o *options
 func ifftDIT48(work [][]byte, dist int, log_m01, log_m23, log_m02 ffe8, o *options) {
 	if len(work[0]) == 0 {
 		return
+	}
+
+	if !bytes.Equal(mulTableLow[log_m01][:], multiply256LUT8[log_m01][16:]) {
+		panic(fmt.Sprintf("%v != %v", mulTableLow[log_m01][:], multiply256LUT8[log_m01][16:]))
 	}
 
 	if o.useGFNI && false {

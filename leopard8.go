@@ -114,7 +114,7 @@ type mul8LUT struct {
 }
 
 // Stores lookup for avx2
-var multiply256LUT8 *[order8][2 * 16]byte
+var multiply256LUT8 [order8][2 * 16]byte
 
 func (r *leopardFF8) Encode(shards [][]byte) error {
 	if len(shards) != r.totalShards {
@@ -1094,6 +1094,8 @@ func initFFTSkew8() {
 	fwht8(logWalsh8, order8, order8)
 }
 
+var gf8GfniMulMatrices [256]uint64
+
 func initMul8LUT() {
 	mul8LUTs = &[order8]mul8LUT{}
 
@@ -1118,8 +1120,6 @@ func initMul8LUT() {
 	// Always initialize assembly tables.
 	// Not as big resource hog as gf16.
 	if true {
-		multiply256LUT8 = &[order8][16 * 2]byte{}
-
 		for logM := range multiply256LUT8[:] {
 			// For each 4 bits of the finite field width in bits:
 			shift := 0
