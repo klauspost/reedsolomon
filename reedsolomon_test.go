@@ -168,7 +168,7 @@ func TestBuildMatrixPAR1Singular(t *testing.T) {
 func testOpts() [][]Option {
 	if testing.Short() {
 		return [][]Option{
-			{WithPAR1Matrix()}, {WithCauchyMatrix()},
+			{WithCauchyMatrix()}, {WithLeopardGF(true)}, {WithLeopardGF16(true)},
 		}
 	}
 	opts := [][]Option{

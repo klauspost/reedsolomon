@@ -424,7 +424,8 @@ func genGF8() {
 			//work3_reg = _mm256_xor_si256(work2_reg, work3_reg)
 			VXORPD(workReg[2], workReg[3], workReg[3])
 			if (skipMask & 2) == 0 {
-				leo8MulAdd512(ctx, workReg[2], workReg[3], t23, workReg[0])
+				leo8MulAdd512(ctx, workReg[2], workReg[3], t23, nil)
+				VXORPD(workReg[0], workReg[2], workReg[2])
 			} else {
 				// Merged above when run...
 				VXORPD(workReg[0], workReg[2], workReg[2])
