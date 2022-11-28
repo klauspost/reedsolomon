@@ -886,22 +886,17 @@ func genMulAvx512GFNI(name string, inputs int, outputs int, xor bool) {
 		for j := range dst {
 			idx := i*outputs + j
 			if loadNone && idx >= inReg {
-				VBROADCASTF32X2(Mem{Base: matrixBase, Disp: 8 * idx}, look)
 				if i == 0 && !xor {
-					// Converted to VGF2P8AFFINEQB
-					VALIGNQ(U8(0), look, in, dst[j])
+					VGF2P8AFFINEQB_BCST(U8(0), Mem{Base: matrixBase, Disp: 8 * idx}, in, dst[j])
 				} else {
-					// Converted to VGF2P8AFFINEQB
-					VALIGNQ(U8(0), look, in, look)
+					VGF2P8AFFINEQB_BCST(U8(0), Mem{Base: matrixBase, Disp: 8 * idx}, in, look)
 					VXORPD(dst[j], look, dst[j])
 				}
 			} else {
 				if i == 0 && !xor {
-					// Converted to VGF2P8AFFINEQB
-					VALIGNQ(U8(0), matrix[i*outputs+j], in, dst[j])
+					VGF2P8AFFINEQB(U8(0), matrix[i*outputs+j], in, dst[j])
 				} else {
-					// Converted to VGF2P8AFFINEQB
-					VALIGNQ(U8(0), matrix[i*outputs+j], in, look)
+					VGF2P8AFFINEQB(U8(0), matrix[i*outputs+j], in, look)
 					VXORPD(dst[j], look, dst[j])
 				}
 			}

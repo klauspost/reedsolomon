@@ -555,8 +555,7 @@ func leo8MulAdd256(ctx gf8ctx, x, y reg.VecVirtual, table table256) {
 func leo8MulAdd512(ctx gf8ctx, x reg.VecVirtual, y reg.VecVirtual, table table512, z reg.VecVirtual) {
 	Comment("LEO_MULADD_512")
 	tmp := ZMM()
-	// Converted to VGF2P8AFFINEQB
-	VALIGNQ(U8(0), table, y, tmp)
+	VGF2P8AFFINEQB(U8(0), table, y, tmp)
 	if z == nil {
 		VXORPD(x, tmp, x)
 	} else {
