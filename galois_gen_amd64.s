@@ -104036,7 +104036,8 @@ loop:
 
 	// LEO_MULADD_512
 	VGF2P8AFFINEQB $0x00, Z1, Z6, Z7
-	VPTERNLOGD     $0x96, Z7, Z3, Z5
+	VXORPD         Z5, Z7, Z5
+	VXORPD         Z3, Z5, Z5
 	VXORPD         Z4, Z6, Z6
 
 	// LEO_MULADD_512
@@ -104142,7 +104143,8 @@ loop:
 
 	// LEO_MULADD_512
 	VGF2P8AFFINEQB $0x00, Z0, Z5, Z6
-	VPTERNLOGD     $0x96, Z6, Z2, Z4
+	VXORPD         Z4, Z6, Z4
+	VXORPD         Z2, Z4, Z4
 	VXORPD         Z3, Z5, Z5
 
 	// LEO_MULADD_512
@@ -104433,7 +104435,8 @@ loop:
 
 	// LEO_MULADD_512
 	VGF2P8AFFINEQB $0x00, Z1, Z5, Z6
-	VPTERNLOGD     $0x96, Z6, Z2, Z4
+	VXORPD         Z4, Z6, Z4
+	VXORPD         Z2, Z4, Z4
 	VXORPD         Z3, Z5, Z5
 	VMOVDQU64      Z2, (SI)
 	ADDQ           $0x40, SI
@@ -104525,7 +104528,8 @@ loop:
 
 	// LEO_MULADD_512
 	VGF2P8AFFINEQB $0x00, Z0, Z4, Z5
-	VPTERNLOGD     $0x96, Z5, Z1, Z3
+	VXORPD         Z3, Z5, Z3
+	VXORPD         Z1, Z3, Z3
 	VXORPD         Z2, Z4, Z4
 	VMOVDQU64      Z1, (SI)
 	ADDQ           $0x40, SI

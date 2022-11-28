@@ -23,8 +23,8 @@ import (
 var noSSE2 = flag.Bool("no-sse2", !defaultOptions.useSSE2, "Disable SSE2")
 var noSSSE3 = flag.Bool("no-ssse3", !defaultOptions.useSSSE3, "Disable SSSE3")
 var noAVX2 = flag.Bool("no-avx2", !defaultOptions.useAVX2, "Disable AVX2")
-var noAVX512 = flag.Bool("no-avx512", !defaultOptions.useAVX512, "Disable AVX512")
-var noGNFI = flag.Bool("no-gfni", !defaultOptions.useGFNI, "Disable AVX512+GFNI")
+var noAVX512 = flag.Bool("no-avx512", !defaultOptions.useAVX512, "Disable AVX512+GFNI")
+var noGNFI = flag.Bool("no-gfni", !defaultOptions.useGFNI, "Disable GFNI")
 
 func TestMain(m *testing.M) {
 	flag.Parse()
