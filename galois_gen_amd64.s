@@ -130,7 +130,7 @@ mulAvxTwo_1x1_64_end:
 	RET
 
 // func mulGFNI_1x1_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_1x1_64(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -173,7 +173,7 @@ mulGFNI_1x1_64_end:
 	RET
 
 // func mulGFNI_1x1_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_1x1_64Xor(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -469,7 +469,7 @@ mulAvxTwo_1x2_64_end:
 	RET
 
 // func mulGFNI_1x2_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_1x2_64(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -518,7 +518,7 @@ mulGFNI_1x2_64_end:
 	RET
 
 // func mulGFNI_1x2_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_1x2_64Xor(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -869,7 +869,7 @@ mulAvxTwo_1x3_64_end:
 	RET
 
 // func mulGFNI_1x3_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_1x3_64(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -924,7 +924,7 @@ mulGFNI_1x3_64_end:
 	RET
 
 // func mulGFNI_1x3_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_1x3_64Xor(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -1231,7 +1231,7 @@ mulAvxTwo_1x4_end:
 	RET
 
 // func mulGFNI_1x4_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_1x4_64(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -1292,7 +1292,7 @@ mulGFNI_1x4_64_end:
 	RET
 
 // func mulGFNI_1x4_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_1x4_64Xor(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -1532,7 +1532,7 @@ mulAvxTwo_1x5_end:
 	RET
 
 // func mulGFNI_1x5_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_1x5_64(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -1599,7 +1599,7 @@ mulGFNI_1x5_64_end:
 	RET
 
 // func mulGFNI_1x5_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_1x5_64Xor(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -1866,7 +1866,7 @@ mulAvxTwo_1x6_end:
 	RET
 
 // func mulGFNI_1x6_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_1x6_64(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -1939,7 +1939,7 @@ mulGFNI_1x6_64_end:
 	RET
 
 // func mulGFNI_1x6_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_1x6_64Xor(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -2233,7 +2233,7 @@ mulAvxTwo_1x7_end:
 	RET
 
 // func mulGFNI_1x7_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_1x7_64(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -2312,7 +2312,7 @@ mulGFNI_1x7_64_end:
 	RET
 
 // func mulGFNI_1x7_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_1x7_64Xor(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -2633,7 +2633,7 @@ mulAvxTwo_1x8_end:
 	RET
 
 // func mulGFNI_1x8_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_1x8_64(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -2718,7 +2718,7 @@ mulGFNI_1x8_64_end:
 	RET
 
 // func mulGFNI_1x8_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_1x8_64Xor(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -3066,7 +3066,7 @@ mulAvxTwo_1x9_end:
 	RET
 
 // func mulGFNI_1x9_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_1x9_64(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -3157,7 +3157,7 @@ mulGFNI_1x9_64_end:
 	RET
 
 // func mulGFNI_1x9_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_1x9_64Xor(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -3532,7 +3532,7 @@ mulAvxTwo_1x10_end:
 	RET
 
 // func mulGFNI_1x10_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_1x10_64(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -3629,7 +3629,7 @@ mulGFNI_1x10_64_end:
 	RET
 
 // func mulGFNI_1x10_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_1x10_64Xor(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -4036,7 +4036,7 @@ mulAvxTwo_2x1_64_end:
 	RET
 
 // func mulGFNI_2x1_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_2x1_64(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -4088,7 +4088,7 @@ mulGFNI_2x1_64_end:
 	RET
 
 // func mulGFNI_2x1_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_2x1_64Xor(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -4476,7 +4476,7 @@ mulAvxTwo_2x2_64_end:
 	RET
 
 // func mulGFNI_2x2_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_2x2_64(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -4537,7 +4537,7 @@ mulGFNI_2x2_64_end:
 	RET
 
 // func mulGFNI_2x2_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_2x2_64Xor(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -5009,7 +5009,7 @@ mulAvxTwo_2x3_64_end:
 	RET
 
 // func mulGFNI_2x3_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_2x3_64(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -5079,7 +5079,7 @@ mulGFNI_2x3_64_end:
 	RET
 
 // func mulGFNI_2x3_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_2x3_64Xor(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -5491,7 +5491,7 @@ mulAvxTwo_2x4_end:
 	RET
 
 // func mulGFNI_2x4_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_2x4_64(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -5570,7 +5570,7 @@ mulGFNI_2x4_64_end:
 	RET
 
 // func mulGFNI_2x4_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_2x4_64Xor(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -5891,7 +5891,7 @@ mulAvxTwo_2x5_end:
 	RET
 
 // func mulGFNI_2x5_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_2x5_64(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -5979,7 +5979,7 @@ mulGFNI_2x5_64_end:
 	RET
 
 // func mulGFNI_2x5_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_2x5_64Xor(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -6340,7 +6340,7 @@ mulAvxTwo_2x6_end:
 	RET
 
 // func mulGFNI_2x6_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_2x6_64(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -6437,7 +6437,7 @@ mulGFNI_2x6_64_end:
 	RET
 
 // func mulGFNI_2x6_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_2x6_64Xor(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -6838,7 +6838,7 @@ mulAvxTwo_2x7_end:
 	RET
 
 // func mulGFNI_2x7_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_2x7_64(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -6944,7 +6944,7 @@ mulGFNI_2x7_64_end:
 	RET
 
 // func mulGFNI_2x7_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_2x7_64Xor(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -7385,7 +7385,7 @@ mulAvxTwo_2x8_end:
 	RET
 
 // func mulGFNI_2x8_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_2x8_64(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -7500,7 +7500,7 @@ mulGFNI_2x8_64_end:
 	RET
 
 // func mulGFNI_2x8_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_2x8_64Xor(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -7981,7 +7981,7 @@ mulAvxTwo_2x9_end:
 	RET
 
 // func mulGFNI_2x9_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_2x9_64(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -8105,7 +8105,7 @@ mulGFNI_2x9_64_end:
 	RET
 
 // func mulGFNI_2x9_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_2x9_64Xor(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -8626,7 +8626,7 @@ mulAvxTwo_2x10_end:
 	RET
 
 // func mulGFNI_2x10_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_2x10_64(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -8759,7 +8759,7 @@ mulGFNI_2x10_64_end:
 	RET
 
 // func mulGFNI_2x10_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_2x10_64Xor(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -9296,7 +9296,7 @@ mulAvxTwo_3x1_64_end:
 	RET
 
 // func mulGFNI_3x1_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_3x1_64(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -9357,7 +9357,7 @@ mulGFNI_3x1_64_end:
 	RET
 
 // func mulGFNI_3x1_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_3x1_64Xor(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -9837,7 +9837,7 @@ mulAvxTwo_3x2_64_end:
 	RET
 
 // func mulGFNI_3x2_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_3x2_64(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -9910,7 +9910,7 @@ mulGFNI_3x2_64_end:
 	RET
 
 // func mulGFNI_3x2_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_3x2_64Xor(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -10503,7 +10503,7 @@ mulAvxTwo_3x3_64_end:
 	RET
 
 // func mulGFNI_3x3_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_3x3_64(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -10588,7 +10588,7 @@ mulGFNI_3x3_64_end:
 	RET
 
 // func mulGFNI_3x3_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_3x3_64Xor(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -11105,7 +11105,7 @@ mulAvxTwo_3x4_end:
 	RET
 
 // func mulGFNI_3x4_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_3x4_64(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -11202,7 +11202,7 @@ mulGFNI_3x4_64_end:
 	RET
 
 // func mulGFNI_3x4_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_3x4_64Xor(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -11604,7 +11604,7 @@ mulAvxTwo_3x5_end:
 	RET
 
 // func mulGFNI_3x5_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_3x5_64(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -11713,7 +11713,7 @@ mulGFNI_3x5_64_end:
 	RET
 
 // func mulGFNI_3x5_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_3x5_64Xor(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -12168,7 +12168,7 @@ mulAvxTwo_3x6_end:
 	RET
 
 // func mulGFNI_3x6_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_3x6_64(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -12289,7 +12289,7 @@ mulGFNI_3x6_64_end:
 	RET
 
 // func mulGFNI_3x6_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_3x6_64Xor(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -12797,7 +12797,7 @@ mulAvxTwo_3x7_end:
 	RET
 
 // func mulGFNI_3x7_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_3x7_64(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -12930,7 +12930,7 @@ mulGFNI_3x7_64_end:
 	RET
 
 // func mulGFNI_3x7_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_3x7_64Xor(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -13491,7 +13491,7 @@ mulAvxTwo_3x8_end:
 	RET
 
 // func mulGFNI_3x8_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_3x8_64(SB), $0-88
 	// Loading 22 of 24 tables to registers
 	// Destination kept in GP registers
@@ -13588,26 +13588,24 @@ mulGFNI_3x8_64_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 2 to 8 outputs
-	VMOVDQU64       (DX), Z30
-	ADDQ            $0x40, DX
-	VGF2P8AFFINEQB  $0x00, Z16, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VGF2P8AFFINEQB  $0x00, Z17, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VGF2P8AFFINEQB  $0x00, Z18, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VGF2P8AFFINEQB  $0x00, Z19, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VGF2P8AFFINEQB  $0x00, Z20, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VGF2P8AFFINEQB  $0x00, Z21, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 176(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 184(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DX), Z30
+	ADDQ                $0x40, DX
+	VGF2P8AFFINEQB      $0x00, Z16, Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB      $0x00, Z17, Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB      $0x00, Z18, Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB      $0x00, Z19, Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB      $0x00, Z20, Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB      $0x00, Z21, Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 176(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 184(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 8 outputs
 	VMOVDQU64 Z22, (R8)
@@ -13636,7 +13634,7 @@ mulGFNI_3x8_64_end:
 	RET
 
 // func mulGFNI_3x8_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_3x8_64Xor(SB), $0-88
 	// Loading 22 of 24 tables to registers
 	// Destination kept in GP registers
@@ -13751,26 +13749,24 @@ mulGFNI_3x8_64Xor_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 2 to 8 outputs
-	VMOVDQU64       (DX), Z30
-	ADDQ            $0x40, DX
-	VGF2P8AFFINEQB  $0x00, Z16, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VGF2P8AFFINEQB  $0x00, Z17, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VGF2P8AFFINEQB  $0x00, Z18, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VGF2P8AFFINEQB  $0x00, Z19, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VGF2P8AFFINEQB  $0x00, Z20, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VGF2P8AFFINEQB  $0x00, Z21, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 176(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 184(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DX), Z30
+	ADDQ                $0x40, DX
+	VGF2P8AFFINEQB      $0x00, Z16, Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB      $0x00, Z17, Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB      $0x00, Z18, Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB      $0x00, Z19, Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB      $0x00, Z20, Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB      $0x00, Z21, Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 176(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 184(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 8 outputs
 	VMOVDQU64 Z22, (R8)
@@ -14250,7 +14246,7 @@ mulAvxTwo_3x9_end:
 	RET
 
 // func mulGFNI_3x9_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_3x9_64(SB), $8-88
 	// Loading 21 of 27 tables to registers
 	// Destination kept in GP registers
@@ -14351,32 +14347,26 @@ mulGFNI_3x9_64_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 2 to 9 outputs
-	VMOVDQU64       (DX), Z30
-	ADDQ            $0x40, DX
-	VGF2P8AFFINEQB  $0x00, Z18, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VGF2P8AFFINEQB  $0x00, Z19, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VGF2P8AFFINEQB  $0x00, Z20, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 168(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 176(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 184(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 192(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 200(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DX), Z30
+	ADDQ                $0x40, DX
+	VGF2P8AFFINEQB      $0x00, Z18, Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB      $0x00, Z19, Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB      $0x00, Z20, Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 168(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 176(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 184(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 192(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 200(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 9 outputs
 	VMOVDQU64 Z21, (R8)
@@ -14407,7 +14397,7 @@ mulGFNI_3x9_64_end:
 	RET
 
 // func mulGFNI_3x9_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_3x9_64Xor(SB), $8-88
 	// Loading 21 of 27 tables to registers
 	// Destination kept in GP registers
@@ -14528,32 +14518,26 @@ mulGFNI_3x9_64Xor_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 2 to 9 outputs
-	VMOVDQU64       (DX), Z30
-	ADDQ            $0x40, DX
-	VGF2P8AFFINEQB  $0x00, Z18, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VGF2P8AFFINEQB  $0x00, Z19, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VGF2P8AFFINEQB  $0x00, Z20, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 168(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 176(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 184(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 192(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 200(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DX), Z30
+	ADDQ                $0x40, DX
+	VGF2P8AFFINEQB      $0x00, Z18, Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB      $0x00, Z19, Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB      $0x00, Z20, Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 168(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 176(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 184(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 192(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 200(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 9 outputs
 	VMOVDQU64 Z21, (R8)
@@ -15076,7 +15060,7 @@ mulAvxTwo_3x10_end:
 	RET
 
 // func mulGFNI_3x10_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_3x10_64(SB), $8-88
 	// Loading 20 of 30 tables to registers
 	// Destination kept in GP registers
@@ -15185,38 +15169,28 @@ mulGFNI_3x10_64_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 2 to 10 outputs
-	VMOVDQU64       (AX), Z30
-	ADDQ            $0x40, AX
-	VBROADCASTF32X2 160(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z20, Z31, Z20
-	VBROADCASTF32X2 168(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 176(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 184(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 192(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 200(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (AX), Z30
+	ADDQ                $0x40, AX
+	VGF2P8AFFINEQB.BCST $0x00, 160(CX), Z30, Z31
+	VXORPD              Z20, Z31, Z20
+	VGF2P8AFFINEQB.BCST $0x00, 168(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 176(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 184(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 192(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 200(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 10 outputs
 	VMOVDQU64 Z20, (DI)
@@ -15249,7 +15223,7 @@ mulGFNI_3x10_64_end:
 	RET
 
 // func mulGFNI_3x10_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_3x10_64Xor(SB), $8-88
 	// Loading 20 of 30 tables to registers
 	// Destination kept in GP registers
@@ -15380,38 +15354,28 @@ mulGFNI_3x10_64Xor_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 2 to 10 outputs
-	VMOVDQU64       (AX), Z30
-	ADDQ            $0x40, AX
-	VBROADCASTF32X2 160(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z20, Z31, Z20
-	VBROADCASTF32X2 168(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 176(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 184(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 192(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 200(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (AX), Z30
+	ADDQ                $0x40, AX
+	VGF2P8AFFINEQB.BCST $0x00, 160(CX), Z30, Z31
+	VXORPD              Z20, Z31, Z20
+	VGF2P8AFFINEQB.BCST $0x00, 168(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 176(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 184(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 192(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 200(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 10 outputs
 	VMOVDQU64 Z20, (DI)
@@ -15922,7 +15886,7 @@ mulAvxTwo_4x1_64_end:
 	RET
 
 // func mulGFNI_4x1_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_4x1_64(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -15992,7 +15956,7 @@ mulGFNI_4x1_64_end:
 	RET
 
 // func mulGFNI_4x1_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_4x1_64Xor(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -16564,7 +16528,7 @@ mulAvxTwo_4x2_64_end:
 	RET
 
 // func mulGFNI_4x2_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_4x2_64(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -16649,7 +16613,7 @@ mulGFNI_4x2_64_end:
 	RET
 
 // func mulGFNI_4x2_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_4x2_64Xor(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -17363,7 +17327,7 @@ mulAvxTwo_4x3_64_end:
 	RET
 
 // func mulGFNI_4x3_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_4x3_64(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -17463,7 +17427,7 @@ mulGFNI_4x3_64_end:
 	RET
 
 // func mulGFNI_4x3_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_4x3_64Xor(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -18085,7 +18049,7 @@ mulAvxTwo_4x4_end:
 	RET
 
 // func mulGFNI_4x4_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_4x4_64(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -18200,7 +18164,7 @@ mulGFNI_4x4_64_end:
 	RET
 
 // func mulGFNI_4x4_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_4x4_64Xor(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -18683,7 +18647,7 @@ mulAvxTwo_4x5_end:
 	RET
 
 // func mulGFNI_4x5_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_4x5_64(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -18813,7 +18777,7 @@ mulGFNI_4x5_64_end:
 	RET
 
 // func mulGFNI_4x5_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_4x5_64Xor(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -19362,7 +19326,7 @@ mulAvxTwo_4x6_end:
 	RET
 
 // func mulGFNI_4x6_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_4x6_64(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -19507,7 +19471,7 @@ mulGFNI_4x6_64_end:
 	RET
 
 // func mulGFNI_4x6_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_4x6_64Xor(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -20122,7 +20086,7 @@ mulAvxTwo_4x7_end:
 	RET
 
 // func mulGFNI_4x7_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_4x7_64(SB), $0-88
 	// Loading 23 of 28 tables to registers
 	// Destination kept in GP registers
@@ -20235,27 +20199,22 @@ mulGFNI_4x7_64_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 3 to 7 outputs
-	VMOVDQU64       (DX), Z30
-	ADDQ            $0x40, DX
-	VGF2P8AFFINEQB  $0x00, Z21, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VGF2P8AFFINEQB  $0x00, Z22, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 184(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 192(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 200(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DX), Z30
+	ADDQ                $0x40, DX
+	VGF2P8AFFINEQB      $0x00, Z21, Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB      $0x00, Z22, Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 184(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 192(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 200(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 7 outputs
 	VMOVDQU64 Z23, (R9)
@@ -20282,7 +20241,7 @@ mulGFNI_4x7_64_end:
 	RET
 
 // func mulGFNI_4x7_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_4x7_64Xor(SB), $0-88
 	// Loading 23 of 28 tables to registers
 	// Destination kept in GP registers
@@ -20411,27 +20370,22 @@ mulGFNI_4x7_64Xor_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 3 to 7 outputs
-	VMOVDQU64       (DX), Z30
-	ADDQ            $0x40, DX
-	VGF2P8AFFINEQB  $0x00, Z21, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VGF2P8AFFINEQB  $0x00, Z22, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 184(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 192(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 200(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DX), Z30
+	ADDQ                $0x40, DX
+	VGF2P8AFFINEQB      $0x00, Z21, Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB      $0x00, Z22, Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 184(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 192(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 200(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 7 outputs
 	VMOVDQU64 Z23, (R9)
@@ -20963,7 +20917,7 @@ mulAvxTwo_4x8_end:
 	RET
 
 // func mulGFNI_4x8_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_4x8_64(SB), $8-88
 	// Loading 22 of 32 tables to registers
 	// Destination kept in GP registers
@@ -21062,54 +21016,44 @@ mulGFNI_4x8_64_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 2 to 8 outputs
-	VMOVDQU64       (DI), Z30
-	ADDQ            $0x40, DI
-	VGF2P8AFFINEQB  $0x00, Z16, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VGF2P8AFFINEQB  $0x00, Z17, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VGF2P8AFFINEQB  $0x00, Z18, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VGF2P8AFFINEQB  $0x00, Z19, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VGF2P8AFFINEQB  $0x00, Z20, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VGF2P8AFFINEQB  $0x00, Z21, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 176(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 184(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DI), Z30
+	ADDQ                $0x40, DI
+	VGF2P8AFFINEQB      $0x00, Z16, Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB      $0x00, Z17, Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB      $0x00, Z18, Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB      $0x00, Z19, Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB      $0x00, Z20, Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB      $0x00, Z21, Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 176(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 184(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 3 to 8 outputs
-	VMOVDQU64       (DX), Z30
-	ADDQ            $0x40, DX
-	VBROADCASTF32X2 192(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 200(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 240(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 248(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DX), Z30
+	ADDQ                $0x40, DX
+	VGF2P8AFFINEQB.BCST $0x00, 192(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 200(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 240(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 248(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 8 outputs
 	VMOVDQU64 Z22, (R9)
@@ -21138,7 +21082,7 @@ mulGFNI_4x8_64_end:
 	RET
 
 // func mulGFNI_4x8_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_4x8_64Xor(SB), $8-88
 	// Loading 22 of 32 tables to registers
 	// Destination kept in GP registers
@@ -21255,54 +21199,44 @@ mulGFNI_4x8_64Xor_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 2 to 8 outputs
-	VMOVDQU64       (DI), Z30
-	ADDQ            $0x40, DI
-	VGF2P8AFFINEQB  $0x00, Z16, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VGF2P8AFFINEQB  $0x00, Z17, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VGF2P8AFFINEQB  $0x00, Z18, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VGF2P8AFFINEQB  $0x00, Z19, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VGF2P8AFFINEQB  $0x00, Z20, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VGF2P8AFFINEQB  $0x00, Z21, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 176(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 184(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DI), Z30
+	ADDQ                $0x40, DI
+	VGF2P8AFFINEQB      $0x00, Z16, Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB      $0x00, Z17, Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB      $0x00, Z18, Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB      $0x00, Z19, Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB      $0x00, Z20, Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB      $0x00, Z21, Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 176(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 184(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 3 to 8 outputs
-	VMOVDQU64       (DX), Z30
-	ADDQ            $0x40, DX
-	VBROADCASTF32X2 192(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 200(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 240(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 248(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DX), Z30
+	ADDQ                $0x40, DX
+	VGF2P8AFFINEQB.BCST $0x00, 192(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 200(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 240(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 248(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 8 outputs
 	VMOVDQU64 Z22, (R9)
@@ -21887,7 +21821,7 @@ mulAvxTwo_4x9_end:
 	RET
 
 // func mulGFNI_4x9_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_4x9_64(SB), $8-88
 	// Loading 21 of 36 tables to registers
 	// Destination kept in GP registers
@@ -21994,63 +21928,48 @@ mulGFNI_4x9_64_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 2 to 9 outputs
-	VMOVDQU64       (SI), Z30
-	ADDQ            $0x40, SI
-	VGF2P8AFFINEQB  $0x00, Z18, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VGF2P8AFFINEQB  $0x00, Z19, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VGF2P8AFFINEQB  $0x00, Z20, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 168(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 176(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 184(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 192(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 200(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (SI), Z30
+	ADDQ                $0x40, SI
+	VGF2P8AFFINEQB      $0x00, Z18, Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB      $0x00, Z19, Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB      $0x00, Z20, Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 168(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 176(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 184(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 192(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 200(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 3 to 9 outputs
-	VMOVDQU64       (AX), Z30
-	ADDQ            $0x40, AX
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 240(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 248(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 256(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 264(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 272(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 280(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (AX), Z30
+	ADDQ                $0x40, AX
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 240(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 248(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 256(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 264(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 272(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 280(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 9 outputs
 	VMOVDQU64 Z21, (R8)
@@ -22081,7 +22000,7 @@ mulGFNI_4x9_64_end:
 	RET
 
 // func mulGFNI_4x9_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_4x9_64Xor(SB), $8-88
 	// Loading 21 of 36 tables to registers
 	// Destination kept in GP registers
@@ -22208,63 +22127,48 @@ mulGFNI_4x9_64Xor_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 2 to 9 outputs
-	VMOVDQU64       (SI), Z30
-	ADDQ            $0x40, SI
-	VGF2P8AFFINEQB  $0x00, Z18, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VGF2P8AFFINEQB  $0x00, Z19, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VGF2P8AFFINEQB  $0x00, Z20, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 168(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 176(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 184(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 192(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 200(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (SI), Z30
+	ADDQ                $0x40, SI
+	VGF2P8AFFINEQB      $0x00, Z18, Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB      $0x00, Z19, Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB      $0x00, Z20, Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 168(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 176(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 184(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 192(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 200(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 3 to 9 outputs
-	VMOVDQU64       (AX), Z30
-	ADDQ            $0x40, AX
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 240(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 248(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 256(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 264(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 272(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 280(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (AX), Z30
+	ADDQ                $0x40, AX
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 240(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 248(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 256(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 264(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 272(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 280(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 9 outputs
 	VMOVDQU64 Z21, (R8)
@@ -22879,7 +22783,7 @@ mulAvxTwo_4x10_end:
 	RET
 
 // func mulGFNI_4x10_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_4x10_64(SB), $0-88
 	// Loading 20 of 40 tables to registers
 	// Destination kept on stack
@@ -22964,72 +22868,52 @@ mulGFNI_4x10_64_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 2 to 10 outputs
-	VMOVDQU64       (DI), Z30
-	ADDQ            $0x40, DI
-	VBROADCASTF32X2 160(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z20, Z31, Z20
-	VBROADCASTF32X2 168(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 176(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 184(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 192(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 200(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DI), Z30
+	ADDQ                $0x40, DI
+	VGF2P8AFFINEQB.BCST $0x00, 160(CX), Z30, Z31
+	VXORPD              Z20, Z31, Z20
+	VGF2P8AFFINEQB.BCST $0x00, 168(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 176(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 184(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 192(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 200(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 3 to 10 outputs
-	VMOVDQU64       (DX), Z30
-	ADDQ            $0x40, DX
-	VBROADCASTF32X2 240(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z20, Z31, Z20
-	VBROADCASTF32X2 248(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 256(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 264(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 272(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 280(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 288(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 296(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 304(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 312(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DX), Z30
+	ADDQ                $0x40, DX
+	VGF2P8AFFINEQB.BCST $0x00, 240(CX), Z30, Z31
+	VXORPD              Z20, Z31, Z20
+	VGF2P8AFFINEQB.BCST $0x00, 248(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 256(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 264(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 272(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 280(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 288(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 296(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 304(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 312(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 10 outputs
 	MOVQ      (R8), R10
@@ -23063,7 +22947,7 @@ mulGFNI_4x10_64_end:
 	RET
 
 // func mulGFNI_4x10_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_4x10_64Xor(SB), $0-88
 	// Loading 20 of 40 tables to registers
 	// Destination kept on stack
@@ -23180,72 +23064,52 @@ mulGFNI_4x10_64Xor_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 2 to 10 outputs
-	VMOVDQU64       (DI), Z30
-	ADDQ            $0x40, DI
-	VBROADCASTF32X2 160(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z20, Z31, Z20
-	VBROADCASTF32X2 168(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 176(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 184(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 192(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 200(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DI), Z30
+	ADDQ                $0x40, DI
+	VGF2P8AFFINEQB.BCST $0x00, 160(CX), Z30, Z31
+	VXORPD              Z20, Z31, Z20
+	VGF2P8AFFINEQB.BCST $0x00, 168(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 176(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 184(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 192(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 200(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 3 to 10 outputs
-	VMOVDQU64       (DX), Z30
-	ADDQ            $0x40, DX
-	VBROADCASTF32X2 240(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z20, Z31, Z20
-	VBROADCASTF32X2 248(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 256(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 264(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 272(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 280(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 288(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 296(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 304(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 312(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DX), Z30
+	ADDQ                $0x40, DX
+	VGF2P8AFFINEQB.BCST $0x00, 240(CX), Z30, Z31
+	VXORPD              Z20, Z31, Z20
+	VGF2P8AFFINEQB.BCST $0x00, 248(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 256(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 264(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 272(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 280(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 288(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 296(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 304(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 312(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 10 outputs
 	MOVQ      (R8), R10
@@ -23838,7 +23702,7 @@ mulAvxTwo_5x1_64_end:
 	RET
 
 // func mulGFNI_5x1_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_5x1_64(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -23917,7 +23781,7 @@ mulGFNI_5x1_64_end:
 	RET
 
 // func mulGFNI_5x1_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_5x1_64Xor(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -24581,7 +24445,7 @@ mulAvxTwo_5x2_64_end:
 	RET
 
 // func mulGFNI_5x2_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_5x2_64(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -24678,7 +24542,7 @@ mulGFNI_5x2_64_end:
 	RET
 
 // func mulGFNI_5x2_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_5x2_64Xor(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -25513,7 +25377,7 @@ mulAvxTwo_5x3_64_end:
 	RET
 
 // func mulGFNI_5x3_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_5x3_64(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -25628,7 +25492,7 @@ mulGFNI_5x3_64_end:
 	RET
 
 // func mulGFNI_5x3_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_5x3_64Xor(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -26355,7 +26219,7 @@ mulAvxTwo_5x4_end:
 	RET
 
 // func mulGFNI_5x4_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_5x4_64(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -26488,7 +26352,7 @@ mulGFNI_5x4_64_end:
 	RET
 
 // func mulGFNI_5x4_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_5x4_64Xor(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -27052,7 +26916,7 @@ mulAvxTwo_5x5_end:
 	RET
 
 // func mulGFNI_5x5_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_5x5_64(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -27203,7 +27067,7 @@ mulGFNI_5x5_64_end:
 	RET
 
 // func mulGFNI_5x5_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_5x5_64Xor(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -27846,7 +27710,7 @@ mulAvxTwo_5x6_end:
 	RET
 
 // func mulGFNI_5x6_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_5x6_64(SB), $0-88
 	// Loading 24 of 30 tables to registers
 	// Destination kept in GP registers
@@ -27971,26 +27835,20 @@ mulGFNI_5x6_64_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 4 to 6 outputs
-	VMOVDQU64       (DX), Z30
-	ADDQ            $0x40, DX
-	VBROADCASTF32X2 192(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 200(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DX), Z30
+	ADDQ                $0x40, DX
+	VGF2P8AFFINEQB.BCST $0x00, 192(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 200(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 6 outputs
 	VMOVDQU64 Z24, (R10)
@@ -28015,7 +27873,7 @@ mulGFNI_5x6_64_end:
 	RET
 
 // func mulGFNI_5x6_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_5x6_64Xor(SB), $0-88
 	// Loading 24 of 30 tables to registers
 	// Destination kept in GP registers
@@ -28154,26 +28012,20 @@ mulGFNI_5x6_64Xor_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 4 to 6 outputs
-	VMOVDQU64       (DX), Z30
-	ADDQ            $0x40, DX
-	VBROADCASTF32X2 192(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 200(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DX), Z30
+	ADDQ                $0x40, DX
+	VGF2P8AFFINEQB.BCST $0x00, 192(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 200(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 6 outputs
 	VMOVDQU64 Z24, (R10)
@@ -28737,7 +28589,7 @@ mulAvxTwo_5x7_end:
 	RET
 
 // func mulGFNI_5x7_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_5x7_64(SB), $8-88
 	// Loading 23 of 35 tables to registers
 	// Destination kept in GP registers
@@ -28852,52 +28704,40 @@ mulGFNI_5x7_64_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 3 to 7 outputs
-	VMOVDQU64       (R8), Z30
-	ADDQ            $0x40, R8
-	VGF2P8AFFINEQB  $0x00, Z21, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VGF2P8AFFINEQB  $0x00, Z22, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 184(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 192(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 200(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R8), Z30
+	ADDQ                $0x40, R8
+	VGF2P8AFFINEQB      $0x00, Z21, Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB      $0x00, Z22, Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 184(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 192(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 200(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 4 to 7 outputs
-	VMOVDQU64       (DX), Z30
-	ADDQ            $0x40, DX
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 240(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 248(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 256(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 264(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 272(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DX), Z30
+	ADDQ                $0x40, DX
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 240(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 248(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 256(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 264(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 272(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 7 outputs
 	VMOVDQU64 Z23, (R10)
@@ -28924,7 +28764,7 @@ mulGFNI_5x7_64_end:
 	RET
 
 // func mulGFNI_5x7_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_5x7_64Xor(SB), $8-88
 	// Loading 23 of 35 tables to registers
 	// Destination kept in GP registers
@@ -29055,52 +28895,40 @@ mulGFNI_5x7_64Xor_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 3 to 7 outputs
-	VMOVDQU64       (R8), Z30
-	ADDQ            $0x40, R8
-	VGF2P8AFFINEQB  $0x00, Z21, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VGF2P8AFFINEQB  $0x00, Z22, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 184(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 192(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 200(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R8), Z30
+	ADDQ                $0x40, R8
+	VGF2P8AFFINEQB      $0x00, Z21, Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB      $0x00, Z22, Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 184(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 192(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 200(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 4 to 7 outputs
-	VMOVDQU64       (DX), Z30
-	ADDQ            $0x40, DX
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 240(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 248(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 256(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 264(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 272(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DX), Z30
+	ADDQ                $0x40, DX
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 240(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 248(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 256(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 264(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 272(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 7 outputs
 	VMOVDQU64 Z23, (R10)
@@ -29727,7 +29555,7 @@ mulAvxTwo_5x8_end:
 	RET
 
 // func mulGFNI_5x8_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_5x8_64(SB), $8-88
 	// Loading 22 of 40 tables to registers
 	// Destination kept in GP registers
@@ -29832,82 +29660,64 @@ mulGFNI_5x8_64_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 2 to 8 outputs
-	VMOVDQU64       (SI), Z30
-	ADDQ            $0x40, SI
-	VGF2P8AFFINEQB  $0x00, Z16, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VGF2P8AFFINEQB  $0x00, Z17, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VGF2P8AFFINEQB  $0x00, Z18, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VGF2P8AFFINEQB  $0x00, Z19, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VGF2P8AFFINEQB  $0x00, Z20, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VGF2P8AFFINEQB  $0x00, Z21, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 176(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 184(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (SI), Z30
+	ADDQ                $0x40, SI
+	VGF2P8AFFINEQB      $0x00, Z16, Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB      $0x00, Z17, Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB      $0x00, Z18, Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB      $0x00, Z19, Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB      $0x00, Z20, Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB      $0x00, Z21, Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 176(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 184(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 3 to 8 outputs
-	VMOVDQU64       (DI), Z30
-	ADDQ            $0x40, DI
-	VBROADCASTF32X2 192(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 200(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 240(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 248(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DI), Z30
+	ADDQ                $0x40, DI
+	VGF2P8AFFINEQB.BCST $0x00, 192(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 200(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 240(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 248(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 4 to 8 outputs
-	VMOVDQU64       (AX), Z30
-	ADDQ            $0x40, AX
-	VBROADCASTF32X2 256(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 264(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 272(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 280(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 288(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 296(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 304(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 312(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (AX), Z30
+	ADDQ                $0x40, AX
+	VGF2P8AFFINEQB.BCST $0x00, 256(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 264(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 272(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 280(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 288(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 296(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 304(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 312(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 8 outputs
 	VMOVDQU64 Z22, (R9)
@@ -29936,7 +29746,7 @@ mulGFNI_5x8_64_end:
 	RET
 
 // func mulGFNI_5x8_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_5x8_64Xor(SB), $8-88
 	// Loading 22 of 40 tables to registers
 	// Destination kept in GP registers
@@ -30059,82 +29869,64 @@ mulGFNI_5x8_64Xor_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 2 to 8 outputs
-	VMOVDQU64       (SI), Z30
-	ADDQ            $0x40, SI
-	VGF2P8AFFINEQB  $0x00, Z16, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VGF2P8AFFINEQB  $0x00, Z17, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VGF2P8AFFINEQB  $0x00, Z18, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VGF2P8AFFINEQB  $0x00, Z19, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VGF2P8AFFINEQB  $0x00, Z20, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VGF2P8AFFINEQB  $0x00, Z21, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 176(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 184(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (SI), Z30
+	ADDQ                $0x40, SI
+	VGF2P8AFFINEQB      $0x00, Z16, Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB      $0x00, Z17, Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB      $0x00, Z18, Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB      $0x00, Z19, Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB      $0x00, Z20, Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB      $0x00, Z21, Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 176(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 184(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 3 to 8 outputs
-	VMOVDQU64       (DI), Z30
-	ADDQ            $0x40, DI
-	VBROADCASTF32X2 192(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 200(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 240(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 248(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DI), Z30
+	ADDQ                $0x40, DI
+	VGF2P8AFFINEQB.BCST $0x00, 192(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 200(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 240(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 248(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 4 to 8 outputs
-	VMOVDQU64       (AX), Z30
-	ADDQ            $0x40, AX
-	VBROADCASTF32X2 256(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 264(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 272(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 280(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 288(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 296(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 304(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 312(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (AX), Z30
+	ADDQ                $0x40, AX
+	VGF2P8AFFINEQB.BCST $0x00, 256(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 264(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 272(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 280(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 288(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 296(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 304(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 312(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 8 outputs
 	VMOVDQU64 Z22, (R9)
@@ -30803,7 +30595,7 @@ mulAvxTwo_5x9_end:
 	RET
 
 // func mulGFNI_5x9_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_5x9_64(SB), $0-88
 	// Loading 21 of 45 tables to registers
 	// Destination kept on stack
@@ -30888,94 +30680,70 @@ mulGFNI_5x9_64_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 2 to 9 outputs
-	VMOVDQU64       (DI), Z30
-	ADDQ            $0x40, DI
-	VGF2P8AFFINEQB  $0x00, Z18, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VGF2P8AFFINEQB  $0x00, Z19, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VGF2P8AFFINEQB  $0x00, Z20, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 168(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 176(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 184(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 192(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 200(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DI), Z30
+	ADDQ                $0x40, DI
+	VGF2P8AFFINEQB      $0x00, Z18, Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB      $0x00, Z19, Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB      $0x00, Z20, Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 168(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 176(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 184(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 192(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 200(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 3 to 9 outputs
-	VMOVDQU64       (R8), Z30
-	ADDQ            $0x40, R8
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 240(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 248(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 256(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 264(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 272(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 280(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R8), Z30
+	ADDQ                $0x40, R8
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 240(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 248(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 256(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 264(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 272(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 280(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 4 to 9 outputs
-	VMOVDQU64       (DX), Z30
-	ADDQ            $0x40, DX
-	VBROADCASTF32X2 288(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 296(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 304(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 312(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 320(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 328(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 336(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 344(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 352(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DX), Z30
+	ADDQ                $0x40, DX
+	VGF2P8AFFINEQB.BCST $0x00, 288(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 296(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 304(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 312(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 320(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 328(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 336(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 344(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 352(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 9 outputs
 	MOVQ      (R9), R11
@@ -31007,7 +30775,7 @@ mulGFNI_5x9_64_end:
 	RET
 
 // func mulGFNI_5x9_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_5x9_64Xor(SB), $0-88
 	// Loading 21 of 45 tables to registers
 	// Destination kept on stack
@@ -31121,94 +30889,70 @@ mulGFNI_5x9_64Xor_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 2 to 9 outputs
-	VMOVDQU64       (DI), Z30
-	ADDQ            $0x40, DI
-	VGF2P8AFFINEQB  $0x00, Z18, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VGF2P8AFFINEQB  $0x00, Z19, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VGF2P8AFFINEQB  $0x00, Z20, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 168(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 176(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 184(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 192(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 200(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DI), Z30
+	ADDQ                $0x40, DI
+	VGF2P8AFFINEQB      $0x00, Z18, Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB      $0x00, Z19, Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB      $0x00, Z20, Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 168(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 176(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 184(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 192(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 200(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 3 to 9 outputs
-	VMOVDQU64       (R8), Z30
-	ADDQ            $0x40, R8
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 240(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 248(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 256(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 264(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 272(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 280(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R8), Z30
+	ADDQ                $0x40, R8
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 240(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 248(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 256(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 264(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 272(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 280(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 4 to 9 outputs
-	VMOVDQU64       (DX), Z30
-	ADDQ            $0x40, DX
-	VBROADCASTF32X2 288(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 296(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 304(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 312(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 320(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 328(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 336(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 344(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 352(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DX), Z30
+	ADDQ                $0x40, DX
+	VGF2P8AFFINEQB.BCST $0x00, 288(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 296(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 304(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 312(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 320(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 328(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 336(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 344(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 352(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 9 outputs
 	MOVQ      (R9), R11
@@ -31925,7 +31669,7 @@ mulAvxTwo_5x10_end:
 	RET
 
 // func mulGFNI_5x10_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_5x10_64(SB), $0-88
 	// Loading 20 of 50 tables to registers
 	// Destination kept on stack
@@ -32012,106 +31756,76 @@ mulGFNI_5x10_64_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 2 to 10 outputs
-	VMOVDQU64       (DI), Z30
-	ADDQ            $0x40, DI
-	VBROADCASTF32X2 160(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z20, Z31, Z20
-	VBROADCASTF32X2 168(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 176(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 184(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 192(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 200(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DI), Z30
+	ADDQ                $0x40, DI
+	VGF2P8AFFINEQB.BCST $0x00, 160(CX), Z30, Z31
+	VXORPD              Z20, Z31, Z20
+	VGF2P8AFFINEQB.BCST $0x00, 168(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 176(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 184(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 192(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 200(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 3 to 10 outputs
-	VMOVDQU64       (R8), Z30
-	ADDQ            $0x40, R8
-	VBROADCASTF32X2 240(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z20, Z31, Z20
-	VBROADCASTF32X2 248(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 256(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 264(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 272(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 280(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 288(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 296(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 304(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 312(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R8), Z30
+	ADDQ                $0x40, R8
+	VGF2P8AFFINEQB.BCST $0x00, 240(CX), Z30, Z31
+	VXORPD              Z20, Z31, Z20
+	VGF2P8AFFINEQB.BCST $0x00, 248(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 256(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 264(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 272(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 280(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 288(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 296(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 304(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 312(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 4 to 10 outputs
-	VMOVDQU64       (DX), Z30
-	ADDQ            $0x40, DX
-	VBROADCASTF32X2 320(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z20, Z31, Z20
-	VBROADCASTF32X2 328(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 336(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 344(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 352(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 360(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 368(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 376(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 384(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 392(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DX), Z30
+	ADDQ                $0x40, DX
+	VGF2P8AFFINEQB.BCST $0x00, 320(CX), Z30, Z31
+	VXORPD              Z20, Z31, Z20
+	VGF2P8AFFINEQB.BCST $0x00, 328(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 336(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 344(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 352(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 360(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 368(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 376(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 384(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 392(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 10 outputs
 	MOVQ      (R9), R11
@@ -32145,7 +31859,7 @@ mulGFNI_5x10_64_end:
 	RET
 
 // func mulGFNI_5x10_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_5x10_64Xor(SB), $0-88
 	// Loading 20 of 50 tables to registers
 	// Destination kept on stack
@@ -32264,106 +31978,76 @@ mulGFNI_5x10_64Xor_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 2 to 10 outputs
-	VMOVDQU64       (DI), Z30
-	ADDQ            $0x40, DI
-	VBROADCASTF32X2 160(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z20, Z31, Z20
-	VBROADCASTF32X2 168(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 176(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 184(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 192(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 200(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DI), Z30
+	ADDQ                $0x40, DI
+	VGF2P8AFFINEQB.BCST $0x00, 160(CX), Z30, Z31
+	VXORPD              Z20, Z31, Z20
+	VGF2P8AFFINEQB.BCST $0x00, 168(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 176(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 184(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 192(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 200(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 3 to 10 outputs
-	VMOVDQU64       (R8), Z30
-	ADDQ            $0x40, R8
-	VBROADCASTF32X2 240(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z20, Z31, Z20
-	VBROADCASTF32X2 248(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 256(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 264(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 272(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 280(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 288(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 296(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 304(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 312(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R8), Z30
+	ADDQ                $0x40, R8
+	VGF2P8AFFINEQB.BCST $0x00, 240(CX), Z30, Z31
+	VXORPD              Z20, Z31, Z20
+	VGF2P8AFFINEQB.BCST $0x00, 248(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 256(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 264(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 272(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 280(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 288(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 296(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 304(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 312(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 4 to 10 outputs
-	VMOVDQU64       (DX), Z30
-	ADDQ            $0x40, DX
-	VBROADCASTF32X2 320(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z20, Z31, Z20
-	VBROADCASTF32X2 328(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 336(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 344(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 352(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 360(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 368(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 376(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 384(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 392(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DX), Z30
+	ADDQ                $0x40, DX
+	VGF2P8AFFINEQB.BCST $0x00, 320(CX), Z30, Z31
+	VXORPD              Z20, Z31, Z20
+	VGF2P8AFFINEQB.BCST $0x00, 328(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 336(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 344(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 352(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 360(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 368(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 376(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 384(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 392(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 10 outputs
 	MOVQ      (R9), R11
@@ -33050,7 +32734,7 @@ mulAvxTwo_6x1_64_end:
 	RET
 
 // func mulGFNI_6x1_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_6x1_64(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -33138,7 +32822,7 @@ mulGFNI_6x1_64_end:
 	RET
 
 // func mulGFNI_6x1_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_6x1_64Xor(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -33894,7 +33578,7 @@ mulAvxTwo_6x2_64_end:
 	RET
 
 // func mulGFNI_6x2_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_6x2_64(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -34003,7 +33687,7 @@ mulGFNI_6x2_64_end:
 	RET
 
 // func mulGFNI_6x2_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_6x2_64Xor(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -34959,7 +34643,7 @@ mulAvxTwo_6x3_64_end:
 	RET
 
 // func mulGFNI_6x3_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_6x3_64(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -35089,7 +34773,7 @@ mulGFNI_6x3_64_end:
 	RET
 
 // func mulGFNI_6x3_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_6x3_64Xor(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -35921,7 +35605,7 @@ mulAvxTwo_6x4_end:
 	RET
 
 // func mulGFNI_6x4_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_6x4_64(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -36072,7 +35756,7 @@ mulGFNI_6x4_64_end:
 	RET
 
 // func mulGFNI_6x4_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_6x4_64Xor(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -36717,7 +36401,7 @@ mulAvxTwo_6x5_end:
 	RET
 
 // func mulGFNI_6x5_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_6x5_64(SB), $0-88
 	// Loading 25 of 30 tables to registers
 	// Destination kept in GP registers
@@ -36850,23 +36534,18 @@ mulGFNI_6x5_64_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 5 to 5 outputs
-	VMOVDQU64       (DX), Z30
-	ADDQ            $0x40, DX
-	VBROADCASTF32X2 200(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DX), Z30
+	ADDQ                $0x40, DX
+	VGF2P8AFFINEQB.BCST $0x00, 200(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 5 outputs
 	VMOVDQU64 Z25, (R11)
@@ -36889,7 +36568,7 @@ mulGFNI_6x5_64_end:
 	RET
 
 // func mulGFNI_6x5_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_6x5_64Xor(SB), $0-88
 	// Loading 25 of 30 tables to registers
 	// Destination kept in GP registers
@@ -37034,23 +36713,18 @@ mulGFNI_6x5_64Xor_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 5 to 5 outputs
-	VMOVDQU64       (DX), Z30
-	ADDQ            $0x40, DX
-	VBROADCASTF32X2 200(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DX), Z30
+	ADDQ                $0x40, DX
+	VGF2P8AFFINEQB.BCST $0x00, 200(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 5 outputs
 	VMOVDQU64 Z25, (R11)
@@ -37626,7 +37300,7 @@ mulAvxTwo_6x6_end:
 	RET
 
 // func mulGFNI_6x6_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_6x6_64(SB), $8-88
 	// Loading 24 of 36 tables to registers
 	// Destination kept in GP registers
@@ -37753,48 +37427,36 @@ mulGFNI_6x6_64_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 4 to 6 outputs
-	VMOVDQU64       (R9), Z30
-	ADDQ            $0x40, R9
-	VBROADCASTF32X2 192(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 200(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R9), Z30
+	ADDQ                $0x40, R9
+	VGF2P8AFFINEQB.BCST $0x00, 192(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 200(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 5 to 6 outputs
-	VMOVDQU64       (DX), Z30
-	ADDQ            $0x40, DX
-	VBROADCASTF32X2 240(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 248(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 256(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 264(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 272(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 280(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DX), Z30
+	ADDQ                $0x40, DX
+	VGF2P8AFFINEQB.BCST $0x00, 240(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 248(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 256(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 264(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 272(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 280(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 6 outputs
 	VMOVDQU64 Z24, (R11)
@@ -37819,7 +37481,7 @@ mulGFNI_6x6_64_end:
 	RET
 
 // func mulGFNI_6x6_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_6x6_64Xor(SB), $8-88
 	// Loading 24 of 36 tables to registers
 	// Destination kept in GP registers
@@ -37960,48 +37622,36 @@ mulGFNI_6x6_64Xor_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 4 to 6 outputs
-	VMOVDQU64       (R9), Z30
-	ADDQ            $0x40, R9
-	VBROADCASTF32X2 192(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 200(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R9), Z30
+	ADDQ                $0x40, R9
+	VGF2P8AFFINEQB.BCST $0x00, 192(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 200(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 5 to 6 outputs
-	VMOVDQU64       (DX), Z30
-	ADDQ            $0x40, DX
-	VBROADCASTF32X2 240(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 248(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 256(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 264(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 272(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 280(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DX), Z30
+	ADDQ                $0x40, DX
+	VGF2P8AFFINEQB.BCST $0x00, 240(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 248(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 256(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 264(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 272(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 280(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 6 outputs
 	VMOVDQU64 Z24, (R11)
@@ -38650,7 +38300,7 @@ mulAvxTwo_6x7_end:
 	RET
 
 // func mulGFNI_6x7_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_6x7_64(SB), $8-88
 	// Loading 23 of 42 tables to registers
 	// Destination kept in GP registers
@@ -38771,77 +38421,58 @@ mulGFNI_6x7_64_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 3 to 7 outputs
-	VMOVDQU64       (DI), Z30
-	ADDQ            $0x40, DI
-	VGF2P8AFFINEQB  $0x00, Z21, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VGF2P8AFFINEQB  $0x00, Z22, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 184(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 192(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 200(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DI), Z30
+	ADDQ                $0x40, DI
+	VGF2P8AFFINEQB      $0x00, Z21, Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB      $0x00, Z22, Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 184(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 192(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 200(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 4 to 7 outputs
-	VMOVDQU64       (R8), Z30
-	ADDQ            $0x40, R8
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 240(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 248(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 256(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 264(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 272(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R8), Z30
+	ADDQ                $0x40, R8
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 240(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 248(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 256(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 264(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 272(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 5 to 7 outputs
-	VMOVDQU64       (AX), Z30
-	ADDQ            $0x40, AX
-	VBROADCASTF32X2 280(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 288(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 296(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 304(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 312(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 320(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 328(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (AX), Z30
+	ADDQ                $0x40, AX
+	VGF2P8AFFINEQB.BCST $0x00, 280(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 288(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 296(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 304(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 312(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 320(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 328(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 7 outputs
 	VMOVDQU64 Z23, (R10)
@@ -38868,7 +38499,7 @@ mulGFNI_6x7_64_end:
 	RET
 
 // func mulGFNI_6x7_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_6x7_64Xor(SB), $8-88
 	// Loading 23 of 42 tables to registers
 	// Destination kept in GP registers
@@ -39005,77 +38636,58 @@ mulGFNI_6x7_64Xor_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 3 to 7 outputs
-	VMOVDQU64       (DI), Z30
-	ADDQ            $0x40, DI
-	VGF2P8AFFINEQB  $0x00, Z21, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VGF2P8AFFINEQB  $0x00, Z22, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 184(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 192(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 200(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DI), Z30
+	ADDQ                $0x40, DI
+	VGF2P8AFFINEQB      $0x00, Z21, Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB      $0x00, Z22, Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 184(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 192(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 200(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 4 to 7 outputs
-	VMOVDQU64       (R8), Z30
-	ADDQ            $0x40, R8
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 240(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 248(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 256(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 264(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 272(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R8), Z30
+	ADDQ                $0x40, R8
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 240(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 248(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 256(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 264(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 272(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 5 to 7 outputs
-	VMOVDQU64       (AX), Z30
-	ADDQ            $0x40, AX
-	VBROADCASTF32X2 280(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 288(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 296(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 304(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 312(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 320(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 328(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (AX), Z30
+	ADDQ                $0x40, AX
+	VGF2P8AFFINEQB.BCST $0x00, 280(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 288(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 296(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 304(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 312(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 320(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 328(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 7 outputs
 	VMOVDQU64 Z23, (R10)
@@ -39778,7 +39390,7 @@ mulAvxTwo_6x8_end:
 	RET
 
 // func mulGFNI_6x8_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_6x8_64(SB), $0-88
 	// Loading 22 of 48 tables to registers
 	// Destination kept on stack
@@ -39863,110 +39475,84 @@ mulGFNI_6x8_64_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 2 to 8 outputs
-	VMOVDQU64       (DI), Z30
-	ADDQ            $0x40, DI
-	VGF2P8AFFINEQB  $0x00, Z16, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VGF2P8AFFINEQB  $0x00, Z17, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VGF2P8AFFINEQB  $0x00, Z18, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VGF2P8AFFINEQB  $0x00, Z19, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VGF2P8AFFINEQB  $0x00, Z20, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VGF2P8AFFINEQB  $0x00, Z21, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 176(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 184(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DI), Z30
+	ADDQ                $0x40, DI
+	VGF2P8AFFINEQB      $0x00, Z16, Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB      $0x00, Z17, Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB      $0x00, Z18, Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB      $0x00, Z19, Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB      $0x00, Z20, Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB      $0x00, Z21, Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 176(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 184(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 3 to 8 outputs
-	VMOVDQU64       (R8), Z30
-	ADDQ            $0x40, R8
-	VBROADCASTF32X2 192(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 200(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 240(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 248(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R8), Z30
+	ADDQ                $0x40, R8
+	VGF2P8AFFINEQB.BCST $0x00, 192(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 200(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 240(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 248(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 4 to 8 outputs
-	VMOVDQU64       (R9), Z30
-	ADDQ            $0x40, R9
-	VBROADCASTF32X2 256(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 264(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 272(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 280(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 288(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 296(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 304(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 312(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R9), Z30
+	ADDQ                $0x40, R9
+	VGF2P8AFFINEQB.BCST $0x00, 256(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 264(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 272(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 280(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 288(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 296(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 304(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 312(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 5 to 8 outputs
-	VMOVDQU64       (DX), Z30
-	ADDQ            $0x40, DX
-	VBROADCASTF32X2 320(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 328(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 336(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 344(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 352(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 360(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 368(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 376(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DX), Z30
+	ADDQ                $0x40, DX
+	VGF2P8AFFINEQB.BCST $0x00, 320(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 328(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 336(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 344(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 352(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 360(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 368(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 376(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 8 outputs
 	MOVQ      (R10), R12
@@ -39996,7 +39582,7 @@ mulGFNI_6x8_64_end:
 	RET
 
 // func mulGFNI_6x8_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_6x8_64Xor(SB), $0-88
 	// Loading 22 of 48 tables to registers
 	// Destination kept on stack
@@ -40107,110 +39693,84 @@ mulGFNI_6x8_64Xor_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 2 to 8 outputs
-	VMOVDQU64       (DI), Z30
-	ADDQ            $0x40, DI
-	VGF2P8AFFINEQB  $0x00, Z16, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VGF2P8AFFINEQB  $0x00, Z17, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VGF2P8AFFINEQB  $0x00, Z18, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VGF2P8AFFINEQB  $0x00, Z19, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VGF2P8AFFINEQB  $0x00, Z20, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VGF2P8AFFINEQB  $0x00, Z21, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 176(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 184(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DI), Z30
+	ADDQ                $0x40, DI
+	VGF2P8AFFINEQB      $0x00, Z16, Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB      $0x00, Z17, Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB      $0x00, Z18, Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB      $0x00, Z19, Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB      $0x00, Z20, Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB      $0x00, Z21, Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 176(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 184(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 3 to 8 outputs
-	VMOVDQU64       (R8), Z30
-	ADDQ            $0x40, R8
-	VBROADCASTF32X2 192(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 200(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 240(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 248(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R8), Z30
+	ADDQ                $0x40, R8
+	VGF2P8AFFINEQB.BCST $0x00, 192(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 200(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 240(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 248(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 4 to 8 outputs
-	VMOVDQU64       (R9), Z30
-	ADDQ            $0x40, R9
-	VBROADCASTF32X2 256(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 264(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 272(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 280(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 288(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 296(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 304(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 312(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R9), Z30
+	ADDQ                $0x40, R9
+	VGF2P8AFFINEQB.BCST $0x00, 256(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 264(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 272(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 280(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 288(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 296(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 304(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 312(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 5 to 8 outputs
-	VMOVDQU64       (DX), Z30
-	ADDQ            $0x40, DX
-	VBROADCASTF32X2 320(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 328(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 336(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 344(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 352(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 360(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 368(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 376(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DX), Z30
+	ADDQ                $0x40, DX
+	VGF2P8AFFINEQB.BCST $0x00, 320(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 328(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 336(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 344(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 352(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 360(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 368(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 376(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 8 outputs
 	MOVQ      (R10), R12
@@ -40972,7 +40532,7 @@ mulAvxTwo_6x9_end:
 	RET
 
 // func mulGFNI_6x9_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_6x9_64(SB), $0-88
 	// Loading 21 of 54 tables to registers
 	// Destination kept on stack
@@ -41059,125 +40619,92 @@ mulGFNI_6x9_64_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 2 to 9 outputs
-	VMOVDQU64       (DI), Z30
-	ADDQ            $0x40, DI
-	VGF2P8AFFINEQB  $0x00, Z18, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VGF2P8AFFINEQB  $0x00, Z19, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VGF2P8AFFINEQB  $0x00, Z20, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 168(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 176(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 184(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 192(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 200(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DI), Z30
+	ADDQ                $0x40, DI
+	VGF2P8AFFINEQB      $0x00, Z18, Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB      $0x00, Z19, Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB      $0x00, Z20, Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 168(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 176(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 184(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 192(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 200(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 3 to 9 outputs
-	VMOVDQU64       (R8), Z30
-	ADDQ            $0x40, R8
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 240(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 248(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 256(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 264(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 272(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 280(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R8), Z30
+	ADDQ                $0x40, R8
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 240(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 248(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 256(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 264(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 272(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 280(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 4 to 9 outputs
-	VMOVDQU64       (R9), Z30
-	ADDQ            $0x40, R9
-	VBROADCASTF32X2 288(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 296(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 304(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 312(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 320(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 328(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 336(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 344(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 352(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R9), Z30
+	ADDQ                $0x40, R9
+	VGF2P8AFFINEQB.BCST $0x00, 288(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 296(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 304(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 312(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 320(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 328(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 336(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 344(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 352(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 5 to 9 outputs
-	VMOVDQU64       (DX), Z30
-	ADDQ            $0x40, DX
-	VBROADCASTF32X2 360(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 368(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 376(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 384(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 392(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 400(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 408(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 416(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 424(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DX), Z30
+	ADDQ                $0x40, DX
+	VGF2P8AFFINEQB.BCST $0x00, 360(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 368(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 376(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 384(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 392(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 400(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 408(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 416(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 424(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 9 outputs
 	MOVQ      (R10), R12
@@ -41209,7 +40736,7 @@ mulGFNI_6x9_64_end:
 	RET
 
 // func mulGFNI_6x9_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_6x9_64Xor(SB), $0-88
 	// Loading 21 of 54 tables to registers
 	// Destination kept on stack
@@ -41325,125 +40852,92 @@ mulGFNI_6x9_64Xor_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 2 to 9 outputs
-	VMOVDQU64       (DI), Z30
-	ADDQ            $0x40, DI
-	VGF2P8AFFINEQB  $0x00, Z18, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VGF2P8AFFINEQB  $0x00, Z19, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VGF2P8AFFINEQB  $0x00, Z20, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 168(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 176(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 184(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 192(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 200(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DI), Z30
+	ADDQ                $0x40, DI
+	VGF2P8AFFINEQB      $0x00, Z18, Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB      $0x00, Z19, Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB      $0x00, Z20, Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 168(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 176(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 184(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 192(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 200(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 3 to 9 outputs
-	VMOVDQU64       (R8), Z30
-	ADDQ            $0x40, R8
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 240(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 248(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 256(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 264(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 272(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 280(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R8), Z30
+	ADDQ                $0x40, R8
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 240(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 248(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 256(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 264(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 272(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 280(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 4 to 9 outputs
-	VMOVDQU64       (R9), Z30
-	ADDQ            $0x40, R9
-	VBROADCASTF32X2 288(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 296(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 304(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 312(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 320(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 328(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 336(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 344(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 352(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R9), Z30
+	ADDQ                $0x40, R9
+	VGF2P8AFFINEQB.BCST $0x00, 288(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 296(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 304(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 312(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 320(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 328(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 336(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 344(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 352(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 5 to 9 outputs
-	VMOVDQU64       (DX), Z30
-	ADDQ            $0x40, DX
-	VBROADCASTF32X2 360(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 368(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 376(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 384(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 392(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 400(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 408(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 416(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 424(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DX), Z30
+	ADDQ                $0x40, DX
+	VGF2P8AFFINEQB.BCST $0x00, 360(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 368(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 376(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 384(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 392(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 400(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 408(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 416(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 424(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 9 outputs
 	MOVQ      (R10), R12
@@ -42273,7 +41767,7 @@ mulAvxTwo_6x10_end:
 	RET
 
 // func mulGFNI_6x10_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_6x10_64(SB), $0-88
 	// Loading 20 of 60 tables to registers
 	// Destination kept on stack
@@ -42362,140 +41856,100 @@ mulGFNI_6x10_64_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 2 to 10 outputs
-	VMOVDQU64       (DI), Z30
-	ADDQ            $0x40, DI
-	VBROADCASTF32X2 160(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z20, Z31, Z20
-	VBROADCASTF32X2 168(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 176(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 184(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 192(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 200(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DI), Z30
+	ADDQ                $0x40, DI
+	VGF2P8AFFINEQB.BCST $0x00, 160(CX), Z30, Z31
+	VXORPD              Z20, Z31, Z20
+	VGF2P8AFFINEQB.BCST $0x00, 168(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 176(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 184(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 192(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 200(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 3 to 10 outputs
-	VMOVDQU64       (R8), Z30
-	ADDQ            $0x40, R8
-	VBROADCASTF32X2 240(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z20, Z31, Z20
-	VBROADCASTF32X2 248(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 256(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 264(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 272(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 280(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 288(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 296(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 304(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 312(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R8), Z30
+	ADDQ                $0x40, R8
+	VGF2P8AFFINEQB.BCST $0x00, 240(CX), Z30, Z31
+	VXORPD              Z20, Z31, Z20
+	VGF2P8AFFINEQB.BCST $0x00, 248(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 256(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 264(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 272(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 280(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 288(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 296(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 304(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 312(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 4 to 10 outputs
-	VMOVDQU64       (R9), Z30
-	ADDQ            $0x40, R9
-	VBROADCASTF32X2 320(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z20, Z31, Z20
-	VBROADCASTF32X2 328(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 336(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 344(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 352(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 360(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 368(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 376(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 384(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 392(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R9), Z30
+	ADDQ                $0x40, R9
+	VGF2P8AFFINEQB.BCST $0x00, 320(CX), Z30, Z31
+	VXORPD              Z20, Z31, Z20
+	VGF2P8AFFINEQB.BCST $0x00, 328(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 336(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 344(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 352(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 360(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 368(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 376(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 384(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 392(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 5 to 10 outputs
-	VMOVDQU64       (DX), Z30
-	ADDQ            $0x40, DX
-	VBROADCASTF32X2 400(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z20, Z31, Z20
-	VBROADCASTF32X2 408(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 416(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 424(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 432(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 440(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 448(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 456(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 464(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 472(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DX), Z30
+	ADDQ                $0x40, DX
+	VGF2P8AFFINEQB.BCST $0x00, 400(CX), Z30, Z31
+	VXORPD              Z20, Z31, Z20
+	VGF2P8AFFINEQB.BCST $0x00, 408(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 416(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 424(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 432(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 440(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 448(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 456(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 464(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 472(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 10 outputs
 	MOVQ      (R10), R12
@@ -42529,7 +41983,7 @@ mulGFNI_6x10_64_end:
 	RET
 
 // func mulGFNI_6x10_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_6x10_64Xor(SB), $0-88
 	// Loading 20 of 60 tables to registers
 	// Destination kept on stack
@@ -42650,140 +42104,100 @@ mulGFNI_6x10_64Xor_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 2 to 10 outputs
-	VMOVDQU64       (DI), Z30
-	ADDQ            $0x40, DI
-	VBROADCASTF32X2 160(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z20, Z31, Z20
-	VBROADCASTF32X2 168(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 176(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 184(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 192(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 200(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DI), Z30
+	ADDQ                $0x40, DI
+	VGF2P8AFFINEQB.BCST $0x00, 160(CX), Z30, Z31
+	VXORPD              Z20, Z31, Z20
+	VGF2P8AFFINEQB.BCST $0x00, 168(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 176(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 184(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 192(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 200(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 3 to 10 outputs
-	VMOVDQU64       (R8), Z30
-	ADDQ            $0x40, R8
-	VBROADCASTF32X2 240(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z20, Z31, Z20
-	VBROADCASTF32X2 248(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 256(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 264(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 272(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 280(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 288(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 296(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 304(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 312(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R8), Z30
+	ADDQ                $0x40, R8
+	VGF2P8AFFINEQB.BCST $0x00, 240(CX), Z30, Z31
+	VXORPD              Z20, Z31, Z20
+	VGF2P8AFFINEQB.BCST $0x00, 248(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 256(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 264(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 272(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 280(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 288(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 296(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 304(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 312(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 4 to 10 outputs
-	VMOVDQU64       (R9), Z30
-	ADDQ            $0x40, R9
-	VBROADCASTF32X2 320(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z20, Z31, Z20
-	VBROADCASTF32X2 328(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 336(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 344(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 352(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 360(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 368(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 376(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 384(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 392(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R9), Z30
+	ADDQ                $0x40, R9
+	VGF2P8AFFINEQB.BCST $0x00, 320(CX), Z30, Z31
+	VXORPD              Z20, Z31, Z20
+	VGF2P8AFFINEQB.BCST $0x00, 328(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 336(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 344(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 352(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 360(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 368(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 376(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 384(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 392(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 5 to 10 outputs
-	VMOVDQU64       (DX), Z30
-	ADDQ            $0x40, DX
-	VBROADCASTF32X2 400(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z20, Z31, Z20
-	VBROADCASTF32X2 408(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 416(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 424(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 432(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 440(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 448(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 456(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 464(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 472(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DX), Z30
+	ADDQ                $0x40, DX
+	VGF2P8AFFINEQB.BCST $0x00, 400(CX), Z30, Z31
+	VXORPD              Z20, Z31, Z20
+	VGF2P8AFFINEQB.BCST $0x00, 408(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 416(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 424(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 432(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 440(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 448(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 456(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 464(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 472(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 10 outputs
 	MOVQ      (R10), R12
@@ -43564,7 +42978,7 @@ mulAvxTwo_7x1_64_end:
 	RET
 
 // func mulGFNI_7x1_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_7x1_64(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -43661,7 +43075,7 @@ mulGFNI_7x1_64_end:
 	RET
 
 // func mulGFNI_7x1_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_7x1_64Xor(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -44509,7 +43923,7 @@ mulAvxTwo_7x2_64_end:
 	RET
 
 // func mulGFNI_7x2_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_7x2_64(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -44630,7 +44044,7 @@ mulGFNI_7x2_64_end:
 	RET
 
 // func mulGFNI_7x2_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_7x2_64Xor(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -45707,7 +45121,7 @@ mulAvxTwo_7x3_64_end:
 	RET
 
 // func mulGFNI_7x3_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_7x3_64(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -45852,7 +45266,7 @@ mulGFNI_7x3_64_end:
 	RET
 
 // func mulGFNI_7x3_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_7x3_64Xor(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -46789,7 +46203,7 @@ mulAvxTwo_7x4_end:
 	RET
 
 // func mulGFNI_7x4_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_7x4_64(SB), $0-88
 	// Loading 26 of 28 tables to registers
 	// Destination kept in GP registers
@@ -46926,18 +46340,16 @@ mulGFNI_7x4_64_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 6 to 4 outputs
-	VMOVDQU64       (DX), Z30
-	ADDQ            $0x40, DX
-	VGF2P8AFFINEQB  $0x00, Z24, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VGF2P8AFFINEQB  $0x00, Z25, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DX), Z30
+	ADDQ                $0x40, DX
+	VGF2P8AFFINEQB      $0x00, Z24, Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB      $0x00, Z25, Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 4 outputs
 	VMOVDQU64 Z26, (R12)
@@ -46958,7 +46370,7 @@ mulGFNI_7x4_64_end:
 	RET
 
 // func mulGFNI_7x4_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_7x4_64Xor(SB), $0-88
 	// Loading 26 of 28 tables to registers
 	// Destination kept in GP registers
@@ -47105,18 +46517,16 @@ mulGFNI_7x4_64Xor_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 6 to 4 outputs
-	VMOVDQU64       (DX), Z30
-	ADDQ            $0x40, DX
-	VGF2P8AFFINEQB  $0x00, Z24, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VGF2P8AFFINEQB  $0x00, Z25, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DX), Z30
+	ADDQ                $0x40, DX
+	VGF2P8AFFINEQB      $0x00, Z24, Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB      $0x00, Z25, Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 4 outputs
 	VMOVDQU64 Z26, (R12)
@@ -47684,7 +47094,7 @@ mulAvxTwo_7x5_end:
 	RET
 
 // func mulGFNI_7x5_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_7x5_64(SB), $8-88
 	// Loading 25 of 35 tables to registers
 	// Destination kept in GP registers
@@ -47819,42 +47229,32 @@ mulGFNI_7x5_64_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 5 to 5 outputs
-	VMOVDQU64       (R10), Z30
-	ADDQ            $0x40, R10
-	VBROADCASTF32X2 200(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R10), Z30
+	ADDQ                $0x40, R10
+	VGF2P8AFFINEQB.BCST $0x00, 200(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 6 to 5 outputs
-	VMOVDQU64       (DX), Z30
-	ADDQ            $0x40, DX
-	VBROADCASTF32X2 240(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 248(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 256(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 264(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 272(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DX), Z30
+	ADDQ                $0x40, DX
+	VGF2P8AFFINEQB.BCST $0x00, 240(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 248(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 256(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 264(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 272(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 5 outputs
 	VMOVDQU64 Z25, (R12)
@@ -47877,7 +47277,7 @@ mulGFNI_7x5_64_end:
 	RET
 
 // func mulGFNI_7x5_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_7x5_64Xor(SB), $8-88
 	// Loading 25 of 35 tables to registers
 	// Destination kept in GP registers
@@ -48024,42 +47424,32 @@ mulGFNI_7x5_64Xor_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 5 to 5 outputs
-	VMOVDQU64       (R10), Z30
-	ADDQ            $0x40, R10
-	VBROADCASTF32X2 200(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R10), Z30
+	ADDQ                $0x40, R10
+	VGF2P8AFFINEQB.BCST $0x00, 200(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 6 to 5 outputs
-	VMOVDQU64       (DX), Z30
-	ADDQ            $0x40, DX
-	VBROADCASTF32X2 240(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 248(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 256(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 264(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 272(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DX), Z30
+	ADDQ                $0x40, DX
+	VGF2P8AFFINEQB.BCST $0x00, 240(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 248(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 256(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 264(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 272(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 5 outputs
 	VMOVDQU64 Z25, (R12)
@@ -48710,7 +48100,7 @@ mulAvxTwo_7x6_end:
 	RET
 
 // func mulGFNI_7x6_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_7x6_64(SB), $8-88
 	// Loading 24 of 42 tables to registers
 	// Destination kept in GP registers
@@ -48843,70 +48233,52 @@ mulGFNI_7x6_64_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 4 to 6 outputs
-	VMOVDQU64       (R8), Z30
-	ADDQ            $0x40, R8
-	VBROADCASTF32X2 192(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 200(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R8), Z30
+	ADDQ                $0x40, R8
+	VGF2P8AFFINEQB.BCST $0x00, 192(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 200(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 5 to 6 outputs
-	VMOVDQU64       (R9), Z30
-	ADDQ            $0x40, R9
-	VBROADCASTF32X2 240(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 248(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 256(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 264(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 272(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 280(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R9), Z30
+	ADDQ                $0x40, R9
+	VGF2P8AFFINEQB.BCST $0x00, 240(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 248(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 256(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 264(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 272(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 280(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 6 to 6 outputs
-	VMOVDQU64       (AX), Z30
-	ADDQ            $0x40, AX
-	VBROADCASTF32X2 288(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 296(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 304(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 312(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 320(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 328(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (AX), Z30
+	ADDQ                $0x40, AX
+	VGF2P8AFFINEQB.BCST $0x00, 288(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 296(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 304(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 312(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 320(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 328(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 6 outputs
 	VMOVDQU64 Z24, (R11)
@@ -48931,7 +48303,7 @@ mulGFNI_7x6_64_end:
 	RET
 
 // func mulGFNI_7x6_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_7x6_64Xor(SB), $8-88
 	// Loading 24 of 42 tables to registers
 	// Destination kept in GP registers
@@ -49078,70 +48450,52 @@ mulGFNI_7x6_64Xor_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 4 to 6 outputs
-	VMOVDQU64       (R8), Z30
-	ADDQ            $0x40, R8
-	VBROADCASTF32X2 192(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 200(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R8), Z30
+	ADDQ                $0x40, R8
+	VGF2P8AFFINEQB.BCST $0x00, 192(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 200(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 5 to 6 outputs
-	VMOVDQU64       (R9), Z30
-	ADDQ            $0x40, R9
-	VBROADCASTF32X2 240(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 248(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 256(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 264(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 272(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 280(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R9), Z30
+	ADDQ                $0x40, R9
+	VGF2P8AFFINEQB.BCST $0x00, 240(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 248(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 256(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 264(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 272(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 280(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 6 to 6 outputs
-	VMOVDQU64       (AX), Z30
-	ADDQ            $0x40, AX
-	VBROADCASTF32X2 288(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 296(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 304(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 312(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 320(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 328(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (AX), Z30
+	ADDQ                $0x40, AX
+	VGF2P8AFFINEQB.BCST $0x00, 288(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 296(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 304(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 312(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 320(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 328(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 6 outputs
 	VMOVDQU64 Z24, (R11)
@@ -49858,7 +49212,7 @@ mulAvxTwo_7x7_end:
 	RET
 
 // func mulGFNI_7x7_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_7x7_64(SB), $0-88
 	// Loading 23 of 49 tables to registers
 	// Destination kept on stack
@@ -49961,102 +49315,76 @@ mulGFNI_7x7_64_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 3 to 7 outputs
-	VMOVDQU64       (R8), Z30
-	ADDQ            $0x40, R8
-	VGF2P8AFFINEQB  $0x00, Z21, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VGF2P8AFFINEQB  $0x00, Z22, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 184(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 192(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 200(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R8), Z30
+	ADDQ                $0x40, R8
+	VGF2P8AFFINEQB      $0x00, Z21, Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB      $0x00, Z22, Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 184(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 192(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 200(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 4 to 7 outputs
-	VMOVDQU64       (R9), Z30
-	ADDQ            $0x40, R9
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 240(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 248(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 256(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 264(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 272(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R9), Z30
+	ADDQ                $0x40, R9
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 240(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 248(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 256(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 264(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 272(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 5 to 7 outputs
-	VMOVDQU64       (R10), Z30
-	ADDQ            $0x40, R10
-	VBROADCASTF32X2 280(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 288(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 296(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 304(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 312(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 320(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 328(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R10), Z30
+	ADDQ                $0x40, R10
+	VGF2P8AFFINEQB.BCST $0x00, 280(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 288(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 296(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 304(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 312(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 320(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 328(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 6 to 7 outputs
-	VMOVDQU64       (DX), Z30
-	ADDQ            $0x40, DX
-	VBROADCASTF32X2 336(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 344(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 352(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 360(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 368(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 376(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 384(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DX), Z30
+	ADDQ                $0x40, DX
+	VGF2P8AFFINEQB.BCST $0x00, 336(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 344(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 352(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 360(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 368(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 376(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 384(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 7 outputs
 	MOVQ      (R11), R13
@@ -50084,7 +49412,7 @@ mulGFNI_7x7_64_end:
 	RET
 
 // func mulGFNI_7x7_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_7x7_64Xor(SB), $0-88
 	// Loading 23 of 49 tables to registers
 	// Destination kept on stack
@@ -50210,102 +49538,76 @@ mulGFNI_7x7_64Xor_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 3 to 7 outputs
-	VMOVDQU64       (R8), Z30
-	ADDQ            $0x40, R8
-	VGF2P8AFFINEQB  $0x00, Z21, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VGF2P8AFFINEQB  $0x00, Z22, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 184(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 192(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 200(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R8), Z30
+	ADDQ                $0x40, R8
+	VGF2P8AFFINEQB      $0x00, Z21, Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB      $0x00, Z22, Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 184(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 192(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 200(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 4 to 7 outputs
-	VMOVDQU64       (R9), Z30
-	ADDQ            $0x40, R9
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 240(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 248(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 256(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 264(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 272(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R9), Z30
+	ADDQ                $0x40, R9
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 240(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 248(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 256(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 264(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 272(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 5 to 7 outputs
-	VMOVDQU64       (R10), Z30
-	ADDQ            $0x40, R10
-	VBROADCASTF32X2 280(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 288(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 296(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 304(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 312(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 320(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 328(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R10), Z30
+	ADDQ                $0x40, R10
+	VGF2P8AFFINEQB.BCST $0x00, 280(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 288(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 296(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 304(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 312(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 320(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 328(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 6 to 7 outputs
-	VMOVDQU64       (DX), Z30
-	ADDQ            $0x40, DX
-	VBROADCASTF32X2 336(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 344(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 352(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 360(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 368(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 376(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 384(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DX), Z30
+	ADDQ                $0x40, DX
+	VGF2P8AFFINEQB.BCST $0x00, 336(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 344(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 352(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 360(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 368(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 376(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 384(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 7 outputs
 	MOVQ      (R11), R13
@@ -51092,7 +50394,7 @@ mulAvxTwo_7x8_end:
 	RET
 
 // func mulGFNI_7x8_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_7x8_64(SB), $0-88
 	// Loading 22 of 56 tables to registers
 	// Destination kept on stack
@@ -51179,138 +50481,104 @@ mulGFNI_7x8_64_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 2 to 8 outputs
-	VMOVDQU64       (DI), Z30
-	ADDQ            $0x40, DI
-	VGF2P8AFFINEQB  $0x00, Z16, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VGF2P8AFFINEQB  $0x00, Z17, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VGF2P8AFFINEQB  $0x00, Z18, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VGF2P8AFFINEQB  $0x00, Z19, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VGF2P8AFFINEQB  $0x00, Z20, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VGF2P8AFFINEQB  $0x00, Z21, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 176(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 184(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DI), Z30
+	ADDQ                $0x40, DI
+	VGF2P8AFFINEQB      $0x00, Z16, Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB      $0x00, Z17, Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB      $0x00, Z18, Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB      $0x00, Z19, Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB      $0x00, Z20, Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB      $0x00, Z21, Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 176(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 184(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 3 to 8 outputs
-	VMOVDQU64       (R8), Z30
-	ADDQ            $0x40, R8
-	VBROADCASTF32X2 192(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 200(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 240(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 248(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R8), Z30
+	ADDQ                $0x40, R8
+	VGF2P8AFFINEQB.BCST $0x00, 192(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 200(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 240(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 248(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 4 to 8 outputs
-	VMOVDQU64       (R9), Z30
-	ADDQ            $0x40, R9
-	VBROADCASTF32X2 256(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 264(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 272(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 280(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 288(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 296(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 304(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 312(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R9), Z30
+	ADDQ                $0x40, R9
+	VGF2P8AFFINEQB.BCST $0x00, 256(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 264(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 272(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 280(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 288(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 296(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 304(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 312(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 5 to 8 outputs
-	VMOVDQU64       (R10), Z30
-	ADDQ            $0x40, R10
-	VBROADCASTF32X2 320(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 328(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 336(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 344(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 352(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 360(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 368(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 376(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R10), Z30
+	ADDQ                $0x40, R10
+	VGF2P8AFFINEQB.BCST $0x00, 320(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 328(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 336(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 344(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 352(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 360(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 368(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 376(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 6 to 8 outputs
-	VMOVDQU64       (DX), Z30
-	ADDQ            $0x40, DX
-	VBROADCASTF32X2 384(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 392(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 400(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 408(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 416(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 424(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 432(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 440(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DX), Z30
+	ADDQ                $0x40, DX
+	VGF2P8AFFINEQB.BCST $0x00, 384(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 392(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 400(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 408(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 416(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 424(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 432(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 440(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 8 outputs
 	MOVQ      (R11), R13
@@ -51340,7 +50608,7 @@ mulGFNI_7x8_64_end:
 	RET
 
 // func mulGFNI_7x8_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_7x8_64Xor(SB), $0-88
 	// Loading 22 of 56 tables to registers
 	// Destination kept on stack
@@ -51453,138 +50721,104 @@ mulGFNI_7x8_64Xor_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 2 to 8 outputs
-	VMOVDQU64       (DI), Z30
-	ADDQ            $0x40, DI
-	VGF2P8AFFINEQB  $0x00, Z16, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VGF2P8AFFINEQB  $0x00, Z17, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VGF2P8AFFINEQB  $0x00, Z18, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VGF2P8AFFINEQB  $0x00, Z19, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VGF2P8AFFINEQB  $0x00, Z20, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VGF2P8AFFINEQB  $0x00, Z21, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 176(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 184(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DI), Z30
+	ADDQ                $0x40, DI
+	VGF2P8AFFINEQB      $0x00, Z16, Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB      $0x00, Z17, Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB      $0x00, Z18, Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB      $0x00, Z19, Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB      $0x00, Z20, Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB      $0x00, Z21, Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 176(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 184(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 3 to 8 outputs
-	VMOVDQU64       (R8), Z30
-	ADDQ            $0x40, R8
-	VBROADCASTF32X2 192(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 200(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 240(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 248(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R8), Z30
+	ADDQ                $0x40, R8
+	VGF2P8AFFINEQB.BCST $0x00, 192(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 200(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 240(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 248(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 4 to 8 outputs
-	VMOVDQU64       (R9), Z30
-	ADDQ            $0x40, R9
-	VBROADCASTF32X2 256(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 264(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 272(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 280(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 288(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 296(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 304(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 312(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R9), Z30
+	ADDQ                $0x40, R9
+	VGF2P8AFFINEQB.BCST $0x00, 256(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 264(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 272(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 280(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 288(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 296(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 304(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 312(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 5 to 8 outputs
-	VMOVDQU64       (R10), Z30
-	ADDQ            $0x40, R10
-	VBROADCASTF32X2 320(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 328(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 336(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 344(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 352(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 360(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 368(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 376(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R10), Z30
+	ADDQ                $0x40, R10
+	VGF2P8AFFINEQB.BCST $0x00, 320(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 328(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 336(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 344(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 352(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 360(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 368(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 376(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 6 to 8 outputs
-	VMOVDQU64       (DX), Z30
-	ADDQ            $0x40, DX
-	VBROADCASTF32X2 384(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 392(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 400(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 408(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 416(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 424(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 432(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 440(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DX), Z30
+	ADDQ                $0x40, DX
+	VGF2P8AFFINEQB.BCST $0x00, 384(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 392(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 400(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 408(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 416(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 424(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 432(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 440(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 8 outputs
 	MOVQ      (R11), R13
@@ -52449,7 +51683,7 @@ mulAvxTwo_7x9_end:
 	RET
 
 // func mulGFNI_7x9_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_7x9_64(SB), $0-88
 	// Loading 21 of 63 tables to registers
 	// Destination kept on stack
@@ -52538,156 +51772,114 @@ mulGFNI_7x9_64_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 2 to 9 outputs
-	VMOVDQU64       (DI), Z30
-	ADDQ            $0x40, DI
-	VGF2P8AFFINEQB  $0x00, Z18, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VGF2P8AFFINEQB  $0x00, Z19, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VGF2P8AFFINEQB  $0x00, Z20, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 168(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 176(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 184(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 192(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 200(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DI), Z30
+	ADDQ                $0x40, DI
+	VGF2P8AFFINEQB      $0x00, Z18, Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB      $0x00, Z19, Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB      $0x00, Z20, Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 168(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 176(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 184(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 192(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 200(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 3 to 9 outputs
-	VMOVDQU64       (R8), Z30
-	ADDQ            $0x40, R8
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 240(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 248(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 256(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 264(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 272(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 280(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R8), Z30
+	ADDQ                $0x40, R8
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 240(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 248(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 256(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 264(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 272(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 280(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 4 to 9 outputs
-	VMOVDQU64       (R9), Z30
-	ADDQ            $0x40, R9
-	VBROADCASTF32X2 288(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 296(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 304(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 312(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 320(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 328(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 336(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 344(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 352(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R9), Z30
+	ADDQ                $0x40, R9
+	VGF2P8AFFINEQB.BCST $0x00, 288(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 296(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 304(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 312(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 320(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 328(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 336(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 344(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 352(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 5 to 9 outputs
-	VMOVDQU64       (R10), Z30
-	ADDQ            $0x40, R10
-	VBROADCASTF32X2 360(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 368(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 376(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 384(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 392(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 400(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 408(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 416(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 424(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R10), Z30
+	ADDQ                $0x40, R10
+	VGF2P8AFFINEQB.BCST $0x00, 360(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 368(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 376(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 384(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 392(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 400(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 408(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 416(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 424(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 6 to 9 outputs
-	VMOVDQU64       (DX), Z30
-	ADDQ            $0x40, DX
-	VBROADCASTF32X2 432(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 440(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 448(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 456(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 464(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 472(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 480(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 488(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 496(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DX), Z30
+	ADDQ                $0x40, DX
+	VGF2P8AFFINEQB.BCST $0x00, 432(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 440(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 448(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 456(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 464(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 472(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 480(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 488(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 496(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 9 outputs
 	MOVQ      (R11), R13
@@ -52719,7 +51911,7 @@ mulGFNI_7x9_64_end:
 	RET
 
 // func mulGFNI_7x9_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_7x9_64Xor(SB), $0-88
 	// Loading 21 of 63 tables to registers
 	// Destination kept on stack
@@ -52837,156 +52029,114 @@ mulGFNI_7x9_64Xor_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 2 to 9 outputs
-	VMOVDQU64       (DI), Z30
-	ADDQ            $0x40, DI
-	VGF2P8AFFINEQB  $0x00, Z18, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VGF2P8AFFINEQB  $0x00, Z19, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VGF2P8AFFINEQB  $0x00, Z20, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 168(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 176(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 184(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 192(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 200(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DI), Z30
+	ADDQ                $0x40, DI
+	VGF2P8AFFINEQB      $0x00, Z18, Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB      $0x00, Z19, Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB      $0x00, Z20, Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 168(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 176(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 184(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 192(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 200(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 3 to 9 outputs
-	VMOVDQU64       (R8), Z30
-	ADDQ            $0x40, R8
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 240(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 248(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 256(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 264(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 272(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 280(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R8), Z30
+	ADDQ                $0x40, R8
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 240(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 248(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 256(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 264(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 272(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 280(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 4 to 9 outputs
-	VMOVDQU64       (R9), Z30
-	ADDQ            $0x40, R9
-	VBROADCASTF32X2 288(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 296(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 304(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 312(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 320(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 328(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 336(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 344(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 352(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R9), Z30
+	ADDQ                $0x40, R9
+	VGF2P8AFFINEQB.BCST $0x00, 288(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 296(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 304(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 312(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 320(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 328(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 336(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 344(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 352(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 5 to 9 outputs
-	VMOVDQU64       (R10), Z30
-	ADDQ            $0x40, R10
-	VBROADCASTF32X2 360(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 368(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 376(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 384(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 392(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 400(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 408(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 416(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 424(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R10), Z30
+	ADDQ                $0x40, R10
+	VGF2P8AFFINEQB.BCST $0x00, 360(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 368(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 376(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 384(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 392(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 400(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 408(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 416(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 424(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 6 to 9 outputs
-	VMOVDQU64       (DX), Z30
-	ADDQ            $0x40, DX
-	VBROADCASTF32X2 432(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 440(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 448(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 456(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 464(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 472(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 480(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 488(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 496(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DX), Z30
+	ADDQ                $0x40, DX
+	VGF2P8AFFINEQB.BCST $0x00, 432(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 440(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 448(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 456(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 464(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 472(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 480(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 488(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 496(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 9 outputs
 	MOVQ      (R11), R13
@@ -53929,7 +53079,7 @@ mulAvxTwo_7x10_end:
 	RET
 
 // func mulGFNI_7x10_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_7x10_64(SB), $0-88
 	// Loading 20 of 70 tables to registers
 	// Destination kept on stack
@@ -54020,174 +53170,124 @@ mulGFNI_7x10_64_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 2 to 10 outputs
-	VMOVDQU64       (DI), Z30
-	ADDQ            $0x40, DI
-	VBROADCASTF32X2 160(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z20, Z31, Z20
-	VBROADCASTF32X2 168(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 176(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 184(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 192(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 200(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DI), Z30
+	ADDQ                $0x40, DI
+	VGF2P8AFFINEQB.BCST $0x00, 160(CX), Z30, Z31
+	VXORPD              Z20, Z31, Z20
+	VGF2P8AFFINEQB.BCST $0x00, 168(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 176(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 184(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 192(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 200(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 3 to 10 outputs
-	VMOVDQU64       (R8), Z30
-	ADDQ            $0x40, R8
-	VBROADCASTF32X2 240(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z20, Z31, Z20
-	VBROADCASTF32X2 248(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 256(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 264(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 272(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 280(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 288(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 296(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 304(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 312(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R8), Z30
+	ADDQ                $0x40, R8
+	VGF2P8AFFINEQB.BCST $0x00, 240(CX), Z30, Z31
+	VXORPD              Z20, Z31, Z20
+	VGF2P8AFFINEQB.BCST $0x00, 248(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 256(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 264(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 272(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 280(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 288(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 296(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 304(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 312(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 4 to 10 outputs
-	VMOVDQU64       (R9), Z30
-	ADDQ            $0x40, R9
-	VBROADCASTF32X2 320(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z20, Z31, Z20
-	VBROADCASTF32X2 328(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 336(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 344(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 352(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 360(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 368(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 376(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 384(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 392(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R9), Z30
+	ADDQ                $0x40, R9
+	VGF2P8AFFINEQB.BCST $0x00, 320(CX), Z30, Z31
+	VXORPD              Z20, Z31, Z20
+	VGF2P8AFFINEQB.BCST $0x00, 328(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 336(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 344(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 352(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 360(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 368(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 376(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 384(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 392(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 5 to 10 outputs
-	VMOVDQU64       (R10), Z30
-	ADDQ            $0x40, R10
-	VBROADCASTF32X2 400(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z20, Z31, Z20
-	VBROADCASTF32X2 408(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 416(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 424(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 432(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 440(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 448(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 456(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 464(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 472(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R10), Z30
+	ADDQ                $0x40, R10
+	VGF2P8AFFINEQB.BCST $0x00, 400(CX), Z30, Z31
+	VXORPD              Z20, Z31, Z20
+	VGF2P8AFFINEQB.BCST $0x00, 408(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 416(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 424(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 432(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 440(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 448(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 456(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 464(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 472(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 6 to 10 outputs
-	VMOVDQU64       (DX), Z30
-	ADDQ            $0x40, DX
-	VBROADCASTF32X2 480(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z20, Z31, Z20
-	VBROADCASTF32X2 488(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 496(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 504(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 512(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 520(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 528(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 536(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 544(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 552(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DX), Z30
+	ADDQ                $0x40, DX
+	VGF2P8AFFINEQB.BCST $0x00, 480(CX), Z30, Z31
+	VXORPD              Z20, Z31, Z20
+	VGF2P8AFFINEQB.BCST $0x00, 488(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 496(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 504(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 512(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 520(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 528(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 536(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 544(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 552(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 10 outputs
 	MOVQ      (R11), R13
@@ -54221,7 +53321,7 @@ mulGFNI_7x10_64_end:
 	RET
 
 // func mulGFNI_7x10_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_7x10_64Xor(SB), $0-88
 	// Loading 20 of 70 tables to registers
 	// Destination kept on stack
@@ -54344,174 +53444,124 @@ mulGFNI_7x10_64Xor_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 2 to 10 outputs
-	VMOVDQU64       (DI), Z30
-	ADDQ            $0x40, DI
-	VBROADCASTF32X2 160(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z20, Z31, Z20
-	VBROADCASTF32X2 168(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 176(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 184(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 192(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 200(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DI), Z30
+	ADDQ                $0x40, DI
+	VGF2P8AFFINEQB.BCST $0x00, 160(CX), Z30, Z31
+	VXORPD              Z20, Z31, Z20
+	VGF2P8AFFINEQB.BCST $0x00, 168(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 176(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 184(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 192(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 200(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 3 to 10 outputs
-	VMOVDQU64       (R8), Z30
-	ADDQ            $0x40, R8
-	VBROADCASTF32X2 240(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z20, Z31, Z20
-	VBROADCASTF32X2 248(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 256(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 264(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 272(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 280(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 288(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 296(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 304(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 312(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R8), Z30
+	ADDQ                $0x40, R8
+	VGF2P8AFFINEQB.BCST $0x00, 240(CX), Z30, Z31
+	VXORPD              Z20, Z31, Z20
+	VGF2P8AFFINEQB.BCST $0x00, 248(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 256(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 264(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 272(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 280(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 288(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 296(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 304(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 312(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 4 to 10 outputs
-	VMOVDQU64       (R9), Z30
-	ADDQ            $0x40, R9
-	VBROADCASTF32X2 320(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z20, Z31, Z20
-	VBROADCASTF32X2 328(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 336(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 344(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 352(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 360(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 368(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 376(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 384(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 392(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R9), Z30
+	ADDQ                $0x40, R9
+	VGF2P8AFFINEQB.BCST $0x00, 320(CX), Z30, Z31
+	VXORPD              Z20, Z31, Z20
+	VGF2P8AFFINEQB.BCST $0x00, 328(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 336(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 344(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 352(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 360(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 368(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 376(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 384(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 392(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 5 to 10 outputs
-	VMOVDQU64       (R10), Z30
-	ADDQ            $0x40, R10
-	VBROADCASTF32X2 400(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z20, Z31, Z20
-	VBROADCASTF32X2 408(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 416(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 424(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 432(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 440(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 448(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 456(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 464(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 472(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R10), Z30
+	ADDQ                $0x40, R10
+	VGF2P8AFFINEQB.BCST $0x00, 400(CX), Z30, Z31
+	VXORPD              Z20, Z31, Z20
+	VGF2P8AFFINEQB.BCST $0x00, 408(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 416(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 424(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 432(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 440(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 448(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 456(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 464(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 472(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 6 to 10 outputs
-	VMOVDQU64       (DX), Z30
-	ADDQ            $0x40, DX
-	VBROADCASTF32X2 480(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z20, Z31, Z20
-	VBROADCASTF32X2 488(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 496(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 504(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 512(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 520(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 528(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 536(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 544(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 552(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DX), Z30
+	ADDQ                $0x40, DX
+	VGF2P8AFFINEQB.BCST $0x00, 480(CX), Z30, Z31
+	VXORPD              Z20, Z31, Z20
+	VGF2P8AFFINEQB.BCST $0x00, 488(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 496(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 504(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 512(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 520(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 528(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 536(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 544(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 552(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 10 outputs
 	MOVQ      (R11), R13
@@ -55386,7 +54436,7 @@ mulAvxTwo_8x1_64_end:
 	RET
 
 // func mulGFNI_8x1_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_8x1_64(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -55492,7 +54542,7 @@ mulGFNI_8x1_64_end:
 	RET
 
 // func mulGFNI_8x1_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_8x1_64Xor(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -56432,7 +55482,7 @@ mulAvxTwo_8x2_64_end:
 	RET
 
 // func mulGFNI_8x2_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_8x2_64(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -56565,7 +55615,7 @@ mulGFNI_8x2_64_end:
 	RET
 
 // func mulGFNI_8x2_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_8x2_64Xor(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -57763,7 +56813,7 @@ mulAvxTwo_8x3_64_end:
 	RET
 
 // func mulGFNI_8x3_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_8x3_64(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -57923,7 +56973,7 @@ mulGFNI_8x3_64_end:
 	RET
 
 // func mulGFNI_8x3_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_8x3_64Xor(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -58965,7 +58015,7 @@ mulAvxTwo_8x4_end:
 	RET
 
 // func mulGFNI_8x4_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_8x4_64(SB), $8-88
 	// Loading 26 of 32 tables to registers
 	// Destination kept in GP registers
@@ -59104,34 +58154,28 @@ mulGFNI_8x4_64_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 6 to 4 outputs
-	VMOVDQU64       (R11), Z30
-	ADDQ            $0x40, R11
-	VGF2P8AFFINEQB  $0x00, Z24, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VGF2P8AFFINEQB  $0x00, Z25, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R11), Z30
+	ADDQ                $0x40, R11
+	VGF2P8AFFINEQB      $0x00, Z24, Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB      $0x00, Z25, Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 7 to 4 outputs
-	VMOVDQU64       (DX), Z30
-	ADDQ            $0x40, DX
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 240(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 248(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DX), Z30
+	ADDQ                $0x40, DX
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 240(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 248(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 4 outputs
 	VMOVDQU64 Z26, (R13)
@@ -59152,7 +58196,7 @@ mulGFNI_8x4_64_end:
 	RET
 
 // func mulGFNI_8x4_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_8x4_64Xor(SB), $8-88
 	// Loading 26 of 32 tables to registers
 	// Destination kept in GP registers
@@ -59301,34 +58345,28 @@ mulGFNI_8x4_64Xor_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 6 to 4 outputs
-	VMOVDQU64       (R11), Z30
-	ADDQ            $0x40, R11
-	VGF2P8AFFINEQB  $0x00, Z24, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VGF2P8AFFINEQB  $0x00, Z25, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R11), Z30
+	ADDQ                $0x40, R11
+	VGF2P8AFFINEQB      $0x00, Z24, Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB      $0x00, Z25, Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 7 to 4 outputs
-	VMOVDQU64       (DX), Z30
-	ADDQ            $0x40, DX
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 240(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 248(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DX), Z30
+	ADDQ                $0x40, DX
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 240(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 248(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 4 outputs
 	VMOVDQU64 Z26, (R13)
@@ -59961,7 +58999,7 @@ mulAvxTwo_8x5_end:
 	RET
 
 // func mulGFNI_8x5_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_8x5_64(SB), $8-88
 	// Loading 25 of 40 tables to registers
 	// Destination kept in GP registers
@@ -60102,61 +59140,46 @@ mulGFNI_8x5_64_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 5 to 5 outputs
-	VMOVDQU64       (R9), Z30
-	ADDQ            $0x40, R9
-	VBROADCASTF32X2 200(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R9), Z30
+	ADDQ                $0x40, R9
+	VGF2P8AFFINEQB.BCST $0x00, 200(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 6 to 5 outputs
-	VMOVDQU64       (R10), Z30
-	ADDQ            $0x40, R10
-	VBROADCASTF32X2 240(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 248(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 256(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 264(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 272(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R10), Z30
+	ADDQ                $0x40, R10
+	VGF2P8AFFINEQB.BCST $0x00, 240(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 248(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 256(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 264(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 272(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 7 to 5 outputs
-	VMOVDQU64       (AX), Z30
-	ADDQ            $0x40, AX
-	VBROADCASTF32X2 280(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 288(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 296(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 304(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 312(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (AX), Z30
+	ADDQ                $0x40, AX
+	VGF2P8AFFINEQB.BCST $0x00, 280(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 288(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 296(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 304(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 312(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 5 outputs
 	VMOVDQU64 Z25, (R12)
@@ -60179,7 +59202,7 @@ mulGFNI_8x5_64_end:
 	RET
 
 // func mulGFNI_8x5_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_8x5_64Xor(SB), $8-88
 	// Loading 25 of 40 tables to registers
 	// Destination kept in GP registers
@@ -60332,61 +59355,46 @@ mulGFNI_8x5_64Xor_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 5 to 5 outputs
-	VMOVDQU64       (R9), Z30
-	ADDQ            $0x40, R9
-	VBROADCASTF32X2 200(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R9), Z30
+	ADDQ                $0x40, R9
+	VGF2P8AFFINEQB.BCST $0x00, 200(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 6 to 5 outputs
-	VMOVDQU64       (R10), Z30
-	ADDQ            $0x40, R10
-	VBROADCASTF32X2 240(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 248(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 256(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 264(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 272(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R10), Z30
+	ADDQ                $0x40, R10
+	VGF2P8AFFINEQB.BCST $0x00, 240(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 248(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 256(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 264(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 272(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 7 to 5 outputs
-	VMOVDQU64       (AX), Z30
-	ADDQ            $0x40, AX
-	VBROADCASTF32X2 280(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 288(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 296(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 304(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 312(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (AX), Z30
+	ADDQ                $0x40, AX
+	VGF2P8AFFINEQB.BCST $0x00, 280(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 288(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 296(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 304(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 312(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 5 outputs
 	VMOVDQU64 Z25, (R12)
@@ -61097,7 +60105,7 @@ mulAvxTwo_8x6_end:
 	RET
 
 // func mulGFNI_8x6_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_8x6_64(SB), $0-88
 	// Loading 24 of 48 tables to registers
 	// Destination kept on stack
@@ -61214,92 +60222,68 @@ mulGFNI_8x6_64_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 4 to 6 outputs
-	VMOVDQU64       (R9), Z30
-	ADDQ            $0x40, R9
-	VBROADCASTF32X2 192(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 200(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R9), Z30
+	ADDQ                $0x40, R9
+	VGF2P8AFFINEQB.BCST $0x00, 192(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 200(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 5 to 6 outputs
-	VMOVDQU64       (R10), Z30
-	ADDQ            $0x40, R10
-	VBROADCASTF32X2 240(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 248(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 256(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 264(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 272(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 280(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R10), Z30
+	ADDQ                $0x40, R10
+	VGF2P8AFFINEQB.BCST $0x00, 240(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 248(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 256(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 264(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 272(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 280(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 6 to 6 outputs
-	VMOVDQU64       (R11), Z30
-	ADDQ            $0x40, R11
-	VBROADCASTF32X2 288(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 296(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 304(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 312(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 320(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 328(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R11), Z30
+	ADDQ                $0x40, R11
+	VGF2P8AFFINEQB.BCST $0x00, 288(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 296(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 304(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 312(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 320(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 328(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 7 to 6 outputs
-	VMOVDQU64       (DX), Z30
-	ADDQ            $0x40, DX
-	VBROADCASTF32X2 336(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 344(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 352(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 360(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 368(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 376(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DX), Z30
+	ADDQ                $0x40, DX
+	VGF2P8AFFINEQB.BCST $0x00, 336(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 344(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 352(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 360(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 368(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 376(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 6 outputs
 	MOVQ      (R12), R14
@@ -61325,7 +60309,7 @@ mulGFNI_8x6_64_end:
 	RET
 
 // func mulGFNI_8x6_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_8x6_64Xor(SB), $0-88
 	// Loading 24 of 48 tables to registers
 	// Destination kept on stack
@@ -61462,92 +60446,68 @@ mulGFNI_8x6_64Xor_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 4 to 6 outputs
-	VMOVDQU64       (R9), Z30
-	ADDQ            $0x40, R9
-	VBROADCASTF32X2 192(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 200(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R9), Z30
+	ADDQ                $0x40, R9
+	VGF2P8AFFINEQB.BCST $0x00, 192(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 200(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 5 to 6 outputs
-	VMOVDQU64       (R10), Z30
-	ADDQ            $0x40, R10
-	VBROADCASTF32X2 240(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 248(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 256(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 264(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 272(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 280(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R10), Z30
+	ADDQ                $0x40, R10
+	VGF2P8AFFINEQB.BCST $0x00, 240(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 248(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 256(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 264(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 272(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 280(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 6 to 6 outputs
-	VMOVDQU64       (R11), Z30
-	ADDQ            $0x40, R11
-	VBROADCASTF32X2 288(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 296(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 304(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 312(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 320(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 328(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R11), Z30
+	ADDQ                $0x40, R11
+	VGF2P8AFFINEQB.BCST $0x00, 288(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 296(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 304(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 312(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 320(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 328(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 7 to 6 outputs
-	VMOVDQU64       (DX), Z30
-	ADDQ            $0x40, DX
-	VBROADCASTF32X2 336(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 344(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 352(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 360(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 368(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 376(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DX), Z30
+	ADDQ                $0x40, DX
+	VGF2P8AFFINEQB.BCST $0x00, 336(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 344(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 352(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 360(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 368(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 376(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 6 outputs
 	MOVQ      (R12), R14
@@ -62339,7 +61299,7 @@ mulAvxTwo_8x7_end:
 	RET
 
 // func mulGFNI_8x7_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_8x7_64(SB), $0-88
 	// Loading 23 of 56 tables to registers
 	// Destination kept on stack
@@ -62444,127 +61404,94 @@ mulGFNI_8x7_64_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 3 to 7 outputs
-	VMOVDQU64       (R8), Z30
-	ADDQ            $0x40, R8
-	VGF2P8AFFINEQB  $0x00, Z21, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VGF2P8AFFINEQB  $0x00, Z22, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 184(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 192(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 200(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R8), Z30
+	ADDQ                $0x40, R8
+	VGF2P8AFFINEQB      $0x00, Z21, Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB      $0x00, Z22, Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 184(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 192(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 200(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 4 to 7 outputs
-	VMOVDQU64       (R9), Z30
-	ADDQ            $0x40, R9
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 240(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 248(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 256(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 264(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 272(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R9), Z30
+	ADDQ                $0x40, R9
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 240(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 248(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 256(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 264(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 272(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 5 to 7 outputs
-	VMOVDQU64       (R10), Z30
-	ADDQ            $0x40, R10
-	VBROADCASTF32X2 280(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 288(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 296(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 304(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 312(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 320(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 328(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R10), Z30
+	ADDQ                $0x40, R10
+	VGF2P8AFFINEQB.BCST $0x00, 280(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 288(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 296(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 304(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 312(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 320(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 328(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 6 to 7 outputs
-	VMOVDQU64       (R11), Z30
-	ADDQ            $0x40, R11
-	VBROADCASTF32X2 336(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 344(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 352(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 360(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 368(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 376(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 384(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R11), Z30
+	ADDQ                $0x40, R11
+	VGF2P8AFFINEQB.BCST $0x00, 336(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 344(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 352(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 360(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 368(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 376(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 384(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 7 to 7 outputs
-	VMOVDQU64       (DX), Z30
-	ADDQ            $0x40, DX
-	VBROADCASTF32X2 392(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 400(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 408(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 416(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 424(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 432(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 440(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DX), Z30
+	ADDQ                $0x40, DX
+	VGF2P8AFFINEQB.BCST $0x00, 392(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 400(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 408(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 416(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 424(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 432(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 440(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 7 outputs
 	MOVQ      (R12), R14
@@ -62592,7 +61519,7 @@ mulGFNI_8x7_64_end:
 	RET
 
 // func mulGFNI_8x7_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_8x7_64Xor(SB), $0-88
 	// Loading 23 of 56 tables to registers
 	// Destination kept on stack
@@ -62720,127 +61647,94 @@ mulGFNI_8x7_64Xor_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 3 to 7 outputs
-	VMOVDQU64       (R8), Z30
-	ADDQ            $0x40, R8
-	VGF2P8AFFINEQB  $0x00, Z21, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VGF2P8AFFINEQB  $0x00, Z22, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 184(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 192(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 200(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R8), Z30
+	ADDQ                $0x40, R8
+	VGF2P8AFFINEQB      $0x00, Z21, Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB      $0x00, Z22, Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 184(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 192(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 200(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 4 to 7 outputs
-	VMOVDQU64       (R9), Z30
-	ADDQ            $0x40, R9
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 240(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 248(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 256(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 264(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 272(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R9), Z30
+	ADDQ                $0x40, R9
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 240(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 248(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 256(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 264(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 272(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 5 to 7 outputs
-	VMOVDQU64       (R10), Z30
-	ADDQ            $0x40, R10
-	VBROADCASTF32X2 280(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 288(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 296(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 304(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 312(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 320(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 328(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R10), Z30
+	ADDQ                $0x40, R10
+	VGF2P8AFFINEQB.BCST $0x00, 280(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 288(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 296(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 304(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 312(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 320(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 328(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 6 to 7 outputs
-	VMOVDQU64       (R11), Z30
-	ADDQ            $0x40, R11
-	VBROADCASTF32X2 336(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 344(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 352(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 360(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 368(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 376(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 384(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R11), Z30
+	ADDQ                $0x40, R11
+	VGF2P8AFFINEQB.BCST $0x00, 336(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 344(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 352(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 360(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 368(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 376(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 384(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 7 to 7 outputs
-	VMOVDQU64       (DX), Z30
-	ADDQ            $0x40, DX
-	VBROADCASTF32X2 392(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 400(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 408(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 416(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 424(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 432(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 440(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DX), Z30
+	ADDQ                $0x40, DX
+	VGF2P8AFFINEQB.BCST $0x00, 392(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 400(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 408(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 416(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 424(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 432(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 440(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 7 outputs
 	MOVQ      (R12), R14
@@ -63720,7 +62614,7 @@ mulAvxTwo_8x8_end:
 	RET
 
 // func mulGFNI_8x8_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_8x8_64(SB), $0-88
 	// Loading 22 of 64 tables to registers
 	// Destination kept on stack
@@ -63809,166 +62703,124 @@ mulGFNI_8x8_64_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 2 to 8 outputs
-	VMOVDQU64       (DI), Z30
-	ADDQ            $0x40, DI
-	VGF2P8AFFINEQB  $0x00, Z16, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VGF2P8AFFINEQB  $0x00, Z17, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VGF2P8AFFINEQB  $0x00, Z18, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VGF2P8AFFINEQB  $0x00, Z19, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VGF2P8AFFINEQB  $0x00, Z20, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VGF2P8AFFINEQB  $0x00, Z21, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 176(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 184(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DI), Z30
+	ADDQ                $0x40, DI
+	VGF2P8AFFINEQB      $0x00, Z16, Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB      $0x00, Z17, Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB      $0x00, Z18, Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB      $0x00, Z19, Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB      $0x00, Z20, Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB      $0x00, Z21, Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 176(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 184(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 3 to 8 outputs
-	VMOVDQU64       (R8), Z30
-	ADDQ            $0x40, R8
-	VBROADCASTF32X2 192(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 200(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 240(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 248(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R8), Z30
+	ADDQ                $0x40, R8
+	VGF2P8AFFINEQB.BCST $0x00, 192(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 200(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 240(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 248(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 4 to 8 outputs
-	VMOVDQU64       (R9), Z30
-	ADDQ            $0x40, R9
-	VBROADCASTF32X2 256(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 264(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 272(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 280(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 288(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 296(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 304(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 312(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R9), Z30
+	ADDQ                $0x40, R9
+	VGF2P8AFFINEQB.BCST $0x00, 256(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 264(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 272(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 280(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 288(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 296(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 304(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 312(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 5 to 8 outputs
-	VMOVDQU64       (R10), Z30
-	ADDQ            $0x40, R10
-	VBROADCASTF32X2 320(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 328(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 336(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 344(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 352(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 360(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 368(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 376(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R10), Z30
+	ADDQ                $0x40, R10
+	VGF2P8AFFINEQB.BCST $0x00, 320(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 328(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 336(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 344(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 352(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 360(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 368(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 376(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 6 to 8 outputs
-	VMOVDQU64       (R11), Z30
-	ADDQ            $0x40, R11
-	VBROADCASTF32X2 384(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 392(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 400(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 408(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 416(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 424(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 432(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 440(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R11), Z30
+	ADDQ                $0x40, R11
+	VGF2P8AFFINEQB.BCST $0x00, 384(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 392(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 400(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 408(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 416(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 424(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 432(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 440(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 7 to 8 outputs
-	VMOVDQU64       (DX), Z30
-	ADDQ            $0x40, DX
-	VBROADCASTF32X2 448(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 456(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 464(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 472(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 480(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 488(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 496(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 504(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DX), Z30
+	ADDQ                $0x40, DX
+	VGF2P8AFFINEQB.BCST $0x00, 448(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 456(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 464(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 472(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 480(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 488(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 496(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 504(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 8 outputs
 	MOVQ      (R12), R14
@@ -63998,7 +62850,7 @@ mulGFNI_8x8_64_end:
 	RET
 
 // func mulGFNI_8x8_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_8x8_64Xor(SB), $0-88
 	// Loading 22 of 64 tables to registers
 	// Destination kept on stack
@@ -64113,166 +62965,124 @@ mulGFNI_8x8_64Xor_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 2 to 8 outputs
-	VMOVDQU64       (DI), Z30
-	ADDQ            $0x40, DI
-	VGF2P8AFFINEQB  $0x00, Z16, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VGF2P8AFFINEQB  $0x00, Z17, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VGF2P8AFFINEQB  $0x00, Z18, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VGF2P8AFFINEQB  $0x00, Z19, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VGF2P8AFFINEQB  $0x00, Z20, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VGF2P8AFFINEQB  $0x00, Z21, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 176(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 184(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DI), Z30
+	ADDQ                $0x40, DI
+	VGF2P8AFFINEQB      $0x00, Z16, Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB      $0x00, Z17, Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB      $0x00, Z18, Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB      $0x00, Z19, Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB      $0x00, Z20, Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB      $0x00, Z21, Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 176(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 184(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 3 to 8 outputs
-	VMOVDQU64       (R8), Z30
-	ADDQ            $0x40, R8
-	VBROADCASTF32X2 192(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 200(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 240(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 248(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R8), Z30
+	ADDQ                $0x40, R8
+	VGF2P8AFFINEQB.BCST $0x00, 192(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 200(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 240(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 248(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 4 to 8 outputs
-	VMOVDQU64       (R9), Z30
-	ADDQ            $0x40, R9
-	VBROADCASTF32X2 256(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 264(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 272(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 280(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 288(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 296(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 304(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 312(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R9), Z30
+	ADDQ                $0x40, R9
+	VGF2P8AFFINEQB.BCST $0x00, 256(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 264(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 272(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 280(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 288(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 296(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 304(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 312(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 5 to 8 outputs
-	VMOVDQU64       (R10), Z30
-	ADDQ            $0x40, R10
-	VBROADCASTF32X2 320(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 328(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 336(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 344(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 352(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 360(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 368(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 376(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R10), Z30
+	ADDQ                $0x40, R10
+	VGF2P8AFFINEQB.BCST $0x00, 320(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 328(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 336(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 344(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 352(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 360(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 368(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 376(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 6 to 8 outputs
-	VMOVDQU64       (R11), Z30
-	ADDQ            $0x40, R11
-	VBROADCASTF32X2 384(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 392(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 400(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 408(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 416(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 424(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 432(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 440(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R11), Z30
+	ADDQ                $0x40, R11
+	VGF2P8AFFINEQB.BCST $0x00, 384(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 392(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 400(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 408(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 416(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 424(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 432(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 440(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 7 to 8 outputs
-	VMOVDQU64       (DX), Z30
-	ADDQ            $0x40, DX
-	VBROADCASTF32X2 448(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 456(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 464(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 472(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 480(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 488(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 496(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 504(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DX), Z30
+	ADDQ                $0x40, DX
+	VGF2P8AFFINEQB.BCST $0x00, 448(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 456(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 464(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 472(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 480(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 488(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 496(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 504(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 8 outputs
 	MOVQ      (R12), R14
@@ -65240,7 +64050,7 @@ mulAvxTwo_8x9_end:
 	RET
 
 // func mulGFNI_8x9_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_8x9_64(SB), $0-88
 	// Loading 21 of 72 tables to registers
 	// Destination kept on stack
@@ -65331,187 +64141,136 @@ mulGFNI_8x9_64_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 2 to 9 outputs
-	VMOVDQU64       (DI), Z30
-	ADDQ            $0x40, DI
-	VGF2P8AFFINEQB  $0x00, Z18, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VGF2P8AFFINEQB  $0x00, Z19, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VGF2P8AFFINEQB  $0x00, Z20, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 168(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 176(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 184(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 192(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 200(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DI), Z30
+	ADDQ                $0x40, DI
+	VGF2P8AFFINEQB      $0x00, Z18, Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB      $0x00, Z19, Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB      $0x00, Z20, Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 168(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 176(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 184(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 192(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 200(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 3 to 9 outputs
-	VMOVDQU64       (R8), Z30
-	ADDQ            $0x40, R8
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 240(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 248(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 256(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 264(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 272(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 280(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R8), Z30
+	ADDQ                $0x40, R8
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 240(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 248(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 256(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 264(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 272(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 280(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 4 to 9 outputs
-	VMOVDQU64       (R9), Z30
-	ADDQ            $0x40, R9
-	VBROADCASTF32X2 288(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 296(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 304(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 312(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 320(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 328(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 336(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 344(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 352(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R9), Z30
+	ADDQ                $0x40, R9
+	VGF2P8AFFINEQB.BCST $0x00, 288(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 296(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 304(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 312(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 320(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 328(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 336(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 344(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 352(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 5 to 9 outputs
-	VMOVDQU64       (R10), Z30
-	ADDQ            $0x40, R10
-	VBROADCASTF32X2 360(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 368(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 376(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 384(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 392(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 400(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 408(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 416(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 424(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R10), Z30
+	ADDQ                $0x40, R10
+	VGF2P8AFFINEQB.BCST $0x00, 360(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 368(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 376(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 384(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 392(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 400(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 408(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 416(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 424(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 6 to 9 outputs
-	VMOVDQU64       (R11), Z30
-	ADDQ            $0x40, R11
-	VBROADCASTF32X2 432(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 440(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 448(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 456(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 464(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 472(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 480(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 488(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 496(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R11), Z30
+	ADDQ                $0x40, R11
+	VGF2P8AFFINEQB.BCST $0x00, 432(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 440(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 448(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 456(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 464(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 472(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 480(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 488(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 496(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 7 to 9 outputs
-	VMOVDQU64       (DX), Z30
-	ADDQ            $0x40, DX
-	VBROADCASTF32X2 504(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 512(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 520(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 528(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 536(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 544(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 552(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 560(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 568(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DX), Z30
+	ADDQ                $0x40, DX
+	VGF2P8AFFINEQB.BCST $0x00, 504(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 512(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 520(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 528(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 536(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 544(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 552(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 560(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 568(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 9 outputs
 	MOVQ      (R12), R14
@@ -65543,7 +64302,7 @@ mulGFNI_8x9_64_end:
 	RET
 
 // func mulGFNI_8x9_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_8x9_64Xor(SB), $0-88
 	// Loading 21 of 72 tables to registers
 	// Destination kept on stack
@@ -65663,187 +64422,136 @@ mulGFNI_8x9_64Xor_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 2 to 9 outputs
-	VMOVDQU64       (DI), Z30
-	ADDQ            $0x40, DI
-	VGF2P8AFFINEQB  $0x00, Z18, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VGF2P8AFFINEQB  $0x00, Z19, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VGF2P8AFFINEQB  $0x00, Z20, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 168(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 176(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 184(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 192(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 200(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DI), Z30
+	ADDQ                $0x40, DI
+	VGF2P8AFFINEQB      $0x00, Z18, Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB      $0x00, Z19, Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB      $0x00, Z20, Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 168(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 176(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 184(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 192(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 200(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 3 to 9 outputs
-	VMOVDQU64       (R8), Z30
-	ADDQ            $0x40, R8
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 240(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 248(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 256(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 264(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 272(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 280(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R8), Z30
+	ADDQ                $0x40, R8
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 240(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 248(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 256(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 264(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 272(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 280(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 4 to 9 outputs
-	VMOVDQU64       (R9), Z30
-	ADDQ            $0x40, R9
-	VBROADCASTF32X2 288(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 296(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 304(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 312(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 320(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 328(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 336(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 344(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 352(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R9), Z30
+	ADDQ                $0x40, R9
+	VGF2P8AFFINEQB.BCST $0x00, 288(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 296(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 304(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 312(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 320(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 328(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 336(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 344(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 352(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 5 to 9 outputs
-	VMOVDQU64       (R10), Z30
-	ADDQ            $0x40, R10
-	VBROADCASTF32X2 360(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 368(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 376(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 384(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 392(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 400(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 408(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 416(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 424(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R10), Z30
+	ADDQ                $0x40, R10
+	VGF2P8AFFINEQB.BCST $0x00, 360(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 368(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 376(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 384(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 392(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 400(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 408(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 416(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 424(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 6 to 9 outputs
-	VMOVDQU64       (R11), Z30
-	ADDQ            $0x40, R11
-	VBROADCASTF32X2 432(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 440(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 448(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 456(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 464(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 472(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 480(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 488(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 496(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R11), Z30
+	ADDQ                $0x40, R11
+	VGF2P8AFFINEQB.BCST $0x00, 432(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 440(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 448(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 456(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 464(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 472(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 480(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 488(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 496(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 7 to 9 outputs
-	VMOVDQU64       (DX), Z30
-	ADDQ            $0x40, DX
-	VBROADCASTF32X2 504(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 512(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 520(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 528(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 536(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 544(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 552(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 560(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 568(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DX), Z30
+	ADDQ                $0x40, DX
+	VGF2P8AFFINEQB.BCST $0x00, 504(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 512(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 520(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 528(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 536(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 544(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 552(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 560(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 568(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 9 outputs
 	MOVQ      (R12), R14
@@ -66899,7 +65607,7 @@ mulAvxTwo_8x10_end:
 	RET
 
 // func mulGFNI_8x10_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_8x10_64(SB), $0-88
 	// Loading 20 of 80 tables to registers
 	// Destination kept on stack
@@ -66992,208 +65700,148 @@ mulGFNI_8x10_64_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 2 to 10 outputs
-	VMOVDQU64       (DI), Z30
-	ADDQ            $0x40, DI
-	VBROADCASTF32X2 160(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z20, Z31, Z20
-	VBROADCASTF32X2 168(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 176(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 184(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 192(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 200(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DI), Z30
+	ADDQ                $0x40, DI
+	VGF2P8AFFINEQB.BCST $0x00, 160(CX), Z30, Z31
+	VXORPD              Z20, Z31, Z20
+	VGF2P8AFFINEQB.BCST $0x00, 168(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 176(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 184(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 192(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 200(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 3 to 10 outputs
-	VMOVDQU64       (R8), Z30
-	ADDQ            $0x40, R8
-	VBROADCASTF32X2 240(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z20, Z31, Z20
-	VBROADCASTF32X2 248(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 256(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 264(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 272(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 280(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 288(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 296(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 304(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 312(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R8), Z30
+	ADDQ                $0x40, R8
+	VGF2P8AFFINEQB.BCST $0x00, 240(CX), Z30, Z31
+	VXORPD              Z20, Z31, Z20
+	VGF2P8AFFINEQB.BCST $0x00, 248(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 256(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 264(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 272(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 280(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 288(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 296(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 304(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 312(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 4 to 10 outputs
-	VMOVDQU64       (R9), Z30
-	ADDQ            $0x40, R9
-	VBROADCASTF32X2 320(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z20, Z31, Z20
-	VBROADCASTF32X2 328(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 336(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 344(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 352(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 360(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 368(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 376(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 384(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 392(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R9), Z30
+	ADDQ                $0x40, R9
+	VGF2P8AFFINEQB.BCST $0x00, 320(CX), Z30, Z31
+	VXORPD              Z20, Z31, Z20
+	VGF2P8AFFINEQB.BCST $0x00, 328(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 336(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 344(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 352(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 360(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 368(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 376(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 384(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 392(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 5 to 10 outputs
-	VMOVDQU64       (R10), Z30
-	ADDQ            $0x40, R10
-	VBROADCASTF32X2 400(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z20, Z31, Z20
-	VBROADCASTF32X2 408(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 416(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 424(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 432(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 440(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 448(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 456(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 464(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 472(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R10), Z30
+	ADDQ                $0x40, R10
+	VGF2P8AFFINEQB.BCST $0x00, 400(CX), Z30, Z31
+	VXORPD              Z20, Z31, Z20
+	VGF2P8AFFINEQB.BCST $0x00, 408(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 416(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 424(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 432(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 440(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 448(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 456(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 464(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 472(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 6 to 10 outputs
-	VMOVDQU64       (R11), Z30
-	ADDQ            $0x40, R11
-	VBROADCASTF32X2 480(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z20, Z31, Z20
-	VBROADCASTF32X2 488(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 496(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 504(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 512(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 520(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 528(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 536(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 544(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 552(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R11), Z30
+	ADDQ                $0x40, R11
+	VGF2P8AFFINEQB.BCST $0x00, 480(CX), Z30, Z31
+	VXORPD              Z20, Z31, Z20
+	VGF2P8AFFINEQB.BCST $0x00, 488(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 496(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 504(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 512(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 520(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 528(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 536(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 544(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 552(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 7 to 10 outputs
-	VMOVDQU64       (DX), Z30
-	ADDQ            $0x40, DX
-	VBROADCASTF32X2 560(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z20, Z31, Z20
-	VBROADCASTF32X2 568(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 576(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 584(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 592(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 600(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 608(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 616(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 624(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 632(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DX), Z30
+	ADDQ                $0x40, DX
+	VGF2P8AFFINEQB.BCST $0x00, 560(CX), Z30, Z31
+	VXORPD              Z20, Z31, Z20
+	VGF2P8AFFINEQB.BCST $0x00, 568(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 576(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 584(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 592(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 600(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 608(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 616(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 624(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 632(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 10 outputs
 	MOVQ      (R12), R14
@@ -67227,7 +65875,7 @@ mulGFNI_8x10_64_end:
 	RET
 
 // func mulGFNI_8x10_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_8x10_64Xor(SB), $0-88
 	// Loading 20 of 80 tables to registers
 	// Destination kept on stack
@@ -67352,208 +66000,148 @@ mulGFNI_8x10_64Xor_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 2 to 10 outputs
-	VMOVDQU64       (DI), Z30
-	ADDQ            $0x40, DI
-	VBROADCASTF32X2 160(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z20, Z31, Z20
-	VBROADCASTF32X2 168(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 176(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 184(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 192(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 200(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DI), Z30
+	ADDQ                $0x40, DI
+	VGF2P8AFFINEQB.BCST $0x00, 160(CX), Z30, Z31
+	VXORPD              Z20, Z31, Z20
+	VGF2P8AFFINEQB.BCST $0x00, 168(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 176(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 184(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 192(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 200(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 3 to 10 outputs
-	VMOVDQU64       (R8), Z30
-	ADDQ            $0x40, R8
-	VBROADCASTF32X2 240(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z20, Z31, Z20
-	VBROADCASTF32X2 248(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 256(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 264(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 272(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 280(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 288(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 296(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 304(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 312(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R8), Z30
+	ADDQ                $0x40, R8
+	VGF2P8AFFINEQB.BCST $0x00, 240(CX), Z30, Z31
+	VXORPD              Z20, Z31, Z20
+	VGF2P8AFFINEQB.BCST $0x00, 248(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 256(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 264(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 272(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 280(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 288(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 296(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 304(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 312(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 4 to 10 outputs
-	VMOVDQU64       (R9), Z30
-	ADDQ            $0x40, R9
-	VBROADCASTF32X2 320(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z20, Z31, Z20
-	VBROADCASTF32X2 328(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 336(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 344(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 352(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 360(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 368(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 376(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 384(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 392(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R9), Z30
+	ADDQ                $0x40, R9
+	VGF2P8AFFINEQB.BCST $0x00, 320(CX), Z30, Z31
+	VXORPD              Z20, Z31, Z20
+	VGF2P8AFFINEQB.BCST $0x00, 328(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 336(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 344(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 352(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 360(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 368(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 376(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 384(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 392(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 5 to 10 outputs
-	VMOVDQU64       (R10), Z30
-	ADDQ            $0x40, R10
-	VBROADCASTF32X2 400(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z20, Z31, Z20
-	VBROADCASTF32X2 408(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 416(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 424(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 432(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 440(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 448(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 456(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 464(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 472(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R10), Z30
+	ADDQ                $0x40, R10
+	VGF2P8AFFINEQB.BCST $0x00, 400(CX), Z30, Z31
+	VXORPD              Z20, Z31, Z20
+	VGF2P8AFFINEQB.BCST $0x00, 408(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 416(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 424(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 432(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 440(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 448(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 456(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 464(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 472(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 6 to 10 outputs
-	VMOVDQU64       (R11), Z30
-	ADDQ            $0x40, R11
-	VBROADCASTF32X2 480(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z20, Z31, Z20
-	VBROADCASTF32X2 488(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 496(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 504(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 512(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 520(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 528(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 536(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 544(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 552(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R11), Z30
+	ADDQ                $0x40, R11
+	VGF2P8AFFINEQB.BCST $0x00, 480(CX), Z30, Z31
+	VXORPD              Z20, Z31, Z20
+	VGF2P8AFFINEQB.BCST $0x00, 488(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 496(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 504(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 512(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 520(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 528(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 536(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 544(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 552(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 7 to 10 outputs
-	VMOVDQU64       (DX), Z30
-	ADDQ            $0x40, DX
-	VBROADCASTF32X2 560(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z20, Z31, Z20
-	VBROADCASTF32X2 568(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 576(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 584(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 592(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 600(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 608(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 616(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 624(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 632(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DX), Z30
+	ADDQ                $0x40, DX
+	VGF2P8AFFINEQB.BCST $0x00, 560(CX), Z30, Z31
+	VXORPD              Z20, Z31, Z20
+	VGF2P8AFFINEQB.BCST $0x00, 568(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 576(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 584(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 592(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 600(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 608(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 616(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 624(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 632(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 10 outputs
 	MOVQ      (R12), R14
@@ -68522,7 +67110,7 @@ mulAvxTwo_9x1_64_end:
 	RET
 
 // func mulGFNI_9x1_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_9x1_64(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -68637,7 +67225,7 @@ mulGFNI_9x1_64_end:
 	RET
 
 // func mulGFNI_9x1_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_9x1_64Xor(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -69669,7 +68257,7 @@ mulAvxTwo_9x2_64_end:
 	RET
 
 // func mulGFNI_9x2_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_9x2_64(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -69814,7 +68402,7 @@ mulGFNI_9x2_64_end:
 	RET
 
 // func mulGFNI_9x2_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_9x2_64Xor(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -71133,7 +69721,7 @@ mulAvxTwo_9x3_64_end:
 	RET
 
 // func mulGFNI_9x3_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_9x3_64(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -71308,7 +69896,7 @@ mulGFNI_9x3_64_end:
 	RET
 
 // func mulGFNI_9x3_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_9x3_64Xor(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -72457,7 +71045,7 @@ mulAvxTwo_9x4_end:
 	RET
 
 // func mulGFNI_9x4_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_9x4_64(SB), $8-88
 	// Loading 26 of 36 tables to registers
 	// Destination kept in GP registers
@@ -72602,50 +71190,40 @@ mulGFNI_9x4_64_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 6 to 4 outputs
-	VMOVDQU64       (R10), Z30
-	ADDQ            $0x40, R10
-	VGF2P8AFFINEQB  $0x00, Z24, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VGF2P8AFFINEQB  $0x00, Z25, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R10), Z30
+	ADDQ                $0x40, R10
+	VGF2P8AFFINEQB      $0x00, Z24, Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB      $0x00, Z25, Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 7 to 4 outputs
-	VMOVDQU64       (R11), Z30
-	ADDQ            $0x40, R11
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 240(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 248(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R11), Z30
+	ADDQ                $0x40, R11
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 240(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 248(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 8 to 4 outputs
-	VMOVDQU64       (AX), Z30
-	ADDQ            $0x40, AX
-	VBROADCASTF32X2 256(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 264(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 272(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 280(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (AX), Z30
+	ADDQ                $0x40, AX
+	VGF2P8AFFINEQB.BCST $0x00, 256(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 264(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 272(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 280(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 4 outputs
 	VMOVDQU64 Z26, (R13)
@@ -72666,7 +71244,7 @@ mulGFNI_9x4_64_end:
 	RET
 
 // func mulGFNI_9x4_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_9x4_64Xor(SB), $8-88
 	// Loading 26 of 36 tables to registers
 	// Destination kept in GP registers
@@ -72821,50 +71399,40 @@ mulGFNI_9x4_64Xor_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 6 to 4 outputs
-	VMOVDQU64       (R10), Z30
-	ADDQ            $0x40, R10
-	VGF2P8AFFINEQB  $0x00, Z24, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VGF2P8AFFINEQB  $0x00, Z25, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R10), Z30
+	ADDQ                $0x40, R10
+	VGF2P8AFFINEQB      $0x00, Z24, Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB      $0x00, Z25, Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 7 to 4 outputs
-	VMOVDQU64       (R11), Z30
-	ADDQ            $0x40, R11
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 240(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 248(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R11), Z30
+	ADDQ                $0x40, R11
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 240(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 248(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 8 to 4 outputs
-	VMOVDQU64       (AX), Z30
-	ADDQ            $0x40, AX
-	VBROADCASTF32X2 256(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 264(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 272(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 280(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (AX), Z30
+	ADDQ                $0x40, AX
+	VGF2P8AFFINEQB.BCST $0x00, 256(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 264(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 272(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 280(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 4 outputs
 	VMOVDQU64 Z26, (R13)
@@ -73549,7 +72117,7 @@ mulAvxTwo_9x5_end:
 	RET
 
 // func mulGFNI_9x5_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_9x5_64(SB), $0-88
 	// Loading 25 of 45 tables to registers
 	// Destination kept on stack
@@ -73676,80 +72244,60 @@ mulGFNI_9x5_64_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 5 to 5 outputs
-	VMOVDQU64       (R10), Z30
-	ADDQ            $0x40, R10
-	VBROADCASTF32X2 200(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R10), Z30
+	ADDQ                $0x40, R10
+	VGF2P8AFFINEQB.BCST $0x00, 200(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 6 to 5 outputs
-	VMOVDQU64       (R11), Z30
-	ADDQ            $0x40, R11
-	VBROADCASTF32X2 240(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 248(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 256(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 264(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 272(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R11), Z30
+	ADDQ                $0x40, R11
+	VGF2P8AFFINEQB.BCST $0x00, 240(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 248(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 256(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 264(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 272(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 7 to 5 outputs
-	VMOVDQU64       (R12), Z30
-	ADDQ            $0x40, R12
-	VBROADCASTF32X2 280(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 288(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 296(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 304(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 312(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R12), Z30
+	ADDQ                $0x40, R12
+	VGF2P8AFFINEQB.BCST $0x00, 280(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 288(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 296(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 304(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 312(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 8 to 5 outputs
-	VMOVDQU64       (DX), Z30
-	ADDQ            $0x40, DX
-	VBROADCASTF32X2 320(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 328(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 336(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 344(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 352(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DX), Z30
+	ADDQ                $0x40, DX
+	VGF2P8AFFINEQB.BCST $0x00, 320(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 328(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 336(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 344(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 352(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 5 outputs
 	MOVQ      (R13), R15
@@ -73773,7 +72321,7 @@ mulGFNI_9x5_64_end:
 	RET
 
 // func mulGFNI_9x5_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_9x5_64Xor(SB), $0-88
 	// Loading 25 of 45 tables to registers
 	// Destination kept on stack
@@ -73917,80 +72465,60 @@ mulGFNI_9x5_64Xor_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 5 to 5 outputs
-	VMOVDQU64       (R10), Z30
-	ADDQ            $0x40, R10
-	VBROADCASTF32X2 200(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R10), Z30
+	ADDQ                $0x40, R10
+	VGF2P8AFFINEQB.BCST $0x00, 200(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 6 to 5 outputs
-	VMOVDQU64       (R11), Z30
-	ADDQ            $0x40, R11
-	VBROADCASTF32X2 240(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 248(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 256(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 264(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 272(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R11), Z30
+	ADDQ                $0x40, R11
+	VGF2P8AFFINEQB.BCST $0x00, 240(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 248(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 256(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 264(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 272(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 7 to 5 outputs
-	VMOVDQU64       (R12), Z30
-	ADDQ            $0x40, R12
-	VBROADCASTF32X2 280(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 288(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 296(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 304(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 312(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R12), Z30
+	ADDQ                $0x40, R12
+	VGF2P8AFFINEQB.BCST $0x00, 280(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 288(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 296(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 304(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 312(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 8 to 5 outputs
-	VMOVDQU64       (DX), Z30
-	ADDQ            $0x40, DX
-	VBROADCASTF32X2 320(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 328(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 336(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 344(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 352(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DX), Z30
+	ADDQ                $0x40, DX
+	VGF2P8AFFINEQB.BCST $0x00, 320(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 328(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 336(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 344(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 352(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 5 outputs
 	MOVQ      (R13), R15
@@ -74767,7 +73295,7 @@ mulAvxTwo_9x6_end:
 	RET
 
 // func mulGFNI_9x6_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_9x6_64(SB), $0-88
 	// Loading 24 of 54 tables to registers
 	// Destination kept on stack
@@ -74886,114 +73414,84 @@ mulGFNI_9x6_64_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 4 to 6 outputs
-	VMOVDQU64       (R9), Z30
-	ADDQ            $0x40, R9
-	VBROADCASTF32X2 192(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 200(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R9), Z30
+	ADDQ                $0x40, R9
+	VGF2P8AFFINEQB.BCST $0x00, 192(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 200(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 5 to 6 outputs
-	VMOVDQU64       (R10), Z30
-	ADDQ            $0x40, R10
-	VBROADCASTF32X2 240(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 248(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 256(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 264(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 272(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 280(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R10), Z30
+	ADDQ                $0x40, R10
+	VGF2P8AFFINEQB.BCST $0x00, 240(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 248(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 256(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 264(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 272(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 280(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 6 to 6 outputs
-	VMOVDQU64       (R11), Z30
-	ADDQ            $0x40, R11
-	VBROADCASTF32X2 288(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 296(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 304(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 312(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 320(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 328(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R11), Z30
+	ADDQ                $0x40, R11
+	VGF2P8AFFINEQB.BCST $0x00, 288(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 296(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 304(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 312(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 320(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 328(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 7 to 6 outputs
-	VMOVDQU64       (R12), Z30
-	ADDQ            $0x40, R12
-	VBROADCASTF32X2 336(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 344(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 352(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 360(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 368(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 376(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R12), Z30
+	ADDQ                $0x40, R12
+	VGF2P8AFFINEQB.BCST $0x00, 336(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 344(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 352(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 360(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 368(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 376(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 8 to 6 outputs
-	VMOVDQU64       (DX), Z30
-	ADDQ            $0x40, DX
-	VBROADCASTF32X2 384(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 392(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 400(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 408(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 416(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 424(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DX), Z30
+	ADDQ                $0x40, DX
+	VGF2P8AFFINEQB.BCST $0x00, 384(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 392(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 400(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 408(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 416(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 424(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 6 outputs
 	MOVQ      (R13), R15
@@ -75019,7 +73517,7 @@ mulGFNI_9x6_64_end:
 	RET
 
 // func mulGFNI_9x6_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_9x6_64Xor(SB), $0-88
 	// Loading 24 of 54 tables to registers
 	// Destination kept on stack
@@ -75158,114 +73656,84 @@ mulGFNI_9x6_64Xor_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 4 to 6 outputs
-	VMOVDQU64       (R9), Z30
-	ADDQ            $0x40, R9
-	VBROADCASTF32X2 192(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 200(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R9), Z30
+	ADDQ                $0x40, R9
+	VGF2P8AFFINEQB.BCST $0x00, 192(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 200(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 5 to 6 outputs
-	VMOVDQU64       (R10), Z30
-	ADDQ            $0x40, R10
-	VBROADCASTF32X2 240(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 248(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 256(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 264(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 272(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 280(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R10), Z30
+	ADDQ                $0x40, R10
+	VGF2P8AFFINEQB.BCST $0x00, 240(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 248(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 256(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 264(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 272(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 280(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 6 to 6 outputs
-	VMOVDQU64       (R11), Z30
-	ADDQ            $0x40, R11
-	VBROADCASTF32X2 288(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 296(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 304(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 312(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 320(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 328(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R11), Z30
+	ADDQ                $0x40, R11
+	VGF2P8AFFINEQB.BCST $0x00, 288(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 296(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 304(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 312(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 320(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 328(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 7 to 6 outputs
-	VMOVDQU64       (R12), Z30
-	ADDQ            $0x40, R12
-	VBROADCASTF32X2 336(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 344(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 352(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 360(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 368(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 376(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R12), Z30
+	ADDQ                $0x40, R12
+	VGF2P8AFFINEQB.BCST $0x00, 336(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 344(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 352(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 360(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 368(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 376(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 8 to 6 outputs
-	VMOVDQU64       (DX), Z30
-	ADDQ            $0x40, DX
-	VBROADCASTF32X2 384(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 392(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 400(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 408(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 416(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 424(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DX), Z30
+	ADDQ                $0x40, DX
+	VGF2P8AFFINEQB.BCST $0x00, 384(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 392(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 400(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 408(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 416(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 424(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 6 outputs
 	MOVQ      (R13), R15
@@ -76140,7 +74608,7 @@ mulAvxTwo_9x7_end:
 	RET
 
 // func mulGFNI_9x7_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_9x7_64(SB), $0-88
 	// Loading 23 of 63 tables to registers
 	// Destination kept on stack
@@ -76247,152 +74715,112 @@ mulGFNI_9x7_64_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 3 to 7 outputs
-	VMOVDQU64       (R8), Z30
-	ADDQ            $0x40, R8
-	VGF2P8AFFINEQB  $0x00, Z21, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VGF2P8AFFINEQB  $0x00, Z22, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 184(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 192(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 200(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R8), Z30
+	ADDQ                $0x40, R8
+	VGF2P8AFFINEQB      $0x00, Z21, Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB      $0x00, Z22, Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 184(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 192(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 200(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 4 to 7 outputs
-	VMOVDQU64       (R9), Z30
-	ADDQ            $0x40, R9
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 240(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 248(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 256(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 264(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 272(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R9), Z30
+	ADDQ                $0x40, R9
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 240(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 248(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 256(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 264(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 272(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 5 to 7 outputs
-	VMOVDQU64       (R10), Z30
-	ADDQ            $0x40, R10
-	VBROADCASTF32X2 280(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 288(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 296(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 304(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 312(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 320(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 328(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R10), Z30
+	ADDQ                $0x40, R10
+	VGF2P8AFFINEQB.BCST $0x00, 280(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 288(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 296(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 304(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 312(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 320(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 328(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 6 to 7 outputs
-	VMOVDQU64       (R11), Z30
-	ADDQ            $0x40, R11
-	VBROADCASTF32X2 336(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 344(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 352(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 360(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 368(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 376(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 384(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R11), Z30
+	ADDQ                $0x40, R11
+	VGF2P8AFFINEQB.BCST $0x00, 336(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 344(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 352(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 360(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 368(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 376(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 384(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 7 to 7 outputs
-	VMOVDQU64       (R12), Z30
-	ADDQ            $0x40, R12
-	VBROADCASTF32X2 392(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 400(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 408(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 416(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 424(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 432(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 440(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R12), Z30
+	ADDQ                $0x40, R12
+	VGF2P8AFFINEQB.BCST $0x00, 392(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 400(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 408(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 416(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 424(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 432(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 440(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 8 to 7 outputs
-	VMOVDQU64       (DX), Z30
-	ADDQ            $0x40, DX
-	VBROADCASTF32X2 448(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 456(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 464(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 472(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 480(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 488(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 496(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DX), Z30
+	ADDQ                $0x40, DX
+	VGF2P8AFFINEQB.BCST $0x00, 448(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 456(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 464(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 472(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 480(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 488(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 496(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 7 outputs
 	MOVQ      (R13), R15
@@ -76420,7 +74848,7 @@ mulGFNI_9x7_64_end:
 	RET
 
 // func mulGFNI_9x7_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_9x7_64Xor(SB), $0-88
 	// Loading 23 of 63 tables to registers
 	// Destination kept on stack
@@ -76550,152 +74978,112 @@ mulGFNI_9x7_64Xor_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 3 to 7 outputs
-	VMOVDQU64       (R8), Z30
-	ADDQ            $0x40, R8
-	VGF2P8AFFINEQB  $0x00, Z21, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VGF2P8AFFINEQB  $0x00, Z22, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 184(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 192(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 200(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R8), Z30
+	ADDQ                $0x40, R8
+	VGF2P8AFFINEQB      $0x00, Z21, Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB      $0x00, Z22, Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 184(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 192(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 200(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 4 to 7 outputs
-	VMOVDQU64       (R9), Z30
-	ADDQ            $0x40, R9
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 240(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 248(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 256(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 264(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 272(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R9), Z30
+	ADDQ                $0x40, R9
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 240(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 248(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 256(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 264(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 272(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 5 to 7 outputs
-	VMOVDQU64       (R10), Z30
-	ADDQ            $0x40, R10
-	VBROADCASTF32X2 280(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 288(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 296(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 304(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 312(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 320(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 328(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R10), Z30
+	ADDQ                $0x40, R10
+	VGF2P8AFFINEQB.BCST $0x00, 280(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 288(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 296(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 304(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 312(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 320(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 328(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 6 to 7 outputs
-	VMOVDQU64       (R11), Z30
-	ADDQ            $0x40, R11
-	VBROADCASTF32X2 336(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 344(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 352(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 360(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 368(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 376(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 384(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R11), Z30
+	ADDQ                $0x40, R11
+	VGF2P8AFFINEQB.BCST $0x00, 336(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 344(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 352(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 360(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 368(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 376(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 384(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 7 to 7 outputs
-	VMOVDQU64       (R12), Z30
-	ADDQ            $0x40, R12
-	VBROADCASTF32X2 392(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 400(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 408(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 416(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 424(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 432(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 440(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R12), Z30
+	ADDQ                $0x40, R12
+	VGF2P8AFFINEQB.BCST $0x00, 392(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 400(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 408(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 416(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 424(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 432(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 440(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 8 to 7 outputs
-	VMOVDQU64       (DX), Z30
-	ADDQ            $0x40, DX
-	VBROADCASTF32X2 448(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 456(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 464(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 472(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 480(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 488(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 496(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DX), Z30
+	ADDQ                $0x40, DX
+	VGF2P8AFFINEQB.BCST $0x00, 448(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 456(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 464(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 472(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 480(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 488(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 496(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 7 outputs
 	MOVQ      (R13), R15
@@ -77668,7 +76056,7 @@ mulAvxTwo_9x8_end:
 	RET
 
 // func mulGFNI_9x8_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_9x8_64(SB), $0-88
 	// Loading 22 of 72 tables to registers
 	// Destination kept on stack
@@ -77759,194 +76147,144 @@ mulGFNI_9x8_64_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 2 to 8 outputs
-	VMOVDQU64       (DI), Z30
-	ADDQ            $0x40, DI
-	VGF2P8AFFINEQB  $0x00, Z16, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VGF2P8AFFINEQB  $0x00, Z17, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VGF2P8AFFINEQB  $0x00, Z18, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VGF2P8AFFINEQB  $0x00, Z19, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VGF2P8AFFINEQB  $0x00, Z20, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VGF2P8AFFINEQB  $0x00, Z21, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 176(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 184(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DI), Z30
+	ADDQ                $0x40, DI
+	VGF2P8AFFINEQB      $0x00, Z16, Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB      $0x00, Z17, Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB      $0x00, Z18, Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB      $0x00, Z19, Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB      $0x00, Z20, Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB      $0x00, Z21, Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 176(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 184(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 3 to 8 outputs
-	VMOVDQU64       (R8), Z30
-	ADDQ            $0x40, R8
-	VBROADCASTF32X2 192(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 200(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 240(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 248(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R8), Z30
+	ADDQ                $0x40, R8
+	VGF2P8AFFINEQB.BCST $0x00, 192(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 200(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 240(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 248(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 4 to 8 outputs
-	VMOVDQU64       (R9), Z30
-	ADDQ            $0x40, R9
-	VBROADCASTF32X2 256(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 264(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 272(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 280(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 288(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 296(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 304(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 312(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R9), Z30
+	ADDQ                $0x40, R9
+	VGF2P8AFFINEQB.BCST $0x00, 256(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 264(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 272(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 280(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 288(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 296(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 304(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 312(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 5 to 8 outputs
-	VMOVDQU64       (R10), Z30
-	ADDQ            $0x40, R10
-	VBROADCASTF32X2 320(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 328(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 336(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 344(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 352(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 360(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 368(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 376(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R10), Z30
+	ADDQ                $0x40, R10
+	VGF2P8AFFINEQB.BCST $0x00, 320(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 328(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 336(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 344(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 352(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 360(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 368(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 376(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 6 to 8 outputs
-	VMOVDQU64       (R11), Z30
-	ADDQ            $0x40, R11
-	VBROADCASTF32X2 384(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 392(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 400(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 408(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 416(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 424(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 432(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 440(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R11), Z30
+	ADDQ                $0x40, R11
+	VGF2P8AFFINEQB.BCST $0x00, 384(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 392(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 400(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 408(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 416(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 424(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 432(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 440(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 7 to 8 outputs
-	VMOVDQU64       (R12), Z30
-	ADDQ            $0x40, R12
-	VBROADCASTF32X2 448(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 456(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 464(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 472(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 480(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 488(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 496(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 504(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R12), Z30
+	ADDQ                $0x40, R12
+	VGF2P8AFFINEQB.BCST $0x00, 448(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 456(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 464(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 472(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 480(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 488(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 496(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 504(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 8 to 8 outputs
-	VMOVDQU64       (DX), Z30
-	ADDQ            $0x40, DX
-	VBROADCASTF32X2 512(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 520(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 528(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 536(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 544(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 552(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 560(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 568(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DX), Z30
+	ADDQ                $0x40, DX
+	VGF2P8AFFINEQB.BCST $0x00, 512(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 520(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 528(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 536(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 544(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 552(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 560(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 568(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 8 outputs
 	MOVQ      (R13), R15
@@ -77976,7 +76314,7 @@ mulGFNI_9x8_64_end:
 	RET
 
 // func mulGFNI_9x8_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_9x8_64Xor(SB), $0-88
 	// Loading 22 of 72 tables to registers
 	// Destination kept on stack
@@ -78093,194 +76431,144 @@ mulGFNI_9x8_64Xor_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 2 to 8 outputs
-	VMOVDQU64       (DI), Z30
-	ADDQ            $0x40, DI
-	VGF2P8AFFINEQB  $0x00, Z16, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VGF2P8AFFINEQB  $0x00, Z17, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VGF2P8AFFINEQB  $0x00, Z18, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VGF2P8AFFINEQB  $0x00, Z19, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VGF2P8AFFINEQB  $0x00, Z20, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VGF2P8AFFINEQB  $0x00, Z21, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 176(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 184(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DI), Z30
+	ADDQ                $0x40, DI
+	VGF2P8AFFINEQB      $0x00, Z16, Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB      $0x00, Z17, Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB      $0x00, Z18, Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB      $0x00, Z19, Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB      $0x00, Z20, Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB      $0x00, Z21, Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 176(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 184(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 3 to 8 outputs
-	VMOVDQU64       (R8), Z30
-	ADDQ            $0x40, R8
-	VBROADCASTF32X2 192(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 200(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 240(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 248(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R8), Z30
+	ADDQ                $0x40, R8
+	VGF2P8AFFINEQB.BCST $0x00, 192(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 200(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 240(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 248(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 4 to 8 outputs
-	VMOVDQU64       (R9), Z30
-	ADDQ            $0x40, R9
-	VBROADCASTF32X2 256(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 264(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 272(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 280(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 288(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 296(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 304(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 312(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R9), Z30
+	ADDQ                $0x40, R9
+	VGF2P8AFFINEQB.BCST $0x00, 256(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 264(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 272(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 280(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 288(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 296(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 304(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 312(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 5 to 8 outputs
-	VMOVDQU64       (R10), Z30
-	ADDQ            $0x40, R10
-	VBROADCASTF32X2 320(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 328(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 336(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 344(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 352(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 360(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 368(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 376(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R10), Z30
+	ADDQ                $0x40, R10
+	VGF2P8AFFINEQB.BCST $0x00, 320(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 328(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 336(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 344(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 352(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 360(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 368(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 376(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 6 to 8 outputs
-	VMOVDQU64       (R11), Z30
-	ADDQ            $0x40, R11
-	VBROADCASTF32X2 384(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 392(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 400(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 408(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 416(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 424(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 432(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 440(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R11), Z30
+	ADDQ                $0x40, R11
+	VGF2P8AFFINEQB.BCST $0x00, 384(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 392(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 400(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 408(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 416(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 424(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 432(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 440(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 7 to 8 outputs
-	VMOVDQU64       (R12), Z30
-	ADDQ            $0x40, R12
-	VBROADCASTF32X2 448(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 456(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 464(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 472(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 480(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 488(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 496(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 504(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R12), Z30
+	ADDQ                $0x40, R12
+	VGF2P8AFFINEQB.BCST $0x00, 448(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 456(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 464(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 472(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 480(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 488(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 496(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 504(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 8 to 8 outputs
-	VMOVDQU64       (DX), Z30
-	ADDQ            $0x40, DX
-	VBROADCASTF32X2 512(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 520(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 528(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 536(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 544(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 552(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 560(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 568(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DX), Z30
+	ADDQ                $0x40, DX
+	VGF2P8AFFINEQB.BCST $0x00, 512(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 520(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 528(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 536(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 544(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 552(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 560(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 568(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 8 outputs
 	MOVQ      (R13), R15
@@ -79351,7 +77639,7 @@ mulAvxTwo_9x9_end:
 	RET
 
 // func mulGFNI_9x9_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_9x9_64(SB), $0-88
 	// Loading 21 of 81 tables to registers
 	// Destination kept on stack
@@ -79444,218 +77732,158 @@ mulGFNI_9x9_64_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 2 to 9 outputs
-	VMOVDQU64       (DI), Z30
-	ADDQ            $0x40, DI
-	VGF2P8AFFINEQB  $0x00, Z18, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VGF2P8AFFINEQB  $0x00, Z19, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VGF2P8AFFINEQB  $0x00, Z20, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 168(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 176(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 184(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 192(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 200(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DI), Z30
+	ADDQ                $0x40, DI
+	VGF2P8AFFINEQB      $0x00, Z18, Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB      $0x00, Z19, Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB      $0x00, Z20, Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 168(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 176(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 184(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 192(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 200(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 3 to 9 outputs
-	VMOVDQU64       (R8), Z30
-	ADDQ            $0x40, R8
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 240(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 248(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 256(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 264(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 272(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 280(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R8), Z30
+	ADDQ                $0x40, R8
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 240(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 248(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 256(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 264(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 272(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 280(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 4 to 9 outputs
-	VMOVDQU64       (R9), Z30
-	ADDQ            $0x40, R9
-	VBROADCASTF32X2 288(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 296(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 304(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 312(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 320(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 328(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 336(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 344(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 352(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R9), Z30
+	ADDQ                $0x40, R9
+	VGF2P8AFFINEQB.BCST $0x00, 288(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 296(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 304(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 312(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 320(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 328(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 336(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 344(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 352(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 5 to 9 outputs
-	VMOVDQU64       (R10), Z30
-	ADDQ            $0x40, R10
-	VBROADCASTF32X2 360(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 368(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 376(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 384(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 392(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 400(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 408(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 416(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 424(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R10), Z30
+	ADDQ                $0x40, R10
+	VGF2P8AFFINEQB.BCST $0x00, 360(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 368(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 376(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 384(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 392(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 400(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 408(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 416(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 424(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 6 to 9 outputs
-	VMOVDQU64       (R11), Z30
-	ADDQ            $0x40, R11
-	VBROADCASTF32X2 432(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 440(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 448(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 456(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 464(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 472(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 480(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 488(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 496(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R11), Z30
+	ADDQ                $0x40, R11
+	VGF2P8AFFINEQB.BCST $0x00, 432(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 440(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 448(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 456(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 464(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 472(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 480(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 488(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 496(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 7 to 9 outputs
-	VMOVDQU64       (R12), Z30
-	ADDQ            $0x40, R12
-	VBROADCASTF32X2 504(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 512(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 520(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 528(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 536(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 544(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 552(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 560(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 568(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R12), Z30
+	ADDQ                $0x40, R12
+	VGF2P8AFFINEQB.BCST $0x00, 504(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 512(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 520(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 528(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 536(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 544(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 552(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 560(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 568(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 8 to 9 outputs
-	VMOVDQU64       (DX), Z30
-	ADDQ            $0x40, DX
-	VBROADCASTF32X2 576(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 584(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 592(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 600(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 608(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 616(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 624(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 632(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 640(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DX), Z30
+	ADDQ                $0x40, DX
+	VGF2P8AFFINEQB.BCST $0x00, 576(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 584(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 592(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 600(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 608(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 616(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 624(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 632(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 640(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 9 outputs
 	MOVQ      (R13), R15
@@ -79687,7 +77915,7 @@ mulGFNI_9x9_64_end:
 	RET
 
 // func mulGFNI_9x9_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_9x9_64Xor(SB), $0-88
 	// Loading 21 of 81 tables to registers
 	// Destination kept on stack
@@ -79809,218 +78037,158 @@ mulGFNI_9x9_64Xor_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 2 to 9 outputs
-	VMOVDQU64       (DI), Z30
-	ADDQ            $0x40, DI
-	VGF2P8AFFINEQB  $0x00, Z18, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VGF2P8AFFINEQB  $0x00, Z19, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VGF2P8AFFINEQB  $0x00, Z20, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 168(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 176(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 184(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 192(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 200(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DI), Z30
+	ADDQ                $0x40, DI
+	VGF2P8AFFINEQB      $0x00, Z18, Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB      $0x00, Z19, Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB      $0x00, Z20, Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 168(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 176(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 184(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 192(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 200(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 3 to 9 outputs
-	VMOVDQU64       (R8), Z30
-	ADDQ            $0x40, R8
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 240(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 248(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 256(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 264(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 272(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 280(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R8), Z30
+	ADDQ                $0x40, R8
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 240(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 248(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 256(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 264(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 272(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 280(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 4 to 9 outputs
-	VMOVDQU64       (R9), Z30
-	ADDQ            $0x40, R9
-	VBROADCASTF32X2 288(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 296(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 304(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 312(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 320(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 328(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 336(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 344(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 352(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R9), Z30
+	ADDQ                $0x40, R9
+	VGF2P8AFFINEQB.BCST $0x00, 288(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 296(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 304(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 312(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 320(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 328(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 336(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 344(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 352(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 5 to 9 outputs
-	VMOVDQU64       (R10), Z30
-	ADDQ            $0x40, R10
-	VBROADCASTF32X2 360(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 368(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 376(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 384(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 392(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 400(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 408(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 416(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 424(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R10), Z30
+	ADDQ                $0x40, R10
+	VGF2P8AFFINEQB.BCST $0x00, 360(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 368(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 376(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 384(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 392(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 400(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 408(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 416(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 424(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 6 to 9 outputs
-	VMOVDQU64       (R11), Z30
-	ADDQ            $0x40, R11
-	VBROADCASTF32X2 432(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 440(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 448(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 456(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 464(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 472(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 480(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 488(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 496(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R11), Z30
+	ADDQ                $0x40, R11
+	VGF2P8AFFINEQB.BCST $0x00, 432(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 440(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 448(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 456(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 464(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 472(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 480(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 488(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 496(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 7 to 9 outputs
-	VMOVDQU64       (R12), Z30
-	ADDQ            $0x40, R12
-	VBROADCASTF32X2 504(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 512(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 520(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 528(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 536(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 544(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 552(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 560(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 568(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R12), Z30
+	ADDQ                $0x40, R12
+	VGF2P8AFFINEQB.BCST $0x00, 504(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 512(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 520(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 528(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 536(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 544(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 552(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 560(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 568(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 8 to 9 outputs
-	VMOVDQU64       (DX), Z30
-	ADDQ            $0x40, DX
-	VBROADCASTF32X2 576(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 584(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 592(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 600(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 608(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 616(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 624(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 632(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 640(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DX), Z30
+	ADDQ                $0x40, DX
+	VGF2P8AFFINEQB.BCST $0x00, 576(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 584(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 592(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 600(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 608(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 616(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 624(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 632(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 640(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 9 outputs
 	MOVQ      (R13), R15
@@ -81189,7 +79357,7 @@ mulAvxTwo_9x10_end:
 	RET
 
 // func mulGFNI_9x10_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_9x10_64(SB), $0-88
 	// Loading 20 of 90 tables to registers
 	// Destination kept on stack
@@ -81284,242 +79452,172 @@ mulGFNI_9x10_64_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 2 to 10 outputs
-	VMOVDQU64       (DI), Z30
-	ADDQ            $0x40, DI
-	VBROADCASTF32X2 160(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z20, Z31, Z20
-	VBROADCASTF32X2 168(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 176(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 184(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 192(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 200(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DI), Z30
+	ADDQ                $0x40, DI
+	VGF2P8AFFINEQB.BCST $0x00, 160(CX), Z30, Z31
+	VXORPD              Z20, Z31, Z20
+	VGF2P8AFFINEQB.BCST $0x00, 168(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 176(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 184(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 192(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 200(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 3 to 10 outputs
-	VMOVDQU64       (R8), Z30
-	ADDQ            $0x40, R8
-	VBROADCASTF32X2 240(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z20, Z31, Z20
-	VBROADCASTF32X2 248(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 256(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 264(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 272(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 280(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 288(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 296(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 304(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 312(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R8), Z30
+	ADDQ                $0x40, R8
+	VGF2P8AFFINEQB.BCST $0x00, 240(CX), Z30, Z31
+	VXORPD              Z20, Z31, Z20
+	VGF2P8AFFINEQB.BCST $0x00, 248(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 256(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 264(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 272(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 280(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 288(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 296(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 304(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 312(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 4 to 10 outputs
-	VMOVDQU64       (R9), Z30
-	ADDQ            $0x40, R9
-	VBROADCASTF32X2 320(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z20, Z31, Z20
-	VBROADCASTF32X2 328(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 336(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 344(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 352(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 360(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 368(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 376(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 384(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 392(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R9), Z30
+	ADDQ                $0x40, R9
+	VGF2P8AFFINEQB.BCST $0x00, 320(CX), Z30, Z31
+	VXORPD              Z20, Z31, Z20
+	VGF2P8AFFINEQB.BCST $0x00, 328(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 336(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 344(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 352(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 360(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 368(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 376(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 384(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 392(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 5 to 10 outputs
-	VMOVDQU64       (R10), Z30
-	ADDQ            $0x40, R10
-	VBROADCASTF32X2 400(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z20, Z31, Z20
-	VBROADCASTF32X2 408(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 416(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 424(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 432(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 440(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 448(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 456(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 464(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 472(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R10), Z30
+	ADDQ                $0x40, R10
+	VGF2P8AFFINEQB.BCST $0x00, 400(CX), Z30, Z31
+	VXORPD              Z20, Z31, Z20
+	VGF2P8AFFINEQB.BCST $0x00, 408(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 416(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 424(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 432(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 440(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 448(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 456(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 464(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 472(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 6 to 10 outputs
-	VMOVDQU64       (R11), Z30
-	ADDQ            $0x40, R11
-	VBROADCASTF32X2 480(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z20, Z31, Z20
-	VBROADCASTF32X2 488(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 496(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 504(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 512(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 520(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 528(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 536(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 544(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 552(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R11), Z30
+	ADDQ                $0x40, R11
+	VGF2P8AFFINEQB.BCST $0x00, 480(CX), Z30, Z31
+	VXORPD              Z20, Z31, Z20
+	VGF2P8AFFINEQB.BCST $0x00, 488(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 496(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 504(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 512(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 520(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 528(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 536(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 544(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 552(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 7 to 10 outputs
-	VMOVDQU64       (R12), Z30
-	ADDQ            $0x40, R12
-	VBROADCASTF32X2 560(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z20, Z31, Z20
-	VBROADCASTF32X2 568(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 576(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 584(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 592(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 600(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 608(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 616(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 624(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 632(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R12), Z30
+	ADDQ                $0x40, R12
+	VGF2P8AFFINEQB.BCST $0x00, 560(CX), Z30, Z31
+	VXORPD              Z20, Z31, Z20
+	VGF2P8AFFINEQB.BCST $0x00, 568(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 576(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 584(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 592(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 600(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 608(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 616(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 624(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 632(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 8 to 10 outputs
-	VMOVDQU64       (DX), Z30
-	ADDQ            $0x40, DX
-	VBROADCASTF32X2 640(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z20, Z31, Z20
-	VBROADCASTF32X2 648(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 656(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 664(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 672(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 680(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 688(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 696(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 704(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 712(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DX), Z30
+	ADDQ                $0x40, DX
+	VGF2P8AFFINEQB.BCST $0x00, 640(CX), Z30, Z31
+	VXORPD              Z20, Z31, Z20
+	VGF2P8AFFINEQB.BCST $0x00, 648(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 656(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 664(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 672(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 680(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 688(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 696(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 704(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 712(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 10 outputs
 	MOVQ      (R13), R15
@@ -81553,7 +79651,7 @@ mulGFNI_9x10_64_end:
 	RET
 
 // func mulGFNI_9x10_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_9x10_64Xor(SB), $0-88
 	// Loading 20 of 90 tables to registers
 	// Destination kept on stack
@@ -81680,242 +79778,172 @@ mulGFNI_9x10_64Xor_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 2 to 10 outputs
-	VMOVDQU64       (DI), Z30
-	ADDQ            $0x40, DI
-	VBROADCASTF32X2 160(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z20, Z31, Z20
-	VBROADCASTF32X2 168(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 176(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 184(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 192(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 200(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DI), Z30
+	ADDQ                $0x40, DI
+	VGF2P8AFFINEQB.BCST $0x00, 160(CX), Z30, Z31
+	VXORPD              Z20, Z31, Z20
+	VGF2P8AFFINEQB.BCST $0x00, 168(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 176(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 184(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 192(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 200(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 3 to 10 outputs
-	VMOVDQU64       (R8), Z30
-	ADDQ            $0x40, R8
-	VBROADCASTF32X2 240(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z20, Z31, Z20
-	VBROADCASTF32X2 248(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 256(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 264(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 272(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 280(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 288(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 296(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 304(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 312(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R8), Z30
+	ADDQ                $0x40, R8
+	VGF2P8AFFINEQB.BCST $0x00, 240(CX), Z30, Z31
+	VXORPD              Z20, Z31, Z20
+	VGF2P8AFFINEQB.BCST $0x00, 248(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 256(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 264(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 272(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 280(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 288(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 296(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 304(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 312(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 4 to 10 outputs
-	VMOVDQU64       (R9), Z30
-	ADDQ            $0x40, R9
-	VBROADCASTF32X2 320(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z20, Z31, Z20
-	VBROADCASTF32X2 328(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 336(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 344(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 352(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 360(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 368(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 376(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 384(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 392(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R9), Z30
+	ADDQ                $0x40, R9
+	VGF2P8AFFINEQB.BCST $0x00, 320(CX), Z30, Z31
+	VXORPD              Z20, Z31, Z20
+	VGF2P8AFFINEQB.BCST $0x00, 328(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 336(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 344(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 352(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 360(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 368(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 376(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 384(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 392(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 5 to 10 outputs
-	VMOVDQU64       (R10), Z30
-	ADDQ            $0x40, R10
-	VBROADCASTF32X2 400(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z20, Z31, Z20
-	VBROADCASTF32X2 408(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 416(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 424(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 432(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 440(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 448(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 456(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 464(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 472(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R10), Z30
+	ADDQ                $0x40, R10
+	VGF2P8AFFINEQB.BCST $0x00, 400(CX), Z30, Z31
+	VXORPD              Z20, Z31, Z20
+	VGF2P8AFFINEQB.BCST $0x00, 408(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 416(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 424(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 432(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 440(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 448(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 456(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 464(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 472(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 6 to 10 outputs
-	VMOVDQU64       (R11), Z30
-	ADDQ            $0x40, R11
-	VBROADCASTF32X2 480(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z20, Z31, Z20
-	VBROADCASTF32X2 488(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 496(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 504(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 512(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 520(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 528(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 536(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 544(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 552(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R11), Z30
+	ADDQ                $0x40, R11
+	VGF2P8AFFINEQB.BCST $0x00, 480(CX), Z30, Z31
+	VXORPD              Z20, Z31, Z20
+	VGF2P8AFFINEQB.BCST $0x00, 488(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 496(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 504(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 512(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 520(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 528(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 536(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 544(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 552(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 7 to 10 outputs
-	VMOVDQU64       (R12), Z30
-	ADDQ            $0x40, R12
-	VBROADCASTF32X2 560(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z20, Z31, Z20
-	VBROADCASTF32X2 568(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 576(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 584(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 592(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 600(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 608(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 616(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 624(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 632(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R12), Z30
+	ADDQ                $0x40, R12
+	VGF2P8AFFINEQB.BCST $0x00, 560(CX), Z30, Z31
+	VXORPD              Z20, Z31, Z20
+	VGF2P8AFFINEQB.BCST $0x00, 568(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 576(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 584(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 592(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 600(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 608(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 616(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 624(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 632(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 8 to 10 outputs
-	VMOVDQU64       (DX), Z30
-	ADDQ            $0x40, DX
-	VBROADCASTF32X2 640(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z20, Z31, Z20
-	VBROADCASTF32X2 648(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 656(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 664(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 672(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 680(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 688(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 696(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 704(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 712(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DX), Z30
+	ADDQ                $0x40, DX
+	VGF2P8AFFINEQB.BCST $0x00, 640(CX), Z30, Z31
+	VXORPD              Z20, Z31, Z20
+	VGF2P8AFFINEQB.BCST $0x00, 648(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 656(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 664(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 672(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 680(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 688(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 696(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 704(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 712(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 10 outputs
 	MOVQ      (R13), R15
@@ -82978,7 +81006,7 @@ mulAvxTwo_10x1_64_end:
 	RET
 
 // func mulGFNI_10x1_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_10x1_64(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -83102,7 +81130,7 @@ mulGFNI_10x1_64_end:
 	RET
 
 // func mulGFNI_10x1_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_10x1_64Xor(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -84226,7 +82254,7 @@ mulAvxTwo_10x2_64_end:
 	RET
 
 // func mulGFNI_10x2_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_10x2_64(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -84383,7 +82411,7 @@ mulGFNI_10x2_64_end:
 	RET
 
 // func mulGFNI_10x2_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_10x2_64Xor(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
@@ -85829,7 +83857,7 @@ mulAvxTwo_10x3_64_end:
 	RET
 
 // func mulGFNI_10x3_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_10x3_64(SB), $8-88
 	// Loading 27 of 30 tables to registers
 	// Destination kept in GP registers
@@ -85994,17 +84022,14 @@ mulGFNI_10x3_64_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 9 to 3 outputs
-	VMOVDQU64       (AX), Z30
-	ADDQ            $0x40, AX
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (AX), Z30
+	ADDQ                $0x40, AX
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 3 outputs
 	VMOVDQU64 Z27, (R14)
@@ -86023,7 +84048,7 @@ mulGFNI_10x3_64_end:
 	RET
 
 // func mulGFNI_10x3_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_10x3_64Xor(SB), $8-88
 	// Loading 27 of 30 tables to registers
 	// Destination kept in GP registers
@@ -86196,17 +84221,14 @@ mulGFNI_10x3_64Xor_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 9 to 3 outputs
-	VMOVDQU64       (AX), Z30
-	ADDQ            $0x40, AX
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (AX), Z30
+	ADDQ                $0x40, AX
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 3 outputs
 	VMOVDQU64 Z27, (R14)
@@ -87276,7 +85298,7 @@ mulAvxTwo_10x4_end:
 	RET
 
 // func mulGFNI_10x4_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_10x4_64(SB), $8-88
 	// Loading 26 of 40 tables to registers
 	// Destination kept on stack
@@ -87409,66 +85431,52 @@ mulGFNI_10x4_64_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 6 to 4 outputs
-	VMOVDQU64       (R11), Z30
-	ADDQ            $0x40, R11
-	VGF2P8AFFINEQB  $0x00, Z24, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VGF2P8AFFINEQB  $0x00, Z25, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R11), Z30
+	ADDQ                $0x40, R11
+	VGF2P8AFFINEQB      $0x00, Z24, Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB      $0x00, Z25, Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 7 to 4 outputs
-	VMOVDQU64       (R12), Z30
-	ADDQ            $0x40, R12
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 240(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 248(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R12), Z30
+	ADDQ                $0x40, R12
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 240(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 248(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 8 to 4 outputs
-	VMOVDQU64       (R13), Z30
-	ADDQ            $0x40, R13
-	VBROADCASTF32X2 256(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 264(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 272(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 280(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R13), Z30
+	ADDQ                $0x40, R13
+	VGF2P8AFFINEQB.BCST $0x00, 256(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 264(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 272(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 280(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 9 to 4 outputs
-	VMOVDQU64       (DX), Z30
-	ADDQ            $0x40, DX
-	VBROADCASTF32X2 288(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 296(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 304(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 312(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DX), Z30
+	ADDQ                $0x40, DX
+	VGF2P8AFFINEQB.BCST $0x00, 288(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 296(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 304(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 312(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 4 outputs
 	MOVQ      (R14), BP
@@ -87490,7 +85498,7 @@ mulGFNI_10x4_64_end:
 	RET
 
 // func mulGFNI_10x4_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_10x4_64Xor(SB), $8-88
 	// Loading 26 of 40 tables to registers
 	// Destination kept on stack
@@ -87637,66 +85645,52 @@ mulGFNI_10x4_64Xor_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 6 to 4 outputs
-	VMOVDQU64       (R11), Z30
-	ADDQ            $0x40, R11
-	VGF2P8AFFINEQB  $0x00, Z24, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VGF2P8AFFINEQB  $0x00, Z25, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R11), Z30
+	ADDQ                $0x40, R11
+	VGF2P8AFFINEQB      $0x00, Z24, Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB      $0x00, Z25, Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 7 to 4 outputs
-	VMOVDQU64       (R12), Z30
-	ADDQ            $0x40, R12
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 240(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 248(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R12), Z30
+	ADDQ                $0x40, R12
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 240(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 248(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 8 to 4 outputs
-	VMOVDQU64       (R13), Z30
-	ADDQ            $0x40, R13
-	VBROADCASTF32X2 256(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 264(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 272(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 280(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R13), Z30
+	ADDQ                $0x40, R13
+	VGF2P8AFFINEQB.BCST $0x00, 256(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 264(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 272(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 280(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 9 to 4 outputs
-	VMOVDQU64       (DX), Z30
-	ADDQ            $0x40, DX
-	VBROADCASTF32X2 288(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 296(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 304(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 312(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DX), Z30
+	ADDQ                $0x40, DX
+	VGF2P8AFFINEQB.BCST $0x00, 288(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 296(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 304(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 312(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 4 outputs
 	MOVQ      (R14), BP
@@ -88438,7 +86432,7 @@ mulAvxTwo_10x5_end:
 	RET
 
 // func mulGFNI_10x5_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_10x5_64(SB), $8-88
 	// Loading 25 of 50 tables to registers
 	// Destination kept on stack
@@ -88567,99 +86561,74 @@ mulGFNI_10x5_64_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 5 to 5 outputs
-	VMOVDQU64       (R10), Z30
-	ADDQ            $0x40, R10
-	VBROADCASTF32X2 200(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R10), Z30
+	ADDQ                $0x40, R10
+	VGF2P8AFFINEQB.BCST $0x00, 200(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 6 to 5 outputs
-	VMOVDQU64       (R11), Z30
-	ADDQ            $0x40, R11
-	VBROADCASTF32X2 240(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 248(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 256(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 264(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 272(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R11), Z30
+	ADDQ                $0x40, R11
+	VGF2P8AFFINEQB.BCST $0x00, 240(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 248(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 256(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 264(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 272(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 7 to 5 outputs
-	VMOVDQU64       (R12), Z30
-	ADDQ            $0x40, R12
-	VBROADCASTF32X2 280(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 288(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 296(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 304(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 312(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R12), Z30
+	ADDQ                $0x40, R12
+	VGF2P8AFFINEQB.BCST $0x00, 280(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 288(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 296(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 304(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 312(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 8 to 5 outputs
-	VMOVDQU64       (R13), Z30
-	ADDQ            $0x40, R13
-	VBROADCASTF32X2 320(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 328(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 336(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 344(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 352(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R13), Z30
+	ADDQ                $0x40, R13
+	VGF2P8AFFINEQB.BCST $0x00, 320(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 328(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 336(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 344(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 352(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 9 to 5 outputs
-	VMOVDQU64       (DX), Z30
-	ADDQ            $0x40, DX
-	VBROADCASTF32X2 360(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 368(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 376(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 384(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 392(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DX), Z30
+	ADDQ                $0x40, DX
+	VGF2P8AFFINEQB.BCST $0x00, 360(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 368(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 376(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 384(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 392(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 5 outputs
 	MOVQ      (R14), BP
@@ -88683,7 +86652,7 @@ mulGFNI_10x5_64_end:
 	RET
 
 // func mulGFNI_10x5_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_10x5_64Xor(SB), $8-88
 	// Loading 25 of 50 tables to registers
 	// Destination kept on stack
@@ -88829,99 +86798,74 @@ mulGFNI_10x5_64Xor_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 5 to 5 outputs
-	VMOVDQU64       (R10), Z30
-	ADDQ            $0x40, R10
-	VBROADCASTF32X2 200(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R10), Z30
+	ADDQ                $0x40, R10
+	VGF2P8AFFINEQB.BCST $0x00, 200(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 6 to 5 outputs
-	VMOVDQU64       (R11), Z30
-	ADDQ            $0x40, R11
-	VBROADCASTF32X2 240(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 248(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 256(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 264(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 272(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R11), Z30
+	ADDQ                $0x40, R11
+	VGF2P8AFFINEQB.BCST $0x00, 240(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 248(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 256(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 264(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 272(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 7 to 5 outputs
-	VMOVDQU64       (R12), Z30
-	ADDQ            $0x40, R12
-	VBROADCASTF32X2 280(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 288(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 296(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 304(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 312(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R12), Z30
+	ADDQ                $0x40, R12
+	VGF2P8AFFINEQB.BCST $0x00, 280(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 288(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 296(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 304(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 312(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 8 to 5 outputs
-	VMOVDQU64       (R13), Z30
-	ADDQ            $0x40, R13
-	VBROADCASTF32X2 320(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 328(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 336(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 344(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 352(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R13), Z30
+	ADDQ                $0x40, R13
+	VGF2P8AFFINEQB.BCST $0x00, 320(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 328(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 336(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 344(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 352(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 9 to 5 outputs
-	VMOVDQU64       (DX), Z30
-	ADDQ            $0x40, DX
-	VBROADCASTF32X2 360(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 368(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 376(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 384(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 392(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DX), Z30
+	ADDQ                $0x40, DX
+	VGF2P8AFFINEQB.BCST $0x00, 360(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 368(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 376(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 384(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 392(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 5 outputs
 	MOVQ      (R14), BP
@@ -89771,7 +87715,7 @@ mulAvxTwo_10x6_end:
 	RET
 
 // func mulGFNI_10x6_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_10x6_64(SB), $8-88
 	// Loading 24 of 60 tables to registers
 	// Destination kept on stack
@@ -89892,136 +87836,100 @@ mulGFNI_10x6_64_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 4 to 6 outputs
-	VMOVDQU64       (R9), Z30
-	ADDQ            $0x40, R9
-	VBROADCASTF32X2 192(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 200(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R9), Z30
+	ADDQ                $0x40, R9
+	VGF2P8AFFINEQB.BCST $0x00, 192(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 200(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 5 to 6 outputs
-	VMOVDQU64       (R10), Z30
-	ADDQ            $0x40, R10
-	VBROADCASTF32X2 240(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 248(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 256(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 264(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 272(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 280(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R10), Z30
+	ADDQ                $0x40, R10
+	VGF2P8AFFINEQB.BCST $0x00, 240(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 248(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 256(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 264(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 272(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 280(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 6 to 6 outputs
-	VMOVDQU64       (R11), Z30
-	ADDQ            $0x40, R11
-	VBROADCASTF32X2 288(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 296(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 304(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 312(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 320(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 328(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R11), Z30
+	ADDQ                $0x40, R11
+	VGF2P8AFFINEQB.BCST $0x00, 288(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 296(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 304(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 312(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 320(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 328(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 7 to 6 outputs
-	VMOVDQU64       (R12), Z30
-	ADDQ            $0x40, R12
-	VBROADCASTF32X2 336(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 344(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 352(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 360(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 368(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 376(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R12), Z30
+	ADDQ                $0x40, R12
+	VGF2P8AFFINEQB.BCST $0x00, 336(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 344(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 352(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 360(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 368(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 376(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 8 to 6 outputs
-	VMOVDQU64       (R13), Z30
-	ADDQ            $0x40, R13
-	VBROADCASTF32X2 384(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 392(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 400(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 408(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 416(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 424(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R13), Z30
+	ADDQ                $0x40, R13
+	VGF2P8AFFINEQB.BCST $0x00, 384(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 392(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 400(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 408(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 416(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 424(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 9 to 6 outputs
-	VMOVDQU64       (DX), Z30
-	ADDQ            $0x40, DX
-	VBROADCASTF32X2 432(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 440(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 448(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 456(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 464(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 472(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DX), Z30
+	ADDQ                $0x40, DX
+	VGF2P8AFFINEQB.BCST $0x00, 432(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 440(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 448(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 456(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 464(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 472(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 6 outputs
 	MOVQ      (R14), BP
@@ -90047,7 +87955,7 @@ mulGFNI_10x6_64_end:
 	RET
 
 // func mulGFNI_10x6_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_10x6_64Xor(SB), $8-88
 	// Loading 24 of 60 tables to registers
 	// Destination kept on stack
@@ -90188,136 +88096,100 @@ mulGFNI_10x6_64Xor_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 4 to 6 outputs
-	VMOVDQU64       (R9), Z30
-	ADDQ            $0x40, R9
-	VBROADCASTF32X2 192(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 200(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R9), Z30
+	ADDQ                $0x40, R9
+	VGF2P8AFFINEQB.BCST $0x00, 192(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 200(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 5 to 6 outputs
-	VMOVDQU64       (R10), Z30
-	ADDQ            $0x40, R10
-	VBROADCASTF32X2 240(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 248(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 256(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 264(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 272(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 280(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R10), Z30
+	ADDQ                $0x40, R10
+	VGF2P8AFFINEQB.BCST $0x00, 240(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 248(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 256(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 264(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 272(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 280(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 6 to 6 outputs
-	VMOVDQU64       (R11), Z30
-	ADDQ            $0x40, R11
-	VBROADCASTF32X2 288(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 296(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 304(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 312(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 320(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 328(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R11), Z30
+	ADDQ                $0x40, R11
+	VGF2P8AFFINEQB.BCST $0x00, 288(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 296(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 304(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 312(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 320(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 328(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 7 to 6 outputs
-	VMOVDQU64       (R12), Z30
-	ADDQ            $0x40, R12
-	VBROADCASTF32X2 336(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 344(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 352(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 360(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 368(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 376(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R12), Z30
+	ADDQ                $0x40, R12
+	VGF2P8AFFINEQB.BCST $0x00, 336(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 344(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 352(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 360(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 368(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 376(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 8 to 6 outputs
-	VMOVDQU64       (R13), Z30
-	ADDQ            $0x40, R13
-	VBROADCASTF32X2 384(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 392(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 400(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 408(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 416(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 424(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R13), Z30
+	ADDQ                $0x40, R13
+	VGF2P8AFFINEQB.BCST $0x00, 384(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 392(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 400(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 408(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 416(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 424(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 9 to 6 outputs
-	VMOVDQU64       (DX), Z30
-	ADDQ            $0x40, DX
-	VBROADCASTF32X2 432(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 440(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 448(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 456(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 464(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 472(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DX), Z30
+	ADDQ                $0x40, DX
+	VGF2P8AFFINEQB.BCST $0x00, 432(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 440(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 448(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 456(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 464(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 472(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 6 outputs
 	MOVQ      (R14), BP
@@ -91275,7 +89147,7 @@ mulAvxTwo_10x7_end:
 	RET
 
 // func mulGFNI_10x7_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_10x7_64(SB), $8-88
 	// Loading 23 of 70 tables to registers
 	// Destination kept on stack
@@ -91384,177 +89256,130 @@ mulGFNI_10x7_64_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 3 to 7 outputs
-	VMOVDQU64       (R8), Z30
-	ADDQ            $0x40, R8
-	VGF2P8AFFINEQB  $0x00, Z21, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VGF2P8AFFINEQB  $0x00, Z22, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 184(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 192(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 200(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R8), Z30
+	ADDQ                $0x40, R8
+	VGF2P8AFFINEQB      $0x00, Z21, Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB      $0x00, Z22, Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 184(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 192(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 200(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 4 to 7 outputs
-	VMOVDQU64       (R9), Z30
-	ADDQ            $0x40, R9
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 240(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 248(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 256(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 264(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 272(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R9), Z30
+	ADDQ                $0x40, R9
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 240(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 248(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 256(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 264(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 272(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 5 to 7 outputs
-	VMOVDQU64       (R10), Z30
-	ADDQ            $0x40, R10
-	VBROADCASTF32X2 280(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 288(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 296(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 304(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 312(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 320(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 328(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R10), Z30
+	ADDQ                $0x40, R10
+	VGF2P8AFFINEQB.BCST $0x00, 280(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 288(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 296(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 304(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 312(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 320(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 328(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 6 to 7 outputs
-	VMOVDQU64       (R11), Z30
-	ADDQ            $0x40, R11
-	VBROADCASTF32X2 336(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 344(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 352(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 360(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 368(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 376(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 384(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R11), Z30
+	ADDQ                $0x40, R11
+	VGF2P8AFFINEQB.BCST $0x00, 336(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 344(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 352(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 360(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 368(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 376(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 384(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 7 to 7 outputs
-	VMOVDQU64       (R12), Z30
-	ADDQ            $0x40, R12
-	VBROADCASTF32X2 392(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 400(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 408(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 416(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 424(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 432(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 440(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R12), Z30
+	ADDQ                $0x40, R12
+	VGF2P8AFFINEQB.BCST $0x00, 392(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 400(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 408(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 416(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 424(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 432(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 440(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 8 to 7 outputs
-	VMOVDQU64       (R13), Z30
-	ADDQ            $0x40, R13
-	VBROADCASTF32X2 448(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 456(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 464(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 472(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 480(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 488(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 496(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R13), Z30
+	ADDQ                $0x40, R13
+	VGF2P8AFFINEQB.BCST $0x00, 448(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 456(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 464(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 472(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 480(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 488(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 496(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 9 to 7 outputs
-	VMOVDQU64       (DX), Z30
-	ADDQ            $0x40, DX
-	VBROADCASTF32X2 504(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 512(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 520(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 528(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 536(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 544(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 552(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DX), Z30
+	ADDQ                $0x40, DX
+	VGF2P8AFFINEQB.BCST $0x00, 504(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 512(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 520(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 528(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 536(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 544(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 552(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 7 outputs
 	MOVQ      (R14), BP
@@ -91582,7 +89407,7 @@ mulGFNI_10x7_64_end:
 	RET
 
 // func mulGFNI_10x7_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_10x7_64Xor(SB), $8-88
 	// Loading 23 of 70 tables to registers
 	// Destination kept on stack
@@ -91714,177 +89539,130 @@ mulGFNI_10x7_64Xor_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 3 to 7 outputs
-	VMOVDQU64       (R8), Z30
-	ADDQ            $0x40, R8
-	VGF2P8AFFINEQB  $0x00, Z21, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VGF2P8AFFINEQB  $0x00, Z22, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 184(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 192(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 200(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R8), Z30
+	ADDQ                $0x40, R8
+	VGF2P8AFFINEQB      $0x00, Z21, Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB      $0x00, Z22, Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 184(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 192(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 200(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 4 to 7 outputs
-	VMOVDQU64       (R9), Z30
-	ADDQ            $0x40, R9
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 240(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 248(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 256(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 264(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 272(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R9), Z30
+	ADDQ                $0x40, R9
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 240(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 248(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 256(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 264(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 272(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 5 to 7 outputs
-	VMOVDQU64       (R10), Z30
-	ADDQ            $0x40, R10
-	VBROADCASTF32X2 280(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 288(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 296(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 304(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 312(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 320(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 328(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R10), Z30
+	ADDQ                $0x40, R10
+	VGF2P8AFFINEQB.BCST $0x00, 280(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 288(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 296(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 304(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 312(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 320(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 328(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 6 to 7 outputs
-	VMOVDQU64       (R11), Z30
-	ADDQ            $0x40, R11
-	VBROADCASTF32X2 336(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 344(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 352(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 360(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 368(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 376(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 384(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R11), Z30
+	ADDQ                $0x40, R11
+	VGF2P8AFFINEQB.BCST $0x00, 336(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 344(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 352(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 360(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 368(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 376(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 384(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 7 to 7 outputs
-	VMOVDQU64       (R12), Z30
-	ADDQ            $0x40, R12
-	VBROADCASTF32X2 392(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 400(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 408(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 416(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 424(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 432(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 440(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R12), Z30
+	ADDQ                $0x40, R12
+	VGF2P8AFFINEQB.BCST $0x00, 392(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 400(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 408(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 416(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 424(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 432(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 440(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 8 to 7 outputs
-	VMOVDQU64       (R13), Z30
-	ADDQ            $0x40, R13
-	VBROADCASTF32X2 448(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 456(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 464(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 472(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 480(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 488(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 496(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R13), Z30
+	ADDQ                $0x40, R13
+	VGF2P8AFFINEQB.BCST $0x00, 448(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 456(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 464(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 472(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 480(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 488(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 496(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 9 to 7 outputs
-	VMOVDQU64       (DX), Z30
-	ADDQ            $0x40, DX
-	VBROADCASTF32X2 504(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 512(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 520(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 528(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 536(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 544(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 552(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DX), Z30
+	ADDQ                $0x40, DX
+	VGF2P8AFFINEQB.BCST $0x00, 504(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 512(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 520(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 528(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 536(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 544(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 552(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 7 outputs
 	MOVQ      (R14), BP
@@ -92950,7 +90728,7 @@ mulAvxTwo_10x8_end:
 	RET
 
 // func mulGFNI_10x8_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_10x8_64(SB), $8-88
 	// Loading 22 of 80 tables to registers
 	// Destination kept on stack
@@ -93043,222 +90821,164 @@ mulGFNI_10x8_64_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 2 to 8 outputs
-	VMOVDQU64       (DI), Z30
-	ADDQ            $0x40, DI
-	VGF2P8AFFINEQB  $0x00, Z16, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VGF2P8AFFINEQB  $0x00, Z17, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VGF2P8AFFINEQB  $0x00, Z18, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VGF2P8AFFINEQB  $0x00, Z19, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VGF2P8AFFINEQB  $0x00, Z20, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VGF2P8AFFINEQB  $0x00, Z21, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 176(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 184(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DI), Z30
+	ADDQ                $0x40, DI
+	VGF2P8AFFINEQB      $0x00, Z16, Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB      $0x00, Z17, Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB      $0x00, Z18, Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB      $0x00, Z19, Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB      $0x00, Z20, Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB      $0x00, Z21, Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 176(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 184(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 3 to 8 outputs
-	VMOVDQU64       (R8), Z30
-	ADDQ            $0x40, R8
-	VBROADCASTF32X2 192(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 200(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 240(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 248(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R8), Z30
+	ADDQ                $0x40, R8
+	VGF2P8AFFINEQB.BCST $0x00, 192(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 200(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 240(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 248(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 4 to 8 outputs
-	VMOVDQU64       (R9), Z30
-	ADDQ            $0x40, R9
-	VBROADCASTF32X2 256(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 264(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 272(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 280(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 288(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 296(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 304(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 312(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R9), Z30
+	ADDQ                $0x40, R9
+	VGF2P8AFFINEQB.BCST $0x00, 256(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 264(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 272(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 280(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 288(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 296(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 304(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 312(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 5 to 8 outputs
-	VMOVDQU64       (R10), Z30
-	ADDQ            $0x40, R10
-	VBROADCASTF32X2 320(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 328(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 336(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 344(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 352(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 360(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 368(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 376(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R10), Z30
+	ADDQ                $0x40, R10
+	VGF2P8AFFINEQB.BCST $0x00, 320(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 328(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 336(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 344(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 352(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 360(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 368(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 376(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 6 to 8 outputs
-	VMOVDQU64       (R11), Z30
-	ADDQ            $0x40, R11
-	VBROADCASTF32X2 384(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 392(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 400(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 408(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 416(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 424(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 432(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 440(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R11), Z30
+	ADDQ                $0x40, R11
+	VGF2P8AFFINEQB.BCST $0x00, 384(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 392(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 400(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 408(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 416(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 424(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 432(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 440(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 7 to 8 outputs
-	VMOVDQU64       (R12), Z30
-	ADDQ            $0x40, R12
-	VBROADCASTF32X2 448(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 456(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 464(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 472(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 480(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 488(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 496(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 504(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R12), Z30
+	ADDQ                $0x40, R12
+	VGF2P8AFFINEQB.BCST $0x00, 448(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 456(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 464(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 472(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 480(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 488(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 496(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 504(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 8 to 8 outputs
-	VMOVDQU64       (R13), Z30
-	ADDQ            $0x40, R13
-	VBROADCASTF32X2 512(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 520(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 528(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 536(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 544(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 552(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 560(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 568(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R13), Z30
+	ADDQ                $0x40, R13
+	VGF2P8AFFINEQB.BCST $0x00, 512(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 520(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 528(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 536(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 544(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 552(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 560(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 568(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 9 to 8 outputs
-	VMOVDQU64       (DX), Z30
-	ADDQ            $0x40, DX
-	VBROADCASTF32X2 576(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 584(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 592(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 600(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 608(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 616(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 624(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 632(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DX), Z30
+	ADDQ                $0x40, DX
+	VGF2P8AFFINEQB.BCST $0x00, 576(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 584(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 592(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 600(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 608(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 616(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 624(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 632(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 8 outputs
 	MOVQ      (R14), BP
@@ -93288,7 +91008,7 @@ mulGFNI_10x8_64_end:
 	RET
 
 // func mulGFNI_10x8_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_10x8_64Xor(SB), $8-88
 	// Loading 22 of 80 tables to registers
 	// Destination kept on stack
@@ -93407,222 +91127,164 @@ mulGFNI_10x8_64Xor_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 2 to 8 outputs
-	VMOVDQU64       (DI), Z30
-	ADDQ            $0x40, DI
-	VGF2P8AFFINEQB  $0x00, Z16, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VGF2P8AFFINEQB  $0x00, Z17, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VGF2P8AFFINEQB  $0x00, Z18, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VGF2P8AFFINEQB  $0x00, Z19, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VGF2P8AFFINEQB  $0x00, Z20, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VGF2P8AFFINEQB  $0x00, Z21, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 176(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 184(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DI), Z30
+	ADDQ                $0x40, DI
+	VGF2P8AFFINEQB      $0x00, Z16, Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB      $0x00, Z17, Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB      $0x00, Z18, Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB      $0x00, Z19, Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB      $0x00, Z20, Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB      $0x00, Z21, Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 176(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 184(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 3 to 8 outputs
-	VMOVDQU64       (R8), Z30
-	ADDQ            $0x40, R8
-	VBROADCASTF32X2 192(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 200(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 240(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 248(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R8), Z30
+	ADDQ                $0x40, R8
+	VGF2P8AFFINEQB.BCST $0x00, 192(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 200(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 240(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 248(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 4 to 8 outputs
-	VMOVDQU64       (R9), Z30
-	ADDQ            $0x40, R9
-	VBROADCASTF32X2 256(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 264(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 272(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 280(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 288(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 296(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 304(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 312(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R9), Z30
+	ADDQ                $0x40, R9
+	VGF2P8AFFINEQB.BCST $0x00, 256(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 264(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 272(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 280(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 288(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 296(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 304(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 312(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 5 to 8 outputs
-	VMOVDQU64       (R10), Z30
-	ADDQ            $0x40, R10
-	VBROADCASTF32X2 320(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 328(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 336(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 344(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 352(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 360(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 368(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 376(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R10), Z30
+	ADDQ                $0x40, R10
+	VGF2P8AFFINEQB.BCST $0x00, 320(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 328(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 336(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 344(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 352(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 360(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 368(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 376(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 6 to 8 outputs
-	VMOVDQU64       (R11), Z30
-	ADDQ            $0x40, R11
-	VBROADCASTF32X2 384(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 392(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 400(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 408(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 416(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 424(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 432(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 440(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R11), Z30
+	ADDQ                $0x40, R11
+	VGF2P8AFFINEQB.BCST $0x00, 384(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 392(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 400(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 408(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 416(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 424(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 432(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 440(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 7 to 8 outputs
-	VMOVDQU64       (R12), Z30
-	ADDQ            $0x40, R12
-	VBROADCASTF32X2 448(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 456(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 464(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 472(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 480(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 488(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 496(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 504(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R12), Z30
+	ADDQ                $0x40, R12
+	VGF2P8AFFINEQB.BCST $0x00, 448(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 456(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 464(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 472(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 480(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 488(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 496(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 504(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 8 to 8 outputs
-	VMOVDQU64       (R13), Z30
-	ADDQ            $0x40, R13
-	VBROADCASTF32X2 512(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 520(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 528(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 536(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 544(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 552(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 560(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 568(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R13), Z30
+	ADDQ                $0x40, R13
+	VGF2P8AFFINEQB.BCST $0x00, 512(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 520(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 528(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 536(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 544(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 552(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 560(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 568(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 9 to 8 outputs
-	VMOVDQU64       (DX), Z30
-	ADDQ            $0x40, DX
-	VBROADCASTF32X2 576(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 584(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 592(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 600(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 608(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 616(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 624(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 632(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DX), Z30
+	ADDQ                $0x40, DX
+	VGF2P8AFFINEQB.BCST $0x00, 576(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 584(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 592(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 600(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 608(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 616(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 624(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 632(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 8 outputs
 	MOVQ      (R14), BP
@@ -94796,7 +92458,7 @@ mulAvxTwo_10x9_end:
 	RET
 
 // func mulGFNI_10x9_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_10x9_64(SB), $8-88
 	// Loading 21 of 90 tables to registers
 	// Destination kept on stack
@@ -94891,249 +92553,180 @@ mulGFNI_10x9_64_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 2 to 9 outputs
-	VMOVDQU64       (DI), Z30
-	ADDQ            $0x40, DI
-	VGF2P8AFFINEQB  $0x00, Z18, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VGF2P8AFFINEQB  $0x00, Z19, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VGF2P8AFFINEQB  $0x00, Z20, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 168(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 176(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 184(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 192(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 200(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DI), Z30
+	ADDQ                $0x40, DI
+	VGF2P8AFFINEQB      $0x00, Z18, Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB      $0x00, Z19, Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB      $0x00, Z20, Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 168(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 176(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 184(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 192(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 200(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 3 to 9 outputs
-	VMOVDQU64       (R8), Z30
-	ADDQ            $0x40, R8
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 240(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 248(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 256(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 264(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 272(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 280(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R8), Z30
+	ADDQ                $0x40, R8
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 240(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 248(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 256(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 264(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 272(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 280(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 4 to 9 outputs
-	VMOVDQU64       (R9), Z30
-	ADDQ            $0x40, R9
-	VBROADCASTF32X2 288(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 296(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 304(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 312(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 320(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 328(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 336(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 344(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 352(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R9), Z30
+	ADDQ                $0x40, R9
+	VGF2P8AFFINEQB.BCST $0x00, 288(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 296(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 304(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 312(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 320(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 328(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 336(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 344(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 352(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 5 to 9 outputs
-	VMOVDQU64       (R10), Z30
-	ADDQ            $0x40, R10
-	VBROADCASTF32X2 360(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 368(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 376(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 384(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 392(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 400(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 408(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 416(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 424(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R10), Z30
+	ADDQ                $0x40, R10
+	VGF2P8AFFINEQB.BCST $0x00, 360(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 368(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 376(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 384(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 392(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 400(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 408(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 416(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 424(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 6 to 9 outputs
-	VMOVDQU64       (R11), Z30
-	ADDQ            $0x40, R11
-	VBROADCASTF32X2 432(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 440(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 448(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 456(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 464(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 472(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 480(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 488(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 496(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R11), Z30
+	ADDQ                $0x40, R11
+	VGF2P8AFFINEQB.BCST $0x00, 432(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 440(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 448(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 456(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 464(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 472(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 480(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 488(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 496(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 7 to 9 outputs
-	VMOVDQU64       (R12), Z30
-	ADDQ            $0x40, R12
-	VBROADCASTF32X2 504(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 512(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 520(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 528(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 536(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 544(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 552(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 560(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 568(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R12), Z30
+	ADDQ                $0x40, R12
+	VGF2P8AFFINEQB.BCST $0x00, 504(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 512(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 520(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 528(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 536(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 544(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 552(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 560(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 568(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 8 to 9 outputs
-	VMOVDQU64       (R13), Z30
-	ADDQ            $0x40, R13
-	VBROADCASTF32X2 576(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 584(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 592(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 600(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 608(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 616(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 624(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 632(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 640(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R13), Z30
+	ADDQ                $0x40, R13
+	VGF2P8AFFINEQB.BCST $0x00, 576(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 584(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 592(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 600(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 608(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 616(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 624(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 632(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 640(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 9 to 9 outputs
-	VMOVDQU64       (DX), Z30
-	ADDQ            $0x40, DX
-	VBROADCASTF32X2 648(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 656(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 664(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 672(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 680(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 688(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 696(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 704(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 712(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DX), Z30
+	ADDQ                $0x40, DX
+	VGF2P8AFFINEQB.BCST $0x00, 648(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 656(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 664(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 672(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 680(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 688(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 696(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 704(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 712(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 9 outputs
 	MOVQ      (R14), BP
@@ -95165,7 +92758,7 @@ mulGFNI_10x9_64_end:
 	RET
 
 // func mulGFNI_10x9_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_10x9_64Xor(SB), $8-88
 	// Loading 21 of 90 tables to registers
 	// Destination kept on stack
@@ -95289,249 +92882,180 @@ mulGFNI_10x9_64Xor_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 2 to 9 outputs
-	VMOVDQU64       (DI), Z30
-	ADDQ            $0x40, DI
-	VGF2P8AFFINEQB  $0x00, Z18, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VGF2P8AFFINEQB  $0x00, Z19, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VGF2P8AFFINEQB  $0x00, Z20, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 168(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 176(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 184(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 192(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 200(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DI), Z30
+	ADDQ                $0x40, DI
+	VGF2P8AFFINEQB      $0x00, Z18, Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB      $0x00, Z19, Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB      $0x00, Z20, Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 168(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 176(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 184(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 192(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 200(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 3 to 9 outputs
-	VMOVDQU64       (R8), Z30
-	ADDQ            $0x40, R8
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 240(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 248(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 256(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 264(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 272(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 280(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R8), Z30
+	ADDQ                $0x40, R8
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 240(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 248(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 256(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 264(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 272(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 280(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 4 to 9 outputs
-	VMOVDQU64       (R9), Z30
-	ADDQ            $0x40, R9
-	VBROADCASTF32X2 288(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 296(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 304(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 312(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 320(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 328(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 336(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 344(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 352(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R9), Z30
+	ADDQ                $0x40, R9
+	VGF2P8AFFINEQB.BCST $0x00, 288(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 296(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 304(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 312(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 320(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 328(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 336(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 344(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 352(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 5 to 9 outputs
-	VMOVDQU64       (R10), Z30
-	ADDQ            $0x40, R10
-	VBROADCASTF32X2 360(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 368(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 376(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 384(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 392(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 400(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 408(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 416(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 424(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R10), Z30
+	ADDQ                $0x40, R10
+	VGF2P8AFFINEQB.BCST $0x00, 360(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 368(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 376(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 384(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 392(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 400(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 408(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 416(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 424(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 6 to 9 outputs
-	VMOVDQU64       (R11), Z30
-	ADDQ            $0x40, R11
-	VBROADCASTF32X2 432(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 440(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 448(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 456(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 464(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 472(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 480(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 488(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 496(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R11), Z30
+	ADDQ                $0x40, R11
+	VGF2P8AFFINEQB.BCST $0x00, 432(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 440(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 448(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 456(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 464(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 472(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 480(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 488(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 496(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 7 to 9 outputs
-	VMOVDQU64       (R12), Z30
-	ADDQ            $0x40, R12
-	VBROADCASTF32X2 504(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 512(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 520(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 528(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 536(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 544(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 552(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 560(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 568(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R12), Z30
+	ADDQ                $0x40, R12
+	VGF2P8AFFINEQB.BCST $0x00, 504(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 512(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 520(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 528(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 536(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 544(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 552(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 560(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 568(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 8 to 9 outputs
-	VMOVDQU64       (R13), Z30
-	ADDQ            $0x40, R13
-	VBROADCASTF32X2 576(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 584(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 592(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 600(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 608(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 616(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 624(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 632(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 640(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R13), Z30
+	ADDQ                $0x40, R13
+	VGF2P8AFFINEQB.BCST $0x00, 576(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 584(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 592(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 600(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 608(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 616(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 624(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 632(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 640(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 9 to 9 outputs
-	VMOVDQU64       (DX), Z30
-	ADDQ            $0x40, DX
-	VBROADCASTF32X2 648(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 656(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 664(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 672(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 680(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 688(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 696(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 704(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 712(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DX), Z30
+	ADDQ                $0x40, DX
+	VGF2P8AFFINEQB.BCST $0x00, 648(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 656(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 664(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 672(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 680(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 688(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 696(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 704(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 712(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 9 outputs
 	MOVQ      (R14), BP
@@ -96813,7 +94337,7 @@ mulAvxTwo_10x10_end:
 	RET
 
 // func mulGFNI_10x10_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_10x10_64(SB), $8-88
 	// Loading 20 of 100 tables to registers
 	// Destination kept on stack
@@ -96910,276 +94434,196 @@ mulGFNI_10x10_64_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 2 to 10 outputs
-	VMOVDQU64       (DI), Z30
-	ADDQ            $0x40, DI
-	VBROADCASTF32X2 160(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z20, Z31, Z20
-	VBROADCASTF32X2 168(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 176(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 184(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 192(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 200(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DI), Z30
+	ADDQ                $0x40, DI
+	VGF2P8AFFINEQB.BCST $0x00, 160(CX), Z30, Z31
+	VXORPD              Z20, Z31, Z20
+	VGF2P8AFFINEQB.BCST $0x00, 168(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 176(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 184(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 192(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 200(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 3 to 10 outputs
-	VMOVDQU64       (R8), Z30
-	ADDQ            $0x40, R8
-	VBROADCASTF32X2 240(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z20, Z31, Z20
-	VBROADCASTF32X2 248(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 256(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 264(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 272(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 280(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 288(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 296(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 304(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 312(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R8), Z30
+	ADDQ                $0x40, R8
+	VGF2P8AFFINEQB.BCST $0x00, 240(CX), Z30, Z31
+	VXORPD              Z20, Z31, Z20
+	VGF2P8AFFINEQB.BCST $0x00, 248(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 256(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 264(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 272(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 280(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 288(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 296(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 304(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 312(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 4 to 10 outputs
-	VMOVDQU64       (R9), Z30
-	ADDQ            $0x40, R9
-	VBROADCASTF32X2 320(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z20, Z31, Z20
-	VBROADCASTF32X2 328(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 336(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 344(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 352(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 360(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 368(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 376(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 384(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 392(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R9), Z30
+	ADDQ                $0x40, R9
+	VGF2P8AFFINEQB.BCST $0x00, 320(CX), Z30, Z31
+	VXORPD              Z20, Z31, Z20
+	VGF2P8AFFINEQB.BCST $0x00, 328(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 336(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 344(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 352(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 360(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 368(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 376(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 384(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 392(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 5 to 10 outputs
-	VMOVDQU64       (R10), Z30
-	ADDQ            $0x40, R10
-	VBROADCASTF32X2 400(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z20, Z31, Z20
-	VBROADCASTF32X2 408(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 416(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 424(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 432(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 440(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 448(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 456(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 464(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 472(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R10), Z30
+	ADDQ                $0x40, R10
+	VGF2P8AFFINEQB.BCST $0x00, 400(CX), Z30, Z31
+	VXORPD              Z20, Z31, Z20
+	VGF2P8AFFINEQB.BCST $0x00, 408(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 416(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 424(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 432(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 440(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 448(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 456(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 464(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 472(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 6 to 10 outputs
-	VMOVDQU64       (R11), Z30
-	ADDQ            $0x40, R11
-	VBROADCASTF32X2 480(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z20, Z31, Z20
-	VBROADCASTF32X2 488(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 496(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 504(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 512(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 520(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 528(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 536(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 544(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 552(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R11), Z30
+	ADDQ                $0x40, R11
+	VGF2P8AFFINEQB.BCST $0x00, 480(CX), Z30, Z31
+	VXORPD              Z20, Z31, Z20
+	VGF2P8AFFINEQB.BCST $0x00, 488(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 496(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 504(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 512(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 520(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 528(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 536(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 544(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 552(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 7 to 10 outputs
-	VMOVDQU64       (R12), Z30
-	ADDQ            $0x40, R12
-	VBROADCASTF32X2 560(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z20, Z31, Z20
-	VBROADCASTF32X2 568(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 576(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 584(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 592(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 600(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 608(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 616(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 624(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 632(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R12), Z30
+	ADDQ                $0x40, R12
+	VGF2P8AFFINEQB.BCST $0x00, 560(CX), Z30, Z31
+	VXORPD              Z20, Z31, Z20
+	VGF2P8AFFINEQB.BCST $0x00, 568(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 576(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 584(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 592(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 600(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 608(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 616(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 624(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 632(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 8 to 10 outputs
-	VMOVDQU64       (R13), Z30
-	ADDQ            $0x40, R13
-	VBROADCASTF32X2 640(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z20, Z31, Z20
-	VBROADCASTF32X2 648(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 656(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 664(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 672(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 680(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 688(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 696(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 704(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 712(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R13), Z30
+	ADDQ                $0x40, R13
+	VGF2P8AFFINEQB.BCST $0x00, 640(CX), Z30, Z31
+	VXORPD              Z20, Z31, Z20
+	VGF2P8AFFINEQB.BCST $0x00, 648(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 656(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 664(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 672(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 680(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 688(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 696(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 704(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 712(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 9 to 10 outputs
-	VMOVDQU64       (DX), Z30
-	ADDQ            $0x40, DX
-	VBROADCASTF32X2 720(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z20, Z31, Z20
-	VBROADCASTF32X2 728(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 736(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 744(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 752(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 760(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 768(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 776(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 784(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 792(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DX), Z30
+	ADDQ                $0x40, DX
+	VGF2P8AFFINEQB.BCST $0x00, 720(CX), Z30, Z31
+	VXORPD              Z20, Z31, Z20
+	VGF2P8AFFINEQB.BCST $0x00, 728(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 736(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 744(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 752(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 760(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 768(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 776(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 784(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 792(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 10 outputs
 	MOVQ      (R14), BP
@@ -97213,7 +94657,7 @@ mulGFNI_10x10_64_end:
 	RET
 
 // func mulGFNI_10x10_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·mulGFNI_10x10_64Xor(SB), $8-88
 	// Loading 20 of 100 tables to registers
 	// Destination kept on stack
@@ -97342,276 +94786,196 @@ mulGFNI_10x10_64Xor_loop:
 	VXORPD         Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 2 to 10 outputs
-	VMOVDQU64       (DI), Z30
-	ADDQ            $0x40, DI
-	VBROADCASTF32X2 160(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z20, Z31, Z20
-	VBROADCASTF32X2 168(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 176(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 184(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 192(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 200(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 208(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 216(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 224(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 232(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DI), Z30
+	ADDQ                $0x40, DI
+	VGF2P8AFFINEQB.BCST $0x00, 160(CX), Z30, Z31
+	VXORPD              Z20, Z31, Z20
+	VGF2P8AFFINEQB.BCST $0x00, 168(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 176(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 184(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 192(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 200(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 208(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 216(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 224(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 232(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 3 to 10 outputs
-	VMOVDQU64       (R8), Z30
-	ADDQ            $0x40, R8
-	VBROADCASTF32X2 240(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z20, Z31, Z20
-	VBROADCASTF32X2 248(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 256(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 264(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 272(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 280(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 288(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 296(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 304(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 312(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R8), Z30
+	ADDQ                $0x40, R8
+	VGF2P8AFFINEQB.BCST $0x00, 240(CX), Z30, Z31
+	VXORPD              Z20, Z31, Z20
+	VGF2P8AFFINEQB.BCST $0x00, 248(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 256(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 264(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 272(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 280(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 288(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 296(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 304(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 312(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 4 to 10 outputs
-	VMOVDQU64       (R9), Z30
-	ADDQ            $0x40, R9
-	VBROADCASTF32X2 320(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z20, Z31, Z20
-	VBROADCASTF32X2 328(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 336(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 344(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 352(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 360(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 368(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 376(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 384(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 392(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R9), Z30
+	ADDQ                $0x40, R9
+	VGF2P8AFFINEQB.BCST $0x00, 320(CX), Z30, Z31
+	VXORPD              Z20, Z31, Z20
+	VGF2P8AFFINEQB.BCST $0x00, 328(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 336(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 344(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 352(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 360(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 368(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 376(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 384(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 392(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 5 to 10 outputs
-	VMOVDQU64       (R10), Z30
-	ADDQ            $0x40, R10
-	VBROADCASTF32X2 400(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z20, Z31, Z20
-	VBROADCASTF32X2 408(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 416(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 424(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 432(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 440(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 448(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 456(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 464(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 472(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R10), Z30
+	ADDQ                $0x40, R10
+	VGF2P8AFFINEQB.BCST $0x00, 400(CX), Z30, Z31
+	VXORPD              Z20, Z31, Z20
+	VGF2P8AFFINEQB.BCST $0x00, 408(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 416(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 424(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 432(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 440(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 448(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 456(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 464(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 472(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 6 to 10 outputs
-	VMOVDQU64       (R11), Z30
-	ADDQ            $0x40, R11
-	VBROADCASTF32X2 480(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z20, Z31, Z20
-	VBROADCASTF32X2 488(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 496(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 504(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 512(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 520(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 528(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 536(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 544(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 552(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R11), Z30
+	ADDQ                $0x40, R11
+	VGF2P8AFFINEQB.BCST $0x00, 480(CX), Z30, Z31
+	VXORPD              Z20, Z31, Z20
+	VGF2P8AFFINEQB.BCST $0x00, 488(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 496(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 504(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 512(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 520(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 528(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 536(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 544(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 552(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 7 to 10 outputs
-	VMOVDQU64       (R12), Z30
-	ADDQ            $0x40, R12
-	VBROADCASTF32X2 560(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z20, Z31, Z20
-	VBROADCASTF32X2 568(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 576(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 584(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 592(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 600(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 608(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 616(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 624(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 632(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R12), Z30
+	ADDQ                $0x40, R12
+	VGF2P8AFFINEQB.BCST $0x00, 560(CX), Z30, Z31
+	VXORPD              Z20, Z31, Z20
+	VGF2P8AFFINEQB.BCST $0x00, 568(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 576(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 584(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 592(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 600(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 608(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 616(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 624(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 632(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 8 to 10 outputs
-	VMOVDQU64       (R13), Z30
-	ADDQ            $0x40, R13
-	VBROADCASTF32X2 640(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z20, Z31, Z20
-	VBROADCASTF32X2 648(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 656(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 664(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 672(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 680(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 688(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 696(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 704(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 712(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (R13), Z30
+	ADDQ                $0x40, R13
+	VGF2P8AFFINEQB.BCST $0x00, 640(CX), Z30, Z31
+	VXORPD              Z20, Z31, Z20
+	VGF2P8AFFINEQB.BCST $0x00, 648(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 656(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 664(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 672(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 680(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 688(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 696(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 704(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 712(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Load and process 64 bytes from input 9 to 10 outputs
-	VMOVDQU64       (DX), Z30
-	ADDQ            $0x40, DX
-	VBROADCASTF32X2 720(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z20, Z31, Z20
-	VBROADCASTF32X2 728(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z21, Z31, Z21
-	VBROADCASTF32X2 736(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z22, Z31, Z22
-	VBROADCASTF32X2 744(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z23, Z31, Z23
-	VBROADCASTF32X2 752(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z24, Z31, Z24
-	VBROADCASTF32X2 760(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z25, Z31, Z25
-	VBROADCASTF32X2 768(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z26, Z31, Z26
-	VBROADCASTF32X2 776(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z27, Z31, Z27
-	VBROADCASTF32X2 784(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z28, Z31, Z28
-	VBROADCASTF32X2 792(CX), Z31
-	VGF2P8AFFINEQB  $0x00, Z31, Z30, Z31
-	VXORPD          Z29, Z31, Z29
+	VMOVDQU64           (DX), Z30
+	ADDQ                $0x40, DX
+	VGF2P8AFFINEQB.BCST $0x00, 720(CX), Z30, Z31
+	VXORPD              Z20, Z31, Z20
+	VGF2P8AFFINEQB.BCST $0x00, 728(CX), Z30, Z31
+	VXORPD              Z21, Z31, Z21
+	VGF2P8AFFINEQB.BCST $0x00, 736(CX), Z30, Z31
+	VXORPD              Z22, Z31, Z22
+	VGF2P8AFFINEQB.BCST $0x00, 744(CX), Z30, Z31
+	VXORPD              Z23, Z31, Z23
+	VGF2P8AFFINEQB.BCST $0x00, 752(CX), Z30, Z31
+	VXORPD              Z24, Z31, Z24
+	VGF2P8AFFINEQB.BCST $0x00, 760(CX), Z30, Z31
+	VXORPD              Z25, Z31, Z25
+	VGF2P8AFFINEQB.BCST $0x00, 768(CX), Z30, Z31
+	VXORPD              Z26, Z31, Z26
+	VGF2P8AFFINEQB.BCST $0x00, 776(CX), Z30, Z31
+	VXORPD              Z27, Z31, Z27
+	VGF2P8AFFINEQB.BCST $0x00, 784(CX), Z30, Z31
+	VXORPD              Z28, Z31, Z28
+	VGF2P8AFFINEQB.BCST $0x00, 792(CX), Z30, Z31
+	VXORPD              Z29, Z31, Z29
 
 	// Store 10 outputs
 	MOVQ      (R14), BP
@@ -104005,7 +101369,7 @@ loop:
 	RET
 
 // func ifftDIT48_gfni_0(work [][]byte, dist int, t01 uint64, t23 uint64, t02 uint64)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·ifftDIT48_gfni_0(SB), NOSPLIT, $0-56
 	VBROADCASTF32X2 t01+32(FP), Z0
 	VBROADCASTF32X2 t23+40(FP), Z1
@@ -104060,7 +101424,7 @@ loop:
 	RET
 
 // func fftDIT48_gfni_0(work [][]byte, dist int, t01 uint64, t23 uint64, t02 uint64)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·fftDIT48_gfni_0(SB), NOSPLIT, $0-56
 	VBROADCASTF32X2 t01+32(FP), Z0
 	VBROADCASTF32X2 t23+40(FP), Z1
@@ -104116,7 +101480,7 @@ loop:
 	RET
 
 // func ifftDIT48_gfni_1(work [][]byte, dist int, t01 uint64, t23 uint64, t02 uint64)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·ifftDIT48_gfni_1(SB), NOSPLIT, $0-56
 	VBROADCASTF32X2 t23+40(FP), Z0
 	VBROADCASTF32X2 t02+48(FP), Z1
@@ -104166,7 +101530,7 @@ loop:
 	RET
 
 // func fftDIT48_gfni_1(work [][]byte, dist int, t01 uint64, t23 uint64, t02 uint64)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·fftDIT48_gfni_1(SB), NOSPLIT, $0-56
 	VBROADCASTF32X2 t01+32(FP), Z0
 	VBROADCASTF32X2 t23+40(FP), Z1
@@ -104213,7 +101577,7 @@ loop:
 	RET
 
 // func ifftDIT48_gfni_2(work [][]byte, dist int, t01 uint64, t23 uint64, t02 uint64)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·ifftDIT48_gfni_2(SB), NOSPLIT, $0-56
 	VBROADCASTF32X2 t01+32(FP), Z0
 	VBROADCASTF32X2 t02+48(FP), Z1
@@ -104264,7 +101628,7 @@ loop:
 	RET
 
 // func fftDIT48_gfni_2(work [][]byte, dist int, t01 uint64, t23 uint64, t02 uint64)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·fftDIT48_gfni_2(SB), NOSPLIT, $0-56
 	VBROADCASTF32X2 t23+40(FP), Z0
 	VBROADCASTF32X2 t02+48(FP), Z1
@@ -104315,7 +101679,7 @@ loop:
 	RET
 
 // func ifftDIT48_gfni_3(work [][]byte, dist int, t01 uint64, t23 uint64, t02 uint64)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·ifftDIT48_gfni_3(SB), NOSPLIT, $0-56
 	VBROADCASTF32X2 t02+48(FP), Z0
 	MOVQ            dist+24(FP), AX
@@ -104361,7 +101725,7 @@ loop:
 	RET
 
 // func fftDIT48_gfni_3(work [][]byte, dist int, t01 uint64, t23 uint64, t02 uint64)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·fftDIT48_gfni_3(SB), NOSPLIT, $0-56
 	VBROADCASTF32X2 t23+40(FP), Z0
 	MOVQ            dist+24(FP), AX
@@ -104403,7 +101767,7 @@ loop:
 	RET
 
 // func ifftDIT48_gfni_4(work [][]byte, dist int, t01 uint64, t23 uint64, t02 uint64)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·ifftDIT48_gfni_4(SB), NOSPLIT, $0-56
 	VBROADCASTF32X2 t01+32(FP), Z0
 	VBROADCASTF32X2 t23+40(FP), Z1
@@ -104449,7 +101813,7 @@ loop:
 	RET
 
 // func fftDIT48_gfni_4(work [][]byte, dist int, t01 uint64, t23 uint64, t02 uint64)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·fftDIT48_gfni_4(SB), NOSPLIT, $0-56
 	VBROADCASTF32X2 t01+32(FP), Z0
 	VBROADCASTF32X2 t02+48(FP), Z1
@@ -104500,7 +101864,7 @@ loop:
 	RET
 
 // func ifftDIT48_gfni_5(work [][]byte, dist int, t01 uint64, t23 uint64, t02 uint64)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·ifftDIT48_gfni_5(SB), NOSPLIT, $0-56
 	VBROADCASTF32X2 t23+40(FP), Z0
 	MOVQ            dist+24(FP), AX
@@ -104541,7 +101905,7 @@ loop:
 	RET
 
 // func fftDIT48_gfni_5(work [][]byte, dist int, t01 uint64, t23 uint64, t02 uint64)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·fftDIT48_gfni_5(SB), NOSPLIT, $0-56
 	VBROADCASTF32X2 t01+32(FP), Z0
 	MOVQ            dist+24(FP), AX
@@ -104583,7 +101947,7 @@ loop:
 	RET
 
 // func ifftDIT48_gfni_6(work [][]byte, dist int, t01 uint64, t23 uint64, t02 uint64)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·ifftDIT48_gfni_6(SB), NOSPLIT, $0-56
 	VBROADCASTF32X2 t01+32(FP), Z0
 	MOVQ            dist+24(FP), AX
@@ -104625,7 +101989,7 @@ loop:
 	RET
 
 // func fftDIT48_gfni_6(work [][]byte, dist int, t01 uint64, t23 uint64, t02 uint64)
-// Requires: AVX, AVX512DQ, AVX512F
+// Requires: AVX, AVX512DQ, AVX512F, GFNI
 TEXT ·fftDIT48_gfni_6(SB), NOSPLIT, $0-56
 	VBROADCASTF32X2 t02+48(FP), Z0
 	MOVQ            dist+24(FP), AX
