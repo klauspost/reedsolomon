@@ -17,7 +17,7 @@ func AllocAligned(shards, each int) [][]byte {
 	res := make([][]byte, shards)
 	for i := range res {
 		res[i] = total[:each:eachAligned]
-		total = total[:eachAligned]
+		total = total[eachAligned:]
 	}
 	return res
 }
