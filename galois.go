@@ -912,7 +912,7 @@ func genAvx2Matrix(matrixRows [][]byte, inputs, inIdx, outputs int, dst []byte) 
 	// Duplicated in+out
 	wantBytes := total * 32 * 2
 	if cap(dst) < wantBytes {
-		dst = make([]byte, wantBytes)
+		dst = AllocAligned(1, wantBytes)[0]
 	} else {
 		dst = dst[:wantBytes]
 	}

@@ -238,6 +238,28 @@ To join a data set, use the `Join()` function, which will join the shards and wr
    err = enc.Join(io.Discard, data, len(bigfile))
 ```
 
+## Aligned Allocations
+
+For AMD64 aligned inputs can make a big speed difference.
+
+This is an example of the speed difference when inputs are unaligned/aligned:
+
+```
+BenchmarkEncode100x20x10000-32    	    7058	    172648 ns/op	6950.57 MB/s
+BenchmarkEncode100x20x10000-32    	    8406	    137911 ns/op	8701.24 MB/s
+```
+
+To facilitate this the package provides an `AllocAligned(shards, each int) [][]byte`. 
+This will allocate a number of shards, each with the size `each`.
+Each shard will then be aligned to a 64 byte boundary.
+
+Each encoder also has a `AllocAligned(each int) [][]byte` as an extended interface which will return the same, 
+but with the shard count configured in the encoder.   
+
+It is not possible to re-aligned already allocated slices, for example when using `Split`.
+When it is not possible to write to aligned shards, you should not copy to them.
+Instead provide what you have.
+
 # Progressive encoding
 
 It is possible to encode individual shards using EncodeIdx:
