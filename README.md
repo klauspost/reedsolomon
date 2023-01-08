@@ -249,6 +249,8 @@ BenchmarkEncode100x20x10000-32    	    7058	    172648 ns/op	6950.57 MB/s
 BenchmarkEncode100x20x10000-32    	    8406	    137911 ns/op	8701.24 MB/s
 ```
 
+This is mostly the case when dealing with odd-sized shards. 
+
 To facilitate this the package provides an `AllocAligned(shards, each int) [][]byte`. 
 This will allocate a number of shards, each with the size `each`.
 Each shard will then be aligned to a 64 byte boundary.
@@ -258,7 +260,6 @@ but with the shard count configured in the encoder.
 
 It is not possible to re-aligned already allocated slices, for example when using `Split`.
 When it is not possible to write to aligned shards, you should not copy to them.
-Instead provide what you have.
 
 # Progressive encoding
 
