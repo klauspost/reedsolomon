@@ -82,6 +82,10 @@ func (r *leopardFF8) TotalShards() int {
 	return r.totalShards
 }
 
+func (r *leopardFF8) AllocAligned(each int) [][]byte {
+	return AllocAligned(r.totalShards, each)
+}
+
 type ffe8 uint8
 
 const (
@@ -137,24 +141,22 @@ func (r *leopardFF8) encode(shards [][]byte) error {
 	var work [][]byte
 	if w, ok := r.workPool.Get().([][]byte); ok {
 		work = w
+	} else {
+		work = AllocAligned(m*2, workSize8)
 	}
 	if cap(work) >= m*2 {
 		work = work[:m*2]
 		for i := range work {
 			if i >= r.parityShards {
 				if cap(work[i]) < workSize8 {
-					work[i] = make([]byte, workSize8)
+					work[i] = AllocAligned(1, workSize8)[0]
 				} else {
 					work[i] = work[i][:workSize8]
 				}
 			}
 		}
 	} else {
-		work = make([][]byte, m*2)
-		all := make([]byte, m*2*workSize8)
-		for i := range work {
-			work[i] = all[i*workSize8 : i*workSize8+workSize8]
-		}
+		work = AllocAligned(m*2, workSize8)
 	}
 
 	defer r.workPool.Put(work)
@@ -320,13 +322,18 @@ func (r *leopardFF8) Split(data []byte) ([][]byte, error) {
 	}
 
 	// Only allocate memory if necessary
-	var padding []byte
+	var padding [][]byte
 	if len(data) < (r.totalShards * perShard) {
 		// calculate maximum number of full shards in `data` slice
 		fullShards := len(data) / perShard
-		padding = make([]byte, r.totalShards*perShard-perShard*fullShards)
-		copy(padding, data[perShard*fullShards:])
-		data = data[0 : perShard*fullShards]
+		padding = AllocAligned(r.totalShards-fullShards, perShard)
+		copyFrom := data[perShard*fullShards : dataLen]
+		for i := range padding {
+			if len(copyFrom) <= 0 {
+				break
+			}
+			copyFrom = copyFrom[copy(padding[i], copyFrom):]
+		}
 	} else {
 		for i := dataLen; i < dataLen+r.dataShards; i++ {
 			data[i] = 0
@@ -342,8 +349,8 @@ func (r *leopardFF8) Split(data []byte) ([][]byte, error) {
 	}
 
 	for j := 0; i+j < len(dst); j++ {
-		dst[i+j] = padding[:perShard:perShard]
-		padding = padding[perShard:]
+		dst[i+j] = padding[0]
+		padding = padding[1:]
 	}
 
 	return dst, nil

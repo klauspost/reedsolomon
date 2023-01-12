@@ -139,6 +139,11 @@ type Extensions interface {
 
 	// TotalShards will return the total number of shards.
 	TotalShards() int
+
+	// AllocAligned will allocate TotalShards number of slices,
+	// aligned to reasonable memory sizes.
+	// Provide the size of each shard.
+	AllocAligned(each int) [][]byte
 }
 
 const (
@@ -181,6 +186,10 @@ func (r *reedSolomon) ParityShards() int {
 
 func (r *reedSolomon) TotalShards() int {
 	return r.totalShards
+}
+
+func (r *reedSolomon) AllocAligned(each int) [][]byte {
+	return AllocAligned(r.totalShards, each)
 }
 
 // ErrInvShardNum will be returned by New, if you attempt to create
@@ -1260,10 +1269,7 @@ func (r *reedSolomon) checkSomeShards(matrixRows, inputs, toCheck [][]byte, byte
 		return true
 	}
 
-	outputs := make([][]byte, len(toCheck))
-	for i := range outputs {
-		outputs[i] = make([]byte, byteCount)
-	}
+	outputs := AllocAligned(len(toCheck), byteCount)
 	r.codeSomeShards(matrixRows, inputs, outputs, byteCount)
 
 	for i, calc := range outputs {
@@ -1488,7 +1494,7 @@ func (r *reedSolomon) reconstruct(shards [][]byte, dataOnly bool, required []boo
 			if cap(shards[iShard]) >= shardSize {
 				shards[iShard] = shards[iShard][0:shardSize]
 			} else {
-				shards[iShard] = make([]byte, shardSize)
+				shards[iShard] = AllocAligned(1, shardSize)[0]
 			}
 			outputs[outputCount] = shards[iShard]
 			matrixRows[outputCount] = dataDecodeMatrix[iShard]
@@ -1514,7 +1520,7 @@ func (r *reedSolomon) reconstruct(shards [][]byte, dataOnly bool, required []boo
 			if cap(shards[iShard]) >= shardSize {
 				shards[iShard] = shards[iShard][0:shardSize]
 			} else {
-				shards[iShard] = make([]byte, shardSize)
+				shards[iShard] = AllocAligned(1, shardSize)[0]
 			}
 			outputs[outputCount] = shards[iShard]
 			matrixRows[outputCount] = r.parity[iShard-r.dataShards]
@@ -1554,12 +1560,18 @@ func (r *reedSolomon) Split(data []byte) ([][]byte, error) {
 	}
 
 	// Only allocate memory if necessary
-	var padding []byte
+	var padding [][]byte
 	if len(data) < (r.totalShards * perShard) {
 		// calculate maximum number of full shards in `data` slice
 		fullShards := len(data) / perShard
-		padding = make([]byte, r.totalShards*perShard-perShard*fullShards)
-		copy(padding, data[perShard*fullShards:])
+		padding = AllocAligned(r.totalShards-fullShards, perShard)
+		copyFrom := data[perShard*fullShards : dataLen]
+		for i := range padding {
+			if len(copyFrom) <= 0 {
+				break
+			}
+			copyFrom = copyFrom[copy(padding[i], copyFrom):]
+		}
 		data = data[0 : perShard*fullShards]
 	} else {
 		for i := dataLen; i < dataLen+r.dataShards; i++ {
@@ -1576,8 +1588,8 @@ func (r *reedSolomon) Split(data []byte) ([][]byte, error) {
 	}
 
 	for j := 0; i+j < len(dst); j++ {
-		dst[i+j] = padding[:perShard:perShard]
-		padding = padding[perShard:]
+		dst[i+j] = padding[0]
+		padding = padding[1:]
 	}
 
 	return dst, nil

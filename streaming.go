@@ -173,11 +173,7 @@ func NewStream(dataShards, parityShards int, o ...Option) (StreamEncoder, error)
 	r.r = enc.(*reedSolomon)
 
 	r.blockPool.New = func() interface{} {
-		out := make([][]byte, dataShards+parityShards)
-		for i := range out {
-			out[i] = make([]byte, r.o.streamBS)
-		}
-		return out
+		return AllocAligned(dataShards+parityShards, r.o.streamBS)
 	}
 	r.readShards = readShards
 	r.writeShards = writeShards

@@ -1110,11 +1110,8 @@ func benchmarkEncode(b *testing.B, dataShards, parityShards, shardSize int, opts
 	if err != nil {
 		b.Fatal(err)
 	}
-	shards := make([][]byte, dataShards+parityShards)
-	for s := range shards {
-		shards[s] = make([]byte, shardSize)
-	}
 
+	shards := r.(Extensions).AllocAligned(shardSize)
 	for s := 0; s < dataShards; s++ {
 		fillRandom(shards[s])
 	}
@@ -1141,11 +1138,8 @@ func benchmarkDecode(b *testing.B, dataShards, parityShards, shardSize, deleteSh
 	if err != nil {
 		b.Fatal(err)
 	}
-	shards := make([][]byte, dataShards+parityShards)
-	for s := range shards {
-		shards[s] = make([]byte, shardSize)
-	}
 
+	shards := r.(Extensions).AllocAligned(shardSize)
 	for s := 0; s < dataShards; s++ {
 		fillRandom(shards[s])
 	}
@@ -1321,10 +1315,7 @@ func benchmarkVerify(b *testing.B, dataShards, parityShards, shardSize int) {
 	if err != nil {
 		b.Fatal(err)
 	}
-	shards := make([][]byte, parityShards+dataShards)
-	for s := range shards {
-		shards[s] = make([]byte, shardSize)
-	}
+	shards := r.(Extensions).AllocAligned(shardSize)
 
 	for s := 0; s < dataShards; s++ {
 		fillRandom(shards[s])
@@ -1404,10 +1395,7 @@ func benchmarkReconstruct(b *testing.B, dataShards, parityShards, shardSize int,
 	if err != nil {
 		b.Fatal(err)
 	}
-	shards := make([][]byte, parityShards+dataShards)
-	for s := range shards {
-		shards[s] = make([]byte, shardSize)
-	}
+	shards := r.(Extensions).AllocAligned(shardSize)
 
 	for s := 0; s < dataShards; s++ {
 		fillRandom(shards[s])
@@ -1492,10 +1480,7 @@ func benchmarkReconstructData(b *testing.B, dataShards, parityShards, shardSize 
 	if err != nil {
 		b.Fatal(err)
 	}
-	shards := make([][]byte, parityShards+dataShards)
-	for s := range shards {
-		shards[s] = make([]byte, shardSize)
-	}
+	shards := r.(Extensions).AllocAligned(shardSize)
 
 	for s := 0; s < dataShards; s++ {
 		fillRandom(shards[s])
@@ -1573,10 +1558,7 @@ func benchmarkReconstructP(b *testing.B, dataShards, parityShards, shardSize int
 	b.ReportAllocs()
 
 	b.RunParallel(func(pb *testing.PB) {
-		shards := make([][]byte, parityShards+dataShards)
-		for s := range shards {
-			shards[s] = make([]byte, shardSize)
-		}
+		shards := r.(Extensions).AllocAligned(shardSize)
 
 		for s := 0; s < dataShards; s++ {
 			fillRandom(shards[s])
@@ -2030,10 +2012,8 @@ func benchmarkParallel(b *testing.B, dataShards, parityShards, shardSize int) {
 	// Create independent shards
 	shardsCh := make(chan [][]byte, c)
 	for i := 0; i < c; i++ {
-		shards := make([][]byte, dataShards+parityShards)
-		for s := range shards {
-			shards[s] = make([]byte, shardSize)
-		}
+		shards := r.(Extensions).AllocAligned(shardSize)
+
 		for s := 0; s < dataShards; s++ {
 			fillRandom(shards[s])
 		}
