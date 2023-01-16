@@ -146,8 +146,10 @@ but you could for instance also use [mmap](https://github.com/edsrzf/mmap-go) to
       data[i] := make([]byte, 50000)
     }
     
+    // The above allocations can also be done by the encoder:
+    // data := enc.(reedsolomon.Extended).AllocAligned(50000)
     
-  // Fill some data into the data shards
+    // Fill some data into the data shards
     for i, in := range data[:10] {
       for j:= range in {
          in[j] = byte((i+j)&0xff)
