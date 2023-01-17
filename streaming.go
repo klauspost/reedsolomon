@@ -8,7 +8,6 @@
 package reedsolomon
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
 	"io"
@@ -585,8 +584,8 @@ func (r *rsStream) Split(data io.Reader, dst []io.Writer, size int64) error {
 	perShard := (size + int64(r.r.dataShards) - 1) / int64(r.r.dataShards)
 
 	// Pad data to r.Shards*perShard.
-	padding := make([]byte, (int64(r.r.totalShards)*perShard)-size)
-	data = io.MultiReader(data, bytes.NewBuffer(padding))
+	paddingSize := (int64(r.r.totalShards) * perShard) - size
+	data = io.MultiReader(data, io.LimitReader(zeroPaddingReader{}, paddingSize))
 
 	// Split into equal-length shards and copy.
 	for i := range dst {
@@ -600,4 +599,16 @@ func (r *rsStream) Split(data io.Reader, dst []io.Writer, size int64) error {
 	}
 
 	return nil
+}
+
+type zeroPaddingReader struct{}
+
+var _ io.Reader = &zeroPaddingReader{}
+
+func (t zeroPaddingReader) Read(p []byte) (n int, err error) {
+	n = len(p)
+	for i := 0; i < n; i++ {
+		p[i] = 0
+	}
+	return n, nil
 }
