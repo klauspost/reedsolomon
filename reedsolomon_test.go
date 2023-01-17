@@ -1950,6 +1950,20 @@ func TestNew(t *testing.T) {
 	}
 }
 
+func TestSplitZero(t *testing.T) {
+	data := make([]byte, 512)
+	for _, opts := range testOpts() {
+		ecctest, err := New(1, 0, opts...)
+		if err != nil {
+			t.Fatal(err)
+		}
+		_, err = ecctest.Split(data)
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+}
+
 // Benchmark 10 data shards and 4 parity shards and 160MB data.
 func BenchmarkSplit10x4x160M(b *testing.B) {
 	benchmarkSplit(b, 10, 4, 160*1024*1024)

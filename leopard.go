@@ -272,6 +272,9 @@ func (r *leopardFF16) Split(data []byte) ([][]byte, error) {
 	if len(data) == 0 {
 		return nil, ErrShortData
 	}
+	if r.totalShards == 1 && len(data)&63 == 0 {
+		return [][]byte{data}, nil
+	}
 	dataLen := len(data)
 	// Calculate number of bytes per data shard.
 	perShard := (len(data) + r.dataShards - 1) / r.dataShards
@@ -295,8 +298,9 @@ func (r *leopardFF16) Split(data []byte) ([][]byte, error) {
 			copyFrom = copyFrom[copy(padding[i], copyFrom):]
 		}
 	} else {
-		for i := dataLen; i < dataLen+r.dataShards; i++ {
-			data[i] = 0
+		zero := data[dataLen : r.totalShards*perShard]
+		for i := range zero {
+			zero[i] = 0
 		}
 	}
 
