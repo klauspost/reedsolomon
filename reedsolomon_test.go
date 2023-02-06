@@ -168,7 +168,7 @@ func TestBuildMatrixPAR1Singular(t *testing.T) {
 func testOpts() [][]Option {
 	if testing.Short() {
 		return [][]Option{
-			{WithPAR1Matrix()}, {WithCauchyMatrix()},
+			{WithCauchyMatrix()}, {WithLeopardGF16(true)}, {WithLeopardGF(true)},
 		}
 	}
 	opts := [][]Option{
@@ -1603,7 +1603,7 @@ func testEncoderReconstruct(t *testing.T, o ...Option) {
 	fillRandom(data)
 
 	// Create 5 data slices of 50000 elements each
-	enc, err := New(5, 3, testOptions(o...)...)
+	enc, err := New(7, 6, testOptions(o...)...)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1675,43 +1675,82 @@ func testEncoderReconstruct(t *testing.T, o ...Option) {
 }
 
 func TestSplitJoin(t *testing.T) {
-	var data = make([]byte, 250000)
-	fillRandom(data)
-
-	enc, _ := New(5, 3, testOptions()...)
-	shards, err := enc.Split(data)
-	if err != nil {
-		t.Fatal(err)
+	opts := [][]Option{
+		testOptions(),
+		append(testOptions(), WithLeopardGF(true)),
+		append(testOptions(), WithLeopardGF16(true)),
 	}
+	for i, opts := range opts {
+		t.Run("opt-"+strconv.Itoa(i), func(t *testing.T) {
+			for _, dp := range [][2]int{{1, 0}, {5, 0}, {5, 1}, {12, 4}, {2, 15}, {17, 1}} {
+				enc, _ := New(dp[0], dp[1], opts...)
+				ext := enc.(Extensions)
 
-	_, err = enc.Split([]byte{})
-	if err != ErrShortData {
-		t.Errorf("expected %v, got %v", ErrShortData, err)
-	}
+				_, err := enc.Split([]byte{})
+				if err != ErrShortData {
+					t.Errorf("expected %v, got %v", ErrShortData, err)
+				}
 
-	buf := new(bytes.Buffer)
-	err = enc.Join(buf, shards, 50)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if !bytes.Equal(buf.Bytes(), data[:50]) {
-		t.Fatal("recovered data does match original")
-	}
+				buf := new(bytes.Buffer)
+				err = enc.Join(buf, [][]byte{}, 0)
+				if err != ErrTooFewShards {
+					t.Errorf("expected %v, got %v", ErrTooFewShards, err)
+				}
+				for _, size := range []int{ext.DataShards(), 1337, 2699} {
+					for _, extra := range []int{0, 1, ext.ShardSizeMultiple(), ext.ShardSizeMultiple() * ext.DataShards(), ext.ShardSizeMultiple()*ext.ParityShards() + 1, 255} {
+						buf.Reset()
+						t.Run(fmt.Sprintf("d-%d-p-%d-sz-%d-cap%d", ext.DataShards(), ext.ParityShards(), size, extra), func(t *testing.T) {
+							var data = make([]byte, size, size+extra)
+							var ref = make([]byte, size, size)
+							fillRandom(data)
+							copy(ref, data)
 
-	err = enc.Join(buf, [][]byte{}, 0)
-	if err != ErrTooFewShards {
-		t.Errorf("expected %v, got %v", ErrTooFewShards, err)
-	}
+							shards, err := enc.Split(data)
+							if err != nil {
+								t.Fatal(err)
+							}
+							err = enc.Encode(shards)
+							if err != nil {
+								t.Fatal(err)
+							}
+							_, err = enc.Verify(shards)
+							if err != nil {
+								t.Fatal(err)
+							}
+							for i := range shards[:ext.ParityShards()] {
+								// delete data shards up to parity
+								shards[i] = nil
+							}
+							err = enc.Reconstruct(shards)
+							if err != nil {
+								t.Fatal(err)
+							}
 
-	err = enc.Join(buf, shards, len(data)+1)
-	if err != ErrShortData {
-		t.Errorf("expected %v, got %v", ErrShortData, err)
-	}
+							// Rejoin....
+							err = enc.Join(buf, shards, size)
+							if err != nil {
+								t.Fatal(err)
+							}
+							if !bytes.Equal(buf.Bytes(), ref) {
+								t.Log("")
+								t.Fatal("recovered data does match original")
+							}
 
-	shards[0] = nil
-	err = enc.Join(buf, shards, len(data))
-	if err != ErrReconstructRequired {
-		t.Errorf("expected %v, got %v", ErrReconstructRequired, err)
+							err = enc.Join(buf, shards, len(data)+ext.DataShards()*ext.ShardSizeMultiple())
+							if err != ErrShortData {
+								t.Errorf("expected %v, got %v", ErrShortData, err)
+							}
+
+							shards[0] = nil
+							err = enc.Join(buf, shards, len(data))
+							if err != ErrReconstructRequired {
+								t.Errorf("expected %v, got %v", ErrReconstructRequired, err)
+							}
+						})
+					}
+				}
+			}
+		})
 	}
 }
 
