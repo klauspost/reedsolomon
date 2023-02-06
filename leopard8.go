@@ -320,28 +320,35 @@ func (r *leopardFF8) Split(data []byte) ([][]byte, error) {
 	// Calculate number of bytes per data shard.
 	perShard := (len(data) + r.dataShards - 1) / r.dataShards
 	perShard = ((perShard + 63) / 64) * 64
+	needTotal := r.totalShards * perShard
 
 	if cap(data) > len(data) {
-		data = data[:cap(data)]
+		if cap(data) > needTotal {
+			data = data[:needTotal]
+		} else {
+			data = data[:cap(data)]
+		}
+		clear := data[dataLen:]
+		for i := range clear {
+			clear[i] = 0
+		}
 	}
 
 	// Only allocate memory if necessary
 	var padding [][]byte
-	if len(data) < (r.totalShards * perShard) {
+	if len(data) < needTotal {
 		// calculate maximum number of full shards in `data` slice
 		fullShards := len(data) / perShard
 		padding = AllocAligned(r.totalShards-fullShards, perShard)
-		copyFrom := data[perShard*fullShards : dataLen]
-		for i := range padding {
-			if len(copyFrom) <= 0 {
-				break
+		if dataLen > perShard*fullShards {
+			// Copy partial shards
+			copyFrom := data[perShard*fullShards : dataLen]
+			for i := range padding {
+				if len(copyFrom) <= 0 {
+					break
+				}
+				copyFrom = copyFrom[copy(padding[i], copyFrom):]
 			}
-			copyFrom = copyFrom[copy(padding[i], copyFrom):]
-		}
-	} else {
-		zero := data[dataLen : r.totalShards*perShard]
-		for i := range zero {
-			zero[i] = 0
 		}
 	}
 

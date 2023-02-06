@@ -103,11 +103,15 @@ type Encoder interface {
 	Update(shards [][]byte, newDatashards [][]byte) error
 
 	// Split a data slice into the number of shards given to the encoder,
-	// and create empty parity shards.
+	// and create empty parity shards if necessary.
 	//
 	// The data will be split into equally sized shards.
-	// If the data size isn't dividable by the number of shards,
+	// If the data size isn't divisible by the number of shards,
 	// the last shard will contain extra zeros.
+	//
+	// If there is extra capacity on the provided data slice
+	// it will be used instead of allocating parity shards.
+	// It will be zeroed out.
 	//
 	// There must be at least 1 byte otherwise ErrShortData will be
 	// returned.
@@ -1542,6 +1546,10 @@ var ErrShortData = errors.New("not enough data to fill the number of requested s
 // If the data size isn't divisible by the number of shards,
 // the last shard will contain extra zeros.
 //
+// If there is extra capacity on the provided data slice
+// it will be used instead of allocating parity shards.
+// It will be zeroed out.
+//
 // There must be at least 1 byte otherwise ErrShortData will be
 // returned.
 //
@@ -1558,29 +1566,36 @@ func (r *reedSolomon) Split(data []byte) ([][]byte, error) {
 	dataLen := len(data)
 	// Calculate number of bytes per data shard.
 	perShard := (len(data) + r.dataShards - 1) / r.dataShards
+	needTotal := r.totalShards * perShard
 
 	if cap(data) > len(data) {
-		data = data[:cap(data)]
+		if cap(data) > needTotal {
+			data = data[:needTotal]
+		} else {
+			data = data[:cap(data)]
+		}
+		clear := data[dataLen:]
+		for i := range clear {
+			clear[i] = 0
+		}
 	}
 
 	// Only allocate memory if necessary
 	var padding [][]byte
-	if len(data) < (r.totalShards * perShard) {
+	if len(data) < needTotal {
 		// calculate maximum number of full shards in `data` slice
 		fullShards := len(data) / perShard
 		padding = AllocAligned(r.totalShards-fullShards, perShard)
-		copyFrom := data[perShard*fullShards : dataLen]
-		for i := range padding {
-			if len(copyFrom) <= 0 {
-				break
+
+		if dataLen > perShard*fullShards {
+			// Copy partial shards
+			copyFrom := data[perShard*fullShards : dataLen]
+			for i := range padding {
+				if len(copyFrom) <= 0 {
+					break
+				}
+				copyFrom = copyFrom[copy(padding[i], copyFrom):]
 			}
-			copyFrom = copyFrom[copy(padding[i], copyFrom):]
-		}
-		data = data[0 : perShard*fullShards]
-	} else {
-		zero := data[dataLen : r.totalShards*perShard]
-		for i := range zero {
-			zero[i] = 0
 		}
 	}
 
