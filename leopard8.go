@@ -884,7 +884,7 @@ func refMulAdd8(x, y []byte, log_m ffe8) {
 	for len(x) >= 64 {
 		// Assert sizes for no bounds checks in loop
 		src := y[:64]
-		dst := x[:64] // Needed, but not checked...
+		dst := x[:len(src)] // Needed, but not checked...
 		for i, y1 := range src {
 			dst[i] ^= byte(lut.Value[y1])
 		}

@@ -533,7 +533,7 @@ func mulAdd8(x, y []byte, log_m ffe8, o *options) {
 		y = y[done:]
 		x = x[done:]
 	}
-	refMulAdd8(y, x, log_m)
+	refMulAdd8(x, y, log_m)
 }
 
 // 2-way butterfly
