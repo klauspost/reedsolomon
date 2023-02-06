@@ -168,7 +168,7 @@ func TestBuildMatrixPAR1Singular(t *testing.T) {
 func testOpts() [][]Option {
 	if testing.Short() {
 		return [][]Option{
-			{WithPAR1Matrix()}, {WithCauchyMatrix()},
+			{WithCauchyMatrix()}, {WithLeopardGF16(true)}, {WithLeopardGF(true)},
 		}
 	}
 	opts := [][]Option{
@@ -1603,7 +1603,7 @@ func testEncoderReconstruct(t *testing.T, o ...Option) {
 	fillRandom(data)
 
 	// Create 5 data slices of 50000 elements each
-	enc, err := New(5, 3, testOptions(o...)...)
+	enc, err := New(7, 6, testOptions(o...)...)
 	if err != nil {
 		t.Fatal(err)
 	}
