@@ -13,6 +13,7 @@ package reedsolomon
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"io"
 	"runtime"
 	"sync"
@@ -171,7 +172,8 @@ type reedSolomon struct {
 	tree         *inversionTree
 	parity       [][]byte
 	o            options
-	mPool        sync.Pool
+	mPoolSz      int
+	mPool        sync.Pool // Pool for temp matrices, etc
 }
 
 var _ = Extensions(&reedSolomon{})
@@ -571,10 +573,26 @@ func New(dataShards, parityShards int, opts ...Option) (Encoder, error) {
 	if avx2CodeGen && r.o.useAVX2 {
 		sz := r.dataShards * r.parityShards * 2 * 32
 		r.mPool.New = func() interface{} {
-			return make([]byte, sz)
+			return AllocAligned(1, sz)[0]
 		}
+		r.mPoolSz = sz
 	}
 	return &r, err
+}
+
+func (r *reedSolomon) getTmpSlice() []byte {
+	return r.mPool.Get().([]byte)
+}
+
+func (r *reedSolomon) putTmpSlice(b []byte) {
+	if b != nil && cap(b) >= r.mPoolSz {
+		r.mPool.Put(b[:r.mPoolSz])
+		return
+	}
+	if false {
+		// Sanity check
+		panic(fmt.Sprintf("got short tmp returned, want %d, got %d", r.mPoolSz, cap(b)))
+	}
 }
 
 // ErrTooFewShards is returned if too few shards where given to
@@ -806,16 +824,16 @@ func (r *reedSolomon) codeSomeShards(matrixRows, inputs, outputs [][]byte, byteC
 		start += galMulSlicesGFNI(m, inputs, outputs, 0, byteCount)
 		end = len(inputs[0])
 	} else if r.canAVX2C(byteCount, len(inputs), len(outputs)) {
-		m := genAvx2Matrix(matrixRows, len(inputs), 0, len(outputs), r.mPool.Get().([]byte))
+		m := genAvx2Matrix(matrixRows, len(inputs), 0, len(outputs), r.getTmpSlice())
 		start += galMulSlicesAvx2(m, inputs, outputs, 0, byteCount)
-		r.mPool.Put(m)
+		r.putTmpSlice(m)
 		end = len(inputs[0])
 	} else if len(inputs)+len(outputs) > avx2CodeGenMinShards && r.canAVX2C(byteCount, maxAvx2Inputs, maxAvx2Outputs) {
 		var gfni [maxAvx2Inputs * maxAvx2Outputs]uint64
 		end = len(inputs[0])
 		inIdx := 0
-		m := r.mPool.Get().([]byte)
-		defer r.mPool.Put(m)
+		m := r.getTmpSlice()
+		defer r.putTmpSlice(m)
 		ins := inputs
 		for len(ins) > 0 {
 			inPer := ins
@@ -888,8 +906,8 @@ func (r *reedSolomon) codeSomeShardsP(matrixRows, inputs, outputs [][]byte, byte
 		var tmp [maxAvx2Inputs * maxAvx2Outputs]uint64
 		gfniMatrix = genGFNIMatrix(matrixRows, len(inputs), 0, len(outputs), tmp[:])
 	} else if useAvx2 {
-		avx2Matrix = genAvx2Matrix(matrixRows, len(inputs), 0, len(outputs), r.mPool.Get().([]byte))
-		defer r.mPool.Put(avx2Matrix)
+		avx2Matrix = genAvx2Matrix(matrixRows, len(inputs), 0, len(outputs), r.getTmpSlice())
+		defer r.putTmpSlice(avx2Matrix)
 	} else if r.o.useGFNI && byteCount < 10<<20 && len(inputs)+len(outputs) > avx2CodeGenMinShards &&
 		r.canAVX2C(byteCount/4, maxAvx2Inputs, maxAvx2Outputs) {
 		// It appears there is a switchover point at around 10MB where
@@ -977,10 +995,8 @@ func (r *reedSolomon) codeSomeShardsAVXP(matrixRows, inputs, outputs [][]byte, b
 	// Make a plan...
 	plan := make([]state, 0, ((len(inputs)+maxAvx2Inputs-1)/maxAvx2Inputs)*((len(outputs)+maxAvx2Outputs-1)/maxAvx2Outputs))
 
-	tmp := r.mPool.Get().([]byte)
-	defer func(b []byte) {
-		r.mPool.Put(b)
-	}(tmp)
+	tmp := r.getTmpSlice()
+	defer r.putTmpSlice(tmp)
 
 	// Flips between input first to output first.
 	// We put the smallest data load in the inner loop.
