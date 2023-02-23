@@ -1308,6 +1308,9 @@ var ErrShardNoData = errors.New("no shard data")
 // shards.
 var ErrShardSize = errors.New("shard sizes do not match")
 
+// ErrShardNotMultipleOf64 is returned if shard length is not a multiple of 64 bytes.
+var ErrShardNotMultipleOf64 = errors.New("shard size must be a multiple of 64 bytes")
+
 // checkShards will check if shards are the same size
 // or 0, if allowed. An error is returned if this fails.
 // An error is also returned if all shards are size 0.
