@@ -1308,6 +1308,10 @@ var ErrShardNoData = errors.New("no shard data")
 // shards.
 var ErrShardSize = errors.New("shard sizes do not match")
 
+// ErrInvalidShardSize is returned if shard length doesn't meet the requirements,
+// typically a multiple of N.
+var ErrInvalidShardSize = errors.New("invalid shard size")
+
 // checkShards will check if shards are the same size
 // or 0, if allowed. An error is returned if this fails.
 // An error is also returned if all shards are size 0.
