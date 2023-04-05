@@ -1218,6 +1218,7 @@ func (r *reedSolomon) codeSomeShardsGFNI(matrixRows, inputs, outputs [][]byte, b
 	}
 
 	exec := func(start, stop int) {
+		defer wg.Done()
 		lstart, lstop := start, start+r.o.perRound
 		if lstop > stop {
 			lstop = stop
@@ -1258,7 +1259,6 @@ func (r *reedSolomon) codeSomeShardsGFNI(matrixRows, inputs, outputs [][]byte, b
 				lstop = stop
 			}
 		}
-		wg.Done()
 	}
 	if gor == 1 {
 		wg.Add(1)
