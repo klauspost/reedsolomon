@@ -6,8 +6,10 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"math"
 	"math/rand"
 	"os"
+	"runtime"
 	"runtime/debug"
 	"sort"
 	"strconv"
@@ -33,6 +35,7 @@ var (
 	duration   = flag.Int("duration", 10, "Minimum number of seconds to run.")
 	progress   = flag.Bool("progress", true, "Display progress while running")
 	concurrent = flag.Bool("concurrent", false, "Run blocks in parallel")
+	cpu        = flag.Int("cpu", 16, "Set maximum number of cores to use")
 
 	sSE2   = flag.Bool("sse2", cpuid.CPU.Has(cpuid.SSE2), "Use SSE2")
 	sSSE3  = flag.Bool("ssse3", cpuid.CPU.Has(cpuid.SSSE3), "Use SSSE3")
@@ -69,6 +72,10 @@ func main() {
 	}
 	if sz <= 0 {
 		exitErr(errors.New("invalid block size"))
+	}
+	runtime.GOMAXPROCS(*cpu)
+	if sz > math.MaxInt || sz < 0 {
+		exitErr(errors.New("block size invalid"))
 	}
 	dataSz := int(sz)
 	each := (dataSz + *kShards - 1) / *kShards
@@ -123,7 +130,7 @@ func benchmarkEncoding(enc reedsolomon.Encoder, data [][][]byte) {
 			if *progress && time.Since(lastUpdate) > updateFreq {
 				encGB := float64(finished) * (1 / float64(1<<30))
 				speed := encGB / (float64(time.Since(start)) / float64(time.Second))
-				fmt.Printf("\r %s Encoded: %.02f GiB @%.02f GiB/s.", string(spin[spinIdx]), encGB, speed)
+				fmt.Printf("\r %s Encoded: %.02f GiB @%.02f Gbps.", string(spin[spinIdx]), encGB, speed*8)
 				spinIdx = (spinIdx + 1) % len(spin)
 				lastUpdate = time.Now()
 			}
@@ -131,7 +138,7 @@ func benchmarkEncoding(enc reedsolomon.Encoder, data [][][]byte) {
 	}
 	encGB := float64(finished) * (1 / float64(1<<30))
 	speed := encGB / (float64(time.Since(start)) / float64(time.Second))
-	fmt.Printf("\r * Encoded %.00f GiB in %v. Speed: %.02f GB/s (%d+%d:%d)\n", encGB, time.Since(start).Round(time.Millisecond), speed, dataShards, parityShards, len(data[0][0]))
+	fmt.Printf("\r * Encoded %.00f GiB in %v. Speed: %.02f Gbps (%d+%d:%d)\n", encGB, time.Since(start).Round(time.Millisecond), 8*speed, dataShards, parityShards, len(data[0][0]))
 }
 
 func benchmarkEncodingConcurrent(enc reedsolomon.Encoder, data [][][]byte) {
@@ -172,7 +179,7 @@ func benchmarkEncodingConcurrent(enc reedsolomon.Encoder, data [][][]byte) {
 		if *progress {
 			encGB := float64(atomic.LoadInt64(&finished)) * (1 / float64(1<<30))
 			speed := encGB / (float64(time.Since(start)) / float64(time.Second))
-			fmt.Printf("\r %s Encoded: %.02f GiB @%.02f GiB/s.", string(spin[spinIdx]), encGB, speed)
+			fmt.Printf("\r %s Encoded: %.02f GiB @%.02f Gbps.", string(spin[spinIdx]), encGB, speed*8)
 			spinIdx = (spinIdx + 1) % len(spin)
 		}
 	}
@@ -180,7 +187,7 @@ func benchmarkEncodingConcurrent(enc reedsolomon.Encoder, data [][][]byte) {
 	wg.Wait()
 	encGB := float64(finished) * (1 / float64(1<<30))
 	speed := encGB / (float64(time.Since(start)) / float64(time.Second))
-	fmt.Printf("\r * Encoded concurrent %.00f GiB in %v. Speed: %.02f GB/s (%d+%d:%d/%d)\n", encGB, time.Since(start).Round(time.Millisecond), speed, dataShards, parityShards, len(data[0][0]), len(data))
+	fmt.Printf("\r * Encoded concurrent %.00f GiB in %v. Speed: %.02f Gbps (%d+%d:%d/%d)\n", encGB, time.Since(start).Round(time.Millisecond), 8*speed, dataShards, parityShards, len(data[0][0]), len(data))
 }
 
 func benchmarkDecoding(enc reedsolomon.Encoder, data [][][]byte) {
@@ -219,7 +226,7 @@ func benchmarkDecoding(enc reedsolomon.Encoder, data [][][]byte) {
 			if *progress && time.Since(lastUpdate) > updateFreq {
 				encGB := float64(finished) * (1 / float64(1<<30))
 				speed := encGB / (float64(time.Since(start)) / float64(time.Second))
-				fmt.Printf("\r %s Repaired: %.02f GiB @%.02f GiB/s.", string(spin[spinIdx]), encGB, speed)
+				fmt.Printf("\r %s Repaired: %.02f GiB @%.02f Gbps.", string(spin[spinIdx]), encGB, speed*8)
 				spinIdx = (spinIdx + 1) % len(spin)
 				lastUpdate = time.Now()
 			}
@@ -227,7 +234,7 @@ func benchmarkDecoding(enc reedsolomon.Encoder, data [][][]byte) {
 	}
 	encGB := float64(finished) * (1 / float64(1<<30))
 	speed := encGB / (float64(time.Since(start)) / float64(time.Second))
-	fmt.Printf("\r * Repaired %.00f GiB in %v. Speed: %.02f GB/s (%d+%d:%d)\n", encGB, time.Since(start).Round(time.Millisecond), speed, dataShards, parityShards, len(data[0][0]))
+	fmt.Printf("\r * Repaired %.00f GiB in %v. Speed: %.02f Gbps (%d+%d:%d)\n", encGB, time.Since(start).Round(time.Millisecond), 8*speed, dataShards, parityShards, len(data[0][0]))
 }
 
 func benchmarkDecodingConcurrent(enc reedsolomon.Encoder, data [][][]byte) {
@@ -284,13 +291,13 @@ func benchmarkDecodingConcurrent(enc reedsolomon.Encoder, data [][][]byte) {
 		if *progress {
 			encGB := float64(finished) * (1 / float64(1<<30))
 			speed := encGB / (float64(time.Since(start)) / float64(time.Second))
-			fmt.Printf("\r %s Repaired: %.02f GiB @%.02f GiB/s.", string(spin[spinIdx]), encGB, speed)
+			fmt.Printf("\r %s Repaired: %.02f GiB @%.02f Gbps.", string(spin[spinIdx]), encGB, speed*8)
 			spinIdx = (spinIdx + 1) % len(spin)
 		}
 	}
 	encGB := float64(finished) * (1 / float64(1<<30))
 	speed := encGB / (float64(time.Since(start)) / float64(time.Second))
-	fmt.Printf("\r * Repaired concurrent %.00f GiB in %v. Speed: %.02f GB/s (%d+%d:%d/%d)\n", encGB, time.Since(start).Round(time.Millisecond), speed, dataShards, parityShards, len(data[0][0]), len(data))
+	fmt.Printf("\r * Repaired concurrent %.00f GiB in %v. Speed: %.02f Gbps (%d+%d:%d/%d)\n", encGB, time.Since(start).Round(time.Millisecond), 8*speed, dataShards, parityShards, len(data[0][0]), len(data))
 }
 
 func printCodecs(exitCode int) {
