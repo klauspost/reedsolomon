@@ -36,6 +36,7 @@ var (
 	progress   = flag.Bool("progress", true, "Display progress while running")
 	concurrent = flag.Bool("concurrent", false, "Run blocks in parallel")
 	cpu        = flag.Int("cpu", 16, "Set maximum number of cores to use")
+	csv        = flag.Bool("csv", false, "Output as CSV")
 
 	sSE2   = flag.Bool("sse2", cpuid.CPU.Has(cpuid.SSE2), "Use SSE2")
 	sSSE3  = flag.Bool("ssse3", cpuid.CPU.Has(cpuid.SSSE3), "Use SSSE3")
@@ -92,7 +93,11 @@ func main() {
 	ext := enc.(reedsolomon.Extensions)
 	mulOf := ext.ShardSizeMultiple()
 	each = ((each + mulOf - 1) / mulOf) * mulOf
-	fmt.Printf("Benchmarking %d block(s) of %d data (K) and %d parity shards (M), each %d bytes. Total %d bytes.\n\n", *blocks, *kShards, *mShards, each, *blocks*each*total)
+	if *csv {
+		*progress = false
+	} else {
+		fmt.Printf("Benchmarking %d block(s) of %d data (K) and %d parity shards (M), each %d bytes using %d threads. Total %d bytes.\n\n", *blocks, *kShards, *mShards, each, *cpu, *blocks*each*total)
+	}
 
 	// Reduce GC overhead
 	debug.SetGCPercent(25)
@@ -138,7 +143,11 @@ func benchmarkEncoding(enc reedsolomon.Encoder, data [][][]byte) {
 	}
 	encGB := float64(finished) * (1 / float64(1<<30))
 	speed := encGB / (float64(time.Since(start)) / float64(time.Second))
-	fmt.Printf("\r * Encoded %.00f GiB in %v. Speed: %.02f Gbps (%d+%d:%d)\n", encGB, time.Since(start).Round(time.Millisecond), 8*speed, dataShards, parityShards, len(data[0][0]))
+	if *csv {
+		fmt.Printf("encode\t%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\n", *kShards, *mShards, *blockSize, *blocks, *cpu, *codec, finished, time.Since(start).Microseconds(), speed)
+	} else {
+		fmt.Printf("\r * Encoded %.00f GiB in %v. Speed: %.02f Gbps (%d+%d:%d)\n", encGB, time.Since(start).Round(time.Millisecond), 8*speed, dataShards, parityShards, len(data[0][0]))
+	}
 }
 
 func benchmarkEncodingConcurrent(enc reedsolomon.Encoder, data [][][]byte) {
@@ -187,7 +196,11 @@ func benchmarkEncodingConcurrent(enc reedsolomon.Encoder, data [][][]byte) {
 	wg.Wait()
 	encGB := float64(finished) * (1 / float64(1<<30))
 	speed := encGB / (float64(time.Since(start)) / float64(time.Second))
-	fmt.Printf("\r * Encoded concurrent %.00f GiB in %v. Speed: %.02f Gbps (%d+%d:%d/%d)\n", encGB, time.Since(start).Round(time.Millisecond), 8*speed, dataShards, parityShards, len(data[0][0]), len(data))
+	if *csv {
+		fmt.Printf("encode conc\t%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\n", *kShards, *mShards, *blockSize, *blocks, *cpu, *codec, finished, time.Since(start).Microseconds(), speed)
+	} else {
+		fmt.Printf("\r * Encoded concurrent %.00f GiB in %v. Speed: %.02f Gbps (%d+%d:%d/%d)\n", encGB, time.Since(start).Round(time.Millisecond), 8*speed, dataShards, parityShards, len(data[0][0]), len(data))
+	}
 }
 
 func benchmarkDecoding(enc reedsolomon.Encoder, data [][][]byte) {
@@ -234,7 +247,11 @@ func benchmarkDecoding(enc reedsolomon.Encoder, data [][][]byte) {
 	}
 	encGB := float64(finished) * (1 / float64(1<<30))
 	speed := encGB / (float64(time.Since(start)) / float64(time.Second))
-	fmt.Printf("\r * Repaired %.00f GiB in %v. Speed: %.02f Gbps (%d+%d:%d)\n", encGB, time.Since(start).Round(time.Millisecond), 8*speed, dataShards, parityShards, len(data[0][0]))
+	if *csv {
+		fmt.Printf("decode\t%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\n", *kShards, *mShards, *blockSize, *blocks, *cpu, *codec, finished, time.Since(start).Microseconds(), speed)
+	} else {
+		fmt.Printf("\r * Repaired %.00f GiB in %v. Speed: %.02f Gbps (%d+%d:%d)\n", encGB, time.Since(start).Round(time.Millisecond), 8*speed, dataShards, parityShards, len(data[0][0]))
+	}
 }
 
 func benchmarkDecodingConcurrent(enc reedsolomon.Encoder, data [][][]byte) {
@@ -246,7 +263,6 @@ func benchmarkDecodingConcurrent(enc reedsolomon.Encoder, data [][][]byte) {
 	ext := enc.(reedsolomon.Extensions)
 	parityShards := ext.ParityShards()
 	dataShards := ext.DataShards()
-	rng := rand.New(rand.NewSource(0))
 
 	start := time.Now()
 	finished := int64(0)
@@ -257,6 +273,7 @@ func benchmarkDecodingConcurrent(enc reedsolomon.Encoder, data [][][]byte) {
 	wg.Add(len(data))
 	for _, shards := range data {
 		go func(shards [][]byte) {
+			rng := rand.New(rand.NewSource(0))
 			defer wg.Done()
 			for {
 				select {
@@ -297,7 +314,11 @@ func benchmarkDecodingConcurrent(enc reedsolomon.Encoder, data [][][]byte) {
 	}
 	encGB := float64(finished) * (1 / float64(1<<30))
 	speed := encGB / (float64(time.Since(start)) / float64(time.Second))
-	fmt.Printf("\r * Repaired concurrent %.00f GiB in %v. Speed: %.02f Gbps (%d+%d:%d/%d)\n", encGB, time.Since(start).Round(time.Millisecond), 8*speed, dataShards, parityShards, len(data[0][0]), len(data))
+	if *csv {
+		fmt.Printf("decode conc\t%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\n", *kShards, *mShards, *blockSize, *blocks, *cpu, *codec, finished, time.Since(start).Microseconds(), speed)
+	} else {
+		fmt.Printf("\r * Repaired concurrent %.00f GiB in %v. Speed: %.02f Gbps (%d+%d:%d/%d)\n", encGB, time.Since(start).Round(time.Millisecond), 8*speed, dataShards, parityShards, len(data[0][0]), len(data))
+	}
 }
 
 func printCodecs(exitCode int) {
