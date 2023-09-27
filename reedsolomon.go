@@ -283,7 +283,7 @@ func buildMatrixJerasure(dataShards, totalShards int) (matrix, error) {
 		// Multiply by the inverted matrix (same as vm.Multiply(vm[0:dataShards].Invert()))
 		if vm[i][i] != 1 {
 			// Make vm[i][i] = 1 by dividing the column by vm[i][i]
-			tmp := galDivide(1, vm[i][i])
+			tmp := galOneOver(vm[i][i])
 			for j := 0; j < totalShards; j++ {
 				vm[j][i] = galMultiply(vm[j][i], tmp)
 			}
@@ -303,7 +303,7 @@ func buildMatrixJerasure(dataShards, totalShards int) (matrix, error) {
 	for j := 0; j < dataShards; j++ {
 		tmp := vm[dataShards][j]
 		if tmp != 1 {
-			tmp = galDivide(1, tmp)
+			tmp = galOneOver(tmp)
 			for i := dataShards; i < totalShards; i++ {
 				vm[i][j] = galMultiply(vm[i][j], tmp)
 			}
@@ -314,7 +314,7 @@ func buildMatrixJerasure(dataShards, totalShards int) (matrix, error) {
 	for i := dataShards + 1; i < totalShards; i++ {
 		tmp := vm[i][0]
 		if tmp != 1 {
-			tmp = galDivide(1, tmp)
+			tmp = galOneOver(tmp)
 			for j := 0; j < dataShards; j++ {
 				vm[i][j] = galMultiply(vm[i][j], tmp)
 			}

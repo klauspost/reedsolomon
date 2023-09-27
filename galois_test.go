@@ -62,6 +62,10 @@ func TestInverse(t *testing.T) {
 			if c != 1 {
 				t.Fatal("inverse div/mul", c, "!=", 1)
 			}
+			b2 := galOneOver(a)
+			if b != b2 {
+				t.Fatal("inverse div/mul", b, "!=", b2)
+			}
 		}
 	}
 }

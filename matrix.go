@@ -231,7 +231,7 @@ func (m matrix) gaussianElimination() error {
 		}
 		// Scale to 1.
 		if m[r][r] != 1 {
-			scale := galDivide(1, m[r][r])
+			scale := galOneOver(m[r][r])
 			for c := 0; c < columns; c++ {
 				m[r][c] = galMultiply(m[r][c], scale)
 			}
