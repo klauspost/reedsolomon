@@ -119,9 +119,14 @@ func genGF8() {
 
 	x := [8]int{}
 	for skipMask := range x[:] {
-		{
+		for _, withDst := range []bool{false, true} {
 			var suffix = "avx2_" + fmt.Sprint(skipMask)
-			TEXT("ifftDIT48_"+suffix, attr.NOSPLIT, fmt.Sprintf("func(work [][]byte, dist int, t01, t23, t02 *[2*16]uint8)"))
+			dstString := ""
+			if withDst {
+				dstString = "dst, "
+				suffix = "dst_" + suffix
+			}
+			TEXT("ifftDIT48_"+suffix, attr.NOSPLIT, fmt.Sprintf("func(%swork [][]byte, dist int, t01, t23, t02 *[2*16]uint8)", dstString))
 			Pragma("noescape")
 			var t01, t23, t02 table256
 			// Load and expand tables
@@ -153,6 +158,11 @@ func genGF8() {
 
 			var work [4]reg.GPVirtual
 			workTable := Load(Param("work").Base(), GP64()) // &work[0]
+			var dst [4]reg.GPVirtual
+			dstTable := GP64()
+			if withDst {
+				Load(Param("dst").Base(), dstTable) // &dst[0]
+			}
 			bytes := GP64()
 			MOVQ(Mem{Base: workTable, Disp: 8}, bytes)
 
@@ -162,6 +172,10 @@ func genGF8() {
 				work[i] = GP64()
 				// work[i] = &workTable[dist*i]
 				MOVQ(Mem{Base: workTable, Index: offset, Scale: 1}, work[i])
+				if withDst {
+					dst[i] = GP64()
+					MOVQ(Mem{Base: dstTable, Index: offset, Scale: 1}, dst[i])
+				}
 				if i < len(work)-1 {
 					ADDQ(dist, offset)
 				}
@@ -231,8 +245,14 @@ func genGF8() {
 
 			// Store + Next loop:
 			for i := range work {
-				VMOVDQU(workReg[i], Mem{Base: work[i], Disp: 0})
-				VMOVDQU(workReg2[i], Mem{Base: work[i], Disp: 32})
+				if withDst {
+					VMOVDQU(workReg[i], Mem{Base: dst[i], Disp: 0})
+					VMOVDQU(workReg2[i], Mem{Base: dst[i], Disp: 32})
+					ADDQ(U8(64), dst[i])
+				} else {
+					VMOVDQU(workReg[i], Mem{Base: work[i], Disp: 0})
+					VMOVDQU(workReg2[i], Mem{Base: work[i], Disp: 32})
+				}
 				ADDQ(U8(64), work[i])
 			}
 
@@ -242,9 +262,14 @@ func genGF8() {
 			VZEROUPPER()
 			RET()
 		}
-		{
+		for _, withDst := range []bool{false, true} {
 			var suffix = "avx2_" + fmt.Sprint(skipMask)
-			TEXT("fftDIT48_"+suffix, attr.NOSPLIT, fmt.Sprintf("func(work [][]byte, dist int, t01, t23, t02 *[2*16]uint8)"))
+			dstString := ""
+			if withDst {
+				dstString = "dst, "
+				suffix = "dst_" + suffix
+			}
+			TEXT("fftDIT48_"+suffix, attr.NOSPLIT, fmt.Sprintf("func(%swork [][]byte, dist int, t01, t23, t02 *[2*16]uint8)", dstString))
 			Pragma("noescape")
 			var t01, t23, t02 table256
 			// Load and expand tables
@@ -280,9 +305,15 @@ func genGF8() {
 			dist := Load(Param("dist"), GP64())
 
 			var work [4]reg.GPVirtual
+			var dst [4]reg.GPVirtual
+
 			workTable := Load(Param("work").Base(), GP64()) // &work[0]
 			bytes := GP64()
 			MOVQ(Mem{Base: workTable, Disp: 8}, bytes)
+			dstTable := GP64()
+			if withDst {
+				Load(Param("dst").Base(), dstTable) // &dst[0]
+			}
 
 			offset := GP64()
 			XORQ(offset, offset)
@@ -290,6 +321,10 @@ func genGF8() {
 				work[i] = GP64()
 				// work[i] = &workTable[dist*i]
 				MOVQ(Mem{Base: workTable, Index: offset, Scale: 1}, work[i])
+				if withDst {
+					dst[i] = GP64()
+					MOVQ(Mem{Base: dstTable, Index: offset, Scale: 1}, dst[i])
+				}
 				if i < len(work)-1 {
 					ADDQ(dist, offset)
 				}
@@ -356,8 +391,14 @@ func genGF8() {
 
 			// Store + Next loop:
 			for i := range work {
-				VMOVDQU(workReg[i], Mem{Base: work[i], Disp: 0})
-				VMOVDQU(workReg2[i], Mem{Base: work[i], Disp: 32})
+				if withDst {
+					VMOVDQU(workReg[i], Mem{Base: dst[i], Disp: 0})
+					VMOVDQU(workReg2[i], Mem{Base: dst[i], Disp: 32})
+					ADDQ(U8(64), dst[i])
+				} else {
+					VMOVDQU(workReg[i], Mem{Base: work[i], Disp: 0})
+					VMOVDQU(workReg2[i], Mem{Base: work[i], Disp: 32})
+				}
 				ADDQ(U8(64), work[i])
 			}
 
@@ -371,9 +412,14 @@ func genGF8() {
 
 	// GFNI
 	for skipMask := range x[:] {
-		{
+		for _, withDst := range []bool{false, true} {
 			var suffix = "gfni_" + fmt.Sprint(skipMask)
-			TEXT("ifftDIT48_"+suffix, attr.NOSPLIT, fmt.Sprintf("func(work [][]byte, dist int, t01, t23, t02 uint64)"))
+			dstString := ""
+			if withDst {
+				dstString = "dst, "
+				suffix = "dst_" + suffix
+			}
+			TEXT("ifftDIT48_"+suffix, attr.NOSPLIT, fmt.Sprintf("func(%swork [][]byte, dist int, t01, t23, t02 uint64)", dstString))
 			Pragma("noescape")
 			var t01, t23, t02 table512 = ZMM(), ZMM(), ZMM()
 			// Load and expand tables
@@ -394,6 +440,11 @@ func genGF8() {
 
 			var work [4]reg.GPVirtual
 			workTable := Load(Param("work").Base(), GP64()) // &work[0]
+			var dst [4]reg.GPVirtual
+			dstTable := GP64()
+			if withDst {
+				Load(Param("dst").Base(), dstTable) // &dst[0]
+			}
 			bytes := GP64()
 			MOVQ(Mem{Base: workTable, Disp: 8}, bytes)
 
@@ -403,6 +454,10 @@ func genGF8() {
 				work[i] = GP64()
 				// work[i] = &workTable[dist*i]
 				MOVQ(Mem{Base: workTable, Index: offset, Scale: 1}, work[i])
+				if withDst {
+					dst[i] = GP64()
+					MOVQ(Mem{Base: dstTable, Index: offset, Scale: 1}, dst[i])
+				}
 				if i < len(work)-1 {
 					ADDQ(dist, offset)
 				}
@@ -442,7 +497,12 @@ func genGF8() {
 
 			// Store + Next loop:
 			for i := range work {
-				VMOVDQU64(workReg[i], Mem{Base: work[i], Disp: 0})
+				if withDst {
+					VMOVDQU64(workReg[i], Mem{Base: dst[i], Disp: 0})
+					ADDQ(U8(64), dst[i])
+				} else {
+					VMOVDQU64(workReg[i], Mem{Base: work[i], Disp: 0})
+				}
 				ADDQ(U8(64), work[i])
 			}
 
@@ -452,9 +512,14 @@ func genGF8() {
 			VZEROUPPER()
 			RET()
 		}
-		{
+		for _, withDst := range []bool{false, true} {
 			var suffix = "gfni_" + fmt.Sprint(skipMask)
-			TEXT("fftDIT48_"+suffix, attr.NOSPLIT, fmt.Sprintf("func(work [][]byte, dist int, t01, t23, t02 uint64)"))
+			dstString := ""
+			if withDst {
+				dstString = "dst, "
+				suffix = "dst_" + suffix
+			}
+			TEXT("fftDIT48_"+suffix, attr.NOSPLIT, fmt.Sprintf("func(%swork [][]byte, dist int, t01, t23, t02 uint64)", dstString))
 			Pragma("noescape")
 			var t01, t23, t02 table512 = ZMM(), ZMM(), ZMM()
 			// Load and expand tables
@@ -475,6 +540,11 @@ func genGF8() {
 
 			var work [4]reg.GPVirtual
 			workTable := Load(Param("work").Base(), GP64()) // &work[0]
+			var dst [4]reg.GPVirtual
+			dstTable := GP64()
+			if withDst {
+				Load(Param("dst").Base(), dstTable) // &dst[0]
+			}
 			bytes := GP64()
 			MOVQ(Mem{Base: workTable, Disp: 8}, bytes)
 
@@ -484,6 +554,10 @@ func genGF8() {
 				work[i] = GP64()
 				// work[i] = &workTable[dist*i]
 				MOVQ(Mem{Base: workTable, Index: offset, Scale: 1}, work[i])
+				if withDst {
+					dst[i] = GP64()
+					MOVQ(Mem{Base: dstTable, Index: offset, Scale: 1}, dst[i])
+				}
 				if i < len(work)-1 {
 					ADDQ(dist, offset)
 				}
@@ -522,7 +596,12 @@ func genGF8() {
 
 			// Store + Next loop:
 			for i := range work {
-				VMOVDQU64(workReg[i], Mem{Base: work[i], Disp: 0})
+				if withDst {
+					VMOVDQU64(workReg[i], Mem{Base: dst[i], Disp: 0})
+					ADDQ(U8(64), dst[i])
+				} else {
+					VMOVDQU64(workReg[i], Mem{Base: work[i], Disp: 0})
+				}
 				ADDQ(U8(64), work[i])
 			}
 

@@ -81,6 +81,11 @@ func ifftDIT48(work [][]byte, dist int, log_m01, log_m23, log_m02 ffe8, o *optio
 	ifftDIT4Ref8(work, dist, log_m01, log_m23, log_m02, o)
 }
 
+// 4-way butterfly with separate destination
+func ifftDIT48Dst(work [][]byte, dist int, log_m01, log_m23, log_m02 ffe8, o *options) {
+	ifftDIT4DstRef8(work, dist, log_m01, log_m23, log_m02, o)
+}
+
 // 4-way butterfly
 func fftDIT4(work [][]byte, dist int, log_m01, log_m23, log_m02 ffe, o *options) {
 	fftDIT4Ref(work, dist, log_m01, log_m23, log_m02, o)
