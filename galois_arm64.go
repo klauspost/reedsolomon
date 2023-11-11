@@ -1,5 +1,4 @@
-//go:build !noasm && !appengine && !gccgo
-// +build !noasm,!appengine,!gccgo
+//go:build !noasm && !appengine && !gccgo && pshufb
 
 // Copyright 2015, Klaus Post, see LICENSE for details.
 // Copyright 2017, Minio, Inc.

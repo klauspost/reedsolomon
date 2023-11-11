@@ -1,8 +1,43 @@
-//go:build (!amd64 || noasm || appengine || gccgo) && (!arm64 || noasm || appengine || gccgo || nopshufb) && (!ppc64le || noasm || appengine || gccgo || nopshufb)
+// Copyright 2015, Klaus Post, see LICENSE for details
 
-// Copyright 2015, Klaus Post, see LICENSE for details.
+//go:build nopshufb && !noasm
 
 package reedsolomon
+
+// bigSwitchover is the size where 64 bytes are processed per loop.
+const bigSwitchover = 128
+
+// simple slice xor
+func sliceXor(in, out []byte, o *options) {
+	if o.useSSE2 {
+		if len(in) >= bigSwitchover {
+			if o.useAVX2 {
+				avx2XorSlice_64(in, out)
+				done := (len(in) >> 6) << 6
+				in = in[done:]
+				out = out[done:]
+			} else {
+				sSE2XorSlice_64(in, out)
+				done := (len(in) >> 6) << 6
+				in = in[done:]
+				out = out[done:]
+			}
+		}
+		if len(in) >= 16 {
+			sSE2XorSlice(in, out)
+			done := (len(in) >> 4) << 4
+			in = in[done:]
+			out = out[done:]
+		}
+	} else {
+		sliceXorGo(in, out, o)
+		return
+	}
+	out = out[:len(in)]
+	for i := range in {
+		out[i] ^= in[i]
+	}
+}
 
 func galMulSlice(c byte, in, out []byte, o *options) {
 	out = out[:len(in)]
@@ -26,11 +61,6 @@ func galMulSliceXor(c byte, in, out []byte, o *options) {
 	for n, input := range in {
 		out[n] ^= mt[input]
 	}
-}
-
-// simple slice xor
-func sliceXor(in, out []byte, o *options) {
-	sliceXorGo(in, out, o)
 }
 
 func init() {
@@ -61,27 +91,27 @@ func fftDIT48(work [][]byte, dist int, log_m01, log_m23, log_m02 ffe8, o *option
 func fftDIT2(x, y []byte, log_m ffe, o *options) {
 	// Reference version:
 	refMulAdd(x, y, log_m)
-	sliceXorGo(x, y, o)
+	sliceXor(x, y, o)
 }
 
 // 2-way butterfly forward
 func fftDIT28(x, y []byte, log_m ffe8, o *options) {
 	// Reference version:
 	refMulAdd8(x, y, log_m)
-	sliceXorGo(x, y, o)
+	sliceXor(x, y, o)
 }
 
 // 2-way butterfly inverse
 func ifftDIT2(x, y []byte, log_m ffe, o *options) {
 	// Reference version:
-	sliceXorGo(x, y, o)
+	sliceXor(x, y, o)
 	refMulAdd(x, y, log_m)
 }
 
 // 2-way butterfly inverse
 func ifftDIT28(x, y []byte, log_m ffe8, o *options) {
 	// Reference version:
-	sliceXorGo(x, y, o)
+	sliceXor(x, y, o)
 	refMulAdd8(x, y, log_m)
 }
 

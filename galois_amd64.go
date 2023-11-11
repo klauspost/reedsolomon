@@ -1,5 +1,4 @@
-//go:build !noasm && !appengine && !gccgo
-// +build !noasm,!appengine,!gccgo
+//go:build !noasm && !appengine && !gccgo && !nopshufb
 
 // Copyright 2015, Klaus Post, see LICENSE for details.
 
@@ -18,19 +17,10 @@ func galMulAVX2Xor(low, high, in, out []byte)
 func galMulAVX2(low, high, in, out []byte)
 
 //go:noescape
-func sSE2XorSlice(in, out []byte)
-
-//go:noescape
 func galMulAVX2Xor_64(low, high, in, out []byte)
 
 //go:noescape
 func galMulAVX2_64(low, high, in, out []byte)
-
-//go:noescape
-func sSE2XorSlice_64(in, out []byte)
-
-//go:noescape
-func avx2XorSlice_64(in, out []byte)
 
 // This is what the assembler routines do in blocks of 16 bytes:
 /*

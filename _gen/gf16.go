@@ -77,7 +77,7 @@ func genGF16() {
 	var ctx gf16ctx
 	// Ported from static void IFFT_DIT2
 	// https://github.com/catid/leopard/blob/master/LeopardFF16.cpp#L629
-	{
+	if pshufb {
 		TEXT("ifftDIT2_avx2", attr.NOSPLIT, fmt.Sprintf("func(x, y []byte, table  *[8*16]uint8)"))
 		Pragma("noescape")
 		tablePtr := Load(Param("table"), GP64())
@@ -120,7 +120,7 @@ func genGF16() {
 		VZEROUPPER()
 		RET()
 	}
-	{
+	if pshufb {
 		TEXT("fftDIT2_avx2", attr.NOSPLIT, fmt.Sprintf("func(x, y []byte, table  *[8*16]uint8)"))
 		Pragma("noescape")
 		tablePtr := Load(Param("table"), GP64())
@@ -173,7 +173,7 @@ func genGF16() {
 		RET()
 	}
 
-	{
+	if pshufb {
 		TEXT("mulgf16_avx2", attr.NOSPLIT, fmt.Sprintf("func(x, y []byte, table  *[8*16]uint8)"))
 		Pragma("noescape")
 		tablePtr := Load(Param("table"), GP64())
@@ -213,6 +213,9 @@ func genGF16() {
 		RET()
 	}
 	for _, avx512 := range []bool{true, false} {
+		if !pshufb {
+			continue
+		}
 		x := [8]int{}
 		for skipMask := range x[:] {
 			// AVX-512 only uses more registers for tables.
@@ -562,7 +565,7 @@ func genGF16() {
 
 	// SSSE3:
 	ctx.avx512 = false
-	{
+	if pshufb {
 		TEXT("ifftDIT2_ssse3", attr.NOSPLIT, fmt.Sprintf("func(x, y []byte, table  *[8*16]uint8)"))
 		Pragma("noescape")
 		tablePtr := Load(Param("table"), GP64())
@@ -613,7 +616,7 @@ func genGF16() {
 
 		RET()
 	}
-	{
+	if pshufb {
 		TEXT("fftDIT2_ssse3", attr.NOSPLIT, fmt.Sprintf("func(x, y []byte, table  *[8*16]uint8)"))
 		Pragma("noescape")
 		tablePtr := Load(Param("table"), GP64())
@@ -671,7 +674,7 @@ func genGF16() {
 
 		RET()
 	}
-	{
+	if pshufb {
 		TEXT("mulgf16_ssse3", attr.NOSPLIT, fmt.Sprintf("func(x, y []byte, table  *[8*16]uint8)"))
 		Pragma("noescape")
 		tablePtr := Load(Param("table"), GP64())
