@@ -548,7 +548,7 @@ This will remove all inclusion and use of `PSHUFB` and equivalent on other platf
 
 This is done by adding `-tags=nopshufb` to `go build` and similar commands that produce binary output.
 
-As already stated using the above *may* result in non-infringing code. 
+The removed code may not be infringing and even after `-tags=nopshufb` there may still be infringing code left. 
 
 # Links
 * [Backblaze Open Sources Reed-Solomon Erasure Coding Source Code](https://www.backblaze.com/blog/reed-solomon/).
