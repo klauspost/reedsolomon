@@ -23,9 +23,10 @@ func genGF8() {
 	var ctx gf8ctx
 	// Ported from static void IFFT_DIT2
 	// https://github.com/catid/leopard/blob/master/LeopardFF8.cpp#L599
-	if true {
+	if pshufb {
 		TEXT("ifftDIT28_avx2", attr.NOSPLIT, fmt.Sprintf("func(x, y []byte, table *[2*16]uint8)"))
 		Pragma("noescape")
+
 		tablePtr := Load(Param("table"), GP64())
 		var tables table256
 		tables.Lo, tables.Hi = YMM(), YMM()
@@ -72,7 +73,7 @@ func genGF8() {
 		RET()
 	}
 	// https://github.com/catid/leopard/blob/master/LeopardFF8.cpp#L1323
-	if true {
+	if pshufb {
 		TEXT("fftDIT28_avx2", attr.NOSPLIT, fmt.Sprintf("func(x, y []byte, table *[2*16]uint8)"))
 		Pragma("noescape")
 		tablePtr := Load(Param("table"), GP64())
@@ -119,6 +120,9 @@ func genGF8() {
 
 	x := [8]int{}
 	for skipMask := range x[:] {
+		if !pshufb {
+			break
+		}
 		{
 			var suffix = "avx2_" + fmt.Sprint(skipMask)
 			TEXT("ifftDIT48_"+suffix, attr.NOSPLIT, fmt.Sprintf("func(work [][]byte, dist int, t01, t23, t02 *[2*16]uint8)"))

@@ -1,7 +1,11 @@
 //go:build generate
-// +build generate
 
 // Copyright 2022+, Klaus Post. See LICENSE for details.
+
+//go:generate go run -tags=generate,nopshufb . -out ../galois_gen_nopshufb_amd64.s -stubs ../galois_gen_nopshufb_amd64.go -pkg=reedsolomon
+//go:generate go fmt ../galois_gen_switch_nopshufb_amd64.go
+//go:generate go fmt ../galois_gen_nopshufb_amd64.go
+//go:generate go run cleanup.go ../galois_gen_nopshufb_amd64.s
 
 //go:generate go run -tags=generate . -out ../galois_gen_amd64.s -stubs ../galois_gen_amd64.go -pkg=reedsolomon
 //go:generate go fmt ../galois_gen_switch_amd64.go
@@ -41,6 +45,11 @@ func main() {
 	Constraint(buildtags.Not("appengine").ToConstraint())
 	Constraint(buildtags.Not("noasm").ToConstraint())
 	Constraint(buildtags.Not("nogen").ToConstraint())
+	if pshufb {
+		Constraint(buildtags.Not("nopshufb").ToConstraint())
+	} else {
+		Constraint(buildtags.Opt("nopshufb").ToConstraint())
+	}
 	Constraint(buildtags.Term("gc").ToConstraint())
 
 	TEXT("_dummy_", 0, "func()")
@@ -54,20 +63,31 @@ func main() {
 	Comment("#endif")
 	RET()
 
+	genXor()
 	const perLoopBits = 6
 	const perLoop = 1 << perLoopBits
 
 	for i := 1; i <= inputMax; i++ {
 		for j := 1; j <= outputMax; j++ {
-			genMulAvx2(fmt.Sprintf("mulAvxTwo_%dx%d", i, j), i, j, false)
-			genMulAvx2Sixty64(fmt.Sprintf("mulAvxTwo_%dx%d_64", i, j), i, j, false)
+			if pshufb {
+				genMulAvx2(fmt.Sprintf("mulAvxTwo_%dx%d", i, j), i, j, false)
+				genMulAvx2Sixty64(fmt.Sprintf("mulAvxTwo_%dx%d_64", i, j), i, j, false)
+			}
 			genMulAvx512GFNI(fmt.Sprintf("mulGFNI_%dx%d_64", i, j), i, j, false)
 			genMulAvx512GFNI(fmt.Sprintf("mulGFNI_%dx%d_64Xor", i, j), i, j, true)
-			genMulAvx2(fmt.Sprintf("mulAvxTwo_%dx%dXor", i, j), i, j, true)
-			genMulAvx2Sixty64(fmt.Sprintf("mulAvxTwo_%dx%d_64Xor", i, j), i, j, true)
+			if pshufb {
+				genMulAvx2(fmt.Sprintf("mulAvxTwo_%dx%dXor", i, j), i, j, true)
+				genMulAvx2Sixty64(fmt.Sprintf("mulAvxTwo_%dx%d_64Xor", i, j), i, j, true)
+			}
 		}
 	}
-	f, err := os.Create("../galois_gen_switch_amd64.go")
+	name := "../galois_gen_switch_amd64.go"
+	tag := "// +build !nopshufb\n"
+	if !pshufb {
+		name = "../galois_gen_switch_nopshufb_amd64.go"
+		tag = "// +build nopshufb\n"
+	}
+	f, err := os.Create(name)
 	if err != nil {
 		panic(err)
 	}
@@ -79,7 +99,8 @@ func main() {
 // +build !appengine
 // +build !noasm
 // +build gc
-// +build !nogen 
+// +build !nogen
+` + tag + `
 
 package reedsolomon
 
@@ -88,7 +109,6 @@ import (
 )
 
 `)
-
 	w.WriteString(fmt.Sprintf(`const (
 avx2CodeGen = true
 maxAvx2Inputs = %d
@@ -96,24 +116,31 @@ maxAvx2Outputs = %d
 minAvx2Size = %d
 avxSizeMask = maxInt - (minAvx2Size-1)
 )`, inputMax, outputMax, perLoop))
-	w.WriteString(`
+
+	if !pshufb {
+		w.WriteString("\n\nfunc galMulSlicesAvx2(matrix []byte, in, out [][]byte, start, stop int) int { panic(`no pshufb`)}\n")
+		w.WriteString("func galMulSlicesAvx2Xor(matrix []byte, in, out [][]byte, start, stop int) int { panic(`no pshufb`)}\n")
+	}
+
+	if pshufb {
+		w.WriteString(`
 
 func galMulSlicesAvx2(matrix []byte, in, out [][]byte, start, stop int) int {
 	n := (stop-start) & avxSizeMask
 
 `)
 
-	w.WriteString(`switch len(in) {
+		w.WriteString(`switch len(in) {
 `)
-	for in, defs := range switchDefs[:] {
-		w.WriteString(fmt.Sprintf("		case %d:\n			switch len(out) {\n", in+1))
-		for out, def := range defs[:] {
-			w.WriteString(fmt.Sprintf("				case %d:\n", out+1))
-			w.WriteString(def)
+		for in, defs := range switchDefs[:] {
+			w.WriteString(fmt.Sprintf("		case %d:\n			switch len(out) {\n", in+1))
+			for out, def := range defs[:] {
+				w.WriteString(fmt.Sprintf("				case %d:\n", out+1))
+				w.WriteString(def)
+			}
+			w.WriteString("}\n")
 		}
-		w.WriteString("}\n")
-	}
-	w.WriteString(`}
+		w.WriteString(`}
 	panic(fmt.Sprintf("unhandled size: %dx%d", len(in), len(out)))
 }
 
@@ -122,20 +149,21 @@ func galMulSlicesAvx2Xor(matrix []byte, in, out [][]byte, start, stop int) int {
 
 `)
 
-	w.WriteString(`switch len(in) {
+		w.WriteString(`switch len(in) {
 `)
-	for in, defs := range switchDefsX[:] {
-		w.WriteString(fmt.Sprintf("		case %d:\n			switch len(out) {\n", in+1))
-		for out, def := range defs[:] {
-			w.WriteString(fmt.Sprintf("				case %d:\n", out+1))
-			w.WriteString(def)
+		for in, defs := range switchDefsX[:] {
+			w.WriteString(fmt.Sprintf("		case %d:\n			switch len(out) {\n", in+1))
+			for out, def := range defs[:] {
+				w.WriteString(fmt.Sprintf("				case %d:\n", out+1))
+				w.WriteString(def)
+			}
+			w.WriteString("}\n")
 		}
-		w.WriteString("}\n")
-	}
-	w.WriteString(`}
+		w.WriteString(`}
 	panic(fmt.Sprintf("unhandled size: %dx%d", len(in), len(out)))
 }
 `)
+	}
 
 	w.WriteString(`
 
@@ -929,4 +957,99 @@ func genMulAvx512GFNI(name string, inputs int, outputs int, xor bool) {
 
 	Label(name + "_end")
 	RET()
+}
+
+func genXor() {
+	// SSE 2
+	{
+		Comment("sSE2XorSlice will XOR in with out and store in out.")
+		Comment("Processes 16 bytes/loop.")
+		TEXT("sSE2XorSlice", 0, fmt.Sprintf("func(in, out []byte)"))
+		Pragma("noescape")
+		src := Load(Param("in").Base(), GP64())
+		dst := Load(Param("out").Base(), GP64())
+		length := Load(Param("in").Len(), GP64())
+		SHRQ(U8(4), length)
+		srcX, dstX := XMM(), XMM()
+		JZ(LabelRef("end"))
+		Label("loop")
+		MOVOU(Mem{Base: src}, srcX)
+		MOVOU(Mem{Base: dst}, dstX)
+		PXOR(srcX, dstX)
+		MOVOU(dstX, Mem{Base: dst})
+		ADDQ(U8(16), src)
+		ADDQ(U8(16), dst)
+		DECQ(length)
+		JNZ(LabelRef("loop"))
+		Label("end")
+		RET()
+	}
+
+	// SSE2 64 bytes
+	{
+		Comment("sSE2XorSlice_64 will XOR in with out and store in out.")
+		Comment("Processes 64 bytes/loop.")
+		TEXT("sSE2XorSlice_64", 0, fmt.Sprintf("func(in, out []byte)"))
+		Pragma("noescape")
+		src := Load(Param("in").Base(), GP64())
+		dst := Load(Param("out").Base(), GP64())
+		length := Load(Param("in").Len(), GP64())
+		SHRQ(U8(6), length)
+		var srcX, dstX [4]reg.VecVirtual
+		for i := range srcX {
+			srcX[i], dstX[i] = XMM(), XMM()
+		}
+		JZ(LabelRef("end"))
+		Label("loop")
+		for i := range srcX {
+			MOVOU(Mem{Base: src, Disp: 16 * i}, srcX[i])
+		}
+		for i := range srcX {
+			MOVOU(Mem{Base: dst, Disp: 16 * i}, dstX[i])
+		}
+		for i := range srcX {
+			PXOR(srcX[i], dstX[i])
+		}
+		for i := range srcX {
+			MOVOU(dstX[i], Mem{Base: dst, Disp: 16 * i})
+		}
+		ADDQ(U8(64), src)
+		ADDQ(U8(64), dst)
+		DECQ(length)
+		JNZ(LabelRef("loop"))
+		Label("end")
+		RET()
+	}
+	//AVX 2
+	{
+		Comment("avx2XorSlice_64 will XOR in with out and store in out.")
+		Comment("Processes 64 bytes/loop.")
+		TEXT("avx2XorSlice_64", 0, fmt.Sprintf("func(in, out []byte)"))
+		Pragma("noescape")
+		src := Load(Param("in").Base(), GP64())
+		dst := Load(Param("out").Base(), GP64())
+		length := Load(Param("in").Len(), GP64())
+		SHRQ(U8(6), length)
+		srcX, dstX := YMM(), YMM()
+		srcX2, dstX2 := YMM(), YMM()
+		JZ(LabelRef("end"))
+
+		Label("loop")
+		VMOVDQU(Mem{Base: src}, srcX)
+		VMOVDQU(Mem{Base: src, Disp: 32}, srcX2)
+		VMOVDQU(Mem{Base: dst}, dstX)
+		VMOVDQU(Mem{Base: dst, Disp: 32}, dstX2)
+		VPXOR(srcX, dstX, dstX)
+		VPXOR(srcX2, dstX2, dstX2)
+		VMOVDQU(dstX, Mem{Base: dst})
+		VMOVDQU(dstX2, Mem{Base: dst, Disp: 32})
+		ADDQ(U8(64), src)
+		ADDQ(U8(64), dst)
+		DECQ(length)
+		JNZ(LabelRef("loop"))
+
+		Label("end")
+		VZEROUPPER()
+		RET()
+	}
 }
