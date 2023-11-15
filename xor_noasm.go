@@ -1,4 +1,4 @@
-//go:build noasm || gccgo || appengine || nopshufb || (!amd64 && !arm64)
+//go:build noasm || gccgo || appengine || (!amd64 && !arm64)
 
 package reedsolomon
 

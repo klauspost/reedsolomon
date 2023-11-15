@@ -67,11 +67,6 @@ func galMulSliceXor(c byte, in, out []byte, o *options) {
 	}
 }
 
-// slice galois add
-func sliceXor(in, out []byte, o *options) {
-	sliceXorGo(in, out, o)
-}
-
 // 4-way butterfly
 func ifftDIT4(work [][]byte, dist int, log_m01, log_m23, log_m02 ffe, o *options) {
 	ifftDIT4Ref(work, dist, log_m01, log_m23, log_m02, o)
