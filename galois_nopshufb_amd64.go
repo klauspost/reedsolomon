@@ -48,6 +48,16 @@ func galMulSlice(c byte, in, out []byte, o *options) {
 		return
 	}
 	mt := mulTable[c][:256]
+	for len(in) >= 4 {
+		ii := (*[4]byte)(in)
+		oo := (*[4]byte)(out)
+		oo[0] = mt[ii[0]]
+		oo[1] = mt[ii[1]]
+		oo[2] = mt[ii[2]]
+		oo[3] = mt[ii[3]]
+		in = in[4:]
+		out = out[4:]
+	}
 	for n, input := range in {
 		out[n] = mt[input]
 	}
@@ -60,6 +70,16 @@ func galMulSliceXor(c byte, in, out []byte, o *options) {
 		return
 	}
 	mt := mulTable[c][:256]
+	for len(in) >= 4 {
+		ii := (*[4]byte)(in)
+		oo := (*[4]byte)(out)
+		oo[0] ^= mt[ii[0]]
+		oo[1] ^= mt[ii[1]]
+		oo[2] ^= mt[ii[2]]
+		oo[3] ^= mt[ii[3]]
+		in = in[4:]
+		out = out[4:]
+	}
 	for n, input := range in {
 		out[n] ^= mt[input]
 	}
