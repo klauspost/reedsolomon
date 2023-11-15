@@ -4,6 +4,8 @@
 
 package reedsolomon
 
+const pshufb = true
+
 //go:noescape
 func galMulSSSE3(low, high, in, out []byte)
 

@@ -4,6 +4,8 @@
 
 package reedsolomon
 
+const pshufb = false
+
 func galMulSlice(c byte, in, out []byte, o *options) {
 	out = out[:len(in)]
 	if c == 1 {
@@ -26,11 +28,6 @@ func galMulSliceXor(c byte, in, out []byte, o *options) {
 	for n, input := range in {
 		out[n] ^= mt[input]
 	}
-}
-
-// simple slice xor
-func sliceXor(in, out []byte, o *options) {
-	sliceXorGo(in, out, o)
 }
 
 func init() {

@@ -9,8 +9,6 @@ import (
 	"fmt"
 )
 
-const pshufb = false
-
 const (
 	avx2CodeGen    = true
 	maxAvx2Inputs  = 10

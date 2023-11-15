@@ -1,5 +1,4 @@
 //go:build generate
-// +build generate
 
 // Copyright 2022+, Klaus Post. See LICENSE for details.
 
@@ -110,7 +109,6 @@ import (
 )
 
 `)
-	w.WriteString(fmt.Sprintf("const pshufb = %v\n\n", pshufb))
 	w.WriteString(fmt.Sprintf(`const (
 avx2CodeGen = true
 maxAvx2Inputs = %d

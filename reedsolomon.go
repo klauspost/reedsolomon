@@ -652,7 +652,7 @@ func (r *reedSolomon) EncodeIdx(dataShard []byte, idx int, parity [][]byte) erro
 		return ErrShardSize
 	}
 
-	if avx2CodeGen && len(dataShard) >= r.o.perRound && len(parity) >= avx2CodeGenMinShards && (r.o.useAVX2 || r.o.useGFNI) {
+	if avx2CodeGen && len(dataShard) >= r.o.perRound && len(parity) >= avx2CodeGenMinShards && ((pshufb && r.o.useAVX2) || r.o.useGFNI) {
 		m := make([][]byte, r.parityShards)
 		for iRow := range m {
 			m[iRow] = r.parity[iRow][idx : idx+1]
@@ -803,7 +803,7 @@ func (r *reedSolomon) Verify(shards [][]byte) (bool, error) {
 }
 
 func (r *reedSolomon) canAVX2C(byteCount int, inputs, outputs int) bool {
-	return avx2CodeGen && r.o.useAVX2 &&
+	return avx2CodeGen && pshufb && r.o.useAVX2 &&
 		byteCount >= avx2CodeGenMinSize && inputs+outputs >= avx2CodeGenMinShards &&
 		inputs <= maxAvx2Inputs && outputs <= maxAvx2Outputs
 }

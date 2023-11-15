@@ -7,6 +7,8 @@ package reedsolomon
 // bigSwitchover is the size where 64 bytes are processed per loop.
 const bigSwitchover = 128
 
+const pshufb = false
+
 // simple slice xor
 func sliceXor(in, out []byte, o *options) {
 	if o.useSSE2 {
