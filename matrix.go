@@ -67,11 +67,11 @@ var errColSizeMismatch = errors.New("column size is not the same for all rows")
 
 func (m matrix) Check() error {
 	rows := len(m)
-	if rows <= 0 {
+	if rows == 0 {
 		return errInvalidRowSize
 	}
 	cols := len(m[0])
-	if cols <= 0 {
+	if cols == 0 {
 		return errInvalidColSize
 	}
 
