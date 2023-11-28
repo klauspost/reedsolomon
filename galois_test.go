@@ -51,7 +51,7 @@ func TestIdentity(t *testing.T) {
 func TestInverse(t *testing.T) {
 	for i := 0; i < 256; i++ {
 		a := byte(i)
-		b := galSub(0, a)
+		b := galAdd(0, a)
 		c := galAdd(a, b)
 		if c != 0 {
 			t.Fatal("inverse sub/add", c, "!=", 0)
