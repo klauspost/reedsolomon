@@ -826,8 +826,26 @@ func testReconstructData(t *testing.T, o ...Option) {
 		t.Fatal(err)
 	}
 
-	// Reconstruct 3 shards with 3 data and 5 parity shards
+	// Reconstruct parity shards from data
 	shardsCopy := make([][]byte, 13)
+	for i := 0; i < 8; i++ {
+		shardsCopy[i] = shards[i]
+	}
+
+	shardsRequired := make([]bool, 13)
+	shardsRequired[10] = true
+
+	err = r.ReconstructSome(shardsCopy, shardsRequired)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if !bytes.Equal(shardsCopy[10], shards[10]) {
+		t.Fatal("ReconstructSome did not reconstruct required shards correctly")
+	}
+
+	// Reconstruct 3 shards with 3 data and 5 parity shards
+	shardsCopy = make([][]byte, 13)
 	copy(shardsCopy, shards)
 	shardsCopy[2] = nil
 	shardsCopy[3] = nil
@@ -835,7 +853,7 @@ func testReconstructData(t *testing.T, o ...Option) {
 	shardsCopy[5] = nil
 	shardsCopy[6] = nil
 
-	shardsRequired := make([]bool, 8)
+	shardsRequired = make([]bool, 8)
 	shardsRequired[3] = true
 	shardsRequired[4] = true
 	err = r.ReconstructSome(shardsCopy, shardsRequired)

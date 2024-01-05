@@ -333,7 +333,7 @@ func (r *leopardFF16) Split(data []byte) ([][]byte, error) {
 }
 
 func (r *leopardFF16) ReconstructSome(shards [][]byte, required []bool) error {
-	return r.ReconstructData(shards)
+	return r.Reconstruct(shards)
 }
 
 func (r *leopardFF16) Reconstruct(shards [][]byte) error {
