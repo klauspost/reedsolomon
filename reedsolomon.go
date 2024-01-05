@@ -77,11 +77,12 @@ type Encoder interface {
 	// calling the Verify function is likely to fail.
 	ReconstructData(shards [][]byte) error
 
-	// ReconstructSome will recreate only requested data shards, if possible.
+	// ReconstructSome will recreate only requested shards, if possible.
 	//
 	// Given a list of shards, some of which contain data, fills in the
-	// data shards indicated by true values in the "required" parameter.
-	// The length of "required" array must be equal to DataShards.
+	// shards indicated by true values in the "required" parameter.
+	// The length of the "required" array must be equal to either Shards or DataShards.
+	// If the length is equal to DataShards, the reconstruction of parity shards will be ignored.
 	//
 	// The length of "shards" array must be equal to Shards.
 	// You indicate that a shard is missing by setting it to nil or zero-length.
@@ -1402,13 +1403,14 @@ func (r *reedSolomon) ReconstructData(shards [][]byte) error {
 	return r.reconstruct(shards, true, nil)
 }
 
-// ReconstructSome will recreate only requested data shards, if possible.
+// ReconstructSome will recreate only requested shards, if possible.
 //
 // Given a list of shards, some of which contain data, fills in the
-// data shards indicated by true values in the "required" parameter.
-// The length of "required" array must be equal to dataShards.
+// shards indicated by true values in the "required" parameter.
+// The length of the "required" array must be equal to either Shards or DataShards.
+// If the length is equal to DataShards, the reconstruction of parity shards will be ignored.
 //
-// The length of "shards" array must be equal to shards.
+// The length of "shards" array must be equal to Shards.
 // You indicate that a shard is missing by setting it to nil or zero-length.
 // If a shard is zero-length but has sufficient capacity, that memory will
 // be used, otherwise a new []byte will be allocated.
@@ -1419,6 +1421,9 @@ func (r *reedSolomon) ReconstructData(shards [][]byte) error {
 // As the reconstructed shard set may contain missing parity shards,
 // calling the Verify function is likely to fail.
 func (r *reedSolomon) ReconstructSome(shards [][]byte, required []bool) error {
+	if len(required) == r.totalShards {
+		return r.reconstruct(shards, false, required)
+	}
 	return r.reconstruct(shards, true, required)
 }
 
