@@ -65,7 +65,7 @@ type Encoder interface {
 	// Given a list of shards, some of which contain data, fills in the
 	// data shards that don't have data.
 	//
-	// The length of the array must be equal to TotalShards.
+	// The length of the array must be equal to Shards.
 	// You indicate that a shard is missing by setting it to nil or zero-length.
 	// If a shard is zero-length but has sufficient capacity, that memory will
 	// be used, otherwise a new []byte will be allocated.
