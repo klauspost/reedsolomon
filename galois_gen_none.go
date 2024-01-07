@@ -23,3 +23,11 @@ func galMulSlicesGFNI(matrix []uint64, in, out [][]byte, start, stop int) int {
 func galMulSlicesGFNIXor(matrix []uint64, in, out [][]byte, start, stop int) int {
 	panic("codegen not available")
 }
+
+func galMulSlicesAvx2GFNI(matrix []uint64, in, out [][]byte, start, stop int) int {
+	panic("codegen not available")
+}
+
+func galMulSlicesAvx2GFNIXor(matrix []uint64, in, out [][]byte, start, stop int) int {
+	panic("codegen not available")
+}
