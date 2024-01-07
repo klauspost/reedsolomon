@@ -315,5 +315,8 @@ func (o *options) cpuOptions() string {
 	if o.useAvx2GNFI {
 		res = append(res, "AVX2+GFNI")
 	}
+	if len(res) == 0 {
+		return "pure Go"
+	}
 	return strings.Join(res, ",")
 }

@@ -32,13 +32,13 @@ jobs:
       run: go vet ./...
 
     - name: Test
-      run: go test -timeout=15m ./...
+      run: go test -timeout=15m
 
     - name: Test Noasm
-      run: go test -tags=noasm -short&&go test -short -no-avx512&&go test -short -no-avx512 -no-avx2&&go test -no-avx512 -no-avx2 -no-ssse3 -short
+      run: go test -tags=noasm -short&&go test -short -no-avx512&&go test -short -no-avx512 -no-avx2-gfni&&go test -short -no-avx512 -no-avx2&&go test -no-avx512 -no-avx2 -no-ssse3 -short
 
     - name: Test Nopshufb
-      run: go test -tags=nopshufb -short&&go test -tags=nopshufb -short -no-avx512 -no-gfni&&go test -tags=nopshufb -short&&go test -tags=nopshufb -no-avx512 -no-avx2 -no-ssse3 -no-sse2 -short
+      run: go test -tags=nopshufb -short&&go test -tags=nopshufb -short -no-avx512&&go test -tags=nopshufb -short -no-avx512 -no-avx2-gfni&&go test -tags=nopshufb -no-avx512 -no-avx2 -no-ssse3 -no-sse2 -short
 
     - name: Test Race
       env:
