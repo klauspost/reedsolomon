@@ -24,10 +24,17 @@ var noSSE2 = flag.Bool("no-sse2", !defaultOptions.useSSE2, "Disable SSE2")
 var noSSSE3 = flag.Bool("no-ssse3", !defaultOptions.useSSSE3, "Disable SSSE3")
 var noAVX2 = flag.Bool("no-avx2", !defaultOptions.useAVX2, "Disable AVX2")
 var noAVX512 = flag.Bool("no-avx512", !defaultOptions.useAVX512, "Disable AVX512")
-var noGNFI = flag.Bool("no-gfni", !defaultOptions.useGFNI, "Disable AVX512+GFNI")
+var noGNFI = flag.Bool("no-gfni", !defaultOptions.useAvx512GFNI, "Disable AVX512+GFNI")
+var noAVX2GNFI = flag.Bool("no-avx2-gfni", !defaultOptions.useAvx512GFNI, "Disable AVX2+GFNI")
 
 func TestMain(m *testing.M) {
 	flag.Parse()
+	rs, _ := New(10, 3, testOptions()...)
+	if rs != nil {
+		if rst, ok := rs.(*reedSolomon); ok {
+			fmt.Println("Using", rst.o.cpuOptions())
+		}
+	}
 	os.Exit(m.Run())
 }
 
@@ -47,6 +54,9 @@ func testOptions(o ...Option) []Option {
 	}
 	if *noGNFI {
 		o = append(o, WithGFNI(false))
+	}
+	if *noAVX2GNFI {
+		o = append(o, WithAVX2GFNI(false))
 	}
 	return o
 }
@@ -204,7 +214,7 @@ func testOpts() [][]Option {
 			n = append(n, WithAVX512(true))
 			opts = append(opts, n)
 		}
-		if defaultOptions.useGFNI {
+		if defaultOptions.useAvx512GFNI {
 			n := make([]Option, len(o), len(o)+1)
 			copy(n, o)
 			n = append(n, WithGFNI(false))

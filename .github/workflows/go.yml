@@ -40,7 +40,6 @@ jobs:
     - name: Test Nopshufb
       run: go test -tags=nopshufb -short&&go test -tags=nopshufb -short -no-avx512 -no-gfni&&go test -tags=nopshufb -short&&go test -tags=nopshufb -no-avx512 -no-avx2 -no-ssse3 -no-sse2 -short
 
-
     - name: Test Race
       env:
         CGO_ENABLED: 1
@@ -87,6 +86,11 @@ jobs:
       env:
         CGO_ENABLED: 1
       run: go test -no-avx512 -short -race .
+
+    - name: Test Races, no avx512, no avx2-gfni
+      env:
+        CGO_ENABLED: 1
+      run: go test -no-avx512 -no-avx2-gfni -short -race .
 
     - name: Test Races, no avx2
       env:
