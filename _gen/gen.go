@@ -266,6 +266,10 @@ func VPXOR3way(a, b, dst reg.VecVirtual) {
 }
 
 func genMulAvx2(name string, inputs int, outputs int, xor bool) {
+	if outputs < 4 {
+		// Covered by 64-byte version.
+		return
+	}
 	const perLoopBits = 5
 	const perLoop = 1 << perLoopBits
 
