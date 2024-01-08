@@ -16,7 +16,7 @@ type options struct {
 	shardSize     int
 	perRound      int
 
-	useAvx2GNFI,
+	useAvxGNFI,
 	useAvx512GFNI,
 	useAVX512,
 	useAVX2,
@@ -50,7 +50,7 @@ var defaultOptions = options{
 	useAVX2:       cpuid.CPU.Supports(cpuid.AVX2),
 	useAVX512:     cpuid.CPU.Supports(cpuid.AVX512F, cpuid.AVX512BW, cpuid.AVX512VL),
 	useAvx512GFNI: cpuid.CPU.Supports(cpuid.AVX512F, cpuid.GFNI, cpuid.AVX512DQ),
-	useAvx2GNFI:   cpuid.CPU.Supports(cpuid.AVX2, cpuid.GFNI),
+	useAvxGNFI:    cpuid.CPU.Supports(cpuid.AVX, cpuid.GFNI),
 }
 
 // leopardMode controls the use of leopard GF in encoding and decoding.
@@ -167,12 +167,13 @@ func WithSSSE3(enabled bool) Option {
 }
 
 // WithAVX2 allows to enable/disable AVX2 instructions.
-// If not set, AVX2 will be turned on or off automatically based on CPU ID information.
+// If not set, AVX will be turned on or off automatically based on CPU ID information.
+// This will also disable AVX GFNI instructions.
 func WithAVX2(enabled bool) Option {
 	return func(o *options) {
 		o.useAVX2 = enabled
-		if o.useAvx2GNFI {
-			o.useAvx2GNFI = enabled
+		if o.useAvxGNFI {
+			o.useAvxGNFI = enabled
 		}
 	}
 }
@@ -201,11 +202,11 @@ func WithGFNI(enabled bool) Option {
 	}
 }
 
-// WithAVX2GFNI allows to enable/disable GFNI with AVX2 instructions.
+// WithAVXGFNI allows to enable/disable GFNI with AVX instructions.
 // If not set, GFNI will be turned on or off automatically based on CPU ID information.
-func WithAVX2GFNI(enabled bool) Option {
+func WithAVXGFNI(enabled bool) Option {
 	return func(o *options) {
-		o.useAvx2GNFI = enabled
+		o.useAvxGNFI = enabled
 	}
 }
 
@@ -312,8 +313,8 @@ func (o *options) cpuOptions() string {
 	if o.useAvx512GFNI {
 		res = append(res, "AVX512+GFNI")
 	}
-	if o.useAvx2GNFI {
-		res = append(res, "AVX2+GFNI")
+	if o.useAvxGNFI {
+		res = append(res, "AVX+GFNI")
 	}
 	if len(res) == 0 {
 		return "pure Go"

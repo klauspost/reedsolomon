@@ -1368,676 +1368,676 @@ func galMulSlicesGFNIXor(matrix []uint64, in, out [][]byte, start, stop int) int
 	panic(fmt.Sprintf("unhandled size: %dx%d", len(in), len(out)))
 }
 
-func galMulSlicesAvx2GFNI(matrix []uint64, in, out [][]byte, start, stop int) int {
+func galMulSlicesAvxGFNI(matrix []uint64, in, out [][]byte, start, stop int) int {
 	n := (stop - start) & (maxInt - (32 - 1))
 
 	switch len(in) {
 	case 1:
 		switch len(out) {
 		case 1:
-			mulAvx2GFNI_1x1(matrix, in, out, start, n)
+			mulAvxGFNI_1x1(matrix, in, out, start, n)
 			return n
 		case 2:
-			mulAvx2GFNI_1x2(matrix, in, out, start, n)
+			mulAvxGFNI_1x2(matrix, in, out, start, n)
 			return n
 		case 3:
-			mulAvx2GFNI_1x3(matrix, in, out, start, n)
+			mulAvxGFNI_1x3(matrix, in, out, start, n)
 			return n
 		case 4:
-			mulAvx2GFNI_1x4(matrix, in, out, start, n)
+			mulAvxGFNI_1x4(matrix, in, out, start, n)
 			return n
 		case 5:
-			mulAvx2GFNI_1x5(matrix, in, out, start, n)
+			mulAvxGFNI_1x5(matrix, in, out, start, n)
 			return n
 		case 6:
-			mulAvx2GFNI_1x6(matrix, in, out, start, n)
+			mulAvxGFNI_1x6(matrix, in, out, start, n)
 			return n
 		case 7:
-			mulAvx2GFNI_1x7(matrix, in, out, start, n)
+			mulAvxGFNI_1x7(matrix, in, out, start, n)
 			return n
 		case 8:
-			mulAvx2GFNI_1x8(matrix, in, out, start, n)
+			mulAvxGFNI_1x8(matrix, in, out, start, n)
 			return n
 		case 9:
-			mulAvx2GFNI_1x9(matrix, in, out, start, n)
+			mulAvxGFNI_1x9(matrix, in, out, start, n)
 			return n
 		case 10:
-			mulAvx2GFNI_1x10(matrix, in, out, start, n)
+			mulAvxGFNI_1x10(matrix, in, out, start, n)
 			return n
 		}
 	case 2:
 		switch len(out) {
 		case 1:
-			mulAvx2GFNI_2x1(matrix, in, out, start, n)
+			mulAvxGFNI_2x1(matrix, in, out, start, n)
 			return n
 		case 2:
-			mulAvx2GFNI_2x2(matrix, in, out, start, n)
+			mulAvxGFNI_2x2(matrix, in, out, start, n)
 			return n
 		case 3:
-			mulAvx2GFNI_2x3(matrix, in, out, start, n)
+			mulAvxGFNI_2x3(matrix, in, out, start, n)
 			return n
 		case 4:
-			mulAvx2GFNI_2x4(matrix, in, out, start, n)
+			mulAvxGFNI_2x4(matrix, in, out, start, n)
 			return n
 		case 5:
-			mulAvx2GFNI_2x5(matrix, in, out, start, n)
+			mulAvxGFNI_2x5(matrix, in, out, start, n)
 			return n
 		case 6:
-			mulAvx2GFNI_2x6(matrix, in, out, start, n)
+			mulAvxGFNI_2x6(matrix, in, out, start, n)
 			return n
 		case 7:
-			mulAvx2GFNI_2x7(matrix, in, out, start, n)
+			mulAvxGFNI_2x7(matrix, in, out, start, n)
 			return n
 		case 8:
-			mulAvx2GFNI_2x8(matrix, in, out, start, n)
+			mulAvxGFNI_2x8(matrix, in, out, start, n)
 			return n
 		case 9:
-			mulAvx2GFNI_2x9(matrix, in, out, start, n)
+			mulAvxGFNI_2x9(matrix, in, out, start, n)
 			return n
 		case 10:
-			mulAvx2GFNI_2x10(matrix, in, out, start, n)
+			mulAvxGFNI_2x10(matrix, in, out, start, n)
 			return n
 		}
 	case 3:
 		switch len(out) {
 		case 1:
-			mulAvx2GFNI_3x1(matrix, in, out, start, n)
+			mulAvxGFNI_3x1(matrix, in, out, start, n)
 			return n
 		case 2:
-			mulAvx2GFNI_3x2(matrix, in, out, start, n)
+			mulAvxGFNI_3x2(matrix, in, out, start, n)
 			return n
 		case 3:
-			mulAvx2GFNI_3x3(matrix, in, out, start, n)
+			mulAvxGFNI_3x3(matrix, in, out, start, n)
 			return n
 		case 4:
-			mulAvx2GFNI_3x4(matrix, in, out, start, n)
+			mulAvxGFNI_3x4(matrix, in, out, start, n)
 			return n
 		case 5:
-			mulAvx2GFNI_3x5(matrix, in, out, start, n)
+			mulAvxGFNI_3x5(matrix, in, out, start, n)
 			return n
 		case 6:
-			mulAvx2GFNI_3x6(matrix, in, out, start, n)
+			mulAvxGFNI_3x6(matrix, in, out, start, n)
 			return n
 		case 7:
-			mulAvx2GFNI_3x7(matrix, in, out, start, n)
+			mulAvxGFNI_3x7(matrix, in, out, start, n)
 			return n
 		case 8:
-			mulAvx2GFNI_3x8(matrix, in, out, start, n)
+			mulAvxGFNI_3x8(matrix, in, out, start, n)
 			return n
 		case 9:
-			mulAvx2GFNI_3x9(matrix, in, out, start, n)
+			mulAvxGFNI_3x9(matrix, in, out, start, n)
 			return n
 		case 10:
-			mulAvx2GFNI_3x10(matrix, in, out, start, n)
+			mulAvxGFNI_3x10(matrix, in, out, start, n)
 			return n
 		}
 	case 4:
 		switch len(out) {
 		case 1:
-			mulAvx2GFNI_4x1(matrix, in, out, start, n)
+			mulAvxGFNI_4x1(matrix, in, out, start, n)
 			return n
 		case 2:
-			mulAvx2GFNI_4x2(matrix, in, out, start, n)
+			mulAvxGFNI_4x2(matrix, in, out, start, n)
 			return n
 		case 3:
-			mulAvx2GFNI_4x3(matrix, in, out, start, n)
+			mulAvxGFNI_4x3(matrix, in, out, start, n)
 			return n
 		case 4:
-			mulAvx2GFNI_4x4(matrix, in, out, start, n)
+			mulAvxGFNI_4x4(matrix, in, out, start, n)
 			return n
 		case 5:
-			mulAvx2GFNI_4x5(matrix, in, out, start, n)
+			mulAvxGFNI_4x5(matrix, in, out, start, n)
 			return n
 		case 6:
-			mulAvx2GFNI_4x6(matrix, in, out, start, n)
+			mulAvxGFNI_4x6(matrix, in, out, start, n)
 			return n
 		case 7:
-			mulAvx2GFNI_4x7(matrix, in, out, start, n)
+			mulAvxGFNI_4x7(matrix, in, out, start, n)
 			return n
 		case 8:
-			mulAvx2GFNI_4x8(matrix, in, out, start, n)
+			mulAvxGFNI_4x8(matrix, in, out, start, n)
 			return n
 		case 9:
-			mulAvx2GFNI_4x9(matrix, in, out, start, n)
+			mulAvxGFNI_4x9(matrix, in, out, start, n)
 			return n
 		case 10:
-			mulAvx2GFNI_4x10(matrix, in, out, start, n)
+			mulAvxGFNI_4x10(matrix, in, out, start, n)
 			return n
 		}
 	case 5:
 		switch len(out) {
 		case 1:
-			mulAvx2GFNI_5x1(matrix, in, out, start, n)
+			mulAvxGFNI_5x1(matrix, in, out, start, n)
 			return n
 		case 2:
-			mulAvx2GFNI_5x2(matrix, in, out, start, n)
+			mulAvxGFNI_5x2(matrix, in, out, start, n)
 			return n
 		case 3:
-			mulAvx2GFNI_5x3(matrix, in, out, start, n)
+			mulAvxGFNI_5x3(matrix, in, out, start, n)
 			return n
 		case 4:
-			mulAvx2GFNI_5x4(matrix, in, out, start, n)
+			mulAvxGFNI_5x4(matrix, in, out, start, n)
 			return n
 		case 5:
-			mulAvx2GFNI_5x5(matrix, in, out, start, n)
+			mulAvxGFNI_5x5(matrix, in, out, start, n)
 			return n
 		case 6:
-			mulAvx2GFNI_5x6(matrix, in, out, start, n)
+			mulAvxGFNI_5x6(matrix, in, out, start, n)
 			return n
 		case 7:
-			mulAvx2GFNI_5x7(matrix, in, out, start, n)
+			mulAvxGFNI_5x7(matrix, in, out, start, n)
 			return n
 		case 8:
-			mulAvx2GFNI_5x8(matrix, in, out, start, n)
+			mulAvxGFNI_5x8(matrix, in, out, start, n)
 			return n
 		case 9:
-			mulAvx2GFNI_5x9(matrix, in, out, start, n)
+			mulAvxGFNI_5x9(matrix, in, out, start, n)
 			return n
 		case 10:
-			mulAvx2GFNI_5x10(matrix, in, out, start, n)
+			mulAvxGFNI_5x10(matrix, in, out, start, n)
 			return n
 		}
 	case 6:
 		switch len(out) {
 		case 1:
-			mulAvx2GFNI_6x1(matrix, in, out, start, n)
+			mulAvxGFNI_6x1(matrix, in, out, start, n)
 			return n
 		case 2:
-			mulAvx2GFNI_6x2(matrix, in, out, start, n)
+			mulAvxGFNI_6x2(matrix, in, out, start, n)
 			return n
 		case 3:
-			mulAvx2GFNI_6x3(matrix, in, out, start, n)
+			mulAvxGFNI_6x3(matrix, in, out, start, n)
 			return n
 		case 4:
-			mulAvx2GFNI_6x4(matrix, in, out, start, n)
+			mulAvxGFNI_6x4(matrix, in, out, start, n)
 			return n
 		case 5:
-			mulAvx2GFNI_6x5(matrix, in, out, start, n)
+			mulAvxGFNI_6x5(matrix, in, out, start, n)
 			return n
 		case 6:
-			mulAvx2GFNI_6x6(matrix, in, out, start, n)
+			mulAvxGFNI_6x6(matrix, in, out, start, n)
 			return n
 		case 7:
-			mulAvx2GFNI_6x7(matrix, in, out, start, n)
+			mulAvxGFNI_6x7(matrix, in, out, start, n)
 			return n
 		case 8:
-			mulAvx2GFNI_6x8(matrix, in, out, start, n)
+			mulAvxGFNI_6x8(matrix, in, out, start, n)
 			return n
 		case 9:
-			mulAvx2GFNI_6x9(matrix, in, out, start, n)
+			mulAvxGFNI_6x9(matrix, in, out, start, n)
 			return n
 		case 10:
-			mulAvx2GFNI_6x10(matrix, in, out, start, n)
+			mulAvxGFNI_6x10(matrix, in, out, start, n)
 			return n
 		}
 	case 7:
 		switch len(out) {
 		case 1:
-			mulAvx2GFNI_7x1(matrix, in, out, start, n)
+			mulAvxGFNI_7x1(matrix, in, out, start, n)
 			return n
 		case 2:
-			mulAvx2GFNI_7x2(matrix, in, out, start, n)
+			mulAvxGFNI_7x2(matrix, in, out, start, n)
 			return n
 		case 3:
-			mulAvx2GFNI_7x3(matrix, in, out, start, n)
+			mulAvxGFNI_7x3(matrix, in, out, start, n)
 			return n
 		case 4:
-			mulAvx2GFNI_7x4(matrix, in, out, start, n)
+			mulAvxGFNI_7x4(matrix, in, out, start, n)
 			return n
 		case 5:
-			mulAvx2GFNI_7x5(matrix, in, out, start, n)
+			mulAvxGFNI_7x5(matrix, in, out, start, n)
 			return n
 		case 6:
-			mulAvx2GFNI_7x6(matrix, in, out, start, n)
+			mulAvxGFNI_7x6(matrix, in, out, start, n)
 			return n
 		case 7:
-			mulAvx2GFNI_7x7(matrix, in, out, start, n)
+			mulAvxGFNI_7x7(matrix, in, out, start, n)
 			return n
 		case 8:
-			mulAvx2GFNI_7x8(matrix, in, out, start, n)
+			mulAvxGFNI_7x8(matrix, in, out, start, n)
 			return n
 		case 9:
-			mulAvx2GFNI_7x9(matrix, in, out, start, n)
+			mulAvxGFNI_7x9(matrix, in, out, start, n)
 			return n
 		case 10:
-			mulAvx2GFNI_7x10(matrix, in, out, start, n)
+			mulAvxGFNI_7x10(matrix, in, out, start, n)
 			return n
 		}
 	case 8:
 		switch len(out) {
 		case 1:
-			mulAvx2GFNI_8x1(matrix, in, out, start, n)
+			mulAvxGFNI_8x1(matrix, in, out, start, n)
 			return n
 		case 2:
-			mulAvx2GFNI_8x2(matrix, in, out, start, n)
+			mulAvxGFNI_8x2(matrix, in, out, start, n)
 			return n
 		case 3:
-			mulAvx2GFNI_8x3(matrix, in, out, start, n)
+			mulAvxGFNI_8x3(matrix, in, out, start, n)
 			return n
 		case 4:
-			mulAvx2GFNI_8x4(matrix, in, out, start, n)
+			mulAvxGFNI_8x4(matrix, in, out, start, n)
 			return n
 		case 5:
-			mulAvx2GFNI_8x5(matrix, in, out, start, n)
+			mulAvxGFNI_8x5(matrix, in, out, start, n)
 			return n
 		case 6:
-			mulAvx2GFNI_8x6(matrix, in, out, start, n)
+			mulAvxGFNI_8x6(matrix, in, out, start, n)
 			return n
 		case 7:
-			mulAvx2GFNI_8x7(matrix, in, out, start, n)
+			mulAvxGFNI_8x7(matrix, in, out, start, n)
 			return n
 		case 8:
-			mulAvx2GFNI_8x8(matrix, in, out, start, n)
+			mulAvxGFNI_8x8(matrix, in, out, start, n)
 			return n
 		case 9:
-			mulAvx2GFNI_8x9(matrix, in, out, start, n)
+			mulAvxGFNI_8x9(matrix, in, out, start, n)
 			return n
 		case 10:
-			mulAvx2GFNI_8x10(matrix, in, out, start, n)
+			mulAvxGFNI_8x10(matrix, in, out, start, n)
 			return n
 		}
 	case 9:
 		switch len(out) {
 		case 1:
-			mulAvx2GFNI_9x1(matrix, in, out, start, n)
+			mulAvxGFNI_9x1(matrix, in, out, start, n)
 			return n
 		case 2:
-			mulAvx2GFNI_9x2(matrix, in, out, start, n)
+			mulAvxGFNI_9x2(matrix, in, out, start, n)
 			return n
 		case 3:
-			mulAvx2GFNI_9x3(matrix, in, out, start, n)
+			mulAvxGFNI_9x3(matrix, in, out, start, n)
 			return n
 		case 4:
-			mulAvx2GFNI_9x4(matrix, in, out, start, n)
+			mulAvxGFNI_9x4(matrix, in, out, start, n)
 			return n
 		case 5:
-			mulAvx2GFNI_9x5(matrix, in, out, start, n)
+			mulAvxGFNI_9x5(matrix, in, out, start, n)
 			return n
 		case 6:
-			mulAvx2GFNI_9x6(matrix, in, out, start, n)
+			mulAvxGFNI_9x6(matrix, in, out, start, n)
 			return n
 		case 7:
-			mulAvx2GFNI_9x7(matrix, in, out, start, n)
+			mulAvxGFNI_9x7(matrix, in, out, start, n)
 			return n
 		case 8:
-			mulAvx2GFNI_9x8(matrix, in, out, start, n)
+			mulAvxGFNI_9x8(matrix, in, out, start, n)
 			return n
 		case 9:
-			mulAvx2GFNI_9x9(matrix, in, out, start, n)
+			mulAvxGFNI_9x9(matrix, in, out, start, n)
 			return n
 		case 10:
-			mulAvx2GFNI_9x10(matrix, in, out, start, n)
+			mulAvxGFNI_9x10(matrix, in, out, start, n)
 			return n
 		}
 	case 10:
 		switch len(out) {
 		case 1:
-			mulAvx2GFNI_10x1(matrix, in, out, start, n)
+			mulAvxGFNI_10x1(matrix, in, out, start, n)
 			return n
 		case 2:
-			mulAvx2GFNI_10x2(matrix, in, out, start, n)
+			mulAvxGFNI_10x2(matrix, in, out, start, n)
 			return n
 		case 3:
-			mulAvx2GFNI_10x3(matrix, in, out, start, n)
+			mulAvxGFNI_10x3(matrix, in, out, start, n)
 			return n
 		case 4:
-			mulAvx2GFNI_10x4(matrix, in, out, start, n)
+			mulAvxGFNI_10x4(matrix, in, out, start, n)
 			return n
 		case 5:
-			mulAvx2GFNI_10x5(matrix, in, out, start, n)
+			mulAvxGFNI_10x5(matrix, in, out, start, n)
 			return n
 		case 6:
-			mulAvx2GFNI_10x6(matrix, in, out, start, n)
+			mulAvxGFNI_10x6(matrix, in, out, start, n)
 			return n
 		case 7:
-			mulAvx2GFNI_10x7(matrix, in, out, start, n)
+			mulAvxGFNI_10x7(matrix, in, out, start, n)
 			return n
 		case 8:
-			mulAvx2GFNI_10x8(matrix, in, out, start, n)
+			mulAvxGFNI_10x8(matrix, in, out, start, n)
 			return n
 		case 9:
-			mulAvx2GFNI_10x9(matrix, in, out, start, n)
+			mulAvxGFNI_10x9(matrix, in, out, start, n)
 			return n
 		case 10:
-			mulAvx2GFNI_10x10(matrix, in, out, start, n)
+			mulAvxGFNI_10x10(matrix, in, out, start, n)
 			return n
 		}
 	}
 	panic(fmt.Sprintf("unhandled size: %dx%d", len(in), len(out)))
 }
 
-func galMulSlicesAvx2GFNIXor(matrix []uint64, in, out [][]byte, start, stop int) int {
+func galMulSlicesAvxGFNIXor(matrix []uint64, in, out [][]byte, start, stop int) int {
 	n := (stop - start) & (maxInt - (32 - 1))
 
 	switch len(in) {
 	case 1:
 		switch len(out) {
 		case 1:
-			mulAvx2GFNI_1x1Xor(matrix, in, out, start, n)
+			mulAvxGFNI_1x1Xor(matrix, in, out, start, n)
 			return n
 		case 2:
-			mulAvx2GFNI_1x2Xor(matrix, in, out, start, n)
+			mulAvxGFNI_1x2Xor(matrix, in, out, start, n)
 			return n
 		case 3:
-			mulAvx2GFNI_1x3Xor(matrix, in, out, start, n)
+			mulAvxGFNI_1x3Xor(matrix, in, out, start, n)
 			return n
 		case 4:
-			mulAvx2GFNI_1x4Xor(matrix, in, out, start, n)
+			mulAvxGFNI_1x4Xor(matrix, in, out, start, n)
 			return n
 		case 5:
-			mulAvx2GFNI_1x5Xor(matrix, in, out, start, n)
+			mulAvxGFNI_1x5Xor(matrix, in, out, start, n)
 			return n
 		case 6:
-			mulAvx2GFNI_1x6Xor(matrix, in, out, start, n)
+			mulAvxGFNI_1x6Xor(matrix, in, out, start, n)
 			return n
 		case 7:
-			mulAvx2GFNI_1x7Xor(matrix, in, out, start, n)
+			mulAvxGFNI_1x7Xor(matrix, in, out, start, n)
 			return n
 		case 8:
-			mulAvx2GFNI_1x8Xor(matrix, in, out, start, n)
+			mulAvxGFNI_1x8Xor(matrix, in, out, start, n)
 			return n
 		case 9:
-			mulAvx2GFNI_1x9Xor(matrix, in, out, start, n)
+			mulAvxGFNI_1x9Xor(matrix, in, out, start, n)
 			return n
 		case 10:
-			mulAvx2GFNI_1x10Xor(matrix, in, out, start, n)
+			mulAvxGFNI_1x10Xor(matrix, in, out, start, n)
 			return n
 		}
 	case 2:
 		switch len(out) {
 		case 1:
-			mulAvx2GFNI_2x1Xor(matrix, in, out, start, n)
+			mulAvxGFNI_2x1Xor(matrix, in, out, start, n)
 			return n
 		case 2:
-			mulAvx2GFNI_2x2Xor(matrix, in, out, start, n)
+			mulAvxGFNI_2x2Xor(matrix, in, out, start, n)
 			return n
 		case 3:
-			mulAvx2GFNI_2x3Xor(matrix, in, out, start, n)
+			mulAvxGFNI_2x3Xor(matrix, in, out, start, n)
 			return n
 		case 4:
-			mulAvx2GFNI_2x4Xor(matrix, in, out, start, n)
+			mulAvxGFNI_2x4Xor(matrix, in, out, start, n)
 			return n
 		case 5:
-			mulAvx2GFNI_2x5Xor(matrix, in, out, start, n)
+			mulAvxGFNI_2x5Xor(matrix, in, out, start, n)
 			return n
 		case 6:
-			mulAvx2GFNI_2x6Xor(matrix, in, out, start, n)
+			mulAvxGFNI_2x6Xor(matrix, in, out, start, n)
 			return n
 		case 7:
-			mulAvx2GFNI_2x7Xor(matrix, in, out, start, n)
+			mulAvxGFNI_2x7Xor(matrix, in, out, start, n)
 			return n
 		case 8:
-			mulAvx2GFNI_2x8Xor(matrix, in, out, start, n)
+			mulAvxGFNI_2x8Xor(matrix, in, out, start, n)
 			return n
 		case 9:
-			mulAvx2GFNI_2x9Xor(matrix, in, out, start, n)
+			mulAvxGFNI_2x9Xor(matrix, in, out, start, n)
 			return n
 		case 10:
-			mulAvx2GFNI_2x10Xor(matrix, in, out, start, n)
+			mulAvxGFNI_2x10Xor(matrix, in, out, start, n)
 			return n
 		}
 	case 3:
 		switch len(out) {
 		case 1:
-			mulAvx2GFNI_3x1Xor(matrix, in, out, start, n)
+			mulAvxGFNI_3x1Xor(matrix, in, out, start, n)
 			return n
 		case 2:
-			mulAvx2GFNI_3x2Xor(matrix, in, out, start, n)
+			mulAvxGFNI_3x2Xor(matrix, in, out, start, n)
 			return n
 		case 3:
-			mulAvx2GFNI_3x3Xor(matrix, in, out, start, n)
+			mulAvxGFNI_3x3Xor(matrix, in, out, start, n)
 			return n
 		case 4:
-			mulAvx2GFNI_3x4Xor(matrix, in, out, start, n)
+			mulAvxGFNI_3x4Xor(matrix, in, out, start, n)
 			return n
 		case 5:
-			mulAvx2GFNI_3x5Xor(matrix, in, out, start, n)
+			mulAvxGFNI_3x5Xor(matrix, in, out, start, n)
 			return n
 		case 6:
-			mulAvx2GFNI_3x6Xor(matrix, in, out, start, n)
+			mulAvxGFNI_3x6Xor(matrix, in, out, start, n)
 			return n
 		case 7:
-			mulAvx2GFNI_3x7Xor(matrix, in, out, start, n)
+			mulAvxGFNI_3x7Xor(matrix, in, out, start, n)
 			return n
 		case 8:
-			mulAvx2GFNI_3x8Xor(matrix, in, out, start, n)
+			mulAvxGFNI_3x8Xor(matrix, in, out, start, n)
 			return n
 		case 9:
-			mulAvx2GFNI_3x9Xor(matrix, in, out, start, n)
+			mulAvxGFNI_3x9Xor(matrix, in, out, start, n)
 			return n
 		case 10:
-			mulAvx2GFNI_3x10Xor(matrix, in, out, start, n)
+			mulAvxGFNI_3x10Xor(matrix, in, out, start, n)
 			return n
 		}
 	case 4:
 		switch len(out) {
 		case 1:
-			mulAvx2GFNI_4x1Xor(matrix, in, out, start, n)
+			mulAvxGFNI_4x1Xor(matrix, in, out, start, n)
 			return n
 		case 2:
-			mulAvx2GFNI_4x2Xor(matrix, in, out, start, n)
+			mulAvxGFNI_4x2Xor(matrix, in, out, start, n)
 			return n
 		case 3:
-			mulAvx2GFNI_4x3Xor(matrix, in, out, start, n)
+			mulAvxGFNI_4x3Xor(matrix, in, out, start, n)
 			return n
 		case 4:
-			mulAvx2GFNI_4x4Xor(matrix, in, out, start, n)
+			mulAvxGFNI_4x4Xor(matrix, in, out, start, n)
 			return n
 		case 5:
-			mulAvx2GFNI_4x5Xor(matrix, in, out, start, n)
+			mulAvxGFNI_4x5Xor(matrix, in, out, start, n)
 			return n
 		case 6:
-			mulAvx2GFNI_4x6Xor(matrix, in, out, start, n)
+			mulAvxGFNI_4x6Xor(matrix, in, out, start, n)
 			return n
 		case 7:
-			mulAvx2GFNI_4x7Xor(matrix, in, out, start, n)
+			mulAvxGFNI_4x7Xor(matrix, in, out, start, n)
 			return n
 		case 8:
-			mulAvx2GFNI_4x8Xor(matrix, in, out, start, n)
+			mulAvxGFNI_4x8Xor(matrix, in, out, start, n)
 			return n
 		case 9:
-			mulAvx2GFNI_4x9Xor(matrix, in, out, start, n)
+			mulAvxGFNI_4x9Xor(matrix, in, out, start, n)
 			return n
 		case 10:
-			mulAvx2GFNI_4x10Xor(matrix, in, out, start, n)
+			mulAvxGFNI_4x10Xor(matrix, in, out, start, n)
 			return n
 		}
 	case 5:
 		switch len(out) {
 		case 1:
-			mulAvx2GFNI_5x1Xor(matrix, in, out, start, n)
+			mulAvxGFNI_5x1Xor(matrix, in, out, start, n)
 			return n
 		case 2:
-			mulAvx2GFNI_5x2Xor(matrix, in, out, start, n)
+			mulAvxGFNI_5x2Xor(matrix, in, out, start, n)
 			return n
 		case 3:
-			mulAvx2GFNI_5x3Xor(matrix, in, out, start, n)
+			mulAvxGFNI_5x3Xor(matrix, in, out, start, n)
 			return n
 		case 4:
-			mulAvx2GFNI_5x4Xor(matrix, in, out, start, n)
+			mulAvxGFNI_5x4Xor(matrix, in, out, start, n)
 			return n
 		case 5:
-			mulAvx2GFNI_5x5Xor(matrix, in, out, start, n)
+			mulAvxGFNI_5x5Xor(matrix, in, out, start, n)
 			return n
 		case 6:
-			mulAvx2GFNI_5x6Xor(matrix, in, out, start, n)
+			mulAvxGFNI_5x6Xor(matrix, in, out, start, n)
 			return n
 		case 7:
-			mulAvx2GFNI_5x7Xor(matrix, in, out, start, n)
+			mulAvxGFNI_5x7Xor(matrix, in, out, start, n)
 			return n
 		case 8:
-			mulAvx2GFNI_5x8Xor(matrix, in, out, start, n)
+			mulAvxGFNI_5x8Xor(matrix, in, out, start, n)
 			return n
 		case 9:
-			mulAvx2GFNI_5x9Xor(matrix, in, out, start, n)
+			mulAvxGFNI_5x9Xor(matrix, in, out, start, n)
 			return n
 		case 10:
-			mulAvx2GFNI_5x10Xor(matrix, in, out, start, n)
+			mulAvxGFNI_5x10Xor(matrix, in, out, start, n)
 			return n
 		}
 	case 6:
 		switch len(out) {
 		case 1:
-			mulAvx2GFNI_6x1Xor(matrix, in, out, start, n)
+			mulAvxGFNI_6x1Xor(matrix, in, out, start, n)
 			return n
 		case 2:
-			mulAvx2GFNI_6x2Xor(matrix, in, out, start, n)
+			mulAvxGFNI_6x2Xor(matrix, in, out, start, n)
 			return n
 		case 3:
-			mulAvx2GFNI_6x3Xor(matrix, in, out, start, n)
+			mulAvxGFNI_6x3Xor(matrix, in, out, start, n)
 			return n
 		case 4:
-			mulAvx2GFNI_6x4Xor(matrix, in, out, start, n)
+			mulAvxGFNI_6x4Xor(matrix, in, out, start, n)
 			return n
 		case 5:
-			mulAvx2GFNI_6x5Xor(matrix, in, out, start, n)
+			mulAvxGFNI_6x5Xor(matrix, in, out, start, n)
 			return n
 		case 6:
-			mulAvx2GFNI_6x6Xor(matrix, in, out, start, n)
+			mulAvxGFNI_6x6Xor(matrix, in, out, start, n)
 			return n
 		case 7:
-			mulAvx2GFNI_6x7Xor(matrix, in, out, start, n)
+			mulAvxGFNI_6x7Xor(matrix, in, out, start, n)
 			return n
 		case 8:
-			mulAvx2GFNI_6x8Xor(matrix, in, out, start, n)
+			mulAvxGFNI_6x8Xor(matrix, in, out, start, n)
 			return n
 		case 9:
-			mulAvx2GFNI_6x9Xor(matrix, in, out, start, n)
+			mulAvxGFNI_6x9Xor(matrix, in, out, start, n)
 			return n
 		case 10:
-			mulAvx2GFNI_6x10Xor(matrix, in, out, start, n)
+			mulAvxGFNI_6x10Xor(matrix, in, out, start, n)
 			return n
 		}
 	case 7:
 		switch len(out) {
 		case 1:
-			mulAvx2GFNI_7x1Xor(matrix, in, out, start, n)
+			mulAvxGFNI_7x1Xor(matrix, in, out, start, n)
 			return n
 		case 2:
-			mulAvx2GFNI_7x2Xor(matrix, in, out, start, n)
+			mulAvxGFNI_7x2Xor(matrix, in, out, start, n)
 			return n
 		case 3:
-			mulAvx2GFNI_7x3Xor(matrix, in, out, start, n)
+			mulAvxGFNI_7x3Xor(matrix, in, out, start, n)
 			return n
 		case 4:
-			mulAvx2GFNI_7x4Xor(matrix, in, out, start, n)
+			mulAvxGFNI_7x4Xor(matrix, in, out, start, n)
 			return n
 		case 5:
-			mulAvx2GFNI_7x5Xor(matrix, in, out, start, n)
+			mulAvxGFNI_7x5Xor(matrix, in, out, start, n)
 			return n
 		case 6:
-			mulAvx2GFNI_7x6Xor(matrix, in, out, start, n)
+			mulAvxGFNI_7x6Xor(matrix, in, out, start, n)
 			return n
 		case 7:
-			mulAvx2GFNI_7x7Xor(matrix, in, out, start, n)
+			mulAvxGFNI_7x7Xor(matrix, in, out, start, n)
 			return n
 		case 8:
-			mulAvx2GFNI_7x8Xor(matrix, in, out, start, n)
+			mulAvxGFNI_7x8Xor(matrix, in, out, start, n)
 			return n
 		case 9:
-			mulAvx2GFNI_7x9Xor(matrix, in, out, start, n)
+			mulAvxGFNI_7x9Xor(matrix, in, out, start, n)
 			return n
 		case 10:
-			mulAvx2GFNI_7x10Xor(matrix, in, out, start, n)
+			mulAvxGFNI_7x10Xor(matrix, in, out, start, n)
 			return n
 		}
 	case 8:
 		switch len(out) {
 		case 1:
-			mulAvx2GFNI_8x1Xor(matrix, in, out, start, n)
+			mulAvxGFNI_8x1Xor(matrix, in, out, start, n)
 			return n
 		case 2:
-			mulAvx2GFNI_8x2Xor(matrix, in, out, start, n)
+			mulAvxGFNI_8x2Xor(matrix, in, out, start, n)
 			return n
 		case 3:
-			mulAvx2GFNI_8x3Xor(matrix, in, out, start, n)
+			mulAvxGFNI_8x3Xor(matrix, in, out, start, n)
 			return n
 		case 4:
-			mulAvx2GFNI_8x4Xor(matrix, in, out, start, n)
+			mulAvxGFNI_8x4Xor(matrix, in, out, start, n)
 			return n
 		case 5:
-			mulAvx2GFNI_8x5Xor(matrix, in, out, start, n)
+			mulAvxGFNI_8x5Xor(matrix, in, out, start, n)
 			return n
 		case 6:
-			mulAvx2GFNI_8x6Xor(matrix, in, out, start, n)
+			mulAvxGFNI_8x6Xor(matrix, in, out, start, n)
 			return n
 		case 7:
-			mulAvx2GFNI_8x7Xor(matrix, in, out, start, n)
+			mulAvxGFNI_8x7Xor(matrix, in, out, start, n)
 			return n
 		case 8:
-			mulAvx2GFNI_8x8Xor(matrix, in, out, start, n)
+			mulAvxGFNI_8x8Xor(matrix, in, out, start, n)
 			return n
 		case 9:
-			mulAvx2GFNI_8x9Xor(matrix, in, out, start, n)
+			mulAvxGFNI_8x9Xor(matrix, in, out, start, n)
 			return n
 		case 10:
-			mulAvx2GFNI_8x10Xor(matrix, in, out, start, n)
+			mulAvxGFNI_8x10Xor(matrix, in, out, start, n)
 			return n
 		}
 	case 9:
 		switch len(out) {
 		case 1:
-			mulAvx2GFNI_9x1Xor(matrix, in, out, start, n)
+			mulAvxGFNI_9x1Xor(matrix, in, out, start, n)
 			return n
 		case 2:
-			mulAvx2GFNI_9x2Xor(matrix, in, out, start, n)
+			mulAvxGFNI_9x2Xor(matrix, in, out, start, n)
 			return n
 		case 3:
-			mulAvx2GFNI_9x3Xor(matrix, in, out, start, n)
+			mulAvxGFNI_9x3Xor(matrix, in, out, start, n)
 			return n
 		case 4:
-			mulAvx2GFNI_9x4Xor(matrix, in, out, start, n)
+			mulAvxGFNI_9x4Xor(matrix, in, out, start, n)
 			return n
 		case 5:
-			mulAvx2GFNI_9x5Xor(matrix, in, out, start, n)
+			mulAvxGFNI_9x5Xor(matrix, in, out, start, n)
 			return n
 		case 6:
-			mulAvx2GFNI_9x6Xor(matrix, in, out, start, n)
+			mulAvxGFNI_9x6Xor(matrix, in, out, start, n)
 			return n
 		case 7:
-			mulAvx2GFNI_9x7Xor(matrix, in, out, start, n)
+			mulAvxGFNI_9x7Xor(matrix, in, out, start, n)
 			return n
 		case 8:
-			mulAvx2GFNI_9x8Xor(matrix, in, out, start, n)
+			mulAvxGFNI_9x8Xor(matrix, in, out, start, n)
 			return n
 		case 9:
-			mulAvx2GFNI_9x9Xor(matrix, in, out, start, n)
+			mulAvxGFNI_9x9Xor(matrix, in, out, start, n)
 			return n
 		case 10:
-			mulAvx2GFNI_9x10Xor(matrix, in, out, start, n)
+			mulAvxGFNI_9x10Xor(matrix, in, out, start, n)
 			return n
 		}
 	case 10:
 		switch len(out) {
 		case 1:
-			mulAvx2GFNI_10x1Xor(matrix, in, out, start, n)
+			mulAvxGFNI_10x1Xor(matrix, in, out, start, n)
 			return n
 		case 2:
-			mulAvx2GFNI_10x2Xor(matrix, in, out, start, n)
+			mulAvxGFNI_10x2Xor(matrix, in, out, start, n)
 			return n
 		case 3:
-			mulAvx2GFNI_10x3Xor(matrix, in, out, start, n)
+			mulAvxGFNI_10x3Xor(matrix, in, out, start, n)
 			return n
 		case 4:
-			mulAvx2GFNI_10x4Xor(matrix, in, out, start, n)
+			mulAvxGFNI_10x4Xor(matrix, in, out, start, n)
 			return n
 		case 5:
-			mulAvx2GFNI_10x5Xor(matrix, in, out, start, n)
+			mulAvxGFNI_10x5Xor(matrix, in, out, start, n)
 			return n
 		case 6:
-			mulAvx2GFNI_10x6Xor(matrix, in, out, start, n)
+			mulAvxGFNI_10x6Xor(matrix, in, out, start, n)
 			return n
 		case 7:
-			mulAvx2GFNI_10x7Xor(matrix, in, out, start, n)
+			mulAvxGFNI_10x7Xor(matrix, in, out, start, n)
 			return n
 		case 8:
-			mulAvx2GFNI_10x8Xor(matrix, in, out, start, n)
+			mulAvxGFNI_10x8Xor(matrix, in, out, start, n)
 			return n
 		case 9:
-			mulAvx2GFNI_10x9Xor(matrix, in, out, start, n)
+			mulAvxGFNI_10x9Xor(matrix, in, out, start, n)
 			return n
 		case 10:
-			mulAvx2GFNI_10x10Xor(matrix, in, out, start, n)
+			mulAvxGFNI_10x10Xor(matrix, in, out, start, n)
 			return n
 		}
 	}

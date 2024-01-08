@@ -36,8 +36,8 @@ var switchDefsX [inputMax][outputMax]string
 var switchDefs512 [inputMax][outputMax]string
 var switchDefsX512 [inputMax][outputMax]string
 
-var switchDefsAvx2GFNI [inputMax][outputMax]string
-var switchDefsXAvx2GFNI [inputMax][outputMax]string
+var switchDefsAvxGFNI [inputMax][outputMax]string
+var switchDefsXAvxGFNI [inputMax][outputMax]string
 
 // Prefetch offsets, set to 0 to disable.
 // Disabled since they appear to be consistently slower.
@@ -75,9 +75,9 @@ func main() {
 				genMulAvx2Sixty64(fmt.Sprintf("mulAvxTwo_%dx%d_64", i, j), i, j, false)
 			}
 			genMulAvx512GFNI(fmt.Sprintf("mulGFNI_%dx%d_64", i, j), i, j, false)
-			genMulAvx2GFNI(fmt.Sprintf("mulAvx2GFNI_%dx%d", i, j), i, j, false)
+			genMulAvxGFNI(fmt.Sprintf("mulAvxGFNI_%dx%d", i, j), i, j, false)
 			genMulAvx512GFNI(fmt.Sprintf("mulGFNI_%dx%d_64Xor", i, j), i, j, true)
-			genMulAvx2GFNI(fmt.Sprintf("mulAvx2GFNI_%dx%dXor", i, j), i, j, true)
+			genMulAvxGFNI(fmt.Sprintf("mulAvxGFNI_%dx%dXor", i, j), i, j, true)
 
 			if pshufb {
 				genMulAvx2(fmt.Sprintf("mulAvxTwo_%dx%dXor", i, j), i, j, true)
@@ -219,14 +219,14 @@ func galMulSlicesGFNIXor(matrix []uint64, in, out [][]byte, start, stop int) int
 
 	w.WriteString(`
 
-func galMulSlicesAvx2GFNI(matrix []uint64, in, out [][]byte, start, stop int) int {
+func galMulSlicesAvxGFNI(matrix []uint64, in, out [][]byte, start, stop int) int {
 	n := (stop-start) & (maxInt - (32 - 1))
 
 `)
 
 	w.WriteString(`switch len(in) {
 `)
-	for in, defs := range switchDefsAvx2GFNI[:] {
+	for in, defs := range switchDefsAvxGFNI[:] {
 		w.WriteString(fmt.Sprintf("		case %d:\n			switch len(out) {\n", in+1))
 		for out, def := range defs[:] {
 			w.WriteString(fmt.Sprintf("				case %d:\n", out+1))
@@ -238,14 +238,14 @@ func galMulSlicesAvx2GFNI(matrix []uint64, in, out [][]byte, start, stop int) in
 	panic(fmt.Sprintf("unhandled size: %dx%d", len(in), len(out)))
 }
 
-func galMulSlicesAvx2GFNIXor(matrix []uint64, in, out [][]byte, start, stop int) int {
+func galMulSlicesAvxGFNIXor(matrix []uint64, in, out [][]byte, start, stop int) int {
 	n := (stop-start) & (maxInt - (32 - 1))
 
 `)
 
 	w.WriteString(`switch len(in) {
 `)
-	for in, defs := range switchDefsXAvx2GFNI[:] {
+	for in, defs := range switchDefsXAvxGFNI[:] {
 		w.WriteString(fmt.Sprintf("		case %d:\n			switch len(out) {\n", in+1))
 		for out, def := range defs[:] {
 			w.WriteString(fmt.Sprintf("				case %d:\n", out+1))
@@ -1011,7 +1011,7 @@ func genMulAvx512GFNI(name string, inputs int, outputs int, xor bool) {
 	RET()
 }
 
-func genMulAvx2GFNI(name string, inputs int, outputs int, xor bool) {
+func genMulAvxGFNI(name string, inputs int, outputs int, xor bool) {
 	const perLoopBits = 5
 	const perLoop = 1 << perLoopBits
 
@@ -1053,12 +1053,12 @@ func genMulAvx2GFNI(name string, inputs int, outputs int, xor bool) {
 	}
 	// SWITCH DEFINITION:
 	//s := fmt.Sprintf("n = (n>>%d)<<%d\n", perLoopBits, perLoopBits)
-	s := fmt.Sprintf("			mulAvx2GFNI_%dx%d%s(matrix, in, out, start, n)\n", inputs, outputs, x)
+	s := fmt.Sprintf("			mulAvxGFNI_%dx%d%s(matrix, in, out, start, n)\n", inputs, outputs, x)
 	s += fmt.Sprintf("\t\t\t\treturn n\n")
 	if xor {
-		switchDefsXAvx2GFNI[inputs-1][outputs-1] = s
+		switchDefsXAvxGFNI[inputs-1][outputs-1] = s
 	} else {
-		switchDefsAvx2GFNI[inputs-1][outputs-1] = s
+		switchDefsAvxGFNI[inputs-1][outputs-1] = s
 	}
 
 	if loadNone {

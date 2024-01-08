@@ -43,7 +43,7 @@ var (
 	aVX2     = flag.Bool("avx2", cpuid.CPU.Has(cpuid.AVX2), "Use AVX2")
 	aVX512   = flag.Bool("avx512", cpuid.CPU.Supports(cpuid.AVX512F, cpuid.AVX512BW, cpuid.AVX512VL), "Use AVX512")
 	gNFI     = flag.Bool("gfni", cpuid.CPU.Supports(cpuid.AVX512F, cpuid.GFNI, cpuid.AVX512DQ), "Use AVX512+GFNI")
-	avx2GNFI = flag.Bool("avx2-gfni", cpuid.CPU.Supports(cpuid.AVX2, cpuid.GFNI), "Use AVX2+GFNI")
+	avx2GNFI = flag.Bool("avx-gfni", cpuid.CPU.Supports(cpuid.AVX2, cpuid.GFNI), "Use AVX+GFNI")
 )
 
 var codecDefinitions = map[string]struct {
@@ -392,7 +392,7 @@ func getOptions(shardSize int) []reedsolomon.Option {
 		o = append(o, reedsolomon.WithGFNI(false))
 	}
 	if !*avx2GNFI {
-		o = append(o, reedsolomon.WithAVX2GFNI(false))
+		o = append(o, reedsolomon.WithAVXGFNI(false))
 	}
 	if !*invCache {
 		o = append(o, reedsolomon.WithInversionCache(false))

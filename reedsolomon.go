@@ -653,12 +653,12 @@ func (r *reedSolomon) EncodeIdx(dataShard []byte, idx int, parity [][]byte) erro
 		return ErrShardSize
 	}
 
-	if avx2CodeGen && len(dataShard) >= r.o.perRound && len(parity) >= avx2CodeGenMinShards && ((pshufb && r.o.useAVX2) || r.o.useAvx512GFNI || r.o.useAvx2GNFI) {
+	if avx2CodeGen && len(dataShard) >= r.o.perRound && len(parity) >= avx2CodeGenMinShards && ((pshufb && r.o.useAVX2) || r.o.useAvx512GFNI || r.o.useAvxGNFI) {
 		m := make([][]byte, r.parityShards)
 		for iRow := range m {
 			m[iRow] = r.parity[iRow][idx : idx+1]
 		}
-		if r.o.useAvx512GFNI || r.o.useAvx2GNFI {
+		if r.o.useAvx512GFNI || r.o.useAvxGNFI {
 			r.codeSomeShardsGFNI(m, [][]byte{dataShard}, parity, len(dataShard), false)
 		} else {
 			r.codeSomeShardsAVXP(m, [][]byte{dataShard}, parity, len(dataShard), false)
@@ -810,7 +810,7 @@ func (r *reedSolomon) canAVX2C(byteCount int, inputs, outputs int) bool {
 }
 
 func (r *reedSolomon) canGFNI(byteCount int, inputs, outputs int) bool {
-	return avx2CodeGen && (r.o.useAvx512GFNI || r.o.useAvx2GNFI) &&
+	return avx2CodeGen && (r.o.useAvx512GFNI || r.o.useAvxGNFI) &&
 		byteCount >= avx2CodeGenMinSize && inputs+outputs >= avx2CodeGenMinShards &&
 		inputs <= maxAvx2Inputs && outputs <= maxAvx2Outputs
 }
@@ -844,7 +844,7 @@ func (r *reedSolomon) codeSomeShards(matrixRows, inputs, outputs [][]byte, byteC
 		if r.o.useAvx512GFNI {
 			start += galMulSlicesGFNI(m, inputs, outputs, 0, byteCount)
 		} else {
-			start += galMulSlicesAvx2GFNI(m, inputs, outputs, 0, byteCount)
+			start += galMulSlicesAvxGFNI(m, inputs, outputs, 0, byteCount)
 		}
 		end = len(inputs[0])
 	} else if r.canAVX2C(byteCount, len(inputs), len(outputs)) {
@@ -878,12 +878,12 @@ func (r *reedSolomon) codeSomeShards(matrixRows, inputs, outputs [][]byte, byteC
 					} else {
 						start = galMulSlicesGFNIXor(m, inPer, outPer, 0, byteCount)
 					}
-				} else if r.o.useAvx2GNFI {
+				} else if r.o.useAvxGNFI {
 					m := genGFNIMatrix(matrixRows[outIdx:], len(inPer), inIdx, len(outPer), gfni[:])
 					if inIdx == 0 {
-						start = galMulSlicesAvx2GFNI(m, inPer, outPer, 0, byteCount)
+						start = galMulSlicesAvxGFNI(m, inPer, outPer, 0, byteCount)
 					} else {
-						start = galMulSlicesAvx2GFNIXor(m, inPer, outPer, 0, byteCount)
+						start = galMulSlicesAvxGFNIXor(m, inPer, outPer, 0, byteCount)
 					}
 				} else {
 					m = genAvx2Matrix(matrixRows[outIdx:], len(inPer), inIdx, len(outPer), m)
@@ -938,7 +938,7 @@ func (r *reedSolomon) codeSomeShardsP(matrixRows, inputs, outputs [][]byte, byte
 	} else if useAvx2 {
 		avx2Matrix = genAvx2Matrix(matrixRows, len(inputs), 0, len(outputs), r.getTmpSlice())
 		defer r.putTmpSlice(avx2Matrix)
-	} else if (r.o.useAvx512GFNI || r.o.useAvx2GNFI) && byteCount < 10<<20 && len(inputs)+len(outputs) > avx2CodeGenMinShards &&
+	} else if (r.o.useAvx512GFNI || r.o.useAvxGNFI) && byteCount < 10<<20 && len(inputs)+len(outputs) > avx2CodeGenMinShards &&
 		r.canGFNI(byteCount/4, maxAvx2Inputs, maxAvx2Outputs) {
 		// It appears there is a switchover point at around 10MB where
 		// Regular processing is faster...
@@ -963,7 +963,7 @@ func (r *reedSolomon) codeSomeShardsP(matrixRows, inputs, outputs [][]byte, byte
 				if r.o.useAvx512GFNI {
 					start += galMulSlicesGFNI(gfniMatrix, inputs, outputs, start, stop)
 				} else {
-					start += galMulSlicesAvx2GFNI(gfniMatrix, inputs, outputs, start, stop)
+					start += galMulSlicesAvxGFNI(gfniMatrix, inputs, outputs, start, stop)
 				}
 			} else if useAvx2 {
 				start += galMulSlicesAvx2(avx2Matrix, inputs, outputs, start, stop)
@@ -1275,9 +1275,9 @@ func (r *reedSolomon) codeSomeShardsGFNI(matrixRows, inputs, outputs [][]byte, b
 				} else {
 					for _, p := range plan {
 						if p.first {
-							n = galMulSlicesAvx2GFNI(p.m, p.input, p.output, lstart, lstop)
+							n = galMulSlicesAvxGFNI(p.m, p.input, p.output, lstart, lstop)
 						} else {
-							n = galMulSlicesAvx2GFNIXor(p.m, p.input, p.output, lstart, lstop)
+							n = galMulSlicesAvxGFNIXor(p.m, p.input, p.output, lstart, lstop)
 						}
 					}
 				}

@@ -213,9 +213,9 @@ mulGFNI_1x1_64_loop:
 mulGFNI_1x1_64_end:
 	RET
 
-// func mulAvx2GFNI_1x1(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_1x1(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_1x1(SB), $0-88
+TEXT ·mulAvxGFNI_1x1(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 4 YMM used
@@ -223,7 +223,7 @@ TEXT ·mulAvx2GFNI_1x1(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_1x1_end
+	JZ           mulAvxGFNI_1x1_end
 	VBROADCASTSD (CX), Y0
 	MOVQ         in_base+24(FP), CX
 	MOVQ         (CX), CX
@@ -238,7 +238,7 @@ TEXT ·mulAvx2GFNI_1x1(SB), $0-88
 	// Add start offset to input
 	ADDQ BX, CX
 
-mulAvx2GFNI_1x1_loop:
+mulAvxGFNI_1x1_loop:
 	// Load and process 32 bytes from input 0 to 1 outputs
 	VMOVDQU        (CX), Y1
 	ADDQ           $0x20, CX
@@ -250,10 +250,10 @@ mulAvx2GFNI_1x1_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_1x1_loop
+	JNZ  mulAvxGFNI_1x1_loop
 	VZEROUPPER
 
-mulAvx2GFNI_1x1_end:
+mulAvxGFNI_1x1_end:
 	RET
 
 // func mulGFNI_1x1_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -303,9 +303,9 @@ mulGFNI_1x1_64Xor_loop:
 mulGFNI_1x1_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_1x1Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_1x1Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_1x1Xor(SB), $0-88
+TEXT ·mulAvxGFNI_1x1Xor(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 4 YMM used
@@ -313,7 +313,7 @@ TEXT ·mulAvx2GFNI_1x1Xor(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_1x1Xor_end
+	JZ           mulAvxGFNI_1x1Xor_end
 	VBROADCASTSD (CX), Y0
 	MOVQ         in_base+24(FP), CX
 	MOVQ         (CX), CX
@@ -328,7 +328,7 @@ TEXT ·mulAvx2GFNI_1x1Xor(SB), $0-88
 	// Add start offset to input
 	ADDQ BX, CX
 
-mulAvx2GFNI_1x1Xor_loop:
+mulAvxGFNI_1x1Xor_loop:
 	// Load 1 outputs
 	VMOVDQU (DX), Y1
 
@@ -344,10 +344,10 @@ mulAvx2GFNI_1x1Xor_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_1x1Xor_loop
+	JNZ  mulAvxGFNI_1x1Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_1x1Xor_end:
+mulAvxGFNI_1x1Xor_end:
 	RET
 
 // func mulAvxTwo_1x1_64Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -536,9 +536,9 @@ mulGFNI_1x2_64_loop:
 mulGFNI_1x2_64_end:
 	RET
 
-// func mulAvx2GFNI_1x2(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_1x2(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_1x2(SB), $0-88
+TEXT ·mulAvxGFNI_1x2(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 6 YMM used
@@ -546,7 +546,7 @@ TEXT ·mulAvx2GFNI_1x2(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_1x2_end
+	JZ           mulAvxGFNI_1x2_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	MOVQ         in_base+24(FP), CX
@@ -564,7 +564,7 @@ TEXT ·mulAvx2GFNI_1x2(SB), $0-88
 	// Add start offset to input
 	ADDQ SI, CX
 
-mulAvx2GFNI_1x2_loop:
+mulAvxGFNI_1x2_loop:
 	// Load and process 32 bytes from input 0 to 2 outputs
 	VMOVDQU        (CX), Y3
 	ADDQ           $0x20, CX
@@ -579,10 +579,10 @@ mulAvx2GFNI_1x2_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_1x2_loop
+	JNZ  mulAvxGFNI_1x2_loop
 	VZEROUPPER
 
-mulAvx2GFNI_1x2_end:
+mulAvxGFNI_1x2_end:
 	RET
 
 // func mulGFNI_1x2_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -640,9 +640,9 @@ mulGFNI_1x2_64Xor_loop:
 mulGFNI_1x2_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_1x2Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_1x2Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_1x2Xor(SB), $0-88
+TEXT ·mulAvxGFNI_1x2Xor(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 6 YMM used
@@ -650,7 +650,7 @@ TEXT ·mulAvx2GFNI_1x2Xor(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_1x2Xor_end
+	JZ           mulAvxGFNI_1x2Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	MOVQ         in_base+24(FP), CX
@@ -668,7 +668,7 @@ TEXT ·mulAvx2GFNI_1x2Xor(SB), $0-88
 	// Add start offset to input
 	ADDQ SI, CX
 
-mulAvx2GFNI_1x2Xor_loop:
+mulAvxGFNI_1x2Xor_loop:
 	// Load 2 outputs
 	VMOVDQU (BX), Y2
 	VMOVDQU (DX), Y3
@@ -689,10 +689,10 @@ mulAvx2GFNI_1x2Xor_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_1x2Xor_loop
+	JNZ  mulAvxGFNI_1x2Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_1x2Xor_end:
+mulAvxGFNI_1x2Xor_end:
 	RET
 
 // func mulAvxTwo_1x2_64Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -915,9 +915,9 @@ mulGFNI_1x3_64_loop:
 mulGFNI_1x3_64_end:
 	RET
 
-// func mulAvx2GFNI_1x3(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_1x3(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_1x3(SB), $0-88
+TEXT ·mulAvxGFNI_1x3(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 8 YMM used
@@ -925,7 +925,7 @@ TEXT ·mulAvx2GFNI_1x3(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_1x3_end
+	JZ           mulAvxGFNI_1x3_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -946,7 +946,7 @@ TEXT ·mulAvx2GFNI_1x3(SB), $0-88
 	// Add start offset to input
 	ADDQ DI, CX
 
-mulAvx2GFNI_1x3_loop:
+mulAvxGFNI_1x3_loop:
 	// Load and process 32 bytes from input 0 to 3 outputs
 	VMOVDQU        (CX), Y5
 	ADDQ           $0x20, CX
@@ -964,10 +964,10 @@ mulAvx2GFNI_1x3_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_1x3_loop
+	JNZ  mulAvxGFNI_1x3_loop
 	VZEROUPPER
 
-mulAvx2GFNI_1x3_end:
+mulAvxGFNI_1x3_end:
 	RET
 
 // func mulGFNI_1x3_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -1033,9 +1033,9 @@ mulGFNI_1x3_64Xor_loop:
 mulGFNI_1x3_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_1x3Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_1x3Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_1x3Xor(SB), $0-88
+TEXT ·mulAvxGFNI_1x3Xor(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 8 YMM used
@@ -1043,7 +1043,7 @@ TEXT ·mulAvx2GFNI_1x3Xor(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_1x3Xor_end
+	JZ           mulAvxGFNI_1x3Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -1064,7 +1064,7 @@ TEXT ·mulAvx2GFNI_1x3Xor(SB), $0-88
 	// Add start offset to input
 	ADDQ DI, CX
 
-mulAvx2GFNI_1x3Xor_loop:
+mulAvxGFNI_1x3Xor_loop:
 	// Load 3 outputs
 	VMOVDQU (BX), Y3
 	VMOVDQU (SI), Y4
@@ -1090,10 +1090,10 @@ mulAvx2GFNI_1x3Xor_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_1x3Xor_loop
+	JNZ  mulAvxGFNI_1x3Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_1x3Xor_end:
+mulAvxGFNI_1x3Xor_end:
 	RET
 
 // func mulAvxTwo_1x3_64Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -1329,9 +1329,9 @@ mulGFNI_1x4_64_loop:
 mulGFNI_1x4_64_end:
 	RET
 
-// func mulAvx2GFNI_1x4(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_1x4(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_1x4(SB), $0-88
+TEXT ·mulAvxGFNI_1x4(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 10 YMM used
@@ -1339,7 +1339,7 @@ TEXT ·mulAvx2GFNI_1x4(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_1x4_end
+	JZ           mulAvxGFNI_1x4_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -1363,7 +1363,7 @@ TEXT ·mulAvx2GFNI_1x4(SB), $0-88
 	// Add start offset to input
 	ADDQ R8, CX
 
-mulAvx2GFNI_1x4_loop:
+mulAvxGFNI_1x4_loop:
 	// Load and process 32 bytes from input 0 to 4 outputs
 	VMOVDQU        (CX), Y7
 	ADDQ           $0x20, CX
@@ -1384,10 +1384,10 @@ mulAvx2GFNI_1x4_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_1x4_loop
+	JNZ  mulAvxGFNI_1x4_loop
 	VZEROUPPER
 
-mulAvx2GFNI_1x4_end:
+mulAvxGFNI_1x4_end:
 	RET
 
 // func mulGFNI_1x4_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -1461,9 +1461,9 @@ mulGFNI_1x4_64Xor_loop:
 mulGFNI_1x4_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_1x4Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_1x4Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_1x4Xor(SB), $0-88
+TEXT ·mulAvxGFNI_1x4Xor(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 10 YMM used
@@ -1471,7 +1471,7 @@ TEXT ·mulAvx2GFNI_1x4Xor(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_1x4Xor_end
+	JZ           mulAvxGFNI_1x4Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -1495,7 +1495,7 @@ TEXT ·mulAvx2GFNI_1x4Xor(SB), $0-88
 	// Add start offset to input
 	ADDQ R8, CX
 
-mulAvx2GFNI_1x4Xor_loop:
+mulAvxGFNI_1x4Xor_loop:
 	// Load 4 outputs
 	VMOVDQU (BX), Y4
 	VMOVDQU (SI), Y5
@@ -1526,10 +1526,10 @@ mulAvx2GFNI_1x4Xor_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_1x4Xor_loop
+	JNZ  mulAvxGFNI_1x4Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_1x4Xor_end:
+mulAvxGFNI_1x4Xor_end:
 	RET
 
 // func mulAvxTwo_1x4Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -1768,9 +1768,9 @@ mulGFNI_1x5_64_loop:
 mulGFNI_1x5_64_end:
 	RET
 
-// func mulAvx2GFNI_1x5(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_1x5(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_1x5(SB), $0-88
+TEXT ·mulAvxGFNI_1x5(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 12 YMM used
@@ -1778,7 +1778,7 @@ TEXT ·mulAvx2GFNI_1x5(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_1x5_end
+	JZ           mulAvxGFNI_1x5_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -1805,7 +1805,7 @@ TEXT ·mulAvx2GFNI_1x5(SB), $0-88
 	// Add start offset to input
 	ADDQ R9, CX
 
-mulAvx2GFNI_1x5_loop:
+mulAvxGFNI_1x5_loop:
 	// Load and process 32 bytes from input 0 to 5 outputs
 	VMOVDQU        (CX), Y9
 	ADDQ           $0x20, CX
@@ -1829,10 +1829,10 @@ mulAvx2GFNI_1x5_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_1x5_loop
+	JNZ  mulAvxGFNI_1x5_loop
 	VZEROUPPER
 
-mulAvx2GFNI_1x5_end:
+mulAvxGFNI_1x5_end:
 	RET
 
 // func mulGFNI_1x5_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -1914,9 +1914,9 @@ mulGFNI_1x5_64Xor_loop:
 mulGFNI_1x5_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_1x5Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_1x5Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_1x5Xor(SB), $0-88
+TEXT ·mulAvxGFNI_1x5Xor(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 12 YMM used
@@ -1924,7 +1924,7 @@ TEXT ·mulAvx2GFNI_1x5Xor(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_1x5Xor_end
+	JZ           mulAvxGFNI_1x5Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -1951,7 +1951,7 @@ TEXT ·mulAvx2GFNI_1x5Xor(SB), $0-88
 	// Add start offset to input
 	ADDQ R9, CX
 
-mulAvx2GFNI_1x5Xor_loop:
+mulAvxGFNI_1x5Xor_loop:
 	// Load 5 outputs
 	VMOVDQU (BX), Y5
 	VMOVDQU (SI), Y6
@@ -1987,10 +1987,10 @@ mulAvx2GFNI_1x5Xor_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_1x5Xor_loop
+	JNZ  mulAvxGFNI_1x5Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_1x5Xor_end:
+mulAvxGFNI_1x5Xor_end:
 	RET
 
 // func mulAvxTwo_1x5Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -2254,9 +2254,9 @@ mulGFNI_1x6_64_loop:
 mulGFNI_1x6_64_end:
 	RET
 
-// func mulAvx2GFNI_1x6(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_1x6(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_1x6(SB), $0-88
+TEXT ·mulAvxGFNI_1x6(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 14 YMM used
@@ -2264,7 +2264,7 @@ TEXT ·mulAvx2GFNI_1x6(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_1x6_end
+	JZ           mulAvxGFNI_1x6_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -2294,7 +2294,7 @@ TEXT ·mulAvx2GFNI_1x6(SB), $0-88
 	// Add start offset to input
 	ADDQ R10, CX
 
-mulAvx2GFNI_1x6_loop:
+mulAvxGFNI_1x6_loop:
 	// Load and process 32 bytes from input 0 to 6 outputs
 	VMOVDQU        (CX), Y11
 	ADDQ           $0x20, CX
@@ -2321,10 +2321,10 @@ mulAvx2GFNI_1x6_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_1x6_loop
+	JNZ  mulAvxGFNI_1x6_loop
 	VZEROUPPER
 
-mulAvx2GFNI_1x6_end:
+mulAvxGFNI_1x6_end:
 	RET
 
 // func mulGFNI_1x6_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -2414,9 +2414,9 @@ mulGFNI_1x6_64Xor_loop:
 mulGFNI_1x6_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_1x6Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_1x6Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_1x6Xor(SB), $0-88
+TEXT ·mulAvxGFNI_1x6Xor(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 14 YMM used
@@ -2424,7 +2424,7 @@ TEXT ·mulAvx2GFNI_1x6Xor(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_1x6Xor_end
+	JZ           mulAvxGFNI_1x6Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -2454,7 +2454,7 @@ TEXT ·mulAvx2GFNI_1x6Xor(SB), $0-88
 	// Add start offset to input
 	ADDQ R10, CX
 
-mulAvx2GFNI_1x6Xor_loop:
+mulAvxGFNI_1x6Xor_loop:
 	// Load 6 outputs
 	VMOVDQU (BX), Y6
 	VMOVDQU (SI), Y7
@@ -2495,10 +2495,10 @@ mulAvx2GFNI_1x6Xor_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_1x6Xor_loop
+	JNZ  mulAvxGFNI_1x6Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_1x6Xor_end:
+mulAvxGFNI_1x6Xor_end:
 	RET
 
 // func mulAvxTwo_1x6Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -2787,9 +2787,9 @@ mulGFNI_1x7_64_loop:
 mulGFNI_1x7_64_end:
 	RET
 
-// func mulAvx2GFNI_1x7(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_1x7(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_1x7(SB), $0-88
+TEXT ·mulAvxGFNI_1x7(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 16 YMM used
@@ -2797,7 +2797,7 @@ TEXT ·mulAvx2GFNI_1x7(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_1x7_end
+	JZ           mulAvxGFNI_1x7_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -2830,7 +2830,7 @@ TEXT ·mulAvx2GFNI_1x7(SB), $0-88
 	// Add start offset to input
 	ADDQ R11, CX
 
-mulAvx2GFNI_1x7_loop:
+mulAvxGFNI_1x7_loop:
 	// Load and process 32 bytes from input 0 to 7 outputs
 	VMOVDQU        (CX), Y13
 	ADDQ           $0x20, CX
@@ -2860,10 +2860,10 @@ mulAvx2GFNI_1x7_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_1x7_loop
+	JNZ  mulAvxGFNI_1x7_loop
 	VZEROUPPER
 
-mulAvx2GFNI_1x7_end:
+mulAvxGFNI_1x7_end:
 	RET
 
 // func mulGFNI_1x7_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -2961,9 +2961,9 @@ mulGFNI_1x7_64Xor_loop:
 mulGFNI_1x7_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_1x7Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_1x7Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_1x7Xor(SB), $0-88
+TEXT ·mulAvxGFNI_1x7Xor(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 16 YMM used
@@ -2971,7 +2971,7 @@ TEXT ·mulAvx2GFNI_1x7Xor(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_1x7Xor_end
+	JZ           mulAvxGFNI_1x7Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -3004,7 +3004,7 @@ TEXT ·mulAvx2GFNI_1x7Xor(SB), $0-88
 	// Add start offset to input
 	ADDQ R11, CX
 
-mulAvx2GFNI_1x7Xor_loop:
+mulAvxGFNI_1x7Xor_loop:
 	// Load 7 outputs
 	VMOVDQU (BX), Y7
 	VMOVDQU (SI), Y8
@@ -3050,10 +3050,10 @@ mulAvx2GFNI_1x7Xor_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_1x7Xor_loop
+	JNZ  mulAvxGFNI_1x7Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_1x7Xor_end:
+mulAvxGFNI_1x7Xor_end:
 	RET
 
 // func mulAvxTwo_1x7Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -3367,9 +3367,9 @@ mulGFNI_1x8_64_loop:
 mulGFNI_1x8_64_end:
 	RET
 
-// func mulAvx2GFNI_1x8(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_1x8(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_1x8(SB), $0-88
+TEXT ·mulAvxGFNI_1x8(SB), $0-88
 	// Loading 6 of 8 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 18 YMM used
@@ -3377,7 +3377,7 @@ TEXT ·mulAvx2GFNI_1x8(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_1x8_end
+	JZ           mulAvxGFNI_1x8_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -3411,7 +3411,7 @@ TEXT ·mulAvx2GFNI_1x8(SB), $0-88
 	// Add start offset to input
 	ADDQ R13, DX
 
-mulAvx2GFNI_1x8_loop:
+mulAvxGFNI_1x8_loop:
 	// Load and process 32 bytes from input 0 to 8 outputs
 	VMOVDQU        (DX), Y13
 	ADDQ           $0x20, DX
@@ -3446,10 +3446,10 @@ mulAvx2GFNI_1x8_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_1x8_loop
+	JNZ  mulAvxGFNI_1x8_loop
 	VZEROUPPER
 
-mulAvx2GFNI_1x8_end:
+mulAvxGFNI_1x8_end:
 	RET
 
 // func mulGFNI_1x8_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -3555,9 +3555,9 @@ mulGFNI_1x8_64Xor_loop:
 mulGFNI_1x8_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_1x8Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_1x8Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_1x8Xor(SB), $0-88
+TEXT ·mulAvxGFNI_1x8Xor(SB), $0-88
 	// Loading 6 of 8 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 18 YMM used
@@ -3565,7 +3565,7 @@ TEXT ·mulAvx2GFNI_1x8Xor(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_1x8Xor_end
+	JZ           mulAvxGFNI_1x8Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -3599,7 +3599,7 @@ TEXT ·mulAvx2GFNI_1x8Xor(SB), $0-88
 	// Add start offset to input
 	ADDQ R13, DX
 
-mulAvx2GFNI_1x8Xor_loop:
+mulAvxGFNI_1x8Xor_loop:
 	// Load 8 outputs
 	VMOVDQU (SI), Y6
 	VMOVDQU (DI), Y7
@@ -3652,10 +3652,10 @@ mulAvx2GFNI_1x8Xor_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_1x8Xor_loop
+	JNZ  mulAvxGFNI_1x8Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_1x8Xor_end:
+mulAvxGFNI_1x8Xor_end:
 	RET
 
 // func mulAvxTwo_1x8Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -3994,9 +3994,9 @@ mulGFNI_1x9_64_loop:
 mulGFNI_1x9_64_end:
 	RET
 
-// func mulAvx2GFNI_1x9(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_1x9(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_1x9(SB), $0-88
+TEXT ·mulAvxGFNI_1x9(SB), $0-88
 	// Loading 5 of 9 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 20 YMM used
@@ -4004,7 +4004,7 @@ TEXT ·mulAvx2GFNI_1x9(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_1x9_end
+	JZ           mulAvxGFNI_1x9_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -4039,7 +4039,7 @@ TEXT ·mulAvx2GFNI_1x9(SB), $0-88
 	// Add start offset to input
 	ADDQ R14, DX
 
-mulAvx2GFNI_1x9_loop:
+mulAvxGFNI_1x9_loop:
 	// Load and process 32 bytes from input 0 to 9 outputs
 	VMOVDQU        (DX), Y13
 	ADDQ           $0x20, DX
@@ -4079,10 +4079,10 @@ mulAvx2GFNI_1x9_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_1x9_loop
+	JNZ  mulAvxGFNI_1x9_loop
 	VZEROUPPER
 
-mulAvx2GFNI_1x9_end:
+mulAvxGFNI_1x9_end:
 	RET
 
 // func mulGFNI_1x9_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -4196,9 +4196,9 @@ mulGFNI_1x9_64Xor_loop:
 mulGFNI_1x9_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_1x9Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_1x9Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_1x9Xor(SB), $0-88
+TEXT ·mulAvxGFNI_1x9Xor(SB), $0-88
 	// Loading 5 of 9 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 20 YMM used
@@ -4206,7 +4206,7 @@ TEXT ·mulAvx2GFNI_1x9Xor(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_1x9Xor_end
+	JZ           mulAvxGFNI_1x9Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -4241,7 +4241,7 @@ TEXT ·mulAvx2GFNI_1x9Xor(SB), $0-88
 	// Add start offset to input
 	ADDQ R14, DX
 
-mulAvx2GFNI_1x9Xor_loop:
+mulAvxGFNI_1x9Xor_loop:
 	// Load 9 outputs
 	VMOVDQU (SI), Y5
 	VMOVDQU (DI), Y6
@@ -4301,10 +4301,10 @@ mulAvx2GFNI_1x9Xor_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_1x9Xor_loop
+	JNZ  mulAvxGFNI_1x9Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_1x9Xor_end:
+mulAvxGFNI_1x9Xor_end:
 	RET
 
 // func mulAvxTwo_1x9Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -4668,9 +4668,9 @@ mulGFNI_1x10_64_loop:
 mulGFNI_1x10_64_end:
 	RET
 
-// func mulAvx2GFNI_1x10(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_1x10(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_1x10(SB), $0-88
+TEXT ·mulAvxGFNI_1x10(SB), $0-88
 	// Loading 4 of 10 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 22 YMM used
@@ -4678,7 +4678,7 @@ TEXT ·mulAvx2GFNI_1x10(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_1x10_end
+	JZ           mulAvxGFNI_1x10_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -4714,7 +4714,7 @@ TEXT ·mulAvx2GFNI_1x10(SB), $0-88
 	// Add start offset to input
 	ADDQ R15, DX
 
-mulAvx2GFNI_1x10_loop:
+mulAvxGFNI_1x10_loop:
 	// Load and process 32 bytes from input 0 to 10 outputs
 	VMOVDQU        (DX), Y13
 	ADDQ           $0x20, DX
@@ -4759,10 +4759,10 @@ mulAvx2GFNI_1x10_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_1x10_loop
+	JNZ  mulAvxGFNI_1x10_loop
 	VZEROUPPER
 
-mulAvx2GFNI_1x10_end:
+mulAvxGFNI_1x10_end:
 	RET
 
 // func mulGFNI_1x10_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -4884,9 +4884,9 @@ mulGFNI_1x10_64Xor_loop:
 mulGFNI_1x10_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_1x10Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_1x10Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_1x10Xor(SB), $0-88
+TEXT ·mulAvxGFNI_1x10Xor(SB), $0-88
 	// Loading 4 of 10 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 22 YMM used
@@ -4894,7 +4894,7 @@ TEXT ·mulAvx2GFNI_1x10Xor(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_1x10Xor_end
+	JZ           mulAvxGFNI_1x10Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -4930,7 +4930,7 @@ TEXT ·mulAvx2GFNI_1x10Xor(SB), $0-88
 	// Add start offset to input
 	ADDQ R15, DX
 
-mulAvx2GFNI_1x10Xor_loop:
+mulAvxGFNI_1x10Xor_loop:
 	// Load 10 outputs
 	VMOVDQU (SI), Y4
 	VMOVDQU (DI), Y5
@@ -4997,10 +4997,10 @@ mulAvx2GFNI_1x10Xor_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_1x10Xor_loop
+	JNZ  mulAvxGFNI_1x10Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_1x10Xor_end:
+mulAvxGFNI_1x10Xor_end:
 	RET
 
 // func mulAvxTwo_1x10Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -5278,9 +5278,9 @@ mulGFNI_2x1_64_loop:
 mulGFNI_2x1_64_end:
 	RET
 
-// func mulAvx2GFNI_2x1(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_2x1(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_2x1(SB), $0-88
+TEXT ·mulAvxGFNI_2x1(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 5 YMM used
@@ -5288,7 +5288,7 @@ TEXT ·mulAvx2GFNI_2x1(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_2x1_end
+	JZ           mulAvxGFNI_2x1_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	MOVQ         in_base+24(FP), CX
@@ -5306,7 +5306,7 @@ TEXT ·mulAvx2GFNI_2x1(SB), $0-88
 	ADDQ SI, DX
 	ADDQ SI, CX
 
-mulAvx2GFNI_2x1_loop:
+mulAvxGFNI_2x1_loop:
 	// Load and process 32 bytes from input 0 to 1 outputs
 	VMOVDQU        (DX), Y3
 	ADDQ           $0x20, DX
@@ -5324,10 +5324,10 @@ mulAvx2GFNI_2x1_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_2x1_loop
+	JNZ  mulAvxGFNI_2x1_loop
 	VZEROUPPER
 
-mulAvx2GFNI_2x1_end:
+mulAvxGFNI_2x1_end:
 	RET
 
 // func mulGFNI_2x1_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -5386,9 +5386,9 @@ mulGFNI_2x1_64Xor_loop:
 mulGFNI_2x1_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_2x1Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_2x1Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_2x1Xor(SB), $0-88
+TEXT ·mulAvxGFNI_2x1Xor(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 5 YMM used
@@ -5396,7 +5396,7 @@ TEXT ·mulAvx2GFNI_2x1Xor(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_2x1Xor_end
+	JZ           mulAvxGFNI_2x1Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	MOVQ         in_base+24(FP), CX
@@ -5414,7 +5414,7 @@ TEXT ·mulAvx2GFNI_2x1Xor(SB), $0-88
 	ADDQ SI, DX
 	ADDQ SI, CX
 
-mulAvx2GFNI_2x1Xor_loop:
+mulAvxGFNI_2x1Xor_loop:
 	// Load 1 outputs
 	VMOVDQU (BX), Y2
 
@@ -5436,10 +5436,10 @@ mulAvx2GFNI_2x1Xor_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_2x1Xor_loop
+	JNZ  mulAvxGFNI_2x1Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_2x1Xor_end:
+mulAvxGFNI_2x1Xor_end:
 	RET
 
 // func mulAvxTwo_2x1_64Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -5690,9 +5690,9 @@ mulGFNI_2x2_64_loop:
 mulGFNI_2x2_64_end:
 	RET
 
-// func mulAvx2GFNI_2x2(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_2x2(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_2x2(SB), $0-88
+TEXT ·mulAvxGFNI_2x2(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 8 YMM used
@@ -5700,7 +5700,7 @@ TEXT ·mulAvx2GFNI_2x2(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_2x2_end
+	JZ           mulAvxGFNI_2x2_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -5722,7 +5722,7 @@ TEXT ·mulAvx2GFNI_2x2(SB), $0-88
 	ADDQ DI, DX
 	ADDQ DI, CX
 
-mulAvx2GFNI_2x2_loop:
+mulAvxGFNI_2x2_loop:
 	// Load and process 32 bytes from input 0 to 2 outputs
 	VMOVDQU        (DX), Y6
 	ADDQ           $0x20, DX
@@ -5745,10 +5745,10 @@ mulAvx2GFNI_2x2_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_2x2_loop
+	JNZ  mulAvxGFNI_2x2_loop
 	VZEROUPPER
 
-mulAvx2GFNI_2x2_end:
+mulAvxGFNI_2x2_end:
 	RET
 
 // func mulGFNI_2x2_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -5818,9 +5818,9 @@ mulGFNI_2x2_64Xor_loop:
 mulGFNI_2x2_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_2x2Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_2x2Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_2x2Xor(SB), $0-88
+TEXT ·mulAvxGFNI_2x2Xor(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 8 YMM used
@@ -5828,7 +5828,7 @@ TEXT ·mulAvx2GFNI_2x2Xor(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_2x2Xor_end
+	JZ           mulAvxGFNI_2x2Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -5850,7 +5850,7 @@ TEXT ·mulAvx2GFNI_2x2Xor(SB), $0-88
 	ADDQ DI, DX
 	ADDQ DI, CX
 
-mulAvx2GFNI_2x2Xor_loop:
+mulAvxGFNI_2x2Xor_loop:
 	// Load 2 outputs
 	VMOVDQU (SI), Y4
 	VMOVDQU (BX), Y5
@@ -5879,10 +5879,10 @@ mulAvx2GFNI_2x2Xor_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_2x2Xor_loop
+	JNZ  mulAvxGFNI_2x2Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_2x2Xor_end:
+mulAvxGFNI_2x2Xor_end:
 	RET
 
 // func mulAvxTwo_2x2_64Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -6186,9 +6186,9 @@ mulGFNI_2x3_64_loop:
 mulGFNI_2x3_64_end:
 	RET
 
-// func mulAvx2GFNI_2x3(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_2x3(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_2x3(SB), $0-88
+TEXT ·mulAvxGFNI_2x3(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 11 YMM used
@@ -6196,7 +6196,7 @@ TEXT ·mulAvx2GFNI_2x3(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_2x3_end
+	JZ           mulAvxGFNI_2x3_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -6222,7 +6222,7 @@ TEXT ·mulAvx2GFNI_2x3(SB), $0-88
 	ADDQ R8, DX
 	ADDQ R8, CX
 
-mulAvx2GFNI_2x3_loop:
+mulAvxGFNI_2x3_loop:
 	// Load and process 32 bytes from input 0 to 3 outputs
 	VMOVDQU        (DX), Y9
 	ADDQ           $0x20, DX
@@ -6250,10 +6250,10 @@ mulAvx2GFNI_2x3_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_2x3_loop
+	JNZ  mulAvxGFNI_2x3_loop
 	VZEROUPPER
 
-mulAvx2GFNI_2x3_end:
+mulAvxGFNI_2x3_end:
 	RET
 
 // func mulGFNI_2x3_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -6334,9 +6334,9 @@ mulGFNI_2x3_64Xor_loop:
 mulGFNI_2x3_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_2x3Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_2x3Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_2x3Xor(SB), $0-88
+TEXT ·mulAvxGFNI_2x3Xor(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 11 YMM used
@@ -6344,7 +6344,7 @@ TEXT ·mulAvx2GFNI_2x3Xor(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_2x3Xor_end
+	JZ           mulAvxGFNI_2x3Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -6370,7 +6370,7 @@ TEXT ·mulAvx2GFNI_2x3Xor(SB), $0-88
 	ADDQ R8, DX
 	ADDQ R8, CX
 
-mulAvx2GFNI_2x3Xor_loop:
+mulAvxGFNI_2x3Xor_loop:
 	// Load 3 outputs
 	VMOVDQU (SI), Y6
 	VMOVDQU (DI), Y7
@@ -6406,10 +6406,10 @@ mulAvx2GFNI_2x3Xor_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_2x3Xor_loop
+	JNZ  mulAvxGFNI_2x3Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_2x3Xor_end:
+mulAvxGFNI_2x3Xor_end:
 	RET
 
 // func mulAvxTwo_2x3_64Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -6729,9 +6729,9 @@ mulGFNI_2x4_64_loop:
 mulGFNI_2x4_64_end:
 	RET
 
-// func mulAvx2GFNI_2x4(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_2x4(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_2x4(SB), $0-88
+TEXT ·mulAvxGFNI_2x4(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 14 YMM used
@@ -6739,7 +6739,7 @@ TEXT ·mulAvx2GFNI_2x4(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_2x4_end
+	JZ           mulAvxGFNI_2x4_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -6769,7 +6769,7 @@ TEXT ·mulAvx2GFNI_2x4(SB), $0-88
 	ADDQ R9, DX
 	ADDQ R9, CX
 
-mulAvx2GFNI_2x4_loop:
+mulAvxGFNI_2x4_loop:
 	// Load and process 32 bytes from input 0 to 4 outputs
 	VMOVDQU        (DX), Y12
 	ADDQ           $0x20, DX
@@ -6802,10 +6802,10 @@ mulAvx2GFNI_2x4_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_2x4_loop
+	JNZ  mulAvxGFNI_2x4_loop
 	VZEROUPPER
 
-mulAvx2GFNI_2x4_end:
+mulAvxGFNI_2x4_end:
 	RET
 
 // func mulGFNI_2x4_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -6897,9 +6897,9 @@ mulGFNI_2x4_64Xor_loop:
 mulGFNI_2x4_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_2x4Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_2x4Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_2x4Xor(SB), $0-88
+TEXT ·mulAvxGFNI_2x4Xor(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 14 YMM used
@@ -6907,7 +6907,7 @@ TEXT ·mulAvx2GFNI_2x4Xor(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_2x4Xor_end
+	JZ           mulAvxGFNI_2x4Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -6937,7 +6937,7 @@ TEXT ·mulAvx2GFNI_2x4Xor(SB), $0-88
 	ADDQ R9, DX
 	ADDQ R9, CX
 
-mulAvx2GFNI_2x4Xor_loop:
+mulAvxGFNI_2x4Xor_loop:
 	// Load 4 outputs
 	VMOVDQU (SI), Y8
 	VMOVDQU (DI), Y9
@@ -6980,10 +6980,10 @@ mulAvx2GFNI_2x4Xor_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_2x4Xor_loop
+	JNZ  mulAvxGFNI_2x4Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_2x4Xor_end:
+mulAvxGFNI_2x4Xor_end:
 	RET
 
 // func mulAvxTwo_2x4Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -7306,9 +7306,9 @@ mulGFNI_2x5_64_loop:
 mulGFNI_2x5_64_end:
 	RET
 
-// func mulAvx2GFNI_2x5(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_2x5(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_2x5(SB), $0-88
+TEXT ·mulAvxGFNI_2x5(SB), $0-88
 	// Loading 9 of 10 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 17 YMM used
@@ -7316,7 +7316,7 @@ TEXT ·mulAvx2GFNI_2x5(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_2x5_end
+	JZ           mulAvxGFNI_2x5_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -7349,7 +7349,7 @@ TEXT ·mulAvx2GFNI_2x5(SB), $0-88
 	ADDQ R11, BX
 	ADDQ R11, DX
 
-mulAvx2GFNI_2x5_loop:
+mulAvxGFNI_2x5_loop:
 	// Load and process 32 bytes from input 0 to 5 outputs
 	VMOVDQU        (BX), Y14
 	ADDQ           $0x20, BX
@@ -7388,10 +7388,10 @@ mulAvx2GFNI_2x5_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_2x5_loop
+	JNZ  mulAvxGFNI_2x5_loop
 	VZEROUPPER
 
-mulAvx2GFNI_2x5_end:
+mulAvxGFNI_2x5_end:
 	RET
 
 // func mulGFNI_2x5_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -7494,9 +7494,9 @@ mulGFNI_2x5_64Xor_loop:
 mulGFNI_2x5_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_2x5Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_2x5Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_2x5Xor(SB), $0-88
+TEXT ·mulAvxGFNI_2x5Xor(SB), $0-88
 	// Loading 9 of 10 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 17 YMM used
@@ -7504,7 +7504,7 @@ TEXT ·mulAvx2GFNI_2x5Xor(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_2x5Xor_end
+	JZ           mulAvxGFNI_2x5Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -7537,7 +7537,7 @@ TEXT ·mulAvx2GFNI_2x5Xor(SB), $0-88
 	ADDQ R11, BX
 	ADDQ R11, DX
 
-mulAvx2GFNI_2x5Xor_loop:
+mulAvxGFNI_2x5Xor_loop:
 	// Load 5 outputs
 	VMOVDQU (DI), Y9
 	VMOVDQU (R8), Y10
@@ -7588,10 +7588,10 @@ mulAvx2GFNI_2x5Xor_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_2x5Xor_loop
+	JNZ  mulAvxGFNI_2x5Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_2x5Xor_end:
+mulAvxGFNI_2x5Xor_end:
 	RET
 
 // func mulAvxTwo_2x5Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -7952,9 +7952,9 @@ mulGFNI_2x6_64_loop:
 mulGFNI_2x6_64_end:
 	RET
 
-// func mulAvx2GFNI_2x6(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_2x6(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_2x6(SB), $0-88
+TEXT ·mulAvxGFNI_2x6(SB), $0-88
 	// Loading 8 of 12 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 20 YMM used
@@ -7962,7 +7962,7 @@ TEXT ·mulAvx2GFNI_2x6(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_2x6_end
+	JZ           mulAvxGFNI_2x6_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -7996,7 +7996,7 @@ TEXT ·mulAvx2GFNI_2x6(SB), $0-88
 	ADDQ R12, BX
 	ADDQ R12, DX
 
-mulAvx2GFNI_2x6_loop:
+mulAvxGFNI_2x6_loop:
 	// Load and process 32 bytes from input 0 to 6 outputs
 	VMOVDQU        (BX), Y14
 	ADDQ           $0x20, BX
@@ -8043,10 +8043,10 @@ mulAvx2GFNI_2x6_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_2x6_loop
+	JNZ  mulAvxGFNI_2x6_loop
 	VZEROUPPER
 
-mulAvx2GFNI_2x6_end:
+mulAvxGFNI_2x6_end:
 	RET
 
 // func mulGFNI_2x6_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -8160,9 +8160,9 @@ mulGFNI_2x6_64Xor_loop:
 mulGFNI_2x6_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_2x6Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_2x6Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_2x6Xor(SB), $0-88
+TEXT ·mulAvxGFNI_2x6Xor(SB), $0-88
 	// Loading 8 of 12 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 20 YMM used
@@ -8170,7 +8170,7 @@ TEXT ·mulAvx2GFNI_2x6Xor(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_2x6Xor_end
+	JZ           mulAvxGFNI_2x6Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -8204,7 +8204,7 @@ TEXT ·mulAvx2GFNI_2x6Xor(SB), $0-88
 	ADDQ R12, BX
 	ADDQ R12, DX
 
-mulAvx2GFNI_2x6Xor_loop:
+mulAvxGFNI_2x6Xor_loop:
 	// Load 6 outputs
 	VMOVDQU (DI), Y8
 	VMOVDQU (R8), Y9
@@ -8265,10 +8265,10 @@ mulAvx2GFNI_2x6Xor_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_2x6Xor_loop
+	JNZ  mulAvxGFNI_2x6Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_2x6Xor_end:
+mulAvxGFNI_2x6Xor_end:
 	RET
 
 // func mulAvxTwo_2x6Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -8667,9 +8667,9 @@ mulGFNI_2x7_64_loop:
 mulGFNI_2x7_64_end:
 	RET
 
-// func mulAvx2GFNI_2x7(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_2x7(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_2x7(SB), $0-88
+TEXT ·mulAvxGFNI_2x7(SB), $0-88
 	// Loading 7 of 14 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 23 YMM used
@@ -8677,7 +8677,7 @@ TEXT ·mulAvx2GFNI_2x7(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_2x7_end
+	JZ           mulAvxGFNI_2x7_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -8712,7 +8712,7 @@ TEXT ·mulAvx2GFNI_2x7(SB), $0-88
 	ADDQ R13, BX
 	ADDQ R13, DX
 
-mulAvx2GFNI_2x7_loop:
+mulAvxGFNI_2x7_loop:
 	// Load and process 32 bytes from input 0 to 7 outputs
 	VMOVDQU        (BX), Y14
 	ADDQ           $0x20, BX
@@ -8767,10 +8767,10 @@ mulAvx2GFNI_2x7_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_2x7_loop
+	JNZ  mulAvxGFNI_2x7_loop
 	VZEROUPPER
 
-mulAvx2GFNI_2x7_end:
+mulAvxGFNI_2x7_end:
 	RET
 
 // func mulGFNI_2x7_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -8895,9 +8895,9 @@ mulGFNI_2x7_64Xor_loop:
 mulGFNI_2x7_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_2x7Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_2x7Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_2x7Xor(SB), $0-88
+TEXT ·mulAvxGFNI_2x7Xor(SB), $0-88
 	// Loading 7 of 14 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 23 YMM used
@@ -8905,7 +8905,7 @@ TEXT ·mulAvx2GFNI_2x7Xor(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_2x7Xor_end
+	JZ           mulAvxGFNI_2x7Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -8940,7 +8940,7 @@ TEXT ·mulAvx2GFNI_2x7Xor(SB), $0-88
 	ADDQ R13, BX
 	ADDQ R13, DX
 
-mulAvx2GFNI_2x7Xor_loop:
+mulAvxGFNI_2x7Xor_loop:
 	// Load 7 outputs
 	VMOVDQU (DI), Y7
 	VMOVDQU (R8), Y8
@@ -9011,10 +9011,10 @@ mulAvx2GFNI_2x7Xor_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_2x7Xor_loop
+	JNZ  mulAvxGFNI_2x7Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_2x7Xor_end:
+mulAvxGFNI_2x7Xor_end:
 	RET
 
 // func mulAvxTwo_2x7Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -9451,9 +9451,9 @@ mulGFNI_2x8_64_loop:
 mulGFNI_2x8_64_end:
 	RET
 
-// func mulAvx2GFNI_2x8(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_2x8(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_2x8(SB), $0-88
+TEXT ·mulAvxGFNI_2x8(SB), $0-88
 	// Loading 6 of 16 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 26 YMM used
@@ -9461,7 +9461,7 @@ TEXT ·mulAvx2GFNI_2x8(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_2x8_end
+	JZ           mulAvxGFNI_2x8_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -9497,7 +9497,7 @@ TEXT ·mulAvx2GFNI_2x8(SB), $0-88
 	ADDQ R14, BX
 	ADDQ R14, DX
 
-mulAvx2GFNI_2x8_loop:
+mulAvxGFNI_2x8_loop:
 	// Load and process 32 bytes from input 0 to 8 outputs
 	VMOVDQU        (BX), Y14
 	ADDQ           $0x20, BX
@@ -9560,10 +9560,10 @@ mulAvx2GFNI_2x8_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_2x8_loop
+	JNZ  mulAvxGFNI_2x8_loop
 	VZEROUPPER
 
-mulAvx2GFNI_2x8_end:
+mulAvxGFNI_2x8_end:
 	RET
 
 // func mulGFNI_2x8_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -9699,9 +9699,9 @@ mulGFNI_2x8_64Xor_loop:
 mulGFNI_2x8_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_2x8Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_2x8Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_2x8Xor(SB), $0-88
+TEXT ·mulAvxGFNI_2x8Xor(SB), $0-88
 	// Loading 6 of 16 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 26 YMM used
@@ -9709,7 +9709,7 @@ TEXT ·mulAvx2GFNI_2x8Xor(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_2x8Xor_end
+	JZ           mulAvxGFNI_2x8Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -9745,7 +9745,7 @@ TEXT ·mulAvx2GFNI_2x8Xor(SB), $0-88
 	ADDQ R14, BX
 	ADDQ R14, DX
 
-mulAvx2GFNI_2x8Xor_loop:
+mulAvxGFNI_2x8Xor_loop:
 	// Load 8 outputs
 	VMOVDQU (DI), Y6
 	VMOVDQU (R8), Y7
@@ -9826,10 +9826,10 @@ mulAvx2GFNI_2x8Xor_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_2x8Xor_loop
+	JNZ  mulAvxGFNI_2x8Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_2x8Xor_end:
+mulAvxGFNI_2x8Xor_end:
 	RET
 
 // func mulAvxTwo_2x8Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -10304,9 +10304,9 @@ mulGFNI_2x9_64_loop:
 mulGFNI_2x9_64_end:
 	RET
 
-// func mulAvx2GFNI_2x9(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_2x9(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_2x9(SB), $0-88
+TEXT ·mulAvxGFNI_2x9(SB), $0-88
 	// Loading 5 of 18 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 29 YMM used
@@ -10314,7 +10314,7 @@ TEXT ·mulAvx2GFNI_2x9(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_2x9_end
+	JZ           mulAvxGFNI_2x9_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -10351,7 +10351,7 @@ TEXT ·mulAvx2GFNI_2x9(SB), $0-88
 	ADDQ R15, BX
 	ADDQ R15, DX
 
-mulAvx2GFNI_2x9_loop:
+mulAvxGFNI_2x9_loop:
 	// Load and process 32 bytes from input 0 to 9 outputs
 	VMOVDQU        (BX), Y14
 	ADDQ           $0x20, BX
@@ -10422,10 +10422,10 @@ mulAvx2GFNI_2x9_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_2x9_loop
+	JNZ  mulAvxGFNI_2x9_loop
 	VZEROUPPER
 
-mulAvx2GFNI_2x9_end:
+mulAvxGFNI_2x9_end:
 	RET
 
 // func mulGFNI_2x9_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -10572,9 +10572,9 @@ mulGFNI_2x9_64Xor_loop:
 mulGFNI_2x9_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_2x9Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_2x9Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_2x9Xor(SB), $0-88
+TEXT ·mulAvxGFNI_2x9Xor(SB), $0-88
 	// Loading 5 of 18 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 29 YMM used
@@ -10582,7 +10582,7 @@ TEXT ·mulAvx2GFNI_2x9Xor(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_2x9Xor_end
+	JZ           mulAvxGFNI_2x9Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -10619,7 +10619,7 @@ TEXT ·mulAvx2GFNI_2x9Xor(SB), $0-88
 	ADDQ R15, BX
 	ADDQ R15, DX
 
-mulAvx2GFNI_2x9Xor_loop:
+mulAvxGFNI_2x9Xor_loop:
 	// Load 9 outputs
 	VMOVDQU (DI), Y5
 	VMOVDQU (R8), Y6
@@ -10710,10 +10710,10 @@ mulAvx2GFNI_2x9Xor_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_2x9Xor_loop
+	JNZ  mulAvxGFNI_2x9Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_2x9Xor_end:
+mulAvxGFNI_2x9Xor_end:
 	RET
 
 // func mulAvxTwo_2x9Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -11226,9 +11226,9 @@ mulGFNI_2x10_64_loop:
 mulGFNI_2x10_64_end:
 	RET
 
-// func mulAvx2GFNI_2x10(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_2x10(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_2x10(SB), $8-88
+TEXT ·mulAvxGFNI_2x10(SB), $8-88
 	// Loading 4 of 20 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 32 YMM used
@@ -11236,7 +11236,7 @@ TEXT ·mulAvx2GFNI_2x10(SB), $8-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_2x10_end
+	JZ           mulAvxGFNI_2x10_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -11274,7 +11274,7 @@ TEXT ·mulAvx2GFNI_2x10(SB), $8-88
 	ADDQ BP, BX
 	ADDQ BP, DX
 
-mulAvx2GFNI_2x10_loop:
+mulAvxGFNI_2x10_loop:
 	// Load and process 32 bytes from input 0 to 10 outputs
 	VMOVDQU        (BX), Y14
 	ADDQ           $0x20, BX
@@ -11353,10 +11353,10 @@ mulAvx2GFNI_2x10_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_2x10_loop
+	JNZ  mulAvxGFNI_2x10_loop
 	VZEROUPPER
 
-mulAvx2GFNI_2x10_end:
+mulAvxGFNI_2x10_end:
 	RET
 
 // func mulGFNI_2x10_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -11514,9 +11514,9 @@ mulGFNI_2x10_64Xor_loop:
 mulGFNI_2x10_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_2x10Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_2x10Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_2x10Xor(SB), $8-88
+TEXT ·mulAvxGFNI_2x10Xor(SB), $8-88
 	// Loading 4 of 20 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 32 YMM used
@@ -11524,7 +11524,7 @@ TEXT ·mulAvx2GFNI_2x10Xor(SB), $8-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_2x10Xor_end
+	JZ           mulAvxGFNI_2x10Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -11562,7 +11562,7 @@ TEXT ·mulAvx2GFNI_2x10Xor(SB), $8-88
 	ADDQ BP, BX
 	ADDQ BP, DX
 
-mulAvx2GFNI_2x10Xor_loop:
+mulAvxGFNI_2x10Xor_loop:
 	// Load 10 outputs
 	VMOVDQU (DI), Y4
 	VMOVDQU (R8), Y5
@@ -11663,10 +11663,10 @@ mulAvx2GFNI_2x10Xor_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_2x10Xor_loop
+	JNZ  mulAvxGFNI_2x10Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_2x10Xor_end:
+mulAvxGFNI_2x10Xor_end:
 	RET
 
 // func mulAvxTwo_2x10Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -12033,9 +12033,9 @@ mulGFNI_3x1_64_loop:
 mulGFNI_3x1_64_end:
 	RET
 
-// func mulAvx2GFNI_3x1(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_3x1(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_3x1(SB), $0-88
+TEXT ·mulAvxGFNI_3x1(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 6 YMM used
@@ -12043,7 +12043,7 @@ TEXT ·mulAvx2GFNI_3x1(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_3x1_end
+	JZ           mulAvxGFNI_3x1_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -12064,7 +12064,7 @@ TEXT ·mulAvx2GFNI_3x1(SB), $0-88
 	ADDQ DI, BX
 	ADDQ DI, CX
 
-mulAvx2GFNI_3x1_loop:
+mulAvxGFNI_3x1_loop:
 	// Load and process 32 bytes from input 0 to 1 outputs
 	VMOVDQU        (DX), Y4
 	ADDQ           $0x20, DX
@@ -12088,10 +12088,10 @@ mulAvx2GFNI_3x1_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_3x1_loop
+	JNZ  mulAvxGFNI_3x1_loop
 	VZEROUPPER
 
-mulAvx2GFNI_3x1_end:
+mulAvxGFNI_3x1_end:
 	RET
 
 // func mulGFNI_3x1_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -12159,9 +12159,9 @@ mulGFNI_3x1_64Xor_loop:
 mulGFNI_3x1_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_3x1Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_3x1Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_3x1Xor(SB), $0-88
+TEXT ·mulAvxGFNI_3x1Xor(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 6 YMM used
@@ -12169,7 +12169,7 @@ TEXT ·mulAvx2GFNI_3x1Xor(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_3x1Xor_end
+	JZ           mulAvxGFNI_3x1Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -12190,7 +12190,7 @@ TEXT ·mulAvx2GFNI_3x1Xor(SB), $0-88
 	ADDQ DI, BX
 	ADDQ DI, CX
 
-mulAvx2GFNI_3x1Xor_loop:
+mulAvxGFNI_3x1Xor_loop:
 	// Load 1 outputs
 	VMOVDQU (SI), Y3
 
@@ -12218,10 +12218,10 @@ mulAvx2GFNI_3x1Xor_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_3x1Xor_loop
+	JNZ  mulAvxGFNI_3x1Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_3x1Xor_end:
+mulAvxGFNI_3x1Xor_end:
 	RET
 
 // func mulAvxTwo_3x1_64Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -12534,9 +12534,9 @@ mulGFNI_3x2_64_loop:
 mulGFNI_3x2_64_end:
 	RET
 
-// func mulAvx2GFNI_3x2(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_3x2(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_3x2(SB), $0-88
+TEXT ·mulAvxGFNI_3x2(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 10 YMM used
@@ -12544,7 +12544,7 @@ TEXT ·mulAvx2GFNI_3x2(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_3x2_end
+	JZ           mulAvxGFNI_3x2_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -12570,7 +12570,7 @@ TEXT ·mulAvx2GFNI_3x2(SB), $0-88
 	ADDQ R8, BX
 	ADDQ R8, CX
 
-mulAvx2GFNI_3x2_loop:
+mulAvxGFNI_3x2_loop:
 	// Load and process 32 bytes from input 0 to 2 outputs
 	VMOVDQU        (DX), Y8
 	ADDQ           $0x20, DX
@@ -12601,10 +12601,10 @@ mulAvx2GFNI_3x2_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_3x2_loop
+	JNZ  mulAvxGFNI_3x2_loop
 	VZEROUPPER
 
-mulAvx2GFNI_3x2_end:
+mulAvxGFNI_3x2_end:
 	RET
 
 // func mulGFNI_3x2_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -12686,9 +12686,9 @@ mulGFNI_3x2_64Xor_loop:
 mulGFNI_3x2_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_3x2Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_3x2Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_3x2Xor(SB), $0-88
+TEXT ·mulAvxGFNI_3x2Xor(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 10 YMM used
@@ -12696,7 +12696,7 @@ TEXT ·mulAvx2GFNI_3x2Xor(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_3x2Xor_end
+	JZ           mulAvxGFNI_3x2Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -12722,7 +12722,7 @@ TEXT ·mulAvx2GFNI_3x2Xor(SB), $0-88
 	ADDQ R8, BX
 	ADDQ R8, CX
 
-mulAvx2GFNI_3x2Xor_loop:
+mulAvxGFNI_3x2Xor_loop:
 	// Load 2 outputs
 	VMOVDQU (DI), Y6
 	VMOVDQU (SI), Y7
@@ -12759,10 +12759,10 @@ mulAvx2GFNI_3x2Xor_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_3x2Xor_loop
+	JNZ  mulAvxGFNI_3x2Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_3x2Xor_end:
+mulAvxGFNI_3x2Xor_end:
 	RET
 
 // func mulAvxTwo_3x2_64Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -13147,9 +13147,9 @@ mulGFNI_3x3_64_loop:
 mulGFNI_3x3_64_end:
 	RET
 
-// func mulAvx2GFNI_3x3(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_3x3(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_3x3(SB), $0-88
+TEXT ·mulAvxGFNI_3x3(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 14 YMM used
@@ -13157,7 +13157,7 @@ TEXT ·mulAvx2GFNI_3x3(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_3x3_end
+	JZ           mulAvxGFNI_3x3_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -13188,7 +13188,7 @@ TEXT ·mulAvx2GFNI_3x3(SB), $0-88
 	ADDQ R9, BX
 	ADDQ R9, CX
 
-mulAvx2GFNI_3x3_loop:
+mulAvxGFNI_3x3_loop:
 	// Load and process 32 bytes from input 0 to 3 outputs
 	VMOVDQU        (DX), Y12
 	ADDQ           $0x20, DX
@@ -13226,10 +13226,10 @@ mulAvx2GFNI_3x3_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_3x3_loop
+	JNZ  mulAvxGFNI_3x3_loop
 	VZEROUPPER
 
-mulAvx2GFNI_3x3_end:
+mulAvxGFNI_3x3_end:
 	RET
 
 // func mulGFNI_3x3_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -13325,9 +13325,9 @@ mulGFNI_3x3_64Xor_loop:
 mulGFNI_3x3_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_3x3Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_3x3Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_3x3Xor(SB), $0-88
+TEXT ·mulAvxGFNI_3x3Xor(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 14 YMM used
@@ -13335,7 +13335,7 @@ TEXT ·mulAvx2GFNI_3x3Xor(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_3x3Xor_end
+	JZ           mulAvxGFNI_3x3Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -13366,7 +13366,7 @@ TEXT ·mulAvx2GFNI_3x3Xor(SB), $0-88
 	ADDQ R9, BX
 	ADDQ R9, CX
 
-mulAvx2GFNI_3x3Xor_loop:
+mulAvxGFNI_3x3Xor_loop:
 	// Load 3 outputs
 	VMOVDQU (DI), Y9
 	VMOVDQU (R8), Y10
@@ -13412,10 +13412,10 @@ mulAvx2GFNI_3x3Xor_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_3x3Xor_loop
+	JNZ  mulAvxGFNI_3x3Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_3x3Xor_end:
+mulAvxGFNI_3x3Xor_end:
 	RET
 
 // func mulAvxTwo_3x3_64Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -13819,9 +13819,9 @@ mulGFNI_3x4_64_loop:
 mulGFNI_3x4_64_end:
 	RET
 
-// func mulAvx2GFNI_3x4(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_3x4(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_3x4(SB), $0-88
+TEXT ·mulAvxGFNI_3x4(SB), $0-88
 	// Loading 10 of 12 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 18 YMM used
@@ -13829,7 +13829,7 @@ TEXT ·mulAvx2GFNI_3x4(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_3x4_end
+	JZ           mulAvxGFNI_3x4_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -13863,7 +13863,7 @@ TEXT ·mulAvx2GFNI_3x4(SB), $0-88
 	ADDQ R11, SI
 	ADDQ R11, DX
 
-mulAvx2GFNI_3x4_loop:
+mulAvxGFNI_3x4_loop:
 	// Load and process 32 bytes from input 0 to 4 outputs
 	VMOVDQU        (BX), Y14
 	ADDQ           $0x20, BX
@@ -13910,10 +13910,10 @@ mulAvx2GFNI_3x4_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_3x4_loop
+	JNZ  mulAvxGFNI_3x4_loop
 	VZEROUPPER
 
-mulAvx2GFNI_3x4_end:
+mulAvxGFNI_3x4_end:
 	RET
 
 // func mulGFNI_3x4_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -14023,9 +14023,9 @@ mulGFNI_3x4_64Xor_loop:
 mulGFNI_3x4_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_3x4Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_3x4Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_3x4Xor(SB), $0-88
+TEXT ·mulAvxGFNI_3x4Xor(SB), $0-88
 	// Loading 10 of 12 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 18 YMM used
@@ -14033,7 +14033,7 @@ TEXT ·mulAvx2GFNI_3x4Xor(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_3x4Xor_end
+	JZ           mulAvxGFNI_3x4Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -14067,7 +14067,7 @@ TEXT ·mulAvx2GFNI_3x4Xor(SB), $0-88
 	ADDQ R11, SI
 	ADDQ R11, DX
 
-mulAvx2GFNI_3x4Xor_loop:
+mulAvxGFNI_3x4Xor_loop:
 	// Load 4 outputs
 	VMOVDQU (R8), Y10
 	VMOVDQU (R9), Y11
@@ -14124,10 +14124,10 @@ mulAvx2GFNI_3x4Xor_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_3x4Xor_loop
+	JNZ  mulAvxGFNI_3x4Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_3x4Xor_end:
+mulAvxGFNI_3x4Xor_end:
 	RET
 
 // func mulAvxTwo_3x4Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -14534,9 +14534,9 @@ mulGFNI_3x5_64_loop:
 mulGFNI_3x5_64_end:
 	RET
 
-// func mulAvx2GFNI_3x5(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_3x5(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_3x5(SB), $0-88
+TEXT ·mulAvxGFNI_3x5(SB), $0-88
 	// Loading 9 of 15 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 22 YMM used
@@ -14544,7 +14544,7 @@ TEXT ·mulAvx2GFNI_3x5(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_3x5_end
+	JZ           mulAvxGFNI_3x5_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -14579,7 +14579,7 @@ TEXT ·mulAvx2GFNI_3x5(SB), $0-88
 	ADDQ R12, SI
 	ADDQ R12, DX
 
-mulAvx2GFNI_3x5_loop:
+mulAvxGFNI_3x5_loop:
 	// Load and process 32 bytes from input 0 to 5 outputs
 	VMOVDQU        (BX), Y14
 	ADDQ           $0x20, BX
@@ -14637,10 +14637,10 @@ mulAvx2GFNI_3x5_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_3x5_loop
+	JNZ  mulAvxGFNI_3x5_loop
 	VZEROUPPER
 
-mulAvx2GFNI_3x5_end:
+mulAvxGFNI_3x5_end:
 	RET
 
 // func mulGFNI_3x5_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -14764,9 +14764,9 @@ mulGFNI_3x5_64Xor_loop:
 mulGFNI_3x5_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_3x5Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_3x5Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_3x5Xor(SB), $0-88
+TEXT ·mulAvxGFNI_3x5Xor(SB), $0-88
 	// Loading 9 of 15 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 22 YMM used
@@ -14774,7 +14774,7 @@ TEXT ·mulAvx2GFNI_3x5Xor(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_3x5Xor_end
+	JZ           mulAvxGFNI_3x5Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -14809,7 +14809,7 @@ TEXT ·mulAvx2GFNI_3x5Xor(SB), $0-88
 	ADDQ R12, SI
 	ADDQ R12, DX
 
-mulAvx2GFNI_3x5Xor_loop:
+mulAvxGFNI_3x5Xor_loop:
 	// Load 5 outputs
 	VMOVDQU (R8), Y9
 	VMOVDQU (R9), Y10
@@ -14879,10 +14879,10 @@ mulAvx2GFNI_3x5Xor_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_3x5Xor_loop
+	JNZ  mulAvxGFNI_3x5Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_3x5Xor_end:
+mulAvxGFNI_3x5Xor_end:
 	RET
 
 // func mulAvxTwo_3x5Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -15340,9 +15340,9 @@ mulGFNI_3x6_64_loop:
 mulGFNI_3x6_64_end:
 	RET
 
-// func mulAvx2GFNI_3x6(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_3x6(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_3x6(SB), $0-88
+TEXT ·mulAvxGFNI_3x6(SB), $0-88
 	// Loading 8 of 18 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 26 YMM used
@@ -15350,7 +15350,7 @@ TEXT ·mulAvx2GFNI_3x6(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_3x6_end
+	JZ           mulAvxGFNI_3x6_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -15386,7 +15386,7 @@ TEXT ·mulAvx2GFNI_3x6(SB), $0-88
 	ADDQ R13, SI
 	ADDQ R13, DX
 
-mulAvx2GFNI_3x6_loop:
+mulAvxGFNI_3x6_loop:
 	// Load and process 32 bytes from input 0 to 6 outputs
 	VMOVDQU        (BX), Y14
 	ADDQ           $0x20, BX
@@ -15455,10 +15455,10 @@ mulAvx2GFNI_3x6_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_3x6_loop
+	JNZ  mulAvxGFNI_3x6_loop
 	VZEROUPPER
 
-mulAvx2GFNI_3x6_end:
+mulAvxGFNI_3x6_end:
 	RET
 
 // func mulGFNI_3x6_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -15596,9 +15596,9 @@ mulGFNI_3x6_64Xor_loop:
 mulGFNI_3x6_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_3x6Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_3x6Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_3x6Xor(SB), $0-88
+TEXT ·mulAvxGFNI_3x6Xor(SB), $0-88
 	// Loading 8 of 18 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 26 YMM used
@@ -15606,7 +15606,7 @@ TEXT ·mulAvx2GFNI_3x6Xor(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_3x6Xor_end
+	JZ           mulAvxGFNI_3x6Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -15642,7 +15642,7 @@ TEXT ·mulAvx2GFNI_3x6Xor(SB), $0-88
 	ADDQ R13, SI
 	ADDQ R13, DX
 
-mulAvx2GFNI_3x6Xor_loop:
+mulAvxGFNI_3x6Xor_loop:
 	// Load 6 outputs
 	VMOVDQU (R8), Y8
 	VMOVDQU (R9), Y9
@@ -15725,10 +15725,10 @@ mulAvx2GFNI_3x6Xor_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_3x6Xor_loop
+	JNZ  mulAvxGFNI_3x6Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_3x6Xor_end:
+mulAvxGFNI_3x6Xor_end:
 	RET
 
 // func mulAvxTwo_3x6Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -16237,9 +16237,9 @@ mulGFNI_3x7_64_loop:
 mulGFNI_3x7_64_end:
 	RET
 
-// func mulAvx2GFNI_3x7(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_3x7(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_3x7(SB), $0-88
+TEXT ·mulAvxGFNI_3x7(SB), $0-88
 	// Loading 7 of 21 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 30 YMM used
@@ -16247,7 +16247,7 @@ TEXT ·mulAvx2GFNI_3x7(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_3x7_end
+	JZ           mulAvxGFNI_3x7_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -16284,7 +16284,7 @@ TEXT ·mulAvx2GFNI_3x7(SB), $0-88
 	ADDQ R14, SI
 	ADDQ R14, DX
 
-mulAvx2GFNI_3x7_loop:
+mulAvxGFNI_3x7_loop:
 	// Load and process 32 bytes from input 0 to 7 outputs
 	VMOVDQU        (BX), Y14
 	ADDQ           $0x20, BX
@@ -16364,10 +16364,10 @@ mulAvx2GFNI_3x7_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_3x7_loop
+	JNZ  mulAvxGFNI_3x7_loop
 	VZEROUPPER
 
-mulAvx2GFNI_3x7_end:
+mulAvxGFNI_3x7_end:
 	RET
 
 // func mulGFNI_3x7_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -16519,9 +16519,9 @@ mulGFNI_3x7_64Xor_loop:
 mulGFNI_3x7_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_3x7Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_3x7Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_3x7Xor(SB), $0-88
+TEXT ·mulAvxGFNI_3x7Xor(SB), $0-88
 	// Loading 7 of 21 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 30 YMM used
@@ -16529,7 +16529,7 @@ TEXT ·mulAvx2GFNI_3x7Xor(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_3x7Xor_end
+	JZ           mulAvxGFNI_3x7Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -16566,7 +16566,7 @@ TEXT ·mulAvx2GFNI_3x7Xor(SB), $0-88
 	ADDQ R14, SI
 	ADDQ R14, DX
 
-mulAvx2GFNI_3x7Xor_loop:
+mulAvxGFNI_3x7Xor_loop:
 	// Load 7 outputs
 	VMOVDQU (R8), Y7
 	VMOVDQU (R9), Y8
@@ -16662,10 +16662,10 @@ mulAvx2GFNI_3x7Xor_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_3x7Xor_loop
+	JNZ  mulAvxGFNI_3x7Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_3x7Xor_end:
+mulAvxGFNI_3x7Xor_end:
 	RET
 
 // func mulAvxTwo_3x7Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -17223,9 +17223,9 @@ mulGFNI_3x8_64_loop:
 mulGFNI_3x8_64_end:
 	RET
 
-// func mulAvx2GFNI_3x8(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_3x8(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_3x8(SB), $0-88
+TEXT ·mulAvxGFNI_3x8(SB), $0-88
 	// Loading 6 of 24 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 34 YMM used
@@ -17233,7 +17233,7 @@ TEXT ·mulAvx2GFNI_3x8(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_3x8_end
+	JZ           mulAvxGFNI_3x8_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -17271,7 +17271,7 @@ TEXT ·mulAvx2GFNI_3x8(SB), $0-88
 	ADDQ R15, SI
 	ADDQ R15, DX
 
-mulAvx2GFNI_3x8_loop:
+mulAvxGFNI_3x8_loop:
 	// Load and process 32 bytes from input 0 to 8 outputs
 	VMOVDQU        (BX), Y14
 	ADDQ           $0x20, BX
@@ -17362,10 +17362,10 @@ mulAvx2GFNI_3x8_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_3x8_loop
+	JNZ  mulAvxGFNI_3x8_loop
 	VZEROUPPER
 
-mulAvx2GFNI_3x8_end:
+mulAvxGFNI_3x8_end:
 	RET
 
 // func mulGFNI_3x8_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -17529,9 +17529,9 @@ mulGFNI_3x8_64Xor_loop:
 mulGFNI_3x8_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_3x8Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_3x8Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_3x8Xor(SB), $0-88
+TEXT ·mulAvxGFNI_3x8Xor(SB), $0-88
 	// Loading 6 of 24 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 34 YMM used
@@ -17539,7 +17539,7 @@ TEXT ·mulAvx2GFNI_3x8Xor(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_3x8Xor_end
+	JZ           mulAvxGFNI_3x8Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -17577,7 +17577,7 @@ TEXT ·mulAvx2GFNI_3x8Xor(SB), $0-88
 	ADDQ R15, SI
 	ADDQ R15, DX
 
-mulAvx2GFNI_3x8Xor_loop:
+mulAvxGFNI_3x8Xor_loop:
 	// Load 8 outputs
 	VMOVDQU (R8), Y6
 	VMOVDQU (R9), Y7
@@ -17686,10 +17686,10 @@ mulAvx2GFNI_3x8Xor_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_3x8Xor_loop
+	JNZ  mulAvxGFNI_3x8Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_3x8Xor_end:
+mulAvxGFNI_3x8Xor_end:
 	RET
 
 // func mulAvxTwo_3x8Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -18294,9 +18294,9 @@ mulGFNI_3x9_64_loop:
 mulGFNI_3x9_64_end:
 	RET
 
-// func mulAvx2GFNI_3x9(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_3x9(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_3x9(SB), $8-88
+TEXT ·mulAvxGFNI_3x9(SB), $8-88
 	// Loading 5 of 27 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 38 YMM used
@@ -18304,7 +18304,7 @@ TEXT ·mulAvx2GFNI_3x9(SB), $8-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_3x9_end
+	JZ           mulAvxGFNI_3x9_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -18343,7 +18343,7 @@ TEXT ·mulAvx2GFNI_3x9(SB), $8-88
 	ADDQ BP, SI
 	ADDQ BP, DX
 
-mulAvx2GFNI_3x9_loop:
+mulAvxGFNI_3x9_loop:
 	// Load and process 32 bytes from input 0 to 9 outputs
 	VMOVDQU        (BX), Y14
 	ADDQ           $0x20, BX
@@ -18445,10 +18445,10 @@ mulAvx2GFNI_3x9_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_3x9_loop
+	JNZ  mulAvxGFNI_3x9_loop
 	VZEROUPPER
 
-mulAvx2GFNI_3x9_end:
+mulAvxGFNI_3x9_end:
 	RET
 
 // func mulGFNI_3x9_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -18622,9 +18622,9 @@ mulGFNI_3x9_64Xor_loop:
 mulGFNI_3x9_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_3x9Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_3x9Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_3x9Xor(SB), $8-88
+TEXT ·mulAvxGFNI_3x9Xor(SB), $8-88
 	// Loading 5 of 27 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 38 YMM used
@@ -18632,7 +18632,7 @@ TEXT ·mulAvx2GFNI_3x9Xor(SB), $8-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_3x9Xor_end
+	JZ           mulAvxGFNI_3x9Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -18671,7 +18671,7 @@ TEXT ·mulAvx2GFNI_3x9Xor(SB), $8-88
 	ADDQ BP, SI
 	ADDQ BP, DX
 
-mulAvx2GFNI_3x9Xor_loop:
+mulAvxGFNI_3x9Xor_loop:
 	// Load 9 outputs
 	VMOVDQU (R8), Y5
 	VMOVDQU (R9), Y6
@@ -18793,10 +18793,10 @@ mulAvx2GFNI_3x9Xor_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_3x9Xor_loop
+	JNZ  mulAvxGFNI_3x9Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_3x9Xor_end:
+mulAvxGFNI_3x9Xor_end:
 	RET
 
 // func mulAvxTwo_3x9Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -19454,9 +19454,9 @@ mulGFNI_3x10_64_loop:
 mulGFNI_3x10_64_end:
 	RET
 
-// func mulAvx2GFNI_3x10(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_3x10(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_3x10(SB), $8-88
+TEXT ·mulAvxGFNI_3x10(SB), $8-88
 	// Loading 4 of 30 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 42 YMM used
@@ -19464,7 +19464,7 @@ TEXT ·mulAvx2GFNI_3x10(SB), $8-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_3x10_end
+	JZ           mulAvxGFNI_3x10_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -19508,7 +19508,7 @@ TEXT ·mulAvx2GFNI_3x10(SB), $8-88
 	MOVQ n+80(FP), BP
 	SHRQ $0x05, BP
 
-mulAvx2GFNI_3x10_loop:
+mulAvxGFNI_3x10_loop:
 	// Load and process 32 bytes from input 0 to 10 outputs
 	VMOVDQU        (DX), Y14
 	ADDQ           $0x20, DX
@@ -19621,10 +19621,10 @@ mulAvx2GFNI_3x10_loop:
 
 	// Prepare for next loop
 	DECQ BP
-	JNZ  mulAvx2GFNI_3x10_loop
+	JNZ  mulAvxGFNI_3x10_loop
 	VZEROUPPER
 
-mulAvx2GFNI_3x10_end:
+mulAvxGFNI_3x10_end:
 	RET
 
 // func mulGFNI_3x10_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -19812,9 +19812,9 @@ mulGFNI_3x10_64Xor_loop:
 mulGFNI_3x10_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_3x10Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_3x10Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_3x10Xor(SB), $8-88
+TEXT ·mulAvxGFNI_3x10Xor(SB), $8-88
 	// Loading 4 of 30 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 42 YMM used
@@ -19822,7 +19822,7 @@ TEXT ·mulAvx2GFNI_3x10Xor(SB), $8-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_3x10Xor_end
+	JZ           mulAvxGFNI_3x10Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -19866,7 +19866,7 @@ TEXT ·mulAvx2GFNI_3x10Xor(SB), $8-88
 	MOVQ n+80(FP), BP
 	SHRQ $0x05, BP
 
-mulAvx2GFNI_3x10Xor_loop:
+mulAvxGFNI_3x10Xor_loop:
 	// Load 10 outputs
 	VMOVDQU (DI), Y4
 	VMOVDQU (R8), Y5
@@ -20001,10 +20001,10 @@ mulAvx2GFNI_3x10Xor_loop:
 
 	// Prepare for next loop
 	DECQ BP
-	JNZ  mulAvx2GFNI_3x10Xor_loop
+	JNZ  mulAvxGFNI_3x10Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_3x10Xor_end:
+mulAvxGFNI_3x10Xor_end:
 	RET
 
 // func mulAvxTwo_3x10Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -20462,9 +20462,9 @@ mulGFNI_4x1_64_loop:
 mulGFNI_4x1_64_end:
 	RET
 
-// func mulAvx2GFNI_4x1(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_4x1(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_4x1(SB), $0-88
+TEXT ·mulAvxGFNI_4x1(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 7 YMM used
@@ -20472,7 +20472,7 @@ TEXT ·mulAvx2GFNI_4x1(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_4x1_end
+	JZ           mulAvxGFNI_4x1_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -20496,7 +20496,7 @@ TEXT ·mulAvx2GFNI_4x1(SB), $0-88
 	ADDQ R8, SI
 	ADDQ R8, CX
 
-mulAvx2GFNI_4x1_loop:
+mulAvxGFNI_4x1_loop:
 	// Load and process 32 bytes from input 0 to 1 outputs
 	VMOVDQU        (DX), Y5
 	ADDQ           $0x20, DX
@@ -20526,10 +20526,10 @@ mulAvx2GFNI_4x1_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_4x1_loop
+	JNZ  mulAvxGFNI_4x1_loop
 	VZEROUPPER
 
-mulAvx2GFNI_4x1_end:
+mulAvxGFNI_4x1_end:
 	RET
 
 // func mulGFNI_4x1_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -20606,9 +20606,9 @@ mulGFNI_4x1_64Xor_loop:
 mulGFNI_4x1_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_4x1Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_4x1Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_4x1Xor(SB), $0-88
+TEXT ·mulAvxGFNI_4x1Xor(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 7 YMM used
@@ -20616,7 +20616,7 @@ TEXT ·mulAvx2GFNI_4x1Xor(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_4x1Xor_end
+	JZ           mulAvxGFNI_4x1Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -20640,7 +20640,7 @@ TEXT ·mulAvx2GFNI_4x1Xor(SB), $0-88
 	ADDQ R8, SI
 	ADDQ R8, CX
 
-mulAvx2GFNI_4x1Xor_loop:
+mulAvxGFNI_4x1Xor_loop:
 	// Load 1 outputs
 	VMOVDQU (DI), Y4
 
@@ -20674,10 +20674,10 @@ mulAvx2GFNI_4x1Xor_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_4x1Xor_loop
+	JNZ  mulAvxGFNI_4x1Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_4x1Xor_end:
+mulAvxGFNI_4x1Xor_end:
 	RET
 
 // func mulAvxTwo_4x1_64Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -21052,9 +21052,9 @@ mulGFNI_4x2_64_loop:
 mulGFNI_4x2_64_end:
 	RET
 
-// func mulAvx2GFNI_4x2(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_4x2(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_4x2(SB), $0-88
+TEXT ·mulAvxGFNI_4x2(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 12 YMM used
@@ -21062,7 +21062,7 @@ TEXT ·mulAvx2GFNI_4x2(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_4x2_end
+	JZ           mulAvxGFNI_4x2_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -21092,7 +21092,7 @@ TEXT ·mulAvx2GFNI_4x2(SB), $0-88
 	ADDQ R9, SI
 	ADDQ R9, CX
 
-mulAvx2GFNI_4x2_loop:
+mulAvxGFNI_4x2_loop:
 	// Load and process 32 bytes from input 0 to 2 outputs
 	VMOVDQU        (DX), Y10
 	ADDQ           $0x20, DX
@@ -21131,10 +21131,10 @@ mulAvx2GFNI_4x2_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_4x2_loop
+	JNZ  mulAvxGFNI_4x2_loop
 	VZEROUPPER
 
-mulAvx2GFNI_4x2_end:
+mulAvxGFNI_4x2_end:
 	RET
 
 // func mulGFNI_4x2_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -21228,9 +21228,9 @@ mulGFNI_4x2_64Xor_loop:
 mulGFNI_4x2_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_4x2Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_4x2Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_4x2Xor(SB), $0-88
+TEXT ·mulAvxGFNI_4x2Xor(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 12 YMM used
@@ -21238,7 +21238,7 @@ TEXT ·mulAvx2GFNI_4x2Xor(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_4x2Xor_end
+	JZ           mulAvxGFNI_4x2Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -21268,7 +21268,7 @@ TEXT ·mulAvx2GFNI_4x2Xor(SB), $0-88
 	ADDQ R9, SI
 	ADDQ R9, CX
 
-mulAvx2GFNI_4x2Xor_loop:
+mulAvxGFNI_4x2Xor_loop:
 	// Load 2 outputs
 	VMOVDQU (R8), Y8
 	VMOVDQU (DI), Y9
@@ -21313,10 +21313,10 @@ mulAvx2GFNI_4x2Xor_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_4x2Xor_loop
+	JNZ  mulAvxGFNI_4x2Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_4x2Xor_end:
+mulAvxGFNI_4x2Xor_end:
 	RET
 
 // func mulAvxTwo_4x2_64Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -21782,9 +21782,9 @@ mulGFNI_4x3_64_loop:
 mulGFNI_4x3_64_end:
 	RET
 
-// func mulAvx2GFNI_4x3(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_4x3(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_4x3(SB), $0-88
+TEXT ·mulAvxGFNI_4x3(SB), $0-88
 	// Loading 11 of 12 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 17 YMM used
@@ -21792,7 +21792,7 @@ TEXT ·mulAvx2GFNI_4x3(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_4x3_end
+	JZ           mulAvxGFNI_4x3_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -21827,7 +21827,7 @@ TEXT ·mulAvx2GFNI_4x3(SB), $0-88
 	ADDQ R11, DI
 	ADDQ R11, DX
 
-mulAvx2GFNI_4x3_loop:
+mulAvxGFNI_4x3_loop:
 	// Load and process 32 bytes from input 0 to 3 outputs
 	VMOVDQU        (BX), Y14
 	ADDQ           $0x20, BX
@@ -21876,10 +21876,10 @@ mulAvx2GFNI_4x3_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_4x3_loop
+	JNZ  mulAvxGFNI_4x3_loop
 	VZEROUPPER
 
-mulAvx2GFNI_4x3_end:
+mulAvxGFNI_4x3_end:
 	RET
 
 // func mulGFNI_4x3_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -21990,9 +21990,9 @@ mulGFNI_4x3_64Xor_loop:
 mulGFNI_4x3_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_4x3Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_4x3Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_4x3Xor(SB), $0-88
+TEXT ·mulAvxGFNI_4x3Xor(SB), $0-88
 	// Loading 11 of 12 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 17 YMM used
@@ -22000,7 +22000,7 @@ TEXT ·mulAvx2GFNI_4x3Xor(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_4x3Xor_end
+	JZ           mulAvxGFNI_4x3Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -22035,7 +22035,7 @@ TEXT ·mulAvx2GFNI_4x3Xor(SB), $0-88
 	ADDQ R11, DI
 	ADDQ R11, DX
 
-mulAvx2GFNI_4x3Xor_loop:
+mulAvxGFNI_4x3Xor_loop:
 	// Load 3 outputs
 	VMOVDQU (R9), Y11
 	VMOVDQU (R10), Y12
@@ -22092,10 +22092,10 @@ mulAvx2GFNI_4x3Xor_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_4x3Xor_loop
+	JNZ  mulAvxGFNI_4x3Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_4x3Xor_end:
+mulAvxGFNI_4x3Xor_end:
 	RET
 
 // func mulAvxTwo_4x3_64Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -22583,9 +22583,9 @@ mulGFNI_4x4_64_loop:
 mulGFNI_4x4_64_end:
 	RET
 
-// func mulAvx2GFNI_4x4(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_4x4(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_4x4(SB), $0-88
+TEXT ·mulAvxGFNI_4x4(SB), $0-88
 	// Loading 10 of 16 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 22 YMM used
@@ -22593,7 +22593,7 @@ TEXT ·mulAvx2GFNI_4x4(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_4x4_end
+	JZ           mulAvxGFNI_4x4_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -22629,7 +22629,7 @@ TEXT ·mulAvx2GFNI_4x4(SB), $0-88
 	ADDQ R12, DI
 	ADDQ R12, DX
 
-mulAvx2GFNI_4x4_loop:
+mulAvxGFNI_4x4_loop:
 	// Load and process 32 bytes from input 0 to 4 outputs
 	VMOVDQU        (BX), Y14
 	ADDQ           $0x20, BX
@@ -22692,10 +22692,10 @@ mulAvx2GFNI_4x4_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_4x4_loop
+	JNZ  mulAvxGFNI_4x4_loop
 	VZEROUPPER
 
-mulAvx2GFNI_4x4_end:
+mulAvxGFNI_4x4_end:
 	RET
 
 // func mulGFNI_4x4_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -22823,9 +22823,9 @@ mulGFNI_4x4_64Xor_loop:
 mulGFNI_4x4_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_4x4Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_4x4Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_4x4Xor(SB), $0-88
+TEXT ·mulAvxGFNI_4x4Xor(SB), $0-88
 	// Loading 10 of 16 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 22 YMM used
@@ -22833,7 +22833,7 @@ TEXT ·mulAvx2GFNI_4x4Xor(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_4x4Xor_end
+	JZ           mulAvxGFNI_4x4Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -22869,7 +22869,7 @@ TEXT ·mulAvx2GFNI_4x4Xor(SB), $0-88
 	ADDQ R12, DI
 	ADDQ R12, DX
 
-mulAvx2GFNI_4x4Xor_loop:
+mulAvxGFNI_4x4Xor_loop:
 	// Load 4 outputs
 	VMOVDQU (R9), Y10
 	VMOVDQU (R10), Y11
@@ -22942,10 +22942,10 @@ mulAvx2GFNI_4x4Xor_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_4x4Xor_loop
+	JNZ  mulAvxGFNI_4x4Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_4x4Xor_end:
+mulAvxGFNI_4x4Xor_end:
 	RET
 
 // func mulAvxTwo_4x4Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -23436,9 +23436,9 @@ mulGFNI_4x5_64_loop:
 mulGFNI_4x5_64_end:
 	RET
 
-// func mulAvx2GFNI_4x5(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_4x5(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_4x5(SB), $0-88
+TEXT ·mulAvxGFNI_4x5(SB), $0-88
 	// Loading 9 of 20 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 27 YMM used
@@ -23446,7 +23446,7 @@ TEXT ·mulAvx2GFNI_4x5(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_4x5_end
+	JZ           mulAvxGFNI_4x5_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -23483,7 +23483,7 @@ TEXT ·mulAvx2GFNI_4x5(SB), $0-88
 	ADDQ R13, DI
 	ADDQ R13, DX
 
-mulAvx2GFNI_4x5_loop:
+mulAvxGFNI_4x5_loop:
 	// Load and process 32 bytes from input 0 to 5 outputs
 	VMOVDQU        (BX), Y14
 	ADDQ           $0x20, BX
@@ -23560,10 +23560,10 @@ mulAvx2GFNI_4x5_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_4x5_loop
+	JNZ  mulAvxGFNI_4x5_loop
 	VZEROUPPER
 
-mulAvx2GFNI_4x5_end:
+mulAvxGFNI_4x5_end:
 	RET
 
 // func mulGFNI_4x5_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -23708,9 +23708,9 @@ mulGFNI_4x5_64Xor_loop:
 mulGFNI_4x5_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_4x5Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_4x5Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_4x5Xor(SB), $0-88
+TEXT ·mulAvxGFNI_4x5Xor(SB), $0-88
 	// Loading 9 of 20 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 27 YMM used
@@ -23718,7 +23718,7 @@ TEXT ·mulAvx2GFNI_4x5Xor(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_4x5Xor_end
+	JZ           mulAvxGFNI_4x5Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -23755,7 +23755,7 @@ TEXT ·mulAvx2GFNI_4x5Xor(SB), $0-88
 	ADDQ R13, DI
 	ADDQ R13, DX
 
-mulAvx2GFNI_4x5Xor_loop:
+mulAvxGFNI_4x5Xor_loop:
 	// Load 5 outputs
 	VMOVDQU (R9), Y9
 	VMOVDQU (R10), Y10
@@ -23844,10 +23844,10 @@ mulAvx2GFNI_4x5Xor_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_4x5Xor_loop
+	JNZ  mulAvxGFNI_4x5Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_4x5Xor_end:
+mulAvxGFNI_4x5Xor_end:
 	RET
 
 // func mulAvxTwo_4x5Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -24402,9 +24402,9 @@ mulGFNI_4x6_64_loop:
 mulGFNI_4x6_64_end:
 	RET
 
-// func mulAvx2GFNI_4x6(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_4x6(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_4x6(SB), $0-88
+TEXT ·mulAvxGFNI_4x6(SB), $0-88
 	// Loading 8 of 24 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 32 YMM used
@@ -24412,7 +24412,7 @@ TEXT ·mulAvx2GFNI_4x6(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_4x6_end
+	JZ           mulAvxGFNI_4x6_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -24450,7 +24450,7 @@ TEXT ·mulAvx2GFNI_4x6(SB), $0-88
 	ADDQ R14, DI
 	ADDQ R14, DX
 
-mulAvx2GFNI_4x6_loop:
+mulAvxGFNI_4x6_loop:
 	// Load and process 32 bytes from input 0 to 6 outputs
 	VMOVDQU        (BX), Y14
 	ADDQ           $0x20, BX
@@ -24541,10 +24541,10 @@ mulAvx2GFNI_4x6_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_4x6_loop
+	JNZ  mulAvxGFNI_4x6_loop
 	VZEROUPPER
 
-mulAvx2GFNI_4x6_end:
+mulAvxGFNI_4x6_end:
 	RET
 
 // func mulGFNI_4x6_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -24706,9 +24706,9 @@ mulGFNI_4x6_64Xor_loop:
 mulGFNI_4x6_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_4x6Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_4x6Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_4x6Xor(SB), $0-88
+TEXT ·mulAvxGFNI_4x6Xor(SB), $0-88
 	// Loading 8 of 24 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 32 YMM used
@@ -24716,7 +24716,7 @@ TEXT ·mulAvx2GFNI_4x6Xor(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_4x6Xor_end
+	JZ           mulAvxGFNI_4x6Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -24754,7 +24754,7 @@ TEXT ·mulAvx2GFNI_4x6Xor(SB), $0-88
 	ADDQ R14, DI
 	ADDQ R14, DX
 
-mulAvx2GFNI_4x6Xor_loop:
+mulAvxGFNI_4x6Xor_loop:
 	// Load 6 outputs
 	VMOVDQU (R9), Y8
 	VMOVDQU (R10), Y9
@@ -24859,10 +24859,10 @@ mulAvx2GFNI_4x6Xor_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_4x6Xor_loop
+	JNZ  mulAvxGFNI_4x6Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_4x6Xor_end:
+mulAvxGFNI_4x6Xor_end:
 	RET
 
 // func mulAvxTwo_4x6Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -25476,9 +25476,9 @@ mulGFNI_4x7_64_loop:
 mulGFNI_4x7_64_end:
 	RET
 
-// func mulAvx2GFNI_4x7(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_4x7(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_4x7(SB), $0-88
+TEXT ·mulAvxGFNI_4x7(SB), $0-88
 	// Loading 7 of 28 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 37 YMM used
@@ -25486,7 +25486,7 @@ TEXT ·mulAvx2GFNI_4x7(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_4x7_end
+	JZ           mulAvxGFNI_4x7_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -25525,7 +25525,7 @@ TEXT ·mulAvx2GFNI_4x7(SB), $0-88
 	ADDQ R15, DI
 	ADDQ R15, DX
 
-mulAvx2GFNI_4x7_loop:
+mulAvxGFNI_4x7_loop:
 	// Load and process 32 bytes from input 0 to 7 outputs
 	VMOVDQU        (BX), Y14
 	ADDQ           $0x20, BX
@@ -25630,10 +25630,10 @@ mulAvx2GFNI_4x7_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_4x7_loop
+	JNZ  mulAvxGFNI_4x7_loop
 	VZEROUPPER
 
-mulAvx2GFNI_4x7_end:
+mulAvxGFNI_4x7_end:
 	RET
 
 // func mulGFNI_4x7_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -25807,9 +25807,9 @@ mulGFNI_4x7_64Xor_loop:
 mulGFNI_4x7_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_4x7Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_4x7Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_4x7Xor(SB), $0-88
+TEXT ·mulAvxGFNI_4x7Xor(SB), $0-88
 	// Loading 7 of 28 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 37 YMM used
@@ -25817,7 +25817,7 @@ TEXT ·mulAvx2GFNI_4x7Xor(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_4x7Xor_end
+	JZ           mulAvxGFNI_4x7Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -25856,7 +25856,7 @@ TEXT ·mulAvx2GFNI_4x7Xor(SB), $0-88
 	ADDQ R15, DI
 	ADDQ R15, DX
 
-mulAvx2GFNI_4x7Xor_loop:
+mulAvxGFNI_4x7Xor_loop:
 	// Load 7 outputs
 	VMOVDQU (R9), Y7
 	VMOVDQU (R10), Y8
@@ -25977,10 +25977,10 @@ mulAvx2GFNI_4x7Xor_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_4x7Xor_loop
+	JNZ  mulAvxGFNI_4x7Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_4x7Xor_end:
+mulAvxGFNI_4x7Xor_end:
 	RET
 
 // func mulAvxTwo_4x7Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -26653,9 +26653,9 @@ mulGFNI_4x8_64_loop:
 mulGFNI_4x8_64_end:
 	RET
 
-// func mulAvx2GFNI_4x8(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_4x8(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_4x8(SB), $8-88
+TEXT ·mulAvxGFNI_4x8(SB), $8-88
 	// Loading 6 of 32 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 42 YMM used
@@ -26663,7 +26663,7 @@ TEXT ·mulAvx2GFNI_4x8(SB), $8-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_4x8_end
+	JZ           mulAvxGFNI_4x8_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -26703,7 +26703,7 @@ TEXT ·mulAvx2GFNI_4x8(SB), $8-88
 	ADDQ BP, DI
 	ADDQ BP, DX
 
-mulAvx2GFNI_4x8_loop:
+mulAvxGFNI_4x8_loop:
 	// Load and process 32 bytes from input 0 to 8 outputs
 	VMOVDQU        (BX), Y14
 	ADDQ           $0x20, BX
@@ -26822,10 +26822,10 @@ mulAvx2GFNI_4x8_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_4x8_loop
+	JNZ  mulAvxGFNI_4x8_loop
 	VZEROUPPER
 
-mulAvx2GFNI_4x8_end:
+mulAvxGFNI_4x8_end:
 	RET
 
 // func mulGFNI_4x8_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -27011,9 +27011,9 @@ mulGFNI_4x8_64Xor_loop:
 mulGFNI_4x8_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_4x8Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_4x8Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_4x8Xor(SB), $8-88
+TEXT ·mulAvxGFNI_4x8Xor(SB), $8-88
 	// Loading 6 of 32 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 42 YMM used
@@ -27021,7 +27021,7 @@ TEXT ·mulAvx2GFNI_4x8Xor(SB), $8-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_4x8Xor_end
+	JZ           mulAvxGFNI_4x8Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -27061,7 +27061,7 @@ TEXT ·mulAvx2GFNI_4x8Xor(SB), $8-88
 	ADDQ BP, DI
 	ADDQ BP, DX
 
-mulAvx2GFNI_4x8Xor_loop:
+mulAvxGFNI_4x8Xor_loop:
 	// Load 8 outputs
 	VMOVDQU (R9), Y6
 	VMOVDQU (R10), Y7
@@ -27198,10 +27198,10 @@ mulAvx2GFNI_4x8Xor_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_4x8Xor_loop
+	JNZ  mulAvxGFNI_4x8Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_4x8Xor_end:
+mulAvxGFNI_4x8Xor_end:
 	RET
 
 // func mulAvxTwo_4x8Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -27939,9 +27939,9 @@ mulGFNI_4x9_64_loop:
 mulGFNI_4x9_64_end:
 	RET
 
-// func mulAvx2GFNI_4x9(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_4x9(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_4x9(SB), $8-88
+TEXT ·mulAvxGFNI_4x9(SB), $8-88
 	// Loading 5 of 36 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 47 YMM used
@@ -27949,7 +27949,7 @@ TEXT ·mulAvx2GFNI_4x9(SB), $8-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_4x9_end
+	JZ           mulAvxGFNI_4x9_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -27994,7 +27994,7 @@ TEXT ·mulAvx2GFNI_4x9(SB), $8-88
 	MOVQ n+80(FP), BP
 	SHRQ $0x05, BP
 
-mulAvx2GFNI_4x9_loop:
+mulAvxGFNI_4x9_loop:
 	// Load and process 32 bytes from input 0 to 9 outputs
 	VMOVDQU        (DX), Y14
 	ADDQ           $0x20, DX
@@ -28127,10 +28127,10 @@ mulAvx2GFNI_4x9_loop:
 
 	// Prepare for next loop
 	DECQ BP
-	JNZ  mulAvx2GFNI_4x9_loop
+	JNZ  mulAvxGFNI_4x9_loop
 	VZEROUPPER
 
-mulAvx2GFNI_4x9_end:
+mulAvxGFNI_4x9_end:
 	RET
 
 // func mulGFNI_4x9_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -28332,9 +28332,9 @@ mulGFNI_4x9_64Xor_loop:
 mulGFNI_4x9_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_4x9Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_4x9Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_4x9Xor(SB), $8-88
+TEXT ·mulAvxGFNI_4x9Xor(SB), $8-88
 	// Loading 5 of 36 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 47 YMM used
@@ -28342,7 +28342,7 @@ TEXT ·mulAvx2GFNI_4x9Xor(SB), $8-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_4x9Xor_end
+	JZ           mulAvxGFNI_4x9Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -28387,7 +28387,7 @@ TEXT ·mulAvx2GFNI_4x9Xor(SB), $8-88
 	MOVQ n+80(FP), BP
 	SHRQ $0x05, BP
 
-mulAvx2GFNI_4x9Xor_loop:
+mulAvxGFNI_4x9Xor_loop:
 	// Load 9 outputs
 	VMOVDQU (R8), Y5
 	VMOVDQU (R9), Y6
@@ -28540,10 +28540,10 @@ mulAvx2GFNI_4x9Xor_loop:
 
 	// Prepare for next loop
 	DECQ BP
-	JNZ  mulAvx2GFNI_4x9Xor_loop
+	JNZ  mulAvxGFNI_4x9Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_4x9Xor_end:
+mulAvxGFNI_4x9Xor_end:
 	RET
 
 // func mulAvxTwo_4x9Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -29294,9 +29294,9 @@ mulGFNI_4x10_64_loop:
 mulGFNI_4x10_64_end:
 	RET
 
-// func mulAvx2GFNI_4x10(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_4x10(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_4x10(SB), $0-88
+TEXT ·mulAvxGFNI_4x10(SB), $0-88
 	// Loading 4 of 40 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 52 YMM used
@@ -29304,7 +29304,7 @@ TEXT ·mulAvx2GFNI_4x10(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_4x10_end
+	JZ           mulAvxGFNI_4x10_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -29324,7 +29324,7 @@ TEXT ·mulAvx2GFNI_4x10(SB), $0-88
 	ADDQ R9, DI
 	ADDQ R9, DX
 
-mulAvx2GFNI_4x10_loop:
+mulAvxGFNI_4x10_loop:
 	// Load and process 32 bytes from input 0 to 10 outputs
 	VMOVDQU        (BX), Y14
 	ADDQ           $0x20, BX
@@ -29472,10 +29472,10 @@ mulAvx2GFNI_4x10_loop:
 	// Prepare for next loop
 	ADDQ $0x20, R9
 	DECQ AX
-	JNZ  mulAvx2GFNI_4x10_loop
+	JNZ  mulAvxGFNI_4x10_loop
 	VZEROUPPER
 
-mulAvx2GFNI_4x10_end:
+mulAvxGFNI_4x10_end:
 	RET
 
 // func mulGFNI_4x10_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -29674,9 +29674,9 @@ mulGFNI_4x10_64Xor_loop:
 mulGFNI_4x10_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_4x10Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_4x10Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_4x10Xor(SB), $0-88
+TEXT ·mulAvxGFNI_4x10Xor(SB), $0-88
 	// Loading 4 of 40 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 52 YMM used
@@ -29684,7 +29684,7 @@ TEXT ·mulAvx2GFNI_4x10Xor(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_4x10Xor_end
+	JZ           mulAvxGFNI_4x10Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -29704,7 +29704,7 @@ TEXT ·mulAvx2GFNI_4x10Xor(SB), $0-88
 	ADDQ R9, DI
 	ADDQ R9, DX
 
-mulAvx2GFNI_4x10Xor_loop:
+mulAvxGFNI_4x10Xor_loop:
 	// Load 10 outputs
 	MOVQ    (R8), R10
 	VMOVDQU (R10)(R9*1), Y4
@@ -29884,10 +29884,10 @@ mulAvx2GFNI_4x10Xor_loop:
 	// Prepare for next loop
 	ADDQ $0x20, R9
 	DECQ AX
-	JNZ  mulAvx2GFNI_4x10Xor_loop
+	JNZ  mulAvxGFNI_4x10Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_4x10Xor_end:
+mulAvxGFNI_4x10Xor_end:
 	RET
 
 // func mulAvxTwo_4x10Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -30421,9 +30421,9 @@ mulGFNI_5x1_64_loop:
 mulGFNI_5x1_64_end:
 	RET
 
-// func mulAvx2GFNI_5x1(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_5x1(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_5x1(SB), $0-88
+TEXT ·mulAvxGFNI_5x1(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 8 YMM used
@@ -30431,7 +30431,7 @@ TEXT ·mulAvx2GFNI_5x1(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_5x1_end
+	JZ           mulAvxGFNI_5x1_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -30458,7 +30458,7 @@ TEXT ·mulAvx2GFNI_5x1(SB), $0-88
 	ADDQ R9, DI
 	ADDQ R9, CX
 
-mulAvx2GFNI_5x1_loop:
+mulAvxGFNI_5x1_loop:
 	// Load and process 32 bytes from input 0 to 1 outputs
 	VMOVDQU        (DX), Y6
 	ADDQ           $0x20, DX
@@ -30494,10 +30494,10 @@ mulAvx2GFNI_5x1_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_5x1_loop
+	JNZ  mulAvxGFNI_5x1_loop
 	VZEROUPPER
 
-mulAvx2GFNI_5x1_end:
+mulAvxGFNI_5x1_end:
 	RET
 
 // func mulGFNI_5x1_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -30583,9 +30583,9 @@ mulGFNI_5x1_64Xor_loop:
 mulGFNI_5x1_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_5x1Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_5x1Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_5x1Xor(SB), $0-88
+TEXT ·mulAvxGFNI_5x1Xor(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 8 YMM used
@@ -30593,7 +30593,7 @@ TEXT ·mulAvx2GFNI_5x1Xor(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_5x1Xor_end
+	JZ           mulAvxGFNI_5x1Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -30620,7 +30620,7 @@ TEXT ·mulAvx2GFNI_5x1Xor(SB), $0-88
 	ADDQ R9, DI
 	ADDQ R9, CX
 
-mulAvx2GFNI_5x1Xor_loop:
+mulAvxGFNI_5x1Xor_loop:
 	// Load 1 outputs
 	VMOVDQU (R8), Y5
 
@@ -30660,10 +30660,10 @@ mulAvx2GFNI_5x1Xor_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_5x1Xor_loop
+	JNZ  mulAvxGFNI_5x1Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_5x1Xor_end:
+mulAvxGFNI_5x1Xor_end:
 	RET
 
 // func mulAvxTwo_5x1_64Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -31100,9 +31100,9 @@ mulGFNI_5x2_64_loop:
 mulGFNI_5x2_64_end:
 	RET
 
-// func mulAvx2GFNI_5x2(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_5x2(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_5x2(SB), $0-88
+TEXT ·mulAvxGFNI_5x2(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 14 YMM used
@@ -31110,7 +31110,7 @@ TEXT ·mulAvx2GFNI_5x2(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_5x2_end
+	JZ           mulAvxGFNI_5x2_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -31144,7 +31144,7 @@ TEXT ·mulAvx2GFNI_5x2(SB), $0-88
 	ADDQ R10, DI
 	ADDQ R10, CX
 
-mulAvx2GFNI_5x2_loop:
+mulAvxGFNI_5x2_loop:
 	// Load and process 32 bytes from input 0 to 2 outputs
 	VMOVDQU        (DX), Y12
 	ADDQ           $0x20, DX
@@ -31191,10 +31191,10 @@ mulAvx2GFNI_5x2_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_5x2_loop
+	JNZ  mulAvxGFNI_5x2_loop
 	VZEROUPPER
 
-mulAvx2GFNI_5x2_end:
+mulAvxGFNI_5x2_end:
 	RET
 
 // func mulGFNI_5x2_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -31300,9 +31300,9 @@ mulGFNI_5x2_64Xor_loop:
 mulGFNI_5x2_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_5x2Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_5x2Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_5x2Xor(SB), $0-88
+TEXT ·mulAvxGFNI_5x2Xor(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 14 YMM used
@@ -31310,7 +31310,7 @@ TEXT ·mulAvx2GFNI_5x2Xor(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_5x2Xor_end
+	JZ           mulAvxGFNI_5x2Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -31344,7 +31344,7 @@ TEXT ·mulAvx2GFNI_5x2Xor(SB), $0-88
 	ADDQ R10, DI
 	ADDQ R10, CX
 
-mulAvx2GFNI_5x2Xor_loop:
+mulAvxGFNI_5x2Xor_loop:
 	// Load 2 outputs
 	VMOVDQU (R9), Y10
 	VMOVDQU (R8), Y11
@@ -31397,10 +31397,10 @@ mulAvx2GFNI_5x2Xor_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_5x2Xor_loop
+	JNZ  mulAvxGFNI_5x2Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_5x2Xor_end:
+mulAvxGFNI_5x2Xor_end:
 	RET
 
 // func mulAvxTwo_5x2_64Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -31947,9 +31947,9 @@ mulGFNI_5x3_64_loop:
 mulGFNI_5x3_64_end:
 	RET
 
-// func mulAvx2GFNI_5x3(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_5x3(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_5x3(SB), $0-88
+TEXT ·mulAvxGFNI_5x3(SB), $0-88
 	// Loading 11 of 15 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 20 YMM used
@@ -31957,7 +31957,7 @@ TEXT ·mulAvx2GFNI_5x3(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_5x3_end
+	JZ           mulAvxGFNI_5x3_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -31994,7 +31994,7 @@ TEXT ·mulAvx2GFNI_5x3(SB), $0-88
 	ADDQ R12, R8
 	ADDQ R12, DX
 
-mulAvx2GFNI_5x3_loop:
+mulAvxGFNI_5x3_loop:
 	// Load and process 32 bytes from input 0 to 3 outputs
 	VMOVDQU        (BX), Y14
 	ADDQ           $0x20, BX
@@ -32056,10 +32056,10 @@ mulAvx2GFNI_5x3_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_5x3_loop
+	JNZ  mulAvxGFNI_5x3_loop
 	VZEROUPPER
 
-mulAvx2GFNI_5x3_end:
+mulAvxGFNI_5x3_end:
 	RET
 
 // func mulGFNI_5x3_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -32185,9 +32185,9 @@ mulGFNI_5x3_64Xor_loop:
 mulGFNI_5x3_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_5x3Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_5x3Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_5x3Xor(SB), $0-88
+TEXT ·mulAvxGFNI_5x3Xor(SB), $0-88
 	// Loading 11 of 15 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 20 YMM used
@@ -32195,7 +32195,7 @@ TEXT ·mulAvx2GFNI_5x3Xor(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_5x3Xor_end
+	JZ           mulAvxGFNI_5x3Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -32232,7 +32232,7 @@ TEXT ·mulAvx2GFNI_5x3Xor(SB), $0-88
 	ADDQ R12, R8
 	ADDQ R12, DX
 
-mulAvx2GFNI_5x3Xor_loop:
+mulAvxGFNI_5x3Xor_loop:
 	// Load 3 outputs
 	VMOVDQU (R10), Y11
 	VMOVDQU (R11), Y12
@@ -32302,10 +32302,10 @@ mulAvx2GFNI_5x3Xor_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_5x3Xor_loop
+	JNZ  mulAvxGFNI_5x3Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_5x3Xor_end:
+mulAvxGFNI_5x3Xor_end:
 	RET
 
 // func mulAvxTwo_5x3_64Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -32877,9 +32877,9 @@ mulGFNI_5x4_64_loop:
 mulGFNI_5x4_64_end:
 	RET
 
-// func mulAvx2GFNI_5x4(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_5x4(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_5x4(SB), $0-88
+TEXT ·mulAvxGFNI_5x4(SB), $0-88
 	// Loading 10 of 20 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 26 YMM used
@@ -32887,7 +32887,7 @@ TEXT ·mulAvx2GFNI_5x4(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_5x4_end
+	JZ           mulAvxGFNI_5x4_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -32925,7 +32925,7 @@ TEXT ·mulAvx2GFNI_5x4(SB), $0-88
 	ADDQ R13, R8
 	ADDQ R13, DX
 
-mulAvx2GFNI_5x4_loop:
+mulAvxGFNI_5x4_loop:
 	// Load and process 32 bytes from input 0 to 4 outputs
 	VMOVDQU        (BX), Y14
 	ADDQ           $0x20, BX
@@ -33004,10 +33004,10 @@ mulAvx2GFNI_5x4_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_5x4_loop
+	JNZ  mulAvxGFNI_5x4_loop
 	VZEROUPPER
 
-mulAvx2GFNI_5x4_end:
+mulAvxGFNI_5x4_end:
 	RET
 
 // func mulGFNI_5x4_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -33153,9 +33153,9 @@ mulGFNI_5x4_64Xor_loop:
 mulGFNI_5x4_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_5x4Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_5x4Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_5x4Xor(SB), $0-88
+TEXT ·mulAvxGFNI_5x4Xor(SB), $0-88
 	// Loading 10 of 20 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 26 YMM used
@@ -33163,7 +33163,7 @@ TEXT ·mulAvx2GFNI_5x4Xor(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_5x4Xor_end
+	JZ           mulAvxGFNI_5x4Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -33201,7 +33201,7 @@ TEXT ·mulAvx2GFNI_5x4Xor(SB), $0-88
 	ADDQ R13, R8
 	ADDQ R13, DX
 
-mulAvx2GFNI_5x4Xor_loop:
+mulAvxGFNI_5x4Xor_loop:
 	// Load 4 outputs
 	VMOVDQU (R10), Y10
 	VMOVDQU (R11), Y11
@@ -33290,10 +33290,10 @@ mulAvx2GFNI_5x4Xor_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_5x4Xor_loop
+	JNZ  mulAvxGFNI_5x4Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_5x4Xor_end:
+mulAvxGFNI_5x4Xor_end:
 	RET
 
 // func mulAvxTwo_5x4Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -33868,9 +33868,9 @@ mulGFNI_5x5_64_loop:
 mulGFNI_5x5_64_end:
 	RET
 
-// func mulAvx2GFNI_5x5(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_5x5(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_5x5(SB), $0-88
+TEXT ·mulAvxGFNI_5x5(SB), $0-88
 	// Loading 9 of 25 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 32 YMM used
@@ -33878,7 +33878,7 @@ TEXT ·mulAvx2GFNI_5x5(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_5x5_end
+	JZ           mulAvxGFNI_5x5_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -33917,7 +33917,7 @@ TEXT ·mulAvx2GFNI_5x5(SB), $0-88
 	ADDQ R14, R8
 	ADDQ R14, DX
 
-mulAvx2GFNI_5x5_loop:
+mulAvxGFNI_5x5_loop:
 	// Load and process 32 bytes from input 0 to 5 outputs
 	VMOVDQU        (BX), Y14
 	ADDQ           $0x20, BX
@@ -34013,10 +34013,10 @@ mulAvx2GFNI_5x5_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_5x5_loop
+	JNZ  mulAvxGFNI_5x5_loop
 	VZEROUPPER
 
-mulAvx2GFNI_5x5_end:
+mulAvxGFNI_5x5_end:
 	RET
 
 // func mulGFNI_5x5_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -34182,9 +34182,9 @@ mulGFNI_5x5_64Xor_loop:
 mulGFNI_5x5_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_5x5Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_5x5Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_5x5Xor(SB), $0-88
+TEXT ·mulAvxGFNI_5x5Xor(SB), $0-88
 	// Loading 9 of 25 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 32 YMM used
@@ -34192,7 +34192,7 @@ TEXT ·mulAvx2GFNI_5x5Xor(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_5x5Xor_end
+	JZ           mulAvxGFNI_5x5Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -34231,7 +34231,7 @@ TEXT ·mulAvx2GFNI_5x5Xor(SB), $0-88
 	ADDQ R14, R8
 	ADDQ R14, DX
 
-mulAvx2GFNI_5x5Xor_loop:
+mulAvxGFNI_5x5Xor_loop:
 	// Load 5 outputs
 	VMOVDQU (R10), Y9
 	VMOVDQU (R11), Y10
@@ -34339,10 +34339,10 @@ mulAvx2GFNI_5x5Xor_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_5x5Xor_loop
+	JNZ  mulAvxGFNI_5x5Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_5x5Xor_end:
+mulAvxGFNI_5x5Xor_end:
 	RET
 
 // func mulAvxTwo_5x5Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -34988,9 +34988,9 @@ mulGFNI_5x6_64_loop:
 mulGFNI_5x6_64_end:
 	RET
 
-// func mulAvx2GFNI_5x6(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_5x6(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_5x6(SB), $0-88
+TEXT ·mulAvxGFNI_5x6(SB), $0-88
 	// Loading 8 of 30 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 38 YMM used
@@ -34998,7 +34998,7 @@ TEXT ·mulAvx2GFNI_5x6(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_5x6_end
+	JZ           mulAvxGFNI_5x6_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -35038,7 +35038,7 @@ TEXT ·mulAvx2GFNI_5x6(SB), $0-88
 	ADDQ R15, R8
 	ADDQ R15, DX
 
-mulAvx2GFNI_5x6_loop:
+mulAvxGFNI_5x6_loop:
 	// Load and process 32 bytes from input 0 to 6 outputs
 	VMOVDQU        (BX), Y14
 	ADDQ           $0x20, BX
@@ -35151,10 +35151,10 @@ mulAvx2GFNI_5x6_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_5x6_loop
+	JNZ  mulAvxGFNI_5x6_loop
 	VZEROUPPER
 
-mulAvx2GFNI_5x6_end:
+mulAvxGFNI_5x6_end:
 	RET
 
 // func mulGFNI_5x6_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -35334,9 +35334,9 @@ mulGFNI_5x6_64Xor_loop:
 mulGFNI_5x6_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_5x6Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_5x6Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_5x6Xor(SB), $0-88
+TEXT ·mulAvxGFNI_5x6Xor(SB), $0-88
 	// Loading 8 of 30 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 38 YMM used
@@ -35344,7 +35344,7 @@ TEXT ·mulAvx2GFNI_5x6Xor(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_5x6Xor_end
+	JZ           mulAvxGFNI_5x6Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -35384,7 +35384,7 @@ TEXT ·mulAvx2GFNI_5x6Xor(SB), $0-88
 	ADDQ R15, R8
 	ADDQ R15, DX
 
-mulAvx2GFNI_5x6Xor_loop:
+mulAvxGFNI_5x6Xor_loop:
 	// Load 6 outputs
 	VMOVDQU (R10), Y8
 	VMOVDQU (R11), Y9
@@ -35511,10 +35511,10 @@ mulAvx2GFNI_5x6Xor_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_5x6Xor_loop
+	JNZ  mulAvxGFNI_5x6Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_5x6Xor_end:
+mulAvxGFNI_5x6Xor_end:
 	RET
 
 // func mulAvxTwo_5x6Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -36231,9 +36231,9 @@ mulGFNI_5x7_64_loop:
 mulGFNI_5x7_64_end:
 	RET
 
-// func mulAvx2GFNI_5x7(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_5x7(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_5x7(SB), $8-88
+TEXT ·mulAvxGFNI_5x7(SB), $8-88
 	// Loading 7 of 35 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 44 YMM used
@@ -36241,7 +36241,7 @@ TEXT ·mulAvx2GFNI_5x7(SB), $8-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_5x7_end
+	JZ           mulAvxGFNI_5x7_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -36282,7 +36282,7 @@ TEXT ·mulAvx2GFNI_5x7(SB), $8-88
 	ADDQ BP, R8
 	ADDQ BP, DX
 
-mulAvx2GFNI_5x7_loop:
+mulAvxGFNI_5x7_loop:
 	// Load and process 32 bytes from input 0 to 7 outputs
 	VMOVDQU        (BX), Y14
 	ADDQ           $0x20, BX
@@ -36412,10 +36412,10 @@ mulAvx2GFNI_5x7_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_5x7_loop
+	JNZ  mulAvxGFNI_5x7_loop
 	VZEROUPPER
 
-mulAvx2GFNI_5x7_end:
+mulAvxGFNI_5x7_end:
 	RET
 
 // func mulGFNI_5x7_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -36609,9 +36609,9 @@ mulGFNI_5x7_64Xor_loop:
 mulGFNI_5x7_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_5x7Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_5x7Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_5x7Xor(SB), $8-88
+TEXT ·mulAvxGFNI_5x7Xor(SB), $8-88
 	// Loading 7 of 35 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 44 YMM used
@@ -36619,7 +36619,7 @@ TEXT ·mulAvx2GFNI_5x7Xor(SB), $8-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_5x7Xor_end
+	JZ           mulAvxGFNI_5x7Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -36660,7 +36660,7 @@ TEXT ·mulAvx2GFNI_5x7Xor(SB), $8-88
 	ADDQ BP, R8
 	ADDQ BP, DX
 
-mulAvx2GFNI_5x7Xor_loop:
+mulAvxGFNI_5x7Xor_loop:
 	// Load 7 outputs
 	VMOVDQU (R10), Y7
 	VMOVDQU (R11), Y8
@@ -36806,10 +36806,10 @@ mulAvx2GFNI_5x7Xor_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_5x7Xor_loop
+	JNZ  mulAvxGFNI_5x7Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_5x7Xor_end:
+mulAvxGFNI_5x7Xor_end:
 	RET
 
 // func mulAvxTwo_5x7Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -37603,9 +37603,9 @@ mulGFNI_5x8_64_loop:
 mulGFNI_5x8_64_end:
 	RET
 
-// func mulAvx2GFNI_5x8(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_5x8(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_5x8(SB), $8-88
+TEXT ·mulAvxGFNI_5x8(SB), $8-88
 	// Loading 6 of 40 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 50 YMM used
@@ -37613,7 +37613,7 @@ TEXT ·mulAvx2GFNI_5x8(SB), $8-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_5x8_end
+	JZ           mulAvxGFNI_5x8_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -37659,7 +37659,7 @@ TEXT ·mulAvx2GFNI_5x8(SB), $8-88
 	MOVQ n+80(FP), BP
 	SHRQ $0x05, BP
 
-mulAvx2GFNI_5x8_loop:
+mulAvxGFNI_5x8_loop:
 	// Load and process 32 bytes from input 0 to 8 outputs
 	VMOVDQU        (DX), Y14
 	ADDQ           $0x20, DX
@@ -37806,10 +37806,10 @@ mulAvx2GFNI_5x8_loop:
 
 	// Prepare for next loop
 	DECQ BP
-	JNZ  mulAvx2GFNI_5x8_loop
+	JNZ  mulAvxGFNI_5x8_loop
 	VZEROUPPER
 
-mulAvx2GFNI_5x8_end:
+mulAvxGFNI_5x8_end:
 	RET
 
 // func mulGFNI_5x8_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -38021,9 +38021,9 @@ mulGFNI_5x8_64Xor_loop:
 mulGFNI_5x8_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_5x8Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_5x8Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_5x8Xor(SB), $8-88
+TEXT ·mulAvxGFNI_5x8Xor(SB), $8-88
 	// Loading 6 of 40 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 50 YMM used
@@ -38031,7 +38031,7 @@ TEXT ·mulAvx2GFNI_5x8Xor(SB), $8-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_5x8Xor_end
+	JZ           mulAvxGFNI_5x8Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -38077,7 +38077,7 @@ TEXT ·mulAvx2GFNI_5x8Xor(SB), $8-88
 	MOVQ n+80(FP), BP
 	SHRQ $0x05, BP
 
-mulAvx2GFNI_5x8Xor_loop:
+mulAvxGFNI_5x8Xor_loop:
 	// Load 8 outputs
 	VMOVDQU (R9), Y6
 	VMOVDQU (R10), Y7
@@ -38242,10 +38242,10 @@ mulAvx2GFNI_5x8Xor_loop:
 
 	// Prepare for next loop
 	DECQ BP
-	JNZ  mulAvx2GFNI_5x8Xor_loop
+	JNZ  mulAvxGFNI_5x8Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_5x8Xor_end:
+mulAvxGFNI_5x8Xor_end:
 	RET
 
 // func mulAvxTwo_5x8Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -39068,9 +39068,9 @@ mulGFNI_5x9_64_loop:
 mulGFNI_5x9_64_end:
 	RET
 
-// func mulAvx2GFNI_5x9(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_5x9(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_5x9(SB), $0-88
+TEXT ·mulAvxGFNI_5x9(SB), $0-88
 	// Loading 5 of 45 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 56 YMM used
@@ -39078,7 +39078,7 @@ TEXT ·mulAvx2GFNI_5x9(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_5x9_end
+	JZ           mulAvxGFNI_5x9_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -39101,7 +39101,7 @@ TEXT ·mulAvx2GFNI_5x9(SB), $0-88
 	ADDQ R10, R8
 	ADDQ R10, DX
 
-mulAvx2GFNI_5x9_loop:
+mulAvxGFNI_5x9_loop:
 	// Load and process 32 bytes from input 0 to 9 outputs
 	VMOVDQU        (BX), Y14
 	ADDQ           $0x20, BX
@@ -39266,10 +39266,10 @@ mulAvx2GFNI_5x9_loop:
 	// Prepare for next loop
 	ADDQ $0x20, R10
 	DECQ AX
-	JNZ  mulAvx2GFNI_5x9_loop
+	JNZ  mulAvxGFNI_5x9_loop
 	VZEROUPPER
 
-mulAvx2GFNI_5x9_end:
+mulAvxGFNI_5x9_end:
 	RET
 
 // func mulGFNI_5x9_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -39481,9 +39481,9 @@ mulGFNI_5x9_64Xor_loop:
 mulGFNI_5x9_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_5x9Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_5x9Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_5x9Xor(SB), $0-88
+TEXT ·mulAvxGFNI_5x9Xor(SB), $0-88
 	// Loading 5 of 45 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 56 YMM used
@@ -39491,7 +39491,7 @@ TEXT ·mulAvx2GFNI_5x9Xor(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_5x9Xor_end
+	JZ           mulAvxGFNI_5x9Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -39514,7 +39514,7 @@ TEXT ·mulAvx2GFNI_5x9Xor(SB), $0-88
 	ADDQ R10, R8
 	ADDQ R10, DX
 
-mulAvx2GFNI_5x9Xor_loop:
+mulAvxGFNI_5x9Xor_loop:
 	// Load 9 outputs
 	MOVQ    (R9), R11
 	VMOVDQU (R11)(R10*1), Y5
@@ -39708,10 +39708,10 @@ mulAvx2GFNI_5x9Xor_loop:
 	// Prepare for next loop
 	ADDQ $0x20, R10
 	DECQ AX
-	JNZ  mulAvx2GFNI_5x9Xor_loop
+	JNZ  mulAvxGFNI_5x9Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_5x9Xor_end:
+mulAvxGFNI_5x9Xor_end:
 	RET
 
 // func mulAvxTwo_5x9Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -40589,9 +40589,9 @@ mulGFNI_5x10_64_loop:
 mulGFNI_5x10_64_end:
 	RET
 
-// func mulAvx2GFNI_5x10(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_5x10(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_5x10(SB), $0-88
+TEXT ·mulAvxGFNI_5x10(SB), $0-88
 	// Loading 4 of 50 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 62 YMM used
@@ -40599,7 +40599,7 @@ TEXT ·mulAvx2GFNI_5x10(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_5x10_end
+	JZ           mulAvxGFNI_5x10_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -40621,7 +40621,7 @@ TEXT ·mulAvx2GFNI_5x10(SB), $0-88
 	ADDQ R10, R8
 	ADDQ R10, DX
 
-mulAvx2GFNI_5x10_loop:
+mulAvxGFNI_5x10_loop:
 	// Load and process 32 bytes from input 0 to 10 outputs
 	VMOVDQU        (BX), Y14
 	ADDQ           $0x20, BX
@@ -40803,10 +40803,10 @@ mulAvx2GFNI_5x10_loop:
 	// Prepare for next loop
 	ADDQ $0x20, R10
 	DECQ AX
-	JNZ  mulAvx2GFNI_5x10_loop
+	JNZ  mulAvxGFNI_5x10_loop
 	VZEROUPPER
 
-mulAvx2GFNI_5x10_end:
+mulAvxGFNI_5x10_end:
 	RET
 
 // func mulGFNI_5x10_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -41031,9 +41031,9 @@ mulGFNI_5x10_64Xor_loop:
 mulGFNI_5x10_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_5x10Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_5x10Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_5x10Xor(SB), $0-88
+TEXT ·mulAvxGFNI_5x10Xor(SB), $0-88
 	// Loading 4 of 50 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 62 YMM used
@@ -41041,7 +41041,7 @@ TEXT ·mulAvx2GFNI_5x10Xor(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_5x10Xor_end
+	JZ           mulAvxGFNI_5x10Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -41063,7 +41063,7 @@ TEXT ·mulAvx2GFNI_5x10Xor(SB), $0-88
 	ADDQ R10, R8
 	ADDQ R10, DX
 
-mulAvx2GFNI_5x10Xor_loop:
+mulAvxGFNI_5x10Xor_loop:
 	// Load 10 outputs
 	MOVQ    (R9), R11
 	VMOVDQU (R11)(R10*1), Y4
@@ -41277,10 +41277,10 @@ mulAvx2GFNI_5x10Xor_loop:
 	// Prepare for next loop
 	ADDQ $0x20, R10
 	DECQ AX
-	JNZ  mulAvx2GFNI_5x10Xor_loop
+	JNZ  mulAvxGFNI_5x10Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_5x10Xor_end:
+mulAvxGFNI_5x10Xor_end:
 	RET
 
 // func mulAvxTwo_5x10Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -41903,9 +41903,9 @@ mulGFNI_6x1_64_loop:
 mulGFNI_6x1_64_end:
 	RET
 
-// func mulAvx2GFNI_6x1(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_6x1(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_6x1(SB), $0-88
+TEXT ·mulAvxGFNI_6x1(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 9 YMM used
@@ -41913,7 +41913,7 @@ TEXT ·mulAvx2GFNI_6x1(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_6x1_end
+	JZ           mulAvxGFNI_6x1_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -41943,7 +41943,7 @@ TEXT ·mulAvx2GFNI_6x1(SB), $0-88
 	ADDQ R10, R8
 	ADDQ R10, CX
 
-mulAvx2GFNI_6x1_loop:
+mulAvxGFNI_6x1_loop:
 	// Load and process 32 bytes from input 0 to 1 outputs
 	VMOVDQU        (DX), Y7
 	ADDQ           $0x20, DX
@@ -41985,10 +41985,10 @@ mulAvx2GFNI_6x1_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_6x1_loop
+	JNZ  mulAvxGFNI_6x1_loop
 	VZEROUPPER
 
-mulAvx2GFNI_6x1_end:
+mulAvxGFNI_6x1_end:
 	RET
 
 // func mulGFNI_6x1_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -42083,9 +42083,9 @@ mulGFNI_6x1_64Xor_loop:
 mulGFNI_6x1_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_6x1Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_6x1Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_6x1Xor(SB), $0-88
+TEXT ·mulAvxGFNI_6x1Xor(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 9 YMM used
@@ -42093,7 +42093,7 @@ TEXT ·mulAvx2GFNI_6x1Xor(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_6x1Xor_end
+	JZ           mulAvxGFNI_6x1Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -42123,7 +42123,7 @@ TEXT ·mulAvx2GFNI_6x1Xor(SB), $0-88
 	ADDQ R10, R8
 	ADDQ R10, CX
 
-mulAvx2GFNI_6x1Xor_loop:
+mulAvxGFNI_6x1Xor_loop:
 	// Load 1 outputs
 	VMOVDQU (R9), Y6
 
@@ -42169,10 +42169,10 @@ mulAvx2GFNI_6x1Xor_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_6x1Xor_loop
+	JNZ  mulAvxGFNI_6x1Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_6x1Xor_end:
+mulAvxGFNI_6x1Xor_end:
 	RET
 
 // func mulAvxTwo_6x1_64Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -42671,9 +42671,9 @@ mulGFNI_6x2_64_loop:
 mulGFNI_6x2_64_end:
 	RET
 
-// func mulAvx2GFNI_6x2(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_6x2(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_6x2(SB), $0-88
+TEXT ·mulAvxGFNI_6x2(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 16 YMM used
@@ -42681,7 +42681,7 @@ TEXT ·mulAvx2GFNI_6x2(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_6x2_end
+	JZ           mulAvxGFNI_6x2_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -42719,7 +42719,7 @@ TEXT ·mulAvx2GFNI_6x2(SB), $0-88
 	ADDQ R11, R8
 	ADDQ R11, CX
 
-mulAvx2GFNI_6x2_loop:
+mulAvxGFNI_6x2_loop:
 	// Load and process 32 bytes from input 0 to 2 outputs
 	VMOVDQU        (DX), Y14
 	ADDQ           $0x20, DX
@@ -42774,10 +42774,10 @@ mulAvx2GFNI_6x2_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_6x2_loop
+	JNZ  mulAvxGFNI_6x2_loop
 	VZEROUPPER
 
-mulAvx2GFNI_6x2_end:
+mulAvxGFNI_6x2_end:
 	RET
 
 // func mulGFNI_6x2_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -42895,9 +42895,9 @@ mulGFNI_6x2_64Xor_loop:
 mulGFNI_6x2_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_6x2Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_6x2Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_6x2Xor(SB), $0-88
+TEXT ·mulAvxGFNI_6x2Xor(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 16 YMM used
@@ -42905,7 +42905,7 @@ TEXT ·mulAvx2GFNI_6x2Xor(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_6x2Xor_end
+	JZ           mulAvxGFNI_6x2Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -42943,7 +42943,7 @@ TEXT ·mulAvx2GFNI_6x2Xor(SB), $0-88
 	ADDQ R11, R8
 	ADDQ R11, CX
 
-mulAvx2GFNI_6x2Xor_loop:
+mulAvxGFNI_6x2Xor_loop:
 	// Load 2 outputs
 	VMOVDQU (R10), Y12
 	VMOVDQU (R9), Y13
@@ -43004,10 +43004,10 @@ mulAvx2GFNI_6x2Xor_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_6x2Xor_loop
+	JNZ  mulAvxGFNI_6x2Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_6x2Xor_end:
+mulAvxGFNI_6x2Xor_end:
 	RET
 
 // func mulAvxTwo_6x2_64Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -43635,9 +43635,9 @@ mulGFNI_6x3_64_loop:
 mulGFNI_6x3_64_end:
 	RET
 
-// func mulAvx2GFNI_6x3(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_6x3(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_6x3(SB), $0-88
+TEXT ·mulAvxGFNI_6x3(SB), $0-88
 	// Loading 11 of 18 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 23 YMM used
@@ -43645,7 +43645,7 @@ TEXT ·mulAvx2GFNI_6x3(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_6x3_end
+	JZ           mulAvxGFNI_6x3_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -43684,7 +43684,7 @@ TEXT ·mulAvx2GFNI_6x3(SB), $0-88
 	ADDQ R13, R9
 	ADDQ R13, DX
 
-mulAvx2GFNI_6x3_loop:
+mulAvxGFNI_6x3_loop:
 	// Load and process 32 bytes from input 0 to 3 outputs
 	VMOVDQU        (BX), Y14
 	ADDQ           $0x20, BX
@@ -43759,10 +43759,10 @@ mulAvx2GFNI_6x3_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_6x3_loop
+	JNZ  mulAvxGFNI_6x3_loop
 	VZEROUPPER
 
-mulAvx2GFNI_6x3_end:
+mulAvxGFNI_6x3_end:
 	RET
 
 // func mulGFNI_6x3_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -43903,9 +43903,9 @@ mulGFNI_6x3_64Xor_loop:
 mulGFNI_6x3_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_6x3Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_6x3Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_6x3Xor(SB), $0-88
+TEXT ·mulAvxGFNI_6x3Xor(SB), $0-88
 	// Loading 11 of 18 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 23 YMM used
@@ -43913,7 +43913,7 @@ TEXT ·mulAvx2GFNI_6x3Xor(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_6x3Xor_end
+	JZ           mulAvxGFNI_6x3Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -43952,7 +43952,7 @@ TEXT ·mulAvx2GFNI_6x3Xor(SB), $0-88
 	ADDQ R13, R9
 	ADDQ R13, DX
 
-mulAvx2GFNI_6x3Xor_loop:
+mulAvxGFNI_6x3Xor_loop:
 	// Load 3 outputs
 	VMOVDQU (R11), Y11
 	VMOVDQU (R12), Y12
@@ -44035,10 +44035,10 @@ mulAvx2GFNI_6x3Xor_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_6x3Xor_loop
+	JNZ  mulAvxGFNI_6x3Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_6x3Xor_end:
+mulAvxGFNI_6x3Xor_end:
 	RET
 
 // func mulAvxTwo_6x3_64Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -44694,9 +44694,9 @@ mulGFNI_6x4_64_loop:
 mulGFNI_6x4_64_end:
 	RET
 
-// func mulAvx2GFNI_6x4(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_6x4(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_6x4(SB), $0-88
+TEXT ·mulAvxGFNI_6x4(SB), $0-88
 	// Loading 10 of 24 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 30 YMM used
@@ -44704,7 +44704,7 @@ TEXT ·mulAvx2GFNI_6x4(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_6x4_end
+	JZ           mulAvxGFNI_6x4_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -44744,7 +44744,7 @@ TEXT ·mulAvx2GFNI_6x4(SB), $0-88
 	ADDQ R14, R9
 	ADDQ R14, DX
 
-mulAvx2GFNI_6x4_loop:
+mulAvxGFNI_6x4_loop:
 	// Load and process 32 bytes from input 0 to 4 outputs
 	VMOVDQU        (BX), Y14
 	ADDQ           $0x20, BX
@@ -44839,10 +44839,10 @@ mulAvx2GFNI_6x4_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_6x4_loop
+	JNZ  mulAvxGFNI_6x4_loop
 	VZEROUPPER
 
-mulAvx2GFNI_6x4_end:
+mulAvxGFNI_6x4_end:
 	RET
 
 // func mulGFNI_6x4_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -45006,9 +45006,9 @@ mulGFNI_6x4_64Xor_loop:
 mulGFNI_6x4_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_6x4Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_6x4Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_6x4Xor(SB), $0-88
+TEXT ·mulAvxGFNI_6x4Xor(SB), $0-88
 	// Loading 10 of 24 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 30 YMM used
@@ -45016,7 +45016,7 @@ TEXT ·mulAvx2GFNI_6x4Xor(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_6x4Xor_end
+	JZ           mulAvxGFNI_6x4Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -45056,7 +45056,7 @@ TEXT ·mulAvx2GFNI_6x4Xor(SB), $0-88
 	ADDQ R14, R9
 	ADDQ R14, DX
 
-mulAvx2GFNI_6x4Xor_loop:
+mulAvxGFNI_6x4Xor_loop:
 	// Load 4 outputs
 	VMOVDQU (R11), Y10
 	VMOVDQU (R12), Y11
@@ -45161,10 +45161,10 @@ mulAvx2GFNI_6x4Xor_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_6x4Xor_loop
+	JNZ  mulAvxGFNI_6x4Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_6x4Xor_end:
+mulAvxGFNI_6x4Xor_end:
 	RET
 
 // func mulAvxTwo_6x4Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -45818,9 +45818,9 @@ mulGFNI_6x5_64_loop:
 mulGFNI_6x5_64_end:
 	RET
 
-// func mulAvx2GFNI_6x5(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_6x5(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_6x5(SB), $0-88
+TEXT ·mulAvxGFNI_6x5(SB), $0-88
 	// Loading 9 of 30 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 37 YMM used
@@ -45828,7 +45828,7 @@ TEXT ·mulAvx2GFNI_6x5(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_6x5_end
+	JZ           mulAvxGFNI_6x5_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -45869,7 +45869,7 @@ TEXT ·mulAvx2GFNI_6x5(SB), $0-88
 	ADDQ R15, R9
 	ADDQ R15, DX
 
-mulAvx2GFNI_6x5_loop:
+mulAvxGFNI_6x5_loop:
 	// Load and process 32 bytes from input 0 to 5 outputs
 	VMOVDQU        (BX), Y14
 	ADDQ           $0x20, BX
@@ -45984,10 +45984,10 @@ mulAvx2GFNI_6x5_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_6x5_loop
+	JNZ  mulAvxGFNI_6x5_loop
 	VZEROUPPER
 
-mulAvx2GFNI_6x5_end:
+mulAvxGFNI_6x5_end:
 	RET
 
 // func mulGFNI_6x5_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -46169,9 +46169,9 @@ mulGFNI_6x5_64Xor_loop:
 mulGFNI_6x5_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_6x5Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_6x5Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_6x5Xor(SB), $0-88
+TEXT ·mulAvxGFNI_6x5Xor(SB), $0-88
 	// Loading 9 of 30 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 37 YMM used
@@ -46179,7 +46179,7 @@ TEXT ·mulAvx2GFNI_6x5Xor(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_6x5Xor_end
+	JZ           mulAvxGFNI_6x5Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -46220,7 +46220,7 @@ TEXT ·mulAvx2GFNI_6x5Xor(SB), $0-88
 	ADDQ R15, R9
 	ADDQ R15, DX
 
-mulAvx2GFNI_6x5Xor_loop:
+mulAvxGFNI_6x5Xor_loop:
 	// Load 5 outputs
 	VMOVDQU (R11), Y9
 	VMOVDQU (R12), Y10
@@ -46347,10 +46347,10 @@ mulAvx2GFNI_6x5Xor_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_6x5Xor_loop
+	JNZ  mulAvxGFNI_6x5Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_6x5Xor_end:
+mulAvxGFNI_6x5Xor_end:
 	RET
 
 // func mulAvxTwo_6x5Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -47087,9 +47087,9 @@ mulGFNI_6x6_64_loop:
 mulGFNI_6x6_64_end:
 	RET
 
-// func mulAvx2GFNI_6x6(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_6x6(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_6x6(SB), $8-88
+TEXT ·mulAvxGFNI_6x6(SB), $8-88
 	// Loading 8 of 36 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 44 YMM used
@@ -47097,7 +47097,7 @@ TEXT ·mulAvx2GFNI_6x6(SB), $8-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_6x6_end
+	JZ           mulAvxGFNI_6x6_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -47139,7 +47139,7 @@ TEXT ·mulAvx2GFNI_6x6(SB), $8-88
 	ADDQ BP, R9
 	ADDQ BP, DX
 
-mulAvx2GFNI_6x6_loop:
+mulAvxGFNI_6x6_loop:
 	// Load and process 32 bytes from input 0 to 6 outputs
 	VMOVDQU        (BX), Y14
 	ADDQ           $0x20, BX
@@ -47274,10 +47274,10 @@ mulAvx2GFNI_6x6_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_6x6_loop
+	JNZ  mulAvxGFNI_6x6_loop
 	VZEROUPPER
 
-mulAvx2GFNI_6x6_end:
+mulAvxGFNI_6x6_end:
 	RET
 
 // func mulGFNI_6x6_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -47475,9 +47475,9 @@ mulGFNI_6x6_64Xor_loop:
 mulGFNI_6x6_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_6x6Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_6x6Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_6x6Xor(SB), $8-88
+TEXT ·mulAvxGFNI_6x6Xor(SB), $8-88
 	// Loading 8 of 36 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 44 YMM used
@@ -47485,7 +47485,7 @@ TEXT ·mulAvx2GFNI_6x6Xor(SB), $8-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_6x6Xor_end
+	JZ           mulAvxGFNI_6x6Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -47527,7 +47527,7 @@ TEXT ·mulAvx2GFNI_6x6Xor(SB), $8-88
 	ADDQ BP, R9
 	ADDQ BP, DX
 
-mulAvx2GFNI_6x6Xor_loop:
+mulAvxGFNI_6x6Xor_loop:
 	// Load 6 outputs
 	VMOVDQU (R11), Y8
 	VMOVDQU (R12), Y9
@@ -47676,10 +47676,10 @@ mulAvx2GFNI_6x6Xor_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_6x6Xor_loop
+	JNZ  mulAvxGFNI_6x6Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_6x6Xor_end:
+mulAvxGFNI_6x6Xor_end:
 	RET
 
 // func mulAvxTwo_6x6Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -48505,9 +48505,9 @@ mulGFNI_6x7_64_loop:
 mulGFNI_6x7_64_end:
 	RET
 
-// func mulAvx2GFNI_6x7(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_6x7(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_6x7(SB), $8-88
+TEXT ·mulAvxGFNI_6x7(SB), $8-88
 	// Loading 7 of 42 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 51 YMM used
@@ -48515,7 +48515,7 @@ TEXT ·mulAvx2GFNI_6x7(SB), $8-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_6x7_end
+	JZ           mulAvxGFNI_6x7_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -48562,7 +48562,7 @@ TEXT ·mulAvx2GFNI_6x7(SB), $8-88
 	MOVQ n+80(FP), BP
 	SHRQ $0x05, BP
 
-mulAvx2GFNI_6x7_loop:
+mulAvxGFNI_6x7_loop:
 	// Load and process 32 bytes from input 0 to 7 outputs
 	VMOVDQU        (DX), Y14
 	ADDQ           $0x20, DX
@@ -48717,10 +48717,10 @@ mulAvx2GFNI_6x7_loop:
 
 	// Prepare for next loop
 	DECQ BP
-	JNZ  mulAvx2GFNI_6x7_loop
+	JNZ  mulAvxGFNI_6x7_loop
 	VZEROUPPER
 
-mulAvx2GFNI_6x7_end:
+mulAvxGFNI_6x7_end:
 	RET
 
 // func mulGFNI_6x7_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -48938,9 +48938,9 @@ mulGFNI_6x7_64Xor_loop:
 mulGFNI_6x7_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_6x7Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_6x7Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_6x7Xor(SB), $8-88
+TEXT ·mulAvxGFNI_6x7Xor(SB), $8-88
 	// Loading 7 of 42 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 51 YMM used
@@ -48948,7 +48948,7 @@ TEXT ·mulAvx2GFNI_6x7Xor(SB), $8-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_6x7Xor_end
+	JZ           mulAvxGFNI_6x7Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -48995,7 +48995,7 @@ TEXT ·mulAvx2GFNI_6x7Xor(SB), $8-88
 	MOVQ n+80(FP), BP
 	SHRQ $0x05, BP
 
-mulAvx2GFNI_6x7Xor_loop:
+mulAvxGFNI_6x7Xor_loop:
 	// Load 7 outputs
 	VMOVDQU (R10), Y7
 	VMOVDQU (R11), Y8
@@ -49166,10 +49166,10 @@ mulAvx2GFNI_6x7Xor_loop:
 
 	// Prepare for next loop
 	DECQ BP
-	JNZ  mulAvx2GFNI_6x7Xor_loop
+	JNZ  mulAvxGFNI_6x7Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_6x7Xor_end:
+mulAvxGFNI_6x7Xor_end:
 	RET
 
 // func mulAvxTwo_6x7Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -50040,9 +50040,9 @@ mulGFNI_6x8_64_loop:
 mulGFNI_6x8_64_end:
 	RET
 
-// func mulAvx2GFNI_6x8(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_6x8(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_6x8(SB), $0-88
+TEXT ·mulAvxGFNI_6x8(SB), $0-88
 	// Loading 6 of 48 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 58 YMM used
@@ -50050,7 +50050,7 @@ TEXT ·mulAvx2GFNI_6x8(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_6x8_end
+	JZ           mulAvxGFNI_6x8_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -50076,7 +50076,7 @@ TEXT ·mulAvx2GFNI_6x8(SB), $0-88
 	ADDQ R11, R9
 	ADDQ R11, DX
 
-mulAvx2GFNI_6x8_loop:
+mulAvxGFNI_6x8_loop:
 	// Load and process 32 bytes from input 0 to 8 outputs
 	VMOVDQU        (BX), Y14
 	ADDQ           $0x20, BX
@@ -50252,10 +50252,10 @@ mulAvx2GFNI_6x8_loop:
 	// Prepare for next loop
 	ADDQ $0x20, R11
 	DECQ AX
-	JNZ  mulAvx2GFNI_6x8_loop
+	JNZ  mulAvxGFNI_6x8_loop
 	VZEROUPPER
 
-mulAvx2GFNI_6x8_end:
+mulAvxGFNI_6x8_end:
 	RET
 
 // func mulGFNI_6x8_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -50476,9 +50476,9 @@ mulGFNI_6x8_64Xor_loop:
 mulGFNI_6x8_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_6x8Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_6x8Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_6x8Xor(SB), $0-88
+TEXT ·mulAvxGFNI_6x8Xor(SB), $0-88
 	// Loading 6 of 48 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 58 YMM used
@@ -50486,7 +50486,7 @@ TEXT ·mulAvx2GFNI_6x8Xor(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_6x8Xor_end
+	JZ           mulAvxGFNI_6x8Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -50512,7 +50512,7 @@ TEXT ·mulAvx2GFNI_6x8Xor(SB), $0-88
 	ADDQ R11, R9
 	ADDQ R11, DX
 
-mulAvx2GFNI_6x8Xor_loop:
+mulAvxGFNI_6x8Xor_loop:
 	// Load 8 outputs
 	MOVQ    (R10), R12
 	VMOVDQU (R12)(R11*1), Y6
@@ -50714,10 +50714,10 @@ mulAvx2GFNI_6x8Xor_loop:
 	// Prepare for next loop
 	ADDQ $0x20, R11
 	DECQ AX
-	JNZ  mulAvx2GFNI_6x8Xor_loop
+	JNZ  mulAvxGFNI_6x8Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_6x8Xor_end:
+mulAvxGFNI_6x8Xor_end:
 	RET
 
 // func mulAvxTwo_6x8Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -51656,9 +51656,9 @@ mulGFNI_6x9_64_loop:
 mulGFNI_6x9_64_end:
 	RET
 
-// func mulAvx2GFNI_6x9(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_6x9(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_6x9(SB), $0-88
+TEXT ·mulAvxGFNI_6x9(SB), $0-88
 	// Loading 5 of 54 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 65 YMM used
@@ -51666,7 +51666,7 @@ TEXT ·mulAvx2GFNI_6x9(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_6x9_end
+	JZ           mulAvxGFNI_6x9_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -51691,7 +51691,7 @@ TEXT ·mulAvx2GFNI_6x9(SB), $0-88
 	ADDQ R11, R9
 	ADDQ R11, DX
 
-mulAvx2GFNI_6x9_loop:
+mulAvxGFNI_6x9_loop:
 	// Load and process 32 bytes from input 0 to 9 outputs
 	VMOVDQU        (BX), Y14
 	ADDQ           $0x20, BX
@@ -51887,10 +51887,10 @@ mulAvx2GFNI_6x9_loop:
 	// Prepare for next loop
 	ADDQ $0x20, R11
 	DECQ AX
-	JNZ  mulAvx2GFNI_6x9_loop
+	JNZ  mulAvxGFNI_6x9_loop
 	VZEROUPPER
 
-mulAvx2GFNI_6x9_end:
+mulAvxGFNI_6x9_end:
 	RET
 
 // func mulGFNI_6x9_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -52126,9 +52126,9 @@ mulGFNI_6x9_64Xor_loop:
 mulGFNI_6x9_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_6x9Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_6x9Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_6x9Xor(SB), $0-88
+TEXT ·mulAvxGFNI_6x9Xor(SB), $0-88
 	// Loading 5 of 54 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 65 YMM used
@@ -52136,7 +52136,7 @@ TEXT ·mulAvx2GFNI_6x9Xor(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_6x9Xor_end
+	JZ           mulAvxGFNI_6x9Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -52161,7 +52161,7 @@ TEXT ·mulAvx2GFNI_6x9Xor(SB), $0-88
 	ADDQ R11, R9
 	ADDQ R11, DX
 
-mulAvx2GFNI_6x9Xor_loop:
+mulAvxGFNI_6x9Xor_loop:
 	// Load 9 outputs
 	MOVQ    (R10), R12
 	VMOVDQU (R12)(R11*1), Y5
@@ -52386,10 +52386,10 @@ mulAvx2GFNI_6x9Xor_loop:
 	// Prepare for next loop
 	ADDQ $0x20, R11
 	DECQ AX
-	JNZ  mulAvx2GFNI_6x9Xor_loop
+	JNZ  mulAvxGFNI_6x9Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_6x9Xor_end:
+mulAvxGFNI_6x9Xor_end:
 	RET
 
 // func mulAvxTwo_6x9Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -53406,9 +53406,9 @@ mulGFNI_6x10_64_loop:
 mulGFNI_6x10_64_end:
 	RET
 
-// func mulAvx2GFNI_6x10(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_6x10(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_6x10(SB), $0-88
+TEXT ·mulAvxGFNI_6x10(SB), $0-88
 	// Loading 4 of 60 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 72 YMM used
@@ -53416,7 +53416,7 @@ TEXT ·mulAvx2GFNI_6x10(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_6x10_end
+	JZ           mulAvxGFNI_6x10_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -53440,7 +53440,7 @@ TEXT ·mulAvx2GFNI_6x10(SB), $0-88
 	ADDQ R11, R9
 	ADDQ R11, DX
 
-mulAvx2GFNI_6x10_loop:
+mulAvxGFNI_6x10_loop:
 	// Load and process 32 bytes from input 0 to 10 outputs
 	VMOVDQU        (BX), Y14
 	ADDQ           $0x20, BX
@@ -53656,10 +53656,10 @@ mulAvx2GFNI_6x10_loop:
 	// Prepare for next loop
 	ADDQ $0x20, R11
 	DECQ AX
-	JNZ  mulAvx2GFNI_6x10_loop
+	JNZ  mulAvxGFNI_6x10_loop
 	VZEROUPPER
 
-mulAvx2GFNI_6x10_end:
+mulAvxGFNI_6x10_end:
 	RET
 
 // func mulGFNI_6x10_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -53910,9 +53910,9 @@ mulGFNI_6x10_64Xor_loop:
 mulGFNI_6x10_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_6x10Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_6x10Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_6x10Xor(SB), $0-88
+TEXT ·mulAvxGFNI_6x10Xor(SB), $0-88
 	// Loading 4 of 60 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 72 YMM used
@@ -53920,7 +53920,7 @@ TEXT ·mulAvx2GFNI_6x10Xor(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_6x10Xor_end
+	JZ           mulAvxGFNI_6x10Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -53944,7 +53944,7 @@ TEXT ·mulAvx2GFNI_6x10Xor(SB), $0-88
 	ADDQ R11, R9
 	ADDQ R11, DX
 
-mulAvx2GFNI_6x10Xor_loop:
+mulAvxGFNI_6x10Xor_loop:
 	// Load 10 outputs
 	MOVQ    (R10), R12
 	VMOVDQU (R12)(R11*1), Y4
@@ -54192,10 +54192,10 @@ mulAvx2GFNI_6x10Xor_loop:
 	// Prepare for next loop
 	ADDQ $0x20, R11
 	DECQ AX
-	JNZ  mulAvx2GFNI_6x10Xor_loop
+	JNZ  mulAvxGFNI_6x10Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_6x10Xor_end:
+mulAvxGFNI_6x10Xor_end:
 	RET
 
 // func mulAvxTwo_6x10Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -54907,9 +54907,9 @@ mulGFNI_7x1_64_loop:
 mulGFNI_7x1_64_end:
 	RET
 
-// func mulAvx2GFNI_7x1(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_7x1(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_7x1(SB), $0-88
+TEXT ·mulAvxGFNI_7x1(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 10 YMM used
@@ -54917,7 +54917,7 @@ TEXT ·mulAvx2GFNI_7x1(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_7x1_end
+	JZ           mulAvxGFNI_7x1_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -54950,7 +54950,7 @@ TEXT ·mulAvx2GFNI_7x1(SB), $0-88
 	ADDQ R11, R9
 	ADDQ R11, CX
 
-mulAvx2GFNI_7x1_loop:
+mulAvxGFNI_7x1_loop:
 	// Load and process 32 bytes from input 0 to 1 outputs
 	VMOVDQU        (DX), Y8
 	ADDQ           $0x20, DX
@@ -54998,10 +54998,10 @@ mulAvx2GFNI_7x1_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_7x1_loop
+	JNZ  mulAvxGFNI_7x1_loop
 	VZEROUPPER
 
-mulAvx2GFNI_7x1_end:
+mulAvxGFNI_7x1_end:
 	RET
 
 // func mulGFNI_7x1_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -55105,9 +55105,9 @@ mulGFNI_7x1_64Xor_loop:
 mulGFNI_7x1_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_7x1Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_7x1Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_7x1Xor(SB), $0-88
+TEXT ·mulAvxGFNI_7x1Xor(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 10 YMM used
@@ -55115,7 +55115,7 @@ TEXT ·mulAvx2GFNI_7x1Xor(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_7x1Xor_end
+	JZ           mulAvxGFNI_7x1Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -55148,7 +55148,7 @@ TEXT ·mulAvx2GFNI_7x1Xor(SB), $0-88
 	ADDQ R11, R9
 	ADDQ R11, CX
 
-mulAvx2GFNI_7x1Xor_loop:
+mulAvxGFNI_7x1Xor_loop:
 	// Load 1 outputs
 	VMOVDQU (R10), Y7
 
@@ -55200,10 +55200,10 @@ mulAvx2GFNI_7x1Xor_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_7x1Xor_loop
+	JNZ  mulAvxGFNI_7x1Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_7x1Xor_end:
+mulAvxGFNI_7x1Xor_end:
 	RET
 
 // func mulAvxTwo_7x1_64Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -55764,9 +55764,9 @@ mulGFNI_7x2_64_loop:
 mulGFNI_7x2_64_end:
 	RET
 
-// func mulAvx2GFNI_7x2(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_7x2(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_7x2(SB), $0-88
+TEXT ·mulAvxGFNI_7x2(SB), $0-88
 	// Loading 12 of 14 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 18 YMM used
@@ -55774,7 +55774,7 @@ TEXT ·mulAvx2GFNI_7x2(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_7x2_end
+	JZ           mulAvxGFNI_7x2_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -55814,7 +55814,7 @@ TEXT ·mulAvx2GFNI_7x2(SB), $0-88
 	ADDQ R13, R10
 	ADDQ R13, DX
 
-mulAvx2GFNI_7x2_loop:
+mulAvxGFNI_7x2_loop:
 	// Load and process 32 bytes from input 0 to 2 outputs
 	VMOVDQU        (BX), Y14
 	ADDQ           $0x20, BX
@@ -55879,10 +55879,10 @@ mulAvx2GFNI_7x2_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_7x2_loop
+	JNZ  mulAvxGFNI_7x2_loop
 	VZEROUPPER
 
-mulAvx2GFNI_7x2_end:
+mulAvxGFNI_7x2_end:
 	RET
 
 // func mulGFNI_7x2_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -56012,9 +56012,9 @@ mulGFNI_7x2_64Xor_loop:
 mulGFNI_7x2_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_7x2Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_7x2Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_7x2Xor(SB), $0-88
+TEXT ·mulAvxGFNI_7x2Xor(SB), $0-88
 	// Loading 12 of 14 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 18 YMM used
@@ -56022,7 +56022,7 @@ TEXT ·mulAvx2GFNI_7x2Xor(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_7x2Xor_end
+	JZ           mulAvxGFNI_7x2Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -56062,7 +56062,7 @@ TEXT ·mulAvx2GFNI_7x2Xor(SB), $0-88
 	ADDQ R13, R10
 	ADDQ R13, DX
 
-mulAvx2GFNI_7x2Xor_loop:
+mulAvxGFNI_7x2Xor_loop:
 	// Load 2 outputs
 	VMOVDQU (R12), Y12
 	VMOVDQU (R11), Y13
@@ -56133,10 +56133,10 @@ mulAvx2GFNI_7x2Xor_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_7x2Xor_loop
+	JNZ  mulAvxGFNI_7x2Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_7x2Xor_end:
+mulAvxGFNI_7x2Xor_end:
 	RET
 
 // func mulAvxTwo_7x2_64Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -56845,9 +56845,9 @@ mulGFNI_7x3_64_loop:
 mulGFNI_7x3_64_end:
 	RET
 
-// func mulAvx2GFNI_7x3(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_7x3(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_7x3(SB), $0-88
+TEXT ·mulAvxGFNI_7x3(SB), $0-88
 	// Loading 11 of 21 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 26 YMM used
@@ -56855,7 +56855,7 @@ TEXT ·mulAvx2GFNI_7x3(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_7x3_end
+	JZ           mulAvxGFNI_7x3_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -56896,7 +56896,7 @@ TEXT ·mulAvx2GFNI_7x3(SB), $0-88
 	ADDQ R14, R10
 	ADDQ R14, DX
 
-mulAvx2GFNI_7x3_loop:
+mulAvxGFNI_7x3_loop:
 	// Load and process 32 bytes from input 0 to 3 outputs
 	VMOVDQU        (BX), Y14
 	ADDQ           $0x20, BX
@@ -56984,10 +56984,10 @@ mulAvx2GFNI_7x3_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_7x3_loop
+	JNZ  mulAvxGFNI_7x3_loop
 	VZEROUPPER
 
-mulAvx2GFNI_7x3_end:
+mulAvxGFNI_7x3_end:
 	RET
 
 // func mulGFNI_7x3_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -57143,9 +57143,9 @@ mulGFNI_7x3_64Xor_loop:
 mulGFNI_7x3_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_7x3Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_7x3Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_7x3Xor(SB), $0-88
+TEXT ·mulAvxGFNI_7x3Xor(SB), $0-88
 	// Loading 11 of 21 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 26 YMM used
@@ -57153,7 +57153,7 @@ TEXT ·mulAvx2GFNI_7x3Xor(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_7x3Xor_end
+	JZ           mulAvxGFNI_7x3Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -57194,7 +57194,7 @@ TEXT ·mulAvx2GFNI_7x3Xor(SB), $0-88
 	ADDQ R14, R10
 	ADDQ R14, DX
 
-mulAvx2GFNI_7x3Xor_loop:
+mulAvxGFNI_7x3Xor_loop:
 	// Load 3 outputs
 	VMOVDQU (R12), Y11
 	VMOVDQU (R13), Y12
@@ -57290,10 +57290,10 @@ mulAvx2GFNI_7x3Xor_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_7x3Xor_loop
+	JNZ  mulAvxGFNI_7x3Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_7x3Xor_end:
+mulAvxGFNI_7x3Xor_end:
 	RET
 
 // func mulAvxTwo_7x3_64Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -58031,9 +58031,9 @@ mulGFNI_7x4_64_loop:
 mulGFNI_7x4_64_end:
 	RET
 
-// func mulAvx2GFNI_7x4(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_7x4(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_7x4(SB), $0-88
+TEXT ·mulAvxGFNI_7x4(SB), $0-88
 	// Loading 10 of 28 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 34 YMM used
@@ -58041,7 +58041,7 @@ TEXT ·mulAvx2GFNI_7x4(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_7x4_end
+	JZ           mulAvxGFNI_7x4_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -58083,7 +58083,7 @@ TEXT ·mulAvx2GFNI_7x4(SB), $0-88
 	ADDQ R15, R10
 	ADDQ R15, DX
 
-mulAvx2GFNI_7x4_loop:
+mulAvxGFNI_7x4_loop:
 	// Load and process 32 bytes from input 0 to 4 outputs
 	VMOVDQU        (BX), Y14
 	ADDQ           $0x20, BX
@@ -58194,10 +58194,10 @@ mulAvx2GFNI_7x4_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_7x4_loop
+	JNZ  mulAvxGFNI_7x4_loop
 	VZEROUPPER
 
-mulAvx2GFNI_7x4_end:
+mulAvxGFNI_7x4_end:
 	RET
 
 // func mulGFNI_7x4_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -58377,9 +58377,9 @@ mulGFNI_7x4_64Xor_loop:
 mulGFNI_7x4_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_7x4Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_7x4Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_7x4Xor(SB), $0-88
+TEXT ·mulAvxGFNI_7x4Xor(SB), $0-88
 	// Loading 10 of 28 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 34 YMM used
@@ -58387,7 +58387,7 @@ TEXT ·mulAvx2GFNI_7x4Xor(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_7x4Xor_end
+	JZ           mulAvxGFNI_7x4Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -58429,7 +58429,7 @@ TEXT ·mulAvx2GFNI_7x4Xor(SB), $0-88
 	ADDQ R15, R10
 	ADDQ R15, DX
 
-mulAvx2GFNI_7x4Xor_loop:
+mulAvxGFNI_7x4Xor_loop:
 	// Load 4 outputs
 	VMOVDQU (R12), Y10
 	VMOVDQU (R13), Y11
@@ -58550,10 +58550,10 @@ mulAvx2GFNI_7x4Xor_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_7x4Xor_loop
+	JNZ  mulAvxGFNI_7x4Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_7x4Xor_end:
+mulAvxGFNI_7x4Xor_end:
 	RET
 
 // func mulAvxTwo_7x4Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -59286,9 +59286,9 @@ mulGFNI_7x5_64_loop:
 mulGFNI_7x5_64_end:
 	RET
 
-// func mulAvx2GFNI_7x5(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_7x5(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_7x5(SB), $8-88
+TEXT ·mulAvxGFNI_7x5(SB), $8-88
 	// Loading 9 of 35 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 42 YMM used
@@ -59296,7 +59296,7 @@ TEXT ·mulAvx2GFNI_7x5(SB), $8-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_7x5_end
+	JZ           mulAvxGFNI_7x5_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -59339,7 +59339,7 @@ TEXT ·mulAvx2GFNI_7x5(SB), $8-88
 	ADDQ BP, R10
 	ADDQ BP, DX
 
-mulAvx2GFNI_7x5_loop:
+mulAvxGFNI_7x5_loop:
 	// Load and process 32 bytes from input 0 to 5 outputs
 	VMOVDQU        (BX), Y14
 	ADDQ           $0x20, BX
@@ -59473,10 +59473,10 @@ mulAvx2GFNI_7x5_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_7x5_loop
+	JNZ  mulAvxGFNI_7x5_loop
 	VZEROUPPER
 
-mulAvx2GFNI_7x5_end:
+mulAvxGFNI_7x5_end:
 	RET
 
 // func mulGFNI_7x5_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -59674,9 +59674,9 @@ mulGFNI_7x5_64Xor_loop:
 mulGFNI_7x5_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_7x5Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_7x5Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_7x5Xor(SB), $8-88
+TEXT ·mulAvxGFNI_7x5Xor(SB), $8-88
 	// Loading 9 of 35 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 42 YMM used
@@ -59684,7 +59684,7 @@ TEXT ·mulAvx2GFNI_7x5Xor(SB), $8-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_7x5Xor_end
+	JZ           mulAvxGFNI_7x5Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -59727,7 +59727,7 @@ TEXT ·mulAvx2GFNI_7x5Xor(SB), $8-88
 	ADDQ BP, R10
 	ADDQ BP, DX
 
-mulAvx2GFNI_7x5Xor_loop:
+mulAvxGFNI_7x5Xor_loop:
 	// Load 5 outputs
 	VMOVDQU (R12), Y9
 	VMOVDQU (R13), Y10
@@ -59873,10 +59873,10 @@ mulAvx2GFNI_7x5Xor_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_7x5Xor_loop
+	JNZ  mulAvxGFNI_7x5Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_7x5Xor_end:
+mulAvxGFNI_7x5Xor_end:
 	RET
 
 // func mulAvxTwo_7x5Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -60710,9 +60710,9 @@ mulGFNI_7x6_64_loop:
 mulGFNI_7x6_64_end:
 	RET
 
-// func mulAvx2GFNI_7x6(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_7x6(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_7x6(SB), $8-88
+TEXT ·mulAvxGFNI_7x6(SB), $8-88
 	// Loading 8 of 42 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 50 YMM used
@@ -60720,7 +60720,7 @@ TEXT ·mulAvx2GFNI_7x6(SB), $8-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_7x6_end
+	JZ           mulAvxGFNI_7x6_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -60768,7 +60768,7 @@ TEXT ·mulAvx2GFNI_7x6(SB), $8-88
 	MOVQ n+80(FP), BP
 	SHRQ $0x05, BP
 
-mulAvx2GFNI_7x6_loop:
+mulAvxGFNI_7x6_loop:
 	// Load and process 32 bytes from input 0 to 6 outputs
 	VMOVDQU        (DX), Y14
 	ADDQ           $0x20, DX
@@ -60925,10 +60925,10 @@ mulAvx2GFNI_7x6_loop:
 
 	// Prepare for next loop
 	DECQ BP
-	JNZ  mulAvx2GFNI_7x6_loop
+	JNZ  mulAvxGFNI_7x6_loop
 	VZEROUPPER
 
-mulAvx2GFNI_7x6_end:
+mulAvxGFNI_7x6_end:
 	RET
 
 // func mulGFNI_7x6_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -61148,9 +61148,9 @@ mulGFNI_7x6_64Xor_loop:
 mulGFNI_7x6_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_7x6Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_7x6Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_7x6Xor(SB), $8-88
+TEXT ·mulAvxGFNI_7x6Xor(SB), $8-88
 	// Loading 8 of 42 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 50 YMM used
@@ -61158,7 +61158,7 @@ TEXT ·mulAvx2GFNI_7x6Xor(SB), $8-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_7x6Xor_end
+	JZ           mulAvxGFNI_7x6Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -61206,7 +61206,7 @@ TEXT ·mulAvx2GFNI_7x6Xor(SB), $8-88
 	MOVQ n+80(FP), BP
 	SHRQ $0x05, BP
 
-mulAvx2GFNI_7x6Xor_loop:
+mulAvxGFNI_7x6Xor_loop:
 	// Load 6 outputs
 	VMOVDQU (R11), Y8
 	VMOVDQU (R12), Y9
@@ -61377,10 +61377,10 @@ mulAvx2GFNI_7x6Xor_loop:
 
 	// Prepare for next loop
 	DECQ BP
-	JNZ  mulAvx2GFNI_7x6Xor_loop
+	JNZ  mulAvxGFNI_7x6Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_7x6Xor_end:
+mulAvxGFNI_7x6Xor_end:
 	RET
 
 // func mulAvxTwo_7x6Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -62275,9 +62275,9 @@ mulGFNI_7x7_64_loop:
 mulGFNI_7x7_64_end:
 	RET
 
-// func mulAvx2GFNI_7x7(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_7x7(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_7x7(SB), $0-88
+TEXT ·mulAvxGFNI_7x7(SB), $0-88
 	// Loading 7 of 49 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 58 YMM used
@@ -62285,7 +62285,7 @@ TEXT ·mulAvx2GFNI_7x7(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_7x7_end
+	JZ           mulAvxGFNI_7x7_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -62314,7 +62314,7 @@ TEXT ·mulAvx2GFNI_7x7(SB), $0-88
 	ADDQ R12, R10
 	ADDQ R12, DX
 
-mulAvx2GFNI_7x7_loop:
+mulAvxGFNI_7x7_loop:
 	// Load and process 32 bytes from input 0 to 7 outputs
 	VMOVDQU        (BX), Y14
 	ADDQ           $0x20, BX
@@ -62495,10 +62495,10 @@ mulAvx2GFNI_7x7_loop:
 	// Prepare for next loop
 	ADDQ $0x20, R12
 	DECQ AX
-	JNZ  mulAvx2GFNI_7x7_loop
+	JNZ  mulAvxGFNI_7x7_loop
 	VZEROUPPER
 
-mulAvx2GFNI_7x7_end:
+mulAvxGFNI_7x7_end:
 	RET
 
 // func mulGFNI_7x7_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -62724,9 +62724,9 @@ mulGFNI_7x7_64Xor_loop:
 mulGFNI_7x7_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_7x7Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_7x7Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_7x7Xor(SB), $0-88
+TEXT ·mulAvxGFNI_7x7Xor(SB), $0-88
 	// Loading 7 of 49 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 58 YMM used
@@ -62734,7 +62734,7 @@ TEXT ·mulAvx2GFNI_7x7Xor(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_7x7Xor_end
+	JZ           mulAvxGFNI_7x7Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -62763,7 +62763,7 @@ TEXT ·mulAvx2GFNI_7x7Xor(SB), $0-88
 	ADDQ R12, R10
 	ADDQ R12, DX
 
-mulAvx2GFNI_7x7Xor_loop:
+mulAvxGFNI_7x7Xor_loop:
 	// Load 7 outputs
 	MOVQ    (R11), R13
 	VMOVDQU (R13)(R12*1), Y7
@@ -62967,10 +62967,10 @@ mulAvx2GFNI_7x7Xor_loop:
 	// Prepare for next loop
 	ADDQ $0x20, R12
 	DECQ AX
-	JNZ  mulAvx2GFNI_7x7Xor_loop
+	JNZ  mulAvxGFNI_7x7Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_7x7Xor_end:
+mulAvxGFNI_7x7Xor_end:
 	RET
 
 // func mulAvxTwo_7x7Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -63946,9 +63946,9 @@ mulGFNI_7x8_64_loop:
 mulGFNI_7x8_64_end:
 	RET
 
-// func mulAvx2GFNI_7x8(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_7x8(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_7x8(SB), $0-88
+TEXT ·mulAvxGFNI_7x8(SB), $0-88
 	// Loading 6 of 56 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 66 YMM used
@@ -63956,7 +63956,7 @@ TEXT ·mulAvx2GFNI_7x8(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_7x8_end
+	JZ           mulAvxGFNI_7x8_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -63984,7 +63984,7 @@ TEXT ·mulAvx2GFNI_7x8(SB), $0-88
 	ADDQ R12, R10
 	ADDQ R12, DX
 
-mulAvx2GFNI_7x8_loop:
+mulAvxGFNI_7x8_loop:
 	// Load and process 32 bytes from input 0 to 8 outputs
 	VMOVDQU        (BX), Y14
 	ADDQ           $0x20, BX
@@ -64188,10 +64188,10 @@ mulAvx2GFNI_7x8_loop:
 	// Prepare for next loop
 	ADDQ $0x20, R12
 	DECQ AX
-	JNZ  mulAvx2GFNI_7x8_loop
+	JNZ  mulAvxGFNI_7x8_loop
 	VZEROUPPER
 
-mulAvx2GFNI_7x8_end:
+mulAvxGFNI_7x8_end:
 	RET
 
 // func mulGFNI_7x8_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -64434,9 +64434,9 @@ mulGFNI_7x8_64Xor_loop:
 mulGFNI_7x8_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_7x8Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_7x8Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_7x8Xor(SB), $0-88
+TEXT ·mulAvxGFNI_7x8Xor(SB), $0-88
 	// Loading 6 of 56 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 66 YMM used
@@ -64444,7 +64444,7 @@ TEXT ·mulAvx2GFNI_7x8Xor(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_7x8Xor_end
+	JZ           mulAvxGFNI_7x8Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -64472,7 +64472,7 @@ TEXT ·mulAvx2GFNI_7x8Xor(SB), $0-88
 	ADDQ R12, R10
 	ADDQ R12, DX
 
-mulAvx2GFNI_7x8Xor_loop:
+mulAvxGFNI_7x8Xor_loop:
 	// Load 8 outputs
 	MOVQ    (R11), R13
 	VMOVDQU (R13)(R12*1), Y6
@@ -64702,10 +64702,10 @@ mulAvx2GFNI_7x8Xor_loop:
 	// Prepare for next loop
 	ADDQ $0x20, R12
 	DECQ AX
-	JNZ  mulAvx2GFNI_7x8Xor_loop
+	JNZ  mulAvxGFNI_7x8Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_7x8Xor_end:
+mulAvxGFNI_7x8Xor_end:
 	RET
 
 // func mulAvxTwo_7x8Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -65771,9 +65771,9 @@ mulGFNI_7x9_64_loop:
 mulGFNI_7x9_64_end:
 	RET
 
-// func mulAvx2GFNI_7x9(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_7x9(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_7x9(SB), $0-88
+TEXT ·mulAvxGFNI_7x9(SB), $0-88
 	// Loading 5 of 63 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 74 YMM used
@@ -65781,7 +65781,7 @@ TEXT ·mulAvx2GFNI_7x9(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_7x9_end
+	JZ           mulAvxGFNI_7x9_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -65808,7 +65808,7 @@ TEXT ·mulAvx2GFNI_7x9(SB), $0-88
 	ADDQ R12, R10
 	ADDQ R12, DX
 
-mulAvx2GFNI_7x9_loop:
+mulAvxGFNI_7x9_loop:
 	// Load and process 32 bytes from input 0 to 9 outputs
 	VMOVDQU        (BX), Y14
 	ADDQ           $0x20, BX
@@ -66035,10 +66035,10 @@ mulAvx2GFNI_7x9_loop:
 	// Prepare for next loop
 	ADDQ $0x20, R12
 	DECQ AX
-	JNZ  mulAvx2GFNI_7x9_loop
+	JNZ  mulAvxGFNI_7x9_loop
 	VZEROUPPER
 
-mulAvx2GFNI_7x9_end:
+mulAvxGFNI_7x9_end:
 	RET
 
 // func mulGFNI_7x9_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -66298,9 +66298,9 @@ mulGFNI_7x9_64Xor_loop:
 mulGFNI_7x9_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_7x9Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_7x9Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_7x9Xor(SB), $0-88
+TEXT ·mulAvxGFNI_7x9Xor(SB), $0-88
 	// Loading 5 of 63 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 74 YMM used
@@ -66308,7 +66308,7 @@ TEXT ·mulAvx2GFNI_7x9Xor(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_7x9Xor_end
+	JZ           mulAvxGFNI_7x9Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -66335,7 +66335,7 @@ TEXT ·mulAvx2GFNI_7x9Xor(SB), $0-88
 	ADDQ R12, R10
 	ADDQ R12, DX
 
-mulAvx2GFNI_7x9Xor_loop:
+mulAvxGFNI_7x9Xor_loop:
 	// Load 9 outputs
 	MOVQ    (R11), R13
 	VMOVDQU (R13)(R12*1), Y5
@@ -66591,10 +66591,10 @@ mulAvx2GFNI_7x9Xor_loop:
 	// Prepare for next loop
 	ADDQ $0x20, R12
 	DECQ AX
-	JNZ  mulAvx2GFNI_7x9Xor_loop
+	JNZ  mulAvxGFNI_7x9Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_7x9Xor_end:
+mulAvxGFNI_7x9Xor_end:
 	RET
 
 // func mulAvxTwo_7x9Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -67750,9 +67750,9 @@ mulGFNI_7x10_64_loop:
 mulGFNI_7x10_64_end:
 	RET
 
-// func mulAvx2GFNI_7x10(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_7x10(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_7x10(SB), $0-88
+TEXT ·mulAvxGFNI_7x10(SB), $0-88
 	// Loading 4 of 70 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 82 YMM used
@@ -67760,7 +67760,7 @@ TEXT ·mulAvx2GFNI_7x10(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_7x10_end
+	JZ           mulAvxGFNI_7x10_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -67786,7 +67786,7 @@ TEXT ·mulAvx2GFNI_7x10(SB), $0-88
 	ADDQ R12, R10
 	ADDQ R12, DX
 
-mulAvx2GFNI_7x10_loop:
+mulAvxGFNI_7x10_loop:
 	// Load and process 32 bytes from input 0 to 10 outputs
 	VMOVDQU        (BX), Y14
 	ADDQ           $0x20, BX
@@ -68036,10 +68036,10 @@ mulAvx2GFNI_7x10_loop:
 	// Prepare for next loop
 	ADDQ $0x20, R12
 	DECQ AX
-	JNZ  mulAvx2GFNI_7x10_loop
+	JNZ  mulAvxGFNI_7x10_loop
 	VZEROUPPER
 
-mulAvx2GFNI_7x10_end:
+mulAvxGFNI_7x10_end:
 	RET
 
 // func mulGFNI_7x10_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -68316,9 +68316,9 @@ mulGFNI_7x10_64Xor_loop:
 mulGFNI_7x10_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_7x10Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_7x10Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_7x10Xor(SB), $0-88
+TEXT ·mulAvxGFNI_7x10Xor(SB), $0-88
 	// Loading 4 of 70 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 82 YMM used
@@ -68326,7 +68326,7 @@ TEXT ·mulAvx2GFNI_7x10Xor(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_7x10Xor_end
+	JZ           mulAvxGFNI_7x10Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -68352,7 +68352,7 @@ TEXT ·mulAvx2GFNI_7x10Xor(SB), $0-88
 	ADDQ R12, R10
 	ADDQ R12, DX
 
-mulAvx2GFNI_7x10Xor_loop:
+mulAvxGFNI_7x10Xor_loop:
 	// Load 10 outputs
 	MOVQ    (R11), R13
 	VMOVDQU (R13)(R12*1), Y4
@@ -68634,10 +68634,10 @@ mulAvx2GFNI_7x10Xor_loop:
 	// Prepare for next loop
 	ADDQ $0x20, R12
 	DECQ AX
-	JNZ  mulAvx2GFNI_7x10Xor_loop
+	JNZ  mulAvxGFNI_7x10Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_7x10Xor_end:
+mulAvxGFNI_7x10Xor_end:
 	RET
 
 // func mulAvxTwo_7x10Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -69438,9 +69438,9 @@ mulGFNI_8x1_64_loop:
 mulGFNI_8x1_64_end:
 	RET
 
-// func mulAvx2GFNI_8x1(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_8x1(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_8x1(SB), $0-88
+TEXT ·mulAvxGFNI_8x1(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 11 YMM used
@@ -69448,7 +69448,7 @@ TEXT ·mulAvx2GFNI_8x1(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_8x1_end
+	JZ           mulAvxGFNI_8x1_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -69484,7 +69484,7 @@ TEXT ·mulAvx2GFNI_8x1(SB), $0-88
 	ADDQ R12, R10
 	ADDQ R12, CX
 
-mulAvx2GFNI_8x1_loop:
+mulAvxGFNI_8x1_loop:
 	// Load and process 32 bytes from input 0 to 1 outputs
 	VMOVDQU        (DX), Y9
 	ADDQ           $0x20, DX
@@ -69538,10 +69538,10 @@ mulAvx2GFNI_8x1_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_8x1_loop
+	JNZ  mulAvxGFNI_8x1_loop
 	VZEROUPPER
 
-mulAvx2GFNI_8x1_end:
+mulAvxGFNI_8x1_end:
 	RET
 
 // func mulGFNI_8x1_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -69654,9 +69654,9 @@ mulGFNI_8x1_64Xor_loop:
 mulGFNI_8x1_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_8x1Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_8x1Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_8x1Xor(SB), $0-88
+TEXT ·mulAvxGFNI_8x1Xor(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 11 YMM used
@@ -69664,7 +69664,7 @@ TEXT ·mulAvx2GFNI_8x1Xor(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_8x1Xor_end
+	JZ           mulAvxGFNI_8x1Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -69700,7 +69700,7 @@ TEXT ·mulAvx2GFNI_8x1Xor(SB), $0-88
 	ADDQ R12, R10
 	ADDQ R12, CX
 
-mulAvx2GFNI_8x1Xor_loop:
+mulAvxGFNI_8x1Xor_loop:
 	// Load 1 outputs
 	VMOVDQU (R11), Y8
 
@@ -69758,10 +69758,10 @@ mulAvx2GFNI_8x1Xor_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_8x1Xor_loop
+	JNZ  mulAvxGFNI_8x1Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_8x1Xor_end:
+mulAvxGFNI_8x1Xor_end:
 	RET
 
 // func mulAvxTwo_8x1_64Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -70384,9 +70384,9 @@ mulGFNI_8x2_64_loop:
 mulGFNI_8x2_64_end:
 	RET
 
-// func mulAvx2GFNI_8x2(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_8x2(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_8x2(SB), $0-88
+TEXT ·mulAvxGFNI_8x2(SB), $0-88
 	// Loading 12 of 16 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 20 YMM used
@@ -70394,7 +70394,7 @@ TEXT ·mulAvx2GFNI_8x2(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_8x2_end
+	JZ           mulAvxGFNI_8x2_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -70436,7 +70436,7 @@ TEXT ·mulAvx2GFNI_8x2(SB), $0-88
 	ADDQ R14, R11
 	ADDQ R14, DX
 
-mulAvx2GFNI_8x2_loop:
+mulAvxGFNI_8x2_loop:
 	// Load and process 32 bytes from input 0 to 2 outputs
 	VMOVDQU        (BX), Y14
 	ADDQ           $0x20, BX
@@ -70511,10 +70511,10 @@ mulAvx2GFNI_8x2_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_8x2_loop
+	JNZ  mulAvxGFNI_8x2_loop
 	VZEROUPPER
 
-mulAvx2GFNI_8x2_end:
+mulAvxGFNI_8x2_end:
 	RET
 
 // func mulGFNI_8x2_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -70656,9 +70656,9 @@ mulGFNI_8x2_64Xor_loop:
 mulGFNI_8x2_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_8x2Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_8x2Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_8x2Xor(SB), $0-88
+TEXT ·mulAvxGFNI_8x2Xor(SB), $0-88
 	// Loading 12 of 16 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 20 YMM used
@@ -70666,7 +70666,7 @@ TEXT ·mulAvx2GFNI_8x2Xor(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_8x2Xor_end
+	JZ           mulAvxGFNI_8x2Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -70708,7 +70708,7 @@ TEXT ·mulAvx2GFNI_8x2Xor(SB), $0-88
 	ADDQ R14, R11
 	ADDQ R14, DX
 
-mulAvx2GFNI_8x2Xor_loop:
+mulAvxGFNI_8x2Xor_loop:
 	// Load 2 outputs
 	VMOVDQU (R13), Y12
 	VMOVDQU (R12), Y13
@@ -70789,10 +70789,10 @@ mulAvx2GFNI_8x2Xor_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_8x2Xor_loop
+	JNZ  mulAvxGFNI_8x2Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_8x2Xor_end:
+mulAvxGFNI_8x2Xor_end:
 	RET
 
 // func mulAvxTwo_8x2_64Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -71582,9 +71582,9 @@ mulGFNI_8x3_64_loop:
 mulGFNI_8x3_64_end:
 	RET
 
-// func mulAvx2GFNI_8x3(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_8x3(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_8x3(SB), $0-88
+TEXT ·mulAvxGFNI_8x3(SB), $0-88
 	// Loading 11 of 24 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 29 YMM used
@@ -71592,7 +71592,7 @@ TEXT ·mulAvx2GFNI_8x3(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_8x3_end
+	JZ           mulAvxGFNI_8x3_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -71635,7 +71635,7 @@ TEXT ·mulAvx2GFNI_8x3(SB), $0-88
 	ADDQ R15, R11
 	ADDQ R15, DX
 
-mulAvx2GFNI_8x3_loop:
+mulAvxGFNI_8x3_loop:
 	// Load and process 32 bytes from input 0 to 3 outputs
 	VMOVDQU        (BX), Y14
 	ADDQ           $0x20, BX
@@ -71736,10 +71736,10 @@ mulAvx2GFNI_8x3_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_8x3_loop
+	JNZ  mulAvxGFNI_8x3_loop
 	VZEROUPPER
 
-mulAvx2GFNI_8x3_end:
+mulAvxGFNI_8x3_end:
 	RET
 
 // func mulGFNI_8x3_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -71910,9 +71910,9 @@ mulGFNI_8x3_64Xor_loop:
 mulGFNI_8x3_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_8x3Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_8x3Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_8x3Xor(SB), $0-88
+TEXT ·mulAvxGFNI_8x3Xor(SB), $0-88
 	// Loading 11 of 24 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 29 YMM used
@@ -71920,7 +71920,7 @@ TEXT ·mulAvx2GFNI_8x3Xor(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_8x3Xor_end
+	JZ           mulAvxGFNI_8x3Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -71963,7 +71963,7 @@ TEXT ·mulAvx2GFNI_8x3Xor(SB), $0-88
 	ADDQ R15, R11
 	ADDQ R15, DX
 
-mulAvx2GFNI_8x3Xor_loop:
+mulAvxGFNI_8x3Xor_loop:
 	// Load 3 outputs
 	VMOVDQU (R13), Y11
 	VMOVDQU (R14), Y12
@@ -72072,10 +72072,10 @@ mulAvx2GFNI_8x3Xor_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_8x3Xor_loop
+	JNZ  mulAvxGFNI_8x3Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_8x3Xor_end:
+mulAvxGFNI_8x3Xor_end:
 	RET
 
 // func mulAvxTwo_8x3_64Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -72893,9 +72893,9 @@ mulGFNI_8x4_64_loop:
 mulGFNI_8x4_64_end:
 	RET
 
-// func mulAvx2GFNI_8x4(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_8x4(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_8x4(SB), $8-88
+TEXT ·mulAvxGFNI_8x4(SB), $8-88
 	// Loading 10 of 32 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 38 YMM used
@@ -72903,7 +72903,7 @@ TEXT ·mulAvx2GFNI_8x4(SB), $8-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_8x4_end
+	JZ           mulAvxGFNI_8x4_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -72947,7 +72947,7 @@ TEXT ·mulAvx2GFNI_8x4(SB), $8-88
 	ADDQ BP, R11
 	ADDQ BP, DX
 
-mulAvx2GFNI_8x4_loop:
+mulAvxGFNI_8x4_loop:
 	// Load and process 32 bytes from input 0 to 4 outputs
 	VMOVDQU        (BX), Y14
 	ADDQ           $0x20, BX
@@ -73074,10 +73074,10 @@ mulAvx2GFNI_8x4_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_8x4_loop
+	JNZ  mulAvxGFNI_8x4_loop
 	VZEROUPPER
 
-mulAvx2GFNI_8x4_end:
+mulAvxGFNI_8x4_end:
 	RET
 
 // func mulGFNI_8x4_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -73271,9 +73271,9 @@ mulGFNI_8x4_64Xor_loop:
 mulGFNI_8x4_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_8x4Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_8x4Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_8x4Xor(SB), $8-88
+TEXT ·mulAvxGFNI_8x4Xor(SB), $8-88
 	// Loading 10 of 32 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 38 YMM used
@@ -73281,7 +73281,7 @@ TEXT ·mulAvx2GFNI_8x4Xor(SB), $8-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_8x4Xor_end
+	JZ           mulAvxGFNI_8x4Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -73325,7 +73325,7 @@ TEXT ·mulAvx2GFNI_8x4Xor(SB), $8-88
 	ADDQ BP, R11
 	ADDQ BP, DX
 
-mulAvx2GFNI_8x4Xor_loop:
+mulAvxGFNI_8x4Xor_loop:
 	// Load 4 outputs
 	VMOVDQU (R13), Y10
 	VMOVDQU (R14), Y11
@@ -73462,10 +73462,10 @@ mulAvx2GFNI_8x4Xor_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_8x4Xor_loop
+	JNZ  mulAvxGFNI_8x4Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_8x4Xor_end:
+mulAvxGFNI_8x4Xor_end:
 	RET
 
 // func mulAvxTwo_8x4Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -74283,9 +74283,9 @@ mulGFNI_8x5_64_loop:
 mulGFNI_8x5_64_end:
 	RET
 
-// func mulAvx2GFNI_8x5(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_8x5(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_8x5(SB), $8-88
+TEXT ·mulAvxGFNI_8x5(SB), $8-88
 	// Loading 9 of 40 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 47 YMM used
@@ -74293,7 +74293,7 @@ TEXT ·mulAvx2GFNI_8x5(SB), $8-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_8x5_end
+	JZ           mulAvxGFNI_8x5_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -74342,7 +74342,7 @@ TEXT ·mulAvx2GFNI_8x5(SB), $8-88
 	MOVQ n+80(FP), BP
 	SHRQ $0x05, BP
 
-mulAvx2GFNI_8x5_loop:
+mulAvxGFNI_8x5_loop:
 	// Load and process 32 bytes from input 0 to 5 outputs
 	VMOVDQU        (DX), Y14
 	ADDQ           $0x20, DX
@@ -74495,10 +74495,10 @@ mulAvx2GFNI_8x5_loop:
 
 	// Prepare for next loop
 	DECQ BP
-	JNZ  mulAvx2GFNI_8x5_loop
+	JNZ  mulAvxGFNI_8x5_loop
 	VZEROUPPER
 
-mulAvx2GFNI_8x5_end:
+mulAvxGFNI_8x5_end:
 	RET
 
 // func mulGFNI_8x5_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -74716,9 +74716,9 @@ mulGFNI_8x5_64Xor_loop:
 mulGFNI_8x5_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_8x5Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_8x5Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_8x5Xor(SB), $8-88
+TEXT ·mulAvxGFNI_8x5Xor(SB), $8-88
 	// Loading 9 of 40 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 47 YMM used
@@ -74726,7 +74726,7 @@ TEXT ·mulAvx2GFNI_8x5Xor(SB), $8-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_8x5Xor_end
+	JZ           mulAvxGFNI_8x5Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -74775,7 +74775,7 @@ TEXT ·mulAvx2GFNI_8x5Xor(SB), $8-88
 	MOVQ n+80(FP), BP
 	SHRQ $0x05, BP
 
-mulAvx2GFNI_8x5Xor_loop:
+mulAvxGFNI_8x5Xor_loop:
 	// Load 5 outputs
 	VMOVDQU (R12), Y9
 	VMOVDQU (R13), Y10
@@ -74940,10 +74940,10 @@ mulAvx2GFNI_8x5Xor_loop:
 
 	// Prepare for next loop
 	DECQ BP
-	JNZ  mulAvx2GFNI_8x5Xor_loop
+	JNZ  mulAvxGFNI_8x5Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_8x5Xor_end:
+mulAvxGFNI_8x5Xor_end:
 	RET
 
 // func mulAvxTwo_8x5Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -75838,9 +75838,9 @@ mulGFNI_8x6_64_loop:
 mulGFNI_8x6_64_end:
 	RET
 
-// func mulAvx2GFNI_8x6(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_8x6(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_8x6(SB), $0-88
+TEXT ·mulAvxGFNI_8x6(SB), $0-88
 	// Loading 8 of 48 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 56 YMM used
@@ -75848,7 +75848,7 @@ TEXT ·mulAvx2GFNI_8x6(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_8x6_end
+	JZ           mulAvxGFNI_8x6_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -75880,7 +75880,7 @@ TEXT ·mulAvx2GFNI_8x6(SB), $0-88
 	ADDQ R13, R11
 	ADDQ R13, DX
 
-mulAvx2GFNI_8x6_loop:
+mulAvxGFNI_8x6_loop:
 	// Load and process 32 bytes from input 0 to 6 outputs
 	VMOVDQU        (BX), Y14
 	ADDQ           $0x20, BX
@@ -76060,10 +76060,10 @@ mulAvx2GFNI_8x6_loop:
 	// Prepare for next loop
 	ADDQ $0x20, R13
 	DECQ AX
-	JNZ  mulAvx2GFNI_8x6_loop
+	JNZ  mulAvxGFNI_8x6_loop
 	VZEROUPPER
 
-mulAvx2GFNI_8x6_end:
+mulAvxGFNI_8x6_end:
 	RET
 
 // func mulGFNI_8x6_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -76290,9 +76290,9 @@ mulGFNI_8x6_64Xor_loop:
 mulGFNI_8x6_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_8x6Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_8x6Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_8x6Xor(SB), $0-88
+TEXT ·mulAvxGFNI_8x6Xor(SB), $0-88
 	// Loading 8 of 48 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 56 YMM used
@@ -76300,7 +76300,7 @@ TEXT ·mulAvx2GFNI_8x6Xor(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_8x6Xor_end
+	JZ           mulAvxGFNI_8x6Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -76332,7 +76332,7 @@ TEXT ·mulAvx2GFNI_8x6Xor(SB), $0-88
 	ADDQ R13, R11
 	ADDQ R13, DX
 
-mulAvx2GFNI_8x6Xor_loop:
+mulAvxGFNI_8x6Xor_loop:
 	// Load 6 outputs
 	MOVQ    (R12), R14
 	VMOVDQU (R14)(R13*1), Y8
@@ -76532,10 +76532,10 @@ mulAvx2GFNI_8x6Xor_loop:
 	// Prepare for next loop
 	ADDQ $0x20, R13
 	DECQ AX
-	JNZ  mulAvx2GFNI_8x6Xor_loop
+	JNZ  mulAvxGFNI_8x6Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_8x6Xor_end:
+mulAvxGFNI_8x6Xor_end:
 	RET
 
 // func mulAvxTwo_8x6Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -77524,9 +77524,9 @@ mulGFNI_8x7_64_loop:
 mulGFNI_8x7_64_end:
 	RET
 
-// func mulAvx2GFNI_8x7(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_8x7(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_8x7(SB), $0-88
+TEXT ·mulAvxGFNI_8x7(SB), $0-88
 	// Loading 7 of 56 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 65 YMM used
@@ -77534,7 +77534,7 @@ TEXT ·mulAvx2GFNI_8x7(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_8x7_end
+	JZ           mulAvxGFNI_8x7_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -77565,7 +77565,7 @@ TEXT ·mulAvx2GFNI_8x7(SB), $0-88
 	ADDQ R13, R11
 	ADDQ R13, DX
 
-mulAvx2GFNI_8x7_loop:
+mulAvxGFNI_8x7_loop:
 	// Load and process 32 bytes from input 0 to 7 outputs
 	VMOVDQU        (BX), Y14
 	ADDQ           $0x20, BX
@@ -77771,10 +77771,10 @@ mulAvx2GFNI_8x7_loop:
 	// Prepare for next loop
 	ADDQ $0x20, R13
 	DECQ AX
-	JNZ  mulAvx2GFNI_8x7_loop
+	JNZ  mulAvxGFNI_8x7_loop
 	VZEROUPPER
 
-mulAvx2GFNI_8x7_end:
+mulAvxGFNI_8x7_end:
 	RET
 
 // func mulGFNI_8x7_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -78020,9 +78020,9 @@ mulGFNI_8x7_64Xor_loop:
 mulGFNI_8x7_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_8x7Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_8x7Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_8x7Xor(SB), $0-88
+TEXT ·mulAvxGFNI_8x7Xor(SB), $0-88
 	// Loading 7 of 56 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 65 YMM used
@@ -78030,7 +78030,7 @@ TEXT ·mulAvx2GFNI_8x7Xor(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_8x7Xor_end
+	JZ           mulAvxGFNI_8x7Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -78061,7 +78061,7 @@ TEXT ·mulAvx2GFNI_8x7Xor(SB), $0-88
 	ADDQ R13, R11
 	ADDQ R13, DX
 
-mulAvx2GFNI_8x7Xor_loop:
+mulAvxGFNI_8x7Xor_loop:
 	// Load 7 outputs
 	MOVQ    (R12), R14
 	VMOVDQU (R14)(R13*1), Y7
@@ -78290,10 +78290,10 @@ mulAvx2GFNI_8x7Xor_loop:
 	// Prepare for next loop
 	ADDQ $0x20, R13
 	DECQ AX
-	JNZ  mulAvx2GFNI_8x7Xor_loop
+	JNZ  mulAvxGFNI_8x7Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_8x7Xor_end:
+mulAvxGFNI_8x7Xor_end:
 	RET
 
 // func mulAvxTwo_8x7Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -79384,9 +79384,9 @@ mulGFNI_8x8_64_loop:
 mulGFNI_8x8_64_end:
 	RET
 
-// func mulAvx2GFNI_8x8(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_8x8(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_8x8(SB), $0-88
+TEXT ·mulAvxGFNI_8x8(SB), $0-88
 	// Loading 6 of 64 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 74 YMM used
@@ -79394,7 +79394,7 @@ TEXT ·mulAvx2GFNI_8x8(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_8x8_end
+	JZ           mulAvxGFNI_8x8_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -79424,7 +79424,7 @@ TEXT ·mulAvx2GFNI_8x8(SB), $0-88
 	ADDQ R13, R11
 	ADDQ R13, DX
 
-mulAvx2GFNI_8x8_loop:
+mulAvxGFNI_8x8_loop:
 	// Load and process 32 bytes from input 0 to 8 outputs
 	VMOVDQU        (BX), Y14
 	ADDQ           $0x20, BX
@@ -79656,10 +79656,10 @@ mulAvx2GFNI_8x8_loop:
 	// Prepare for next loop
 	ADDQ $0x20, R13
 	DECQ AX
-	JNZ  mulAvx2GFNI_8x8_loop
+	JNZ  mulAvxGFNI_8x8_loop
 	VZEROUPPER
 
-mulAvx2GFNI_8x8_end:
+mulAvxGFNI_8x8_end:
 	RET
 
 // func mulGFNI_8x8_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -79924,9 +79924,9 @@ mulGFNI_8x8_64Xor_loop:
 mulGFNI_8x8_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_8x8Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_8x8Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_8x8Xor(SB), $0-88
+TEXT ·mulAvxGFNI_8x8Xor(SB), $0-88
 	// Loading 6 of 64 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 74 YMM used
@@ -79934,7 +79934,7 @@ TEXT ·mulAvx2GFNI_8x8Xor(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_8x8Xor_end
+	JZ           mulAvxGFNI_8x8Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -79964,7 +79964,7 @@ TEXT ·mulAvx2GFNI_8x8Xor(SB), $0-88
 	ADDQ R13, R11
 	ADDQ R13, DX
 
-mulAvx2GFNI_8x8Xor_loop:
+mulAvxGFNI_8x8Xor_loop:
 	// Load 8 outputs
 	MOVQ    (R12), R14
 	VMOVDQU (R14)(R13*1), Y6
@@ -80222,10 +80222,10 @@ mulAvx2GFNI_8x8Xor_loop:
 	// Prepare for next loop
 	ADDQ $0x20, R13
 	DECQ AX
-	JNZ  mulAvx2GFNI_8x8Xor_loop
+	JNZ  mulAvxGFNI_8x8Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_8x8Xor_end:
+mulAvxGFNI_8x8Xor_end:
 	RET
 
 // func mulAvxTwo_8x8Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -81418,9 +81418,9 @@ mulGFNI_8x9_64_loop:
 mulGFNI_8x9_64_end:
 	RET
 
-// func mulAvx2GFNI_8x9(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_8x9(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_8x9(SB), $0-88
+TEXT ·mulAvxGFNI_8x9(SB), $0-88
 	// Loading 5 of 72 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 83 YMM used
@@ -81428,7 +81428,7 @@ TEXT ·mulAvx2GFNI_8x9(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_8x9_end
+	JZ           mulAvxGFNI_8x9_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -81457,7 +81457,7 @@ TEXT ·mulAvx2GFNI_8x9(SB), $0-88
 	ADDQ R13, R11
 	ADDQ R13, DX
 
-mulAvx2GFNI_8x9_loop:
+mulAvxGFNI_8x9_loop:
 	// Load and process 32 bytes from input 0 to 9 outputs
 	VMOVDQU        (BX), Y14
 	ADDQ           $0x20, BX
@@ -81715,10 +81715,10 @@ mulAvx2GFNI_8x9_loop:
 	// Prepare for next loop
 	ADDQ $0x20, R13
 	DECQ AX
-	JNZ  mulAvx2GFNI_8x9_loop
+	JNZ  mulAvxGFNI_8x9_loop
 	VZEROUPPER
 
-mulAvx2GFNI_8x9_end:
+mulAvxGFNI_8x9_end:
 	RET
 
 // func mulGFNI_8x9_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -82002,9 +82002,9 @@ mulGFNI_8x9_64Xor_loop:
 mulGFNI_8x9_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_8x9Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_8x9Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_8x9Xor(SB), $0-88
+TEXT ·mulAvxGFNI_8x9Xor(SB), $0-88
 	// Loading 5 of 72 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 83 YMM used
@@ -82012,7 +82012,7 @@ TEXT ·mulAvx2GFNI_8x9Xor(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_8x9Xor_end
+	JZ           mulAvxGFNI_8x9Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -82041,7 +82041,7 @@ TEXT ·mulAvx2GFNI_8x9Xor(SB), $0-88
 	ADDQ R13, R11
 	ADDQ R13, DX
 
-mulAvx2GFNI_8x9Xor_loop:
+mulAvxGFNI_8x9Xor_loop:
 	// Load 9 outputs
 	MOVQ    (R12), R14
 	VMOVDQU (R14)(R13*1), Y5
@@ -82328,10 +82328,10 @@ mulAvx2GFNI_8x9Xor_loop:
 	// Prepare for next loop
 	ADDQ $0x20, R13
 	DECQ AX
-	JNZ  mulAvx2GFNI_8x9Xor_loop
+	JNZ  mulAvxGFNI_8x9Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_8x9Xor_end:
+mulAvxGFNI_8x9Xor_end:
 	RET
 
 // func mulAvxTwo_8x9Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -83626,9 +83626,9 @@ mulGFNI_8x10_64_loop:
 mulGFNI_8x10_64_end:
 	RET
 
-// func mulAvx2GFNI_8x10(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_8x10(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_8x10(SB), $0-88
+TEXT ·mulAvxGFNI_8x10(SB), $0-88
 	// Loading 4 of 80 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 92 YMM used
@@ -83636,7 +83636,7 @@ TEXT ·mulAvx2GFNI_8x10(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_8x10_end
+	JZ           mulAvxGFNI_8x10_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -83664,7 +83664,7 @@ TEXT ·mulAvx2GFNI_8x10(SB), $0-88
 	ADDQ R13, R11
 	ADDQ R13, DX
 
-mulAvx2GFNI_8x10_loop:
+mulAvxGFNI_8x10_loop:
 	// Load and process 32 bytes from input 0 to 10 outputs
 	VMOVDQU        (BX), Y14
 	ADDQ           $0x20, BX
@@ -83948,10 +83948,10 @@ mulAvx2GFNI_8x10_loop:
 	// Prepare for next loop
 	ADDQ $0x20, R13
 	DECQ AX
-	JNZ  mulAvx2GFNI_8x10_loop
+	JNZ  mulAvxGFNI_8x10_loop
 	VZEROUPPER
 
-mulAvx2GFNI_8x10_end:
+mulAvxGFNI_8x10_end:
 	RET
 
 // func mulGFNI_8x10_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -84254,9 +84254,9 @@ mulGFNI_8x10_64Xor_loop:
 mulGFNI_8x10_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_8x10Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_8x10Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_8x10Xor(SB), $0-88
+TEXT ·mulAvxGFNI_8x10Xor(SB), $0-88
 	// Loading 4 of 80 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 92 YMM used
@@ -84264,7 +84264,7 @@ TEXT ·mulAvx2GFNI_8x10Xor(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_8x10Xor_end
+	JZ           mulAvxGFNI_8x10Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -84292,7 +84292,7 @@ TEXT ·mulAvx2GFNI_8x10Xor(SB), $0-88
 	ADDQ R13, R11
 	ADDQ R13, DX
 
-mulAvx2GFNI_8x10Xor_loop:
+mulAvxGFNI_8x10Xor_loop:
 	// Load 10 outputs
 	MOVQ    (R12), R14
 	VMOVDQU (R14)(R13*1), Y4
@@ -84608,10 +84608,10 @@ mulAvx2GFNI_8x10Xor_loop:
 	// Prepare for next loop
 	ADDQ $0x20, R13
 	DECQ AX
-	JNZ  mulAvx2GFNI_8x10Xor_loop
+	JNZ  mulAvxGFNI_8x10Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_8x10Xor_end:
+mulAvxGFNI_8x10Xor_end:
 	RET
 
 // func mulAvxTwo_8x10Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -85501,9 +85501,9 @@ mulGFNI_9x1_64_loop:
 mulGFNI_9x1_64_end:
 	RET
 
-// func mulAvx2GFNI_9x1(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_9x1(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_9x1(SB), $0-88
+TEXT ·mulAvxGFNI_9x1(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 12 YMM used
@@ -85511,7 +85511,7 @@ TEXT ·mulAvx2GFNI_9x1(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_9x1_end
+	JZ           mulAvxGFNI_9x1_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -85550,7 +85550,7 @@ TEXT ·mulAvx2GFNI_9x1(SB), $0-88
 	ADDQ R13, R11
 	ADDQ R13, CX
 
-mulAvx2GFNI_9x1_loop:
+mulAvxGFNI_9x1_loop:
 	// Load and process 32 bytes from input 0 to 1 outputs
 	VMOVDQU        (DX), Y10
 	ADDQ           $0x20, DX
@@ -85610,10 +85610,10 @@ mulAvx2GFNI_9x1_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_9x1_loop
+	JNZ  mulAvxGFNI_9x1_loop
 	VZEROUPPER
 
-mulAvx2GFNI_9x1_end:
+mulAvxGFNI_9x1_end:
 	RET
 
 // func mulGFNI_9x1_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -85735,9 +85735,9 @@ mulGFNI_9x1_64Xor_loop:
 mulGFNI_9x1_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_9x1Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_9x1Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_9x1Xor(SB), $0-88
+TEXT ·mulAvxGFNI_9x1Xor(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 12 YMM used
@@ -85745,7 +85745,7 @@ TEXT ·mulAvx2GFNI_9x1Xor(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_9x1Xor_end
+	JZ           mulAvxGFNI_9x1Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -85784,7 +85784,7 @@ TEXT ·mulAvx2GFNI_9x1Xor(SB), $0-88
 	ADDQ R13, R11
 	ADDQ R13, CX
 
-mulAvx2GFNI_9x1Xor_loop:
+mulAvxGFNI_9x1Xor_loop:
 	// Load 1 outputs
 	VMOVDQU (R12), Y9
 
@@ -85848,10 +85848,10 @@ mulAvx2GFNI_9x1Xor_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_9x1Xor_loop
+	JNZ  mulAvxGFNI_9x1Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_9x1Xor_end:
+mulAvxGFNI_9x1Xor_end:
 	RET
 
 // func mulAvxTwo_9x1_64Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -86536,9 +86536,9 @@ mulGFNI_9x2_64_loop:
 mulGFNI_9x2_64_end:
 	RET
 
-// func mulAvx2GFNI_9x2(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_9x2(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_9x2(SB), $0-88
+TEXT ·mulAvxGFNI_9x2(SB), $0-88
 	// Loading 12 of 18 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 22 YMM used
@@ -86546,7 +86546,7 @@ TEXT ·mulAvx2GFNI_9x2(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_9x2_end
+	JZ           mulAvxGFNI_9x2_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -86590,7 +86590,7 @@ TEXT ·mulAvx2GFNI_9x2(SB), $0-88
 	ADDQ R15, R12
 	ADDQ R15, DX
 
-mulAvx2GFNI_9x2_loop:
+mulAvxGFNI_9x2_loop:
 	// Load and process 32 bytes from input 0 to 2 outputs
 	VMOVDQU        (BX), Y14
 	ADDQ           $0x20, BX
@@ -86675,10 +86675,10 @@ mulAvx2GFNI_9x2_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_9x2_loop
+	JNZ  mulAvxGFNI_9x2_loop
 	VZEROUPPER
 
-mulAvx2GFNI_9x2_end:
+mulAvxGFNI_9x2_end:
 	RET
 
 // func mulGFNI_9x2_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -86832,9 +86832,9 @@ mulGFNI_9x2_64Xor_loop:
 mulGFNI_9x2_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_9x2Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_9x2Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_9x2Xor(SB), $0-88
+TEXT ·mulAvxGFNI_9x2Xor(SB), $0-88
 	// Loading 12 of 18 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 22 YMM used
@@ -86842,7 +86842,7 @@ TEXT ·mulAvx2GFNI_9x2Xor(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_9x2Xor_end
+	JZ           mulAvxGFNI_9x2Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -86886,7 +86886,7 @@ TEXT ·mulAvx2GFNI_9x2Xor(SB), $0-88
 	ADDQ R15, R12
 	ADDQ R15, DX
 
-mulAvx2GFNI_9x2Xor_loop:
+mulAvxGFNI_9x2Xor_loop:
 	// Load 2 outputs
 	VMOVDQU (R14), Y12
 	VMOVDQU (R13), Y13
@@ -86977,10 +86977,10 @@ mulAvx2GFNI_9x2Xor_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_9x2Xor_loop
+	JNZ  mulAvxGFNI_9x2Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_9x2Xor_end:
+mulAvxGFNI_9x2Xor_end:
 	RET
 
 // func mulAvxTwo_9x2_64Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -87851,9 +87851,9 @@ mulGFNI_9x3_64_loop:
 mulGFNI_9x3_64_end:
 	RET
 
-// func mulAvx2GFNI_9x3(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_9x3(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_9x3(SB), $8-88
+TEXT ·mulAvxGFNI_9x3(SB), $8-88
 	// Loading 11 of 27 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 32 YMM used
@@ -87861,7 +87861,7 @@ TEXT ·mulAvx2GFNI_9x3(SB), $8-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_9x3_end
+	JZ           mulAvxGFNI_9x3_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -87906,7 +87906,7 @@ TEXT ·mulAvx2GFNI_9x3(SB), $8-88
 	ADDQ BP, R12
 	ADDQ BP, DX
 
-mulAvx2GFNI_9x3_loop:
+mulAvxGFNI_9x3_loop:
 	// Load and process 32 bytes from input 0 to 3 outputs
 	VMOVDQU        (BX), Y14
 	ADDQ           $0x20, BX
@@ -88020,10 +88020,10 @@ mulAvx2GFNI_9x3_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_9x3_loop
+	JNZ  mulAvxGFNI_9x3_loop
 	VZEROUPPER
 
-mulAvx2GFNI_9x3_end:
+mulAvxGFNI_9x3_end:
 	RET
 
 // func mulGFNI_9x3_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -88209,9 +88209,9 @@ mulGFNI_9x3_64Xor_loop:
 mulGFNI_9x3_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_9x3Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_9x3Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_9x3Xor(SB), $8-88
+TEXT ·mulAvxGFNI_9x3Xor(SB), $8-88
 	// Loading 11 of 27 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 32 YMM used
@@ -88219,7 +88219,7 @@ TEXT ·mulAvx2GFNI_9x3Xor(SB), $8-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_9x3Xor_end
+	JZ           mulAvxGFNI_9x3Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -88264,7 +88264,7 @@ TEXT ·mulAvx2GFNI_9x3Xor(SB), $8-88
 	ADDQ BP, R12
 	ADDQ BP, DX
 
-mulAvx2GFNI_9x3Xor_loop:
+mulAvxGFNI_9x3Xor_loop:
 	// Load 3 outputs
 	VMOVDQU (R14), Y11
 	VMOVDQU (R15), Y12
@@ -88386,10 +88386,10 @@ mulAvx2GFNI_9x3Xor_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_9x3Xor_loop
+	JNZ  mulAvxGFNI_9x3Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_9x3Xor_end:
+mulAvxGFNI_9x3Xor_end:
 	RET
 
 // func mulAvxTwo_9x3_64Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -89293,9 +89293,9 @@ mulGFNI_9x4_64_loop:
 mulGFNI_9x4_64_end:
 	RET
 
-// func mulAvx2GFNI_9x4(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_9x4(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_9x4(SB), $8-88
+TEXT ·mulAvxGFNI_9x4(SB), $8-88
 	// Loading 10 of 36 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 42 YMM used
@@ -89303,7 +89303,7 @@ TEXT ·mulAvx2GFNI_9x4(SB), $8-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_9x4_end
+	JZ           mulAvxGFNI_9x4_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -89353,7 +89353,7 @@ TEXT ·mulAvx2GFNI_9x4(SB), $8-88
 	MOVQ n+80(FP), BP
 	SHRQ $0x05, BP
 
-mulAvx2GFNI_9x4_loop:
+mulAvxGFNI_9x4_loop:
 	// Load and process 32 bytes from input 0 to 4 outputs
 	VMOVDQU        (DX), Y14
 	ADDQ           $0x20, DX
@@ -89496,10 +89496,10 @@ mulAvx2GFNI_9x4_loop:
 
 	// Prepare for next loop
 	DECQ BP
-	JNZ  mulAvx2GFNI_9x4_loop
+	JNZ  mulAvxGFNI_9x4_loop
 	VZEROUPPER
 
-mulAvx2GFNI_9x4_end:
+mulAvxGFNI_9x4_end:
 	RET
 
 // func mulGFNI_9x4_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -89711,9 +89711,9 @@ mulGFNI_9x4_64Xor_loop:
 mulGFNI_9x4_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_9x4Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_9x4Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_9x4Xor(SB), $8-88
+TEXT ·mulAvxGFNI_9x4Xor(SB), $8-88
 	// Loading 10 of 36 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 42 YMM used
@@ -89721,7 +89721,7 @@ TEXT ·mulAvx2GFNI_9x4Xor(SB), $8-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_9x4Xor_end
+	JZ           mulAvxGFNI_9x4Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -89771,7 +89771,7 @@ TEXT ·mulAvx2GFNI_9x4Xor(SB), $8-88
 	MOVQ n+80(FP), BP
 	SHRQ $0x05, BP
 
-mulAvx2GFNI_9x4Xor_loop:
+mulAvxGFNI_9x4Xor_loop:
 	// Load 4 outputs
 	VMOVDQU (R13), Y10
 	VMOVDQU (R14), Y11
@@ -89924,10 +89924,10 @@ mulAvx2GFNI_9x4Xor_loop:
 
 	// Prepare for next loop
 	DECQ BP
-	JNZ  mulAvx2GFNI_9x4Xor_loop
+	JNZ  mulAvxGFNI_9x4Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_9x4Xor_end:
+mulAvxGFNI_9x4Xor_end:
 	RET
 
 // func mulAvxTwo_9x4Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -90798,9 +90798,9 @@ mulGFNI_9x5_64_loop:
 mulGFNI_9x5_64_end:
 	RET
 
-// func mulAvx2GFNI_9x5(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_9x5(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_9x5(SB), $0-88
+TEXT ·mulAvxGFNI_9x5(SB), $0-88
 	// Loading 9 of 45 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 52 YMM used
@@ -90808,7 +90808,7 @@ TEXT ·mulAvx2GFNI_9x5(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_9x5_end
+	JZ           mulAvxGFNI_9x5_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -90843,7 +90843,7 @@ TEXT ·mulAvx2GFNI_9x5(SB), $0-88
 	ADDQ R14, R12
 	ADDQ R14, DX
 
-mulAvx2GFNI_9x5_loop:
+mulAvxGFNI_9x5_loop:
 	// Load and process 32 bytes from input 0 to 5 outputs
 	VMOVDQU        (BX), Y14
 	ADDQ           $0x20, BX
@@ -91016,10 +91016,10 @@ mulAvx2GFNI_9x5_loop:
 	// Prepare for next loop
 	ADDQ $0x20, R14
 	DECQ AX
-	JNZ  mulAvx2GFNI_9x5_loop
+	JNZ  mulAvxGFNI_9x5_loop
 	VZEROUPPER
 
-mulAvx2GFNI_9x5_end:
+mulAvxGFNI_9x5_end:
 	RET
 
 // func mulGFNI_9x5_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -91243,9 +91243,9 @@ mulGFNI_9x5_64Xor_loop:
 mulGFNI_9x5_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_9x5Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_9x5Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_9x5Xor(SB), $0-88
+TEXT ·mulAvxGFNI_9x5Xor(SB), $0-88
 	// Loading 9 of 45 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 52 YMM used
@@ -91253,7 +91253,7 @@ TEXT ·mulAvx2GFNI_9x5Xor(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_9x5Xor_end
+	JZ           mulAvxGFNI_9x5Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -91288,7 +91288,7 @@ TEXT ·mulAvx2GFNI_9x5Xor(SB), $0-88
 	ADDQ R14, R12
 	ADDQ R14, DX
 
-mulAvx2GFNI_9x5Xor_loop:
+mulAvxGFNI_9x5Xor_loop:
 	// Load 5 outputs
 	MOVQ    (R13), R15
 	VMOVDQU (R15)(R14*1), Y9
@@ -91478,10 +91478,10 @@ mulAvx2GFNI_9x5Xor_loop:
 	// Prepare for next loop
 	ADDQ $0x20, R14
 	DECQ AX
-	JNZ  mulAvx2GFNI_9x5Xor_loop
+	JNZ  mulAvxGFNI_9x5Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_9x5Xor_end:
+mulAvxGFNI_9x5Xor_end:
 	RET
 
 // func mulAvxTwo_9x5Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -92459,9 +92459,9 @@ mulGFNI_9x6_64_loop:
 mulGFNI_9x6_64_end:
 	RET
 
-// func mulAvx2GFNI_9x6(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_9x6(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_9x6(SB), $0-88
+TEXT ·mulAvxGFNI_9x6(SB), $0-88
 	// Loading 8 of 54 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 62 YMM used
@@ -92469,7 +92469,7 @@ TEXT ·mulAvx2GFNI_9x6(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_9x6_end
+	JZ           mulAvxGFNI_9x6_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -92503,7 +92503,7 @@ TEXT ·mulAvx2GFNI_9x6(SB), $0-88
 	ADDQ R14, R12
 	ADDQ R14, DX
 
-mulAvx2GFNI_9x6_loop:
+mulAvxGFNI_9x6_loop:
 	// Load and process 32 bytes from input 0 to 6 outputs
 	VMOVDQU        (BX), Y14
 	ADDQ           $0x20, BX
@@ -92705,10 +92705,10 @@ mulAvx2GFNI_9x6_loop:
 	// Prepare for next loop
 	ADDQ $0x20, R14
 	DECQ AX
-	JNZ  mulAvx2GFNI_9x6_loop
+	JNZ  mulAvxGFNI_9x6_loop
 	VZEROUPPER
 
-mulAvx2GFNI_9x6_end:
+mulAvxGFNI_9x6_end:
 	RET
 
 // func mulGFNI_9x6_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -92953,9 +92953,9 @@ mulGFNI_9x6_64Xor_loop:
 mulGFNI_9x6_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_9x6Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_9x6Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_9x6Xor(SB), $0-88
+TEXT ·mulAvxGFNI_9x6Xor(SB), $0-88
 	// Loading 8 of 54 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 62 YMM used
@@ -92963,7 +92963,7 @@ TEXT ·mulAvx2GFNI_9x6Xor(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_9x6Xor_end
+	JZ           mulAvxGFNI_9x6Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -92997,7 +92997,7 @@ TEXT ·mulAvx2GFNI_9x6Xor(SB), $0-88
 	ADDQ R14, R12
 	ADDQ R14, DX
 
-mulAvx2GFNI_9x6Xor_loop:
+mulAvxGFNI_9x6Xor_loop:
 	// Load 6 outputs
 	MOVQ    (R13), R15
 	VMOVDQU (R15)(R14*1), Y8
@@ -93219,10 +93219,10 @@ mulAvx2GFNI_9x6Xor_loop:
 	// Prepare for next loop
 	ADDQ $0x20, R14
 	DECQ AX
-	JNZ  mulAvx2GFNI_9x6Xor_loop
+	JNZ  mulAvxGFNI_9x6Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_9x6Xor_end:
+mulAvxGFNI_9x6Xor_end:
 	RET
 
 // func mulAvxTwo_9x6Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -94314,9 +94314,9 @@ mulGFNI_9x7_64_loop:
 mulGFNI_9x7_64_end:
 	RET
 
-// func mulAvx2GFNI_9x7(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_9x7(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_9x7(SB), $0-88
+TEXT ·mulAvxGFNI_9x7(SB), $0-88
 	// Loading 7 of 63 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 72 YMM used
@@ -94324,7 +94324,7 @@ TEXT ·mulAvx2GFNI_9x7(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_9x7_end
+	JZ           mulAvxGFNI_9x7_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -94357,7 +94357,7 @@ TEXT ·mulAvx2GFNI_9x7(SB), $0-88
 	ADDQ R14, R12
 	ADDQ R14, DX
 
-mulAvx2GFNI_9x7_loop:
+mulAvxGFNI_9x7_loop:
 	// Load and process 32 bytes from input 0 to 7 outputs
 	VMOVDQU        (BX), Y14
 	ADDQ           $0x20, BX
@@ -94588,10 +94588,10 @@ mulAvx2GFNI_9x7_loop:
 	// Prepare for next loop
 	ADDQ $0x20, R14
 	DECQ AX
-	JNZ  mulAvx2GFNI_9x7_loop
+	JNZ  mulAvxGFNI_9x7_loop
 	VZEROUPPER
 
-mulAvx2GFNI_9x7_end:
+mulAvxGFNI_9x7_end:
 	RET
 
 // func mulGFNI_9x7_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -94857,9 +94857,9 @@ mulGFNI_9x7_64Xor_loop:
 mulGFNI_9x7_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_9x7Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_9x7Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_9x7Xor(SB), $0-88
+TEXT ·mulAvxGFNI_9x7Xor(SB), $0-88
 	// Loading 7 of 63 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 72 YMM used
@@ -94867,7 +94867,7 @@ TEXT ·mulAvx2GFNI_9x7Xor(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_9x7Xor_end
+	JZ           mulAvxGFNI_9x7Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -94900,7 +94900,7 @@ TEXT ·mulAvx2GFNI_9x7Xor(SB), $0-88
 	ADDQ R14, R12
 	ADDQ R14, DX
 
-mulAvx2GFNI_9x7Xor_loop:
+mulAvxGFNI_9x7Xor_loop:
 	// Load 7 outputs
 	MOVQ    (R13), R15
 	VMOVDQU (R15)(R14*1), Y7
@@ -95154,10 +95154,10 @@ mulAvx2GFNI_9x7Xor_loop:
 	// Prepare for next loop
 	ADDQ $0x20, R14
 	DECQ AX
-	JNZ  mulAvx2GFNI_9x7Xor_loop
+	JNZ  mulAvxGFNI_9x7Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_9x7Xor_end:
+mulAvxGFNI_9x7Xor_end:
 	RET
 
 // func mulAvxTwo_9x7Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -96363,9 +96363,9 @@ mulGFNI_9x8_64_loop:
 mulGFNI_9x8_64_end:
 	RET
 
-// func mulAvx2GFNI_9x8(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_9x8(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_9x8(SB), $0-88
+TEXT ·mulAvxGFNI_9x8(SB), $0-88
 	// Loading 6 of 72 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 82 YMM used
@@ -96373,7 +96373,7 @@ TEXT ·mulAvx2GFNI_9x8(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_9x8_end
+	JZ           mulAvxGFNI_9x8_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -96405,7 +96405,7 @@ TEXT ·mulAvx2GFNI_9x8(SB), $0-88
 	ADDQ R14, R12
 	ADDQ R14, DX
 
-mulAvx2GFNI_9x8_loop:
+mulAvxGFNI_9x8_loop:
 	// Load and process 32 bytes from input 0 to 8 outputs
 	VMOVDQU        (BX), Y14
 	ADDQ           $0x20, BX
@@ -96665,10 +96665,10 @@ mulAvx2GFNI_9x8_loop:
 	// Prepare for next loop
 	ADDQ $0x20, R14
 	DECQ AX
-	JNZ  mulAvx2GFNI_9x8_loop
+	JNZ  mulAvxGFNI_9x8_loop
 	VZEROUPPER
 
-mulAvx2GFNI_9x8_end:
+mulAvxGFNI_9x8_end:
 	RET
 
 // func mulGFNI_9x8_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -96955,9 +96955,9 @@ mulGFNI_9x8_64Xor_loop:
 mulGFNI_9x8_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_9x8Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_9x8Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_9x8Xor(SB), $0-88
+TEXT ·mulAvxGFNI_9x8Xor(SB), $0-88
 	// Loading 6 of 72 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 82 YMM used
@@ -96965,7 +96965,7 @@ TEXT ·mulAvx2GFNI_9x8Xor(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_9x8Xor_end
+	JZ           mulAvxGFNI_9x8Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -96997,7 +96997,7 @@ TEXT ·mulAvx2GFNI_9x8Xor(SB), $0-88
 	ADDQ R14, R12
 	ADDQ R14, DX
 
-mulAvx2GFNI_9x8Xor_loop:
+mulAvxGFNI_9x8Xor_loop:
 	// Load 8 outputs
 	MOVQ    (R13), R15
 	VMOVDQU (R15)(R14*1), Y6
@@ -97283,10 +97283,10 @@ mulAvx2GFNI_9x8Xor_loop:
 	// Prepare for next loop
 	ADDQ $0x20, R14
 	DECQ AX
-	JNZ  mulAvx2GFNI_9x8Xor_loop
+	JNZ  mulAvxGFNI_9x8Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_9x8Xor_end:
+mulAvxGFNI_9x8Xor_end:
 	RET
 
 // func mulAvxTwo_9x8Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -98606,9 +98606,9 @@ mulGFNI_9x9_64_loop:
 mulGFNI_9x9_64_end:
 	RET
 
-// func mulAvx2GFNI_9x9(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_9x9(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_9x9(SB), $0-88
+TEXT ·mulAvxGFNI_9x9(SB), $0-88
 	// Loading 5 of 81 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 92 YMM used
@@ -98616,7 +98616,7 @@ TEXT ·mulAvx2GFNI_9x9(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_9x9_end
+	JZ           mulAvxGFNI_9x9_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -98647,7 +98647,7 @@ TEXT ·mulAvx2GFNI_9x9(SB), $0-88
 	ADDQ R14, R12
 	ADDQ R14, DX
 
-mulAvx2GFNI_9x9_loop:
+mulAvxGFNI_9x9_loop:
 	// Load and process 32 bytes from input 0 to 9 outputs
 	VMOVDQU        (BX), Y14
 	ADDQ           $0x20, BX
@@ -98936,10 +98936,10 @@ mulAvx2GFNI_9x9_loop:
 	// Prepare for next loop
 	ADDQ $0x20, R14
 	DECQ AX
-	JNZ  mulAvx2GFNI_9x9_loop
+	JNZ  mulAvxGFNI_9x9_loop
 	VZEROUPPER
 
-mulAvx2GFNI_9x9_end:
+mulAvxGFNI_9x9_end:
 	RET
 
 // func mulGFNI_9x9_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -99247,9 +99247,9 @@ mulGFNI_9x9_64Xor_loop:
 mulGFNI_9x9_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_9x9Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_9x9Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_9x9Xor(SB), $0-88
+TEXT ·mulAvxGFNI_9x9Xor(SB), $0-88
 	// Loading 5 of 81 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 92 YMM used
@@ -99257,7 +99257,7 @@ TEXT ·mulAvx2GFNI_9x9Xor(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_9x9Xor_end
+	JZ           mulAvxGFNI_9x9Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -99288,7 +99288,7 @@ TEXT ·mulAvx2GFNI_9x9Xor(SB), $0-88
 	ADDQ R14, R12
 	ADDQ R14, DX
 
-mulAvx2GFNI_9x9Xor_loop:
+mulAvxGFNI_9x9Xor_loop:
 	// Load 9 outputs
 	MOVQ    (R13), R15
 	VMOVDQU (R15)(R14*1), Y5
@@ -99606,10 +99606,10 @@ mulAvx2GFNI_9x9Xor_loop:
 	// Prepare for next loop
 	ADDQ $0x20, R14
 	DECQ AX
-	JNZ  mulAvx2GFNI_9x9Xor_loop
+	JNZ  mulAvxGFNI_9x9Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_9x9Xor_end:
+mulAvxGFNI_9x9Xor_end:
 	RET
 
 // func mulAvxTwo_9x9Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -101043,9 +101043,9 @@ mulGFNI_9x10_64_loop:
 mulGFNI_9x10_64_end:
 	RET
 
-// func mulAvx2GFNI_9x10(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_9x10(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_9x10(SB), $0-88
+TEXT ·mulAvxGFNI_9x10(SB), $0-88
 	// Loading 4 of 90 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 102 YMM used
@@ -101053,7 +101053,7 @@ TEXT ·mulAvx2GFNI_9x10(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_9x10_end
+	JZ           mulAvxGFNI_9x10_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -101083,7 +101083,7 @@ TEXT ·mulAvx2GFNI_9x10(SB), $0-88
 	ADDQ R14, R12
 	ADDQ R14, DX
 
-mulAvx2GFNI_9x10_loop:
+mulAvxGFNI_9x10_loop:
 	// Load and process 32 bytes from input 0 to 10 outputs
 	VMOVDQU        (BX), Y14
 	ADDQ           $0x20, BX
@@ -101401,10 +101401,10 @@ mulAvx2GFNI_9x10_loop:
 	// Prepare for next loop
 	ADDQ $0x20, R14
 	DECQ AX
-	JNZ  mulAvx2GFNI_9x10_loop
+	JNZ  mulAvxGFNI_9x10_loop
 	VZEROUPPER
 
-mulAvx2GFNI_9x10_end:
+mulAvxGFNI_9x10_end:
 	RET
 
 // func mulGFNI_9x10_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -101733,9 +101733,9 @@ mulGFNI_9x10_64Xor_loop:
 mulGFNI_9x10_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_9x10Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_9x10Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_9x10Xor(SB), $0-88
+TEXT ·mulAvxGFNI_9x10Xor(SB), $0-88
 	// Loading 4 of 90 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 102 YMM used
@@ -101743,7 +101743,7 @@ TEXT ·mulAvx2GFNI_9x10Xor(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_9x10Xor_end
+	JZ           mulAvxGFNI_9x10Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -101773,7 +101773,7 @@ TEXT ·mulAvx2GFNI_9x10Xor(SB), $0-88
 	ADDQ R14, R12
 	ADDQ R14, DX
 
-mulAvx2GFNI_9x10Xor_loop:
+mulAvxGFNI_9x10Xor_loop:
 	// Load 10 outputs
 	MOVQ    (R13), R15
 	VMOVDQU (R15)(R14*1), Y4
@@ -102123,10 +102123,10 @@ mulAvx2GFNI_9x10Xor_loop:
 	// Prepare for next loop
 	ADDQ $0x20, R14
 	DECQ AX
-	JNZ  mulAvx2GFNI_9x10Xor_loop
+	JNZ  mulAvxGFNI_9x10Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_9x10Xor_end:
+mulAvxGFNI_9x10Xor_end:
 	RET
 
 // func mulAvxTwo_9x10Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -103105,9 +103105,9 @@ mulGFNI_10x1_64_loop:
 mulGFNI_10x1_64_end:
 	RET
 
-// func mulAvx2GFNI_10x1(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_10x1(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_10x1(SB), $0-88
+TEXT ·mulAvxGFNI_10x1(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 13 YMM used
@@ -103115,7 +103115,7 @@ TEXT ·mulAvx2GFNI_10x1(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_10x1_end
+	JZ           mulAvxGFNI_10x1_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -103157,7 +103157,7 @@ TEXT ·mulAvx2GFNI_10x1(SB), $0-88
 	ADDQ R14, R12
 	ADDQ R14, CX
 
-mulAvx2GFNI_10x1_loop:
+mulAvxGFNI_10x1_loop:
 	// Load and process 32 bytes from input 0 to 1 outputs
 	VMOVDQU        (DX), Y11
 	ADDQ           $0x20, DX
@@ -103223,10 +103223,10 @@ mulAvx2GFNI_10x1_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_10x1_loop
+	JNZ  mulAvxGFNI_10x1_loop
 	VZEROUPPER
 
-mulAvx2GFNI_10x1_end:
+mulAvxGFNI_10x1_end:
 	RET
 
 // func mulGFNI_10x1_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -103357,9 +103357,9 @@ mulGFNI_10x1_64Xor_loop:
 mulGFNI_10x1_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_10x1Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_10x1Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_10x1Xor(SB), $0-88
+TEXT ·mulAvxGFNI_10x1Xor(SB), $0-88
 	// Loading all tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 13 YMM used
@@ -103367,7 +103367,7 @@ TEXT ·mulAvx2GFNI_10x1Xor(SB), $0-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_10x1Xor_end
+	JZ           mulAvxGFNI_10x1Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -103409,7 +103409,7 @@ TEXT ·mulAvx2GFNI_10x1Xor(SB), $0-88
 	ADDQ R14, R12
 	ADDQ R14, CX
 
-mulAvx2GFNI_10x1Xor_loop:
+mulAvxGFNI_10x1Xor_loop:
 	// Load 1 outputs
 	VMOVDQU (R13), Y10
 
@@ -103479,10 +103479,10 @@ mulAvx2GFNI_10x1Xor_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_10x1Xor_loop
+	JNZ  mulAvxGFNI_10x1Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_10x1Xor_end:
+mulAvxGFNI_10x1Xor_end:
 	RET
 
 // func mulAvxTwo_10x1_64Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -104229,9 +104229,9 @@ mulGFNI_10x2_64_loop:
 mulGFNI_10x2_64_end:
 	RET
 
-// func mulAvx2GFNI_10x2(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_10x2(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_10x2(SB), $8-88
+TEXT ·mulAvxGFNI_10x2(SB), $8-88
 	// Loading 12 of 20 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 24 YMM used
@@ -104239,7 +104239,7 @@ TEXT ·mulAvx2GFNI_10x2(SB), $8-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_10x2_end
+	JZ           mulAvxGFNI_10x2_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -104285,7 +104285,7 @@ TEXT ·mulAvx2GFNI_10x2(SB), $8-88
 	ADDQ BP, R13
 	ADDQ BP, DX
 
-mulAvx2GFNI_10x2_loop:
+mulAvxGFNI_10x2_loop:
 	// Load and process 32 bytes from input 0 to 2 outputs
 	VMOVDQU        (BX), Y14
 	ADDQ           $0x20, BX
@@ -104380,10 +104380,10 @@ mulAvx2GFNI_10x2_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_10x2_loop
+	JNZ  mulAvxGFNI_10x2_loop
 	VZEROUPPER
 
-mulAvx2GFNI_10x2_end:
+mulAvxGFNI_10x2_end:
 	RET
 
 // func mulGFNI_10x2_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -104549,9 +104549,9 @@ mulGFNI_10x2_64Xor_loop:
 mulGFNI_10x2_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_10x2Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_10x2Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_10x2Xor(SB), $8-88
+TEXT ·mulAvxGFNI_10x2Xor(SB), $8-88
 	// Loading 12 of 20 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 24 YMM used
@@ -104559,7 +104559,7 @@ TEXT ·mulAvx2GFNI_10x2Xor(SB), $8-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_10x2Xor_end
+	JZ           mulAvxGFNI_10x2Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -104605,7 +104605,7 @@ TEXT ·mulAvx2GFNI_10x2Xor(SB), $8-88
 	ADDQ BP, R13
 	ADDQ BP, DX
 
-mulAvx2GFNI_10x2Xor_loop:
+mulAvxGFNI_10x2Xor_loop:
 	// Load 2 outputs
 	VMOVDQU (R15), Y12
 	VMOVDQU (R14), Y13
@@ -104706,10 +104706,10 @@ mulAvx2GFNI_10x2Xor_loop:
 
 	// Prepare for next loop
 	DECQ AX
-	JNZ  mulAvx2GFNI_10x2Xor_loop
+	JNZ  mulAvxGFNI_10x2Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_10x2Xor_end:
+mulAvxGFNI_10x2Xor_end:
 	RET
 
 // func mulAvxTwo_10x2_64Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -105666,9 +105666,9 @@ mulGFNI_10x3_64_loop:
 mulGFNI_10x3_64_end:
 	RET
 
-// func mulAvx2GFNI_10x3(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_10x3(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_10x3(SB), $8-88
+TEXT ·mulAvxGFNI_10x3(SB), $8-88
 	// Loading 11 of 30 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 35 YMM used
@@ -105676,7 +105676,7 @@ TEXT ·mulAvx2GFNI_10x3(SB), $8-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_10x3_end
+	JZ           mulAvxGFNI_10x3_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -105727,7 +105727,7 @@ TEXT ·mulAvx2GFNI_10x3(SB), $8-88
 	MOVQ n+80(FP), BP
 	SHRQ $0x05, BP
 
-mulAvx2GFNI_10x3_loop:
+mulAvxGFNI_10x3_loop:
 	// Load and process 32 bytes from input 0 to 3 outputs
 	VMOVDQU        (DX), Y14
 	ADDQ           $0x20, DX
@@ -105854,10 +105854,10 @@ mulAvx2GFNI_10x3_loop:
 
 	// Prepare for next loop
 	DECQ BP
-	JNZ  mulAvx2GFNI_10x3_loop
+	JNZ  mulAvxGFNI_10x3_loop
 	VZEROUPPER
 
-mulAvx2GFNI_10x3_end:
+mulAvxGFNI_10x3_end:
 	RET
 
 // func mulGFNI_10x3_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -106059,9 +106059,9 @@ mulGFNI_10x3_64Xor_loop:
 mulGFNI_10x3_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_10x3Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_10x3Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_10x3Xor(SB), $8-88
+TEXT ·mulAvxGFNI_10x3Xor(SB), $8-88
 	// Loading 11 of 30 tables to registers
 	// Destination kept in GP registers
 	// Full registers estimated 35 YMM used
@@ -106069,7 +106069,7 @@ TEXT ·mulAvx2GFNI_10x3Xor(SB), $8-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_10x3Xor_end
+	JZ           mulAvxGFNI_10x3Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -106120,7 +106120,7 @@ TEXT ·mulAvx2GFNI_10x3Xor(SB), $8-88
 	MOVQ n+80(FP), BP
 	SHRQ $0x05, BP
 
-mulAvx2GFNI_10x3Xor_loop:
+mulAvxGFNI_10x3Xor_loop:
 	// Load 3 outputs
 	VMOVDQU (R14), Y11
 	VMOVDQU (R15), Y12
@@ -106255,10 +106255,10 @@ mulAvx2GFNI_10x3Xor_loop:
 
 	// Prepare for next loop
 	DECQ BP
-	JNZ  mulAvx2GFNI_10x3Xor_loop
+	JNZ  mulAvxGFNI_10x3Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_10x3Xor_end:
+mulAvxGFNI_10x3Xor_end:
 	RET
 
 // func mulAvxTwo_10x3_64Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -107222,9 +107222,9 @@ mulGFNI_10x4_64_loop:
 mulGFNI_10x4_64_end:
 	RET
 
-// func mulAvx2GFNI_10x4(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_10x4(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_10x4(SB), $8-88
+TEXT ·mulAvxGFNI_10x4(SB), $8-88
 	// Loading 10 of 40 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 46 YMM used
@@ -107232,7 +107232,7 @@ TEXT ·mulAvx2GFNI_10x4(SB), $8-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_10x4_end
+	JZ           mulAvxGFNI_10x4_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -107270,7 +107270,7 @@ TEXT ·mulAvx2GFNI_10x4(SB), $8-88
 	ADDQ R15, R13
 	ADDQ R15, DX
 
-mulAvx2GFNI_10x4_loop:
+mulAvxGFNI_10x4_loop:
 	// Load and process 32 bytes from input 0 to 4 outputs
 	VMOVDQU        (BX), Y14
 	ADDQ           $0x20, BX
@@ -107430,10 +107430,10 @@ mulAvx2GFNI_10x4_loop:
 	// Prepare for next loop
 	ADDQ $0x20, R15
 	DECQ AX
-	JNZ  mulAvx2GFNI_10x4_loop
+	JNZ  mulAvxGFNI_10x4_loop
 	VZEROUPPER
 
-mulAvx2GFNI_10x4_end:
+mulAvxGFNI_10x4_end:
 	RET
 
 // func mulGFNI_10x4_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -107650,9 +107650,9 @@ mulGFNI_10x4_64Xor_loop:
 mulGFNI_10x4_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_10x4Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_10x4Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_10x4Xor(SB), $8-88
+TEXT ·mulAvxGFNI_10x4Xor(SB), $8-88
 	// Loading 10 of 40 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 46 YMM used
@@ -107660,7 +107660,7 @@ TEXT ·mulAvx2GFNI_10x4Xor(SB), $8-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_10x4Xor_end
+	JZ           mulAvxGFNI_10x4Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -107698,7 +107698,7 @@ TEXT ·mulAvx2GFNI_10x4Xor(SB), $8-88
 	ADDQ R15, R13
 	ADDQ R15, DX
 
-mulAvx2GFNI_10x4Xor_loop:
+mulAvxGFNI_10x4Xor_loop:
 	// Load 4 outputs
 	MOVQ    (R14), BP
 	VMOVDQU (BP)(R15*1), Y10
@@ -107872,10 +107872,10 @@ mulAvx2GFNI_10x4Xor_loop:
 	// Prepare for next loop
 	ADDQ $0x20, R15
 	DECQ AX
-	JNZ  mulAvx2GFNI_10x4Xor_loop
+	JNZ  mulAvxGFNI_10x4Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_10x4Xor_end:
+mulAvxGFNI_10x4Xor_end:
 	RET
 
 // func mulAvxTwo_10x4Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -108818,9 +108818,9 @@ mulGFNI_10x5_64_loop:
 mulGFNI_10x5_64_end:
 	RET
 
-// func mulAvx2GFNI_10x5(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_10x5(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_10x5(SB), $8-88
+TEXT ·mulAvxGFNI_10x5(SB), $8-88
 	// Loading 9 of 50 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 57 YMM used
@@ -108828,7 +108828,7 @@ TEXT ·mulAvx2GFNI_10x5(SB), $8-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_10x5_end
+	JZ           mulAvxGFNI_10x5_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -108865,7 +108865,7 @@ TEXT ·mulAvx2GFNI_10x5(SB), $8-88
 	ADDQ R15, R13
 	ADDQ R15, DX
 
-mulAvx2GFNI_10x5_loop:
+mulAvxGFNI_10x5_loop:
 	// Load and process 32 bytes from input 0 to 5 outputs
 	VMOVDQU        (BX), Y14
 	ADDQ           $0x20, BX
@@ -109057,10 +109057,10 @@ mulAvx2GFNI_10x5_loop:
 	// Prepare for next loop
 	ADDQ $0x20, R15
 	DECQ AX
-	JNZ  mulAvx2GFNI_10x5_loop
+	JNZ  mulAvxGFNI_10x5_loop
 	VZEROUPPER
 
-mulAvx2GFNI_10x5_end:
+mulAvxGFNI_10x5_end:
 	RET
 
 // func mulGFNI_10x5_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -109300,9 +109300,9 @@ mulGFNI_10x5_64Xor_loop:
 mulGFNI_10x5_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_10x5Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_10x5Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_10x5Xor(SB), $8-88
+TEXT ·mulAvxGFNI_10x5Xor(SB), $8-88
 	// Loading 9 of 50 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 57 YMM used
@@ -109310,7 +109310,7 @@ TEXT ·mulAvx2GFNI_10x5Xor(SB), $8-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_10x5Xor_end
+	JZ           mulAvxGFNI_10x5Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -109347,7 +109347,7 @@ TEXT ·mulAvx2GFNI_10x5Xor(SB), $8-88
 	ADDQ R15, R13
 	ADDQ R15, DX
 
-mulAvx2GFNI_10x5Xor_loop:
+mulAvxGFNI_10x5Xor_loop:
 	// Load 5 outputs
 	MOVQ    (R14), BP
 	VMOVDQU (BP)(R15*1), Y9
@@ -109556,10 +109556,10 @@ mulAvx2GFNI_10x5Xor_loop:
 	// Prepare for next loop
 	ADDQ $0x20, R15
 	DECQ AX
-	JNZ  mulAvx2GFNI_10x5Xor_loop
+	JNZ  mulAvxGFNI_10x5Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_10x5Xor_end:
+mulAvxGFNI_10x5Xor_end:
 	RET
 
 // func mulAvxTwo_10x5Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -110628,9 +110628,9 @@ mulGFNI_10x6_64_loop:
 mulGFNI_10x6_64_end:
 	RET
 
-// func mulAvx2GFNI_10x6(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_10x6(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_10x6(SB), $8-88
+TEXT ·mulAvxGFNI_10x6(SB), $8-88
 	// Loading 8 of 60 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 68 YMM used
@@ -110638,7 +110638,7 @@ TEXT ·mulAvx2GFNI_10x6(SB), $8-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_10x6_end
+	JZ           mulAvxGFNI_10x6_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -110674,7 +110674,7 @@ TEXT ·mulAvx2GFNI_10x6(SB), $8-88
 	ADDQ R15, R13
 	ADDQ R15, DX
 
-mulAvx2GFNI_10x6_loop:
+mulAvxGFNI_10x6_loop:
 	// Load and process 32 bytes from input 0 to 6 outputs
 	VMOVDQU        (BX), Y14
 	ADDQ           $0x20, BX
@@ -110898,10 +110898,10 @@ mulAvx2GFNI_10x6_loop:
 	// Prepare for next loop
 	ADDQ $0x20, R15
 	DECQ AX
-	JNZ  mulAvx2GFNI_10x6_loop
+	JNZ  mulAvxGFNI_10x6_loop
 	VZEROUPPER
 
-mulAvx2GFNI_10x6_end:
+mulAvxGFNI_10x6_end:
 	RET
 
 // func mulGFNI_10x6_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -111164,9 +111164,9 @@ mulGFNI_10x6_64Xor_loop:
 mulGFNI_10x6_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_10x6Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_10x6Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_10x6Xor(SB), $8-88
+TEXT ·mulAvxGFNI_10x6Xor(SB), $8-88
 	// Loading 8 of 60 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 68 YMM used
@@ -111174,7 +111174,7 @@ TEXT ·mulAvx2GFNI_10x6Xor(SB), $8-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_10x6Xor_end
+	JZ           mulAvxGFNI_10x6Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -111210,7 +111210,7 @@ TEXT ·mulAvx2GFNI_10x6Xor(SB), $8-88
 	ADDQ R15, R13
 	ADDQ R15, DX
 
-mulAvx2GFNI_10x6Xor_loop:
+mulAvxGFNI_10x6Xor_loop:
 	// Load 6 outputs
 	MOVQ    (R14), BP
 	VMOVDQU (BP)(R15*1), Y8
@@ -111454,10 +111454,10 @@ mulAvx2GFNI_10x6Xor_loop:
 	// Prepare for next loop
 	ADDQ $0x20, R15
 	DECQ AX
-	JNZ  mulAvx2GFNI_10x6Xor_loop
+	JNZ  mulAvxGFNI_10x6Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_10x6Xor_end:
+mulAvxGFNI_10x6Xor_end:
 	RET
 
 // func mulAvxTwo_10x6Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -112652,9 +112652,9 @@ mulGFNI_10x7_64_loop:
 mulGFNI_10x7_64_end:
 	RET
 
-// func mulAvx2GFNI_10x7(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_10x7(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_10x7(SB), $8-88
+TEXT ·mulAvxGFNI_10x7(SB), $8-88
 	// Loading 7 of 70 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 79 YMM used
@@ -112662,7 +112662,7 @@ TEXT ·mulAvx2GFNI_10x7(SB), $8-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_10x7_end
+	JZ           mulAvxGFNI_10x7_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -112697,7 +112697,7 @@ TEXT ·mulAvx2GFNI_10x7(SB), $8-88
 	ADDQ R15, R13
 	ADDQ R15, DX
 
-mulAvx2GFNI_10x7_loop:
+mulAvxGFNI_10x7_loop:
 	// Load and process 32 bytes from input 0 to 7 outputs
 	VMOVDQU        (BX), Y14
 	ADDQ           $0x20, BX
@@ -112953,10 +112953,10 @@ mulAvx2GFNI_10x7_loop:
 	// Prepare for next loop
 	ADDQ $0x20, R15
 	DECQ AX
-	JNZ  mulAvx2GFNI_10x7_loop
+	JNZ  mulAvxGFNI_10x7_loop
 	VZEROUPPER
 
-mulAvx2GFNI_10x7_end:
+mulAvxGFNI_10x7_end:
 	RET
 
 // func mulGFNI_10x7_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -113242,9 +113242,9 @@ mulGFNI_10x7_64Xor_loop:
 mulGFNI_10x7_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_10x7Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_10x7Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_10x7Xor(SB), $8-88
+TEXT ·mulAvxGFNI_10x7Xor(SB), $8-88
 	// Loading 7 of 70 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 79 YMM used
@@ -113252,7 +113252,7 @@ TEXT ·mulAvx2GFNI_10x7Xor(SB), $8-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_10x7Xor_end
+	JZ           mulAvxGFNI_10x7Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -113287,7 +113287,7 @@ TEXT ·mulAvx2GFNI_10x7Xor(SB), $8-88
 	ADDQ R15, R13
 	ADDQ R15, DX
 
-mulAvx2GFNI_10x7Xor_loop:
+mulAvxGFNI_10x7Xor_loop:
 	// Load 7 outputs
 	MOVQ    (R14), BP
 	VMOVDQU (BP)(R15*1), Y7
@@ -113566,10 +113566,10 @@ mulAvx2GFNI_10x7Xor_loop:
 	// Prepare for next loop
 	ADDQ $0x20, R15
 	DECQ AX
-	JNZ  mulAvx2GFNI_10x7Xor_loop
+	JNZ  mulAvxGFNI_10x7Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_10x7Xor_end:
+mulAvxGFNI_10x7Xor_end:
 	RET
 
 // func mulAvxTwo_10x7Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -114890,9 +114890,9 @@ mulGFNI_10x8_64_loop:
 mulGFNI_10x8_64_end:
 	RET
 
-// func mulAvx2GFNI_10x8(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_10x8(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_10x8(SB), $8-88
+TEXT ·mulAvxGFNI_10x8(SB), $8-88
 	// Loading 6 of 80 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 90 YMM used
@@ -114900,7 +114900,7 @@ TEXT ·mulAvx2GFNI_10x8(SB), $8-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_10x8_end
+	JZ           mulAvxGFNI_10x8_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -114934,7 +114934,7 @@ TEXT ·mulAvx2GFNI_10x8(SB), $8-88
 	ADDQ R15, R13
 	ADDQ R15, DX
 
-mulAvx2GFNI_10x8_loop:
+mulAvxGFNI_10x8_loop:
 	// Load and process 32 bytes from input 0 to 8 outputs
 	VMOVDQU        (BX), Y14
 	ADDQ           $0x20, BX
@@ -115222,10 +115222,10 @@ mulAvx2GFNI_10x8_loop:
 	// Prepare for next loop
 	ADDQ $0x20, R15
 	DECQ AX
-	JNZ  mulAvx2GFNI_10x8_loop
+	JNZ  mulAvxGFNI_10x8_loop
 	VZEROUPPER
 
-mulAvx2GFNI_10x8_end:
+mulAvxGFNI_10x8_end:
 	RET
 
 // func mulGFNI_10x8_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -115534,9 +115534,9 @@ mulGFNI_10x8_64Xor_loop:
 mulGFNI_10x8_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_10x8Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_10x8Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_10x8Xor(SB), $8-88
+TEXT ·mulAvxGFNI_10x8Xor(SB), $8-88
 	// Loading 6 of 80 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 90 YMM used
@@ -115544,7 +115544,7 @@ TEXT ·mulAvx2GFNI_10x8Xor(SB), $8-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_10x8Xor_end
+	JZ           mulAvxGFNI_10x8Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -115578,7 +115578,7 @@ TEXT ·mulAvx2GFNI_10x8Xor(SB), $8-88
 	ADDQ R15, R13
 	ADDQ R15, DX
 
-mulAvx2GFNI_10x8Xor_loop:
+mulAvxGFNI_10x8Xor_loop:
 	// Load 8 outputs
 	MOVQ    (R14), BP
 	VMOVDQU (BP)(R15*1), Y6
@@ -115892,10 +115892,10 @@ mulAvx2GFNI_10x8Xor_loop:
 	// Prepare for next loop
 	ADDQ $0x20, R15
 	DECQ AX
-	JNZ  mulAvx2GFNI_10x8Xor_loop
+	JNZ  mulAvxGFNI_10x8Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_10x8Xor_end:
+mulAvxGFNI_10x8Xor_end:
 	RET
 
 // func mulAvxTwo_10x8Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -117342,9 +117342,9 @@ mulGFNI_10x9_64_loop:
 mulGFNI_10x9_64_end:
 	RET
 
-// func mulAvx2GFNI_10x9(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_10x9(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_10x9(SB), $8-88
+TEXT ·mulAvxGFNI_10x9(SB), $8-88
 	// Loading 5 of 90 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 101 YMM used
@@ -117352,7 +117352,7 @@ TEXT ·mulAvx2GFNI_10x9(SB), $8-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_10x9_end
+	JZ           mulAvxGFNI_10x9_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -117385,7 +117385,7 @@ TEXT ·mulAvx2GFNI_10x9(SB), $8-88
 	ADDQ R15, R13
 	ADDQ R15, DX
 
-mulAvx2GFNI_10x9_loop:
+mulAvxGFNI_10x9_loop:
 	// Load and process 32 bytes from input 0 to 9 outputs
 	VMOVDQU        (BX), Y14
 	ADDQ           $0x20, BX
@@ -117705,10 +117705,10 @@ mulAvx2GFNI_10x9_loop:
 	// Prepare for next loop
 	ADDQ $0x20, R15
 	DECQ AX
-	JNZ  mulAvx2GFNI_10x9_loop
+	JNZ  mulAvxGFNI_10x9_loop
 	VZEROUPPER
 
-mulAvx2GFNI_10x9_end:
+mulAvxGFNI_10x9_end:
 	RET
 
 // func mulGFNI_10x9_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -118040,9 +118040,9 @@ mulGFNI_10x9_64Xor_loop:
 mulGFNI_10x9_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_10x9Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_10x9Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_10x9Xor(SB), $8-88
+TEXT ·mulAvxGFNI_10x9Xor(SB), $8-88
 	// Loading 5 of 90 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 101 YMM used
@@ -118050,7 +118050,7 @@ TEXT ·mulAvx2GFNI_10x9Xor(SB), $8-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_10x9Xor_end
+	JZ           mulAvxGFNI_10x9Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -118083,7 +118083,7 @@ TEXT ·mulAvx2GFNI_10x9Xor(SB), $8-88
 	ADDQ R15, R13
 	ADDQ R15, DX
 
-mulAvx2GFNI_10x9Xor_loop:
+mulAvxGFNI_10x9Xor_loop:
 	// Load 9 outputs
 	MOVQ    (R14), BP
 	VMOVDQU (BP)(R15*1), Y5
@@ -118432,10 +118432,10 @@ mulAvx2GFNI_10x9Xor_loop:
 	// Prepare for next loop
 	ADDQ $0x20, R15
 	DECQ AX
-	JNZ  mulAvx2GFNI_10x9Xor_loop
+	JNZ  mulAvxGFNI_10x9Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_10x9Xor_end:
+mulAvxGFNI_10x9Xor_end:
 	RET
 
 // func mulAvxTwo_10x9Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -120008,9 +120008,9 @@ mulGFNI_10x10_64_loop:
 mulGFNI_10x10_64_end:
 	RET
 
-// func mulAvx2GFNI_10x10(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_10x10(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_10x10(SB), $8-88
+TEXT ·mulAvxGFNI_10x10(SB), $8-88
 	// Loading 4 of 100 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 112 YMM used
@@ -120018,7 +120018,7 @@ TEXT ·mulAvx2GFNI_10x10(SB), $8-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_10x10_end
+	JZ           mulAvxGFNI_10x10_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -120050,7 +120050,7 @@ TEXT ·mulAvx2GFNI_10x10(SB), $8-88
 	ADDQ R15, R13
 	ADDQ R15, DX
 
-mulAvx2GFNI_10x10_loop:
+mulAvxGFNI_10x10_loop:
 	// Load and process 32 bytes from input 0 to 10 outputs
 	VMOVDQU        (BX), Y14
 	ADDQ           $0x20, BX
@@ -120402,10 +120402,10 @@ mulAvx2GFNI_10x10_loop:
 	// Prepare for next loop
 	ADDQ $0x20, R15
 	DECQ AX
-	JNZ  mulAvx2GFNI_10x10_loop
+	JNZ  mulAvxGFNI_10x10_loop
 	VZEROUPPER
 
-mulAvx2GFNI_10x10_end:
+mulAvxGFNI_10x10_end:
 	RET
 
 // func mulGFNI_10x10_64Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
@@ -120760,9 +120760,9 @@ mulGFNI_10x10_64Xor_loop:
 mulGFNI_10x10_64Xor_end:
 	RET
 
-// func mulAvx2GFNI_10x10Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+// func mulAvxGFNI_10x10Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 // Requires: AVX, GFNI
-TEXT ·mulAvx2GFNI_10x10Xor(SB), $8-88
+TEXT ·mulAvxGFNI_10x10Xor(SB), $8-88
 	// Loading 4 of 100 tables to registers
 	// Destination kept on stack
 	// Full registers estimated 112 YMM used
@@ -120770,7 +120770,7 @@ TEXT ·mulAvx2GFNI_10x10Xor(SB), $8-88
 	MOVQ         matrix_base+0(FP), CX
 	SHRQ         $0x05, AX
 	TESTQ        AX, AX
-	JZ           mulAvx2GFNI_10x10Xor_end
+	JZ           mulAvxGFNI_10x10Xor_end
 	VBROADCASTSD (CX), Y0
 	VBROADCASTSD 8(CX), Y1
 	VBROADCASTSD 16(CX), Y2
@@ -120802,7 +120802,7 @@ TEXT ·mulAvx2GFNI_10x10Xor(SB), $8-88
 	ADDQ R15, R13
 	ADDQ R15, DX
 
-mulAvx2GFNI_10x10Xor_loop:
+mulAvxGFNI_10x10Xor_loop:
 	// Load 10 outputs
 	MOVQ    (R14), BP
 	VMOVDQU (BP)(R15*1), Y4
@@ -121186,10 +121186,10 @@ mulAvx2GFNI_10x10Xor_loop:
 	// Prepare for next loop
 	ADDQ $0x20, R15
 	DECQ AX
-	JNZ  mulAvx2GFNI_10x10Xor_loop
+	JNZ  mulAvxGFNI_10x10Xor_loop
 	VZEROUPPER
 
-mulAvx2GFNI_10x10Xor_end:
+mulAvxGFNI_10x10Xor_end:
 	RET
 
 // func mulAvxTwo_10x10Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
