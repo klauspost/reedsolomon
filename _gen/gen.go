@@ -1194,10 +1194,10 @@ func genMulAvx2GFNI(name string, inputs int, outputs int, xor bool) {
 			if loadNone && idx >= inReg {
 				tmp := YMM()
 				if i == 0 && !xor {
-					VBROADCASTSD(Mem{Base: matrixBase, Disp: i * 8}, tmp)
+					VBROADCASTSD(Mem{Base: matrixBase, Disp: idx * 8}, tmp)
 					VGF2P8AFFINEQB(U8(0), tmp, in, dst[j])
 				} else {
-					VBROADCASTSD(Mem{Base: matrixBase, Disp: i * 8}, tmp)
+					VBROADCASTSD(Mem{Base: matrixBase, Disp: idx * 8}, tmp)
 					VGF2P8AFFINEQB(U8(0), tmp, in, look)
 					VXORPD(dst[j], look, dst[j])
 				}
