@@ -38,11 +38,12 @@ var (
 	cpu        = flag.Int("cpu", 16, "Set maximum number of cores to use")
 	csv        = flag.Bool("csv", false, "Output as CSV")
 
-	sSE2   = flag.Bool("sse2", cpuid.CPU.Has(cpuid.SSE2), "Use SSE2")
-	sSSE3  = flag.Bool("ssse3", cpuid.CPU.Has(cpuid.SSSE3), "Use SSSE3")
-	aVX2   = flag.Bool("avx2", cpuid.CPU.Has(cpuid.AVX2), "Use AVX2")
-	aVX512 = flag.Bool("avx512", cpuid.CPU.Supports(cpuid.AVX512F, cpuid.AVX512BW, cpuid.AVX512VL), "Use AVX512")
-	gNFI   = flag.Bool("gfni", cpuid.CPU.Supports(cpuid.AVX512F, cpuid.GFNI, cpuid.AVX512DQ), "Use AVX512+GFNI")
+	sSE2     = flag.Bool("sse2", cpuid.CPU.Has(cpuid.SSE2), "Use SSE2")
+	sSSE3    = flag.Bool("ssse3", cpuid.CPU.Has(cpuid.SSSE3), "Use SSSE3")
+	aVX2     = flag.Bool("avx2", cpuid.CPU.Has(cpuid.AVX2), "Use AVX2")
+	aVX512   = flag.Bool("avx512", cpuid.CPU.Supports(cpuid.AVX512F, cpuid.AVX512BW, cpuid.AVX512VL), "Use AVX512")
+	gNFI     = flag.Bool("gfni", cpuid.CPU.Supports(cpuid.AVX512F, cpuid.GFNI, cpuid.AVX512DQ), "Use AVX512+GFNI")
+	avx2GNFI = flag.Bool("avx2-gfni", cpuid.CPU.Supports(cpuid.AVX2, cpuid.GFNI), "Use AVX2+GFNI")
 )
 
 var codecDefinitions = map[string]struct {
@@ -389,6 +390,9 @@ func getOptions(shardSize int) []reedsolomon.Option {
 	}
 	if !*gNFI {
 		o = append(o, reedsolomon.WithGFNI(false))
+	}
+	if !*avx2GNFI {
+		o = append(o, reedsolomon.WithAVX2GFNI(false))
 	}
 	if !*invCache {
 		o = append(o, reedsolomon.WithInversionCache(false))
