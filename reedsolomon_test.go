@@ -25,7 +25,7 @@ var noSSSE3 = flag.Bool("no-ssse3", !defaultOptions.useSSSE3, "Disable SSSE3")
 var noAVX2 = flag.Bool("no-avx2", !defaultOptions.useAVX2, "Disable AVX2")
 var noAVX512 = flag.Bool("no-avx512", !defaultOptions.useAVX512, "Disable AVX512")
 var noGNFI = flag.Bool("no-gfni", !defaultOptions.useAvx512GFNI, "Disable AVX512+GFNI")
-var noAVX2GNFI = flag.Bool("no-avx-gfni", !defaultOptions.useAvx512GFNI, "Disable AVX+GFNI")
+var noAVX2GNFI = flag.Bool("no-avx-gfni", !defaultOptions.useAvxGNFI, "Disable AVX+GFNI")
 
 func TestMain(m *testing.M) {
 	flag.Parse()
