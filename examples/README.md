@@ -6,7 +6,7 @@ This folder contains usage examples of the Reed-Solomon encoder.
 
 Shows basic use of the encoder, and will encode a single file into a number of
 data and parity shards. This is meant as an example and is not meant for production use
-since there is a number of shotcomings noted below.
+since there is a number of shortcomings noted below.
 
 To build an executable use:
 
@@ -15,7 +15,7 @@ go build simple-decoder.go
 go build simple-encoder.go
 ```
 
-# Streamin API examples
+# Streaming API examples
 
 There are streaming examples of the same functionality, which streams data instead of keeping it in memory.
 
@@ -26,8 +26,26 @@ go build stream-decoder.go
 go build stream-encoder.go
 ```
 
+# Example usage
+
+On Windows, the following command will generate six files `README.md.0` to `README.md.5`
+
+```bash
+.\simple-encoder.exe .\README.md
+```
+
+Rename `README.md` to `README.md.org`, and delete two of the six generated files. The following
+command will reconstruct `README.md` from the four generated files.
+
+```bash
+.\simple-decoder.exe .\README.md
+```
+
+Appreciate that the reconstructed file mau have nul padding as explained in the following shortcomings.
+
+
 ## Shortcomings
-* If the file size of the input isn't diviable by the number of data shards
+* If the file size of the input isn't dividable by the number of data shards
   the output will contain extra zeroes
 * If the shard numbers isn't the same for the decoder as in the
   encoder, invalid output will be generated.
