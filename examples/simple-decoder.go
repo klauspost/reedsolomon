@@ -38,7 +38,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"os"
 
 	"github.com/klauspost/reedsolomon"
@@ -77,7 +76,7 @@ func main() {
 	for i := range shards {
 		infn := fmt.Sprintf("%s.%d", fname, i)
 		fmt.Println("Opening", infn)
-		shards[i], err = ioutil.ReadFile(infn)
+		shards[i], err = os.ReadFile(infn)
 		if err != nil {
 			fmt.Println("Error reading file", err)
 			shards[i] = nil

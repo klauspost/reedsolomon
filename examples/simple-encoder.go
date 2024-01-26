@@ -5,7 +5,7 @@
 //
 // Simple encoder example
 //
-// The encoder encodes a simgle file into a number of shards
+// The encoder encodes a simple file into a number of shards
 // To reverse the process see "simpledecoder.go"
 //
 // To build an executable use:
