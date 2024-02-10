@@ -36,8 +36,14 @@
 package main
 
 import (
+	"bytes"
+	"crypto/sha256"
+	"encoding/binary"
+	"errors"
 	"flag"
 	"fmt"
+	"io/ioutil"
+	"log"
 	"os"
 
 	"github.com/klauspost/reedsolomon"
@@ -54,6 +60,36 @@ func init() {
 		fmt.Fprintf(os.Stderr, "Valid flags:\n")
 		flag.PrintDefaults()
 	}
+}
+
+func verifyShard(shard []byte, i int32, magic int32, numShard int32, maxShard int32, length int32, checksum [32]byte) error {
+	if int32(len(shard)) != length {
+		fmt.Printf("Shard length was %d, shard in file is %d, file corrupt\n", length, len(shard))
+		return errors.New("input string is not of the required length of 10")
+	} else {
+		fmt.Println("Shard was correct length")
+	}
+	if magic != 2147483647 {
+		fmt.Println("Shard has INCORRECT magic value")
+		return errors.New("Invalid shard magic number")
+	} else {
+		fmt.Println("Shard has correct magic value")
+	}
+	h := sha256.New()
+	h.Write(shard)
+	if !bytes.Equal(h.Sum(nil), checksum[:]) {
+		fmt.Println("Shard has INCORRECT checksum")
+		return errors.New("Checksum mismatch")
+	} else {
+		fmt.Println("Shard has correct checksum")
+	}
+	if i == numShard {
+		fmt.Println("Shared was in the right order")
+	} else {
+		fmt.Printf("Shard was in the wrong order, shard %d of %d expected, found %d\n", i, maxShard, numShard)
+		return errors.New("Shared is in wrong order")
+	}
+	return nil
 }
 
 func main() {
@@ -76,9 +112,37 @@ func main() {
 	for i := range shards {
 		infn := fmt.Sprintf("%s.%d", fname, i)
 		fmt.Println("Opening", infn)
-		shards[i], err = os.ReadFile(infn)
+		file, err := os.Open(infn)
+		if err != nil {
+			fmt.Println("Error opening file", err)
+			os.Exit(1)
+		}
+
+		var header [4]int32
+
+		for i := 0; i < 4; i++ {
+			err = binary.Read(file, binary.LittleEndian, &header[i])
+		}
+		if err != nil {
+			log.Fatal(err)
+		}
+		var checksum [256 / 8]byte
+
+		err = binary.Read(file, binary.LittleEndian, &checksum)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		fmt.Printf("checksum=%x\n", checksum)
+		shards[i], err = ioutil.ReadAll(file)
 		if err != nil {
 			fmt.Println("Error reading file", err)
+			shards[i] = nil
+		}
+
+		err = verifyShard(shards[i], int32(i), header[0], header[1], header[2], header[3], checksum)
+		if err != nil {
+			fmt.Printf("Shard FAILED, removing from reconstruction\n")
 			shards[i] = nil
 		}
 	}

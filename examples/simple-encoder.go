@@ -37,9 +37,13 @@
 package main
 
 import (
+	"bufio"
+	sha
+	"encoding/binary"
 	"flag"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 	"path/filepath"
 
@@ -99,10 +103,46 @@ func main() {
 	for i, shard := range shards {
 		outfn := fmt.Sprintf("%s.%d", file, i)
 
-		fmt.Println("Writing to", outfn)
-		err = ioutil.WriteFile(filepath.Join(dir, outfn), shard, 0644)
+		fmt.Println("Writing to: ", outfn)
+		//		err = os.WriteFile(filepath.Join(dir, outfn), shard, 0644)
+		err = WriteShard(int32(i), int32(len(shards)), filepath.Join(dir, outfn), shard)
 		checkErr(err)
 	}
+}
+
+func WriteShard(i int32, numShards int32, numShardsfilename string, data []byte) error {
+
+	h := sha256.New()
+	h.Write(data)
+	fmt.Printf("sha256 of file %s (shared %d of %d) %x\n", numShardsfilename, i+1, numShards, h.Sum(nil))
+	file, err := os.Create(numShardsfilename)
+	if err != nil {
+		log.Fatal(err)
+	}
+	// Use a magic number so we can recognize files we wrote
+	header := []int32{2147483647, i, numShards, int32(len(data))}
+
+	writer := bufio.NewWriter(file)
+
+	for _, value := range header {
+		err := binary.Write(writer, binary.LittleEndian, value)
+		if err != nil {
+			fmt.Println("Error writing int32:", err)
+			return err
+		}
+	}
+	err = binary.Write(writer, binary.LittleEndian, h.Sum(nil))
+	if err != nil {
+		fmt.Println("Error writing checksum:", err)
+		return err
+	}
+
+	if _, err = writer.Write(data); err != nil {
+		fmt.Printf("Write failed for %s with %s\n", numShardsfilename, err)
+	}
+
+	file.Close()
+	return nil
 }
 
 func checkErr(err error) {
