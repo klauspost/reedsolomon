@@ -370,17 +370,17 @@ func (r *leopardFF8) Split(data []byte) ([][]byte, error) {
 
 func (r *leopardFF8) ReconstructSome(shards [][]byte, required []bool) error {
 	if len(required) == r.totalShards {
-		return r.reconstruct(shards, true)
+		return r.reconstruct(shards, true, required)
 	}
-	return r.reconstruct(shards, false)
+	return r.reconstruct(shards, false, required)
 }
 
 func (r *leopardFF8) Reconstruct(shards [][]byte) error {
-	return r.reconstruct(shards, true)
+	return r.reconstruct(shards, true, nil)
 }
 
 func (r *leopardFF8) ReconstructData(shards [][]byte) error {
-	return r.reconstruct(shards, false)
+	return r.reconstruct(shards, false, nil)
 }
 
 func (r *leopardFF8) Verify(shards [][]byte) (bool, error) {
@@ -411,8 +411,8 @@ func (r *leopardFF8) Verify(shards [][]byte) (bool, error) {
 	return true, nil
 }
 
-func (r *leopardFF8) reconstruct(shards [][]byte, recoverAll bool) error {
-	if len(shards) != r.totalShards {
+func (r *leopardFF8) reconstruct(shards [][]byte, recoverAll bool, required []bool) error {
+	if len(shards) != r.totalShards || required != nil && len(required) < r.dataShards {
 		return ErrTooFewShards
 	}
 
@@ -424,15 +424,19 @@ func (r *leopardFF8) reconstruct(shards [][]byte, recoverAll bool) error {
 	// nothing to do.
 	numberPresent := 0
 	dataPresent := 0
+	missingRequired := 0
 	for i := 0; i < r.totalShards; i++ {
 		if len(shards[i]) != 0 {
 			numberPresent++
 			if i < r.dataShards {
 				dataPresent++
 			}
+		} else if required != nil && required[i] {
+			missingRequired++
 		}
 	}
-	if numberPresent == r.totalShards || !recoverAll && dataPresent == r.dataShards {
+	if numberPresent == r.totalShards || !recoverAll && dataPresent == r.dataShards ||
+		required != nil && missingRequired == 0 {
 		// Cool. All of the shards have data. We don't
 		// need to do anything.
 		return nil
@@ -566,7 +570,7 @@ func (r *leopardFF8) reconstruct(shards [][]byte, recoverAll bool) error {
 
 	// Add output
 	for i, sh := range shards {
-		if !recoverAll && i >= r.dataShards {
+		if !recoverAll && i >= r.dataShards || required != nil && !required[i] {
 			continue
 		}
 		if len(sh) == 0 {
@@ -657,7 +661,7 @@ func (r *leopardFF8) reconstruct(shards [][]byte, recoverAll bool) error {
 		}
 		// Restore
 		for i := 0; i < end; i++ {
-			if len(sh[i]) != 0 {
+			if len(sh[i]) != 0 || required != nil && !required[i] {
 				continue
 			}
 
