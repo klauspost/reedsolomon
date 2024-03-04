@@ -466,7 +466,9 @@ func (r *leopardFF8) reconstruct(shards [][]byte, recoverAll bool, required []bo
 	var errLocs [order8]ffe8
 	for i := 0; i < r.parityShards; i++ {
 		if len(shards[i+r.dataShards]) == 0 {
-			errLocs[i] = 1
+			if recoverAll || (required != nil && required[i+r.dataShards]) {
+				errLocs[i] = 1
+			}
 			if LEO_ERROR_BITFIELD_OPT && (recoverAll || (required != nil && required[i])) {
 				errorBits.set(i)
 			}
