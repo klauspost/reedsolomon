@@ -25,18 +25,13 @@ type leopardFF8 struct {
 	totalShards  int // Total number of shards. Calculated, and should not be modified.
 
 	workPool    sync.Pool
-	inversion   map[[inversion8Bytes]byte]leopardGF8cache
+	inversion   map[errorBitfieldLevel8][order8]ffe8
 	inversionMu sync.Mutex
 
 	o options
 }
 
 const inversion8Bytes = 256 / 8
-
-type leopardGF8cache struct {
-	errorLocs [256]ffe8
-	bits      *errorBitfield8
-}
 
 // newFF8 is like New, but for the 8-bit "leopard" implementation.
 func newFF8(dataShards, parityShards int, opt options) (*leopardFF8, error) {
@@ -59,7 +54,7 @@ func newFF8(dataShards, parityShards int, opt options) (*leopardFF8, error) {
 	if opt.inversionCache && (r.totalShards <= 64 || opt.forcedInversionCache) {
 		// Inversion cache is relatively ineffective for big shard counts and takes up potentially lots of memory
 		// r.totalShards is not covering the space, but an estimate.
-		r.inversion = make(map[[inversion8Bytes]byte]leopardGF8cache, r.totalShards)
+		r.inversion = make(map[errorBitfieldLevel8][order8]ffe8, r.totalShards)
 	}
 	return r, nil
 }
@@ -463,21 +458,21 @@ func (r *leopardFF8) reconstruct(shards [][]byte, recoverAll bool, required []bo
 
 	// Fill in error locations.
 	var errorBits errorBitfield8
-	var errLocs [order8]ffe8
+	var errLocBits errorBitfieldLevel8
 	for i := 0; i < r.parityShards; i++ {
 		if len(shards[i+r.dataShards]) == 0 {
-			errLocs[i] = 1
+			errLocBits.set(i)
 			if LEO_ERROR_BITFIELD_OPT && recoverAll && (required == nil || required[i+r.dataShards]) {
 				errorBits.set(i)
 			}
 		}
 	}
 	for i := r.parityShards; i < m; i++ {
-		errLocs[i] = 1
+		errLocBits.set(i)
 	}
 	for i := 0; i < r.dataShards; i++ {
 		if len(shards[i]) == 0 {
-			errLocs[i+m] = 1
+			errLocBits.set(i + m)
 			if LEO_ERROR_BITFIELD_OPT && (required == nil || required[i]) {
 				errorBits.set(i + m)
 			}
@@ -485,30 +480,16 @@ func (r *leopardFF8) reconstruct(shards [][]byte, recoverAll bool, required []bo
 	}
 
 	var gotInversion bool
+	var errLocs [order8]ffe8
 	if LEO_ERROR_BITFIELD_OPT && r.inversion != nil {
-		cacheID := errorBits.cacheID()
 		r.inversionMu.Lock()
-		if inv, ok := r.inversion[cacheID]; ok {
-			r.inversionMu.Unlock()
-			errLocs = inv.errorLocs
-			if inv.bits != nil && useBits {
-				errorBits = *inv.bits
-				useBits = true
-			} else {
-				useBits = false
-			}
-			gotInversion = true
-		} else {
-			r.inversionMu.Unlock()
-		}
+		errLocs, gotInversion = r.inversion[errLocBits]
+		r.inversionMu.Unlock()
 	}
 
 	if !gotInversion {
 		// No inversion...
-		if LEO_ERROR_BITFIELD_OPT && useBits {
-			errorBits.prepare()
-		}
-
+		errLocs = errLocBits.ErrLocs()
 		// Evaluate error locator polynomial8
 		fwht8(&errLocs, order8, m+r.dataShards)
 
@@ -519,19 +500,14 @@ func (r *leopardFF8) reconstruct(shards [][]byte, recoverAll bool, required []bo
 		fwht8(&errLocs, order8, order8)
 
 		if r.inversion != nil {
-			c := leopardGF8cache{
-				errorLocs: errLocs,
-			}
-			if useBits {
-				// Heap alloc
-				var x errorBitfield8
-				x = errorBits
-				c.bits = &x
-			}
 			r.inversionMu.Lock()
-			r.inversion[errorBits.cacheID()] = c
+			r.inversion[errLocBits] = errLocs
 			r.inversionMu.Unlock()
 		}
+	}
+
+	if LEO_ERROR_BITFIELD_OPT && useBits {
+		errorBits.prepare()
 	}
 
 	var work [][]byte
@@ -1163,11 +1139,11 @@ const kWords8 = order8 / 64
 // errorBitfield contains progressive errors to help indicate which
 // shards need reconstruction.
 type errorBitfield8 struct {
-	Words [7][kWords8]uint64
+	Words [7]errorBitfieldLevel8
 }
 
 func (e *errorBitfield8) set(i int) {
-	e.Words[0][(i/64)&3] |= uint64(1) << (i & 63)
+	e.Words[0].set(i)
 }
 
 func (e *errorBitfield8) cacheID() [inversion8Bytes]byte {
@@ -1267,4 +1243,17 @@ func (e *errorBitfield8) fftDIT8(work [][]byte, mtrunc, m int, skewLUT []ffe8, o
 			}
 		}
 	}
+}
+
+type errorBitfieldLevel8 [kWords8]uint64
+
+func (e *errorBitfieldLevel8) set(i int) {
+	e[(i/64)&3] |= uint64(1) << (i & 63)
+}
+
+func (e *errorBitfieldLevel8) ErrLocs() (errLocs [order8]ffe8) {
+	for i := range errLocs {
+		errLocs[i] = ffe8((e[i/64] >> (i & 63)) & 1)
+	}
+	return
 }
