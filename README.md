@@ -560,6 +560,7 @@ The removed code may not be infringing and even after `-tags=nopshufb` there may
 * [go-erasure](https://github.com/somethingnew2-0/go-erasure). A similar library using cgo, slower in my tests.
 * [Screaming Fast Galois Field Arithmetic](https://www.snia.org/sites/default/files/files2/files2/SDC2013/presentations/NewThinking/EthanMiller_Screaming_Fast_Galois_Field%20Arithmetic_SIMD%20Instructions.pdf). Basis for SSE3 optimizations.
 * [Leopard-RS](https://github.com/catid/leopard) C library used as basis for GF16 implementation.
+* [reed-solomon-simd](https://github.com/AndersTrier/reed-solomon-simd) Leopard-RS Rust implementation.
 
 # License
 
