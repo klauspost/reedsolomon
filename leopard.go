@@ -898,14 +898,6 @@ func fwht(data *[order]ffe, mtrunc int) {
 		dist = dist4
 		dist4 <<= 2
 	}
-
-	// If there is one layer left:
-	if dist < order {
-		dist := uint16(dist)
-		for i := uint16(0); i < dist; i++ {
-			fwht2(&data[i], &data[i+dist])
-		}
-	}
 }
 
 func fwht4(data []ffe, s int) {
