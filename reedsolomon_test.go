@@ -877,8 +877,7 @@ func testReconstructData(t *testing.T, o ...Option) {
 	}
 
 	if shardsCopy[2] != nil || shardsCopy[5] != nil || shardsCopy[6] != nil {
-		// This is expected in some cases.
-		t.Log("ReconstructSome reconstructed extra shards")
+		t.Error("ReconstructSome reconstructed extra shards")
 	}
 
 	// Reconstruct with 10 shards present. Use pre-allocated memory for one of them.
@@ -1490,12 +1489,12 @@ func BenchmarkReconstruct10x4x1M(b *testing.B) {
 	benchmarkReconstruct(b, 10, 4, 1024*1024)
 }
 
-// Benchmark 5 data slices with 2 parity slices holding 1MB bytes each
+// Benchmark 50 data slices with 20 parity slices holding 1MB bytes each
 func BenchmarkReconstruct50x20x1M(b *testing.B) {
 	benchmarkReconstruct(b, 50, 20, 1024*1024)
 }
 
-// Benchmark 5 data slices with 2 parity slices holding 1MB bytes each
+// Benchmark 50 data slices with 20 parity slices holding 1MB bytes each
 func BenchmarkReconstructLeopard50x20x1M(b *testing.B) {
 	benchmarkReconstruct(b, 50, 20, 1024*1024, WithLeopardGF(true), WithInversionCache(true))
 }
