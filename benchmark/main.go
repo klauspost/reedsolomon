@@ -80,7 +80,7 @@ func main() {
 		exitErr(errors.New("block size invalid"))
 	}
 	if *csv {
-		fmt.Printf("op\t%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\n", "k", "m", "bsize", "blocks", "concurrency", "codec", "processed bytes", "duration (μs)", "speed ("+sizeUint+")")
+		fmt.Printf("op\t%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\n", "k", "m", "bsize", "blocks", "concurrency", "codec", "processed bytes", "duration (μs)", "speed ("+sizeUint+"/s)")
 	}
 	dataSz := int(sz)
 	each := (dataSz + *kShards - 1) / *kShards
