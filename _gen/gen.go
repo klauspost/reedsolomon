@@ -644,7 +644,6 @@ func genMulAvx2Sixty64(name string, inputs int, outputs int, xor bool) {
 	}
 	outBase := addr.Addr
 	outSlicePtr := GP64()
-	MOVQ(addr.Addr, outSlicePtr)
 	MOVQ(outBase, outSlicePtr)
 	for i := range dst {
 		dst[i] = YMM()
