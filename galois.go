@@ -911,9 +911,9 @@ func galExp(a byte, n int) byte {
 }
 
 func genAvx2Matrix(matrixRows [][]byte, inputs, inIdx, outputs int, dst []byte) []byte {
-	if !avx2CodeGen {
-		panic("codegen not enabled")
-	}
+	// if !avx2CodeGen {
+	// 	panic("codegen not enabled")
+	// }
 	total := inputs * outputs
 
 	// Duplicated in+out
