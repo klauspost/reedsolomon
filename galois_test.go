@@ -270,7 +270,7 @@ func testGenGalois(t *testing.T, matrixRows [][]byte, size, start, stop int, f f
 		}
 	}
 
-	m := genAvx2Matrix(matrixRows, len(inputs), 0, len(outputs), nil)
+	m := genCodeGenMatrix(matrixRows, len(inputs), 0, len(outputs), nil)
 
 	end := start + f(m, inputs, outputs, start, stop)
 	if end != stop {
@@ -327,7 +327,7 @@ func testGenGaloisXor(t *testing.T, matrixRows [][]byte, size, start, stop int, 
 		}
 	}
 
-	m := genAvx2Matrix(matrixRows, len(inputs), 0, len(outputs), nil)
+	m := genCodeGenMatrix(matrixRows, len(inputs), 0, len(outputs), nil)
 
 	end := start + f(m, inputs, outputs, start, stop)
 	if end != stop {
@@ -363,53 +363,41 @@ func testGenGaloisEarlyAbort(t *testing.T, matrixRows [][]byte, size int, f func
 	}
 }
 
-func TestGenGalois(t *testing.T) {
+func testGenGaloisUpto10x10(t *testing.T, f, fXor func(matrix []byte, in, out [][]byte, start, stop int) int) {
 
-	testUpto10x10 := func(f func(matrix []byte, in, out [][]byte, start, stop int) int,
-		fXor func(matrix []byte, in, out [][]byte, start, stop int) int) {
-
-		for output := 1; output <= 10; output++ {
-			for input := 1; input <= 10; input++ {
-				matrixRows := make([][]byte, input)
-				for i := range matrixRows {
-					matrixRows[i] = make([]byte, output)
-					for j := range matrixRows[i] {
-						matrixRows[i][j] = byte(mathrand.Intn(16))
-					}
+	for output := 1; output <= codeGenMaxOutputs; output++ {
+		for input := 1; input <= codeGenMaxInputs; input++ {
+			matrixRows := make([][]byte, input)
+			for i := range matrixRows {
+				matrixRows[i] = make([]byte, output)
+				for j := range matrixRows[i] {
+					matrixRows[i][j] = byte(mathrand.Intn(16))
 				}
+			}
 
-				size, stepsize := 32, 32
-				if input <= 3 {
-					size, stepsize = 64, 64 // 3x? are all _64 versions
-				}
+			size, stepsize := 32, 32
+			if input <= 3 {
+				size, stepsize = 64, 64 // 3x? are all _64 versions
+			}
 
-				// test early abort
-				testGenGaloisEarlyAbort(t, matrixRows, size-1, f)
-				testGenGaloisEarlyAbort(t, matrixRows, size-1, fXor)
-				const limit = 1024
-				for ; size < limit; size += stepsize {
-					// test full range
-					testGenGalois(t, matrixRows, size, 0, size, f)
-					testGenGaloisXor(t, matrixRows, size, 0, size, fXor)
+			// test early abort
+			testGenGaloisEarlyAbort(t, matrixRows, size-1, f)
+			testGenGaloisEarlyAbort(t, matrixRows, size-1, fXor)
+			const limit = 1024
+			for ; size < limit; size += stepsize {
+				// test full range
+				testGenGalois(t, matrixRows, size, 0, size, f)
+				testGenGaloisXor(t, matrixRows, size, 0, size, fXor)
 
-					if size >= stepsize*2 && size < limit-stepsize*2 {
-						start := stepsize
-						stop := size - start
-						// test partial range
-						testGenGalois(t, matrixRows, size, start, stop, f)
-						testGenGaloisXor(t, matrixRows, size, start, stop, fXor)
-					}
+				if size >= stepsize*2 && size < limit-stepsize*2 {
+					start := stepsize
+					stop := size - start
+					// test partial range
+					testGenGalois(t, matrixRows, size, start, stop, f)
+					testGenGaloisXor(t, matrixRows, size, start, stop, fXor)
 				}
 			}
 		}
-	}
-
-	testSVE, testNEON := false, true
-	if testSVE {
-		testUpto10x10(galMulSlicesSve, galMulSlicesSveXor)
-	}
-	if testNEON {
-		testUpto10x10(galMulSlicesNeon, galMulSlicesNeonXor)
 	}
 }
 

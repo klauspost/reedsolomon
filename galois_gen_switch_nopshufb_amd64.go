@@ -10,14 +10,15 @@ import (
 )
 
 const (
-	avx2CodeGen    = true
-	maxAvx2Inputs  = 10
-	maxAvx2Outputs = 10
-	minAvx2Size    = 64
+	codeGen    = true
+	codeGenMaxInputs  = 10
+	codeGenMinOutputs = 10
+	minCodeGenSize    = 64
 )
 
-func galMulSlicesAvx2(matrix []byte, in, out [][]byte, start, stop int) int    { panic(`no pshufb`) }
-func galMulSlicesAvx2Xor(matrix []byte, in, out [][]byte, start, stop int) int { panic(`no pshufb`) }
+func (r *reedSolomon) hasCodeGen(byteCount int, inputs, outputs int) (_, _ *func(matrix []byte, in, out [][]byte, start, stop int) int, ok bool) {
+	return nil, nil, false // no code generation for generic case (only GFNI cases)
+}
 
 func galMulSlicesGFNI(matrix []uint64, in, out [][]byte, start, stop int) int {
 	n := (stop - start) & (maxInt - (64 - 1))
@@ -1369,4 +1370,20 @@ func galMulSlicesAvxGFNIXor(matrix []uint64, in, out [][]byte, start, stop int) 
 		}
 	}
 	panic(fmt.Sprintf("unhandled size: %dx%d", len(in), len(out)))
+}
+
+func galMulSlicesSve(matrix []byte, in, out [][]byte, start, stop int) int {
+	panic("codegen not available")
+}
+
+func galMulSlicesSveXor(matrix []byte, in, out [][]byte, start, stop int) int {
+	panic("codegen not available")
+}
+
+func galMulSlicesNeon(matrix []byte, in, out [][]byte, start, stop int) int {
+	panic("codegen not available")
+}
+
+func galMulSlicesNeonXor(matrix []byte, in, out [][]byte, start, stop int) int {
+	panic("codegen not available")
 }

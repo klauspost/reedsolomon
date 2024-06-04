@@ -10,11 +10,19 @@ import (
 )
 
 const (
-	avx2CodeGen    = true
-	maxAvx2Inputs  = 10
-	maxAvx2Outputs = 10
-	minAvx2Size    = 64
+	codeGen    = true
+	codeGenMaxGoroutines = 8
+	codeGenMaxInputs  = 10
+	codeGenMaxOutputs = 10
+	minCodeGenSize    = 64
 )
+
+func (r *reedSolomon) hasCodeGen(byteCount int, inputs, outputs int) (_, _ *func(matrix []byte, in, out [][]byte, start, stop int) int, ok bool) {
+	f, fXor := galMulSlicesAvx2, galMulSlicesAvx2Xor
+	return &f, &fXor, codeGen && pshufb && r.o.useAVX2 &&
+		byteCount >= codeGenMinSize && inputs+outputs >= codeGenMinShards &&
+		inputs <= codeGenMaxInputs && outputs <= codeGenMaxOutputs
+}
 
 func galMulSlicesAvx2(matrix []byte, in, out [][]byte, start, stop int) int {
 	n := stop - start
