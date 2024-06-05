@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	codeGen    = true
+	codeGen           = true
 	codeGenMaxInputs  = 10
 	codeGenMinOutputs = 10
 	minCodeGenSize    = 64
