@@ -33,6 +33,10 @@ func (r *reedSolomon) hasCodeGen(byteCount int, inputs, outputs int) (_, _ *func
 		inputs <= codeGenMaxInputs && outputs <= codeGenMaxOutputs
 }
 
+func (r *reedSolomon) canGFNI(byteCount int, inputs, outputs int) (_, _ *func(matrix []uint64, in, out [][]byte, start, stop int) int, ok bool) {
+	return nil, nil, false
+}
+
 // galMulSlicesSve
 func galMulSlicesSve(matrix []byte, in, out [][]byte, start, stop int) int {
 	n := stop - start
@@ -188,20 +192,4 @@ func galMulSlicesNeonXor(matrix []byte, in, out [][]byte, start, stop int) int {
 		return n & (maxInt - 31)
 	}
 	panic(fmt.Sprintf("ARM NEON: unhandled size: %dx%d", len(in), len(out)))
-}
-
-func galMulSlicesGFNI(matrix []uint64, in, out [][]byte, start, stop int) int {
-	panic("codegen not available")
-}
-
-func galMulSlicesGFNIXor(matrix []uint64, in, out [][]byte, start, stop int) int {
-	panic("codegen not available")
-}
-
-func galMulSlicesAvxGFNI(matrix []uint64, in, out [][]byte, start, stop int) int {
-	panic("codegen not available")
-}
-
-func galMulSlicesAvxGFNIXor(matrix []uint64, in, out [][]byte, start, stop int) int {
-	panic("codegen not available")
 }

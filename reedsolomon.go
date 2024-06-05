@@ -560,7 +560,7 @@ func New(dataShards, parityShards int, opts ...Option) (Encoder, error) {
 		r.o.maxGoroutines = codeGenMaxGoroutines
 	}
 
-	if r.canGFNI(codeGenMinSize, codeGenMaxInputs, codeGenMaxOutputs) && r.o.maxGoroutines > gfniCodeGenMaxGoroutines {
+	if _, _, useGFNI := r.canGFNI(codeGenMinSize, codeGenMaxInputs, codeGenMaxOutputs); useGFNI && r.o.maxGoroutines > gfniCodeGenMaxGoroutines {
 		r.o.maxGoroutines = gfniCodeGenMaxGoroutines
 	}
 
@@ -660,7 +660,7 @@ func (r *reedSolomon) EncodeIdx(dataShard []byte, idx int, parity [][]byte) erro
 			m[iRow] = r.parity[iRow][idx : idx+1]
 		}
 		if r.o.useAvx512GFNI || r.o.useAvxGNFI {
-			r.codeSomeShardsGFNI(m, [][]byte{dataShard}, parity, len(dataShard), false)
+			r.codeSomeShardsGFNI(m, [][]byte{dataShard}, parity, len(dataShard), false, nil, nil)
 		} else {
 			r.codeSomeShardsAVXP(m, [][]byte{dataShard}, parity, len(dataShard), false, nil, nil)
 		}
@@ -804,12 +804,6 @@ func (r *reedSolomon) Verify(shards [][]byte) (bool, error) {
 	return r.checkSomeShards(r.parity, shards[:r.dataShards], toCheck[:r.parityShards], len(shards[0])), nil
 }
 
-func (r *reedSolomon) canGFNI(byteCount int, inputs, outputs int) bool {
-	return codeGen && (r.o.useAvx512GFNI || r.o.useAvxGNFI) &&
-		byteCount >= codeGenMinSize && inputs+outputs >= codeGenMinShards &&
-		inputs <= codeGenMaxInputs && outputs <= codeGenMaxOutputs
-}
-
 // Multiplies a subset of rows from a coding matrix by a full set of
 // input totalShards to produce some output totalShards.
 // 'matrixRows' is The rows from the matrix to use.
@@ -833,14 +827,10 @@ func (r *reedSolomon) codeSomeShards(matrixRows, inputs, outputs [][]byte, byteC
 	if end > len(inputs[0]) {
 		end = len(inputs[0])
 	}
-	if r.canGFNI(byteCount, len(inputs), len(outputs)) {
+	if galMulGFNI, galMulGFNIXor, useGFNI := r.canGFNI(byteCount, len(inputs), len(outputs)); useGFNI {
 		var gfni [codeGenMaxInputs * codeGenMaxOutputs]uint64
 		m := genGFNIMatrix(matrixRows, len(inputs), 0, len(outputs), gfni[:])
-		if r.o.useAvx512GFNI {
-			start += galMulSlicesGFNI(m, inputs, outputs, 0, byteCount)
-		} else {
-			start += galMulSlicesAvxGFNI(m, inputs, outputs, 0, byteCount)
-		}
+		start += (*galMulGFNI)(m, inputs, outputs, 0, byteCount)
 		end = len(inputs[0])
 	} else if galMulGen, _, ok := r.hasCodeGen(byteCount, len(inputs), len(outputs)); ok {
 		m := genCodeGenMatrix(matrixRows, len(inputs), 0, len(outputs), r.getTmpSlice())
@@ -866,19 +856,12 @@ func (r *reedSolomon) codeSomeShards(matrixRows, inputs, outputs [][]byte, byteC
 				if len(outPer) > codeGenMaxOutputs {
 					outPer = outPer[:codeGenMaxOutputs]
 				}
-				if r.o.useAvx512GFNI {
+				if useGFNI {
 					m := genGFNIMatrix(matrixRows[outIdx:], len(inPer), inIdx, len(outPer), gfni[:])
 					if inIdx == 0 {
-						start = galMulSlicesGFNI(m, inPer, outPer, 0, byteCount)
+						start = (*galMulGFNI)(m, inPer, outPer, 0, byteCount)
 					} else {
-						start = galMulSlicesGFNIXor(m, inPer, outPer, 0, byteCount)
-					}
-				} else if r.o.useAvxGNFI {
-					m := genGFNIMatrix(matrixRows[outIdx:], len(inPer), inIdx, len(outPer), gfni[:])
-					if inIdx == 0 {
-						start = galMulSlicesAvxGFNI(m, inPer, outPer, 0, byteCount)
-					} else {
-						start = galMulSlicesAvxGFNIXor(m, inPer, outPer, 0, byteCount)
+						start = (*galMulGFNIXor)(m, inPer, outPer, 0, byteCount)
 					}
 				} else {
 					m = genCodeGenMatrix(matrixRows[outIdx:], len(inPer), inIdx, len(outPer), m)
@@ -926,18 +909,18 @@ func (r *reedSolomon) codeSomeShardsP(matrixRows, inputs, outputs [][]byte, byte
 	var genMatrix []byte
 	var gfniMatrix []uint64
 	galMulGen, _, useCodeGen := r.hasCodeGen(byteCount, len(inputs), len(outputs))
-	useGFNI := r.canGFNI(byteCount, len(inputs), len(outputs))
+	galMulGFNI, _, useGFNI := r.canGFNI(byteCount, len(inputs), len(outputs))
 	if useGFNI {
 		var tmp [codeGenMaxInputs * codeGenMaxOutputs]uint64
 		gfniMatrix = genGFNIMatrix(matrixRows, len(inputs), 0, len(outputs), tmp[:])
 	} else if useCodeGen {
 		genMatrix = genCodeGenMatrix(matrixRows, len(inputs), 0, len(outputs), r.getTmpSlice())
 		defer r.putTmpSlice(genMatrix)
-	} else if (r.o.useAvx512GFNI || r.o.useAvxGNFI) && byteCount < 10<<20 && len(inputs)+len(outputs) > codeGenMinShards &&
-		r.canGFNI(byteCount/4, codeGenMaxInputs, codeGenMaxOutputs) {
+	} else if galMulGFNI, galMulGFNIXor, useGFNI := r.canGFNI(byteCount/4, codeGenMaxInputs, codeGenMaxOutputs); useGFNI &&
+		byteCount < 10<<20 && len(inputs)+len(outputs) > codeGenMinShards {
 		// It appears there is a switchover point at around 10MB where
 		// Regular processing is faster...
-		r.codeSomeShardsGFNI(matrixRows, inputs, outputs, byteCount, true)
+		r.codeSomeShardsGFNI(matrixRows, inputs, outputs, byteCount, true, galMulGFNI, galMulGFNIXor)
 		return
 	} else if galMulGen, galMulGenXor, ok := r.hasCodeGen(byteCount/4, codeGenMaxInputs, codeGenMaxOutputs); ok &&
 		byteCount < 10<<20 && len(inputs)+len(outputs) > codeGenMinShards {
@@ -955,11 +938,7 @@ func (r *reedSolomon) codeSomeShardsP(matrixRows, inputs, outputs [][]byte, byte
 	exec := func(start, stop int) {
 		if stop-start >= 64 {
 			if useGFNI {
-				if r.o.useAvx512GFNI {
-					start += galMulSlicesGFNI(gfniMatrix, inputs, outputs, start, stop)
-				} else {
-					start += galMulSlicesAvxGFNI(gfniMatrix, inputs, outputs, start, stop)
-				}
+				start += (*galMulGFNI)(gfniMatrix, inputs, outputs, start, stop)
 			} else if useCodeGen {
 				start += (*galMulGen)(genMatrix, inputs, outputs, start, stop)
 			}
@@ -1167,7 +1146,7 @@ func (r *reedSolomon) codeSomeShardsAVXP(matrixRows, inputs, outputs [][]byte, b
 // Perform the same as codeSomeShards, but split the workload into
 // several goroutines.
 // If clear is set, the first write will overwrite the output.
-func (r *reedSolomon) codeSomeShardsGFNI(matrixRows, inputs, outputs [][]byte, byteCount int, clear bool) {
+func (r *reedSolomon) codeSomeShardsGFNI(matrixRows, inputs, outputs [][]byte, byteCount int, clear bool, galMulGFNI, galMulGFNIXor *func(matrix []uint64, in, out [][]byte, start, stop int) int) {
 	var wg sync.WaitGroup
 	gor := r.o.maxGoroutines
 
@@ -1256,24 +1235,14 @@ func (r *reedSolomon) codeSomeShardsGFNI(matrixRows, inputs, outputs [][]byte, b
 			lstop = stop
 		}
 		for lstart < stop {
-			if lstop-lstart >= minCodeGenSize {
+			if galMulGFNI != nil && galMulGFNIXor != nil && lstop-lstart >= minCodeGenSize {
 				// Execute plan...
 				var n int
-				if r.o.useAvx512GFNI {
-					for _, p := range plan {
-						if p.first {
-							n = galMulSlicesGFNI(p.m, p.input, p.output, lstart, lstop)
-						} else {
-							n = galMulSlicesGFNIXor(p.m, p.input, p.output, lstart, lstop)
-						}
-					}
-				} else {
-					for _, p := range plan {
-						if p.first {
-							n = galMulSlicesAvxGFNI(p.m, p.input, p.output, lstart, lstop)
-						} else {
-							n = galMulSlicesAvxGFNIXor(p.m, p.input, p.output, lstart, lstop)
-						}
+				for _, p := range plan {
+					if p.first {
+						n = (*galMulGFNI)(p.m, p.input, p.output, lstart, lstop)
+					} else {
+						n = (*galMulGFNIXor)(p.m, p.input, p.output, lstart, lstop)
 					}
 				}
 				lstart += n

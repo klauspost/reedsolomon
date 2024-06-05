@@ -10,22 +10,10 @@ const (
 	minCodeGenSize       = 1
 )
 
-func (r *reedSolomon) hasCodeGen(_ int, _, _ int) (_, _ *func(matrix []byte, in, out [][]byte, start, stop int) int, ok bool) {
+func (r *reedSolomon) hasCodeGen(int, int, int) (_, _ *func(matrix []byte, in, out [][]byte, start, stop int) int, ok bool) {
 	return nil, nil, false
 }
 
-func galMulSlicesGFNI(matrix []uint64, in, out [][]byte, start, stop int) int {
-	panic("codegen not available")
-}
-
-func galMulSlicesGFNIXor(matrix []uint64, in, out [][]byte, start, stop int) int {
-	panic("codegen not available")
-}
-
-func galMulSlicesAvxGFNI(matrix []uint64, in, out [][]byte, start, stop int) int {
-	panic("codegen not available")
-}
-
-func galMulSlicesAvxGFNIXor(matrix []uint64, in, out [][]byte, start, stop int) int {
-	panic("codegen not available")
+func (r *reedSolomon) canGFNI(int, int, int) (_, _ *func(matrix []uint64, in, out [][]byte, start, stop int) int, ok bool) {
+	return nil, nil, false
 }

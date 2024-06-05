@@ -18,12 +18,27 @@ const (
 )
 
 var (
-	fAvx2    = galMulSlicesAvx2
-	fAvx2Xor = galMulSlicesAvx2Xor
+	fAvx2       = galMulSlicesAvx2
+	fAvx2Xor    = galMulSlicesAvx2Xor
+	fGFNI       = galMulSlicesGFNI
+	fGFNIXor    = galMulSlicesGFNIXor
+	fAvxGFNI    = galMulSlicesAvxGFNI
+	fAvxGFNIXor = galMulSlicesAvxGFNIXor
 )
 
 func (r *reedSolomon) hasCodeGen(byteCount int, inputs, outputs int) (_, _ *func(matrix []byte, in, out [][]byte, start, stop int) int, ok bool) {
 	return &fAvx2, &fAvx2Xor, codeGen && pshufb && r.o.useAVX2 &&
+		byteCount >= codeGenMinSize && inputs+outputs >= codeGenMinShards &&
+		inputs <= codeGenMaxInputs && outputs <= codeGenMaxOutputs
+}
+
+func (r *reedSolomon) canGFNI(byteCount int, inputs, outputs int) (_, _ *func(matrix []uint64, in, out [][]byte, start, stop int) int, ok bool) {
+	if r.o.useAvx512GFNI {
+		return &fGFNI, &fGFNIXor, codeGen &&
+			byteCount >= codeGenMinSize && inputs+outputs >= codeGenMinShards &&
+			inputs <= codeGenMaxInputs && outputs <= codeGenMaxOutputs
+	}
+	return &fAvxGFNI, &fAvxGFNIXor, codeGen && r.o.useAvxGNFI &&
 		byteCount >= codeGenMinSize && inputs+outputs >= codeGenMinShards &&
 		inputs <= codeGenMaxInputs && outputs <= codeGenMaxOutputs
 }
