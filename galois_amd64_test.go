@@ -1,3 +1,5 @@
+//go:build !noasm && !appengine && !gccgo && !nopshufb
+
 // Copyright 2015, Klaus Post, see LICENSE for details.
 
 package reedsolomon
