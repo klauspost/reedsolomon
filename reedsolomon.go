@@ -578,7 +578,7 @@ func New(dataShards, parityShards int, opts ...Option) (Encoder, error) {
 		r.parity[i] = r.m[dataShards+i]
 	}
 
-	if codeGen && useCodeGen {
+	if codeGen /* && r.o.useAVX2 */ {
 		sz := r.dataShards * r.parityShards * 2 * 32
 		r.mPool.New = func() interface{} {
 			return AllocAligned(1, sz)[0]
