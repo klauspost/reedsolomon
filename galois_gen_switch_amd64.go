@@ -17,9 +17,13 @@ const (
 	minCodeGenSize       = 64
 )
 
+var (
+	fAvx2    = galMulSlicesAvx2
+	fAvx2Xor = galMulSlicesAvx2Xor
+)
+
 func (r *reedSolomon) hasCodeGen(byteCount int, inputs, outputs int) (_, _ *func(matrix []byte, in, out [][]byte, start, stop int) int, ok bool) {
-	f, fXor := galMulSlicesAvx2, galMulSlicesAvx2Xor
-	return &f, &fXor, codeGen && pshufb && r.o.useAVX2 &&
+	return &fAvx2, &fAvx2Xor, codeGen && pshufb && r.o.useAVX2 &&
 		byteCount >= codeGenMinSize && inputs+outputs >= codeGenMinShards &&
 		inputs <= codeGenMaxInputs && outputs <= codeGenMaxOutputs
 }

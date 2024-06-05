@@ -15,15 +15,20 @@ const (
 	minCodeGenSize       = 64
 )
 
+var (
+	fSve     = galMulSlicesSve
+	fSveXor  = galMulSlicesSveXor
+	fNeon    = galMulSlicesNeon
+	fNeonXor = galMulSlicesNeonXor
+)
+
 func (r *reedSolomon) hasCodeGen(byteCount int, inputs, outputs int) (_, _ *func(matrix []byte, in, out [][]byte, start, stop int) int, ok bool) {
 	if r.o.useSVE {
-		f, fXor := galMulSlicesSve, galMulSlicesSveXor
-		return &f, &fXor, codeGen && pshufb &&
+		return &fSve, &fSveXor, codeGen && pshufb &&
 			byteCount >= codeGenMinSize && inputs+outputs >= codeGenMinShards &&
 			inputs <= codeGenMaxInputs && outputs <= codeGenMaxOutputs
 	}
-	f, fXor := galMulSlicesNeon, galMulSlicesNeonXor
-	return &f, &fXor, codeGen && pshufb && r.o.useNEON &&
+	return &fNeon, &fNeonXor, codeGen && pshufb && r.o.useNEON &&
 		byteCount >= codeGenMinSize && inputs+outputs >= codeGenMinShards &&
 		inputs <= codeGenMaxInputs && outputs <= codeGenMaxOutputs
 }
