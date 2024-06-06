@@ -11,7 +11,7 @@ import (
 
 const (
 	codeGen              = true
-	codeGenMaxGoroutines = 4
+	codeGenMaxGoroutines = 8
 	codeGenMaxInputs     = 10
 	codeGenMaxOutputs    = 10
 	minCodeGenSize       = 64
@@ -38,6 +38,9 @@ func (r *reedSolomon) canGFNI(byteCount int, inputs, outputs int) (_, _ *func(ma
 		byteCount >= codeGenMinSize && inputs+outputs >= codeGenMinShards &&
 		inputs <= codeGenMaxInputs && outputs <= codeGenMaxOutputs
 }
+
+func galMulSlicesAvx2(matrix []byte, in, out [][]byte, start, stop int) int    { panic(`no pshufb`) }
+func galMulSlicesAvx2Xor(matrix []byte, in, out [][]byte, start, stop int) int { panic(`no pshufb`) }
 
 func galMulSlicesGFNI(matrix []uint64, in, out [][]byte, start, stop int) int {
 	n := (stop - start) & (maxInt - (64 - 1))
