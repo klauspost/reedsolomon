@@ -123,4 +123,3 @@ func mulNeon_10x10(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
 //go:noescape
 func mulNeon_10x10Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
-

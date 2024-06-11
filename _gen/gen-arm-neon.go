@@ -403,7 +403,11 @@ func genArmNeon() {
 			}
 
 			// golang declaration
-			goOut.WriteString(fmt.Sprintf("//go:noescape\n%s\n\n", funcDef))
+			goOut.WriteString(fmt.Sprintf("//go:noescape\n%s\n", funcDef))
+
+			if !(output == 10 && op == "Xor") {
+				goOut.WriteString("\n")
+			}
 		}
 	}
 	if err := os.WriteFile("../galois_gen_arm64.s", asmOut.Bytes(), 0644); err != nil {
