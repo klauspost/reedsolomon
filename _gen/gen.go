@@ -89,6 +89,11 @@ func main() {
 	genSwitch()
 	genGF16()
 	genGF8()
+
+	if pshufb {
+		genArmSve()
+		genArmNeon()
+	}
 	Generate()
 }
 
@@ -449,7 +454,10 @@ func genMulAvx2(name string, inputs int, outputs int, xor bool) {
 	for _, ptr := range inPtrs {
 		ADDQ(offset, ptr)
 	}
-	// Offset no longer needed unless not regdst
+	// Offset no longer needed unless not regDst
+	if !regDst {
+		SHRQ(U8(3), offset) // divide by 8 since we'll be scaling it up when loading or storing
+	}
 
 	tmpMask := GP64()
 	MOVQ(U32(15), tmpMask)
@@ -478,9 +486,9 @@ func genMulAvx2(name string, inputs int, outputs int, xor bool) {
 			}
 			ptr := GP64()
 			MOVQ(Mem{Base: outSlicePtr, Disp: i * 24}, ptr)
-			VMOVDQU(Mem{Base: ptr, Index: offset, Scale: 1}, dst[i])
+			VMOVDQU(Mem{Base: ptr, Index: offset, Scale: 8}, dst[i])
 			if prefetchDst > 0 {
-				PREFETCHT0(Mem{Base: ptr, Disp: prefetchDst, Index: offset, Scale: 1})
+				PREFETCHT0(Mem{Base: ptr, Disp: prefetchDst, Index: offset, Scale: 8})
 			}
 		}
 	}
@@ -508,9 +516,9 @@ func genMulAvx2(name string, inputs int, outputs int, xor bool) {
 				} else {
 					ptr := GP64()
 					MOVQ(Mem{Base: outSlicePtr, Disp: j * 24}, ptr)
-					VMOVDQU(Mem{Base: ptr, Index: offset, Scale: 1}, dst[j])
+					VMOVDQU(Mem{Base: ptr, Index: offset, Scale: 8}, dst[j])
 					if prefetchDst > 0 {
-						PREFETCHT0(Mem{Base: ptr, Disp: prefetchDst, Index: offset, Scale: 1})
+						PREFETCHT0(Mem{Base: ptr, Disp: prefetchDst, Index: offset, Scale: 8})
 					}
 				}
 			}
@@ -543,14 +551,14 @@ func genMulAvx2(name string, inputs int, outputs int, xor bool) {
 		}
 		ptr := GP64()
 		MOVQ(Mem{Base: outSlicePtr, Disp: i * 24}, ptr)
-		VMOVDQU(dst[i], Mem{Base: ptr, Index: offset, Scale: 1})
+		VMOVDQU(dst[i], Mem{Base: ptr, Index: offset, Scale: 8})
 		if prefetchDst > 0 && !xor {
-			PREFETCHT0(Mem{Base: ptr, Disp: prefetchDst, Index: offset, Scale: 1})
+			PREFETCHT0(Mem{Base: ptr, Disp: prefetchDst, Index: offset, Scale: 8})
 		}
 	}
 	Comment("Prepare for next loop")
 	if !regDst {
-		ADDQ(U8(perLoop), offset)
+		ADDQ(U8(perLoop>>3), offset)
 	}
 	DECQ(length)
 	JNZ(LabelRef(name + "_loop"))
