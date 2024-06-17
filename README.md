@@ -25,6 +25,10 @@ Using Go modules is recommended.
 
 # Changes
 
+## 2024
+
+ * Auto-generation of SVE and NEON routines for ARM based on AVX2 code. This results in a speedup of 2x for SVE (as measured using Graviton 3 on AWS) and a speedup of 1.5x as compared to the existing NEON-accelerated code.
+
 ## 2022
 
 * [GFNI](https://github.com/klauspost/reedsolomon/pull/224) support for amd64, for up to 3x faster processing.
