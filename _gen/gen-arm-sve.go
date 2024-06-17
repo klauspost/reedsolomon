@@ -126,6 +126,72 @@ func convertRoutine(asmBuf *bytes.Buffer, instructions []string) {
 	}
 }
 
+// convert (R..*1) memory accesses into (R..*8) offsets
+func patchScaledLoads(code string, outputs int, isXor bool) (patched []string) {
+
+	scaledMemOps := strings.Count(code, "*1)")
+	if scaledMemOps == 0 {
+		// in case of no scaled loads, exit out early
+		return strings.Split(code, "\n")
+	}
+
+	sanityCheck := outputs
+	if isXor {
+		sanityCheck *= 2 // need to load all values as well as store them
+	}
+	if scaledMemOps != sanityCheck {
+		panic("Couldn't find expected number of scaled memory ops")
+	}
+
+	scaledReg := ""
+	re := regexp.MustCompile(`R(\d+)\*1`)
+	if match := re.FindStringSubmatch(code); len(match) > 1 {
+		scaledReg = fmt.Sprintf("R%s", match[1])
+	} else {
+		panic("Failed to find register used for scaled memory ops")
+	}
+
+	const inputs = 10
+
+	scaledRegUses := strings.Count(code, scaledReg)
+	sanityCheck += inputs // needed to add start offset to input
+	sanityCheck += 1      // needed to load offset from stack
+	sanityCheck += 1      // needed to increment offset
+
+	if scaledRegUses != sanityCheck {
+		panic("Did not find expected number of uses of scaled register")
+	}
+
+	// Adjust all scaled loads
+	code = strings.ReplaceAll(code, fmt.Sprintf("(%s*1)", scaledReg), fmt.Sprintf("(%s*8)", scaledReg))
+
+	// Adjust increment at end of loop
+	reAdd := regexp.MustCompile(`ADDQ\s*\$(0x[0-9a-f]+),\s*` + scaledReg)
+	if match := reAdd.FindStringSubmatch(code); len(match) > 1 && match[1][:2] == "0x" {
+		if increment, err := strconv.ParseInt(match[1][2:], 16, 64); err == nil {
+			code = strings.ReplaceAll(code, fmt.Sprintf("0x%x, %s", increment, scaledReg), fmt.Sprintf("0x%02x, %s", increment>>3, scaledReg))
+		} else {
+			panic(err)
+		}
+	} else {
+		panic("Failed to find increment of offset")
+	}
+
+	// Add shift instruction during initialization after inputs have been adjusted
+	reShift := regexp.MustCompilePOSIX(fmt.Sprintf(`^[[:blank:]]+ADDQ[[:blank:]]+%s.*$`, scaledReg))
+	if matches := reShift.FindAllStringIndex(code, -1); len(matches) == inputs {
+		lastInpIncr := code[matches[inputs-1][0]:matches[inputs-1][1]]
+		shiftCorrection := strings.ReplaceAll(strings.Split(lastInpIncr, scaledReg)[0], "ADDQ", "SHRQ")
+		shiftCorrection += "$0x03, " + scaledReg
+		code = strings.ReplaceAll(code, lastInpIncr, lastInpIncr+"\n"+shiftCorrection)
+	} else {
+		fmt.Println(matches)
+		panic("Did not find expected number start offset corrections")
+	}
+
+	return strings.Split(code, "\n")
+}
+
 func fromAvx2ToSve() {
 	asmOut, goOut := &bytes.Buffer{}, &bytes.Buffer{}
 
@@ -147,6 +213,7 @@ func fromAvx2ToSve() {
 			if err != nil {
 				log.Fatal(err)
 			}
+			lines = patchScaledLoads(strings.Join(lines, "\n"), output, strings.HasSuffix(templName, "Xor"))
 			lines = expandHashDefines(lines)
 
 			convertRoutine(asmOut, lines)
@@ -170,6 +237,7 @@ func fromAvx2ToSve() {
 			if err != nil {
 				log.Fatal(err)
 			}
+			lines = patchScaledLoads(strings.Join(lines, "\n"), output, strings.HasSuffix(templName, "Xor"))
 			lines = expandHashDefines(lines)
 
 			// add additional initialization for SVE

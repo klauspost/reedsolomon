@@ -455,9 +455,6 @@ func genMulAvx2(name string, inputs int, outputs int, xor bool) {
 		ADDQ(offset, ptr)
 	}
 	// Offset no longer needed unless not regDst
-	if !regDst {
-		SHRQ(U8(3), offset) // divide by 8 since we'll be scaling it up when loading or storing
-	}
 
 	tmpMask := GP64()
 	MOVQ(U32(15), tmpMask)
@@ -486,9 +483,9 @@ func genMulAvx2(name string, inputs int, outputs int, xor bool) {
 			}
 			ptr := GP64()
 			MOVQ(Mem{Base: outSlicePtr, Disp: i * 24}, ptr)
-			VMOVDQU(Mem{Base: ptr, Index: offset, Scale: 8}, dst[i])
+			VMOVDQU(Mem{Base: ptr, Index: offset, Scale: 1}, dst[i])
 			if prefetchDst > 0 {
-				PREFETCHT0(Mem{Base: ptr, Disp: prefetchDst, Index: offset, Scale: 8})
+				PREFETCHT0(Mem{Base: ptr, Disp: prefetchDst, Index: offset, Scale: 1})
 			}
 		}
 	}
@@ -516,9 +513,9 @@ func genMulAvx2(name string, inputs int, outputs int, xor bool) {
 				} else {
 					ptr := GP64()
 					MOVQ(Mem{Base: outSlicePtr, Disp: j * 24}, ptr)
-					VMOVDQU(Mem{Base: ptr, Index: offset, Scale: 8}, dst[j])
+					VMOVDQU(Mem{Base: ptr, Index: offset, Scale: 1}, dst[j])
 					if prefetchDst > 0 {
-						PREFETCHT0(Mem{Base: ptr, Disp: prefetchDst, Index: offset, Scale: 8})
+						PREFETCHT0(Mem{Base: ptr, Disp: prefetchDst, Index: offset, Scale: 1})
 					}
 				}
 			}
@@ -551,14 +548,14 @@ func genMulAvx2(name string, inputs int, outputs int, xor bool) {
 		}
 		ptr := GP64()
 		MOVQ(Mem{Base: outSlicePtr, Disp: i * 24}, ptr)
-		VMOVDQU(dst[i], Mem{Base: ptr, Index: offset, Scale: 8})
+		VMOVDQU(dst[i], Mem{Base: ptr, Index: offset, Scale: 1})
 		if prefetchDst > 0 && !xor {
-			PREFETCHT0(Mem{Base: ptr, Disp: prefetchDst, Index: offset, Scale: 8})
+			PREFETCHT0(Mem{Base: ptr, Disp: prefetchDst, Index: offset, Scale: 1})
 		}
 	}
 	Comment("Prepare for next loop")
 	if !regDst {
-		ADDQ(U8(perLoop>>3), offset)
+		ADDQ(U8(perLoop), offset)
 	}
 	DECQ(length)
 	JNZ(LabelRef(name + "_loop"))
