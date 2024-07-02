@@ -877,8 +877,7 @@ func testReconstructData(t *testing.T, o ...Option) {
 	}
 
 	if shardsCopy[2] != nil || shardsCopy[5] != nil || shardsCopy[6] != nil {
-		// This is expected in some cases.
-		t.Log("ReconstructSome reconstructed extra shards")
+		t.Error("ReconstructSome reconstructed extra shards")
 	}
 
 	// Reconstruct with 10 shards present. Use pre-allocated memory for one of them.
@@ -959,6 +958,65 @@ func testReconstructData(t *testing.T, o ...Option) {
 	err = r.ReconstructData(make([][]byte, 13))
 	if err != ErrShardNoData {
 		t.Errorf("expected %v, got %v", ErrShardNoData, err)
+	}
+}
+
+func TestReconstructSome(t *testing.T) {
+	parallelIfNotShort(t)
+	testReconstructSome(t)
+	for i, o := range testOpts() {
+		t.Run(fmt.Sprintf("options %d", i), func(t *testing.T) {
+			testReconstructSome(t, o...)
+		})
+	}
+}
+
+func testReconstructSome(t *testing.T, o ...Option) {
+	const dataShards, parityShards = 8, 5
+
+	perShard := 100000
+	r, err := New(dataShards, parityShards, testOptions(o...)...)
+	if err != nil {
+		t.Fatal(err)
+	}
+	mul := r.(Extensions).ShardSizeMultiple()
+	perShard = ((perShard + mul - 1) / mul) * mul
+
+	shards := make([][]byte, dataShards+parityShards)
+	for s := range shards {
+		shards[s] = make([]byte, perShard)
+	}
+	for s := range shards[:dataShards] {
+		fillRandom(shards[s], int64(s))
+	}
+	if err := r.Encode(shards); err != nil {
+		t.Fatal(err)
+	}
+
+	rng := rand.New(rand.NewSource(42))
+	// For each permutation of intact shards, reconstruct a random
+	// set of the remaining shards.
+	for i := 0; i < 10; i++ {
+		perm := rng.Perm(dataShards + parityShards)
+		shardsCopy := make([][]byte, len(shards))
+		// Copy intact shards.
+		for _, idx := range perm[:dataShards] {
+			shardsCopy[idx] = shards[idx]
+		}
+		// Reconstruct a random number of remaining shards.
+		required := make([]bool, len(shards))
+		n := rng.Intn(parityShards)
+		for _, idx := range perm[dataShards : dataShards+n] {
+			required[idx] = true
+		}
+		if err := r.ReconstructSome(shardsCopy, required); err != nil {
+			t.Fatal(err)
+		}
+		for j, req := range required {
+			if req && !bytes.Equal(shards[j], shardsCopy[j]) {
+				t.Fatalf("did not ReconstructSome correctly")
+			}
+		}
 	}
 }
 
@@ -1490,12 +1548,12 @@ func BenchmarkReconstruct10x4x1M(b *testing.B) {
 	benchmarkReconstruct(b, 10, 4, 1024*1024)
 }
 
-// Benchmark 5 data slices with 2 parity slices holding 1MB bytes each
+// Benchmark 50 data slices with 20 parity slices holding 1MB bytes each
 func BenchmarkReconstruct50x20x1M(b *testing.B) {
 	benchmarkReconstruct(b, 50, 20, 1024*1024)
 }
 
-// Benchmark 5 data slices with 2 parity slices holding 1MB bytes each
+// Benchmark 50 data slices with 20 parity slices holding 1MB bytes each
 func BenchmarkReconstructLeopard50x20x1M(b *testing.B) {
 	benchmarkReconstruct(b, 50, 20, 1024*1024, WithLeopardGF(true), WithInversionCache(true))
 }
