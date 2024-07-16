@@ -13,7 +13,6 @@ func galMulNEON(low, high, in, out []byte)
 //go:noescape
 func galMulXorNEON(low, high, in, out []byte)
 
-//go:noescape
 func getVectorLength() (vl, pl uint64)
 
 func init() {
