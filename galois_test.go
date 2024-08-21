@@ -235,7 +235,7 @@ func TestSliceGalAdd(t *testing.T) {
 	}
 }
 
-func testGenGalois(t *testing.T, matrixRows [][]byte, size, start, stop int, f func(matrix []byte, in, out [][]byte, start, stop int) int) {
+func testGenGalois(t *testing.T, matrixRows [][]byte, size, start, stop int, f func(matrix []byte, in, out [][]byte, start, stop int) int, vectorLength int) {
 
 	// reference versions
 	galMulSliceRef := func(c byte, in, out []byte) {
@@ -270,7 +270,7 @@ func testGenGalois(t *testing.T, matrixRows [][]byte, size, start, stop int, f f
 		}
 	}
 
-	m := genCodeGenMatrix(matrixRows, len(inputs), 0, len(outputs), nil)
+	m := genCodeGenMatrix(matrixRows, len(inputs), 0, len(outputs), vectorLength, nil)
 
 	end := start + f(m, inputs, outputs, start, stop)
 	if end != stop {
@@ -297,7 +297,7 @@ func testGenGalois(t *testing.T, matrixRows [][]byte, size, start, stop int, f f
 	}
 }
 
-func testGenGaloisXor(t *testing.T, matrixRows [][]byte, size, start, stop int, f func(matrix []byte, in, out [][]byte, start, stop int) int) {
+func testGenGaloisXor(t *testing.T, matrixRows [][]byte, size, start, stop int, f func(matrix []byte, in, out [][]byte, start, stop int) int, vectorLength int) {
 
 	// reference version
 	galMulSliceXorRef := func(c byte, in, out []byte) {
@@ -327,7 +327,7 @@ func testGenGaloisXor(t *testing.T, matrixRows [][]byte, size, start, stop int, 
 		}
 	}
 
-	m := genCodeGenMatrix(matrixRows, len(inputs), 0, len(outputs), nil)
+	m := genCodeGenMatrix(matrixRows, len(inputs), 0, len(outputs), vectorLength, nil)
 
 	end := start + f(m, inputs, outputs, start, stop)
 	if end != stop {
@@ -363,7 +363,7 @@ func testGenGaloisEarlyAbort(t *testing.T, matrixRows [][]byte, size int, f func
 	}
 }
 
-func testGenGaloisUpto10x10(t *testing.T, f, fXor func(matrix []byte, in, out [][]byte, start, stop int) int) {
+func testGenGaloisUpto10x10(t *testing.T, f, fXor func(matrix []byte, in, out [][]byte, start, stop int) int, vectorLength int) {
 
 	for output := 1; output <= codeGenMaxOutputs; output++ {
 		for input := 1; input <= codeGenMaxInputs; input++ {
@@ -386,15 +386,15 @@ func testGenGaloisUpto10x10(t *testing.T, f, fXor func(matrix []byte, in, out []
 			const limit = 1024
 			for ; size < limit; size += stepsize {
 				// test full range
-				testGenGalois(t, matrixRows, size, 0, size, f)
-				testGenGaloisXor(t, matrixRows, size, 0, size, fXor)
+				testGenGalois(t, matrixRows, size, 0, size, f, vectorLength)
+				testGenGaloisXor(t, matrixRows, size, 0, size, fXor, vectorLength)
 
 				if size >= stepsize*2 && size < limit-stepsize*2 {
 					start := stepsize
 					stop := size - start
 					// test partial range
-					testGenGalois(t, matrixRows, size, start, stop, f)
-					testGenGaloisXor(t, matrixRows, size, start, stop, fXor)
+					testGenGalois(t, matrixRows, size, start, stop, f, vectorLength)
+					testGenGaloisXor(t, matrixRows, size, start, stop, fXor, vectorLength)
 				}
 			}
 		}
