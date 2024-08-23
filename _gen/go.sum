@@ -2,6 +2,8 @@ github.com/fwessels/avxTwo2sve v0.0.0-20240611172111-6b8528700471 h1:omdgAKxePZx
 github.com/fwessels/avxTwo2sve v0.0.0-20240611172111-6b8528700471/go.mod h1:9+ibRsEIs0vLXkalKCGEbZfVS4fafeIvMvM9GvIsdeQ=
 github.com/fwessels/sve-as v0.0.0-20240611015707-daffc010447f h1:HQud3yIU82LdkQzHEYiSJs73wCHjprIqeZE9JvSjKbQ=
 github.com/fwessels/sve-as v0.0.0-20240611015707-daffc010447f/go.mod h1:j3s7EY79XxNMyjx/54Vo6asZafWU4yijB+KIfj4hrh8=
+github.com/fwessels/sve-as v0.0.0-20240817192210-83d5dbff9505 h1:oKLoVXrXDsNNTdNLsSbEu18Vy0Z0b1yeanl5TG4qSyU=
+github.com/fwessels/sve-as v0.0.0-20240817192210-83d5dbff9505/go.mod h1:j3s7EY79XxNMyjx/54Vo6asZafWU4yijB+KIfj4hrh8=
 github.com/klauspost/asmfmt v1.3.1 h1:7xZi1N7s9gTLbqiM8KUv8TLyysavbTRGBT5/ly0bRtw=
 github.com/klauspost/asmfmt v1.3.1/go.mod h1:AG8TuvYojzulgDAMCnYn50l/5QV3Bs/tp6j0HLHbNSE=
 github.com/mmcloughlin/avo v0.5.1-0.20221128045730-bf1d05562091 h1:C2c8ttOBeyhs1SvyCXVPCFd0EqtPiTKGnMWQ+JkM0Lc=

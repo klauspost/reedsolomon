@@ -10,6 +10,6 @@ import (
 
 func TestGenGalois(t *testing.T) {
 	if defaultOptions.useAVX2 {
-		testGenGaloisUpto10x10(t, galMulSlicesAvx2, galMulSlicesAvx2Xor)
+		testGenGaloisUpto10x10(t, galMulSlicesAvx2, galMulSlicesAvx2Xor, 32)
 	}
 }

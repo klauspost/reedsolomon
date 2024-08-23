@@ -9,6 +9,7 @@ import (
 	"log"
 	"os"
 	"regexp"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -358,4 +359,144 @@ func addEarlyExit(arch string) {
 func genArmSve() {
 	fromAvx2ToSve()
 	addEarlyExit("Sve")
+}
+
+func assemble(sve string) string {
+	opcode, err := sve_as.Assemble(sve)
+	if err != nil {
+		return fmt.Sprintf("    WORD $0x00000000 // %s", sve)
+	} else {
+		return fmt.Sprintf("    WORD $0x%08x // %s", opcode, sve)
+	}
+}
+
+func addArmSveVectorLength() (addInits []string) {
+	const filename = "../galois_gen_arm64.s"
+	asmOut := &bytes.Buffer{}
+
+	file, err := os.Open(filename)
+	if err != nil {
+		return
+	}
+	defer file.Close()
+
+	// Create a scanner to read the file line by line
+	scanner := bufio.NewScanner(file)
+
+	routine := ""
+	addInits = make([]string, 0)
+
+	// Iterate over each line
+	for scanner.Scan() {
+		line := scanner.Text()
+
+		if strings.HasPrefix(line, "TEXT ·") {
+			routine = line
+		}
+
+		correctShift := func(shift, vl string) {
+			if strings.Contains(line, " // lsr ") && strings.HasSuffix(strings.TrimSpace(line), ", "+shift) {
+				instr := strings.Split(strings.TrimSpace(line), "// lsr ")[1]
+				args := strings.Split(instr, ", ")
+				if len(args) == 3 && args[0] == args[1] {
+					// keep the original right shift, but reverse the effect (so effectively
+					// clearing out the lower bits so we cannot do eg. "half loops" )
+					line += "\n"
+					line += assemble(fmt.Sprintf("lsl %s, %s, %s", args[0], args[1], shift)) + "\n"
+					line += assemble(fmt.Sprintf("rdvl x16, %s", vl)) + "\n"
+					line += assemble(fmt.Sprintf("udiv %s, %s, x16", args[0], args[1]))
+				}
+			}
+		}
+
+		correctShift("#6", "#2")
+		correctShift("#5", "#1")
+
+		if strings.Contains(line, " // add ") && strings.HasSuffix(strings.TrimSpace(line), "#64") {
+			instr := strings.Split(strings.TrimSpace(line), "// add ")[1]
+			args := strings.Split(instr, ", ")
+			if len(args) == 3 && args[0] == args[1] {
+				line = assemble(fmt.Sprintf("addvl %s, %s, #2", args[0], args[1]))
+			}
+		}
+
+		if strings.Contains(line, " // add ") && strings.HasSuffix(strings.TrimSpace(line), "#32") {
+			instr := strings.Split(strings.TrimSpace(line), "// add ")[1]
+			args := strings.Split(instr, ", ")
+			if len(args) == 3 && args[0] == args[1] {
+				line = assemble(fmt.Sprintf("addvl %s, %s, #1", args[0], args[1]))
+			}
+		}
+
+		if strings.Contains(line, " // add ") && strings.HasSuffix(strings.TrimSpace(line), "#4") {
+			// mark routine as needing initialization of register 17
+			addInits = append(addInits, routine)
+			line = assemble("add x15, x15, x17")
+		}
+
+		asmOut.WriteString(line + "\n")
+	}
+
+	// Check for any errors that occurred during scanning
+	if err = scanner.Err(); err != nil {
+		log.Fatal(err)
+	} else if err = os.WriteFile("../galois_gen_arm64.s", asmOut.Bytes(), 0644); err != nil {
+		log.Fatal(err)
+	}
+
+	return
+}
+
+func addArmSveInitializations(addInits []string) {
+
+	const filename = "../galois_gen_arm64.s"
+	asmOut := &bytes.Buffer{}
+
+	file, err := os.Open(filename)
+	if err != nil {
+		return
+	}
+	defer file.Close()
+
+	// Create a scanner to read the file line by line
+	scanner := bufio.NewScanner(file)
+	routine := ""
+	checkNextLine := false
+
+	// Iterate over each line
+	for scanner.Scan() {
+		line := scanner.Text()
+
+		if strings.HasPrefix(line, "TEXT ·") {
+			routine = line
+		}
+
+		if strings.Contains(line, "// Load number of input shards") {
+			checkNextLine = true
+		} else {
+			if checkNextLine {
+				idx := slices.IndexFunc(addInits, func(s string) bool { return s == routine })
+				if idx != -1 {
+					line += "\n"
+					line += assemble("rdvl x17, #1") + "\n"
+					line += assemble("lsr  x17, x17, #3")
+				}
+				checkNextLine = false
+			}
+		}
+
+		asmOut.WriteString(line + "\n")
+	}
+
+	// Check for any errors that occurred during scanning
+	if err = scanner.Err(); err != nil {
+		log.Fatal(err)
+	} else if err = os.WriteFile("../galois_gen_arm64.s", asmOut.Bytes(), 0644); err != nil {
+		log.Fatal(err)
+	}
+}
+
+func genArmSveAllVl() {
+	addInits := addArmSveVectorLength()
+	addArmSveInitializations(addInits)
 }

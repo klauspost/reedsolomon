@@ -11,9 +11,9 @@ import (
 
 func TestGenGalois(t *testing.T) {
 	if defaultOptions.useSVE {
-		testGenGaloisUpto10x10(t, galMulSlicesSve, galMulSlicesSveXor)
+		testGenGaloisUpto10x10(t, galMulSlicesSve, galMulSlicesSveXor, defaultOptions.vectorLength)
 	}
 	if defaultOptions.useNEON {
-		testGenGaloisUpto10x10(t, galMulSlicesNeon, galMulSlicesNeonXor)
+		testGenGaloisUpto10x10(t, galMulSlicesNeon, galMulSlicesNeonXor, 32)
 	}
 }

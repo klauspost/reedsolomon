@@ -93,6 +93,7 @@ func main() {
 	if pshufb {
 		genArmSve()
 		genArmNeon()
+		genArmSveAllVl()
 	}
 	Generate()
 }

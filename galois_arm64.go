@@ -17,8 +17,12 @@ func getVectorLength() (vl, pl uint64)
 
 func init() {
 	if defaultOptions.useSVE {
-		if vl, _ := getVectorLength(); vl != 256 {
-			defaultOptions.useSVE = false // Temp fix: disable SVE for non-256 vector widths (ie Graviton4)
+		if vl, _ := getVectorLength(); vl <= 256 {
+			// set vector length in bytes
+			defaultOptions.vectorLength = int(vl) >> 3
+		} else {
+			// disable SVE for hardware implementatons over 256 bits (only know to be Fujitsu A64FX atm)
+			defaultOptions.useSVE = false
 		}
 	}
 }
