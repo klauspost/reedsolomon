@@ -441,10 +441,7 @@ func testEncodingIdx(t *testing.T, o ...Option) {
 
 				t.Run(fmt.Sprint(perShard), func(t *testing.T) {
 
-					shards := make([][]byte, data+parity)
-					for s := range shards {
-						shards[s] = make([]byte, perShard)
-					}
+					shards := AllocAligned(data+parity, perShard)
 					shuffle := make([]int, data)
 					for i := range shuffle {
 						shuffle[i] = i
