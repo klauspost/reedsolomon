@@ -33,8 +33,12 @@ func galMulSlice(c byte, in, out []byte, o *options) {
 		return
 	}
 	var done int
-	galMulNEON(mulTableLow[c][:], mulTableHigh[c][:], in, out)
 	done = (len(in) >> 5) << 5
+	if raceEnabled {
+		raceReadSlice(in[:done])
+		raceWriteSlice(out[:done])
+	}
+	galMulNEON(mulTableLow[c][:], mulTableHigh[c][:], in, out)
 
 	remain := len(in) - done
 	if remain > 0 {
@@ -50,9 +54,12 @@ func galMulSliceXor(c byte, in, out []byte, o *options) {
 		sliceXor(in, out, o)
 		return
 	}
-	var done int
+	done := (len(in) >> 5) << 5
+	if raceEnabled {
+		raceReadSlice(in[:done])
+		raceWriteSlice(out[:done])
+	}
 	galMulXorNEON(mulTableLow[c][:], mulTableHigh[c][:], in, out)
-	done = (len(in) >> 5) << 5
 
 	remain := len(in) - done
 	if remain > 0 {
