@@ -9,7 +9,6 @@ package reedsolomon
 import (
 	"bytes"
 	"io"
-	"io/ioutil"
 	"math/rand"
 	"testing"
 )
@@ -504,7 +503,7 @@ func benchmarkStreamEncode(b *testing.B, dataShards, parityShards, shardSize int
 	b.ResetTimer()
 	out := make([]io.Writer, parityShards)
 	for i := range out {
-		out[i] = ioutil.Discard
+		out[i] = io.Discard
 	}
 	for i := 0; i < b.N; i++ {
 		err = r.Encode(toReaders(toBuffers(shards)), out)
