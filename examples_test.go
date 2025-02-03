@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"math/rand"
 
@@ -252,7 +251,7 @@ func ExampleStreamEncoder() {
 	// Create our output io.Writers
 	out := make([]io.Writer, parityShards)
 	for i := range out {
-		out[i] = ioutil.Discard
+		out[i] = io.Discard
 	}
 
 	// Encode from input to output.
