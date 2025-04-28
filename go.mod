@@ -1,10 +1,10 @@
 module github.com/klauspost/reedsolomon
 
-go 1.21
+go 1.22
 
-require github.com/klauspost/cpuid/v2 v2.2.8
+require github.com/klauspost/cpuid/v2 v2.2.10
 
-require golang.org/x/sys v0.24.0 // indirect
+require golang.org/x/sys v0.30.0 // indirect
 
 retract (
 	v1.12.2 // https://github.com/klauspost/reedsolomon/pull/283
