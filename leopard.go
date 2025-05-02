@@ -841,9 +841,10 @@ func mulLog(a, log_b ffe) ffe {
 // z = x + y (mod kModulus)
 func addMod(a, b ffe) ffe {
 	sum := uint(a) + uint(b)
-
-	// Partial reduction step, allowing for kModulus to be returned
-	return ffe(sum + sum>>bitwidth)
+	if sum >= uint(modulus) {
+		return ffe(sum - uint(modulus))
+	}
+	return ffe(sum)
 }
 
 // z = x - y (mod kModulus)

@@ -163,3 +163,23 @@ func TestSplitJoinLeo(t *testing.T) {
 		t.Errorf("expected %v, got %v", ErrReconstructRequired, err)
 	}
 }
+
+func TestAddMod(t *testing.T) {
+	type testCase struct {
+		x        ffe
+		y        ffe
+		expected ffe
+	}
+	testCases := []testCase{
+		{x: ffe(1), y: ffe(2), expected: ffe(3)},
+		{x: ffe(65533), y: ffe(1), expected: ffe(65534)},
+		{x: ffe(65534), y: ffe(1), expected: ffe(0)},
+		{x: ffe(65534), y: ffe(2), expected: ffe(1)},
+	}
+	for _, tc := range testCases {
+		got := addMod(tc.x, tc.y)
+		if tc.expected != got {
+			t.Errorf("expected %v, got %v", tc.expected, got)
+		}
+	}
+}
