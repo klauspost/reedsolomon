@@ -175,6 +175,9 @@ func TestAddMod(t *testing.T) {
 		{x: ffe(65533), y: ffe(1), expected: ffe(65534)},
 		{x: ffe(65534), y: ffe(1), expected: ffe(0)},
 		{x: ffe(65534), y: ffe(2), expected: ffe(1)},
+		{x: ffe(65535), y: ffe(0), expected: ffe(0)},
+		{x: ffe(65535), y: ffe(1), expected: ffe(1)},
+		// {x: ffe(65535), y: ffe(65535), expected: ffe(0)},
 	}
 	for _, tc := range testCases {
 		got := addMod(tc.x, tc.y)
