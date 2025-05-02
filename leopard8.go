@@ -927,10 +927,7 @@ func mulLog8(a, log_b ffe8) ffe8 {
 // z = x + y (mod kModulus)
 func addMod8(a, b ffe8) ffe8 {
 	sum := uint(a) + uint(b)
-	if sum >= uint(modulus8) {
-		return ffe8(sum - uint(modulus8))
-	}
-	return ffe8(sum)
+	return ffe8(sum % uint(modulus8))
 }
 
 // z = x - y (mod kModulus)
