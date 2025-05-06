@@ -927,7 +927,12 @@ func mulLog8(a, log_b ffe8) ffe8 {
 // z = x + y (mod kModulus)
 func addMod8(a, b ffe8) ffe8 {
 	sum := uint(a) + uint(b)
-	return ffe8(sum % uint(modulus8))
+	if sum == 255 || sum == 510 {
+		return 0
+	}
+
+	// Partial reduction step, allowing for kModulus to be returned
+	return ffe8(sum + sum>>bitwidth8)
 }
 
 // z = x - y (mod kModulus)
