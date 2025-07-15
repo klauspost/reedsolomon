@@ -2240,3 +2240,110 @@ func TestReentrant(t *testing.T) {
 		}
 	}
 }
+
+func TestRSReconstructSome(t *testing.T) {
+	const (
+		dataShards   = 3
+		parityShards = 2
+		sectorSize   = 1 << 20 // 1 MiB
+	)
+	stripedSplit := func(data []byte, dataShards [][]byte) {
+		const leafSize = 64
+		buf := bytes.NewBuffer(data)
+		for off := 0; buf.Len() > 0; off += leafSize {
+			for _, shard := range dataShards {
+				copy(shard[off:], buf.Next(leafSize))
+			}
+		}
+	}
+
+	// prepare random data
+	buf := make([]byte, sectorSize*dataShards)
+	rand.Read(buf)
+
+	// prepare shards
+	shards := make([][]byte, dataShards+parityShards)
+	for i := range shards {
+		shards[i] = make([]byte, sectorSize)
+	}
+
+	for i, o := range testOpts() {
+		toFill := []int{0, 1, 2, 3, 4}
+		t.Run(fmt.Sprintf("options %d", i), func(t *testing.T) {
+			// Shuffle the indices to fill
+			rand.Shuffle(len(toFill), func(i, j int) {
+				toFill[i], toFill[j] = toFill[j], toFill[i]
+			})
+			stripedSplit(buf, shards[:dataShards])
+			// encode shards
+			enc, err := New(dataShards, parityShards, o...)
+			if err != nil {
+				t.Fatal(err)
+			}
+			err = enc.Encode(shards)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			for _, required := range [][]bool{
+				{false, false, false, false, true},
+				{false, false, false, true, true},
+				{false, false, true, false, true},
+				{false, false, true, true, true},
+				{false, true, false, false, true},
+				{false, true, false, true, true},
+				{false, true, true, false, true},
+				{false, true, true, true, true},
+				{true, false, false, false, true},
+				{true, false, false, true, true},
+				{true, false, true, false, true},
+				{true, false, true, true, true},
+				{true, true, false, false, true},
+				{true, true, false, true, true},
+				{true, true, true, false, true},
+				{true, true, true, true, true},
+
+				{false, false, false, false, false},
+				{false, false, false, true, false},
+				{false, false, true, false, false},
+				{false, false, true, true, false},
+				{false, true, false, false, false},
+				{false, true, false, true, false},
+				{false, true, true, false, false},
+				{false, true, true, true, false},
+				{true, false, false, false, false},
+				{true, false, false, true, false},
+				{true, false, true, false, false},
+				{true, false, true, true, false},
+				{true, true, false, false, false},
+				{true, true, false, true, false},
+				{true, true, true, false, false},
+				{true, true, true, true, false},
+			} {
+				downloaded := make([][]byte, len(shards))
+				downloaded[toFill[0]] = append([]byte{}, shards[toFill[0]]...)
+				downloaded[toFill[1]] = append([]byte{}, shards[toFill[1]]...)
+				downloaded[toFill[2]] = append([]byte{}, shards[toFill[2]]...)
+				err = enc.ReconstructSome(downloaded, required)
+				if err != nil {
+					t.Fatal(err)
+				}
+				for i, shard := range downloaded {
+					if shard == nil && required[i] {
+						t.Errorf("shard idx %d should not be nil", i)
+					}
+					if !required[i] && shard == nil {
+						// Ignore, if it wasn't reconstructed
+						continue
+					}
+					if len(shard) != sectorSize {
+						t.Errorf("shard idx %d has wrong size: %d, want %d", i, len(shard), sectorSize)
+					}
+					if !bytes.Equal(shard, shards[i]) {
+						t.Errorf("shard idx %d does not match original", i)
+					}
+				}
+			}
+		})
+	}
+}
