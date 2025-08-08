@@ -31,7 +31,7 @@ var (
 	codec      = flag.String("codec", "vandermonde", "Encoder Algorithm")
 	codecs     = flag.Bool("codecs", false, "Display codecs and exit")
 	invCache   = flag.Bool("cache", true, "Enable inversion cache")
-	corrupt    = flag.Int("corrupt", 0, "Corrupt 1 to n shards. 0 means up to m shards.")
+	corrupt    = flag.Int("corrupt", 0, "Corrupt 1 to n shards. 0 means up to m shards. -1 means: verify, don't reconstruct")
 	duration   = flag.Int("duration", 10, "Minimum number of seconds to run.")
 	progress   = flag.Bool("progress", true, "Display progress while running")
 	concurrent = flag.Bool("concurrent", false, "Run blocks in parallel")
@@ -235,6 +235,12 @@ func benchmarkDecoding(enc reedsolomon.Encoder, data [][][]byte) {
 	lastUpdate := start
 	end := start.Add(time.Second * time.Duration(*duration))
 	spinIdx := 0
+
+	var mode = "Repaired"
+	if *corrupt == -1 {
+		mode = "Verified"
+	}
+
 	for time.Now().Before(end) {
 		for _, shards := range data {
 			// Corrupt random number of shards up to what we can allow
@@ -249,13 +255,18 @@ func benchmarkDecoding(enc reedsolomon.Encoder, data [][][]byte) {
 					cor--
 				}
 			}
-			err := enc.Reconstruct(shards)
+			var err = error(nil)
+			if cor == -1 {
+				_, err = enc.Verify(shards)
+			} else {
+				err = enc.Reconstruct(shards)
+			}
 			exitErr(err)
 			finished += int64(len(shards[0]) * len(shards))
 			if *progress && time.Since(lastUpdate) > updateFreq {
 				encGB := float64(finished) * (1 / speedDivisor)
 				speed := encGB / (float64(time.Since(start)) / float64(time.Second))
-				fmt.Printf("\r %s Repaired: %.02f %s @%.02f %s.", string(spin[spinIdx]), encGB, sizeUint, speed*speedBitMul, speedUnit)
+				fmt.Printf("\r %s %s: %.02f %s @%.02f %s.", string(spin[spinIdx]), mode, encGB, sizeUint, speed*speedBitMul, speedUnit)
 				spinIdx = (spinIdx + 1) % len(spin)
 				lastUpdate = time.Now()
 			}
@@ -266,7 +277,7 @@ func benchmarkDecoding(enc reedsolomon.Encoder, data [][][]byte) {
 	if *csv {
 		fmt.Printf("decode\t%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\n", *kShards, *mShards, *blockSize, *blocks, *cpu, *codec, finished, time.Since(start).Microseconds(), speed)
 	} else {
-		fmt.Printf("\r * Repaired %.00f %s in %v. Speed: %.02f %s (%d+%d:%d)\n", encGB, sizeUint, time.Since(start).Round(time.Millisecond), speedBitMul*speed, speedUnit, dataShards, parityShards, len(data[0][0]))
+		fmt.Printf("\r * %s %.00f %s in %v. Speed: %.02f %s (%d+%d:%d)\n", mode, encGB, sizeUint, time.Since(start).Round(time.Millisecond), speedBitMul*speed, speedUnit, dataShards, parityShards, len(data[0][0]))
 	}
 }
 
@@ -309,7 +320,12 @@ func benchmarkDecodingConcurrent(enc reedsolomon.Encoder, data [][][]byte) {
 						cor--
 					}
 				}
-				err := enc.Reconstruct(shards)
+				var err = error(nil)
+				if cor == -1 {
+					_, err = enc.Verify(shards)
+				} else {
+					err = enc.Reconstruct(shards)
+				}
 				exitErr(err)
 				atomic.AddInt64(&finished, int64(len(shards[0])*len(shards)))
 			}
