@@ -45,32 +45,33 @@ func AllocAligned(shards, each int) [][]byte {
 // load64 will load from b at index i.
 func load64[I indexer](b []byte, i I) uint64 {
 	//return binary.LittleEndian.Uint64(b[i:])
-	return *(*uint64)(unsafe.Add(unsafe.Pointer(unsafe.SliceData(b)), unsafe.IntegerType(i)))
+	//return *(*uint64)(unsafe.Pointer(&b[i]))
+	return *(*uint64)(unsafe.Add(unsafe.Pointer(unsafe.SliceData(b)), i))
 }
 
 // Store64 will store v at b.
 func store64[I indexer](b []byte, v uint64, i I) {
 	//binary.LittleEndian.PutUint64(b[i:], v)
-	*(*uint64)(unsafe.Add(unsafe.Pointer(unsafe.SliceData(b)), unsafe.IntegerType(i))) = v
+	*(*uint64)(unsafe.Add(unsafe.Pointer(unsafe.SliceData(b)), i)) = v
 }
 
 // load16 will load from b at index i.
 func load16[I indexer](b []byte, i I) uint16 {
 	//return binary.LittleEndian.Uint64(b[i:])
 	//return *(*uint64)(unsafe.Pointer(&b[i]))
-	return *(*uint16)(unsafe.Add(unsafe.Pointer(unsafe.SliceData(b)), unsafe.IntegerType(i)))
+	return *(*uint16)(unsafe.Add(unsafe.Pointer(unsafe.SliceData(b)), i))
 }
 
 // Store16 will store v at b.
 func store16[I indexer](b []byte, v uint16, i I) {
 	//binary.LittleEndian.PutUint64(b[i:], v)
-	*(*uint16)(unsafe.Add(unsafe.Pointer(unsafe.SliceData(b)), unsafe.IntegerType(i))) = v
+	*(*uint16)(unsafe.Add(unsafe.Pointer(unsafe.SliceData(b)), i)) = v
 }
 
 func load8[I indexer](b []byte, i I) uint8 {
-	return *(*uint8)(unsafe.Add(unsafe.Pointer(unsafe.SliceData(b)), unsafe.IntegerType(i)))
+	return *(*uint8)(unsafe.Add(unsafe.Pointer(unsafe.SliceData(b)), i))
 }
 
 func store8[I indexer](b []byte, v uint8, i I) {
-	*(*uint8)(unsafe.Add(unsafe.Pointer(unsafe.SliceData(b)), unsafe.IntegerType(i))) = v
+	*(*uint8)(unsafe.Add(unsafe.Pointer(unsafe.SliceData(b)), i)) = v
 }
