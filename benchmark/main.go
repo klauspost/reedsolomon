@@ -6,6 +6,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"io"
 	"log"
 	"math"
 	"math/rand"
@@ -143,8 +144,14 @@ func main() {
 
 	// Reduce GC overhead
 	debug.SetGCPercent(25)
+	rng := rand.New(rand.NewSource(0))
 	for i := range data {
 		data[i] = reedsolomon.AllocAligned(total, each)
+		for j := range data[i] {
+			// We fill with random data, otherwise lookups may not use the full tables
+			_, err := io.ReadFull(rng, data[i][j])
+			exitErr(err)
+		}
 	}
 	if *concurrent {
 		benchmarkEncodingConcurrent(enc, data)
