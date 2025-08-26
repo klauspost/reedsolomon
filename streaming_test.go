@@ -495,7 +495,7 @@ func benchmarkStreamEncode(b *testing.B, dataShards, parityShards, shardSize int
 	}
 
 	rand.Seed(0)
-	for s := 0; s < dataShards; s++ {
+	for s := range dataShards {
 		fillRandom(shards[s])
 	}
 
@@ -566,7 +566,7 @@ func benchmarkStreamVerify(b *testing.B, dataShards, parityShards, shardSize int
 	}
 
 	rand.Seed(0)
-	for s := 0; s < dataShards; s++ {
+	for s := range dataShards {
 		fillRandom(shards[s])
 	}
 	err = r.Encode(toReaders(toBuffers(shards[:dataShards])), toWriters(toBuffers(shards[dataShards:])))

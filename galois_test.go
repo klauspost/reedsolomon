@@ -17,11 +17,11 @@ import (
 )
 
 func TestAssociativity(t *testing.T) {
-	for i := 0; i < 256; i++ {
+	for i := range 256 {
 		a := byte(i)
-		for j := 0; j < 256; j++ {
+		for j := range 256 {
 			b := byte(j)
-			for k := 0; k < 256; k++ {
+			for k := range 256 {
 				c := byte(k)
 				x := galAdd(a, galAdd(b, c))
 				y := galAdd(galAdd(a, b), c)
@@ -39,7 +39,7 @@ func TestAssociativity(t *testing.T) {
 }
 
 func TestIdentity(t *testing.T) {
-	for i := 0; i < 256; i++ {
+	for i := range 256 {
 		a := byte(i)
 		b := galAdd(a, 0)
 		if a != b {
@@ -53,7 +53,7 @@ func TestIdentity(t *testing.T) {
 }
 
 func TestInverse(t *testing.T) {
-	for i := 0; i < 256; i++ {
+	for i := range 256 {
 		a := byte(i)
 		b := galAdd(0, a)
 		c := galAdd(a, b)
@@ -75,9 +75,9 @@ func TestInverse(t *testing.T) {
 }
 
 func TestCommutativity(t *testing.T) {
-	for i := 0; i < 256; i++ {
+	for i := range 256 {
 		a := byte(i)
-		for j := 0; j < 256; j++ {
+		for j := range 256 {
 			b := byte(j)
 			x := galAdd(a, b)
 			y := galAdd(b, a)
@@ -94,11 +94,11 @@ func TestCommutativity(t *testing.T) {
 }
 
 func TestDistributivity(t *testing.T) {
-	for i := 0; i < 256; i++ {
+	for i := range 256 {
 		a := byte(i)
-		for j := 0; j < 256; j++ {
+		for j := range 256 {
 			b := byte(j)
-			for k := 0; k < 256; k++ {
+			for k := range 256 {
 				c := byte(k)
 				x := galMultiply(a, galAdd(b, c))
 				y := galAdd(galMultiply(a, b), galMultiply(a, c))
@@ -111,10 +111,10 @@ func TestDistributivity(t *testing.T) {
 }
 
 func TestExp(t *testing.T) {
-	for i := 0; i < 256; i++ {
+	for i := range 256 {
 		a := byte(i)
 		power := byte(1)
-		for j := 0; j < 256; j++ {
+		for j := range 256 {
 			x := galExp(a, j)
 			if x != power {
 				t.Fatal(x, "!=", power)
@@ -214,11 +214,11 @@ func TestSliceGalAdd(t *testing.T) {
 		}
 	}
 
-	for i := 0; i < 256; i++ {
+	for i := range 256 {
 		a := byte(i)
-		for j := 0; j < 256; j++ {
+		for j := range 256 {
 			b := byte(j)
-			for k := 0; k < 256; k++ {
+			for k := range 256 {
 				c := byte(k)
 				x := galAdd(a, galAdd(b, c))
 				y := galAdd(galAdd(a, b), c)

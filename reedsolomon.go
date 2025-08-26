@@ -269,7 +269,7 @@ func buildMatrixJerasure(dataShards, totalShards int) (matrix, error) {
 	}
 	vm[totalShards-1][dataShards-1] = 1
 
-	for i := 0; i < dataShards; i++ {
+	for i := range dataShards {
 		// Find the row where i'th col is not 0
 		r := i
 		for ; r < totalShards && vm[r][i] == 0; r++ {
@@ -284,15 +284,15 @@ func buildMatrixJerasure(dataShards, totalShards int) (matrix, error) {
 		if vm[i][i] != 1 {
 			// Make vm[i][i] = 1 by dividing the column by vm[i][i]
 			tmp := galOneOver(vm[i][i])
-			for j := 0; j < totalShards; j++ {
+			for j := range totalShards {
 				vm[j][i] = galMultiply(vm[j][i], tmp)
 			}
 		}
-		for j := 0; j < dataShards; j++ {
+		for j := range dataShards {
 			// Make vm[i][j] = 0 where j != i by adding vm[i][j]*vm[.][i] to each column
 			tmp := vm[i][j]
 			if j != i && tmp != 0 {
-				for r := 0; r < totalShards; r++ {
+				for r := range totalShards {
 					vm[r][j] = galAdd(vm[r][j], galMultiply(tmp, vm[r][i]))
 				}
 			}
@@ -300,7 +300,7 @@ func buildMatrixJerasure(dataShards, totalShards int) (matrix, error) {
 	}
 
 	// Make vm[dataShards] row all ones - divide each column j by vm[dataShards][j]
-	for j := 0; j < dataShards; j++ {
+	for j := range dataShards {
 		tmp := vm[dataShards][j]
 		if tmp != 1 {
 			tmp = galOneOver(tmp)
@@ -315,7 +315,7 @@ func buildMatrixJerasure(dataShards, totalShards int) (matrix, error) {
 		tmp := vm[i][0]
 		if tmp != 1 {
 			tmp = galOneOver(tmp)
-			for j := 0; j < dataShards; j++ {
+			for j := range dataShards {
 				vm[i][j] = galMultiply(vm[i][j], tmp)
 			}
 		}
@@ -449,7 +449,7 @@ func New(dataShards, parityShards int, opts ...Option) (Encoder, error) {
 			return nil, errors.New("coding matrix must contain at least parityShards rows")
 		}
 		r.m = make([][]byte, r.totalShards)
-		for i := 0; i < dataShards; i++ {
+		for i := range dataShards {
 			r.m[i] = make([]byte, dataShards)
 			r.m[i][i] = 1
 		}
@@ -476,20 +476,14 @@ func New(dataShards, parityShards int, opts ...Option) (Encoder, error) {
 	}
 
 	// Calculate what we want per round
-	r.o.perRound = cpuid.CPU.Cache.L2
-	if r.o.perRound < 128<<10 {
-		r.o.perRound = 128 << 10
-	}
+	r.o.perRound = max(cpuid.CPU.Cache.L2, 128<<10)
 
 	_, _, useCodeGen := r.hasCodeGen(codeGenMinSize, codeGenMaxInputs, codeGenMaxOutputs)
 
 	divide := parityShards + 1
 	if codeGen && useCodeGen && (dataShards > codeGenMaxInputs || parityShards > codeGenMaxOutputs) {
 		// Base on L1 cache if we have many inputs.
-		r.o.perRound = cpuid.CPU.Cache.L1D
-		if r.o.perRound < 32<<10 {
-			r.o.perRound = 32 << 10
-		}
+		r.o.perRound = max(cpuid.CPU.Cache.L1D, 32<<10)
 		divide = 0
 		if dataShards > codeGenMaxInputs {
 			divide += codeGenMaxInputs
@@ -511,12 +505,9 @@ func New(dataShards, parityShards int, opts ...Option) (Encoder, error) {
 	// 1 input + parity must fit in cache, and we add one more to be safer.
 	r.o.perRound = r.o.perRound / divide
 	// Align to 64 bytes.
-	r.o.perRound = ((r.o.perRound + 63) / 64) * 64
-
-	// Final sanity check...
-	if r.o.perRound < 1<<10 {
-		r.o.perRound = 1 << 10
-	}
+	r.o.perRound = max(
+		// Final sanity check...
+		((r.o.perRound+63)/64)*64, 1<<10)
 
 	if r.o.minSplitSize <= 0 {
 		// Set minsplit as high as we can, but still have parity in L1.
@@ -525,11 +516,9 @@ func New(dataShards, parityShards int, opts ...Option) (Encoder, error) {
 			cacheSize = 32 << 10
 		}
 
-		r.o.minSplitSize = cacheSize / (parityShards + 1)
-		// Min 1K
-		if r.o.minSplitSize < 1024 {
-			r.o.minSplitSize = 1024
-		}
+		r.o.minSplitSize = max(
+			// Min 1K
+			cacheSize/(parityShards+1), 1024)
 	}
 
 	if r.o.shardSize > 0 {
@@ -580,7 +569,7 @@ func New(dataShards, parityShards int, opts ...Option) (Encoder, error) {
 
 	if codeGen /* && r.o.useAVX2 */ {
 		sz := r.dataShards * r.parityShards * 2 * 32
-		r.mPool.New = func() interface{} {
+		r.mPool.New = func() any {
 			return AllocAligned(1, sz)[0]
 		}
 		r.mPoolSz = sz
@@ -748,7 +737,7 @@ func (r *reedSolomon) updateParityShards(matrixRows, oldinputs, newinputs, outpu
 		oldin := oldinputs[c]
 		// oldinputs data will be changed
 		sliceXor(in, oldin, &r.o)
-		for iRow := 0; iRow < outputCount; iRow++ {
+		for iRow := range outputCount {
 			galMulSliceXor(matrixRows[iRow][c], oldin, outputs[iRow], &r.o)
 		}
 	}
@@ -756,10 +745,7 @@ func (r *reedSolomon) updateParityShards(matrixRows, oldinputs, newinputs, outpu
 
 func (r *reedSolomon) updateParityShardsP(matrixRows, oldinputs, newinputs, outputs [][]byte, outputCount, byteCount int) {
 	var wg sync.WaitGroup
-	do := byteCount / r.o.maxGoroutines
-	if do < r.o.minSplitSize {
-		do = r.o.minSplitSize
-	}
+	do := max(byteCount/r.o.maxGoroutines, r.o.minSplitSize)
 	start := 0
 	for start < byteCount {
 		if start+do > byteCount {
@@ -775,7 +761,7 @@ func (r *reedSolomon) updateParityShardsP(matrixRows, oldinputs, newinputs, outp
 				oldin := oldinputs[c]
 				// oldinputs data will be change
 				sliceXor(in[start:stop], oldin[start:stop], &r.o)
-				for iRow := 0; iRow < outputCount; iRow++ {
+				for iRow := range outputCount {
 					galMulSliceXor(matrixRows[iRow][c], oldin[start:stop], outputs[iRow][start:stop], &r.o)
 				}
 			}
@@ -882,9 +868,9 @@ func (r *reedSolomon) codeSomeShards(matrixRows, inputs, outputs [][]byte, byteC
 		}
 	}
 	for start < len(inputs[0]) {
-		for c := 0; c < len(inputs); c++ {
+		for c := range inputs {
 			in := inputs[c][start:end]
-			for iRow := 0; iRow < len(outputs); iRow++ {
+			for iRow := range outputs {
 				if c == 0 {
 					galMulSlice(matrixRows[iRow][c], in, outputs[iRow][start:end], &r.o)
 				} else {
@@ -930,10 +916,7 @@ func (r *reedSolomon) codeSomeShardsP(matrixRows, inputs, outputs [][]byte, byte
 		return
 	}
 
-	do := byteCount / gor
-	if do < r.o.minSplitSize {
-		do = r.o.minSplitSize
-	}
+	do := max(byteCount/gor, r.o.minSplitSize)
 
 	exec := func(start, stop int) {
 		if stop-start >= 64 {
@@ -949,9 +932,9 @@ func (r *reedSolomon) codeSomeShardsP(matrixRows, inputs, outputs [][]byte, byte
 			lstop = stop
 		}
 		for lstart < stop {
-			for c := 0; c < len(inputs); c++ {
+			for c := range inputs {
 				in := inputs[c][lstart:lstop]
-				for iRow := 0; iRow < len(outputs); iRow++ {
+				for iRow := range outputs {
 					if c == 0 {
 						galMulSlice(matrixRows[iRow][c], in, outputs[iRow][lstart:lstop], &r.o)
 					} else {
@@ -1073,10 +1056,7 @@ func (r *reedSolomon) codeSomeShardsAVXP(matrixRows, inputs, outputs [][]byte, b
 		}
 	}
 
-	do := byteCount / gor
-	if do < r.o.minSplitSize {
-		do = r.o.minSplitSize
-	}
+	do := max(byteCount/gor, r.o.minSplitSize)
 
 	exec := func(start, stop int) {
 		defer wg.Done()
@@ -1107,7 +1087,7 @@ func (r *reedSolomon) codeSomeShardsAVXP(matrixRows, inputs, outputs [][]byte, b
 
 			for c := range inputs {
 				in := inputs[c][lstart:lstop]
-				for iRow := 0; iRow < len(outputs); iRow++ {
+				for iRow := range outputs {
 					if c == 0 && clear {
 						galMulSlice(matrixRows[iRow][c], in, outputs[iRow][lstart:lstop], &r.o)
 					} else {
@@ -1223,10 +1203,7 @@ func (r *reedSolomon) codeSomeShardsGFNI(matrixRows, inputs, outputs [][]byte, b
 		}
 	}
 
-	do := byteCount / gor
-	if do < r.o.minSplitSize {
-		do = r.o.minSplitSize
-	}
+	do := max(byteCount/gor, r.o.minSplitSize)
 
 	exec := func(start, stop int) {
 		defer wg.Done()
@@ -1257,7 +1234,7 @@ func (r *reedSolomon) codeSomeShardsGFNI(matrixRows, inputs, outputs [][]byte, b
 
 			for c := range inputs {
 				in := inputs[c][lstart:lstop]
-				for iRow := 0; iRow < len(outputs); iRow++ {
+				for iRow := range outputs {
 					if c == 0 && clear {
 						galMulSlice(matrixRows[iRow][c], in, outputs[iRow][lstart:lstop], &r.o)
 					} else {

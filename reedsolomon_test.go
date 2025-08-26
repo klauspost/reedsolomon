@@ -110,7 +110,7 @@ func findSingularSubMatrix(m matrix) (matrix, error) {
 	for incrementIndicesUntilIncreasingAndContainsDataRow(rowIndices, rows) {
 		subMatrix, _ := newMatrix(cols, cols)
 		for i, r := range rowIndices {
-			for c := 0; c < cols; c++ {
+			for c := range cols {
 				subMatrix[i][c] = m[r][c]
 			}
 		}
@@ -139,15 +139,15 @@ func TestBuildMatrixJerasure(t *testing.T) {
 		{1, 39, 217, 161, 92, 60, 172, 90},
 		{1, 172, 70, 235, 143, 34, 200, 101},
 	}
-	for i := 0; i < 8; i++ {
-		for j := 0; j < 8; j++ {
+	for i := range 8 {
+		for j := range 8 {
 			if i != j && m[i][j] != 0 || i == j && m[i][j] != 1 {
 				t.Fatal("Top part of the matrix is not identity")
 			}
 		}
 	}
-	for i := 0; i < 4; i++ {
-		for j := 0; j < 8; j++ {
+	for i := range 4 {
+		for j := range 8 {
 			if m[8+i][j] != refMatrix[i][j] {
 				t.Fatal("Coding matrix for EC 8+4 differs from Jerasure")
 			}
@@ -343,7 +343,7 @@ func testEncoding(t *testing.T, o ...Option) {
 						shards[s] = make([]byte, perShard)
 					}
 
-					for s := 0; s < len(shards); s++ {
+					for s := range shards {
 						rng.Read(shards[s])
 					}
 
@@ -449,7 +449,7 @@ func testEncodingIdx(t *testing.T, o ...Option) {
 					rng.Shuffle(len(shuffle), func(i, j int) { shuffle[i], shuffle[j] = shuffle[j], shuffle[i] })
 
 					// Send shards in random order.
-					for s := 0; s < data; s++ {
+					for s := range data {
 						s := shuffle[s]
 						rng.Read(shards[s])
 						err = r.EncodeIdx(shards[s], s, shards[data:])
@@ -672,7 +672,7 @@ func testReconstruct(t *testing.T, o ...Option) {
 		shards[s] = make([]byte, perShard)
 	}
 
-	for s := 0; s < 13; s++ {
+	for s := range 13 {
 		fillRandom(shards[s])
 	}
 
@@ -747,7 +747,7 @@ func TestReconstructCustom(t *testing.T) {
 		shards[s] = make([]byte, perShard)
 	}
 
-	for s := 0; s < len(shards); s++ {
+	for s := range shards {
 		fillRandom(shards[s])
 	}
 
@@ -818,7 +818,7 @@ func testReconstructData(t *testing.T, o ...Option) {
 		shards[s] = make([]byte, perShard)
 	}
 
-	for s := 0; s < 13; s++ {
+	for s := range 13 {
 		fillRandom(shards[s], int64(s))
 	}
 
@@ -835,7 +835,7 @@ func testReconstructData(t *testing.T, o ...Option) {
 
 	// Reconstruct parity shards from data
 	shardsCopy := make([][]byte, 13)
-	for i := 0; i < 8; i++ {
+	for i := range 8 {
 		shardsCopy[i] = shards[i]
 	}
 
@@ -971,7 +971,7 @@ func TestReconstructPAR1Singular(t *testing.T) {
 		shards[s] = make([]byte, perShard)
 	}
 
-	for s := 0; s < 8; s++ {
+	for s := range 8 {
 		fillRandom(shards[s])
 	}
 
@@ -1020,7 +1020,7 @@ func testVerify(t *testing.T, o ...Option) {
 		shards[s] = make([]byte, perShard)
 	}
 
-	for s := 0; s < 10; s++ {
+	for s := range 10 {
 		fillRandom(shards[s], 0)
 	}
 
@@ -1147,7 +1147,7 @@ func benchmarkEncode(b *testing.B, dataShards, parityShards, shardSize int, opts
 	}
 
 	shards := r.(Extensions).AllocAligned(shardSize)
-	for s := 0; s < dataShards; s++ {
+	for s := range dataShards {
 		fillRandom(shards[s])
 	}
 	// Warm up so initialization is eliminated.
@@ -1175,7 +1175,7 @@ func benchmarkDecode(b *testing.B, dataShards, parityShards, shardSize, deleteSh
 	}
 
 	shards := r.(Extensions).AllocAligned(shardSize)
-	for s := 0; s < dataShards; s++ {
+	for s := range dataShards {
 		fillRandom(shards[s])
 	}
 	if err := r.Encode(shards); err != nil {
@@ -1187,7 +1187,7 @@ func benchmarkDecode(b *testing.B, dataShards, parityShards, shardSize, deleteSh
 	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
 		// Clear maximum number of data shards.
-		for s := 0; s < deleteShards; s++ {
+		for s := range deleteShards {
 			shards[s] = nil
 		}
 
@@ -1352,7 +1352,7 @@ func benchmarkVerify(b *testing.B, dataShards, parityShards, shardSize int) {
 	}
 	shards := r.(Extensions).AllocAligned(shardSize)
 
-	for s := 0; s < dataShards; s++ {
+	for s := range dataShards {
 		fillRandom(shards[s])
 	}
 	err = r.Encode(shards)
@@ -1417,7 +1417,7 @@ func BenchmarkVerify10x4x16M(b *testing.B) {
 
 func corruptRandom(shards [][]byte, dataShards, parityShards int) {
 	shardsToCorrupt := rand.Intn(parityShards) + 1
-	for i := 0; i < shardsToCorrupt; i++ {
+	for range shardsToCorrupt {
 		n := rand.Intn(dataShards + parityShards)
 		shards[n] = shards[n][:0]
 	}
@@ -1432,7 +1432,7 @@ func benchmarkReconstruct(b *testing.B, dataShards, parityShards, shardSize int,
 	}
 	shards := r.(Extensions).AllocAligned(shardSize)
 
-	for s := 0; s < dataShards; s++ {
+	for s := range dataShards {
 		fillRandom(shards[s])
 	}
 	err = r.Encode(shards)
@@ -1517,7 +1517,7 @@ func benchmarkReconstructData(b *testing.B, dataShards, parityShards, shardSize 
 	}
 	shards := r.(Extensions).AllocAligned(shardSize)
 
-	for s := 0; s < dataShards; s++ {
+	for s := range dataShards {
 		fillRandom(shards[s])
 	}
 	err = r.Encode(shards)
@@ -1595,7 +1595,7 @@ func benchmarkReconstructP(b *testing.B, dataShards, parityShards, shardSize int
 	b.RunParallel(func(pb *testing.PB) {
 		shards := r.(Extensions).AllocAligned(shardSize)
 
-		for s := 0; s < dataShards; s++ {
+		for s := range dataShards {
 			fillRandom(shards[s])
 		}
 		err = r.Encode(shards)
@@ -2099,10 +2099,10 @@ func benchmarkParallel(b *testing.B, dataShards, parityShards, shardSize int) {
 	}
 	// Create independent shards
 	shardsCh := make(chan [][]byte, c)
-	for i := 0; i < c; i++ {
+	for range c {
 		shards := r.(Extensions).AllocAligned(shardSize)
 
-		for s := 0; s < dataShards; s++ {
+		for s := range dataShards {
 			fillRandom(shards[s])
 		}
 		shardsCh <- shards
