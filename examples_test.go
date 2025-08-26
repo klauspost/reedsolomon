@@ -74,14 +74,14 @@ func ExampleEncoder_EncodeIdx() {
 	shards, _ := enc.Split(data)
 
 	// Zero erasure shards.
-	for i := 0; i < erasureShards; i++ {
+	for i := range erasureShards {
 		clear := shards[dataShards+i]
 		for j := range clear {
 			clear[j] = 0
 		}
 	}
 
-	for i := 0; i < dataShards; i++ {
+	for i := range dataShards {
 		// Encode one shard at the time.
 		// Note how this gives linear access.
 		// There is however no requirement on shards being delivered in order.

@@ -112,7 +112,7 @@ func TestEncoderReconstructFailLeo(t *testing.T) {
 	}
 
 	// Delete more than parity shards
-	for i := 0; i < 301; i++ {
+	for i := range 301 {
 		shards[i] = nil
 	}
 
