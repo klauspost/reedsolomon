@@ -6,11 +6,15 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"io"
+	"log"
 	"math"
 	"math/rand"
 	"os"
 	"runtime"
 	"runtime/debug"
+	"runtime/pprof"
+	"runtime/trace"
 	"sort"
 	"strconv"
 	"strings"
@@ -37,6 +41,7 @@ var (
 	concurrent = flag.Bool("concurrent", false, "Run blocks in parallel")
 	cpu        = flag.Int("cpu", 16, "Set maximum number of cores to use")
 	csv        = flag.Bool("csv", false, "Output as CSV")
+	fast1      = flag.Bool("fast1", false, "Use fast 1 parity encoder (if available)")
 
 	sSE2     = flag.Bool("sse2", cpuid.CPU.Has(cpuid.SSE2), "Use SSE2")
 	sSSE3    = flag.Bool("ssse3", cpuid.CPU.Has(cpuid.SSSE3), "Use SSSE3")
@@ -44,6 +49,8 @@ var (
 	aVX512   = flag.Bool("avx512", cpuid.CPU.Supports(cpuid.AVX512F, cpuid.AVX512BW, cpuid.AVX512VL), "Use AVX512")
 	gNFI     = flag.Bool("gfni", cpuid.CPU.Supports(cpuid.AVX512F, cpuid.GFNI, cpuid.AVX512DQ), "Use AVX512+GFNI")
 	avx2GNFI = flag.Bool("avx-gfni", cpuid.CPU.Supports(cpuid.AVX2, cpuid.GFNI), "Use AVX+GFNI")
+
+	cpuprofile, memprofile, traceprofile string
 )
 
 var codecDefinitions = map[string]struct {
@@ -63,6 +70,9 @@ var codecDefinitions = map[string]struct {
 }
 
 func main() {
+	flag.StringVar(&cpuprofile, "cpu.profile", "", "write cpu profile to file")
+	flag.StringVar(&memprofile, "mem.profile", "", "write mem profile to file")
+	flag.StringVar(&traceprofile, "trace.profile", "", "write trace profile to file")
 	flag.Parse()
 	if *codecs {
 		printCodecs(0)
@@ -103,10 +113,45 @@ func main() {
 		fmt.Printf("Benchmarking %d block(s) of %d data (K) and %d parity shards (M), each %d bytes using %d threads. Total %d bytes.\n\n", *blocks, *kShards, *mShards, each, *cpu, *blocks*each*total)
 	}
 
+	if cpuprofile != "" {
+		f, err := os.Create(cpuprofile)
+		if err != nil {
+			log.Fatal(err)
+		}
+		pprof.StartCPUProfile(f)
+		defer pprof.StopCPUProfile()
+	}
+	if memprofile != "" {
+		f, err := os.Create(memprofile)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer f.Close()
+		defer pprof.WriteHeapProfile(f)
+	}
+	if traceprofile != "" {
+		f, err := os.Create(traceprofile)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer f.Close()
+		err = trace.Start(f)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer trace.Stop()
+	}
+
 	// Reduce GC overhead
 	debug.SetGCPercent(25)
+	rng := rand.New(rand.NewSource(0))
 	for i := range data {
 		data[i] = reedsolomon.AllocAligned(total, each)
+		for j := range data[i] {
+			// We fill with random data, otherwise lookups may not use the full tables
+			_, err := io.ReadFull(rng, data[i][j])
+			exitErr(err)
+		}
 	}
 	if *concurrent {
 		benchmarkEncodingConcurrent(enc, data)
@@ -415,6 +460,9 @@ func getOptions(shardSize int) []reedsolomon.Option {
 	}
 	if !*invCache {
 		o = append(o, reedsolomon.WithInversionCache(false))
+	}
+	if *fast1 {
+		o = append(o, reedsolomon.WithFastOneParityMatrix())
 	}
 	o = append(o, reedsolomon.WithAutoGoroutines(shardSize))
 	return o

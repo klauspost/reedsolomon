@@ -553,6 +553,10 @@ func New(dataShards, parityShards int, opts ...Option) (Encoder, error) {
 		r.o.maxGoroutines = gfniCodeGenMaxGoroutines
 	}
 
+	// Skip 2 byte table method if we have many shards.
+	// This is the approximate switchover for Zen5.
+	r.o.skip2B = dataShards+parityShards >= 20
+
 	// Inverted matrices are cached in a tree keyed by the indices
 	// of the invalid rows of the data to reconstruct.
 	// The inversion root node will have the identity matrix as
@@ -1688,4 +1692,8 @@ func (r *reedSolomon) Join(dst io.Writer, shards [][]byte, outSize int) error {
 		write -= n
 	}
 	return nil
+}
+
+type indexer interface {
+	int | int8 | int16 | int32 | int64 | uint | uint8 | uint16 | uint32 | uint64
 }
