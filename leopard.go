@@ -12,6 +12,7 @@ package reedsolomon
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 	"math/bits"
 	"sync"
@@ -321,6 +322,9 @@ func (r *leopardFF16) Split(data []byte) ([][]byte, error) {
 		data = data[perShard:]
 	}
 
+	if len(padding) < len(dst)-i {
+		return nil, fmt.Errorf("insufficient padding: need %d shards, have %d", len(dst)-i, len(padding))
+	}
 	for j := 0; i+j < len(dst); j++ {
 		dst[i+j] = padding[0]
 		padding = padding[1:]
