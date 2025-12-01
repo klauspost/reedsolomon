@@ -21,6 +21,12 @@ func avx2XorSlice_64(in []byte, out []byte)
 //go:noescape
 func mulGFNI_1x1_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
+// mulGFNI_1x1_64NT takes 1 inputs and produces 1 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_1x1_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxGFNI_1x1 takes 1 inputs and produces 1 outputs.
 // The output is initialized to 0.
 //
@@ -42,6 +48,12 @@ func mulAvxGFNI_1x1Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n 
 //
 //go:noescape
 func mulGFNI_1x2_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
+// mulGFNI_1x2_64NT takes 1 inputs and produces 2 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_1x2_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxGFNI_1x2 takes 1 inputs and produces 2 outputs.
 // The output is initialized to 0.
@@ -65,6 +77,12 @@ func mulAvxGFNI_1x2Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n 
 //go:noescape
 func mulGFNI_1x3_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
+// mulGFNI_1x3_64NT takes 1 inputs and produces 3 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_1x3_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxGFNI_1x3 takes 1 inputs and produces 3 outputs.
 // The output is initialized to 0.
 //
@@ -86,6 +104,12 @@ func mulAvxGFNI_1x3Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n 
 //
 //go:noescape
 func mulGFNI_1x4_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
+// mulGFNI_1x4_64NT takes 1 inputs and produces 4 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_1x4_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxGFNI_1x4 takes 1 inputs and produces 4 outputs.
 // The output is initialized to 0.
@@ -109,6 +133,12 @@ func mulAvxGFNI_1x4Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n 
 //go:noescape
 func mulGFNI_1x5_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
+// mulGFNI_1x5_64NT takes 1 inputs and produces 5 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_1x5_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxGFNI_1x5 takes 1 inputs and produces 5 outputs.
 // The output is initialized to 0.
 //
@@ -130,6 +160,12 @@ func mulAvxGFNI_1x5Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n 
 //
 //go:noescape
 func mulGFNI_1x6_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
+// mulGFNI_1x6_64NT takes 1 inputs and produces 6 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_1x6_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxGFNI_1x6 takes 1 inputs and produces 6 outputs.
 // The output is initialized to 0.
@@ -153,6 +189,12 @@ func mulAvxGFNI_1x6Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n 
 //go:noescape
 func mulGFNI_1x7_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
+// mulGFNI_1x7_64NT takes 1 inputs and produces 7 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_1x7_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxGFNI_1x7 takes 1 inputs and produces 7 outputs.
 // The output is initialized to 0.
 //
@@ -174,6 +216,12 @@ func mulAvxGFNI_1x7Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n 
 //
 //go:noescape
 func mulGFNI_1x8_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
+// mulGFNI_1x8_64NT takes 1 inputs and produces 8 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_1x8_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxGFNI_1x8 takes 1 inputs and produces 8 outputs.
 // The output is initialized to 0.
@@ -197,6 +245,12 @@ func mulAvxGFNI_1x8Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n 
 //go:noescape
 func mulGFNI_1x9_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
+// mulGFNI_1x9_64NT takes 1 inputs and produces 9 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_1x9_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxGFNI_1x9 takes 1 inputs and produces 9 outputs.
 // The output is initialized to 0.
 //
@@ -218,6 +272,12 @@ func mulAvxGFNI_1x9Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n 
 //
 //go:noescape
 func mulGFNI_1x10_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
+// mulGFNI_1x10_64NT takes 1 inputs and produces 10 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_1x10_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxGFNI_1x10 takes 1 inputs and produces 10 outputs.
 // The output is initialized to 0.
@@ -241,6 +301,12 @@ func mulAvxGFNI_1x10Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n
 //go:noescape
 func mulGFNI_2x1_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
+// mulGFNI_2x1_64NT takes 2 inputs and produces 1 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_2x1_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxGFNI_2x1 takes 2 inputs and produces 1 outputs.
 // The output is initialized to 0.
 //
@@ -262,6 +328,12 @@ func mulAvxGFNI_2x1Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n 
 //
 //go:noescape
 func mulGFNI_2x2_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
+// mulGFNI_2x2_64NT takes 2 inputs and produces 2 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_2x2_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxGFNI_2x2 takes 2 inputs and produces 2 outputs.
 // The output is initialized to 0.
@@ -285,6 +357,12 @@ func mulAvxGFNI_2x2Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n 
 //go:noescape
 func mulGFNI_2x3_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
+// mulGFNI_2x3_64NT takes 2 inputs and produces 3 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_2x3_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxGFNI_2x3 takes 2 inputs and produces 3 outputs.
 // The output is initialized to 0.
 //
@@ -306,6 +384,12 @@ func mulAvxGFNI_2x3Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n 
 //
 //go:noescape
 func mulGFNI_2x4_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
+// mulGFNI_2x4_64NT takes 2 inputs and produces 4 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_2x4_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxGFNI_2x4 takes 2 inputs and produces 4 outputs.
 // The output is initialized to 0.
@@ -329,6 +413,12 @@ func mulAvxGFNI_2x4Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n 
 //go:noescape
 func mulGFNI_2x5_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
+// mulGFNI_2x5_64NT takes 2 inputs and produces 5 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_2x5_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxGFNI_2x5 takes 2 inputs and produces 5 outputs.
 // The output is initialized to 0.
 //
@@ -350,6 +440,12 @@ func mulAvxGFNI_2x5Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n 
 //
 //go:noescape
 func mulGFNI_2x6_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
+// mulGFNI_2x6_64NT takes 2 inputs and produces 6 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_2x6_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxGFNI_2x6 takes 2 inputs and produces 6 outputs.
 // The output is initialized to 0.
@@ -373,6 +469,12 @@ func mulAvxGFNI_2x6Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n 
 //go:noescape
 func mulGFNI_2x7_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
+// mulGFNI_2x7_64NT takes 2 inputs and produces 7 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_2x7_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxGFNI_2x7 takes 2 inputs and produces 7 outputs.
 // The output is initialized to 0.
 //
@@ -394,6 +496,12 @@ func mulAvxGFNI_2x7Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n 
 //
 //go:noescape
 func mulGFNI_2x8_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
+// mulGFNI_2x8_64NT takes 2 inputs and produces 8 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_2x8_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxGFNI_2x8 takes 2 inputs and produces 8 outputs.
 // The output is initialized to 0.
@@ -417,6 +525,12 @@ func mulAvxGFNI_2x8Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n 
 //go:noescape
 func mulGFNI_2x9_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
+// mulGFNI_2x9_64NT takes 2 inputs and produces 9 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_2x9_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxGFNI_2x9 takes 2 inputs and produces 9 outputs.
 // The output is initialized to 0.
 //
@@ -438,6 +552,12 @@ func mulAvxGFNI_2x9Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n 
 //
 //go:noescape
 func mulGFNI_2x10_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
+// mulGFNI_2x10_64NT takes 2 inputs and produces 10 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_2x10_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxGFNI_2x10 takes 2 inputs and produces 10 outputs.
 // The output is initialized to 0.
@@ -461,6 +581,12 @@ func mulAvxGFNI_2x10Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n
 //go:noescape
 func mulGFNI_3x1_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
+// mulGFNI_3x1_64NT takes 3 inputs and produces 1 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_3x1_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxGFNI_3x1 takes 3 inputs and produces 1 outputs.
 // The output is initialized to 0.
 //
@@ -482,6 +608,12 @@ func mulAvxGFNI_3x1Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n 
 //
 //go:noescape
 func mulGFNI_3x2_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
+// mulGFNI_3x2_64NT takes 3 inputs and produces 2 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_3x2_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxGFNI_3x2 takes 3 inputs and produces 2 outputs.
 // The output is initialized to 0.
@@ -505,6 +637,12 @@ func mulAvxGFNI_3x2Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n 
 //go:noescape
 func mulGFNI_3x3_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
+// mulGFNI_3x3_64NT takes 3 inputs and produces 3 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_3x3_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxGFNI_3x3 takes 3 inputs and produces 3 outputs.
 // The output is initialized to 0.
 //
@@ -526,6 +664,12 @@ func mulAvxGFNI_3x3Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n 
 //
 //go:noescape
 func mulGFNI_3x4_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
+// mulGFNI_3x4_64NT takes 3 inputs and produces 4 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_3x4_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxGFNI_3x4 takes 3 inputs and produces 4 outputs.
 // The output is initialized to 0.
@@ -549,6 +693,12 @@ func mulAvxGFNI_3x4Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n 
 //go:noescape
 func mulGFNI_3x5_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
+// mulGFNI_3x5_64NT takes 3 inputs and produces 5 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_3x5_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxGFNI_3x5 takes 3 inputs and produces 5 outputs.
 // The output is initialized to 0.
 //
@@ -570,6 +720,12 @@ func mulAvxGFNI_3x5Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n 
 //
 //go:noescape
 func mulGFNI_3x6_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
+// mulGFNI_3x6_64NT takes 3 inputs and produces 6 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_3x6_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxGFNI_3x6 takes 3 inputs and produces 6 outputs.
 // The output is initialized to 0.
@@ -593,6 +749,12 @@ func mulAvxGFNI_3x6Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n 
 //go:noescape
 func mulGFNI_3x7_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
+// mulGFNI_3x7_64NT takes 3 inputs and produces 7 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_3x7_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxGFNI_3x7 takes 3 inputs and produces 7 outputs.
 // The output is initialized to 0.
 //
@@ -614,6 +776,12 @@ func mulAvxGFNI_3x7Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n 
 //
 //go:noescape
 func mulGFNI_3x8_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
+// mulGFNI_3x8_64NT takes 3 inputs and produces 8 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_3x8_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxGFNI_3x8 takes 3 inputs and produces 8 outputs.
 // The output is initialized to 0.
@@ -637,6 +805,12 @@ func mulAvxGFNI_3x8Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n 
 //go:noescape
 func mulGFNI_3x9_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
+// mulGFNI_3x9_64NT takes 3 inputs and produces 9 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_3x9_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxGFNI_3x9 takes 3 inputs and produces 9 outputs.
 // The output is initialized to 0.
 //
@@ -658,6 +832,12 @@ func mulAvxGFNI_3x9Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n 
 //
 //go:noescape
 func mulGFNI_3x10_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
+// mulGFNI_3x10_64NT takes 3 inputs and produces 10 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_3x10_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxGFNI_3x10 takes 3 inputs and produces 10 outputs.
 // The output is initialized to 0.
@@ -681,6 +861,12 @@ func mulAvxGFNI_3x10Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n
 //go:noescape
 func mulGFNI_4x1_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
+// mulGFNI_4x1_64NT takes 4 inputs and produces 1 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_4x1_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxGFNI_4x1 takes 4 inputs and produces 1 outputs.
 // The output is initialized to 0.
 //
@@ -702,6 +888,12 @@ func mulAvxGFNI_4x1Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n 
 //
 //go:noescape
 func mulGFNI_4x2_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
+// mulGFNI_4x2_64NT takes 4 inputs and produces 2 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_4x2_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxGFNI_4x2 takes 4 inputs and produces 2 outputs.
 // The output is initialized to 0.
@@ -725,6 +917,12 @@ func mulAvxGFNI_4x2Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n 
 //go:noescape
 func mulGFNI_4x3_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
+// mulGFNI_4x3_64NT takes 4 inputs and produces 3 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_4x3_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxGFNI_4x3 takes 4 inputs and produces 3 outputs.
 // The output is initialized to 0.
 //
@@ -746,6 +944,12 @@ func mulAvxGFNI_4x3Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n 
 //
 //go:noescape
 func mulGFNI_4x4_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
+// mulGFNI_4x4_64NT takes 4 inputs and produces 4 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_4x4_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxGFNI_4x4 takes 4 inputs and produces 4 outputs.
 // The output is initialized to 0.
@@ -769,6 +973,12 @@ func mulAvxGFNI_4x4Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n 
 //go:noescape
 func mulGFNI_4x5_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
+// mulGFNI_4x5_64NT takes 4 inputs and produces 5 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_4x5_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxGFNI_4x5 takes 4 inputs and produces 5 outputs.
 // The output is initialized to 0.
 //
@@ -790,6 +1000,12 @@ func mulAvxGFNI_4x5Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n 
 //
 //go:noescape
 func mulGFNI_4x6_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
+// mulGFNI_4x6_64NT takes 4 inputs and produces 6 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_4x6_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxGFNI_4x6 takes 4 inputs and produces 6 outputs.
 // The output is initialized to 0.
@@ -813,6 +1029,12 @@ func mulAvxGFNI_4x6Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n 
 //go:noescape
 func mulGFNI_4x7_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
+// mulGFNI_4x7_64NT takes 4 inputs and produces 7 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_4x7_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxGFNI_4x7 takes 4 inputs and produces 7 outputs.
 // The output is initialized to 0.
 //
@@ -834,6 +1056,12 @@ func mulAvxGFNI_4x7Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n 
 //
 //go:noescape
 func mulGFNI_4x8_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
+// mulGFNI_4x8_64NT takes 4 inputs and produces 8 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_4x8_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxGFNI_4x8 takes 4 inputs and produces 8 outputs.
 // The output is initialized to 0.
@@ -857,6 +1085,12 @@ func mulAvxGFNI_4x8Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n 
 //go:noescape
 func mulGFNI_4x9_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
+// mulGFNI_4x9_64NT takes 4 inputs and produces 9 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_4x9_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxGFNI_4x9 takes 4 inputs and produces 9 outputs.
 // The output is initialized to 0.
 //
@@ -878,6 +1112,12 @@ func mulAvxGFNI_4x9Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n 
 //
 //go:noescape
 func mulGFNI_4x10_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
+// mulGFNI_4x10_64NT takes 4 inputs and produces 10 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_4x10_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxGFNI_4x10 takes 4 inputs and produces 10 outputs.
 // The output is initialized to 0.
@@ -901,6 +1141,12 @@ func mulAvxGFNI_4x10Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n
 //go:noescape
 func mulGFNI_5x1_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
+// mulGFNI_5x1_64NT takes 5 inputs and produces 1 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_5x1_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxGFNI_5x1 takes 5 inputs and produces 1 outputs.
 // The output is initialized to 0.
 //
@@ -922,6 +1168,12 @@ func mulAvxGFNI_5x1Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n 
 //
 //go:noescape
 func mulGFNI_5x2_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
+// mulGFNI_5x2_64NT takes 5 inputs and produces 2 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_5x2_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxGFNI_5x2 takes 5 inputs and produces 2 outputs.
 // The output is initialized to 0.
@@ -945,6 +1197,12 @@ func mulAvxGFNI_5x2Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n 
 //go:noescape
 func mulGFNI_5x3_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
+// mulGFNI_5x3_64NT takes 5 inputs and produces 3 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_5x3_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxGFNI_5x3 takes 5 inputs and produces 3 outputs.
 // The output is initialized to 0.
 //
@@ -966,6 +1224,12 @@ func mulAvxGFNI_5x3Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n 
 //
 //go:noescape
 func mulGFNI_5x4_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
+// mulGFNI_5x4_64NT takes 5 inputs and produces 4 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_5x4_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxGFNI_5x4 takes 5 inputs and produces 4 outputs.
 // The output is initialized to 0.
@@ -989,6 +1253,12 @@ func mulAvxGFNI_5x4Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n 
 //go:noescape
 func mulGFNI_5x5_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
+// mulGFNI_5x5_64NT takes 5 inputs and produces 5 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_5x5_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxGFNI_5x5 takes 5 inputs and produces 5 outputs.
 // The output is initialized to 0.
 //
@@ -1010,6 +1280,12 @@ func mulAvxGFNI_5x5Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n 
 //
 //go:noescape
 func mulGFNI_5x6_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
+// mulGFNI_5x6_64NT takes 5 inputs and produces 6 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_5x6_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxGFNI_5x6 takes 5 inputs and produces 6 outputs.
 // The output is initialized to 0.
@@ -1033,6 +1309,12 @@ func mulAvxGFNI_5x6Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n 
 //go:noescape
 func mulGFNI_5x7_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
+// mulGFNI_5x7_64NT takes 5 inputs and produces 7 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_5x7_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxGFNI_5x7 takes 5 inputs and produces 7 outputs.
 // The output is initialized to 0.
 //
@@ -1054,6 +1336,12 @@ func mulAvxGFNI_5x7Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n 
 //
 //go:noescape
 func mulGFNI_5x8_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
+// mulGFNI_5x8_64NT takes 5 inputs and produces 8 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_5x8_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxGFNI_5x8 takes 5 inputs and produces 8 outputs.
 // The output is initialized to 0.
@@ -1077,6 +1365,12 @@ func mulAvxGFNI_5x8Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n 
 //go:noescape
 func mulGFNI_5x9_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
+// mulGFNI_5x9_64NT takes 5 inputs and produces 9 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_5x9_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxGFNI_5x9 takes 5 inputs and produces 9 outputs.
 // The output is initialized to 0.
 //
@@ -1098,6 +1392,12 @@ func mulAvxGFNI_5x9Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n 
 //
 //go:noescape
 func mulGFNI_5x10_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
+// mulGFNI_5x10_64NT takes 5 inputs and produces 10 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_5x10_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxGFNI_5x10 takes 5 inputs and produces 10 outputs.
 // The output is initialized to 0.
@@ -1121,6 +1421,12 @@ func mulAvxGFNI_5x10Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n
 //go:noescape
 func mulGFNI_6x1_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
+// mulGFNI_6x1_64NT takes 6 inputs and produces 1 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_6x1_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxGFNI_6x1 takes 6 inputs and produces 1 outputs.
 // The output is initialized to 0.
 //
@@ -1142,6 +1448,12 @@ func mulAvxGFNI_6x1Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n 
 //
 //go:noescape
 func mulGFNI_6x2_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
+// mulGFNI_6x2_64NT takes 6 inputs and produces 2 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_6x2_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxGFNI_6x2 takes 6 inputs and produces 2 outputs.
 // The output is initialized to 0.
@@ -1165,6 +1477,12 @@ func mulAvxGFNI_6x2Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n 
 //go:noescape
 func mulGFNI_6x3_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
+// mulGFNI_6x3_64NT takes 6 inputs and produces 3 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_6x3_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxGFNI_6x3 takes 6 inputs and produces 3 outputs.
 // The output is initialized to 0.
 //
@@ -1186,6 +1504,12 @@ func mulAvxGFNI_6x3Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n 
 //
 //go:noescape
 func mulGFNI_6x4_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
+// mulGFNI_6x4_64NT takes 6 inputs and produces 4 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_6x4_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxGFNI_6x4 takes 6 inputs and produces 4 outputs.
 // The output is initialized to 0.
@@ -1209,6 +1533,12 @@ func mulAvxGFNI_6x4Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n 
 //go:noescape
 func mulGFNI_6x5_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
+// mulGFNI_6x5_64NT takes 6 inputs and produces 5 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_6x5_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxGFNI_6x5 takes 6 inputs and produces 5 outputs.
 // The output is initialized to 0.
 //
@@ -1230,6 +1560,12 @@ func mulAvxGFNI_6x5Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n 
 //
 //go:noescape
 func mulGFNI_6x6_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
+// mulGFNI_6x6_64NT takes 6 inputs and produces 6 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_6x6_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxGFNI_6x6 takes 6 inputs and produces 6 outputs.
 // The output is initialized to 0.
@@ -1253,6 +1589,12 @@ func mulAvxGFNI_6x6Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n 
 //go:noescape
 func mulGFNI_6x7_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
+// mulGFNI_6x7_64NT takes 6 inputs and produces 7 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_6x7_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxGFNI_6x7 takes 6 inputs and produces 7 outputs.
 // The output is initialized to 0.
 //
@@ -1274,6 +1616,12 @@ func mulAvxGFNI_6x7Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n 
 //
 //go:noescape
 func mulGFNI_6x8_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
+// mulGFNI_6x8_64NT takes 6 inputs and produces 8 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_6x8_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxGFNI_6x8 takes 6 inputs and produces 8 outputs.
 // The output is initialized to 0.
@@ -1297,6 +1645,12 @@ func mulAvxGFNI_6x8Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n 
 //go:noescape
 func mulGFNI_6x9_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
+// mulGFNI_6x9_64NT takes 6 inputs and produces 9 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_6x9_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxGFNI_6x9 takes 6 inputs and produces 9 outputs.
 // The output is initialized to 0.
 //
@@ -1318,6 +1672,12 @@ func mulAvxGFNI_6x9Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n 
 //
 //go:noescape
 func mulGFNI_6x10_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
+// mulGFNI_6x10_64NT takes 6 inputs and produces 10 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_6x10_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxGFNI_6x10 takes 6 inputs and produces 10 outputs.
 // The output is initialized to 0.
@@ -1341,6 +1701,12 @@ func mulAvxGFNI_6x10Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n
 //go:noescape
 func mulGFNI_7x1_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
+// mulGFNI_7x1_64NT takes 7 inputs and produces 1 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_7x1_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxGFNI_7x1 takes 7 inputs and produces 1 outputs.
 // The output is initialized to 0.
 //
@@ -1362,6 +1728,12 @@ func mulAvxGFNI_7x1Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n 
 //
 //go:noescape
 func mulGFNI_7x2_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
+// mulGFNI_7x2_64NT takes 7 inputs and produces 2 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_7x2_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxGFNI_7x2 takes 7 inputs and produces 2 outputs.
 // The output is initialized to 0.
@@ -1385,6 +1757,12 @@ func mulAvxGFNI_7x2Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n 
 //go:noescape
 func mulGFNI_7x3_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
+// mulGFNI_7x3_64NT takes 7 inputs and produces 3 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_7x3_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxGFNI_7x3 takes 7 inputs and produces 3 outputs.
 // The output is initialized to 0.
 //
@@ -1406,6 +1784,12 @@ func mulAvxGFNI_7x3Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n 
 //
 //go:noescape
 func mulGFNI_7x4_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
+// mulGFNI_7x4_64NT takes 7 inputs and produces 4 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_7x4_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxGFNI_7x4 takes 7 inputs and produces 4 outputs.
 // The output is initialized to 0.
@@ -1429,6 +1813,12 @@ func mulAvxGFNI_7x4Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n 
 //go:noescape
 func mulGFNI_7x5_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
+// mulGFNI_7x5_64NT takes 7 inputs and produces 5 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_7x5_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxGFNI_7x5 takes 7 inputs and produces 5 outputs.
 // The output is initialized to 0.
 //
@@ -1450,6 +1840,12 @@ func mulAvxGFNI_7x5Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n 
 //
 //go:noescape
 func mulGFNI_7x6_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
+// mulGFNI_7x6_64NT takes 7 inputs and produces 6 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_7x6_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxGFNI_7x6 takes 7 inputs and produces 6 outputs.
 // The output is initialized to 0.
@@ -1473,6 +1869,12 @@ func mulAvxGFNI_7x6Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n 
 //go:noescape
 func mulGFNI_7x7_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
+// mulGFNI_7x7_64NT takes 7 inputs and produces 7 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_7x7_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxGFNI_7x7 takes 7 inputs and produces 7 outputs.
 // The output is initialized to 0.
 //
@@ -1494,6 +1896,12 @@ func mulAvxGFNI_7x7Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n 
 //
 //go:noescape
 func mulGFNI_7x8_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
+// mulGFNI_7x8_64NT takes 7 inputs and produces 8 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_7x8_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxGFNI_7x8 takes 7 inputs and produces 8 outputs.
 // The output is initialized to 0.
@@ -1517,6 +1925,12 @@ func mulAvxGFNI_7x8Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n 
 //go:noescape
 func mulGFNI_7x9_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
+// mulGFNI_7x9_64NT takes 7 inputs and produces 9 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_7x9_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxGFNI_7x9 takes 7 inputs and produces 9 outputs.
 // The output is initialized to 0.
 //
@@ -1538,6 +1952,12 @@ func mulAvxGFNI_7x9Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n 
 //
 //go:noescape
 func mulGFNI_7x10_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
+// mulGFNI_7x10_64NT takes 7 inputs and produces 10 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_7x10_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxGFNI_7x10 takes 7 inputs and produces 10 outputs.
 // The output is initialized to 0.
@@ -1561,6 +1981,12 @@ func mulAvxGFNI_7x10Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n
 //go:noescape
 func mulGFNI_8x1_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
+// mulGFNI_8x1_64NT takes 8 inputs and produces 1 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_8x1_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxGFNI_8x1 takes 8 inputs and produces 1 outputs.
 // The output is initialized to 0.
 //
@@ -1582,6 +2008,12 @@ func mulAvxGFNI_8x1Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n 
 //
 //go:noescape
 func mulGFNI_8x2_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
+// mulGFNI_8x2_64NT takes 8 inputs and produces 2 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_8x2_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxGFNI_8x2 takes 8 inputs and produces 2 outputs.
 // The output is initialized to 0.
@@ -1605,6 +2037,12 @@ func mulAvxGFNI_8x2Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n 
 //go:noescape
 func mulGFNI_8x3_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
+// mulGFNI_8x3_64NT takes 8 inputs and produces 3 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_8x3_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxGFNI_8x3 takes 8 inputs and produces 3 outputs.
 // The output is initialized to 0.
 //
@@ -1626,6 +2064,12 @@ func mulAvxGFNI_8x3Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n 
 //
 //go:noescape
 func mulGFNI_8x4_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
+// mulGFNI_8x4_64NT takes 8 inputs and produces 4 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_8x4_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxGFNI_8x4 takes 8 inputs and produces 4 outputs.
 // The output is initialized to 0.
@@ -1649,6 +2093,12 @@ func mulAvxGFNI_8x4Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n 
 //go:noescape
 func mulGFNI_8x5_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
+// mulGFNI_8x5_64NT takes 8 inputs and produces 5 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_8x5_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxGFNI_8x5 takes 8 inputs and produces 5 outputs.
 // The output is initialized to 0.
 //
@@ -1670,6 +2120,12 @@ func mulAvxGFNI_8x5Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n 
 //
 //go:noescape
 func mulGFNI_8x6_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
+// mulGFNI_8x6_64NT takes 8 inputs and produces 6 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_8x6_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxGFNI_8x6 takes 8 inputs and produces 6 outputs.
 // The output is initialized to 0.
@@ -1693,6 +2149,12 @@ func mulAvxGFNI_8x6Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n 
 //go:noescape
 func mulGFNI_8x7_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
+// mulGFNI_8x7_64NT takes 8 inputs and produces 7 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_8x7_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxGFNI_8x7 takes 8 inputs and produces 7 outputs.
 // The output is initialized to 0.
 //
@@ -1714,6 +2176,12 @@ func mulAvxGFNI_8x7Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n 
 //
 //go:noescape
 func mulGFNI_8x8_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
+// mulGFNI_8x8_64NT takes 8 inputs and produces 8 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_8x8_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxGFNI_8x8 takes 8 inputs and produces 8 outputs.
 // The output is initialized to 0.
@@ -1737,6 +2205,12 @@ func mulAvxGFNI_8x8Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n 
 //go:noescape
 func mulGFNI_8x9_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
+// mulGFNI_8x9_64NT takes 8 inputs and produces 9 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_8x9_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxGFNI_8x9 takes 8 inputs and produces 9 outputs.
 // The output is initialized to 0.
 //
@@ -1758,6 +2232,12 @@ func mulAvxGFNI_8x9Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n 
 //
 //go:noescape
 func mulGFNI_8x10_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
+// mulGFNI_8x10_64NT takes 8 inputs and produces 10 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_8x10_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxGFNI_8x10 takes 8 inputs and produces 10 outputs.
 // The output is initialized to 0.
@@ -1781,6 +2261,12 @@ func mulAvxGFNI_8x10Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n
 //go:noescape
 func mulGFNI_9x1_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
+// mulGFNI_9x1_64NT takes 9 inputs and produces 1 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_9x1_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxGFNI_9x1 takes 9 inputs and produces 1 outputs.
 // The output is initialized to 0.
 //
@@ -1802,6 +2288,12 @@ func mulAvxGFNI_9x1Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n 
 //
 //go:noescape
 func mulGFNI_9x2_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
+// mulGFNI_9x2_64NT takes 9 inputs and produces 2 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_9x2_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxGFNI_9x2 takes 9 inputs and produces 2 outputs.
 // The output is initialized to 0.
@@ -1825,6 +2317,12 @@ func mulAvxGFNI_9x2Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n 
 //go:noescape
 func mulGFNI_9x3_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
+// mulGFNI_9x3_64NT takes 9 inputs and produces 3 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_9x3_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxGFNI_9x3 takes 9 inputs and produces 3 outputs.
 // The output is initialized to 0.
 //
@@ -1846,6 +2344,12 @@ func mulAvxGFNI_9x3Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n 
 //
 //go:noescape
 func mulGFNI_9x4_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
+// mulGFNI_9x4_64NT takes 9 inputs and produces 4 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_9x4_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxGFNI_9x4 takes 9 inputs and produces 4 outputs.
 // The output is initialized to 0.
@@ -1869,6 +2373,12 @@ func mulAvxGFNI_9x4Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n 
 //go:noescape
 func mulGFNI_9x5_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
+// mulGFNI_9x5_64NT takes 9 inputs and produces 5 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_9x5_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxGFNI_9x5 takes 9 inputs and produces 5 outputs.
 // The output is initialized to 0.
 //
@@ -1890,6 +2400,12 @@ func mulAvxGFNI_9x5Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n 
 //
 //go:noescape
 func mulGFNI_9x6_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
+// mulGFNI_9x6_64NT takes 9 inputs and produces 6 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_9x6_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxGFNI_9x6 takes 9 inputs and produces 6 outputs.
 // The output is initialized to 0.
@@ -1913,6 +2429,12 @@ func mulAvxGFNI_9x6Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n 
 //go:noescape
 func mulGFNI_9x7_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
+// mulGFNI_9x7_64NT takes 9 inputs and produces 7 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_9x7_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxGFNI_9x7 takes 9 inputs and produces 7 outputs.
 // The output is initialized to 0.
 //
@@ -1934,6 +2456,12 @@ func mulAvxGFNI_9x7Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n 
 //
 //go:noescape
 func mulGFNI_9x8_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
+// mulGFNI_9x8_64NT takes 9 inputs and produces 8 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_9x8_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxGFNI_9x8 takes 9 inputs and produces 8 outputs.
 // The output is initialized to 0.
@@ -1957,6 +2485,12 @@ func mulAvxGFNI_9x8Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n 
 //go:noescape
 func mulGFNI_9x9_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
+// mulGFNI_9x9_64NT takes 9 inputs and produces 9 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_9x9_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxGFNI_9x9 takes 9 inputs and produces 9 outputs.
 // The output is initialized to 0.
 //
@@ -1978,6 +2512,12 @@ func mulAvxGFNI_9x9Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n 
 //
 //go:noescape
 func mulGFNI_9x10_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
+// mulGFNI_9x10_64NT takes 9 inputs and produces 10 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_9x10_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxGFNI_9x10 takes 9 inputs and produces 10 outputs.
 // The output is initialized to 0.
@@ -2001,6 +2541,12 @@ func mulAvxGFNI_9x10Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n
 //go:noescape
 func mulGFNI_10x1_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
+// mulGFNI_10x1_64NT takes 10 inputs and produces 1 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_10x1_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxGFNI_10x1 takes 10 inputs and produces 1 outputs.
 // The output is initialized to 0.
 //
@@ -2022,6 +2568,12 @@ func mulAvxGFNI_10x1Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n
 //
 //go:noescape
 func mulGFNI_10x2_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
+// mulGFNI_10x2_64NT takes 10 inputs and produces 2 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_10x2_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxGFNI_10x2 takes 10 inputs and produces 2 outputs.
 // The output is initialized to 0.
@@ -2045,6 +2597,12 @@ func mulAvxGFNI_10x2Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n
 //go:noescape
 func mulGFNI_10x3_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
+// mulGFNI_10x3_64NT takes 10 inputs and produces 3 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_10x3_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxGFNI_10x3 takes 10 inputs and produces 3 outputs.
 // The output is initialized to 0.
 //
@@ -2066,6 +2624,12 @@ func mulAvxGFNI_10x3Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n
 //
 //go:noescape
 func mulGFNI_10x4_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
+// mulGFNI_10x4_64NT takes 10 inputs and produces 4 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_10x4_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxGFNI_10x4 takes 10 inputs and produces 4 outputs.
 // The output is initialized to 0.
@@ -2089,6 +2653,12 @@ func mulAvxGFNI_10x4Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n
 //go:noescape
 func mulGFNI_10x5_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
+// mulGFNI_10x5_64NT takes 10 inputs and produces 5 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_10x5_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxGFNI_10x5 takes 10 inputs and produces 5 outputs.
 // The output is initialized to 0.
 //
@@ -2110,6 +2680,12 @@ func mulAvxGFNI_10x5Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n
 //
 //go:noescape
 func mulGFNI_10x6_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
+// mulGFNI_10x6_64NT takes 10 inputs and produces 6 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_10x6_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxGFNI_10x6 takes 10 inputs and produces 6 outputs.
 // The output is initialized to 0.
@@ -2133,6 +2709,12 @@ func mulAvxGFNI_10x6Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n
 //go:noescape
 func mulGFNI_10x7_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
+// mulGFNI_10x7_64NT takes 10 inputs and produces 7 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_10x7_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxGFNI_10x7 takes 10 inputs and produces 7 outputs.
 // The output is initialized to 0.
 //
@@ -2154,6 +2736,12 @@ func mulAvxGFNI_10x7Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n
 //
 //go:noescape
 func mulGFNI_10x8_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
+// mulGFNI_10x8_64NT takes 10 inputs and produces 8 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_10x8_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxGFNI_10x8 takes 10 inputs and produces 8 outputs.
 // The output is initialized to 0.
@@ -2177,6 +2765,12 @@ func mulAvxGFNI_10x8Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n
 //go:noescape
 func mulGFNI_10x9_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
+// mulGFNI_10x9_64NT takes 10 inputs and produces 9 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_10x9_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
 // mulAvxGFNI_10x9 takes 10 inputs and produces 9 outputs.
 // The output is initialized to 0.
 //
@@ -2198,6 +2792,12 @@ func mulAvxGFNI_10x9Xor(matrix []uint64, in [][]byte, out [][]byte, start int, n
 //
 //go:noescape
 func mulGFNI_10x10_64(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
+
+// mulGFNI_10x10_64NT takes 10 inputs and produces 10 outputs.
+// The output is initialized to 0.
+//
+//go:noescape
+func mulGFNI_10x10_64NT(matrix []uint64, in [][]byte, out [][]byte, start int, n int)
 
 // mulAvxGFNI_10x10 takes 10 inputs and produces 10 outputs.
 // The output is initialized to 0.

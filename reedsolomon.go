@@ -549,7 +549,7 @@ func New(dataShards, parityShards int, opts ...Option) (Encoder, error) {
 		r.o.maxGoroutines = codeGenMaxGoroutines
 	}
 
-	if _, _, useGFNI := r.canGFNI(codeGenMinSize, codeGenMaxInputs, codeGenMaxOutputs); useGFNI && r.o.maxGoroutines > gfniCodeGenMaxGoroutines {
+	if _, _, _, useGFNI := r.canGFNI(codeGenMinSize, codeGenMaxInputs, codeGenMaxOutputs); useGFNI && r.o.maxGoroutines > gfniCodeGenMaxGoroutines {
 		r.o.maxGoroutines = gfniCodeGenMaxGoroutines
 	}
 
@@ -817,10 +817,14 @@ func (r *reedSolomon) codeSomeShards(matrixRows, inputs, outputs [][]byte, byteC
 	if end > len(inputs[0]) {
 		end = len(inputs[0])
 	}
-	if galMulGFNI, galMulGFNIXor, useGFNI := r.canGFNI(byteCount, len(inputs), len(outputs)); useGFNI {
+	if galMulGFNI, galMulGFNIXor, galMulNT, useGFNI := r.canGFNI(byteCount, len(inputs), len(outputs)); useGFNI {
 		var gfni [codeGenMaxInputs * codeGenMaxOutputs]uint64
 		m := genGFNIMatrix(matrixRows, len(inputs), 0, len(outputs), gfni[:])
-		start += (*galMulGFNI)(m, inputs, outputs, 0, byteCount)
+		if r.o.useNT {
+			start += (*galMulNT)(m, inputs, outputs, 0, byteCount)
+		} else {
+			start += (*galMulGFNI)(m, inputs, outputs, 0, byteCount)
+		}
 		end = len(inputs[0])
 	} else if galMulGen, _, ok := r.hasCodeGen(byteCount, len(inputs), len(outputs)); ok {
 		m := genCodeGenMatrix(matrixRows, len(inputs), 0, len(outputs), r.o.vectorLength, r.getTmpSlice())
@@ -899,14 +903,14 @@ func (r *reedSolomon) codeSomeShardsP(matrixRows, inputs, outputs [][]byte, byte
 	var genMatrix []byte
 	var gfniMatrix []uint64
 	galMulGen, _, useCodeGen := r.hasCodeGen(byteCount, len(inputs), len(outputs))
-	galMulGFNI, _, useGFNI := r.canGFNI(byteCount, len(inputs), len(outputs))
+	galMulGFNI, _, _, useGFNI := r.canGFNI(byteCount, len(inputs), len(outputs))
 	if useGFNI {
 		var tmp [codeGenMaxInputs * codeGenMaxOutputs]uint64
 		gfniMatrix = genGFNIMatrix(matrixRows, len(inputs), 0, len(outputs), tmp[:])
 	} else if useCodeGen {
 		genMatrix = genCodeGenMatrix(matrixRows, len(inputs), 0, len(outputs), r.o.vectorLength, r.getTmpSlice())
 		defer r.putTmpSlice(genMatrix)
-	} else if galMulGFNI, galMulGFNIXor, useGFNI := r.canGFNI(byteCount/4, codeGenMaxInputs, codeGenMaxOutputs); useGFNI &&
+	} else if galMulGFNI, galMulGFNIXor, _, useGFNI := r.canGFNI(byteCount/4, codeGenMaxInputs, codeGenMaxOutputs); useGFNI &&
 		byteCount < 10<<20 && len(inputs)+len(outputs) > codeGenMinShards {
 		// It appears there is a switchover point at around 10MB where
 		// Regular processing is faster...

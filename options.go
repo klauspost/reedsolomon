@@ -26,6 +26,7 @@ type options struct {
 	useSVE bool
 	vectorLength int
 	skip2B       bool
+	useNT        bool
 
 	useJerasureMatrix    bool
 	usePAR1Matrix        bool

@@ -35,6 +35,7 @@ var switchDefsX [inputMax][outputMax]string
 
 var switchDefs512 [inputMax][outputMax]string
 var switchDefsX512 [inputMax][outputMax]string
+var switchDefsNT512 [inputMax][outputMax]string
 
 var switchDefsAvxGFNI [inputMax][outputMax]string
 var switchDefsXAvxGFNI [inputMax][outputMax]string
@@ -74,9 +75,10 @@ func main() {
 				genMulAvx2(fmt.Sprintf("mulAvxTwo_%dx%d", i, j), i, j, false)
 				genMulAvx2Sixty64(fmt.Sprintf("mulAvxTwo_%dx%d_64", i, j), i, j, false)
 			}
-			genMulAvx512GFNI(fmt.Sprintf("mulGFNI_%dx%d_64", i, j), i, j, false)
+			genMulAvx512GFNI(fmt.Sprintf("mulGFNI_%dx%d_64", i, j), i, j, false, false)
+			genMulAvx512GFNI(fmt.Sprintf("mulGFNI_%dx%d_64NT", i, j), i, j, false, true)
 			genMulAvxGFNI(fmt.Sprintf("mulAvxGFNI_%dx%d", i, j), i, j, false)
-			genMulAvx512GFNI(fmt.Sprintf("mulGFNI_%dx%d_64Xor", i, j), i, j, true)
+			genMulAvx512GFNI(fmt.Sprintf("mulGFNI_%dx%d_64Xor", i, j), i, j, true, false)
 			genMulAvxGFNI(fmt.Sprintf("mulAvxGFNI_%dx%dXor", i, j), i, j, true)
 
 			if pshufb {
@@ -256,6 +258,29 @@ func galMulSlicesGFNI(matrix []uint64, in, out [][]byte, start, stop int) int {
 	panic(fmt.Sprintf("unhandled size: %dx%d", len(in), len(out)))
 }
 
+	func galMulSlicesGFNI_NT(matrix []uint64, in, out [][]byte, start, stop int) int {
+		n := (stop-start) & (maxInt - (64 - 1))
+
+		if raceEnabled {
+		raceReadSlices(in, start, n)
+		raceWriteSlices(out, start, n)
+	}
+
+	`)
+
+	w.WriteString(`switch len(in) {
+	`)
+	for in, defs := range switchDefsNT512[:] {
+		w.WriteString(fmt.Sprintf("		case %d:\n			switch len(out) {\n", in+1))
+		for out, def := range defs[:] {
+			w.WriteString(fmt.Sprintf("				case %d:\n", out+1))
+			w.WriteString(def)
+		}
+		w.WriteString("}\n")
+	}
+	w.WriteString(`}
+		panic(fmt.Sprintf("unhandled size: %dx%d", len(in), len(out)))
+	}
 func galMulSlicesGFNIXor(matrix []uint64, in, out [][]byte, start, stop int) int {
 	n := (stop-start) & (maxInt - (64 - 1))
 
@@ -858,7 +883,7 @@ func genMulAvx2Sixty64(name string, inputs int, outputs int, xor bool) {
 	RET()
 }
 
-func genMulAvx512GFNI(name string, inputs int, outputs int, xor bool) {
+func genMulAvx512GFNI(name string, inputs int, outputs int, xor, nt bool) {
 	const perLoopBits = 6
 	const perLoop = 1 << perLoopBits
 
@@ -898,11 +923,16 @@ func genMulAvx512GFNI(name string, inputs int, outputs int, xor bool) {
 	if xor {
 		x = "Xor"
 	}
+	if nt {
+		x = "NT"
+	}
 	// SWITCH DEFINITION:
 	//s := fmt.Sprintf("n = (n>>%d)<<%d\n", perLoopBits, perLoopBits)
 	s := fmt.Sprintf("			mulGFNI_%dx%d_64%s(matrix, in, out, start, n)\n", inputs, outputs, x)
 	s += fmt.Sprintf("\t\t\t\treturn n\n")
-	if xor {
+	if nt {
+		switchDefsNT512[inputs-1][outputs-1] = s
+	} else if xor {
 		switchDefsX512[inputs-1][outputs-1] = s
 	} else {
 		switchDefs512[inputs-1][outputs-1] = s
@@ -1058,7 +1088,11 @@ func genMulAvx512GFNI(name string, inputs int, outputs int, xor bool) {
 	Commentf("Store %d outputs", outputs)
 	for i := range dst {
 		if regDst {
-			VMOVDQU64(dst[i], Mem{Base: dstPtr[i]})
+			if nt {
+				VMOVNTDQ(dst[i], Mem{Base: dstPtr[i]})
+			} else {
+				VMOVDQU64(dst[i], Mem{Base: dstPtr[i]})
+			}
 			if prefetchDst > 0 && !xor {
 				PREFETCHT0(Mem{Base: dstPtr[i], Disp: prefetchDst})
 			}
@@ -1067,7 +1101,11 @@ func genMulAvx512GFNI(name string, inputs int, outputs int, xor bool) {
 		}
 		ptr := GP64()
 		MOVQ(Mem{Base: outSlicePtr, Disp: i * 24}, ptr)
-		VMOVDQU64(dst[i], Mem{Base: ptr, Index: offset, Scale: 1})
+		if nt {
+			VMOVNTDQ(dst[i], Mem{Base: ptr, Index: offset, Scale: 1})
+		} else {
+			VMOVDQU64(dst[i], Mem{Base: ptr, Index: offset, Scale: 1})
+		}
 		if prefetchDst > 0 && !xor {
 			PREFETCHT0(Mem{Base: ptr, Disp: prefetchDst, Index: offset, Scale: 1})
 		}
@@ -1079,6 +1117,9 @@ func genMulAvx512GFNI(name string, inputs int, outputs int, xor bool) {
 	DECQ(length)
 	JNZ(LabelRef(name + "_loop"))
 	VZEROUPPER()
+	if !xor {
+		SFENCE()
+	}
 
 	Label(name + "_end")
 	RET()
