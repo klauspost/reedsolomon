@@ -16,6 +16,7 @@ import (
 	"fmt"
 	"io"
 	"runtime"
+	"slices"
 	"sync"
 
 	"github.com/klauspost/cpuid/v2"
@@ -1696,4 +1697,137 @@ func (r *reedSolomon) Join(dst io.Writer, shards [][]byte, outSize int) error {
 
 type indexer interface {
 	int | int8 | int16 | int32 | int64 | uint | uint8 | uint16 | uint32 | uint64
+}
+
+/* Partial reconstruction
+
+Let D = (d0, d1, ..., d_{k-1}) be the data shards,
+	P = (p0, p1, ..., p_{m-1}) be the parity shards,
+	S = (D, P) be the set of all shards,
+    G = r.m = (g0, g1, ..., g_{k+m-1})^T, the generator matrix of size (k+m) x k.
+We have S = G * D.
+
+When S is located among AZs, we want to minimize the data transfer during
+reconstruction of a missing shard s_i (i in [0, k+m-1]). So we can build
+a partial reconstruction shard per AZ, and only transfer the partial shards to
+the AZ where s_i is located.
+
+Let s_miss be the missing shard, and A = {a0, a1, ..., a_{k-1}} be the picked
+source shards to reconstruct s_miss. We want to calculate coefficients
+C = (c0, c1, ..., c_{k-1}), so that
+	s_miss = c0 * a0 + c1 * a1 + ... + c_{k-1} * a_{k-1}
+	       = C * A^T
+By definition
+	s_miss = g_miss * D            (1)
+where g_miss is the row of G for s_miss.
+Let M be the sub-matrix of G for the picked source shards A. Then
+	s_miss = C * A^T = C * M * D   (2)
+from (1) and (2):
+	g_miss = C * M
+	C = g_miss * M^{-1}
+
+The coefficients C can be calculated by `CalcPartialReconstructionCoefficients`.
+
+To build a partial shard from a source AZ, use `BuildPartialShard` with the
+source shards and the coefficients in that AZ.
+
+To reconstruct the missing shard, use `PartialReconstruct` with the available
+source shards and their coefficients, and the partial shards from other AZs.
+
+*/
+func (r *reedSolomon) CalcPartialReconstructionCoefficients(
+	rebuildIndex int, sourceIndexes []int) ([]byte, error) {
+
+	// validate inputs
+	if len(sourceIndexes) != r.dataShards {
+		return nil, errors.New("number of source shards must be k")
+	}
+	if rebuildIndex < 0 || rebuildIndex >= r.totalShards {
+		return nil, errors.New("invalid rebuild index")
+	}
+	if slices.Contains(sourceIndexes, rebuildIndex) {
+		return nil, errors.New("rebuild index must not be in source indexes")
+	}
+
+	// build sub-matrix M
+	M := matrix(make([][]byte, r.dataShards))
+	for i, srcIdx := range sourceIndexes {
+		M[i] = r.m[srcIdx]
+	}
+	invertM, err := M.Invert()
+	if err != nil {
+		return nil, fmt.Errorf("failed to invert matrix: %w", err)
+	}
+
+	// get g_miss
+	gMiss := matrix(make([][]byte, 1))
+	gMiss[0] = r.m[rebuildIndex]
+
+	// calculate C = g_miss * M^{-1}
+	C, err := gMiss.Multiply(invertM)
+	if err != nil {
+		return nil, fmt.Errorf("failed to multiply matrices: %w", err)
+	}
+	return C[0], nil
+}
+
+func (r *reedSolomon) BuildPartialShard(sourceShards [][]byte,
+	coefficients []byte) ([]byte, error) {
+
+	// validate inputs
+	if len(coefficients) != len(sourceShards) {
+		return nil, errors.New("number of coefficients must be equal to shards")
+	}
+	if len(sourceShards) == 0 {
+		return nil, errors.New("no source shards provided")
+	}
+
+	// calculate c0 * a0 + c1 * a1 + ...
+	low := &LowLevel{
+		o: &r.o,
+	}
+	out := make([]byte, len(sourceShards[0]))
+	for i, shard := range sourceShards {
+		if shard == nil {
+			return nil, errors.New("source shard cannot be nil")
+		}
+		if i == 0 {
+			low.GalMulSlice(coefficients[0], shard, out)
+		} else {
+			low.GalMulSliceXor(coefficients[i], shard, out)
+		}
+	}
+	return out, nil
+}
+
+func (r *reedSolomon) PartialReconstruct(shards [][]byte,
+	shardCoefficients []byte, partialShards [][]byte) ([]byte, error) {
+
+	if len(shards) != len(shardCoefficients) {
+		return nil, errors.New("number of shards must be equal to coefficients")
+	}
+
+	var out []byte
+	var err error
+	if len(shards) > 0 {
+		out, err = r.BuildPartialShard(shards, shardCoefficients)
+		if err != nil {
+			return nil, err
+		}
+	} else { // len(shards) == 0
+		if len(partialShards) == 0 || partialShards[0] == nil {
+			// both `shards` and `partialShards` are empty
+			return nil, errors.New("no input data")
+		}
+		out = make([]byte, len(partialShards[0]))
+	}
+
+	// sum up all partial shards
+	for _, partialShard := range partialShards {
+		if partialShard == nil {
+			return nil, errors.New("partial shard cannot be nil")
+		}
+		sliceXor(partialShard, out, &r.o)
+	}
+	return out, nil
 }

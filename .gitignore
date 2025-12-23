@@ -24,3 +24,6 @@ _testmain.go
 *.prof
 
 .idea
+.vscode
+
+.DS_Store
