@@ -16,6 +16,7 @@ import (
 	"fmt"
 	"io"
 	"runtime"
+	"strconv"
 	"sync"
 
 	"github.com/klauspost/cpuid/v2"
@@ -1353,6 +1354,113 @@ func shardSize(shards [][]byte) int {
 // Use the Verify function to check if data set is ok.
 func (r *reedSolomon) Reconstruct(shards [][]byte) error {
 	return r.reconstruct(shards, false, nil)
+}
+
+// DecodeIdx allows decoding into dst progressively.
+// The dstIdx is the destination to be filled.
+// This must be the same for all calls.
+// On first call, dst should be set to all zeros.
+// dstIdx/expectInput should be the same for all calls and should
+// represent the inputs that are expected to be added.
+// The number of expected inputs should at least be the number of data shards.
+// Each input/inputIdx should be sent once - and only once.
+// The caller must manage all of the above.
+// len(dst) must be = len(input).
+// If inputIdx is < 0 no new input is added, but the slices are XORed together.
+// This allows merging two separate inputs where a number of inputs has been filled.
+// Once all expectInput has been added the destination will contain the requested slice.
+func (r *reedSolomon) DecodeIdx(dst []byte, dstIdx int, expectInput []bool, input []byte, inputIdx int) (err error) {
+	expectedShards := 0
+	gotInput := false
+	if len(expectInput) != r.totalShards {
+		return errors.New("expectInput length expected to be " + strconv.Itoa(r.totalShards))
+	}
+	if dstIdx < 0 || dstIdx >= r.totalShards {
+		return ErrInvShardNum
+	}
+	for i, filled := range expectInput {
+		if i == dstIdx && filled {
+			return errors.New("destination shard already filled")
+		}
+		if !filled {
+			continue
+		}
+		if inputIdx == i {
+			gotInput = true
+		}
+		expectedShards++
+	}
+	if inputIdx >= 0 && !gotInput {
+		return ErrInvShardNum
+	}
+	if expectedShards < r.dataShards {
+		return ErrTooFewShards
+	}
+	if len(dst) != len(input) {
+		return ErrInvalidShardSize
+	}
+	if inputIdx < 0 {
+		sliceXor(input, dst, &r.o)
+		return nil
+	}
+	validIndices := make([]int, r.dataShards)
+	invalidIndices := make([]int, 0)
+	subMatrixRow := 0
+	mappedIdx := -1
+	for matrixRow, filled := range expectInput {
+		if filled {
+			if inputIdx == matrixRow {
+				mappedIdx = subMatrixRow
+			}
+			validIndices[subMatrixRow] = matrixRow
+			subMatrixRow++
+		} else {
+			invalidIndices = append(invalidIndices, matrixRow)
+		}
+	}
+
+	// Use reconstruction
+	if dstIdx >= r.dataShards {
+		return errors.New("destination shard is not a data shard. not supported (yet)")
+	}
+
+	// Attempt to get the cached inverted matrix out of the tree
+	// based on the indices of the invalid rows.
+	dataDecodeMatrix := r.tree.GetInvertedMatrix(invalidIndices)
+
+	// If the inverted matrix isn't cached in the tree yet we must
+	// construct it ourselves and insert it into the tree for the
+	// future.  In this way the inversion tree is lazily loaded.
+	if dataDecodeMatrix == nil {
+		// Pull out the rows of the matrix that correspond to the
+		// shards that we have and build a square matrix.  This
+		// matrix could be used to generate the shards that we have
+		// from the original data.
+		subMatrix, _ := newMatrix(r.dataShards, r.dataShards)
+		for subMatrixRow, validIndex := range validIndices {
+			for c := 0; c < r.dataShards; c++ {
+				subMatrix[subMatrixRow][c] = r.m[validIndex][c]
+			}
+		}
+		// Invert the matrix, so we can go from the encoded shards
+		// back to the original data.  Then pull out the row that
+		// generates the shard that we want to decode.  Note that
+		// since this matrix maps back to the original data, it can
+		// be used to create a data shard, but not a parity shard.
+		dataDecodeMatrix, err = subMatrix.Invert()
+		if err != nil {
+			return err
+		}
+
+		// Cache the inverted matrix in the tree for future use keyed on the
+		// indices of the invalid rows.
+		err = r.tree.InsertInvertedMatrix(invalidIndices, dataDecodeMatrix, r.totalShards)
+		if err != nil {
+			return err
+		}
+	}
+	galMulSliceXor(dataDecodeMatrix[dstIdx][mappedIdx], input, dst, &r.o)
+	return nil
 }
 
 // ReconstructData will recreate any missing data shards, if possible.
