@@ -1420,10 +1420,6 @@ func (r *reedSolomon) DecodeIdx(dst []byte, dstIdx int, expectInput []bool, inpu
 	}
 
 	// Use reconstruction
-	if dstIdx >= r.dataShards {
-		return errors.New("destination shard is not a data shard. not supported (yet)")
-	}
-
 	// Attempt to get the cached inverted matrix out of the tree
 	// based on the indices of the invalid rows.
 	dataDecodeMatrix := r.tree.GetInvertedMatrix(invalidIndices)
@@ -1459,7 +1455,22 @@ func (r *reedSolomon) DecodeIdx(dst []byte, dstIdx int, expectInput []bool, inpu
 			return err
 		}
 	}
-	galMulSliceXor(dataDecodeMatrix[dstIdx][mappedIdx], input, dst, &r.o)
+	// Determine the decode coefficients based on whether we're reconstructing
+	// a data shard or a parity shard.
+	if dstIdx < r.dataShards {
+		// Data shard: use the inverted matrix row directly
+		galMulSliceXor(dataDecodeMatrix[dstIdx][mappedIdx], input, dst, &r.o)
+	} else {
+		// Parity shard: multiply parity generation row with inverted matrix column
+		parityIdx := dstIdx - r.dataShards
+		// We need to compute the coefficient by multiplying the parity row
+		// with the column of the inverted matrix corresponding to our input
+		coeff := byte(0)
+		for i := 0; i < r.dataShards; i++ {
+			coeff ^= galMultiply(r.parity[parityIdx][i], dataDecodeMatrix[i][mappedIdx])
+		}
+		galMulSliceXor(coeff, input, dst, &r.o)
+	}
 	return nil
 }
 

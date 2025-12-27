@@ -2,6 +2,7 @@ package reedsolomon
 
 import (
 	"bytes"
+	"fmt"
 	"strings"
 	"testing"
 )
@@ -290,8 +291,8 @@ func TestDecodeIdx_IntegrationWithFullCycle(t *testing.T) {
 				copy(originalShards[i], shards[i])
 			}
 
-			// Test reconstruction of each data shard only (parity not supported yet)
-			for targetShard := 0; targetShard < tc.dataShards; targetShard++ {
+			// Test reconstruction of ALL shards (both data and parity)
+			for targetShard := 0; targetShard < totalShards; targetShard++ {
 				// Skip one shard at a time and use DecodeIdx to reconstruct it
 				expectInput := make([]bool, totalShards)
 				inputShards := make([]int, 0, tc.dataShards)
@@ -534,6 +535,129 @@ func fillRandomDecodeIdx(p []byte) {
 			p[i+j] = byte(val)
 			val >>= 8
 		}
+	}
+}
+
+// TestDecodeIdx_ParityReconstruction specifically tests parity shard reconstruction
+func TestDecodeIdx_ParityReconstruction(t *testing.T) {
+	const dataShards = 5
+	const parityShards = 3
+	const totalShards = dataShards + parityShards
+	const shardSize = 100
+
+	enc, err := New(dataShards, parityShards)
+	if err != nil {
+		t.Fatal(err)
+	}
+	r := enc.(*reedSolomon)
+
+	// Create and encode data
+	shards := make([][]byte, totalShards)
+	for i := 0; i < dataShards; i++ {
+		shards[i] = make([]byte, shardSize)
+		fillRandomDecodeIdx(shards[i])
+	}
+	for i := dataShards; i < totalShards; i++ {
+		shards[i] = make([]byte, shardSize)
+	}
+
+	err = enc.Encode(shards)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Save original for verification
+	originalShards := make([][]byte, totalShards)
+	for i := range shards {
+		originalShards[i] = make([]byte, shardSize)
+		copy(originalShards[i], shards[i])
+	}
+
+	// Test reconstruction of each parity shard
+	for targetShard := dataShards; targetShard < totalShards; targetShard++ {
+		t.Run(fmt.Sprintf("parity_%d", targetShard-dataShards), func(t *testing.T) {
+			// Use first dataShards shards (all data shards)
+			expectInput := make([]bool, totalShards)
+			for i := 0; i < dataShards; i++ {
+				expectInput[i] = true
+			}
+
+			// Decode parity shard progressively
+			dst := make([]byte, shardSize)
+			for inputIdx := 0; inputIdx < dataShards; inputIdx++ {
+				err = r.DecodeIdx(dst, targetShard, expectInput, shards[inputIdx], inputIdx)
+				if err != nil {
+					t.Fatalf("Failed to decode parity shard %d using input %d: %v",
+						targetShard-dataShards, inputIdx, err)
+				}
+			}
+
+			// Verify
+			if !bytes.Equal(dst, originalShards[targetShard]) {
+				t.Errorf("Parity shard %d reconstruction mismatch", targetShard-dataShards)
+			}
+		})
+	}
+}
+
+// TestDecodeIdx_ParityFromMixedShards tests reconstructing parity from mixed data/parity shards
+func TestDecodeIdx_ParityFromMixedShards(t *testing.T) {
+	const dataShards = 5
+	const parityShards = 3
+	const totalShards = dataShards + parityShards
+	const shardSize = 100
+
+	enc, err := New(dataShards, parityShards)
+	if err != nil {
+		t.Fatal(err)
+	}
+	r := enc.(*reedSolomon)
+
+	// Create and encode data
+	shards := make([][]byte, totalShards)
+	for i := 0; i < dataShards; i++ {
+		shards[i] = make([]byte, shardSize)
+		fillRandomDecodeIdx(shards[i])
+	}
+	for i := dataShards; i < totalShards; i++ {
+		shards[i] = make([]byte, shardSize)
+	}
+
+	err = enc.Encode(shards)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Save original for verification
+	originalShards := make([][]byte, totalShards)
+	for i := range shards {
+		originalShards[i] = make([]byte, shardSize)
+		copy(originalShards[i], shards[i])
+	}
+
+	// Test reconstructing last parity shard using first 3 data + first 2 parity
+	targetShard := totalShards - 1 // last parity shard
+	expectInput := make([]bool, totalShards)
+	expectInput[0] = true // data 0
+	expectInput[1] = true // data 1
+	expectInput[2] = true // data 2
+	expectInput[dataShards] = true   // parity 0
+	expectInput[dataShards+1] = true // parity 1
+
+	// Decode progressively
+	dst := make([]byte, shardSize)
+	inputIndices := []int{0, 1, 2, dataShards, dataShards + 1}
+	for _, inputIdx := range inputIndices {
+		err = r.DecodeIdx(dst, targetShard, expectInput, shards[inputIdx], inputIdx)
+		if err != nil {
+			t.Fatalf("Failed to decode parity shard %d using input %d: %v",
+				targetShard, inputIdx, err)
+		}
+	}
+
+	// Verify
+	if !bytes.Equal(dst, originalShards[targetShard]) {
+		t.Errorf("Parity shard reconstruction from mixed shards failed")
 	}
 }
 
