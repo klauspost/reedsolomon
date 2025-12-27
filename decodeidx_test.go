@@ -168,7 +168,7 @@ func TestDecodeIdx_XORMode(t *testing.T) {
 
 	dst := []byte{1, 2, 3, 4, 5}
 	input := []byte{10, 20, 30, 40, 50}
-	expected := []byte{1^10, 2^20, 3^30, 4^40, 5^50} // XOR results: 11, 22, 29, 44, 55
+	expected := []byte{1 ^ 10, 2 ^ 20, 3 ^ 30, 4 ^ 40, 5 ^ 50} // XOR results: 11, 22, 29, 44, 55
 
 	expectInput := make([]bool, 8)
 	for i := 0; i < 5; i++ {
@@ -638,9 +638,9 @@ func TestDecodeIdx_ParityFromMixedShards(t *testing.T) {
 	// Test reconstructing last parity shard using first 3 data + first 2 parity
 	targetShard := totalShards - 1 // last parity shard
 	expectInput := make([]bool, totalShards)
-	expectInput[0] = true // data 0
-	expectInput[1] = true // data 1
-	expectInput[2] = true // data 2
+	expectInput[0] = true            // data 0
+	expectInput[1] = true            // data 1
+	expectInput[2] = true            // data 2
 	expectInput[dataShards] = true   // parity 0
 	expectInput[dataShards+1] = true // parity 1
 

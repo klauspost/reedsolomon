@@ -263,3 +263,97 @@ func ExampleStreamEncoder() {
 	fmt.Println("ok")
 	// OUTPUT: ok
 }
+
+// This shows how to use DecodeIdx to progressively reconstruct any shard,
+// including parity shards. DecodeIdx allows you to accumulate reconstruction
+// data from multiple input shards, which is useful for streaming scenarios
+// or when inputs arrive at different times.
+func ExampleExtensions_DecodeIdx() {
+	const dataShards = 5
+	const parityShards = 3
+	const totalShards = dataShards + parityShards
+	const shardSize = 50000
+
+	// Create encoder
+	enc, err := reedsolomon.New(dataShards, parityShards)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// DecodeIdx is available through the Extensions interface
+	r := enc.(reedsolomon.Extensions)
+
+	// Create some sample data
+	var data = make([]byte, dataShards*shardSize)
+	fillRandom(data)
+
+	// Split into shards and encode
+	shards, err := enc.Split(data)
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = enc.Encode(shards)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Save original parity for verification
+	originalParity := make([]byte, shardSize)
+	copy(originalParity, shards[dataShards]) // Copy first parity shard
+
+	// Simulate losing the first parity shard and some data shards
+	lostShards := []int{1, 3, dataShards} // data shards 1,3 and parity shard 0
+	for _, idx := range lostShards {
+		shards[idx] = nil
+	}
+
+	// Reconstruct the first parity shard progressively using DecodeIdx
+	// We'll use the remaining available shards: 0, 2, 4 (data) + 6, 7 (parity)
+	availableShards := []int{0, 2, 4, dataShards + 1, dataShards + 2}
+
+	// Set up expectInput to indicate which shards we plan to use
+	expectInput := make([]bool, totalShards)
+	for _, idx := range availableShards {
+		expectInput[idx] = true
+	}
+
+	// Progressive reconstruction of parity shard 0
+	targetShard := dataShards // First parity shard
+	dst := make([]byte, shardSize)
+
+	// Add each available shard progressively
+	for _, inputIdx := range availableShards {
+		err = r.DecodeIdx(dst, targetShard, expectInput, shards[inputIdx], inputIdx)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	// Verify reconstruction
+	if bytes.Equal(dst, originalParity) {
+		fmt.Println("Parity shard reconstructed successfully")
+	}
+
+	// DecodeIdx can also reconstruct data shards the same way
+	// Let's reconstruct data shard 1
+	dst2 := make([]byte, shardSize)
+	targetShard2 := 1 // Data shard 1
+
+	for _, inputIdx := range availableShards {
+		err = r.DecodeIdx(dst2, targetShard2, expectInput, shards[inputIdx], inputIdx)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	// Split original data to check
+	originalShards, _ := enc.Split(data)
+	if bytes.Equal(dst2, originalShards[1]) {
+		fmt.Println("Data shard reconstructed successfully")
+	}
+
+	fmt.Println("Both reconstructions completed")
+	// Output: Parity shard reconstructed successfully
+	// Data shard reconstructed successfully
+	// Both reconstructions completed
+}

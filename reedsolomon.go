@@ -151,6 +151,19 @@ type Extensions interface {
 	// aligned to reasonable memory sizes.
 	// Provide the size of each shard.
 	AllocAligned(each int) [][]byte
+
+	// DecodeIdx allows progressively decoding into dst.
+	// The dstIdx is the destination to be filled.
+	// On the first call, dst should be set to all zeros.
+	// dstIdx/expectInput should be the same for all calls and should
+	// represent the inputs that are expected to be added.
+	// The number of expected inputs should at least be the number of data shards.
+	// Each input/inputIdx should be sent once - and only once.
+	// The caller must manage all of the above.
+	// len(dst) must be = len(input).
+	// If inputIdx is < 0 no new input is added, but the slices are XORed together.
+	// This allows merging two separate inputs where a number of inputs has been filled.
+	DecodeIdx(dst []byte, dstIdx int, expectInput []bool, input []byte, inputIdx int) error
 }
 
 const (
@@ -1371,10 +1384,9 @@ func (r *reedSolomon) Reconstruct(shards [][]byte) error {
 	return r.reconstruct(shards, false, nil)
 }
 
-// DecodeIdx allows decoding into dst progressively.
+// DecodeIdx allows progressively decoding into dst.
 // The dstIdx is the destination to be filled.
-// This must be the same for all calls.
-// On first call, dst should be set to all zeros.
+// On the first call, dst should be set to all zeros.
 // dstIdx/expectInput should be the same for all calls and should
 // represent the inputs that are expected to be added.
 // The number of expected inputs should at least be the number of data shards.
@@ -1383,7 +1395,6 @@ func (r *reedSolomon) Reconstruct(shards [][]byte) error {
 // len(dst) must be = len(input).
 // If inputIdx is < 0 no new input is added, but the slices are XORed together.
 // This allows merging two separate inputs where a number of inputs has been filled.
-// Once all expectInput has been added the destination will contain the requested slice.
 func (r *reedSolomon) DecodeIdx(dst []byte, dstIdx int, expectInput []bool, input []byte, inputIdx int) (err error) {
 	expectedShards := 0
 	gotInput := false
