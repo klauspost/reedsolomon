@@ -597,6 +597,21 @@ func (r *reedSolomon) putTmpSlice(b []byte) {
 	}
 }
 
+// multiplyRowWithMatrix multiplies a single row with a matrix to produce a new row.
+// result[j] = sum over i of row[i] * matrix[i][j]
+func multiplyRowWithMatrix(row []byte, matrix [][]byte) []byte {
+	if len(row) != len(matrix) {
+		panic("row length must match matrix height")
+	}
+	result := make([]byte, len(matrix[0]))
+	for j := range result {
+		for i := range row {
+			result[j] ^= galMultiply(row[i], matrix[i][j])
+		}
+	}
+	return result
+}
+
 // ErrTooFewShards is returned if too few shards where given to
 // Encode/Verify/Reconstruct/Update. It will also be returned from Reconstruct
 // if there were too few shards to reconstruct the missing data.
@@ -1542,7 +1557,6 @@ func (r *reedSolomon) reconstruct(shards [][]byte, dataOnly bool, required []boo
 	numberPresent := 0
 	dataPresent := 0
 	missingRequired := 0
-	needAllData := false
 	for i := 0; i < r.totalShards; i++ {
 		if len(shards[i]) != 0 {
 			numberPresent++
@@ -1550,9 +1564,6 @@ func (r *reedSolomon) reconstruct(shards [][]byte, dataOnly bool, required []boo
 				dataPresent++
 			}
 		} else if required != nil {
-			if !dataOnly && i >= r.dataShards {
-				needAllData = true
-			}
 			if required[i] {
 				missingRequired++
 			}
@@ -1627,43 +1638,14 @@ func (r *reedSolomon) reconstruct(shards [][]byte, dataOnly bool, required []boo
 		}
 	}
 
-	// Re-create any data shards that were missing.
-	//
-	// The input to the coding is all of the shards we actually
-	// have, and the output is the missing data shards.  The computation
-	// is done using the special decode matrix we just built.
+	// Unified reconstruction: build a single decode matrix for all missing shards
+	// and reconstruct them in one codeSomeShards call.
 	outputCount := 0
-	outputs := make([][]byte, r.parityShards)
-	matrixRows := make([][]byte, r.parityShards)
-	if dataPresent != r.dataShards {
-		for iShard := 0; iShard < r.dataShards; iShard++ {
-			if len(shards[iShard]) == 0 && (needAllData || required == nil || required[iShard]) {
-				if cap(shards[iShard]) >= shardSize {
-					shards[iShard] = shards[iShard][0:shardSize]
-				} else {
-					shards[iShard] = AllocAligned(1, shardSize)[0]
-				}
-				outputs[outputCount] = shards[iShard]
-				matrixRows[outputCount] = dataDecodeMatrix[iShard]
-				outputCount++
-			}
-		}
-		r.codeSomeShards(matrixRows, subShards, outputs[:outputCount], shardSize)
-	}
+	outputs := make([][]byte, r.totalShards)
+	matrixRows := make([][]byte, r.totalShards)
 
-	if dataOnly {
-		// Exit out early if we are only interested in the data shards
-		return nil
-	}
-
-	// Now that we have all of the data shards intact, we can
-	// compute any of the parity that is missing.
-	//
-	// The input to the coding is ALL of the data shards, including
-	// any that we just calculated.  The output is whichever of the
-	// data shards were missing.
-	outputCount = 0
-	for iShard := r.dataShards; iShard < r.totalShards; iShard++ {
+	// Count and prepare missing data shards
+	for iShard := 0; iShard < r.dataShards; iShard++ {
 		if len(shards[iShard]) == 0 && (required == nil || required[iShard]) {
 			if cap(shards[iShard]) >= shardSize {
 				shards[iShard] = shards[iShard][0:shardSize]
@@ -1671,12 +1653,32 @@ func (r *reedSolomon) reconstruct(shards [][]byte, dataOnly bool, required []boo
 				shards[iShard] = AllocAligned(1, shardSize)[0]
 			}
 			outputs[outputCount] = shards[iShard]
-			matrixRows[outputCount] = r.parity[iShard-r.dataShards]
+			matrixRows[outputCount] = dataDecodeMatrix[iShard]
 			outputCount++
 		}
 	}
+
+	if !dataOnly {
+		// Count and prepare missing parity shards
+		for iShard := r.dataShards; iShard < r.totalShards; iShard++ {
+			if len(shards[iShard]) == 0 && (required == nil || required[iShard]) {
+				if cap(shards[iShard]) >= shardSize {
+					shards[iShard] = shards[iShard][0:shardSize]
+				} else {
+					shards[iShard] = AllocAligned(1, shardSize)[0]
+				}
+				outputs[outputCount] = shards[iShard]
+				// For parity shards, multiply parity row with inverted matrix
+				parityIdx := iShard - r.dataShards
+				matrixRows[outputCount] = multiplyRowWithMatrix(r.parity[parityIdx], dataDecodeMatrix)
+				outputCount++
+			}
+		}
+	}
+
+	// Single reconstruction call for all missing shards
 	if outputCount > 0 {
-		r.codeSomeShards(matrixRows, shards[:r.dataShards], outputs[:outputCount], shardSize)
+		r.codeSomeShards(matrixRows[:outputCount], subShards, outputs[:outputCount], shardSize)
 	}
 	return nil
 }
