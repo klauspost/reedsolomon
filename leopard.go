@@ -75,7 +75,7 @@ func (r *leopardFF16) AllocAligned(each int) [][]byte {
 	return AllocAligned(r.totalShards, each)
 }
 
-func (r *leopardFF16) DecodeIdx(dst []byte, dstIdx int, expectInput []bool, input []byte, inputIdx int) error {
+func (r *leopardFF16) DecodeIdx(dst [][]byte, expectInput []bool, input [][]byte) error {
 	return errors.New("DecodeIdx not supported by leopard implementation")
 }
 

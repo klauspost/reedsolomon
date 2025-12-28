@@ -2,6 +2,7 @@ package reedsolomon
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"strings"
 	"testing"
@@ -16,51 +17,56 @@ func TestDecodeIdx_InvalidExpectInputLength(t *testing.T) {
 	}
 	r := enc.(*reedSolomon)
 
-	dst := make([]byte, 100)
-	input := make([]byte, 100)
+	dst := make([][]byte, 8)
+	input := make([][]byte, 8)
 	wrongExpectInput := make([]bool, 7) // Should be 8 (5+3)
 
-	err = r.DecodeIdx(dst, 0, wrongExpectInput, input, 0)
+	err = r.DecodeIdx(dst, wrongExpectInput, input)
 	if err == nil {
 		t.Fatal("expected error for wrong expectInput length")
 	}
-	if !strings.Contains(err.Error(), "expectInput length expected to be 8") {
-		t.Errorf("unexpected error message: %v", err)
+	if !errors.Is(err, ErrInvalidInput) {
+		t.Errorf("expected ErrInvalidInput, got: %v", err)
+	}
+	if !strings.Contains(err.Error(), "expectInput length") {
+		t.Errorf("error should mention expectInput length: %v", err)
 	}
 }
 
-// TestDecodeIdx_InvalidDstIdx tests that DecodeIdx returns an error
-// for invalid destination indices
-func TestDecodeIdx_InvalidDstIdx(t *testing.T) {
+// TestDecodeIdx_WrongSliceLengths tests that DecodeIdx returns an error
+// when dst or input don't have the correct length
+func TestDecodeIdx_WrongSliceLengths(t *testing.T) {
 	enc, err := New(5, 3, testOptions()...)
 	if err != nil {
 		t.Fatal(err)
 	}
 	r := enc.(*reedSolomon)
 
-	dst := make([]byte, 100)
-	input := make([]byte, 100)
 	expectInput := make([]bool, 8)
 	for i := 0; i < 5; i++ {
-		expectInput[i] = true // Mark data shards as available
+		expectInput[i] = true
 	}
 
-	testCases := []struct {
-		name   string
-		dstIdx int
-	}{
-		{"negative", -1},
-		{"equal to totalShards", 8},
-		{"greater than totalShards", 10},
+	// Test wrong dst length
+	dst := make([][]byte, 7)
+	input := make([][]byte, 8)
+	err = r.DecodeIdx(dst, expectInput, input)
+	if err == nil {
+		t.Fatal("expected error for wrong dst length")
+	}
+	if !errors.Is(err, ErrInvalidInput) {
+		t.Errorf("expected ErrInvalidInput for wrong dst length, got: %v", err)
 	}
 
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			err := r.DecodeIdx(dst, tc.dstIdx, expectInput, input, 0)
-			if err != ErrInvShardNum {
-				t.Errorf("expected ErrInvShardNum, got %v", err)
-			}
-		})
+	// Test wrong input length
+	dst = make([][]byte, 8)
+	input = make([][]byte, 7)
+	err = r.DecodeIdx(dst, expectInput, input)
+	if err == nil {
+		t.Fatal("expected error for wrong input length")
+	}
+	if !errors.Is(err, ErrInvalidInput) {
+		t.Errorf("expected ErrInvalidInput for wrong input length, got: %v", err)
 	}
 }
 
@@ -73,48 +79,64 @@ func TestDecodeIdx_DestinationAlreadyFilled(t *testing.T) {
 	}
 	r := enc.(*reedSolomon)
 
-	dst := make([]byte, 100)
-	input := make([]byte, 100)
+	dst := make([][]byte, 8)
+	input := make([][]byte, 8)
 	expectInput := make([]bool, 8)
 	for i := 0; i < 5; i++ {
 		expectInput[i] = true
 	}
-	expectInput[7] = true // Mark destination as already filled
 
-	err = r.DecodeIdx(dst, 7, expectInput, input, 0)
+	// Mark shard 7 as expected but also provide it in dst
+	expectInput[7] = true
+	dst[7] = make([]byte, 100)
+
+	err = r.DecodeIdx(dst, expectInput, input)
 	if err == nil {
 		t.Fatal("expected error for already filled destination")
 	}
-	if !strings.Contains(err.Error(), "destination shard already filled") {
-		t.Errorf("unexpected error message: %v", err)
+	if !errors.Is(err, ErrInvalidInput) {
+		t.Errorf("expected ErrInvalidInput, got: %v", err)
+	}
+	if !strings.Contains(err.Error(), "should be nil") {
+		t.Errorf("error should mention dst should be nil: %v", err)
 	}
 }
 
-// TestDecodeIdx_InvalidInputIdx tests that DecodeIdx returns an error
-// when inputIdx is not in expectInput
-func TestDecodeIdx_InvalidInputIdx(t *testing.T) {
+// TestDecodeIdx_UnexpectedInput tests that DecodeIdx returns an error
+// when input is provided at an index not marked in expectInput
+func TestDecodeIdx_UnexpectedInput(t *testing.T) {
 	enc, err := New(5, 3, testOptions()...)
 	if err != nil {
 		t.Fatal(err)
 	}
 	r := enc.(*reedSolomon)
 
-	dst := make([]byte, 100)
-	input := make([]byte, 100)
+	dst := make([][]byte, 8)
+	input := make([][]byte, 8)
 	expectInput := make([]bool, 8)
 	for i := 0; i < 5; i++ {
 		expectInput[i] = true
 	}
-	// expectInput[3] is false, but we'll try to use it as inputIdx
 
-	err = r.DecodeIdx(dst, 7, expectInput, input, 6)
-	if err != ErrInvShardNum {
-		t.Errorf("expected ErrInvShardNum for invalid inputIdx, got %v", err)
+	// Provide input at index 7 which is not marked as expected
+	input[7] = make([]byte, 100)
+	input[0] = make([]byte, 100)
+	dst[6] = make([]byte, 100) // Decode into shard 6
+
+	err = r.DecodeIdx(dst, expectInput, input)
+	if err == nil {
+		t.Fatal("expected error for unexpected input")
+	}
+	if !errors.Is(err, ErrInvalidInput) {
+		t.Errorf("expected ErrInvalidInput, got: %v", err)
+	}
+	if !strings.Contains(err.Error(), "unexpected input") {
+		t.Errorf("error should mention unexpected input: %v", err)
 	}
 }
 
 // TestDecodeIdx_TooFewShards tests that DecodeIdx returns an error
-// when there are not enough shards to reconstruct
+// when there are too few shards marked in expectInput
 func TestDecodeIdx_TooFewShards(t *testing.T) {
 	enc, err := New(5, 3, testOptions()...)
 	if err != nil {
@@ -122,22 +144,22 @@ func TestDecodeIdx_TooFewShards(t *testing.T) {
 	}
 	r := enc.(*reedSolomon)
 
-	dst := make([]byte, 100)
-	input := make([]byte, 100)
+	dst := make([][]byte, 8)
+	input := make([][]byte, 8)
 	expectInput := make([]bool, 8)
-	// Only mark 4 shards as available (need at least 5)
+	// Only mark 4 shards as expected (need at least 5)
 	for i := 0; i < 4; i++ {
 		expectInput[i] = true
 	}
 
-	err = r.DecodeIdx(dst, 7, expectInput, input, 0)
-	if err != ErrTooFewShards {
+	err = r.DecodeIdx(dst, expectInput, input)
+	if !errors.Is(err, ErrTooFewShards) {
 		t.Errorf("expected ErrTooFewShards, got %v", err)
 	}
 }
 
 // TestDecodeIdx_MismatchedBufferSizes tests that DecodeIdx returns an error
-// when dst and input have different sizes
+// when buffer sizes don't match
 func TestDecodeIdx_MismatchedBufferSizes(t *testing.T) {
 	enc, err := New(5, 3, testOptions()...)
 	if err != nil {
@@ -145,129 +167,152 @@ func TestDecodeIdx_MismatchedBufferSizes(t *testing.T) {
 	}
 	r := enc.(*reedSolomon)
 
-	dst := make([]byte, 100)
-	input := make([]byte, 50) // Different size
+	dst := make([][]byte, 8)
+	input := make([][]byte, 8)
 	expectInput := make([]bool, 8)
 	for i := 0; i < 5; i++ {
 		expectInput[i] = true
 	}
 
-	err = r.DecodeIdx(dst, 7, expectInput, input, 0)
-	if err != ErrInvalidShardSize {
+	// Set up mismatched sizes - reconstruct shards 5 and 6 with different sizes
+	dst[5] = make([]byte, 100)
+	dst[6] = make([]byte, 200)   // Different size
+	input[0] = make([]byte, 100) // Provide input at index 0
+
+	err = r.DecodeIdx(dst, expectInput, input)
+	if !errors.Is(err, ErrInvalidShardSize) {
 		t.Errorf("expected ErrInvalidShardSize, got %v", err)
 	}
 }
 
-// TestDecodeIdx_XORMode tests the XOR mode when inputIdx < 0
-func TestDecodeIdx_XORMode(t *testing.T) {
+// TestDecodeIdx_MergeMode tests merging mode (expectInput == nil)
+func TestDecodeIdx_MergeMode(t *testing.T) {
 	enc, err := New(5, 3, testOptions()...)
 	if err != nil {
 		t.Fatal(err)
 	}
 	r := enc.(*reedSolomon)
 
-	dst := []byte{1, 2, 3, 4, 5}
-	input := []byte{10, 20, 30, 40, 50}
-	expected := []byte{1 ^ 10, 2 ^ 20, 3 ^ 30, 4 ^ 40, 5 ^ 50} // XOR results: 11, 22, 29, 44, 55
+	dst := make([][]byte, 8)
+	input := make([][]byte, 8)
 
-	expectInput := make([]bool, 8)
-	for i := 0; i < 5; i++ {
-		expectInput[i] = true
-	}
+	// Set up data to merge
+	dst[0] = []byte{1, 2, 3, 4}
+	input[0] = []byte{5, 6, 7, 8}
 
-	// Make a copy of dst to preserve original for comparison
-	dstCopy := make([]byte, len(dst))
-	copy(dstCopy, dst)
+	dst[3] = []byte{10, 20, 30, 40}
+	input[3] = []byte{50, 60, 70, 80}
 
-	err = r.DecodeIdx(dstCopy, 7, expectInput, input, -1)
+	err = r.DecodeIdx(dst, nil, input)
 	if err != nil {
-		t.Fatalf("unexpected error in XOR mode: %v", err)
+		t.Fatal(err)
 	}
 
-	if !bytes.Equal(dstCopy, expected) {
-		t.Errorf("XOR result mismatch: got %v, want %v", dstCopy, expected)
+	// Check XOR results
+	expected0 := []byte{1 ^ 5, 2 ^ 6, 3 ^ 7, 4 ^ 8}
+	if !bytes.Equal(dst[0], expected0) {
+		t.Errorf("merge failed for shard 0: got %v, expected %v", dst[0], expected0)
+	}
+
+	expected3 := []byte{10 ^ 50, 20 ^ 60, 30 ^ 70, 40 ^ 80}
+	if !bytes.Equal(dst[3], expected3) {
+		t.Errorf("merge failed for shard 3: got %v, expected %v", dst[3], expected3)
 	}
 }
 
-// TestDecodeIdx_ProgressiveDecode tests progressive decoding with multiple calls
+// TestDecodeIdx_ProgressiveDecode tests progressive decoding of shards
 func TestDecodeIdx_ProgressiveDecode(t *testing.T) {
-	dataShards := 5
-	parityShards := 3
-	shardSize := 1000
-
-	enc, err := New(dataShards, parityShards, testOptions()...)
+	enc, err := New(5, 3, testOptions()...)
 	if err != nil {
 		t.Fatal(err)
 	}
 	r := enc.(*reedSolomon)
 
-	// Create original data
-	shards := make([][]byte, dataShards+parityShards)
-	for i := 0; i < dataShards; i++ {
-		shards[i] = make([]byte, shardSize)
+	// Create and encode data
+	shards := make([][]byte, 8)
+	for i := 0; i < 5; i++ {
+		shards[i] = make([]byte, 100)
 		fillRandomDecodeIdx(shards[i])
 	}
-	for i := dataShards; i < dataShards+parityShards; i++ {
-		shards[i] = make([]byte, shardSize)
+	for i := 5; i < 8; i++ {
+		shards[i] = make([]byte, 100)
 	}
 
-	// Encode
 	err = enc.Encode(shards)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	// Save original data shard for comparison
-	originalShard := make([]byte, shardSize)
-	copy(originalShard, shards[0])
-
-	// Set up expectInput - we'll use shards 1,2,3,4,5 to reconstruct shard 0
-	expectInput := make([]bool, dataShards+parityShards)
-	availableShards := []int{1, 2, 3, 4, 5}
-	for _, idx := range availableShards {
-		expectInput[idx] = true
+	// Save originals
+	originals := make([][]byte, 8)
+	for i := range shards {
+		originals[i] = make([]byte, 100)
+		copy(originals[i], shards[i])
 	}
 
-	// Initialize destination buffer with zeros
-	dst := make([]byte, shardSize)
+	// Progressive decode: reconstruct shards 0 and 7 using shards 1-5
+	dst := make([][]byte, 8)
+	dst[0] = make([]byte, 100) // Reconstruct data shard 0
+	dst[7] = make([]byte, 100) // Reconstruct parity shard 7
 
-	// Progressive decode - feed one shard at a time
-	for i, shardIdx := range availableShards {
-		err = r.DecodeIdx(dst, 0, expectInput, shards[shardIdx], shardIdx)
-		if err != nil {
-			t.Fatalf("DecodeIdx failed on input %d (shard %d): %v", i, shardIdx, err)
-		}
+	expectInput := make([]bool, 8)
+	for i := 1; i <= 5; i++ {
+		expectInput[i] = true
 	}
 
-	// Verify the reconstructed shard matches the original
-	if !bytes.Equal(dst, originalShard) {
-		t.Error("Progressive decode produced incorrect result")
+	// First call with shards 1-3
+	input := make([][]byte, 8)
+	for i := 1; i <= 3; i++ {
+		input[i] = shards[i]
+	}
+
+	err = r.DecodeIdx(dst, expectInput, input)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Second call with shards 4-5
+	input2 := make([][]byte, 8)
+	for i := 4; i <= 5; i++ {
+		input2[i] = shards[i]
+	}
+
+	err = r.DecodeIdx(dst, expectInput, input2)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Verify reconstructed shards
+	if !bytes.Equal(dst[0], originals[0]) {
+		t.Error("data shard 0 reconstruction failed")
+	}
+	if !bytes.Equal(dst[7], originals[7]) {
+		t.Error("parity shard 7 reconstruction failed")
 	}
 }
 
-// TestDecodeIdx_IntegrationWithFullCycle tests DecodeIdx in a complete encode/decode cycle
+// TestDecodeIdx_IntegrationWithFullCycle tests full encode/decode cycle
 func TestDecodeIdx_IntegrationWithFullCycle(t *testing.T) {
 	testCases := []struct {
-		name         string
 		dataShards   int
 		parityShards int
 	}{
-		{"5+3", 5, 3},
-		{"10+4", 10, 4},
-		{"2+2", 2, 2},
-		{"17+3", 17, 3},
+		{5, 3},
+		{10, 4},
+		{2, 2},
+		{17, 3},
 	}
 
 	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
+		t.Run(fmt.Sprintf("%d+%d", tc.dataShards, tc.parityShards), func(t *testing.T) {
 			enc, err := New(tc.dataShards, tc.parityShards, testOptions()...)
 			if err != nil {
 				t.Fatal(err)
 			}
 			r := enc.(*reedSolomon)
 
-			shardSize := 1000
 			totalShards := tc.dataShards + tc.parityShards
+			shardSize := 100
 
 			// Create and encode data
 			shards := make([][]byte, totalShards)
@@ -293,55 +338,58 @@ func TestDecodeIdx_IntegrationWithFullCycle(t *testing.T) {
 
 			// Test reconstruction of ALL shards (both data and parity)
 			for targetShard := 0; targetShard < totalShards; targetShard++ {
-				// Skip one shard at a time and use DecodeIdx to reconstruct it
-				expectInput := make([]bool, totalShards)
-				inputShards := make([]int, 0, tc.dataShards)
+				// Prepare dst with only the target shard to reconstruct
+				dst := make([][]byte, totalShards)
+				dst[targetShard] = make([]byte, shardSize)
 
-				// Select which shards to use (all except target, up to dataShards count)
+				// Mark first dataShards shards as expected (excluding target if it's one of them)
+				expectInput := make([]bool, totalShards)
 				count := 0
 				for i := 0; i < totalShards && count < tc.dataShards; i++ {
 					if i != targetShard {
 						expectInput[i] = true
-						inputShards = append(inputShards, i)
 						count++
 					}
 				}
 
-				// Decode progressively
-				dst := make([]byte, shardSize)
-				for _, inputIdx := range inputShards {
-					err = r.DecodeIdx(dst, targetShard, expectInput, shards[inputIdx], inputIdx)
-					if err != nil {
-						t.Fatalf("Failed to decode shard %d using inputs %v: %v",
-							targetShard, inputShards, err)
+				// Provide all expected inputs in one call
+				input := make([][]byte, totalShards)
+				for i := 0; i < totalShards; i++ {
+					if expectInput[i] {
+						input[i] = shards[i]
 					}
 				}
 
+				err = r.DecodeIdx(dst, expectInput, input)
+				if err != nil {
+					t.Fatalf("Failed to decode shard %d: %v", targetShard, err)
+				}
+
 				// Verify
-				if !bytes.Equal(dst, originalShards[targetShard]) {
-					t.Errorf("Shard %d reconstruction failed", targetShard)
+				if !bytes.Equal(dst[targetShard], originalShards[targetShard]) {
+					t.Errorf("Shard %d reconstruction mismatch", targetShard)
 				}
 			}
 		})
 	}
 }
 
-// TestDecodeIdx_MinimalShards tests decoding with exactly dataShards inputs
-func TestDecodeIdx_MinimalShards(t *testing.T) {
+// TestDecodeIdx_MultipleShards tests reconstructing multiple shards in one call
+func TestDecodeIdx_MultipleShards(t *testing.T) {
 	enc, err := New(5, 3, testOptions()...)
 	if err != nil {
 		t.Fatal(err)
 	}
 	r := enc.(*reedSolomon)
 
-	shardSize := 100
+	// Create and encode data
 	shards := make([][]byte, 8)
 	for i := 0; i < 5; i++ {
-		shards[i] = make([]byte, shardSize)
+		shards[i] = make([]byte, 100)
 		fillRandomDecodeIdx(shards[i])
 	}
 	for i := 5; i < 8; i++ {
-		shards[i] = make([]byte, shardSize)
+		shards[i] = make([]byte, 100)
 	}
 
 	err = enc.Encode(shards)
@@ -349,90 +397,66 @@ func TestDecodeIdx_MinimalShards(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	// Use exactly 5 shards (minimum required) to reconstruct data shard 0
-	// We'll use shards 1,2,3,4,5 to reconstruct shard 0
+	// Save originals
+	originals := make([][]byte, 8)
+	for i := range shards {
+		originals[i] = make([]byte, 100)
+		copy(originals[i], shards[i])
+	}
+
+	// Reconstruct shards 0, 2, and 7 using shards 1, 3, 4, 5, 6
+	dst := make([][]byte, 8)
+	dst[0] = make([]byte, 100) // data shard
+	dst[2] = make([]byte, 100) // data shard
+	dst[7] = make([]byte, 100) // parity shard
+
 	expectInput := make([]bool, 8)
-	for i := 1; i < 6; i++ {
-		expectInput[i] = true
-	}
-
-	originalShard := make([]byte, shardSize)
-	copy(originalShard, shards[0])
-
-	dst := make([]byte, shardSize)
-	for i := 1; i < 6; i++ {
-		err = r.DecodeIdx(dst, 0, expectInput, shards[i], i)
-		if err != nil {
-			t.Fatalf("Failed with minimal shards at input %d: %v", i, err)
-		}
-	}
-
-	if !bytes.Equal(dst, originalShard) {
-		t.Error("Minimal shards reconstruction failed")
-	}
-}
-
-// TestDecodeIdx_ParityOnly tests reconstruction using only parity shards
-func TestDecodeIdx_ParityOnly(t *testing.T) {
-	enc, err := New(3, 3, testOptions()...)
-	if err != nil {
-		t.Fatal(err)
-	}
-	r := enc.(*reedSolomon)
-
-	shardSize := 100
-	shards := make([][]byte, 6)
-	for i := 0; i < 3; i++ {
-		shards[i] = make([]byte, shardSize)
-		fillRandomDecodeIdx(shards[i])
-	}
-	for i := 3; i < 6; i++ {
-		shards[i] = make([]byte, shardSize)
-	}
-
-	err = enc.Encode(shards)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	// Use only parity shards (indices 3, 4, 5) to reconstruct data shard 0
-	expectInput := make([]bool, 6)
+	expectInput[1] = true
 	expectInput[3] = true
 	expectInput[4] = true
 	expectInput[5] = true
+	expectInput[6] = true
 
-	originalShard := make([]byte, shardSize)
-	copy(originalShard, shards[0])
+	input := make([][]byte, 8)
+	input[1] = shards[1]
+	input[3] = shards[3]
+	input[4] = shards[4]
+	input[5] = shards[5]
+	input[6] = shards[6]
 
-	dst := make([]byte, shardSize)
-	for i := 3; i < 6; i++ {
-		err = r.DecodeIdx(dst, 0, expectInput, shards[i], i)
-		if err != nil {
-			t.Fatalf("Failed with parity shards at input %d: %v", i, err)
-		}
+	err = r.DecodeIdx(dst, expectInput, input)
+	if err != nil {
+		t.Fatal(err)
 	}
 
-	if !bytes.Equal(dst, originalShard) {
-		t.Error("Parity-only reconstruction failed")
+	// Verify all reconstructed shards
+	if !bytes.Equal(dst[0], originals[0]) {
+		t.Error("data shard 0 reconstruction failed")
+	}
+	if !bytes.Equal(dst[2], originals[2]) {
+		t.Error("data shard 2 reconstruction failed")
+	}
+	if !bytes.Equal(dst[7], originals[7]) {
+		t.Error("parity shard 7 reconstruction failed")
 	}
 }
 
-// TestDecodeIdx_MixedDataAndParity tests reconstruction with mixed data and parity shards
-func TestDecodeIdx_MixedDataAndParity(t *testing.T) {
+// TestDecodeIdx_MergeTwoPartialDecodings tests merging partial decodings
+func TestDecodeIdx_MergeTwoPartialDecodings(t *testing.T) {
 	enc, err := New(5, 3, testOptions()...)
 	if err != nil {
 		t.Fatal(err)
 	}
 	r := enc.(*reedSolomon)
 
-	shardSize := 100
+	// Create and encode data
 	shards := make([][]byte, 8)
 	for i := 0; i < 5; i++ {
-		shards[i] = make([]byte, shardSize)
+		shards[i] = make([]byte, 100)
 		fillRandomDecodeIdx(shards[i])
 	}
 	for i := 5; i < 8; i++ {
-		shards[i] = make([]byte, shardSize)
+		shards[i] = make([]byte, 100)
 	}
 
 	err = enc.Encode(shards)
@@ -440,224 +464,52 @@ func TestDecodeIdx_MixedDataAndParity(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	// Use mix of data shards (0, 1) and parity shards (5, 6, 7) to reconstruct shard 2
-	expectInput := make([]bool, 8)
-	mixedShards := []int{0, 1, 5, 6, 7}
-	for _, idx := range mixedShards {
-		expectInput[idx] = true
+	// Save original
+	original := make([]byte, 100)
+	copy(original, shards[0])
+
+	// First partial decode using shards 1-3
+	dst1 := make([][]byte, 8)
+	dst1[0] = make([]byte, 100)
+
+	expectInput1 := make([]bool, 8)
+	for i := 1; i <= 5; i++ {
+		expectInput1[i] = true
 	}
 
-	originalShard := make([]byte, shardSize)
-	copy(originalShard, shards[2])
-
-	dst := make([]byte, shardSize)
-	for _, shardIdx := range mixedShards {
-		err = r.DecodeIdx(dst, 2, expectInput, shards[shardIdx], shardIdx)
-		if err != nil {
-			t.Fatalf("Failed with mixed shards at input %d: %v", shardIdx, err)
-		}
+	input1 := make([][]byte, 8)
+	for i := 1; i <= 3; i++ {
+		input1[i] = shards[i]
 	}
 
-	if !bytes.Equal(dst, originalShard) {
-		t.Error("Mixed data/parity reconstruction failed")
-	}
-}
-
-// TestDecodeIdx_XORMerge tests merging two partial decodings using XOR mode
-func TestDecodeIdx_XORMerge(t *testing.T) {
-	enc, err := New(4, 2, testOptions()...)
-	if err != nil {
-		t.Fatal(err)
-	}
-	r := enc.(*reedSolomon)
-
-	shardSize := 100
-	shards := make([][]byte, 6)
-	for i := 0; i < 4; i++ {
-		shards[i] = make([]byte, shardSize)
-		fillRandomDecodeIdx(shards[i])
-	}
-	for i := 4; i < 6; i++ {
-		shards[i] = make([]byte, shardSize)
-	}
-
-	err = enc.Encode(shards)
+	err = r.DecodeIdx(dst1, expectInput1, input1)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	// Reconstruct data shard 0 using two different sets and merge
-	// First partial decode using shards 1, 2, 4
-	expectInput1 := make([]bool, 6)
-	expectInput1[1] = true
-	expectInput1[2] = true
-	expectInput1[3] = true
-	expectInput1[4] = true
+	// Second partial decode using shards 4-5
+	dst2 := make([][]byte, 8)
+	dst2[0] = make([]byte, 100)
 
-	dst1 := make([]byte, shardSize)
-	err = r.DecodeIdx(dst1, 0, expectInput1, shards[1], 1)
-	if err != nil {
-		t.Fatal(err)
+	input2 := make([][]byte, 8)
+	for i := 4; i <= 5; i++ {
+		input2[i] = shards[i]
 	}
-	err = r.DecodeIdx(dst1, 0, expectInput1, shards[2], 2)
+
+	err = r.DecodeIdx(dst2, expectInput1, input2)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	// Second partial decode using shards 3, 4
-	dst2 := make([]byte, shardSize)
-	err = r.DecodeIdx(dst2, 0, expectInput1, shards[3], 3)
-	if err != nil {
-		t.Fatal(err)
-	}
-	err = r.DecodeIdx(dst2, 0, expectInput1, shards[4], 4)
+	// Merge the two partial decodings
+	err = r.DecodeIdx(dst1, nil, dst2)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	// Merge using XOR mode (inputIdx < 0)
-	err = r.DecodeIdx(dst1, 0, expectInput1, dst2, -1)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	// Verify result
-	if !bytes.Equal(dst1, shards[0]) {
-		t.Error("XOR merge produced incorrect result")
-	}
-}
-
-// Helper function to fill random data for DecodeIdx tests
-func fillRandomDecodeIdx(p []byte) {
-	for i := 0; i < len(p); i += 7 {
-		val := randomInt63DecodeIdx()
-		for j := 0; i+j < len(p) && j < 7; j++ {
-			p[i+j] = byte(val)
-			val >>= 8
-		}
-	}
-}
-
-// TestDecodeIdx_ParityReconstruction specifically tests parity shard reconstruction
-func TestDecodeIdx_ParityReconstruction(t *testing.T) {
-	const dataShards = 5
-	const parityShards = 3
-	const totalShards = dataShards + parityShards
-	const shardSize = 100
-
-	enc, err := New(dataShards, parityShards)
-	if err != nil {
-		t.Fatal(err)
-	}
-	r := enc.(*reedSolomon)
-
-	// Create and encode data
-	shards := make([][]byte, totalShards)
-	for i := 0; i < dataShards; i++ {
-		shards[i] = make([]byte, shardSize)
-		fillRandomDecodeIdx(shards[i])
-	}
-	for i := dataShards; i < totalShards; i++ {
-		shards[i] = make([]byte, shardSize)
-	}
-
-	err = enc.Encode(shards)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	// Save original for verification
-	originalShards := make([][]byte, totalShards)
-	for i := range shards {
-		originalShards[i] = make([]byte, shardSize)
-		copy(originalShards[i], shards[i])
-	}
-
-	// Test reconstruction of each parity shard
-	for targetShard := dataShards; targetShard < totalShards; targetShard++ {
-		t.Run(fmt.Sprintf("parity_%d", targetShard-dataShards), func(t *testing.T) {
-			// Use first dataShards shards (all data shards)
-			expectInput := make([]bool, totalShards)
-			for i := 0; i < dataShards; i++ {
-				expectInput[i] = true
-			}
-
-			// Decode parity shard progressively
-			dst := make([]byte, shardSize)
-			for inputIdx := 0; inputIdx < dataShards; inputIdx++ {
-				err = r.DecodeIdx(dst, targetShard, expectInput, shards[inputIdx], inputIdx)
-				if err != nil {
-					t.Fatalf("Failed to decode parity shard %d using input %d: %v",
-						targetShard-dataShards, inputIdx, err)
-				}
-			}
-
-			// Verify
-			if !bytes.Equal(dst, originalShards[targetShard]) {
-				t.Errorf("Parity shard %d reconstruction mismatch", targetShard-dataShards)
-			}
-		})
-	}
-}
-
-// TestDecodeIdx_ParityFromMixedShards tests reconstructing parity from mixed data/parity shards
-func TestDecodeIdx_ParityFromMixedShards(t *testing.T) {
-	const dataShards = 5
-	const parityShards = 3
-	const totalShards = dataShards + parityShards
-	const shardSize = 100
-
-	enc, err := New(dataShards, parityShards)
-	if err != nil {
-		t.Fatal(err)
-	}
-	r := enc.(*reedSolomon)
-
-	// Create and encode data
-	shards := make([][]byte, totalShards)
-	for i := 0; i < dataShards; i++ {
-		shards[i] = make([]byte, shardSize)
-		fillRandomDecodeIdx(shards[i])
-	}
-	for i := dataShards; i < totalShards; i++ {
-		shards[i] = make([]byte, shardSize)
-	}
-
-	err = enc.Encode(shards)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	// Save original for verification
-	originalShards := make([][]byte, totalShards)
-	for i := range shards {
-		originalShards[i] = make([]byte, shardSize)
-		copy(originalShards[i], shards[i])
-	}
-
-	// Test reconstructing last parity shard using first 3 data + first 2 parity
-	targetShard := totalShards - 1 // last parity shard
-	expectInput := make([]bool, totalShards)
-	expectInput[0] = true            // data 0
-	expectInput[1] = true            // data 1
-	expectInput[2] = true            // data 2
-	expectInput[dataShards] = true   // parity 0
-	expectInput[dataShards+1] = true // parity 1
-
-	// Decode progressively
-	dst := make([]byte, shardSize)
-	inputIndices := []int{0, 1, 2, dataShards, dataShards + 1}
-	for _, inputIdx := range inputIndices {
-		err = r.DecodeIdx(dst, targetShard, expectInput, shards[inputIdx], inputIdx)
-		if err != nil {
-			t.Fatalf("Failed to decode parity shard %d using input %d: %v",
-				targetShard, inputIdx, err)
-		}
-	}
-
-	// Verify
-	if !bytes.Equal(dst, originalShards[targetShard]) {
-		t.Errorf("Parity shard reconstruction from mixed shards failed")
+	// Verify merged result
+	if !bytes.Equal(dst1[0], original) {
+		t.Error("merged decoding does not match original")
 	}
 }
 
@@ -667,4 +519,10 @@ var randomSeedDecodeIdx int64 = 1
 func randomInt63DecodeIdx() int64 {
 	randomSeedDecodeIdx = randomSeedDecodeIdx*1103515245 + 12345
 	return (randomSeedDecodeIdx / 65536) % 0x7FFFFFFFFFFFFFFF
+}
+
+func fillRandomDecodeIdx(b []byte) {
+	for i := range b {
+		b[i] = byte(randomInt63DecodeIdx() & 0xFF)
+	}
 }

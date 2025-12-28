@@ -16,7 +16,6 @@ import (
 	"fmt"
 	"io"
 	"runtime"
-	"strconv"
 	"sync"
 
 	"github.com/klauspost/cpuid/v2"
@@ -100,9 +99,10 @@ type Encoder interface {
 	// Update parity is use for change a few data shards and update it's parity.
 	// Input 'newDatashards' containing data shards changed.
 	// Input 'shards' containing old data shards (if data shard not changed, it can be nil) and old parity shards.
-	// new parity shards will in shards[DataShards:]
-	// Update is very useful if  DataShards much larger than ParityShards and changed data shards is few. It will
-	// faster than Encode and not need read all data shards to encode.
+	// New parity shards will in shards[DataShards:]
+	// Update is very useful if DataShards much larger than ParityShards and changed data shards is few.
+	// It will be faster than Encode and will not need read all data shards to encode.
+	// Note that the data shards in shards will *not* be updated.
 	Update(shards [][]byte, newDatashards [][]byte) error
 
 	// Split a data slice into the number of shards given to the encoder,
@@ -152,18 +152,15 @@ type Extensions interface {
 	// Provide the size of each shard.
 	AllocAligned(each int) [][]byte
 
-	// DecodeIdx allows progressively decoding into dst.
-	// The dstIdx is the destination to be filled.
-	// On the first call, dst should be set to all zeros.
-	// dstIdx/expectInput should be the same for all calls and should
-	// represent the inputs that are expected to be added.
-	// The number of expected inputs should at least be the number of data shards.
-	// Each input/inputIdx should be sent once - and only once.
-	// The caller must manage all of the above.
-	// len(dst) must be = len(input).
-	// If inputIdx is < 0 no new input is added, but the slices are XORed together.
-	// This allows merging two separate inputs where a number of inputs has been filled.
-	DecodeIdx(dst []byte, dstIdx int, expectInput []bool, input []byte, inputIdx int) error
+	// DecodeIdx allows progressively decoding shards.
+	// dst slices that are non-nil will be filled with decoded data.
+	// On first call, dst non-nil slices should be zero.
+	// expectInput indicates which input shards are expected (true = shard expected).
+	// input provides the shards - non-nil slices are treated as provided data.
+	// len(dst) must equal len(input) must equal TotalShards.
+	// If expectInput == nil (merge mode): input shards are XORed into corresponding dst shards.
+	// This allows merging of partial decodings from different sources.
+	DecodeIdx(dst [][]byte, expectInput []bool, input [][]byte) error
 }
 
 const (
@@ -1384,118 +1381,166 @@ func (r *reedSolomon) Reconstruct(shards [][]byte) error {
 	return r.reconstruct(shards, false, nil)
 }
 
-// DecodeIdx allows progressively decoding into dst.
-// The dstIdx is the destination to be filled.
-// On the first call, dst should be set to all zeros.
-// dstIdx/expectInput should be the same for all calls and should
+// DecodeIdx allows progressively decoding shards into dst.
+// Dst slices to be decoded should be filled.
+// On the first call, dst slices should be set to all zeros.
+// expectInput should be the same for all calls and should
 // represent the inputs that are expected to be added.
 // The number of expected inputs should at least be the number of data shards.
-// Each input/inputIdx should be sent once - and only once.
-// The caller must manage all of the above.
+// Each input should be sent once - and only once.
 // len(dst) must be = len(input).
-// If inputIdx is < 0 no new input is added, but the slices are XORed together.
+// All sent slices must be the same length.
+// The caller must manage all of the above.
+// Merging:
+// If 'expectInput == nil' no new input is added, but the slices are XORed together.
+// This means that the same slices as dst must be set in input.
 // This allows merging two separate inputs where a number of inputs has been filled.
-func (r *reedSolomon) DecodeIdx(dst []byte, dstIdx int, expectInput []bool, input []byte, inputIdx int) (err error) {
-	expectedShards := 0
-	gotInput := false
-	if len(expectInput) != r.totalShards {
-		return errors.New("expectInput length expected to be " + strconv.Itoa(r.totalShards))
-	}
-	if dstIdx < 0 || dstIdx >= r.totalShards {
-		return ErrInvShardNum
-	}
-	for i, filled := range expectInput {
-		if i == dstIdx && filled {
-			return errors.New("destination shard already filled")
+func (r *reedSolomon) DecodeIdx(dst [][]byte, expectInput []bool, input [][]byte) (err error) {
+	// Special case: merging mode when expectInput == nil
+	if expectInput == nil {
+		if len(dst) != len(input) {
+			return errors.Join(ErrInvalidInput, errors.New("dst and input must have same length for merging"))
 		}
-		if !filled {
-			continue
+		// XOR each pair of slices
+		for i := range dst {
+			if input[i] != nil {
+				if dst[i] == nil {
+					return errors.Join(ErrInvalidInput, fmt.Errorf("input[%d] provided but dst[%d] is nil", i, i))
+				}
+				if len(dst[i]) != len(input[i]) {
+					return errors.Join(ErrInvalidShardSize, fmt.Errorf("dst[%d] size %d != input[%d] size %d", i, len(dst[i]), i, len(input[i])))
+				}
+				sliceXor(input[i], dst[i], &r.o)
+			}
 		}
-		if inputIdx == i {
-			gotInput = true
-		}
-		expectedShards++
-	}
-	if inputIdx >= 0 && !gotInput {
-		return ErrInvShardNum
-	}
-	if expectedShards < r.dataShards {
-		return ErrTooFewShards
-	}
-	if len(dst) != len(input) {
-		return ErrInvalidShardSize
-	}
-	if inputIdx < 0 {
-		sliceXor(input, dst, &r.o)
 		return nil
 	}
-	validIndices := make([]int, expectedShards)
-	invalidIndices := make([]int, 0, r.totalShards-expectedShards)
-	subMatrixRow := 0
-	mappedIdx := -1
-	for matrixRow, filled := range expectInput {
+
+	// Validate expectInput length
+	if len(expectInput) != r.totalShards {
+		return errors.Join(ErrInvalidInput, fmt.Errorf("expectInput length %d, expected %d", len(expectInput), r.totalShards))
+	}
+
+	// Validate dst and input have same length as totalShards
+	if len(dst) != r.totalShards {
+		return errors.Join(ErrInvalidInput, fmt.Errorf("dst length %d, expected %d (totalShards)", len(dst), r.totalShards))
+	}
+	if len(input) != r.totalShards {
+		return errors.Join(ErrInvalidInput, fmt.Errorf("input length %d, expected %d (totalShards)", len(input), r.totalShards))
+	}
+
+	// Count expected shards and identify which are valid/invalid
+	expectedShards := 0
+	for _, filled := range expectInput {
 		if filled {
-			if inputIdx == matrixRow {
-				mappedIdx = subMatrixRow
-			}
-			validIndices[subMatrixRow] = matrixRow
-			subMatrixRow++
-		} else {
-			invalidIndices = append(invalidIndices, matrixRow)
+			expectedShards++
 		}
 	}
 
-	// Use reconstruction
-	// Attempt to get the cached inverted matrix out of the tree
-	// based on the indices of the invalid rows.
-	dataDecodeMatrix := r.tree.GetInvertedMatrix(invalidIndices)
+	if expectedShards < r.dataShards {
+		return errors.Join(ErrTooFewShards, fmt.Errorf("%d shards provided, need at least %d", expectedShards, r.dataShards))
+	}
 
-	// If the inverted matrix isn't cached in the tree yet we must
-	// construct it ourselves and insert it into the tree for the
-	// future.  In this way the inversion tree is lazily loaded.
+	// Check that dst shards marked as filled are not provided
+	for i, filled := range expectInput {
+		if filled && dst[i] != nil {
+			return errors.Join(ErrInvalidInput, fmt.Errorf("dst[%d] should be nil (shard marked as available input)", i))
+		}
+	}
+
+	// Build valid and invalid indices
+	validIndices := make([]int, 0, expectedShards)
+	invalidIndices := make([]int, 0, r.totalShards-expectedShards)
+	for i, filled := range expectInput {
+		if filled {
+			validIndices = append(validIndices, i)
+		} else {
+			invalidIndices = append(invalidIndices, i)
+		}
+	}
+
+	// Get or compute the inverted matrix
+	dataDecodeMatrix := r.tree.GetInvertedMatrix(invalidIndices)
 	if dataDecodeMatrix == nil {
-		// Pull out the rows of the matrix that correspond to the
-		// shards that we have and build a square matrix.  This
-		// matrix could be used to generate the shards that we have
-		// from the original data.
 		subMatrix, _ := newMatrix(r.dataShards, r.dataShards)
-		for subMatrixRow, validIndex := range validIndices {
+		for subMatrixRow, validIndex := range validIndices[:r.dataShards] {
 			for c := 0; c < r.dataShards; c++ {
 				subMatrix[subMatrixRow][c] = r.m[validIndex][c]
 			}
 		}
-		// Invert the matrix, so we can go from the encoded shards
-		// back to the original data.  Then pull out the row that
-		// generates the shard that we want to decode.  Note that
-		// since this matrix maps back to the original data, it can
-		// be used to create a data shard, but not a parity shard.
 		dataDecodeMatrix, err = subMatrix.Invert()
 		if err != nil {
 			return err
 		}
-
-		// Cache the inverted matrix in the tree for future use keyed on the
-		// indices of the invalid rows.
 		err = r.tree.InsertInvertedMatrix(invalidIndices, dataDecodeMatrix, r.totalShards)
 		if err != nil {
 			return err
 		}
 	}
-	// Determine the decode coefficients based on whether we're reconstructing
-	// a data shard or a parity shard.
-	if dstIdx < r.dataShards {
-		// Data shard: use the inverted matrix row directly
-		galMulSliceXor(dataDecodeMatrix[dstIdx][mappedIdx], input, dst, &r.o)
-	} else {
-		// Parity shard: multiply parity generation row with inverted matrix column
-		parityIdx := dstIdx - r.dataShards
-		// We need to compute the coefficient by multiplying the parity row
-		// with the column of the inverted matrix corresponding to our input
-		coeff := byte(0)
-		for i := 0; i < r.dataShards; i++ {
-			coeff ^= galMultiply(r.parity[parityIdx][i], dataDecodeMatrix[i][mappedIdx])
+
+	// Verify shard sizes are consistent
+	shardSize := 0
+	for i := range input {
+		if input[i] != nil {
+			if shardSize == 0 {
+				shardSize = len(input[i])
+			} else if len(input[i]) != shardSize {
+				return errors.Join(ErrInvalidShardSize, fmt.Errorf("input[%d] size %d != expected size %d", i, len(input[i]), shardSize))
+			}
 		}
-		galMulSliceXor(coeff, input, dst, &r.o)
+	}
+	for i := range dst {
+		if dst[i] != nil {
+			if len(dst[i]) != shardSize {
+				return errors.Join(ErrInvalidShardSize, fmt.Errorf("dst[%d] size %d != expected size %d", i, len(dst[i]), shardSize))
+			}
+		}
+	}
+
+	// Process each input shard and apply its contribution to all dst shards
+	for inputIdx := 0; inputIdx < len(input); inputIdx++ {
+		if input[inputIdx] == nil {
+			continue
+		}
+		if !expectInput[inputIdx] {
+			return errors.Join(ErrInvalidInput, fmt.Errorf("unexpected input at index %d (not marked in expectInput)", inputIdx))
+		}
+
+		// Find the position of this input in the valid indices
+		mappedIdx := -1
+		for j, validIdx := range validIndices {
+			if validIdx == inputIdx {
+				mappedIdx = j
+				break
+			}
+		}
+		if mappedIdx == -1 {
+			return errors.Join(ErrInvalidInput, fmt.Errorf("internal error: input index %d not found in valid indices", inputIdx))
+		}
+		if mappedIdx >= r.dataShards {
+			mappedIdx -= len(invalidIndices)
+		}
+
+		// Apply this input's contribution to each dst shard
+		for dstIdx := 0; dstIdx < len(dst); dstIdx++ {
+			if dst[dstIdx] == nil {
+				continue
+			}
+
+			// Compute coefficient for this dst shard
+			if dstIdx < r.dataShards {
+				// Data shard: use inverted matrix directly
+				galMulSliceXor(dataDecodeMatrix[dstIdx][mappedIdx], input[inputIdx], dst[dstIdx], &r.o)
+			} else {
+				// Parity shard: multiply parity row with inverted matrix column
+				parityIdx := dstIdx - r.dataShards
+				coeff := byte(0)
+				for i := 0; i < r.dataShards; i++ {
+					coeff ^= galMultiply(r.parity[parityIdx][i], dataDecodeMatrix[i][mappedIdx])
+				}
+				galMulSliceXor(coeff, input[inputIdx], dst[dstIdx], &r.o)
+			}
+		}
 	}
 	return nil
 }
