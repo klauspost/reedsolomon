@@ -232,7 +232,7 @@ func TestDecodeIdx_ProgressiveDecode(t *testing.T) {
 	shards := make([][]byte, 8)
 	for i := 0; i < 5; i++ {
 		shards[i] = make([]byte, 100)
-		fillRandomDecodeIdx(shards[i])
+		fillRandom(shards[i])
 	}
 	for i := 5; i < 8; i++ {
 		shards[i] = make([]byte, 100)
@@ -318,7 +318,7 @@ func TestDecodeIdx_IntegrationWithFullCycle(t *testing.T) {
 			shards := make([][]byte, totalShards)
 			for i := 0; i < tc.dataShards; i++ {
 				shards[i] = make([]byte, shardSize)
-				fillRandomDecodeIdx(shards[i])
+				fillRandom(shards[i])
 			}
 			for i := tc.dataShards; i < totalShards; i++ {
 				shards[i] = make([]byte, shardSize)
@@ -386,7 +386,7 @@ func TestDecodeIdx_MultipleShards(t *testing.T) {
 	shards := make([][]byte, 8)
 	for i := 0; i < 5; i++ {
 		shards[i] = make([]byte, 100)
-		fillRandomDecodeIdx(shards[i])
+		fillRandom(shards[i])
 	}
 	for i := 5; i < 8; i++ {
 		shards[i] = make([]byte, 100)
@@ -453,7 +453,7 @@ func TestDecodeIdx_MergeTwoPartialDecodings(t *testing.T) {
 	shards := make([][]byte, 8)
 	for i := 0; i < 5; i++ {
 		shards[i] = make([]byte, 100)
-		fillRandomDecodeIdx(shards[i])
+		fillRandom(shards[i])
 	}
 	for i := 5; i < 8; i++ {
 		shards[i] = make([]byte, 100)
@@ -513,20 +513,6 @@ func TestDecodeIdx_MergeTwoPartialDecodings(t *testing.T) {
 	}
 }
 
-// Simple pseudo-random number generator for consistent test data
-var randomSeedDecodeIdx int64 = 1
-
-func randomInt63DecodeIdx() int64 {
-	randomSeedDecodeIdx = randomSeedDecodeIdx*1103515245 + 12345
-	return (randomSeedDecodeIdx / 65536) % 0x7FFFFFFFFFFFFFFF
-}
-
-func fillRandomDecodeIdx(b []byte) {
-	for i := range b {
-		b[i] = byte(randomInt63DecodeIdx() & 0xFF)
-	}
-}
-
 // TestDecodeIdx_AllOptions tests DecodeIdx with all encoder option combinations
 func TestDecodeIdx_AllOptions(t *testing.T) {
 	opts := [][]Option{
@@ -579,7 +565,7 @@ func TestDecodeIdx_AllOptions(t *testing.T) {
 
 				// Fill data shards with random data
 				for i := 0; i < tc.dataShards; i++ {
-					fillRandomDecodeIdx(shards[i])
+					fillRandom(shards[i])
 				}
 
 				err = enc.Encode(shards)
@@ -776,7 +762,7 @@ func TestDecodeIdx_ExcessValidShards(t *testing.T) {
 
 	// Fill data shards with random data
 	for i := 0; i < dataShards; i++ {
-		fillRandomDecodeIdx(shards[i])
+		fillRandom(shards[i])
 	}
 
 	err = enc.Encode(shards)
