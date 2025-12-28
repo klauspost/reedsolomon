@@ -622,6 +622,48 @@ func multiplyRowWithMatrix(row []byte, matrix [][]byte) []byte {
 	return result
 }
 
+// getDecodeMatrix returns the inverted matrix for decoding, using cached version if available
+func (r *reedSolomon) getDecodeMatrix(validIndices, invalidIndices []int) ([][]byte, error) {
+	// Attempt to get the cached inverted matrix out of the tree
+	// based on the indices of the invalid rows.
+	dataDecodeMatrix := r.tree.GetInvertedMatrix(invalidIndices)
+
+	// If the inverted matrix isn't cached in the tree yet we must
+	// construct it ourselves and insert it into the tree for the
+	// future.  In this way the inversion tree is lazily loaded.
+	if dataDecodeMatrix == nil {
+		// Pull out the rows of the matrix that correspond to the
+		// shards that we have and build a square matrix.  This
+		// matrix could be used to generate the shards that we have
+		// from the original data.
+		subMatrix, _ := newMatrix(r.dataShards, r.dataShards)
+		for subMatrixRow, validIndex := range validIndices[:r.dataShards] {
+			for c := 0; c < r.dataShards; c++ {
+				subMatrix[subMatrixRow][c] = r.m[validIndex][c]
+			}
+		}
+		// Invert the matrix, so we can go from the encoded shards
+		// back to the original data.  Then pull out the row that
+		// generates the shard that we want to decode.  Note that
+		// since this matrix maps back to the original data, it can
+		// be used to create a data shard, but not a parity shard.
+		var err error
+		dataDecodeMatrix, err = subMatrix.Invert()
+		if err != nil {
+			return nil, err
+		}
+
+		// Cache the inverted matrix in the tree for future use keyed on the
+		// indices of the invalid rows.
+		err = r.tree.InsertInvertedMatrix(invalidIndices, dataDecodeMatrix, r.totalShards)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return dataDecodeMatrix, nil
+}
+
 // ErrTooFewShards is returned if too few shards where given to
 // Encode/Verify/Reconstruct/Update. It will also be returned from Reconstruct
 // if there were too few shards to reconstruct the missing data.
@@ -1459,23 +1501,10 @@ func (r *reedSolomon) DecodeIdx(dst [][]byte, expectInput []bool, input [][]byte
 		}
 	}
 
-	// Get or compute the inverted matrix
-	dataDecodeMatrix := r.tree.GetInvertedMatrix(invalidIndices)
-	if dataDecodeMatrix == nil {
-		subMatrix, _ := newMatrix(r.dataShards, r.dataShards)
-		for subMatrixRow, validIndex := range validIndices[:r.dataShards] {
-			for c := 0; c < r.dataShards; c++ {
-				subMatrix[subMatrixRow][c] = r.m[validIndex][c]
-			}
-		}
-		dataDecodeMatrix, err = subMatrix.Invert()
-		if err != nil {
-			return err
-		}
-		err = r.tree.InsertInvertedMatrix(invalidIndices, dataDecodeMatrix, r.totalShards)
-		if err != nil {
-			return err
-		}
+	// Get the inverted matrix for decoding
+	dataDecodeMatrix, err := r.getDecodeMatrix(validIndices, invalidIndices)
+	if err != nil {
+		return err
 	}
 
 	// Verify shard sizes are consistent
@@ -1658,40 +1687,10 @@ func (r *reedSolomon) reconstruct(shards [][]byte, dataOnly bool, required []boo
 		}
 	}
 
-	// Attempt to get the cached inverted matrix out of the tree
-	// based on the indices of the invalid rows.
-	dataDecodeMatrix := r.tree.GetInvertedMatrix(invalidIndices)
-
-	// If the inverted matrix isn't cached in the tree yet we must
-	// construct it ourselves and insert it into the tree for the
-	// future.  In this way the inversion tree is lazily loaded.
-	if dataDecodeMatrix == nil {
-		// Pull out the rows of the matrix that correspond to the
-		// shards that we have and build a square matrix.  This
-		// matrix could be used to generate the shards that we have
-		// from the original data.
-		subMatrix, _ := newMatrix(r.dataShards, r.dataShards)
-		for subMatrixRow, validIndex := range validIndices {
-			for c := 0; c < r.dataShards; c++ {
-				subMatrix[subMatrixRow][c] = r.m[validIndex][c]
-			}
-		}
-		// Invert the matrix, so we can go from the encoded shards
-		// back to the original data.  Then pull out the row that
-		// generates the shard that we want to decode.  Note that
-		// since this matrix maps back to the original data, it can
-		// be used to create a data shard, but not a parity shard.
-		dataDecodeMatrix, err = subMatrix.Invert()
-		if err != nil {
-			return err
-		}
-
-		// Cache the inverted matrix in the tree for future use keyed on the
-		// indices of the invalid rows.
-		err = r.tree.InsertInvertedMatrix(invalidIndices, dataDecodeMatrix, r.totalShards)
-		if err != nil {
-			return err
-		}
+	// Get the inverted matrix for decoding
+	dataDecodeMatrix, err := r.getDecodeMatrix(validIndices, invalidIndices)
+	if err != nil {
+		return err
 	}
 
 	// Unified reconstruction: build a single decode matrix for all missing shards
