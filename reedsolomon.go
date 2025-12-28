@@ -1429,8 +1429,8 @@ func (r *reedSolomon) DecodeIdx(dst []byte, dstIdx int, expectInput []bool, inpu
 		sliceXor(input, dst, &r.o)
 		return nil
 	}
-	validIndices := make([]int, r.dataShards)
-	invalidIndices := make([]int, 0)
+	validIndices := make([]int, expectedShards)
+	invalidIndices := make([]int, 0, r.totalShards-expectedShards)
 	subMatrixRow := 0
 	mappedIdx := -1
 	for matrixRow, filled := range expectInput {
