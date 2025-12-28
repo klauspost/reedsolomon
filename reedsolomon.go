@@ -160,6 +160,7 @@ type Extensions interface {
 	// len(dst) must equal len(input) must equal TotalShards.
 	// If expectInput == nil (merge mode): input shards are XORed into corresponding dst shards.
 	// This allows merging of partial decodings from different sources.
+	// Not all implementations supports this. ErrNotSupported will be returned if not supported.
 	DecodeIdx(dst [][]byte, expectInput []bool, input [][]byte) error
 }
 
@@ -1535,19 +1536,16 @@ func (r *reedSolomon) DecodeIdx(dst [][]byte, expectInput []bool, input [][]byte
 			return errors.Join(ErrInvalidInput, fmt.Errorf("unexpected input at index %d (not marked in expectInput)", inputIdx))
 		}
 
-		// Find the position of this input in the valid indices
+		// Find the position of this input in the valid indices used for matrix building
 		mappedIdx := -1
-		for j, validIdx := range validIndices {
-			if validIdx == inputIdx {
+		for j := 0; j < r.dataShards && j < len(validIndices); j++ {
+			if validIndices[j] == inputIdx {
 				mappedIdx = j
 				break
 			}
 		}
 		if mappedIdx == -1 {
-			return errors.Join(ErrInvalidInput, fmt.Errorf("internal error: input index %d not found in valid indices", inputIdx))
-		}
-		if mappedIdx >= r.dataShards {
-			mappedIdx -= len(invalidIndices)
+			return errors.Join(ErrInvalidInput, fmt.Errorf("input shard %d not in the first %d valid shards used for matrix building", inputIdx, r.dataShards))
 		}
 
 		// Apply this input's contribution to each dst shard

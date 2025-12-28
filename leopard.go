@@ -12,7 +12,6 @@ package reedsolomon
 
 import (
 	"bytes"
-	"errors"
 	"io"
 	"math/bits"
 	"sync"
@@ -76,7 +75,7 @@ func (r *leopardFF16) AllocAligned(each int) [][]byte {
 }
 
 func (r *leopardFF16) DecodeIdx(dst [][]byte, expectInput []bool, input [][]byte) error {
-	return errors.New("DecodeIdx not supported by leopard implementation")
+	return ErrNotSupported
 }
 
 type ffe uint16

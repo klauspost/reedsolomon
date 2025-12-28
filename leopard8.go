@@ -13,7 +13,6 @@ package reedsolomon
 import (
 	"bytes"
 	"encoding/binary"
-	"errors"
 	"io"
 	"math/bits"
 	"sync"
@@ -88,7 +87,7 @@ func (r *leopardFF8) AllocAligned(each int) [][]byte {
 }
 
 func (r *leopardFF8) DecodeIdx(dst [][]byte, expectInput []bool, input [][]byte) error {
-	return errors.New("DecodeIdx not supported by leopard implementation")
+	return ErrNotSupported
 }
 
 type ffe8 uint8

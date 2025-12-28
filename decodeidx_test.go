@@ -526,3 +526,402 @@ func fillRandomDecodeIdx(b []byte) {
 		b[i] = byte(randomInt63DecodeIdx() & 0xFF)
 	}
 }
+
+// TestDecodeIdx_AllOptions tests DecodeIdx with all encoder option combinations
+func TestDecodeIdx_AllOptions(t *testing.T) {
+	opts := [][]Option{
+		testOptions(),
+		testOptions(WithLeopardGF(true)),
+		testOptions(WithLeopardGF16(true)),
+		testOptions(WithJerasureMatrix()),
+		testOptions(WithCauchyMatrix()),
+		testOptions(WithFastOneParityMatrix()),
+		testOptions(WithInversionCache(false)),
+		testOptions(WithMaxGoroutines(1)),
+		testOptions(WithMaxGoroutines(8)),
+	}
+
+	testCases := []struct {
+		dataShards   int
+		parityShards int
+		shardSize    int
+	}{
+		{5, 3, 256}, // Use power of 2 for compatibility
+		{10, 4, 256},
+		{17, 3, 256},
+		{3, 2, 256},
+		{2, 1, 256},
+		{8, 8, 256},
+	}
+
+	for optIdx, opts := range opts {
+		for tcIdx, tc := range testCases {
+			t.Run(fmt.Sprintf("opts_%d_case_%d_%d+%d", optIdx, tcIdx, tc.dataShards, tc.parityShards), func(t *testing.T) {
+				enc, err := New(tc.dataShards, tc.parityShards, opts...)
+				if err != nil {
+					t.Skip("encoder creation failed:", err)
+				}
+
+				// Check if DecodeIdx is supported
+				ext, ok := enc.(Extensions)
+				if !ok {
+					t.Skip("Extensions interface not supported")
+				}
+
+				// Test basic DecodeIdx functionality
+				totalShards := tc.dataShards + tc.parityShards
+
+				// Create and encode test data
+				shards := make([][]byte, totalShards)
+				for i := range shards {
+					shards[i] = make([]byte, tc.shardSize)
+				}
+
+				// Fill data shards with random data
+				for i := 0; i < tc.dataShards; i++ {
+					fillRandomDecodeIdx(shards[i])
+				}
+
+				err = enc.Encode(shards)
+				if err != nil {
+					t.Fatal("encode failed:", err)
+				}
+
+				// Save originals
+				originals := make([][]byte, totalShards)
+				for i := range shards {
+					originals[i] = make([]byte, len(shards[i]))
+					copy(originals[i], shards[i])
+				}
+
+				// Test reconstruction of data shards
+				t.Run("data_reconstruction", func(t *testing.T) {
+					// Remove some data shards
+					damaged := make([][]byte, totalShards)
+					copy(damaged, shards)
+
+					damaged[1] = nil
+					if tc.dataShards > 3 {
+						damaged[tc.dataShards-1] = nil
+					}
+
+					// Set up DecodeIdx call
+					dst := make([][]byte, totalShards)
+					dst[1] = make([]byte, tc.shardSize)
+					if tc.dataShards > 3 {
+						dst[tc.dataShards-1] = make([]byte, tc.shardSize)
+					}
+
+					expectInput := make([]bool, totalShards)
+					input := make([][]byte, totalShards)
+
+					// Use first tc.dataShards available shards as input
+					inputCount := 0
+					for i := 0; i < totalShards && inputCount < tc.dataShards; i++ {
+						if damaged[i] != nil {
+							expectInput[i] = true
+							input[i] = damaged[i]
+							inputCount++
+						}
+					}
+
+					// Call DecodeIdx
+					err = ext.DecodeIdx(dst, expectInput, input)
+					if err != nil {
+						// Check if this is a "not supported" error (leopard cases)
+						if errors.Is(err, ErrNotSupported) {
+							t.Skip("DecodeIdx not supported for this encoder type")
+						}
+						t.Fatal("DecodeIdx failed:", err)
+					}
+
+					// Verify reconstruction
+					if dst[1] != nil && !bytes.Equal(dst[1], originals[1]) {
+						t.Error("data shard 1 reconstruction failed")
+					}
+					if tc.dataShards > 3 && dst[tc.dataShards-1] != nil && !bytes.Equal(dst[tc.dataShards-1], originals[tc.dataShards-1]) {
+						t.Error("data shard reconstruction failed")
+					}
+				})
+
+				// Test reconstruction of parity shards (if supported)
+				t.Run("parity_reconstruction", func(t *testing.T) {
+					if tc.parityShards == 0 {
+						t.Skip("no parity shards")
+					}
+
+					// Remove a parity shard
+					damaged := make([][]byte, totalShards)
+					copy(damaged, shards)
+
+					parityIdx := tc.dataShards
+					damaged[parityIdx] = nil
+
+					// Set up DecodeIdx call
+					dst := make([][]byte, totalShards)
+					dst[parityIdx] = make([]byte, tc.shardSize)
+
+					expectInput := make([]bool, totalShards)
+					input := make([][]byte, totalShards)
+
+					// Use first tc.dataShards shards as input
+					for i := 0; i < tc.dataShards; i++ {
+						expectInput[i] = true
+						input[i] = shards[i]
+					}
+
+					// Call DecodeIdx
+					err = ext.DecodeIdx(dst, expectInput, input)
+					if err != nil {
+						if errors.Is(err, ErrNotSupported) {
+							t.Skip("DecodeIdx not supported for this encoder type")
+						}
+						t.Fatal("DecodeIdx failed:", err)
+					}
+
+					// Verify reconstruction
+					if !bytes.Equal(dst[parityIdx], originals[parityIdx]) {
+						t.Error("parity shard reconstruction failed")
+					}
+				})
+
+				// Test progressive reconstruction
+				t.Run("progressive_reconstruction", func(t *testing.T) {
+					if tc.dataShards < 4 {
+						t.Skip("need at least 4 data shards for progressive test")
+					}
+
+					// Remove one data shard for reconstruction
+					dst := make([][]byte, totalShards)
+					dst[1] = make([]byte, tc.shardSize)
+
+					expectInput := make([]bool, totalShards)
+					// Mark first tc.dataShards available shards as expected
+					inputCount := 0
+					for i := 0; i < totalShards && inputCount < tc.dataShards; i++ {
+						if i != 1 { // Skip the one we're reconstructing
+							expectInput[i] = true
+							inputCount++
+						}
+					}
+
+					// First call - provide half the inputs (but at least 1)
+					input1 := make([][]byte, totalShards)
+					provided1 := 0
+					target1 := tc.dataShards / 2
+					if target1 < 1 {
+						target1 = 1
+					}
+					for i := 0; i < totalShards && provided1 < target1; i++ {
+						if expectInput[i] {
+							input1[i] = shards[i]
+							provided1++
+						}
+					}
+
+					err = ext.DecodeIdx(dst, expectInput, input1)
+					if err != nil {
+						if errors.Is(err, ErrNotSupported) {
+							t.Skip("DecodeIdx not supported for this encoder type")
+						}
+						t.Fatal("first DecodeIdx call failed:", err)
+					}
+
+					// Second call - provide remaining inputs
+					input2 := make([][]byte, totalShards)
+					provided2 := 0
+					for i := 0; i < totalShards && provided1+provided2 < tc.dataShards; i++ {
+						if expectInput[i] && input1[i] == nil {
+							input2[i] = shards[i]
+							provided2++
+						}
+					}
+
+					err = ext.DecodeIdx(dst, expectInput, input2)
+					if err != nil {
+						if errors.Is(err, ErrNotSupported) {
+							t.Skip("DecodeIdx not supported for this encoder type")
+						}
+						t.Fatal("second DecodeIdx call failed:", err)
+					}
+
+					// Verify reconstruction
+					if !bytes.Equal(dst[1], originals[1]) {
+						t.Error("progressive reconstruction of shard 1 failed")
+					}
+				})
+			})
+		}
+	}
+}
+
+// TestDecodeIdx_ExcessValidShards tests DecodeIdx when expectInput marks more than dataShards as true
+func TestDecodeIdx_ExcessValidShards(t *testing.T) {
+	enc, err := New(5, 3, testOptions()...)
+	if err != nil {
+		t.Fatal(err)
+	}
+	r := enc.(*reedSolomon)
+
+	const shardSize = 256
+	const dataShards = 5
+	const parityShards = 3
+	const totalShards = dataShards + parityShards
+
+	// Create and encode test data
+	shards := make([][]byte, totalShards)
+	for i := range shards {
+		shards[i] = make([]byte, shardSize)
+	}
+
+	// Fill data shards with random data
+	for i := 0; i < dataShards; i++ {
+		fillRandomDecodeIdx(shards[i])
+	}
+
+	err = enc.Encode(shards)
+	if err != nil {
+		t.Fatal("encode failed:", err)
+	}
+
+	// Save originals for verification
+	originals := make([][]byte, totalShards)
+	for i := range shards {
+		originals[i] = make([]byte, len(shards[i]))
+		copy(originals[i], shards[i])
+	}
+
+	// Test: expectInput marks 7 shards as valid (more than dataShards=5)
+	// This tests the scenario where more shards are marked as available than needed
+	t.Run("excess_valid_shards_data_reconstruction", func(t *testing.T) {
+		// Set up reconstruction of shard 1
+		dst := make([][]byte, totalShards)
+		dst[1] = make([]byte, shardSize)
+
+		// Mark 7 shards as expected (more than dataShards=5)
+		expectInput := make([]bool, totalShards)
+		expectInput[0] = true // data shard
+		expectInput[2] = true // data shard
+		expectInput[3] = true // data shard
+		expectInput[4] = true // data shard
+		expectInput[5] = true // parity shard
+		expectInput[6] = true // parity shard
+		expectInput[7] = true // parity shard
+
+		input := make([][]byte, totalShards)
+
+		// Test 1: Provide only the first dataShards (5) valid shards
+		// This should work since matrix is built from first 5 valid shards
+		input[0] = shards[0]
+		input[2] = shards[2]
+		input[3] = shards[3]
+		input[4] = shards[4]
+		input[5] = shards[5]
+
+		err = r.DecodeIdx(dst, expectInput, input)
+		if err != nil {
+			t.Fatal("DecodeIdx failed with first 5 valid shards:", err)
+		}
+
+		// Verify reconstruction
+		if !bytes.Equal(dst[1], originals[1]) {
+			t.Error("data shard 1 reconstruction failed")
+		}
+
+		// Test 2: Try to provide shards beyond the first dataShards
+		// This should fail since matrix was only built from first 5 valid shards
+		dst2 := make([][]byte, totalShards)
+		dst2[1] = make([]byte, shardSize)
+
+		input2 := make([][]byte, totalShards)
+		input2[6] = shards[6] // This is the 6th valid shard, beyond dataShards
+		input2[7] = shards[7] // This is the 7th valid shard, beyond dataShards
+
+		err = r.DecodeIdx(dst2, expectInput, input2)
+		if err == nil {
+			t.Error("Expected error when providing shards beyond first dataShards valid positions, but got none")
+		}
+		if !strings.Contains(err.Error(), "not in the first") {
+			t.Errorf("Expected error about 'not in the first' valid shards, got: %v", err)
+		}
+	})
+
+	// Test with parity reconstruction
+	t.Run("excess_valid_shards_parity_reconstruction", func(t *testing.T) {
+		// Set up reconstruction of parity shard 5
+		dst := make([][]byte, totalShards)
+		dst[5] = make([]byte, shardSize)
+
+		// Mark 6 shards as expected (more than dataShards=5)
+		expectInput := make([]bool, totalShards)
+		expectInput[0] = true // data shard
+		expectInput[1] = true // data shard
+		expectInput[2] = true // data shard
+		expectInput[3] = true // data shard
+		expectInput[4] = true // data shard
+		expectInput[6] = true // parity shard (6th valid shard, beyond dataShards)
+
+		input := make([][]byte, totalShards)
+
+		// Provide all data shards (first 5 valid)
+		input[0] = shards[0]
+		input[1] = shards[1]
+		input[2] = shards[2]
+		input[3] = shards[3]
+		input[4] = shards[4]
+
+		err = r.DecodeIdx(dst, expectInput, input)
+		if err != nil {
+			t.Fatal("DecodeIdx failed for parity reconstruction with valid data shards:", err)
+		}
+
+		// Verify reconstruction
+		if !bytes.Equal(dst[5], originals[5]) {
+			t.Error("parity shard 5 reconstruction failed")
+		}
+
+		// Test providing the excess shard (should fail)
+		dst2 := make([][]byte, totalShards)
+		dst2[5] = make([]byte, shardSize)
+
+		input2 := make([][]byte, totalShards)
+		input2[6] = shards[6] // This is beyond the first dataShards valid positions
+
+		err = r.DecodeIdx(dst2, expectInput, input2)
+		if err == nil {
+			t.Error("Expected error when providing excess valid shard for parity reconstruction")
+		}
+	})
+
+	// Test edge case: exactly dataShards valid shards
+	t.Run("exactly_dataShards_valid", func(t *testing.T) {
+		// Set up reconstruction of shard 1
+		dst := make([][]byte, totalShards)
+		dst[1] = make([]byte, shardSize)
+
+		// Mark exactly dataShards (5) as expected
+		expectInput := make([]bool, totalShards)
+		expectInput[0] = true
+		expectInput[2] = true
+		expectInput[3] = true
+		expectInput[4] = true
+		expectInput[5] = true // exactly the 5th (last allowed)
+
+		input := make([][]byte, totalShards)
+		input[0] = shards[0]
+		input[2] = shards[2]
+		input[3] = shards[3]
+		input[4] = shards[4]
+		input[5] = shards[5]
+
+		err = r.DecodeIdx(dst, expectInput, input)
+		if err != nil {
+			t.Fatal("DecodeIdx failed with exactly dataShards valid shards:", err)
+		}
+
+		// Verify reconstruction
+		if !bytes.Equal(dst[1], originals[1]) {
+			t.Error("reconstruction failed with exactly dataShards valid shards")
+		}
+	})
+}
