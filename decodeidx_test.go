@@ -814,21 +814,24 @@ func TestDecodeIdx_ExcessValidShards(t *testing.T) {
 			t.Error("data shard 1 reconstruction failed")
 		}
 
-		// Test 2: Try to provide shards beyond the first dataShards
-		// This should fail since matrix was only built from first 5 valid shards
+		// Test 2: Provide shards beyond the first dataShards
+		// This should now work seamlessly - excess valid shards are ignored
 		dst2 := make([][]byte, totalShards)
 		dst2[1] = make([]byte, shardSize)
 
 		input2 := make([][]byte, totalShards)
-		input2[6] = shards[6] // This is the 6th valid shard, beyond dataShards
-		input2[7] = shards[7] // This is the 7th valid shard, beyond dataShards
+		input2[6] = shards[6] // This is the 6th valid shard, beyond dataShards (should be ignored)
+		input2[7] = shards[7] // This is the 7th valid shard, beyond dataShards (should be ignored)
 
 		err = r.DecodeIdx(dst2, expectInput, input2)
-		if err == nil {
-			t.Error("Expected error when providing shards beyond first dataShards valid positions, but got none")
+		if err != nil {
+			t.Error("DecodeIdx should handle excess valid shards seamlessly, but got error:", err)
 		}
-		if !strings.Contains(err.Error(), "not in the first") {
-			t.Errorf("Expected error about 'not in the first' valid shards, got: %v", err)
+
+		// Since we only provided excess shards (6,7) and not the required first 5,
+		// the reconstruction should not be complete. dst[1] should remain zero.
+		if !bytes.Equal(dst2[1], make([]byte, shardSize)) {
+			t.Error("dst should remain zero when only excess shards are provided")
 		}
 	})
 
@@ -866,16 +869,22 @@ func TestDecodeIdx_ExcessValidShards(t *testing.T) {
 			t.Error("parity shard 5 reconstruction failed")
 		}
 
-		// Test providing the excess shard (should fail)
+		// Test providing the excess shard (should work seamlessly)
 		dst2 := make([][]byte, totalShards)
 		dst2[5] = make([]byte, shardSize)
 
 		input2 := make([][]byte, totalShards)
-		input2[6] = shards[6] // This is beyond the first dataShards valid positions
+		input2[6] = shards[6] // This is beyond the first dataShards valid positions (should be ignored)
 
 		err = r.DecodeIdx(dst2, expectInput, input2)
-		if err == nil {
-			t.Error("Expected error when providing excess valid shard for parity reconstruction")
+		if err != nil {
+			t.Error("DecodeIdx should handle excess valid shard seamlessly, but got error:", err)
+		}
+
+		// Since we only provided excess shard (6) and not all required data shards,
+		// the parity reconstruction should not be complete. dst[5] should remain zero.
+		if !bytes.Equal(dst2[5], make([]byte, shardSize)) {
+			t.Error("dst should remain zero when only excess shard is provided")
 		}
 	})
 

@@ -1472,34 +1472,34 @@ func (r *reedSolomon) DecodeIdx(dst [][]byte, expectInput []bool, input [][]byte
 		return errors.Join(ErrInvalidInput, fmt.Errorf("input length %d, expected %d (totalShards)", len(input), r.totalShards))
 	}
 
-	// Count expected shards and identify which are valid/invalid
-	expectedShards := 0
-	for _, filled := range expectInput {
-		if filled {
-			expectedShards++
+	// Check for unexpected inputs first
+	for inputIdx := 0; inputIdx < len(input); inputIdx++ {
+		if input[inputIdx] != nil && !expectInput[inputIdx] {
+			return errors.Join(ErrInvalidInput, fmt.Errorf("unexpected input at index %d (not marked in expectInput)", inputIdx))
 		}
 	}
 
-	if expectedShards < r.dataShards {
-		return errors.Join(ErrTooFewShards, fmt.Errorf("%d shards provided, need at least %d", expectedShards, r.dataShards))
-	}
-
-	// Check that dst shards marked as filled are not provided
-	for i, filled := range expectInput {
-		if filled && dst[i] != nil {
-			return errors.Join(ErrInvalidInput, fmt.Errorf("dst[%d] should be nil (shard marked as available input)", i))
+	// Check that dst shards are not allocated for expected inputs
+	for i := 0; i < len(expectInput); i++ {
+		if expectInput[i] && dst[i] != nil {
+			return errors.Join(ErrInvalidInput, fmt.Errorf("dst[%d] should be nil (marked as input in expectInput)", i))
 		}
 	}
 
-	// Build valid and invalid indices
-	validIndices := make([]int, 0, expectedShards)
-	invalidIndices := make([]int, 0, r.totalShards-expectedShards)
+	// Build valid and invalid indices from expectInput
+	validIndices := make([]int, 0)
+	invalidIndices := make([]int, 0)
 	for i, filled := range expectInput {
 		if filled {
 			validIndices = append(validIndices, i)
 		} else {
 			invalidIndices = append(invalidIndices, i)
 		}
+	}
+
+	// We need at least dataShards valid indices for matrix inversion
+	if len(validIndices) < r.dataShards {
+		return errors.Join(ErrTooFewShards, fmt.Errorf("%d valid shards marked in expectInput, need at least %d", len(validIndices), r.dataShards))
 	}
 
 	// Get the inverted matrix for decoding
@@ -1527,25 +1527,24 @@ func (r *reedSolomon) DecodeIdx(dst [][]byte, expectInput []bool, input [][]byte
 		}
 	}
 
-	// Process each input shard and apply its contribution to all dst shards
+	// Process inputs by mapping to matrix columns
 	for inputIdx := 0; inputIdx < len(input); inputIdx++ {
 		if input[inputIdx] == nil {
 			continue
 		}
-		if !expectInput[inputIdx] {
-			return errors.Join(ErrInvalidInput, fmt.Errorf("unexpected input at index %d (not marked in expectInput)", inputIdx))
-		}
 
-		// Find the position of this input in the valid indices used for matrix building
-		mappedIdx := -1
-		for j := 0; j < r.dataShards && j < len(validIndices); j++ {
-			if validIndices[j] == inputIdx {
-				mappedIdx = j
+		// Find matrix column for this input
+		matrixCol := -1
+		for col := 0; col < r.dataShards && col < len(validIndices); col++ {
+			if validIndices[col] == inputIdx {
+				matrixCol = col
 				break
 			}
 		}
-		if mappedIdx == -1 {
-			return errors.Join(ErrInvalidInput, fmt.Errorf("input shard %d not in the first %d valid shards used for matrix building", inputIdx, r.dataShards))
+
+		if matrixCol == -1 {
+			// Input beyond first dataShards valid indices, ignore
+			continue
 		}
 
 		// Apply this input's contribution to each dst shard
@@ -1557,13 +1556,13 @@ func (r *reedSolomon) DecodeIdx(dst [][]byte, expectInput []bool, input [][]byte
 			// Compute coefficient for this dst shard
 			if dstIdx < r.dataShards {
 				// Data shard: use inverted matrix directly
-				galMulSliceXor(dataDecodeMatrix[dstIdx][mappedIdx], input[inputIdx], dst[dstIdx], &r.o)
+				galMulSliceXor(dataDecodeMatrix[dstIdx][matrixCol], input[inputIdx], dst[dstIdx], &r.o)
 			} else {
 				// Parity shard: multiply parity row with inverted matrix column
 				parityIdx := dstIdx - r.dataShards
 				coeff := byte(0)
 				for i := 0; i < r.dataShards; i++ {
-					coeff ^= galMultiply(r.parity[parityIdx][i], dataDecodeMatrix[i][mappedIdx])
+					coeff ^= galMultiply(r.parity[parityIdx][i], dataDecodeMatrix[i][matrixCol])
 				}
 				galMulSliceXor(coeff, input[inputIdx], dst[dstIdx], &r.o)
 			}
