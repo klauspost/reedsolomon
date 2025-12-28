@@ -920,3 +920,423 @@ func TestDecodeIdx_ExcessValidShards(t *testing.T) {
 		}
 	})
 }
+
+func BenchmarkDecodeIdx10x2x1M(b *testing.B) {
+	benchmarkDecodeIdx(b, 10, 2, 1024*1024)
+}
+
+func BenchmarkDecodeIdx50x10x1M(b *testing.B) {
+	benchmarkDecodeIdx(b, 50, 10, 1024*1024)
+}
+
+func BenchmarkDecodeIdx10x2x16M(b *testing.B) {
+	benchmarkDecodeIdx(b, 10, 2, 16*1024*1024)
+}
+
+func BenchmarkDecodeIdx5x2x1M(b *testing.B) {
+	benchmarkDecodeIdx(b, 5, 2, 1024*1024)
+}
+
+func BenchmarkDecodeIdx10x4x16M(b *testing.B) {
+	benchmarkDecodeIdx(b, 10, 4, 16*1024*1024)
+}
+
+func BenchmarkDecodeIdx50x20x1M(b *testing.B) {
+	benchmarkDecodeIdx(b, 50, 20, 1024*1024)
+}
+
+func BenchmarkDecodeIdx10x4x1M(b *testing.B) {
+	benchmarkDecodeIdx(b, 10, 4, 1024*1024)
+}
+
+func benchmarkDecodeIdx(b *testing.B, dataShards, parityShards, shardSize int) {
+	r, err := New(dataShards, parityShards, testOptions()...)
+	if err != nil {
+		b.Fatal(err)
+	}
+	ext := r.(Extensions)
+	totalShards := dataShards + parityShards
+
+	shards := make([][]byte, totalShards)
+	for s := range shards {
+		shards[s] = make([]byte, shardSize)
+	}
+
+	for s := 0; s < dataShards; s++ {
+		fillRandom(shards[s])
+	}
+
+	err = r.Encode(shards)
+	if err != nil {
+		b.Fatal(err)
+	}
+
+	expectInput := make([]bool, totalShards)
+	inputs := make([][]byte, totalShards)
+	dst := make([][]byte, totalShards)
+
+	dst[0] = make([]byte, shardSize)
+
+	// Only provide exactly dataShards inputs (minimum needed)
+	inputCount := 0
+	for j := 1; j < totalShards && inputCount < dataShards; j++ {
+		expectInput[j] = true
+		inputs[j] = shards[j]
+		inputCount++
+	}
+
+	b.SetBytes(int64(shardSize * totalShards))
+	b.ResetTimer()
+	b.ReportAllocs()
+	for range b.N {
+		err = ext.DecodeIdx(dst, expectInput, inputs)
+		if err != nil {
+			b.Fatal(err)
+		}
+	}
+}
+
+func BenchmarkDecodeIdxSingleData10x2x1M(b *testing.B) {
+	benchmarkDecodeIdxSingle(b, 10, 2, 1024*1024, true)
+}
+
+func BenchmarkDecodeIdxSingleParity10x2x1M(b *testing.B) {
+	benchmarkDecodeIdxSingle(b, 10, 2, 1024*1024, false)
+}
+
+func BenchmarkDecodeIdxSingleData50x10x1M(b *testing.B) {
+	benchmarkDecodeIdxSingle(b, 50, 10, 1024*1024, true)
+}
+
+func BenchmarkDecodeIdxSingleParity50x10x1M(b *testing.B) {
+	benchmarkDecodeIdxSingle(b, 50, 10, 1024*1024, false)
+}
+
+func benchmarkDecodeIdxSingle(b *testing.B, dataShards, parityShards, shardSize int, reconstructData bool) {
+	r, err := New(dataShards, parityShards, testOptions()...)
+	if err != nil {
+		b.Fatal(err)
+	}
+	ext := r.(Extensions)
+	totalShards := dataShards + parityShards
+
+	shards := make([][]byte, totalShards)
+	for s := range shards {
+		shards[s] = make([]byte, shardSize)
+	}
+
+	for s := 0; s < dataShards; s++ {
+		fillRandom(shards[s])
+	}
+
+	err = r.Encode(shards)
+	if err != nil {
+		b.Fatal(err)
+	}
+
+	targetIdx := 0
+	if !reconstructData {
+		targetIdx = dataShards
+	}
+
+	expectInput := make([]bool, totalShards)
+	inputs := make([][]byte, totalShards)
+	dst := make([][]byte, totalShards)
+	dst[targetIdx] = make([]byte, shardSize)
+
+	// Only provide exactly dataShards inputs (minimum needed)
+	inputCount := 0
+	for j := 0; j < totalShards && inputCount < dataShards; j++ {
+		if j != targetIdx {
+			expectInput[j] = true
+			inputs[j] = shards[j]
+			inputCount++
+		}
+	}
+	b.SetBytes(int64(shardSize * totalShards))
+	b.ResetTimer()
+	b.ReportAllocs()
+	for range b.N {
+		err = ext.DecodeIdx(dst, expectInput, inputs)
+		if err != nil {
+			b.Fatal(err)
+		}
+	}
+}
+
+func BenchmarkDecodeIdxMultiple10x2x1M(b *testing.B) {
+	benchmarkDecodeIdxMultiple(b, 10, 2, 1024*1024, 2)
+}
+
+func BenchmarkDecodeIdxMultiple50x10x1M(b *testing.B) {
+	benchmarkDecodeIdxMultiple(b, 50, 10, 1024*1024, 5)
+}
+
+func BenchmarkDecodeIdxMultiple10x4x16M(b *testing.B) {
+	benchmarkDecodeIdxMultiple(b, 10, 4, 16*1024*1024, 3)
+}
+
+func benchmarkDecodeIdxMultiple(b *testing.B, dataShards, parityShards, shardSize, numLost int) {
+	r, err := New(dataShards, parityShards, testOptions()...)
+	if err != nil {
+		b.Fatal(err)
+	}
+	ext := r.(Extensions)
+	totalShards := dataShards + parityShards
+
+	shards := make([][]byte, totalShards)
+	for s := range shards {
+		shards[s] = make([]byte, shardSize)
+	}
+
+	for s := 0; s < dataShards; s++ {
+		fillRandom(shards[s])
+	}
+
+	err = r.Encode(shards)
+	if err != nil {
+		b.Fatal(err)
+	}
+
+	expectInput := make([]bool, totalShards)
+	inputs := make([][]byte, totalShards)
+	dst := make([][]byte, totalShards)
+
+	for j := 0; j < numLost; j++ {
+		dst[j] = make([]byte, shardSize)
+	}
+
+	// Only provide exactly dataShards inputs (minimum needed)
+	inputCount := 0
+	for j := numLost; j < totalShards && inputCount < dataShards; j++ {
+		expectInput[j] = true
+		inputs[j] = shards[j]
+		inputCount++
+	}
+
+	b.SetBytes(int64(shardSize * totalShards))
+	b.ResetTimer()
+	b.ReportAllocs()
+	for range b.N {
+		err = ext.DecodeIdx(dst, expectInput, inputs)
+		if err != nil {
+			b.Fatal(err)
+		}
+	}
+}
+
+func BenchmarkDecodeIdxProgressive10x2x1M(b *testing.B) {
+	benchmarkDecodeIdxProgressive(b, 10, 2, 1024*1024)
+}
+
+func BenchmarkDecodeIdxProgressive50x10x1M(b *testing.B) {
+	benchmarkDecodeIdxProgressive(b, 50, 10, 1024*1024)
+}
+
+func BenchmarkDecodeIdxProgressive10x4x16M(b *testing.B) {
+	benchmarkDecodeIdxProgressive(b, 10, 4, 16*1024*1024)
+}
+
+func benchmarkDecodeIdxProgressive(b *testing.B, dataShards, parityShards, shardSize int) {
+	r, err := New(dataShards, parityShards, testOptions()...)
+	if err != nil {
+		b.Fatal(err)
+	}
+	ext := r.(Extensions)
+	totalShards := dataShards + parityShards
+
+	shards := make([][]byte, totalShards)
+	for s := range shards {
+		shards[s] = make([]byte, shardSize)
+	}
+
+	for s := 0; s < dataShards; s++ {
+		fillRandom(shards[s])
+	}
+
+	err = r.Encode(shards)
+	if err != nil {
+		b.Fatal(err)
+	}
+
+	expectInput := make([]bool, totalShards)
+	dst := make([][]byte, totalShards)
+	dst[0] = make([]byte, shardSize)
+
+	// Select exactly dataShards inputs to split across two calls
+	availableIndices := make([]int, 0, totalShards-1)
+	for j := 1; j < totalShards; j++ {
+		availableIndices = append(availableIndices, j)
+	}
+
+	// Mark expectInput for exactly dataShards indices
+	for i := 0; i < dataShards && i < len(availableIndices); i++ {
+		expectInput[availableIndices[i]] = true
+	}
+
+	// Split inputs across two calls
+	half := dataShards / 2
+	inputs1 := make([][]byte, totalShards)
+	inputs2 := make([][]byte, totalShards)
+
+	for i := 0; i < half && i < len(availableIndices); i++ {
+		idx := availableIndices[i]
+		inputs1[idx] = shards[idx]
+	}
+	for i := half; i < dataShards && i < len(availableIndices); i++ {
+		idx := availableIndices[i]
+		inputs2[idx] = shards[idx]
+	}
+
+	b.SetBytes(int64(shardSize * totalShards))
+	b.ResetTimer()
+	b.ReportAllocs()
+	for range b.N {
+		err = ext.DecodeIdx(dst, expectInput, inputs1)
+		if err != nil {
+			b.Fatal(err)
+		}
+
+		err = ext.DecodeIdx(dst, expectInput, inputs2)
+		if err != nil {
+			b.Fatal(err)
+		}
+	}
+}
+
+func BenchmarkDecodeIdxVsReconstruct10x2x1M(b *testing.B) {
+	benchmarkDecodeIdxVsReconstruct(b, 10, 2, 1024*1024)
+}
+
+func BenchmarkDecodeIdxVsReconstruct50x10x1M(b *testing.B) {
+	benchmarkDecodeIdxVsReconstruct(b, 50, 10, 1024*1024)
+}
+
+func benchmarkDecodeIdxVsReconstruct(b *testing.B, dataShards, parityShards, shardSize int) {
+	r, err := New(dataShards, parityShards, testOptions()...)
+	if err != nil {
+		b.Fatal(err)
+	}
+	ext := r.(Extensions)
+	totalShards := dataShards + parityShards
+
+	shards := make([][]byte, totalShards)
+	for s := range shards {
+		shards[s] = make([]byte, shardSize)
+	}
+
+	for s := 0; s < dataShards; s++ {
+		fillRandom(shards[s])
+	}
+
+	err = r.Encode(shards)
+	if err != nil {
+		b.Fatal(err)
+	}
+
+	b.Run("DecodeIdx", func(b *testing.B) {
+
+		expectInput := make([]bool, totalShards)
+		inputs := make([][]byte, totalShards)
+		dst := make([][]byte, totalShards)
+
+		dst[0] = make([]byte, shardSize)
+
+		// Only provide exactly dataShards inputs (minimum needed)
+		inputCount := 0
+		for j := 1; j < totalShards && inputCount < dataShards; j++ {
+			expectInput[j] = true
+			inputs[j] = shards[j]
+			inputCount++
+		}
+		b.SetBytes(int64(shardSize * totalShards))
+		b.ResetTimer()
+		b.ReportAllocs()
+		for range b.N {
+			err = ext.DecodeIdx(dst, expectInput, inputs)
+			if err != nil {
+				b.Fatal(err)
+			}
+		}
+	})
+
+	b.Run("Reconstruct", func(b *testing.B) {
+		shardsTemp := make([][]byte, totalShards)
+		for s := range shardsTemp {
+			if s == 0 {
+				shardsTemp[s] = nil
+			} else {
+				shardsTemp[s] = make([]byte, shardSize)
+				copy(shardsTemp[s], shards[s])
+			}
+		}
+
+		b.SetBytes(int64(shardSize * totalShards))
+		b.ResetTimer()
+		b.ReportAllocs()
+		for range b.N {
+			for s := range shardsTemp {
+				if s == 0 {
+					shardsTemp[s] = shardsTemp[s][:0]
+				}
+			}
+			err = r.Reconstruct(shardsTemp)
+			if err != nil {
+				b.Fatal(err)
+			}
+		}
+	})
+}
+
+func BenchmarkDecodeIdxParityOnly10x2x1M(b *testing.B) {
+	benchmarkDecodeIdxParityOnly(b, 10, 2, 1024*1024)
+}
+
+func BenchmarkDecodeIdxParityOnly50x10x1M(b *testing.B) {
+	benchmarkDecodeIdxParityOnly(b, 50, 10, 1024*1024)
+}
+
+func benchmarkDecodeIdxParityOnly(b *testing.B, dataShards, parityShards, shardSize int) {
+	r, err := New(dataShards, parityShards, testOptions()...)
+	if err != nil {
+		b.Fatal(err)
+	}
+	ext := r.(Extensions)
+	totalShards := dataShards + parityShards
+
+	shards := make([][]byte, totalShards)
+	for s := range shards {
+		shards[s] = make([]byte, shardSize)
+	}
+
+	for s := 0; s < dataShards; s++ {
+		fillRandom(shards[s])
+	}
+
+	err = r.Encode(shards)
+	if err != nil {
+		b.Fatal(err)
+	}
+
+	expectInput := make([]bool, totalShards)
+	inputs := make([][]byte, totalShards)
+	dst := make([][]byte, totalShards)
+
+	for j := 0; j < parityShards; j++ {
+		dst[dataShards+j] = make([]byte, shardSize)
+	}
+
+	for j := 0; j < dataShards; j++ {
+		expectInput[j] = true
+		inputs[j] = shards[j]
+	}
+	b.SetBytes(int64(shardSize * totalShards))
+	b.ResetTimer()
+	b.ReportAllocs()
+	for range b.N {
+		err = ext.DecodeIdx(dst, expectInput, inputs)
+		if err != nil {
+			b.Fatal(err)
+		}
+	}
+}

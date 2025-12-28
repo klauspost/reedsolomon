@@ -348,6 +348,7 @@ err := ext.DecodeIdx(dstA, nil, dstB) // nil = merge mode
 
 Progressive decoding is particularly useful for distributed storage systems, network reconstruction scenarios, and cases where input data arrives incrementally.
 
+While this can be used for regular reconstruction, typically that will be slightly faster and easier to use.
 
 # Streaming/Merging
 

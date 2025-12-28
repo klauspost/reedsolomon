@@ -690,7 +690,7 @@ func (r *reedSolomon) Encode(shards [][]byte) error {
 	output := shards[r.dataShards:]
 
 	// Do the coding.
-	r.codeSomeShards(r.parity, shards[0:r.dataShards], output[:r.parityShards], len(shards[0]))
+	r.codeSomeShards(r.parity, shards[0:r.dataShards], output[:r.parityShards], len(shards[0]), true)
 	return nil
 }
 
@@ -872,12 +872,12 @@ func (r *reedSolomon) Verify(shards [][]byte) (bool, error) {
 // The number of outputs computed, and the
 // number of matrix rows used, is determined by
 // outputCount, which is the number of outputs to compute.
-func (r *reedSolomon) codeSomeShards(matrixRows, inputs, outputs [][]byte, byteCount int) {
+func (r *reedSolomon) codeSomeShards(matrixRows, inputs, outputs [][]byte, byteCount int, clear bool) {
 	if len(outputs) == 0 {
 		return
 	}
-	if byteCount > r.o.minSplitSize {
-		r.codeSomeShardsP(matrixRows, inputs, outputs, byteCount)
+	if r.o.maxGoroutines > 1 && byteCount > r.o.minSplitSize {
+		r.codeSomeShardsP(matrixRows, inputs, outputs, byteCount, clear)
 		return
 	}
 
@@ -889,11 +889,19 @@ func (r *reedSolomon) codeSomeShards(matrixRows, inputs, outputs [][]byte, byteC
 	if galMulGFNI, galMulGFNIXor, useGFNI := r.canGFNI(byteCount, len(inputs), len(outputs)); useGFNI {
 		var gfni [codeGenMaxInputs * codeGenMaxOutputs]uint64
 		m := genGFNIMatrix(matrixRows, len(inputs), 0, len(outputs), gfni[:])
-		start += (*galMulGFNI)(m, inputs, outputs, 0, byteCount)
+		if clear {
+			start += (*galMulGFNI)(m, inputs, outputs, 0, byteCount)
+		} else {
+			start += (*galMulGFNIXor)(m, inputs, outputs, 0, byteCount)
+		}
 		end = len(inputs[0])
-	} else if galMulGen, _, ok := r.hasCodeGen(byteCount, len(inputs), len(outputs)); ok {
+	} else if galMulGen, galMulGenXor, ok := r.hasCodeGen(byteCount, len(inputs), len(outputs)); ok {
 		m := genCodeGenMatrix(matrixRows, len(inputs), 0, len(outputs), r.o.vectorLength, r.getTmpSlice())
-		start += (*galMulGen)(m, inputs, outputs, 0, byteCount)
+		if clear {
+			start += (*galMulGen)(m, inputs, outputs, 0, byteCount)
+		} else {
+			start += (*galMulGenXor)(m, inputs, outputs, 0, byteCount)
+		}
 		r.putTmpSlice(m)
 		end = len(inputs[0])
 	} else if galMulGen, galMulGenXor, ok := r.hasCodeGen(byteCount, codeGenMaxInputs, codeGenMaxOutputs); len(inputs)+len(outputs) > codeGenMinShards && ok {
@@ -917,14 +925,14 @@ func (r *reedSolomon) codeSomeShards(matrixRows, inputs, outputs [][]byte, byteC
 				}
 				if useGFNI {
 					m := genGFNIMatrix(matrixRows[outIdx:], len(inPer), inIdx, len(outPer), gfni[:])
-					if inIdx == 0 {
+					if inIdx == 0 && clear {
 						start = (*galMulGFNI)(m, inPer, outPer, 0, byteCount)
 					} else {
 						start = (*galMulGFNIXor)(m, inPer, outPer, 0, byteCount)
 					}
 				} else {
 					m = genCodeGenMatrix(matrixRows[outIdx:], len(inPer), inIdx, len(outPer), r.o.vectorLength, m)
-					if inIdx == 0 {
+					if inIdx == 0 && clear {
 						start = (*galMulGen)(m, inPer, outPer, 0, byteCount)
 					} else {
 						start = (*galMulGenXor)(m, inPer, outPer, 0, byteCount)
@@ -944,7 +952,7 @@ func (r *reedSolomon) codeSomeShards(matrixRows, inputs, outputs [][]byte, byteC
 		for c := range inputs {
 			in := inputs[c][start:end]
 			for iRow := range outputs {
-				if c == 0 {
+				if c == 0 && clear {
 					galMulSlice(matrixRows[iRow][c], in, outputs[iRow][start:end], &r.o)
 				} else {
 					galMulSliceXor(matrixRows[iRow][c], in, outputs[iRow][start:end], &r.o)
@@ -961,14 +969,14 @@ func (r *reedSolomon) codeSomeShards(matrixRows, inputs, outputs [][]byte, byteC
 
 // Perform the same as codeSomeShards, but split the workload into
 // several goroutines.
-func (r *reedSolomon) codeSomeShardsP(matrixRows, inputs, outputs [][]byte, byteCount int) {
+func (r *reedSolomon) codeSomeShardsP(matrixRows, inputs, outputs [][]byte, byteCount int, clear bool) {
 	var wg sync.WaitGroup
 	gor := r.o.maxGoroutines
 
 	var genMatrix []byte
 	var gfniMatrix []uint64
-	galMulGen, _, useCodeGen := r.hasCodeGen(byteCount, len(inputs), len(outputs))
-	galMulGFNI, _, useGFNI := r.canGFNI(byteCount, len(inputs), len(outputs))
+	galMulGen, galMulGenXor, useCodeGen := r.hasCodeGen(byteCount, len(inputs), len(outputs))
+	galMulGFNI, galMulGFNIXor, useGFNI := r.canGFNI(byteCount, len(inputs), len(outputs))
 	if useGFNI {
 		var tmp [codeGenMaxInputs * codeGenMaxOutputs]uint64
 		gfniMatrix = genGFNIMatrix(matrixRows, len(inputs), 0, len(outputs), tmp[:])
@@ -976,16 +984,16 @@ func (r *reedSolomon) codeSomeShardsP(matrixRows, inputs, outputs [][]byte, byte
 		genMatrix = genCodeGenMatrix(matrixRows, len(inputs), 0, len(outputs), r.o.vectorLength, r.getTmpSlice())
 		defer r.putTmpSlice(genMatrix)
 	} else if galMulGFNI, galMulGFNIXor, useGFNI := r.canGFNI(byteCount/4, codeGenMaxInputs, codeGenMaxOutputs); useGFNI &&
-		byteCount < 10<<20 && len(inputs)+len(outputs) > codeGenMinShards {
+		len(inputs)+len(outputs) > codeGenMinShards {
 		// It appears there is a switchover point at around 10MB where
 		// Regular processing is faster...
-		r.codeSomeShardsGFNI(matrixRows, inputs, outputs, byteCount, true, galMulGFNI, galMulGFNIXor)
+		r.codeSomeShardsGFNI(matrixRows, inputs, outputs, byteCount, clear, galMulGFNI, galMulGFNIXor)
 		return
 	} else if galMulGen, galMulGenXor, ok := r.hasCodeGen(byteCount/4, codeGenMaxInputs, codeGenMaxOutputs); ok &&
-		byteCount < 10<<20 && len(inputs)+len(outputs) > codeGenMinShards {
+		len(inputs)+len(outputs) > codeGenMinShards {
 		// It appears there is a switchover point at around 10MB where
 		// Regular processing is faster...
-		r.codeSomeShardsAVXP(matrixRows, inputs, outputs, byteCount, true, galMulGen, galMulGenXor)
+		r.codeSomeShardsAVXP(matrixRows, inputs, outputs, byteCount, clear, galMulGen, galMulGenXor)
 		return
 	}
 
@@ -994,9 +1002,17 @@ func (r *reedSolomon) codeSomeShardsP(matrixRows, inputs, outputs [][]byte, byte
 	exec := func(start, stop int) {
 		if stop-start >= 64 {
 			if useGFNI {
-				start += (*galMulGFNI)(gfniMatrix, inputs, outputs, start, stop)
+				if clear {
+					start += (*galMulGFNI)(gfniMatrix, inputs, outputs, start, stop)
+				} else {
+					start += (*galMulGFNIXor)(gfniMatrix, inputs, outputs, start, stop)
+				}
 			} else if useCodeGen {
-				start += (*galMulGen)(genMatrix, inputs, outputs, start, stop)
+				if clear {
+					start += (*galMulGen)(genMatrix, inputs, outputs, start, stop)
+				} else {
+					start += (*galMulGenXor)(genMatrix, inputs, outputs, start, stop)
+				}
 			}
 		}
 
@@ -1008,7 +1024,7 @@ func (r *reedSolomon) codeSomeShardsP(matrixRows, inputs, outputs [][]byte, byte
 			for c := range inputs {
 				in := inputs[c][lstart:lstop]
 				for iRow := range outputs {
-					if c == 0 {
+					if c == 0 && clear {
 						galMulSlice(matrixRows[iRow][c], in, outputs[iRow][lstart:lstop], &r.o)
 					} else {
 						galMulSliceXor(matrixRows[iRow][c], in, outputs[iRow][lstart:lstop], &r.o)
@@ -1353,7 +1369,7 @@ func (r *reedSolomon) checkSomeShards(matrixRows, inputs, toCheck [][]byte, byte
 	}
 
 	outputs := AllocAligned(len(toCheck), byteCount)
-	r.codeSomeShards(matrixRows, inputs, outputs, byteCount)
+	r.codeSomeShards(matrixRows, inputs, outputs, byteCount, true)
 
 	for i, calc := range outputs {
 		if !bytes.Equal(calc, toCheck[i]) {
@@ -1527,47 +1543,69 @@ func (r *reedSolomon) DecodeIdx(dst [][]byte, expectInput []bool, input [][]byte
 		}
 	}
 
-	// Process inputs by mapping to matrix columns
-	for inputIdx := 0; inputIdx < len(input); inputIdx++ {
-		if input[inputIdx] == nil {
+	// Build matrix rows and output arrays for codeSomeShards
+	outputCount := 0
+	outputs := make([][]byte, 0, r.totalShards)
+	matrixRows := make([][]byte, 0, r.totalShards)
+
+	for dstIdx := 0; dstIdx < len(dst); dstIdx++ {
+		if dst[dstIdx] == nil {
 			continue
 		}
+		outputs = append(outputs, dst[dstIdx])
 
-		// Find matrix column for this input
-		matrixCol := -1
-		for col := 0; col < r.dataShards && col < len(validIndices); col++ {
-			if validIndices[col] == inputIdx {
-				matrixCol = col
-				break
-			}
-		}
-
-		if matrixCol == -1 {
-			// Input beyond first dataShards valid indices, ignore
-			continue
-		}
-
-		// Apply this input's contribution to each dst shard
-		for dstIdx := 0; dstIdx < len(dst); dstIdx++ {
-			if dst[dstIdx] == nil {
-				continue
-			}
-
-			// Compute coefficient for this dst shard
-			if dstIdx < r.dataShards {
-				// Data shard: use inverted matrix directly
-				galMulSliceXor(dataDecodeMatrix[dstIdx][matrixCol], input[inputIdx], dst[dstIdx], &r.o)
-			} else {
-				// Parity shard: multiply parity row with inverted matrix column
-				parityIdx := dstIdx - r.dataShards
-				coeff := byte(0)
+		// Build matrix row for this dst shard
+		row := make([]byte, len(validIndices))
+		if dstIdx < r.dataShards {
+			// Data shard: use inverted matrix row directly
+			copy(row, dataDecodeMatrix[dstIdx])
+		} else {
+			// Parity shard: multiply parity row with inverted matrix
+			parityIdx := dstIdx - r.dataShards
+			for col := 0; col < len(validIndices) && col < r.dataShards; col++ {
+				row[col] = 0
 				for i := 0; i < r.dataShards; i++ {
-					coeff ^= galMultiply(r.parity[parityIdx][i], dataDecodeMatrix[i][matrixCol])
+					row[col] ^= galMultiply(r.parity[parityIdx][i], dataDecodeMatrix[i][col])
 				}
-				galMulSliceXor(coeff, input[inputIdx], dst[dstIdx], &r.o)
 			}
+		}
+		matrixRows = append(matrixRows, row)
+		outputCount++
+	}
+
+	if outputCount == 0 {
+		return nil
+	}
+
+	// Build input array from available shards
+	inputs := make([][]byte, 0, len(validIndices))
+	actualInputIndices := make([]int, 0, len(validIndices))
+	for col := 0; col < len(validIndices); col++ {
+		inputIdx := validIndices[col]
+		if inputIdx < len(input) && input[inputIdx] != nil {
+			inputs = append(inputs, input[inputIdx])
+			actualInputIndices = append(actualInputIndices, col)
 		}
 	}
+
+	// If no inputs are provided in this call, nothing to do
+	if len(inputs) == 0 {
+		return nil
+	}
+
+	// Adjust matrix rows to only include columns for available inputs
+	adjustedMatrixRows := make([][]byte, len(matrixRows))
+	for i, row := range matrixRows {
+		adjustedRow := make([]byte, len(actualInputIndices))
+		for j, colIdx := range actualInputIndices {
+			adjustedRow[j] = row[colIdx]
+		}
+		adjustedMatrixRows[i] = adjustedRow
+	}
+
+	// Use codeSomeShards for efficient matrix multiplication
+	// Always accumulate (never clear) - caller provides zeroed slices
+	r.codeSomeShards(adjustedMatrixRows, inputs, outputs, shardSize, false)
 	return nil
 }
 
@@ -1730,7 +1768,7 @@ func (r *reedSolomon) reconstruct(shards [][]byte, dataOnly bool, required []boo
 
 	// Single reconstruction call for all missing shards
 	if outputCount > 0 {
-		r.codeSomeShards(matrixRows[:outputCount], subShards, outputs[:outputCount], shardSize)
+		r.codeSomeShards(matrixRows[:outputCount], subShards, outputs[:outputCount], shardSize, true)
 	}
 	return nil
 }
