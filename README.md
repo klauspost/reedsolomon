@@ -243,38 +243,60 @@ ext := enc.(reedsolomon.Extensions)
 * `expectInput []bool` - Which shards you expect to receive (true = expected)
 * `input [][]byte` - The actual input shards for this call
 
+<details>
+
+<summary>Click to see example</summary>
+
 ```Go
-// Set up reconstruction - we want to reconstruct shards 1 and 4
-dst := make([][]byte, totalShards)
-dst[1] = make([]byte, shardSize) // Will reconstruct shard 1
-dst[4] = make([]byte, shardSize) // Will reconstruct shard 4
+func doReconstruct() {
+	// Create encoder:
+	enc, _ := reedsolomon.New(5, 3)
+	ext := enc.(reedsolomon.Extensions)
 
-// Mark which shards we expect to receive
-expectInput := make([]bool, totalShards)
-expectInput[0] = true  // We expect shard 0
-expectInput[2] = true  // We expect shard 2
-expectInput[3] = true  // We expect shard 3
-expectInput[5] = true  // We expect shard 5
-expectInput[6] = true  // We expect shard 6
+	// Set up reconstruction - we want to reconstruct shards 1 and 4
+	dst := make([][]byte, 5+3)
+	dst[1] = make([]byte, shardSize) // Will reconstruct shard 1
+	dst[4] = make([]byte, shardSize) // Will reconstruct shard 4
 
-// First call - provide some shards
-input1 := make([][]byte, totalShards)
-input1[0] = shard0data
-input1[2] = shard2data
+	// Mark which shards we expect to receive
+	expectInput := []bool{
+		0: true,
+		1: false, // Reconstructing this shard.
+		2: true,
+		3: true,
+		4: false, // Reconstructing this shard. 
+		5: true,
+		6: true,
+		7: false, // We only need to supply 6 shards, so we skip this.
+	}
 
-err := ext.DecodeIdx(dst, expectInput, input1)
+	// First call - provide some shards
+	input1 := make([][]byte, 5+3)
+	input1[0] = shard0data
+	input1[2] = shard2data
 
-// Second call - provide remaining shards
-input2 := make([][]byte, totalShards)
-input2[3] = shard3data
-input2[5] = shard5data
-input2[6] = shard6data
+	err := ext.DecodeIdx(dst, expectInput, input1)
 
-err = ext.DecodeIdx(dst, expectInput, input2)
-// dst[1] and dst[4] now contain the reconstructed data
+	// Second call - provide remaining shards
+	input2 := make([][]byte, 5+3)
+	input2[3] = shard3data
+	input2[5] = shard5data
+	input2[6] = shard6data
+
+	err = ext.DecodeIdx(dst, expectInput, input2)
+	// dst[1] and dst[4] now contain the reconstructed data
+}
 ```
 
-## Progressive Reconstruction Example
+</details>
+
+## Merging Partial DecodeIdx Results
+
+You can also merge partial reconstructions from different nodes using merge mode (`expectInput == nil`):
+
+<details>
+
+<summary>Click to see example</summary>
 
 ```Go
 func progressiveReconstruct() {
@@ -283,9 +305,9 @@ func progressiveReconstruct() {
     ext := enc.(reedsolomon.Extensions)
 
     // Assume we lost shards 1 and 3, need to reconstruct them
-    dst := make([][]byte, 8)
-    dst[1] = make([]byte, shardSize)  // Reconstruct shard 1
-    dst[3] = make([]byte, shardSize)  // Reconstruct shard 3
+    dst1 := make([][]byte, 8)
+    dst1[1] = make([]byte, shardSize)  // Reconstruct shard 1
+    dst1[3] = make([]byte, shardSize)  // Reconstruct shard 3
 
     // We need 5 valid shards total - mark which ones we expect
     expectInput := make([]bool, 8)
@@ -295,48 +317,32 @@ func progressiveReconstruct() {
     expectInput[5] = true  // Have shard 5 (parity)
     expectInput[6] = true  // Have shard 6 (parity)
 
-    // Shards arrive progressively from different sources
-
     // First source provides shards 0, 2
     input1 := make([][]byte, 8)
     input1[0] = availableShards[0]
     input1[2] = availableShards[2]
-    ext.DecodeIdx(dst, expectInput, input1)
+    ext.DecodeIdx(dst1, expectInput, input1)
 
-    // Second source provides shard 4
+    // Second source provides shard 4, 5 and 6
+    dst2 := make([][]byte, 8)
+    dst2[1] = make([]byte, shardSize)  // Reconstruct shard 1
+    dst2[3] = make([]byte, shardSize)  // Reconstruct shard 3
+
     input2 := make([][]byte, 8)
     input2[4] = availableShards[4]
-    ext.DecodeIdx(dst, expectInput, input2)
+    input2[5] = availableShards[5]
+    input2[6] = availableShards[6]
+    ext.DecodeIdx(dst2, expectInput, input2)
 
-    // Third source provides remaining parity shards
-    input3 := make([][]byte, 8)
-    input3[5] = availableShards[5]
-    input3[6] = availableShards[6]
-    ext.DecodeIdx(dst, expectInput, input3)
+    // Merge the dst2 partial result into dst1
+	// These can come from different machines.
+    ext.DecodeIdx(dst1, nil, dst2)
 
-    // dst[1] and dst[3] now contain the reconstructed data
+    // dst1[1] and dst1[3] now contain the reconstructed data
 }
 ```
+</details>
 
-## Merging Partial DecodeIdx Results
-
-You can also merge partial reconstructions from different nodes using merge mode (`expectInput == nil`):
-
-```Go
-// Node A reconstructs using shards 0,2,4
-dstA := make([][]byte, 8)
-dstA[1] = make([]byte, shardSize)
-// ... perform partial reconstruction on node A
-
-// Node B reconstructs using shards 5,6,7
-dstB := make([][]byte, 8)
-dstB[1] = make([]byte, shardSize)
-// ... perform partial reconstruction on node B
-
-// Merge the results (XOR them together)
-err := ext.DecodeIdx(dstA, nil, dstB) // nil = merge mode
-// dstA[1] now contains the final reconstructed result
-```
 
 ## Important Notes
 
