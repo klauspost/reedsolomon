@@ -74,6 +74,10 @@ func (r *leopardFF16) AllocAligned(each int) [][]byte {
 	return AllocAligned(r.totalShards, each)
 }
 
+func (r *leopardFF16) DecodeIdx(dst [][]byte, expectInput []bool, input [][]byte) error {
+	return ErrNotSupported
+}
+
 type ffe uint16
 
 const (

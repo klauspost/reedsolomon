@@ -1797,11 +1797,11 @@ func TestCodeSomeShards(t *testing.T) {
 	shards, _ := enc.Split(data)
 
 	old := runtime.GOMAXPROCS(1)
-	r.codeSomeShards(r.parity, shards[:r.dataShards], shards[r.dataShards:r.dataShards+r.parityShards], len(shards[0]))
+	r.codeSomeShards(r.parity, shards[:r.dataShards], shards[r.dataShards:r.dataShards+r.parityShards], len(shards[0]), true)
 
 	// hopefully more than 1 CPU
 	runtime.GOMAXPROCS(runtime.NumCPU())
-	r.codeSomeShards(r.parity, shards[:r.dataShards], shards[r.dataShards:r.dataShards+r.parityShards], len(shards[0]))
+	r.codeSomeShards(r.parity, shards[:r.dataShards], shards[r.dataShards:r.dataShards+r.parityShards], len(shards[0]), true)
 
 	// reset MAXPROCS, otherwise testing complains
 	runtime.GOMAXPROCS(old)
@@ -2138,106 +2138,111 @@ func BenchmarkParallel_8x5x1M(b *testing.B) { benchmarkParallel(b, 8, 5, 1<<20) 
 
 func TestReentrant(t *testing.T) {
 	for optN, o := range testOpts() {
-		for _, size := range testSizes() {
-			data, parity := size[0], size[1]
-			rng := rand.New(rand.NewSource(0xabadc0cac01a))
-			t.Run(fmt.Sprintf("opt-%d-%dx%d", optN, data, parity), func(t *testing.T) {
-				perShard := 16384 + 1
-				if testing.Short() {
-					perShard = 1024 + 1
-				}
-				r, err := New(data, parity, testOptions(o...)...)
-				if err != nil {
-					t.Fatal(err)
-				}
-				x := r.(Extensions)
-				if want, got := data, x.DataShards(); want != got {
-					t.Errorf("DataShards returned %d, want %d", got, want)
-				}
-				if want, got := parity, x.ParityShards(); want != got {
-					t.Errorf("ParityShards returned %d, want %d", got, want)
-				}
-				if want, got := parity+data, x.TotalShards(); want != got {
-					t.Errorf("TotalShards returned %d, want %d", got, want)
-				}
-				mul := x.ShardSizeMultiple()
-				if mul <= 0 {
-					t.Fatalf("Got unexpected ShardSizeMultiple: %d", mul)
-				}
-				perShard = ((perShard + mul - 1) / mul) * mul
-				runs := 10
-				if testing.Short() {
-					runs = 2
-				}
-				for i := 0; i < runs; i++ {
-					shards := AllocAligned(data+parity, perShard)
-
-					err = r.Encode(shards)
+		t.Run(fmt.Sprintf("opt-%d", optN), func(t *testing.T) {
+			parallelIfNotShort(t)
+			for _, size := range testSizes() {
+				data, parity := size[0], size[1]
+				rng := rand.New(rand.NewSource(0xabadc0cac01a))
+				t.Run(fmt.Sprintf("size-%dx%d", data, parity), func(t *testing.T) {
+					perShard := 1024 + 1
+					if testing.Short() {
+						perShard = 256 + 1
+					}
+					r, err := New(data, parity, testOptions(o...)...)
 					if err != nil {
 						t.Fatal(err)
 					}
-					ok, err := r.Verify(shards)
-					if err != nil {
-						t.Fatal(err)
+					x := r.(Extensions)
+					if want, got := data, x.DataShards(); want != got {
+						t.Errorf("DataShards returned %d, want %d", got, want)
 					}
-					if !ok {
-						t.Fatal("Verification failed")
+					if want, got := parity, x.ParityShards(); want != got {
+						t.Errorf("ParityShards returned %d, want %d", got, want)
 					}
+					if want, got := parity+data, x.TotalShards(); want != got {
+						t.Errorf("TotalShards returned %d, want %d", got, want)
+					}
+					mul := x.ShardSizeMultiple()
+					if mul <= 0 {
+						t.Fatalf("Got unexpected ShardSizeMultiple: %d", mul)
+					}
+					perShard = ((perShard + mul - 1) / mul) * mul
+					runs := 10
+					if testing.Short() {
+						runs = 2
+					}
+					for i := 0; i < runs; i++ {
+						shards := AllocAligned(data+parity, perShard)
+						for s := 0; s < data; s++ {
+							rng.Read(shards[s])
+						}
+						err = r.Encode(shards)
+						if err != nil {
+							t.Fatal(err)
+						}
+						ok, err := r.Verify(shards)
+						if err != nil {
+							t.Fatal(err)
+						}
+						if !ok {
+							t.Fatal("Verification failed")
+						}
 
-					if parity == 0 {
-						// Check that Reconstruct and ReconstructData do nothing
+						if parity == 0 {
+							// Check that Reconstruct and ReconstructData do nothing
+							err = r.ReconstructData(shards)
+							if err != nil {
+								t.Fatal(err)
+							}
+							err = r.Reconstruct(shards)
+							if err != nil {
+								t.Fatal(err)
+							}
+
+							// Skip integrity checks
+							continue
+						}
+
+						// Delete one in data
+						idx := rng.Intn(data)
+						want := shards[idx]
+						shards[idx] = nil
+
 						err = r.ReconstructData(shards)
 						if err != nil {
 							t.Fatal(err)
 						}
+						if !bytes.Equal(shards[idx], want) {
+							t.Fatal("did not ReconstructData correctly")
+						}
+
+						// Delete one randomly
+						idx = rng.Intn(data + parity)
+						want = shards[idx]
+						shards[idx] = nil
 						err = r.Reconstruct(shards)
 						if err != nil {
 							t.Fatal(err)
 						}
+						if !bytes.Equal(shards[idx], want) {
+							t.Fatal("did not Reconstruct correctly")
+						}
 
-						// Skip integrity checks
-						continue
-					}
+						err = r.Encode(make([][]byte, 1))
+						if err != ErrTooFewShards {
+							t.Errorf("expected %v, got %v", ErrTooFewShards, err)
+						}
 
-					// Delete one in data
-					idx := rng.Intn(data)
-					want := shards[idx]
-					shards[idx] = nil
-
-					err = r.ReconstructData(shards)
-					if err != nil {
-						t.Fatal(err)
+						// Make one too short.
+						shards[idx] = shards[idx][:perShard-1]
+						err = r.Encode(shards)
+						if err != ErrShardSize {
+							t.Errorf("expected %v, got %v", ErrShardSize, err)
+						}
 					}
-					if !bytes.Equal(shards[idx], want) {
-						t.Fatal("did not ReconstructData correctly")
-					}
-
-					// Delete one randomly
-					idx = rng.Intn(data + parity)
-					want = shards[idx]
-					shards[idx] = nil
-					err = r.Reconstruct(shards)
-					if err != nil {
-						t.Fatal(err)
-					}
-					if !bytes.Equal(shards[idx], want) {
-						t.Fatal("did not Reconstruct correctly")
-					}
-
-					err = r.Encode(make([][]byte, 1))
-					if err != ErrTooFewShards {
-						t.Errorf("expected %v, got %v", ErrTooFewShards, err)
-					}
-
-					// Make one too short.
-					shards[idx] = shards[idx][:perShard-1]
-					err = r.Encode(shards)
-					if err != ErrShardSize {
-						t.Errorf("expected %v, got %v", ErrShardSize, err)
-					}
-				}
-			})
-		}
+				})
+			}
+		})
 	}
 }
 

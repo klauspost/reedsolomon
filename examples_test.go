@@ -3,7 +3,6 @@ package reedsolomon_test
 import (
 	"bytes"
 	"fmt"
-	"io"
 	"log"
 	"math/rand"
 
@@ -20,242 +19,408 @@ func fillRandom(p []byte) {
 	}
 }
 
-// Simple example of how to use all functions of the Encoder.
-// Note that all error checks have been removed to keep it short.
-func ExampleEncoder() {
-	// Create some sample data
+func ExampleNew() {
+	// Create an encoder with 17 data and 3 parity slices.
+	enc, _ := reedsolomon.New(17, 3)
+
+	_ = enc
+}
+
+func ExampleEncoder_Update() {
+	// Create an encoder with 7 data and 3 parity slices.
+	enc, _ := reedsolomon.New(7, 3)
+
+	// Create a slice of data slices.
+	data := make([][]byte, 10)
+
+	// Create some data. All slices must have the same length.
+	length := 10000
+	for i := range data {
+		data[i] = make([]byte, length)
+		fillRandom(data[i])
+	}
+
+	// Encode the data.
+	err := enc.Encode(data)
+	if err != nil {
+		log.Fatal(err)
+	}
+	// Data is ok.
+	ok, err := enc.Verify(data)
+	fmt.Println("data ok:", ok, "err:", err)
+
+	// Change some data in shard 5.
+	changedData := append([]byte{}, data[5]...)
+	changedData[0], changedData[1], changedData[2] = 11, 22, 33
+
+	// Re-encode the data with Update.
+	newData := make([][]byte, 7)
+
+	// Only provide the changed data shard
+	newData[5] = changedData
+	err = enc.Update(data, newData)
+	if err != nil {
+		log.Fatal(err)
+	}
+	// Update the data shard.
+	data[5] = changedData
+
+	// Data is ok.
+	ok, err = enc.Verify(data)
+	fmt.Println("data ok:", ok, "err:", err)
+
+	// Output: data ok: true err: <nil>
+	// data ok: true err: <nil>
+}
+
+func ExampleEncoder_Reconstruct() {
+	// Create an encoder with 5 data and 3 parity slices.
+	enc, _ := reedsolomon.New(5, 3)
+
+	// Create a slice of data slices.
+	data := make([][]byte, 8)
+
+	// Create 5+3 slices of 50 bytes each.
+	for i := range data {
+		data[i] = make([]byte, 50)
+	}
+
+	// Fill in data slices with random data, leaving parity slices as zero.
+	for i := 0; i < 5; i++ {
+		fillRandom(data[i])
+	}
+
+	// Encode data.
+	enc.Encode(data)
+
+	// Delete a data slices (but preserve the original)
+	original := append([][]byte{}, data...)
+	data[1] = nil
+	data[4] = nil
+
+	// Reconstruct the missing data slices.
+	enc.Reconstruct(data)
+
+	// Verify that reconstruction was correct.
+	ok := true
+	for i := range data {
+		if !bytes.Equal(original[i], data[i]) {
+			ok = false
+		}
+	}
+	fmt.Println("Reconstruction ok:", ok)
+	// Output: Reconstruction ok: true
+}
+
+func ExampleEncoder_Split() {
 	var data = make([]byte, 250000)
 	fillRandom(data)
 
 	// Create an encoder with 17 data and 3 parity slices.
 	enc, _ := reedsolomon.New(17, 3)
 
-	// Split the data into shards
+	// Split the data into shards.
 	shards, _ := enc.Split(data)
 
-	// Encode the parity set
-	_ = enc.Encode(shards)
+	// This is the output size
+	outputSize := len(data)
 
-	// Verify the parity set
-	ok, _ := enc.Verify(shards)
-	if ok {
-		fmt.Println("ok")
-	}
-
-	// Delete two shards
-	shards[10], shards[11] = nil, nil
-
-	// Reconstruct the shards
-	_ = enc.Reconstruct(shards)
-
-	// Verify the data set
-	ok, _ = enc.Verify(shards)
-	if ok {
-		fmt.Println("ok")
-	}
-	// Output: ok
-	// ok
-}
-
-// Simple example of how to use all functions of the EncoderIdx.
-// Note that all error checks have been removed to keep it short.
-func ExampleEncoder_EncodeIdx() {
-	const dataShards = 7
-	const erasureShards = 3
-
-	// Create some sample data
-	var data = make([]byte, 250000)
-	fillRandom(data)
-
-	// Create an encoder with 7 data and 3 parity slices.
-	enc, _ := reedsolomon.New(dataShards, erasureShards)
-
-	// Split the data into shards
-	shards, _ := enc.Split(data)
-
-	// Zero erasure shards.
-	for i := range erasureShards {
-		clear := shards[dataShards+i]
-		for j := range clear {
-			clear[j] = 0
-		}
-	}
-
-	for i := range dataShards {
-		// Encode one shard at the time.
-		// Note how this gives linear access.
-		// There is however no requirement on shards being delivered in order.
-		// All parity shards will be updated on each run.
-		_ = enc.EncodeIdx(shards[i], i, shards[dataShards:])
-	}
-
-	// Verify the parity set
-	ok, err := enc.Verify(shards)
-	if ok {
-		fmt.Println("ok")
-	} else {
-		fmt.Println(err)
-	}
-
-	// Delete two shards
-	shards[dataShards-2], shards[dataShards-2] = nil, nil
-
-	// Reconstruct the shards
-	_ = enc.Reconstruct(shards)
-
-	// Verify the data set
-	ok, err = enc.Verify(shards)
-	if ok {
-		fmt.Println("ok")
-	} else {
-		fmt.Println(err)
-	}
-	// Output: ok
-	// ok
-}
-
-// This demonstrates that shards can be arbitrary sliced and
-// merged and still remain valid.
-func ExampleEncoder_slicing() {
-	// Create some sample data
-	var data = make([]byte, 250000)
-	fillRandom(data)
-
-	// Create 5 data slices of 50000 elements each
-	enc, _ := reedsolomon.New(5, 3)
-	shards, _ := enc.Split(data)
 	err := enc.Encode(shards)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
+	// Duplicate a data shard
+	shards[10] = nil
 
-	// Check that it verifies
-	ok, err := enc.Verify(shards)
-	if ok && err == nil {
-		fmt.Println("encode ok")
-	}
-
-	// Split the data set of 50000 elements into two of 25000
-	splitA := make([][]byte, 8)
-	splitB := make([][]byte, 8)
-
-	// Merge into a 100000 element set
-	merged := make([][]byte, 8)
-
-	// Split/merge the shards
-	for i := range shards {
-		splitA[i] = shards[i][:25000]
-		splitB[i] = shards[i][25000:]
-
-		// Concencate it to itself
-		merged[i] = append(make([]byte, 0, len(shards[i])*2), shards[i]...)
-		merged[i] = append(merged[i], shards[i]...)
-	}
-
-	// Each part should still verify as ok.
-	ok, err = enc.Verify(shards)
-	if ok && err == nil {
-		fmt.Println("splitA ok")
-	}
-
-	ok, err = enc.Verify(splitB)
-	if ok && err == nil {
-		fmt.Println("splitB ok")
-	}
-
-	ok, err = enc.Verify(merged)
-	if ok && err == nil {
-		fmt.Println("merge ok")
-	}
-	// Output: encode ok
-	// splitA ok
-	// splitB ok
-	// merge ok
-}
-
-// This demonstrates that shards can xor'ed and
-// still remain a valid set.
-//
-// The xor value must be the same for element 'n' in each shard,
-// except if you xor with a similar sized encoded shard set.
-func ExampleEncoder_xor() {
-	// Create some sample data
-	var data = make([]byte, 25000)
-	fillRandom(data)
-
-	// Create 5 data slices of 5000 elements each
-	enc, _ := reedsolomon.New(5, 3)
-	shards, _ := enc.Split(data)
-	err := enc.Encode(shards)
+	// Recover the missing shard
+	err = enc.Reconstruct(shards)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
+	// Join the data shards back
+	buf := new(bytes.Buffer)
 
-	// Check that it verifies
-	ok, err := enc.Verify(shards)
-	if !ok || err != nil {
-		fmt.Println("falied initial verify", err)
-	}
+	// We write the joined data to buf
+	_ = enc.Join(buf, shards, outputSize)
 
-	// Create an xor'ed set
-	xored := make([][]byte, 8)
-
-	// We xor by the index, so you can see that the xor can change,
-	// It should however be constant vertically through your slices.
-	for i := range shards {
-		xored[i] = make([]byte, len(shards[i]))
-		for j := range xored[i] {
-			xored[i][j] = shards[i][j] ^ byte(j&0xff)
-		}
-	}
-
-	// Each part should still verify as ok.
-	ok, err = enc.Verify(xored)
-	if ok && err == nil {
-		fmt.Println("verified ok after xor")
-	}
-	// Output: verified ok after xor
+	// buf.Bytes() now contains the original data.
+	fmt.Println(bytes.Equal(buf.Bytes(), data))
+	// Output: true
 }
 
-// This will show a simple stream encoder where we encode from
-// a []io.Reader which contain a reader for each shard.
-//
-// Input and output can be exchanged with files, network streams
-// or what may suit your needs.
+func ExampleEncoder_Verify() {
+	// Create an encoder with 5 data and 3 parity slices.
+	enc, _ := reedsolomon.New(5, 3)
+
+	// Create a slice of data slices.
+	data := make([][]byte, 8)
+
+	// Create 5+3 slices of 5 bytes each.
+	for i := range data {
+		data[i] = make([]byte, 5)
+	}
+
+	// Fill in data slices with random data, leaving parity slices as zero.
+	for i := 0; i < 5; i++ {
+		fillRandom(data[i])
+	}
+
+	// Encode data.
+	enc.Encode(data)
+
+	// Verify that parity slices are correct.
+	ok, _ := enc.Verify(data)
+	fmt.Println("parity ok:", ok)
+
+	// Corrupt a byte in a data shard.
+	data[2][1]++
+
+	// Verify that parity slices are correct.
+	ok, _ = enc.Verify(data)
+	fmt.Println("parity ok:", ok)
+	// Output: parity ok: true
+	// parity ok: false
+}
+
 func ExampleStreamEncoder() {
 	dataShards := 5
-	parityShards := 2
+	parShards := 2
 
-	// Create a StreamEncoder with the number of data and
-	// parity shards.
-	rs, err := reedsolomon.NewStream(dataShards, parityShards)
+	// Create encoder (StreamEncoder is deprecated, use regular encoder)
+	enc, err := reedsolomon.New(dataShards, parShards)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	shardSize := 50000
 
-	// Create input data shards.
-	input := make([][]byte, dataShards)
-	for s := range input {
-		input[s] = make([]byte, shardSize)
-		fillRandom(input[s])
+	// Create shards.
+	shards := make([][]byte, dataShards+parShards)
+	for s := range shards {
+		shards[s] = make([]byte, shardSize)
+		if s < dataShards {
+			fillRandom(shards[s])
+		}
 	}
 
-	// Convert our buffers to io.Readers
-	readers := make([]io.Reader, dataShards)
-	for i := range readers {
-		readers[i] = io.Reader(bytes.NewBuffer(input[i]))
+	// Encode parity.
+	err = enc.Encode(shards)
+	if err != nil {
+		log.Fatal(err)
 	}
 
-	// Create our output io.Writers
-	out := make([]io.Writer, parityShards)
-	for i := range out {
-		out[i] = io.Discard
+	// Verify the parity.
+	ok, err := enc.Verify(shards)
+	if ok {
+		fmt.Println("verified ok")
 	}
 
-	// Encode from input to output.
-	err = rs.Encode(readers, out)
+	// Recover 2 lost data shards.
+	shards[0] = nil
+	shards[2] = nil
+	err = enc.Reconstruct(shards)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Verify the data after recovering.
+	ok, err = enc.Verify(shards)
+	if ok {
+		fmt.Println("recovered ok")
+	}
+}
+
+func ExampleEncoder_EncodeIdx() {
+	dataShards := 5
+	parityShards := 2
+
+	// Create encoder
+	enc, err := reedsolomon.New(dataShards, parityShards)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	shardSize := 50000
+
+	// Create shards.
+	shards := make([][]byte, dataShards+parityShards)
+	for s := range shards {
+		shards[s] = make([]byte, shardSize)
+	}
+
+	// Fill data shards with some data
+	shards[0] = bytes.Repeat([]byte{0}, shardSize)
+	shards[1] = bytes.Repeat([]byte{1}, shardSize)
+	shards[2] = bytes.Repeat([]byte{2}, shardSize)
+	shards[3] = bytes.Repeat([]byte{3}, shardSize)
+	shards[4] = bytes.Repeat([]byte{4}, shardSize)
+
+	// Encode parity, one data shard at the time using EncodeIdx.
+	for i := 0; i < dataShards; i++ {
+		err = enc.EncodeIdx(shards[i], i, shards[dataShards:])
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	// Verify the parity.
+	ok, err := enc.Verify(shards)
+	if err != nil {
+		log.Fatal(err)
+	}
+	if ok {
+		fmt.Println("encode ok")
+	}
+
+	// Output: encode ok
+}
+
+// This shows how to use DecodeIdx to progressively reconstruct shards,
+// including both data and parity shards. The new signature allows
+// reconstructing multiple shards simultaneously and merging partial decodings.
+func ExampleExtensions_DecodeIdx() {
+	const dataShards = 5
+	const parityShards = 3
+	const totalShards = dataShards + parityShards
+	const shardSize = 50000
+
+	// Create encoder
+	enc, err := reedsolomon.New(dataShards, parityShards)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// DecodeIdx is available through the Extensions interface
+	ext := enc.(reedsolomon.Extensions)
+
+	// Create some sample data
+	var data = make([]byte, dataShards*shardSize)
+	fillRandom(data)
+
+	// Split into shards and encode
+	shards, err := enc.Split(data)
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = enc.Encode(shards)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Save originals for verification
+	originals := make([][]byte, totalShards)
+	for i := range shards {
+		originals[i] = make([]byte, len(shards[i]))
+		copy(originals[i], shards[i])
+	}
+
+	// Example 1: Reconstruct multiple shards at once
+	// Simulate losing shards 0, 3 (data) and 7 (parity)
+	shards[0] = nil
+	shards[3] = nil
+	shards[7] = nil
+
+	// Set up dst with the shards we want to reconstruct
+	dst := make([][]byte, totalShards)
+	dst[0] = make([]byte, shardSize)
+	dst[3] = make([]byte, shardSize)
+	dst[7] = make([]byte, shardSize)
+
+	// Mark which shards are available as input
+	expectInput := make([]bool, totalShards)
+	expectInput[1] = true
+	expectInput[2] = true
+	expectInput[4] = true
+	expectInput[5] = true
+	expectInput[6] = true
+
+	// Provide the available shards
+	input := make([][]byte, totalShards)
+	input[1] = shards[1]
+	input[2] = shards[2]
+	input[4] = shards[4]
+
+	// Reconstruct all missing shards in two calls
+	err = ext.DecodeIdx(dst, expectInput, input)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	input = make([][]byte, totalShards)
+	input[5] = shards[5]
+	input[6] = shards[6]
+	err = ext.DecodeIdx(dst, expectInput, input)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Verify reconstruction
+	if bytes.Equal(dst[0], originals[0]) &&
+		bytes.Equal(dst[3], originals[3]) &&
+		bytes.Equal(dst[7], originals[7]) {
+		fmt.Println("Multiple shards reconstructed successfully")
+	}
+
+	// Example 2: Progressive reconstruction with merging
+	// Reset for progressive example
+	dst2 := make([][]byte, totalShards)
+	dst2[0] = make([]byte, shardSize)
+
+	// First partial decode using shards 1-2
+	input1 := make([][]byte, totalShards)
+	input1[1] = shards[1]
+	input1[2] = shards[2]
+
+	err = ext.DecodeIdx(dst2, expectInput, input1)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Second partial decode using shards 4-6
+	dst3 := make([][]byte, totalShards)
+	dst3[0] = make([]byte, shardSize)
+
+	input2 := make([][]byte, totalShards)
+	input2[4] = shards[4]
+	input2[5] = shards[5]
+	input2[6] = shards[6]
+
+	err = ext.DecodeIdx(dst3, expectInput, input2)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Merge the two partial decodings using nil expectInput
+	err = ext.DecodeIdx(dst2, nil, dst3)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if bytes.Equal(dst2[0], originals[0]) {
+		fmt.Println("Progressive reconstruction with merge successful")
+	}
+
+	// Output: Multiple shards reconstructed successfully
+	// Progressive reconstruction with merge successful
+}
+
+func ExampleNew_maxSize() {
+	// Create an encoder with 17 data and 3 parity slices.
+	// Use a bigger max cache size
+	enc, err := reedsolomon.New(17, 3, reedsolomon.WithMaxGoroutines(64),
+		reedsolomon.WithInversionCache(true), reedsolomon.WithLeopardGF(true))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Encode some data.
+	data := make([][]byte, 17+3)
+	for i := range data {
+		data[i] = make([]byte, 16384)
+		fillRandom(data[i])
+	}
+
+	err = enc.Encode(data)
 	if err != nil {
 		log.Fatal(err)
 	}
