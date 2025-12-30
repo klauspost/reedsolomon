@@ -419,6 +419,7 @@ func genGF8() {
 				VMOVDQU64(Mem{Base: work[i], Disp: 0}, workReg[i])
 			}
 
+			// First layer:
 			// work1_reg = _mm256_xor_si256(work0_reg, work1_reg);
 			VXORPD(workReg[1], workReg[0], workReg[1])
 			if (skipMask & 1) == 0 {
@@ -501,7 +502,7 @@ func genGF8() {
 				VMOVDQU64(Mem{Base: work[i], Disp: 0}, workReg[i])
 			}
 
-			// work1_reg = _mm256_xor_si256(work0_reg, work1_reg);
+			// First layer:
 			if (skipMask & 1) == 0 {
 				leo8MulAdd512(ctx, workReg[0], workReg[2], t02, nil)
 				leo8MulAdd512(ctx, workReg[1], workReg[3], t02, nil)
@@ -556,7 +557,8 @@ func leo8MulAdd256(ctx gf8ctx, x, y reg.VecVirtual, table table256) {
 }
 
 // multiply y with table and xor result into x.
-func leo8MulAdd512(ctx gf8ctx, x reg.VecVirtual, y reg.VecVirtual, table table512, z reg.VecVirtual) {
+// If z is set it is xored into x as.
+func leo8MulAdd512(ctx gf8ctx, x, y reg.VecVirtual, table table512, z reg.VecVirtual) {
 	Comment("LEO_MULADD_512")
 	tmp := ZMM()
 	VGF2P8AFFINEQB(U8(0), table, y, tmp)
