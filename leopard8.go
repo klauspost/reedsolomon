@@ -329,10 +329,7 @@ func (r *leopardFF8) Split(data []byte) ([][]byte, error) {
 		} else {
 			data = data[:cap(data)]
 		}
-		clear := data[dataLen:]
-		for i := range clear {
-			clear[i] = 0
-		}
+		clear(data[dataLen:])
 	}
 
 	// Only allocate memory if necessary
@@ -599,11 +596,11 @@ func (r *leopardFF8) reconstruct(shards [][]byte, recoverAll bool) error {
 			if len(sh[i+r.dataShards]) != 0 {
 				mulgf8(work[i], sh[i+r.dataShards], errLocs[i], &r.o)
 			} else {
-				memclr(work[i])
+				clear(work[i])
 			}
 		}
 		for i := r.parityShards; i < m; i++ {
-			memclr(work[i])
+			clear(work[i])
 		}
 
 		// work <- original data
@@ -612,11 +609,11 @@ func (r *leopardFF8) reconstruct(shards [][]byte, recoverAll bool) error {
 			if len(sh[i]) != 0 {
 				mulgf8(work[m+i], sh[i], errLocs[m+i], &r.o)
 			} else {
-				memclr(work[m+i])
+				clear(work[m+i])
 			}
 		}
 		for i := m + r.dataShards; i < n; i++ {
-			memclr(work[i])
+			clear(work[i])
 		}
 
 		// work <- IFFT(work, n, 0)
@@ -798,7 +795,7 @@ func ifftDITEncoder8(data [][]byte, mtrunc int, work [][]byte, xorRes [][]byte, 
 		copy(work[i], data[i])
 	}
 	for i := mtrunc; i < m; i++ {
-		memclr(work[i])
+		clear(work[i])
 	}
 
 	// Decimation in time: Unroll 2 layers at a time
