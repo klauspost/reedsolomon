@@ -1812,10 +1812,7 @@ func (r *reedSolomon) Split(data []byte) ([][]byte, error) {
 		} else {
 			data = data[:cap(data)]
 		}
-		clear := data[dataLen:]
-		for i := range clear {
-			clear[i] = 0
-		}
+		clear(data[dataLen:])
 	}
 
 	// Only allocate memory if necessary
