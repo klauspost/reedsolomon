@@ -506,3 +506,598 @@ func applyGFNIMatrixDebug(input byte, matrix uint64) byte {
 	// VGF2P8AFFINEQB with immediate 0x00 - no XOR needed
 	return result
 }
+
+func TestCompareIfftDIT2GF16GFNIvsAVX2(t *testing.T) {
+	if !cpuid.CPU.Supports(cpuid.GFNI, cpuid.AVX) {
+		t.Skip("AVX+GFNI not supported")
+	}
+
+	// Create a simple encoder to ensure tables are initialized
+	enc, err := New(300, 100, WithLeopardGF16(true))
+	if err != nil {
+		t.Fatal(err)
+	}
+	_ = enc
+
+	if gf2p811dMulMatrices16 == nil {
+		t.Skip("GFNI tables not initialized")
+	}
+
+	// Test with various log_m values
+	testCases := []ffe{0, 1, 100, 1000, 10000, 30000, 65535}
+
+	for _, logM := range testCases {
+		t.Run(fmt.Sprintf("logM=%d", logM), func(t *testing.T) {
+			// Create test data - 128 bytes (64 16-bit elements)
+			x := make([]byte, 128)
+			y := make([]byte, 128)
+			for i := range x {
+				x[i] = byte(i + 1)
+				y[i] = byte(i*2 + 3)
+			}
+
+			// Make copies for both implementations
+			xGFNI := make([]byte, len(x))
+			yGFNI := make([]byte, len(y))
+			copy(xGFNI, x)
+			copy(yGFNI, y)
+
+			xAVX2 := make([]byte, len(x))
+			yAVX2 := make([]byte, len(y))
+			copy(xAVX2, x)
+			copy(yAVX2, y)
+
+			// Compute Go reference (correct result)
+			// Data layout is SPLIT: [0:32] = lo bytes, [32:64] = hi bytes of 32 elements
+			// Then [64:96] = lo bytes, [96:128] = hi bytes of next 32 elements
+			xRef := make([]byte, len(x))
+			yRef := make([]byte, len(y))
+			copy(xRef, x)
+			copy(yRef, y)
+			// Process 64 bytes at a time (32 elements)
+			for chunk := 0; chunk < 2; chunk++ {
+				base := chunk * 64
+				for i := 0; i < 32; i++ {
+					xElem := ffe(x[base+i]) | (ffe(x[base+32+i]) << 8)
+					yElem := ffe(y[base+i]) | (ffe(y[base+32+i]) << 8)
+					yNew := xElem ^ yElem
+					xNew := xElem ^ mulLog(yNew, logM)
+					xRef[base+i] = byte(xNew)
+					xRef[base+32+i] = byte(xNew >> 8)
+					yRef[base+i] = byte(yNew)
+					yRef[base+32+i] = byte(yNew >> 8)
+				}
+			}
+
+			// Run GFNI version
+			gfniTable := &gf2p811dMulMatrices16[logM]
+			ifftDIT2_gfni(xGFNI, yGFNI, gfniTable)
+
+			// Run AVX2 version
+			avx2Table := &multiply256LUT[logM]
+			ifftDIT2_avx2(xAVX2, yAVX2, avx2Table)
+
+			// Compare against reference
+			gfniOK := bytes.Equal(xGFNI, xRef) && bytes.Equal(yGFNI, yRef)
+			avx2OK := bytes.Equal(xAVX2, xRef) && bytes.Equal(yAVX2, yRef)
+
+			if !gfniOK || !avx2OK {
+				t.Errorf("logM=%d: GFNI correct=%v, AVX2 correct=%v", logM, gfniOK, avx2OK)
+				for i := 0; i < 8; i++ {
+					t.Logf("  x[%d]: Ref=0x%02x, GFNI=0x%02x, AVX2=0x%02x", i*2, xRef[i*2], xGFNI[i*2], xAVX2[i*2])
+				}
+			}
+		})
+	}
+}
+
+func TestCompareFftDIT2GF16GFNIvsAVX2(t *testing.T) {
+	if !cpuid.CPU.Supports(cpuid.GFNI, cpuid.AVX) {
+		t.Skip("AVX+GFNI not supported")
+	}
+
+	// Create a simple encoder to ensure tables are initialized
+	enc, err := New(300, 100, WithLeopardGF16(true))
+	if err != nil {
+		t.Fatal(err)
+	}
+	_ = enc
+
+	if gf2p811dMulMatrices16 == nil {
+		t.Skip("GFNI tables not initialized")
+	}
+
+	// Test with various log_m values
+	testCases := []ffe{0, 1, 100, 1000, 10000, 30000, 65535}
+
+	for _, logM := range testCases {
+		t.Run(fmt.Sprintf("logM=%d", logM), func(t *testing.T) {
+			// Create test data - 128 bytes (64 16-bit elements)
+			x := make([]byte, 128)
+			y := make([]byte, 128)
+			for i := range x {
+				x[i] = byte(i + 1)
+				y[i] = byte(i*2 + 3)
+			}
+
+			// Make copies for both implementations
+			xGFNI := make([]byte, len(x))
+			yGFNI := make([]byte, len(y))
+			copy(xGFNI, x)
+			copy(yGFNI, y)
+
+			xAVX2 := make([]byte, len(x))
+			yAVX2 := make([]byte, len(y))
+			copy(xAVX2, x)
+			copy(yAVX2, y)
+
+			// Run GFNI version
+			gfniTable := &gf2p811dMulMatrices16[logM]
+			fftDIT2_gfni(xGFNI, yGFNI, gfniTable)
+
+			// Run AVX2 version
+			avx2Table := &multiply256LUT[logM]
+			fftDIT2_avx2(xAVX2, yAVX2, avx2Table)
+
+			// Compare results
+			if !bytes.Equal(xGFNI, xAVX2) {
+				t.Errorf("x mismatch for logM=%d", logM)
+				for i := 0; i < len(xGFNI) && i < 32; i++ {
+					if xGFNI[i] != xAVX2[i] {
+						t.Logf("  x[%d]: GFNI=0x%02x, AVX2=0x%02x", i, xGFNI[i], xAVX2[i])
+					}
+				}
+			}
+			if !bytes.Equal(yGFNI, yAVX2) {
+				t.Errorf("y mismatch for logM=%d", logM)
+				for i := 0; i < len(yGFNI) && i < 32; i++ {
+					if yGFNI[i] != yAVX2[i] {
+						t.Logf("  y[%d]: GFNI=0x%02x, AVX2=0x%02x", i, yGFNI[i], yAVX2[i])
+					}
+				}
+			}
+		})
+	}
+}
+
+func TestCompareIfftDIT4GF16GFNIvsAVX2(t *testing.T) {
+	if !cpuid.CPU.Supports(cpuid.GFNI, cpuid.AVX) {
+		t.Skip("AVX+GFNI not supported")
+	}
+
+	enc, err := New(300, 100, WithLeopardGF16(true))
+	if err != nil {
+		t.Fatal(err)
+	}
+	_ = enc
+
+	if gf2p811dMulMatrices16 == nil {
+		t.Skip("GFNI tables not initialized")
+	}
+
+	// Test all 8 variants (skipMask 0-7)
+	results := make([]bool, 8)
+	for variant := 0; variant < 8; variant++ {
+		t.Run(fmt.Sprintf("variant=%d", variant), func(t *testing.T) {
+			// Create work slices - 4 slices of 64 bytes each (32 x 16-bit elements)
+			work := make([][]byte, 4)
+			for i := range work {
+				work[i] = make([]byte, 64)
+				for j := range work[i] {
+					work[i][j] = byte(i*17 + j + 1)
+				}
+			}
+
+			// Make copies
+			gfniWork := make([][]byte, 4)
+			avx2Work := make([][]byte, 4)
+			for i := range work {
+				gfniWork[i] = make([]byte, len(work[i]))
+				avx2Work[i] = make([]byte, len(work[i]))
+				copy(gfniWork[i], work[i])
+				copy(avx2Work[i], work[i])
+			}
+
+			// Set log_m values based on variant
+			log_m01, log_m23, log_m02 := ffe(10), ffe(200), ffe(3000)
+			if variant&1 != 0 {
+				log_m01 = modulus
+			}
+			if variant&2 != 0 {
+				log_m23 = modulus
+			}
+			if variant&4 != 0 {
+				log_m02 = modulus
+			}
+
+			// Call GFNI version
+			g01 := &gf2p811dMulMatrices16[log_m01]
+			g23 := &gf2p811dMulMatrices16[log_m23]
+			g02 := &gf2p811dMulMatrices16[log_m02]
+			switch variant {
+			case 0:
+				ifftDIT4_gfni_0(gfniWork, 24, g01, g23, g02)
+			case 1:
+				ifftDIT4_gfni_1(gfniWork, 24, g01, g23, g02)
+			case 2:
+				ifftDIT4_gfni_2(gfniWork, 24, g01, g23, g02)
+			case 3:
+				ifftDIT4_gfni_3(gfniWork, 24, g01, g23, g02)
+			case 4:
+				ifftDIT4_gfni_4(gfniWork, 24, g01, g23, g02)
+			case 5:
+				ifftDIT4_gfni_5(gfniWork, 24, g01, g23, g02)
+			case 6:
+				ifftDIT4_gfni_6(gfniWork, 24, g01, g23, g02)
+			case 7:
+				ifftDIT4_gfni_7(gfniWork, 24, g01, g23, g02)
+			}
+
+			// Call AVX2 version
+			t01 := &multiply256LUT[log_m01]
+			t23 := &multiply256LUT[log_m23]
+			t02 := &multiply256LUT[log_m02]
+			switch variant {
+			case 0:
+				ifftDIT4_avx2_0(avx2Work, 24, t01, t23, t02)
+			case 1:
+				ifftDIT4_avx2_1(avx2Work, 24, t01, t23, t02)
+			case 2:
+				ifftDIT4_avx2_2(avx2Work, 24, t01, t23, t02)
+			case 3:
+				ifftDIT4_avx2_3(avx2Work, 24, t01, t23, t02)
+			case 4:
+				ifftDIT4_avx2_4(avx2Work, 24, t01, t23, t02)
+			case 5:
+				ifftDIT4_avx2_5(avx2Work, 24, t01, t23, t02)
+			case 6:
+				ifftDIT4_avx2_6(avx2Work, 24, t01, t23, t02)
+			case 7:
+				ifftDIT4_avx2_7(avx2Work, 24, t01, t23, t02)
+			}
+
+			// Compare results
+			match := true
+			for i := range work {
+				if !bytes.Equal(gfniWork[i], avx2Work[i]) {
+					match = false
+					t.Errorf("work[%d] mismatch for variant %d", i, variant)
+					for j := 0; j < len(gfniWork[i]) && j < 16; j++ {
+						if gfniWork[i][j] != avx2Work[i][j] {
+							t.Logf("  [%d][%d]: GFNI=0x%02x, AVX2=0x%02x", i, j, gfniWork[i][j], avx2Work[i][j])
+						}
+					}
+				}
+			}
+			results[variant] = match
+			if match {
+				t.Logf("ifftDIT4_gfni_%d: MATCH", variant)
+			}
+		})
+	}
+}
+
+func TestCompareFftDIT4GF16GFNIvsAVX2(t *testing.T) {
+	if !cpuid.CPU.Supports(cpuid.GFNI, cpuid.AVX) {
+		t.Skip("AVX+GFNI not supported")
+	}
+
+	enc, err := New(300, 100, WithLeopardGF16(true))
+	if err != nil {
+		t.Fatal(err)
+	}
+	_ = enc
+
+	if gf2p811dMulMatrices16 == nil {
+		t.Skip("GFNI tables not initialized")
+	}
+
+	// Test all 8 variants (skipMask 0-7)
+	results := make([]bool, 8)
+	for variant := 0; variant < 8; variant++ {
+		t.Run(fmt.Sprintf("variant=%d", variant), func(t *testing.T) {
+			// Create work slices - 4 slices of 64 bytes each (32 x 16-bit elements)
+			work := make([][]byte, 4)
+			for i := range work {
+				work[i] = make([]byte, 64)
+				for j := range work[i] {
+					work[i][j] = byte(i*17 + j + 1)
+				}
+			}
+
+			// Make copies
+			gfniWork := make([][]byte, 4)
+			avx2Work := make([][]byte, 4)
+			for i := range work {
+				gfniWork[i] = make([]byte, len(work[i]))
+				avx2Work[i] = make([]byte, len(work[i]))
+				copy(gfniWork[i], work[i])
+				copy(avx2Work[i], work[i])
+			}
+
+			// Set log_m values based on variant - fftDIT4 has different bit mapping
+			log_m01, log_m23, log_m02 := ffe(10), ffe(200), ffe(3000)
+			if variant&2 != 0 {
+				log_m01 = modulus
+			}
+			if variant&4 != 0 {
+				log_m23 = modulus
+			}
+			if variant&1 != 0 {
+				log_m02 = modulus
+			}
+
+			// Call GFNI version
+			g01 := &gf2p811dMulMatrices16[log_m01]
+			g23 := &gf2p811dMulMatrices16[log_m23]
+			g02 := &gf2p811dMulMatrices16[log_m02]
+			switch variant {
+			case 0:
+				fftDIT4_gfni_0(gfniWork, 24, g01, g23, g02)
+			case 1:
+				fftDIT4_gfni_1(gfniWork, 24, g01, g23, g02)
+			case 2:
+				fftDIT4_gfni_2(gfniWork, 24, g01, g23, g02)
+			case 3:
+				fftDIT4_gfni_3(gfniWork, 24, g01, g23, g02)
+			case 4:
+				fftDIT4_gfni_4(gfniWork, 24, g01, g23, g02)
+			case 5:
+				fftDIT4_gfni_5(gfniWork, 24, g01, g23, g02)
+			case 6:
+				fftDIT4_gfni_6(gfniWork, 24, g01, g23, g02)
+			case 7:
+				fftDIT4_gfni_7(gfniWork, 24, g01, g23, g02)
+			}
+
+			// Call AVX2 version
+			t01 := &multiply256LUT[log_m01]
+			t23 := &multiply256LUT[log_m23]
+			t02 := &multiply256LUT[log_m02]
+			switch variant {
+			case 0:
+				fftDIT4_avx2_0(avx2Work, 24, t01, t23, t02)
+			case 1:
+				fftDIT4_avx2_1(avx2Work, 24, t01, t23, t02)
+			case 2:
+				fftDIT4_avx2_2(avx2Work, 24, t01, t23, t02)
+			case 3:
+				fftDIT4_avx2_3(avx2Work, 24, t01, t23, t02)
+			case 4:
+				fftDIT4_avx2_4(avx2Work, 24, t01, t23, t02)
+			case 5:
+				fftDIT4_avx2_5(avx2Work, 24, t01, t23, t02)
+			case 6:
+				fftDIT4_avx2_6(avx2Work, 24, t01, t23, t02)
+			case 7:
+				fftDIT4_avx2_7(avx2Work, 24, t01, t23, t02)
+			}
+
+			// Compare results
+			match := true
+			for i := range work {
+				if !bytes.Equal(gfniWork[i], avx2Work[i]) {
+					match = false
+					t.Errorf("work[%d] mismatch for variant %d", i, variant)
+					for j := 0; j < len(gfniWork[i]) && j < 16; j++ {
+						if gfniWork[i][j] != avx2Work[i][j] {
+							t.Logf("  [%d][%d]: GFNI=0x%02x, AVX2=0x%02x", i, j, gfniWork[i][j], avx2Work[i][j])
+						}
+					}
+				}
+			}
+			results[variant] = match
+			if match {
+				t.Logf("fftDIT4_gfni_%d: MATCH", variant)
+			}
+		})
+	}
+}
+
+// TestGF16MulSimple tests a simple case of GFNI multiplication to debug
+func TestGF16MulSimple(t *testing.T) {
+	if !cpuid.CPU.Has(cpuid.GFNI) {
+		t.Skip("GFNI not supported")
+	}
+
+	enc, err := New(300, 100, WithLeopardGF16(true))
+	if err != nil {
+		t.Fatal(err)
+	}
+	_ = enc
+
+	if gf2p811dMulMatrices16 == nil {
+		t.Skip("GFNI tables not initialized")
+	}
+
+	// Test with identity (logM=0)
+	// For identity: mul(x, 0) = x (since exp(log(x) + 0) = x)
+	logM := ffe(0)
+
+	// Simple test: process 64 bytes (32 GF16 elements per half)
+	// Use element values 0x0001, 0x0002, etc.
+	y := make([]byte, 64)
+	for i := 0; i < 32; i++ {
+		y[i*2] = byte(i + 1)   // lo byte
+		y[i*2+1] = byte(0)     // hi byte = 0, so element = i+1
+	}
+	x := make([]byte, 64)
+	for i := range x {
+		x[i] = 0 // x = 0
+	}
+
+	// Expected: y = x XOR y = y (since x=0)
+	// Expected: x = x XOR mul(y, 0) = mul(y, 0) = y
+	xGFNI := make([]byte, 64)
+	yGFNI := make([]byte, 64)
+	copy(xGFNI, x)
+	copy(yGFNI, y)
+
+	gfniTable := &gf2p811dMulMatrices16[logM]
+	ifftDIT2_gfni(xGFNI, yGFNI, gfniTable)
+
+	// Check yGFNI should equal original y (since x was 0)
+	for i := 0; i < 64; i++ {
+		if yGFNI[i] != y[i] {
+			t.Errorf("y[%d]: got 0x%02x, expected 0x%02x", i, yGFNI[i], y[i])
+		}
+	}
+
+	// Check xGFNI should equal original y (x = 0 XOR mul(y, identity) = y)
+	for i := 0; i < 64; i++ {
+		if xGFNI[i] != y[i] {
+			t.Errorf("x[%d]: got 0x%02x, expected 0x%02x (y[%d])", i, xGFNI[i], y[i], i)
+		}
+	}
+}
+
+// TestGF16MulNonIdentity tests GFNI assembly for non-identity logM using split layout
+func TestGF16MulNonIdentity(t *testing.T) {
+	if !cpuid.CPU.Has(cpuid.GFNI) {
+		t.Skip("GFNI not supported")
+	}
+
+	enc, err := New(300, 100, WithLeopardGF16(true))
+	if err != nil {
+		t.Fatal(err)
+	}
+	_ = enc
+
+	if gf2p811dMulMatrices16 == nil {
+		t.Skip("GFNI tables not initialized")
+	}
+
+	logM := ffe(100)
+
+	// Data layout is SPLIT: [0:32] = lo bytes, [32:64] = hi bytes of 32 elements
+	// Set y to element 1 in first position (split layout)
+	y := make([]byte, 64)
+	y[0] = 1  // lo byte of element 0
+	y[32] = 0 // hi byte of element 0
+
+	// Set x to zeros
+	x := make([]byte, 64)
+
+	// Expected: after ifftDIT2:
+	// y_new = x XOR y = y (since x=0)
+	// x_new = x XOR mul(y, logM) = mul(y, logM) = mul(element1, logM)
+	expectedMul := mulLog(ffe(1), logM)
+	t.Logf("mulLog(1, %d) = 0x%04x", logM, expectedMul)
+
+	xGFNI := make([]byte, 64)
+	yGFNI := make([]byte, 64)
+	copy(xGFNI, x)
+	copy(yGFNI, y)
+
+	gfniTable := &gf2p811dMulMatrices16[logM]
+	t.Logf("Matrices: A=0x%016x B=0x%016x C=0x%016x D=0x%016x",
+		gfniTable[0], gfniTable[1], gfniTable[2], gfniTable[3])
+
+	ifftDIT2_gfni(xGFNI, yGFNI, gfniTable)
+
+	// x should have mul(1, logM) at element 0 (split layout)
+	gotResult := ffe(xGFNI[0]) | (ffe(xGFNI[32]) << 8)
+	t.Logf("GFNI result: 0x%04x (expected 0x%04x)", gotResult, expectedMul)
+	t.Logf("xGFNI lo bytes: %02x, hi bytes: %02x", xGFNI[0], xGFNI[32])
+
+	if gotResult != expectedMul {
+		t.Errorf("GFNI mul mismatch: got 0x%04x, expected 0x%04x", gotResult, expectedMul)
+	}
+
+	// Test all 32 elements with split layout
+	t.Log("Testing all 32 elements (split layout)...")
+	for i := range y {
+		y[i] = 0
+	}
+	// Set elements 0-31 to 1, 2, 3, ..., 32 in split layout
+	for i := 0; i < 32; i++ {
+		y[i] = byte(i + 1)    // lo bytes
+		y[32+i] = 0           // hi bytes
+	}
+
+	for i := range x {
+		x[i] = 0
+	}
+	copy(xGFNI, x)
+	copy(yGFNI, y)
+	ifftDIT2_gfni(xGFNI, yGFNI, gfniTable)
+
+	// Check each element (split layout)
+	errors := 0
+	for i := 0; i < 32; i++ {
+		elem := ffe(i + 1)
+		expected := mulLog(elem, logM)
+		got := ffe(xGFNI[i]) | (ffe(xGFNI[32+i]) << 8)
+		if got != expected {
+			t.Errorf("Element %d: mul(%d, %d) got 0x%04x, expected 0x%04x", i, elem, logM, got, expected)
+			errors++
+		}
+		if errors > 10 {
+			break
+		}
+	}
+}
+
+// TestGF16MatrixGeneration tests that the GFNI matrices produce correct results
+// when applied in pure Go (without assembly).
+func TestGF16MatrixGeneration(t *testing.T) {
+	if !cpuid.CPU.Has(cpuid.GFNI) {
+		t.Skip("GFNI not supported")
+	}
+
+	// Initialize tables
+	enc, err := New(300, 100, WithLeopardGF16(true))
+	if err != nil {
+		t.Fatal(err)
+	}
+	_ = enc
+
+	if gf2p811dMulMatrices16 == nil {
+		t.Skip("GFNI tables not initialized")
+	}
+
+	// applyGFNIMatrix applies one 8x8 GFNI matrix to a byte
+	// VGF2P8AFFINEQB: for output bit j, uses matrix byte (7-j), XORs bits where matrix[k] AND input[k]
+	applyMatrix := func(matrix uint64, input byte) byte {
+		var result byte
+		for outBit := 0; outBit < 8; outBit++ {
+			parity := byte(0)
+			for inBit := 0; inBit < 8; inBit++ {
+				// VGF2P8AFFINEQB uses byte (7-outBit), bit inBit
+				matrixBit := (matrix >> ((7-outBit)*8 + inBit)) & 1
+				inputBit := (input >> inBit) & 1
+				parity ^= byte(matrixBit & uint64(inputBit))
+			}
+			result |= parity << outBit
+		}
+		return result
+	}
+
+	// Test a few log values
+	testLogMs := []int{0, 1, 100, 1000, 10000, 30000, 65535}
+	for _, logM := range testLogMs {
+		t.Run(fmt.Sprintf("logM=%d", logM), func(t *testing.T) {
+			matrices := gf2p811dMulMatrices16[logM]
+			A, B, C, D := matrices[0], matrices[1], matrices[2], matrices[3]
+
+			// Test sample 16-bit inputs
+			testInputs := []ffe{0, 1, 2, 255, 256, 0x1234, 0xFFFF}
+			for _, input := range testInputs {
+				// Expected result from mulLog
+				expected := mulLog(input, ffe(logM))
+
+				// Apply GFNI matrices
+				inLo := byte(input)
+				inHi := byte(input >> 8)
+				outLo := applyMatrix(A, inLo) ^ applyMatrix(B, inHi)
+				outHi := applyMatrix(C, inLo) ^ applyMatrix(D, inHi)
+				gfniResult := ffe(outLo) | (ffe(outHi) << 8)
+
+				if gfniResult != expected {
+					t.Errorf("input=0x%04x logM=%d: GFNI=0x%04x expected=0x%04x",
+						input, logM, gfniResult, expected)
+				}
+			}
+		})
+	}
+}
