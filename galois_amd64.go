@@ -796,7 +796,21 @@ func mulgf16(x, y []byte, log_m ffe, o *options) {
 	if len(x) == 0 {
 		return
 	}
-	if o.useAVX2 {
+	if o.useAvx512GFNI && gf2p811dMulMatrices16 != nil {
+		tmp := &gf2p811dMulMatrices16[log_m]
+		if raceEnabled {
+			raceReadSlice(y)
+			raceWriteSlice(x)
+		}
+		mulgf16_gfni_avx512(x, y, tmp)
+	} else if o.useAvxGNFI && gf2p811dMulMatrices16 != nil {
+		tmp := &gf2p811dMulMatrices16[log_m]
+		if raceEnabled {
+			raceReadSlice(y)
+			raceWriteSlice(x)
+		}
+		mulgf16_gfni(x, y, tmp)
+	} else if o.useAVX2 {
 		tmp := &multiply256LUT[log_m]
 		if raceEnabled {
 			raceReadSlice(y)

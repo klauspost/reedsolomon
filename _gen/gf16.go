@@ -782,8 +782,8 @@ func genGF16() {
 			var table02 [2]reg.VecVirtual
 
 			if (skipMask & 1) == 0 {
-				table01[0] = buildCombinedTable(table01Ptr, 0, 16)  // [A|C]
-				table01[1] = buildCombinedTable(table01Ptr, 8, 24)  // [B|D]
+				table01[0] = buildCombinedTable(table01Ptr, 0, 16) // [A|C]
+				table01[1] = buildCombinedTable(table01Ptr, 8, 24) // [B|D]
 			}
 			if (skipMask & 2) == 0 {
 				table23[0] = buildCombinedTable(table23Ptr, 0, 16) // [A|C]
@@ -824,14 +824,14 @@ func genGF16() {
 			// First layer: y = x XOR y (works on packed format)
 			VPXORQ(workReg[0], workReg[1], workReg[1])
 
-			if (skipMask & 1) == 0 {
-				leoMulAddZMM_gfni(workReg[0], workReg[1], table01)
-			}
-
 			workReg[2] = ZMM()
 			workReg[3] = ZMM()
 			VMOVDQU64(Mem{Base: work[2]}, workReg[2])
 			VMOVDQU64(Mem{Base: work[3]}, workReg[3])
+
+			if (skipMask & 1) == 0 {
+				leoMulAddZMM_gfni(workReg[0], workReg[1], table01)
+			}
 
 			VPXORQ(workReg[2], workReg[3], workReg[3])
 
@@ -1207,6 +1207,103 @@ func genGF16() {
 		ADDQ(U8(64), y)
 		SUBQ(U8(64), bytes)
 		JNZ(LabelRef("loop_fft_gfni"))
+
+		VZEROUPPER()
+		RET()
+	}
+
+	// GFNI version of mulgf16 (AVX2+GFNI)
+	// x = y * table
+	// Data layout is SPLIT: [0:32] = lo bytes, [32:64] = hi bytes of 32 elements
+	{
+		TEXT("mulgf16_gfni", attr.NOSPLIT, fmt.Sprintf("func(x, y []byte, table *[4]uint64)"))
+		Pragma("noescape")
+
+		tablePtr := Load(Param("table"), GP64())
+		var tables [4]reg.VecVirtual
+		for i := range tables {
+			tables[i] = YMM()
+			VBROADCASTSD(Mem{Base: tablePtr, Disp: i * 8}, tables[i])
+		}
+
+		bytes := Load(Param("x").Len(), GP64())
+		x := Load(Param("x").Base(), GP64())
+		y := Load(Param("y").Base(), GP64())
+
+		yLo, yHi := YMM(), YMM()
+
+		Label("loop_mulgf16_gfni")
+		VMOVDQU(Mem{Base: y, Disp: 0}, yLo)
+		VMOVDQU(Mem{Base: y, Disp: 32}, yHi)
+
+		// prodLo = A*yLo XOR B*yHi, prodHi = C*yLo XOR D*yHi
+		tmpA, tmpB, tmpC, tmpD := YMM(), YMM(), YMM(), YMM()
+		VGF2P8AFFINEQB(U8(0), tables[0], yLo, tmpA)
+		VGF2P8AFFINEQB(U8(0), tables[1], yHi, tmpB)
+		VGF2P8AFFINEQB(U8(0), tables[2], yLo, tmpC)
+		VGF2P8AFFINEQB(U8(0), tables[3], yHi, tmpD)
+		VPXOR(tmpA, tmpB, tmpA)
+		VPXOR(tmpC, tmpD, tmpC)
+
+		VMOVDQU(tmpA, Mem{Base: x, Disp: 0})
+		VMOVDQU(tmpC, Mem{Base: x, Disp: 32})
+
+		ADDQ(U8(64), x)
+		ADDQ(U8(64), y)
+		SUBQ(U8(64), bytes)
+		JNZ(LabelRef("loop_mulgf16_gfni"))
+
+		VZEROUPPER()
+		RET()
+	}
+
+	// AVX512+GFNI version of mulgf16
+	// x = y * table
+	// Data layout is PACKED: each 64-byte chunk is [lo_32bytes | hi_32bytes]
+	{
+		TEXT("mulgf16_gfni_avx512", attr.NOSPLIT, fmt.Sprintf("func(x, y []byte, table *[4]uint64)"))
+		Pragma("noescape")
+
+		tablePtr := Load(Param("table"), GP64())
+
+		// Build combined tables: [A|C] and [B|D]
+		tableAC := ZMM()
+		tableBD := ZMM()
+		tmpY := ZMM()
+		VPBROADCASTQ(Mem{Base: tablePtr, Disp: 0}, tableAC) // [A,A,A,A,A,A,A,A]
+		VPBROADCASTQ(Mem{Base: tablePtr, Disp: 16}, tmpY)   // [C,C,C,C,C,C,C,C]
+		VINSERTI64X4(U8(1), tmpY.AsY(), tableAC, tableAC)   // [A,A,A,A | C,C,C,C]
+		VPBROADCASTQ(Mem{Base: tablePtr, Disp: 8}, tableBD) // [B,B,B,B,B,B,B,B]
+		VPBROADCASTQ(Mem{Base: tablePtr, Disp: 24}, tmpY)   // [D,D,D,D,D,D,D,D]
+		VINSERTI64X4(U8(1), tmpY.AsY(), tableBD, tableBD)   // [B,B,B,B | D,D,D,D]
+
+		bytes := Load(Param("x").Len(), GP64())
+		x := Load(Param("x").Base(), GP64())
+		y := Load(Param("y").Base(), GP64())
+
+		yPacked := ZMM()
+
+		Label("loop_mulgf16_gfni_avx512")
+		VMOVDQU64(Mem{Base: y}, yPacked)
+
+		// Duplicate data halves: [lo|hi] -> [lo|lo] and [hi|hi]
+		yLoLo, yHiHi := ZMM(), ZMM()
+		VSHUFI64X2(U8(0x44), yPacked, yPacked, yLoLo)
+		VSHUFI64X2(U8(0xEE), yPacked, yPacked, yHiHi)
+
+		// Apply combined tables
+		tmp1, tmp2 := ZMM(), ZMM()
+		VGF2P8AFFINEQB(U8(0), tableAC, yLoLo, tmp1) // [A*lo | C*lo]
+		VGF2P8AFFINEQB(U8(0), tableBD, yHiHi, tmp2) // [B*hi | D*hi]
+
+		// XOR results: [A*lo^B*hi | C*lo^D*hi] = [outLo | outHi]
+		VPXORQ(tmp1, tmp2, tmp1)
+		VMOVDQU64(tmp1, Mem{Base: x})
+
+		ADDQ(U8(64), x)
+		ADDQ(U8(64), y)
+		SUBQ(U8(64), bytes)
+		JNZ(LabelRef("loop_mulgf16_gfni_avx512"))
 
 		VZEROUPPER()
 		RET()

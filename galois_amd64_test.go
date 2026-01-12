@@ -1125,8 +1125,8 @@ func TestGF16MulSimple(t *testing.T) {
 	// Use element values 0x0001, 0x0002, etc.
 	y := make([]byte, 64)
 	for i := 0; i < 32; i++ {
-		y[i*2] = byte(i + 1)   // lo byte
-		y[i*2+1] = byte(0)     // hi byte = 0, so element = i+1
+		y[i*2] = byte(i + 1) // lo byte
+		y[i*2+1] = byte(0)   // hi byte = 0, so element = i+1
 	}
 	x := make([]byte, 64)
 	for i := range x {
@@ -1218,8 +1218,8 @@ func TestGF16MulNonIdentity(t *testing.T) {
 	}
 	// Set elements 0-31 to 1, 2, 3, ..., 32 in split layout
 	for i := 0; i < 32; i++ {
-		y[i] = byte(i + 1)    // lo bytes
-		y[32+i] = 0           // hi bytes
+		y[i] = byte(i + 1) // lo bytes
+		y[32+i] = 0        // hi bytes
 	}
 
 	for i := range x {
@@ -1303,6 +1303,102 @@ func TestGF16MatrixGeneration(t *testing.T) {
 				if gfniResult != expected {
 					t.Errorf("input=0x%04x logM=%d: GFNI=0x%04x expected=0x%04x",
 						input, logM, gfniResult, expected)
+				}
+			}
+		})
+	}
+}
+
+func TestCompareMulgf16GFNIvsAVX2(t *testing.T) {
+	if !cpuid.CPU.Supports(cpuid.GFNI, cpuid.AVX) {
+		t.Skip("AVX+GFNI not supported")
+	}
+
+	enc, err := New(300, 100, WithLeopardGF16(true))
+	if err != nil {
+		t.Fatal(err)
+	}
+	_ = enc
+
+	if gf2p811dMulMatrices16 == nil {
+		t.Skip("GFNI tables not initialized")
+	}
+
+	testCases := []ffe{0, 1, 100, 1000, 10000, 30000, 65535}
+
+	for _, logM := range testCases {
+		t.Run(fmt.Sprintf("logM=%d", logM), func(t *testing.T) {
+			y := make([]byte, 256)
+			for i := range y {
+				y[i] = byte(i*3 + 7)
+			}
+
+			xAVX2 := make([]byte, len(y))
+			xGFNI := make([]byte, len(y))
+
+			avx2Table := &multiply256LUT[logM]
+			gfniTable := &gf2p811dMulMatrices16[logM]
+
+			mulgf16_avx2(xAVX2, y, avx2Table)
+			mulgf16_gfni(xGFNI, y, gfniTable)
+
+			if !bytes.Equal(xGFNI, xAVX2) {
+				t.Errorf("mulgf16_gfni mismatch for logM=%d", logM)
+				for i := 0; i < len(xAVX2); i++ {
+					if xGFNI[i] != xAVX2[i] {
+						t.Errorf("  byte %d: GFNI=0x%02x AVX2=0x%02x", i, xGFNI[i], xAVX2[i])
+						if i > 10 {
+							break
+						}
+					}
+				}
+			}
+		})
+	}
+}
+
+func TestCompareMulgf16GFNIAvx512vsAVX2(t *testing.T) {
+	if !cpuid.CPU.Supports(cpuid.AVX512F, cpuid.GFNI) {
+		t.Skip("AVX512+GFNI not supported")
+	}
+
+	enc, err := New(300, 100, WithLeopardGF16(true))
+	if err != nil {
+		t.Fatal(err)
+	}
+	_ = enc
+
+	if gf2p811dMulMatrices16 == nil {
+		t.Skip("GFNI tables not initialized")
+	}
+
+	testCases := []ffe{0, 1, 100, 1000, 10000, 30000, 65535}
+
+	for _, logM := range testCases {
+		t.Run(fmt.Sprintf("logM=%d", logM), func(t *testing.T) {
+			y := make([]byte, 256)
+			for i := range y {
+				y[i] = byte(i*3 + 7)
+			}
+
+			xAVX2 := make([]byte, len(y))
+			xAVX512 := make([]byte, len(y))
+
+			avx2Table := &multiply256LUT[logM]
+			gfniTable := &gf2p811dMulMatrices16[logM]
+
+			mulgf16_avx2(xAVX2, y, avx2Table)
+			mulgf16_gfni_avx512(xAVX512, y, gfniTable)
+
+			if !bytes.Equal(xAVX512, xAVX2) {
+				t.Errorf("mulgf16_gfni_avx512 mismatch for logM=%d", logM)
+				for i := 0; i < len(xAVX2); i++ {
+					if xAVX512[i] != xAVX2[i] {
+						t.Errorf("  byte %d: AVX512=0x%02x AVX2=0x%02x", i, xAVX512[i], xAVX2[i])
+						if i > 10 {
+							break
+						}
+					}
 				}
 			}
 		})

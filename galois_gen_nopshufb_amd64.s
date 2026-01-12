@@ -68583,15 +68583,15 @@ loop_ifft4_gfni_avx512_0:
 	VMOVDQU64 (SI), Z6
 	VMOVDQU64 (DI), Z7
 	VPXORQ    Z6, Z7, Z7
+	VMOVDQU64 (R8), Z8
+	VMOVDQU64 (AX), Z9
 
 	// GFNI LEO_MULADD packed ZMM (combined tables)
-	VSHUFI64X2     $0x44, Z7, Z7, Z8
-	VSHUFI64X2     $0xee, Z7, Z7, Z9
-	VGF2P8AFFINEQB $0x00, Z0, Z8, Z8
-	VGF2P8AFFINEQB $0x00, Z1, Z9, Z9
-	VPTERNLOGD     $0x96, Z9, Z8, Z6
-	VMOVDQU64      (R8), Z8
-	VMOVDQU64      (AX), Z9
+	VSHUFI64X2     $0x44, Z7, Z7, Z10
+	VSHUFI64X2     $0xee, Z7, Z7, Z11
+	VGF2P8AFFINEQB $0x00, Z0, Z10, Z10
+	VGF2P8AFFINEQB $0x00, Z1, Z11, Z11
+	VPTERNLOGD     $0x96, Z11, Z10, Z6
 	VPXORQ         Z8, Z9, Z9
 
 	// GFNI LEO_MULADD packed ZMM (combined tables)
@@ -68892,15 +68892,15 @@ loop_ifft4_gfni_avx512_2:
 	VMOVDQU64 (SI), Z4
 	VMOVDQU64 (DI), Z5
 	VPXORQ    Z4, Z5, Z5
+	VMOVDQU64 (R8), Z6
+	VMOVDQU64 (AX), Z7
 
 	// GFNI LEO_MULADD packed ZMM (combined tables)
-	VSHUFI64X2     $0x44, Z5, Z5, Z6
-	VSHUFI64X2     $0xee, Z5, Z5, Z7
-	VGF2P8AFFINEQB $0x00, Z0, Z6, Z6
-	VGF2P8AFFINEQB $0x00, Z1, Z7, Z7
-	VPTERNLOGD     $0x96, Z7, Z6, Z4
-	VMOVDQU64      (R8), Z6
-	VMOVDQU64      (AX), Z7
+	VSHUFI64X2     $0x44, Z5, Z5, Z8
+	VSHUFI64X2     $0xee, Z5, Z5, Z9
+	VGF2P8AFFINEQB $0x00, Z0, Z8, Z8
+	VGF2P8AFFINEQB $0x00, Z1, Z9, Z9
+	VPTERNLOGD     $0x96, Z9, Z8, Z4
 	VPXORQ         Z6, Z7, Z7
 	VPXORQ         Z4, Z6, Z6
 	VPXORQ         Z5, Z7, Z7
@@ -69155,15 +69155,15 @@ loop_ifft4_gfni_avx512_4:
 	VMOVDQU64 (SI), Z4
 	VMOVDQU64 (DI), Z5
 	VPXORQ    Z4, Z5, Z5
+	VMOVDQU64 (R8), Z6
+	VMOVDQU64 (AX), Z7
 
 	// GFNI LEO_MULADD packed ZMM (combined tables)
-	VSHUFI64X2     $0x44, Z5, Z5, Z6
-	VSHUFI64X2     $0xee, Z5, Z5, Z7
-	VGF2P8AFFINEQB $0x00, Z0, Z6, Z6
-	VGF2P8AFFINEQB $0x00, Z1, Z7, Z7
-	VPTERNLOGD     $0x96, Z7, Z6, Z4
-	VMOVDQU64      (R8), Z6
-	VMOVDQU64      (AX), Z7
+	VSHUFI64X2     $0x44, Z5, Z5, Z8
+	VSHUFI64X2     $0xee, Z5, Z5, Z9
+	VGF2P8AFFINEQB $0x00, Z0, Z8, Z8
+	VGF2P8AFFINEQB $0x00, Z1, Z9, Z9
+	VPTERNLOGD     $0x96, Z9, Z8, Z4
 	VPXORQ         Z6, Z7, Z7
 
 	// GFNI LEO_MULADD packed ZMM (combined tables)
@@ -69398,15 +69398,15 @@ loop_ifft4_gfni_avx512_6:
 	VMOVDQU64 (SI), Z2
 	VMOVDQU64 (DI), Z3
 	VPXORQ    Z2, Z3, Z3
+	VMOVDQU64 (R8), Z4
+	VMOVDQU64 (AX), Z5
 
 	// GFNI LEO_MULADD packed ZMM (combined tables)
-	VSHUFI64X2     $0x44, Z3, Z3, Z4
-	VSHUFI64X2     $0xee, Z3, Z3, Z5
-	VGF2P8AFFINEQB $0x00, Z0, Z4, Z4
-	VGF2P8AFFINEQB $0x00, Z1, Z5, Z5
-	VPTERNLOGD     $0x96, Z5, Z4, Z2
-	VMOVDQU64      (R8), Z4
-	VMOVDQU64      (AX), Z5
+	VSHUFI64X2     $0x44, Z3, Z3, Z6
+	VSHUFI64X2     $0xee, Z3, Z3, Z7
+	VGF2P8AFFINEQB $0x00, Z0, Z6, Z6
+	VGF2P8AFFINEQB $0x00, Z1, Z7, Z7
+	VPTERNLOGD     $0x96, Z7, Z6, Z2
 	VPXORQ         Z4, Z5, Z5
 	VPXORQ         Z2, Z4, Z4
 	VPXORQ         Z3, Z5, Z5
@@ -69643,6 +69643,65 @@ loop_fft_gfni:
 	ADDQ           $0x40, DX
 	SUBQ           $0x40, AX
 	JNZ            loop_fft_gfni
+	VZEROUPPER
+	RET
+
+// func mulgf16_gfni(x []byte, y []byte, table *[4]uint64)
+// Requires: AVX, AVX2, GFNI
+TEXT ·mulgf16_gfni(SB), NOSPLIT, $0-56
+	MOVQ         table+48(FP), AX
+	VBROADCASTSD (AX), Y0
+	VBROADCASTSD 8(AX), Y1
+	VBROADCASTSD 16(AX), Y2
+	VBROADCASTSD 24(AX), Y3
+	MOVQ         x_len+8(FP), AX
+	MOVQ         x_base+0(FP), CX
+	MOVQ         y_base+24(FP), DX
+
+loop_mulgf16_gfni:
+	VMOVDQU        (DX), Y4
+	VMOVDQU        32(DX), Y5
+	VGF2P8AFFINEQB $0x00, Y0, Y4, Y6
+	VGF2P8AFFINEQB $0x00, Y1, Y5, Y7
+	VGF2P8AFFINEQB $0x00, Y2, Y4, Y4
+	VGF2P8AFFINEQB $0x00, Y3, Y5, Y5
+	VPXOR          Y6, Y7, Y6
+	VPXOR          Y4, Y5, Y4
+	VMOVDQU        Y6, (CX)
+	VMOVDQU        Y4, 32(CX)
+	ADDQ           $0x40, CX
+	ADDQ           $0x40, DX
+	SUBQ           $0x40, AX
+	JNZ            loop_mulgf16_gfni
+	VZEROUPPER
+	RET
+
+// func mulgf16_gfni_avx512(x []byte, y []byte, table *[4]uint64)
+// Requires: AVX, AVX512F, GFNI
+TEXT ·mulgf16_gfni_avx512(SB), NOSPLIT, $0-56
+	MOVQ         table+48(FP), AX
+	VPBROADCASTQ (AX), Z0
+	VPBROADCASTQ 16(AX), Z2
+	VINSERTI64X4 $0x01, Y2, Z0, Z0
+	VPBROADCASTQ 8(AX), Z1
+	VPBROADCASTQ 24(AX), Z2
+	VINSERTI64X4 $0x01, Y2, Z1, Z1
+	MOVQ         x_len+8(FP), AX
+	MOVQ         x_base+0(FP), CX
+	MOVQ         y_base+24(FP), DX
+
+loop_mulgf16_gfni_avx512:
+	VMOVDQU64      (DX), Z2
+	VSHUFI64X2     $0x44, Z2, Z2, Z3
+	VSHUFI64X2     $0xee, Z2, Z2, Z2
+	VGF2P8AFFINEQB $0x00, Z0, Z3, Z3
+	VGF2P8AFFINEQB $0x00, Z1, Z2, Z2
+	VPXORQ         Z3, Z2, Z3
+	VMOVDQU64      Z3, (CX)
+	ADDQ           $0x40, CX
+	ADDQ           $0x40, DX
+	SUBQ           $0x40, AX
+	JNZ            loop_mulgf16_gfni_avx512
 	VZEROUPPER
 	RET
 

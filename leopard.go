@@ -114,8 +114,9 @@ var multiply256LUT *[order][8 * 16]byte
 
 // Stores GFNI transformation matrices for GF16.
 // Each entry contains 4 uint64 matrices [A, B, C, D] representing:
-//   [out_lo]   [A  B] [in_lo]
-//   [out_hi] = [C  D] [in_hi]
+//
+//	[out_lo]   [A  B] [in_lo]
+//	[out_hi] = [C  D] [in_hi]
 var gf2p811dMulMatrices16 *[order][4]uint64
 
 func (r *leopardFF16) Encode(shards [][]byte) error {
