@@ -126953,6 +126953,1030 @@ loop_fft4_gfni_7:
 	VZEROUPPER
 	RET
 
+// func ifftDIT4_gfni_avx512_0(work [][]byte, dist int, table01 *[4]uint64, table23 *[4]uint64, table02 *[4]uint64)
+// Requires: AVX, AVX512F, GFNI
+TEXT ·ifftDIT4_gfni_avx512_0(SB), NOSPLIT, $0-56
+	// dist must be multiplied by 24 (size of slice header)
+	MOVQ         table01+32(FP), AX
+	MOVQ         table23+40(FP), CX
+	MOVQ         table02+48(FP), DX
+	VPBROADCASTQ (AX), Z0
+	VPBROADCASTQ 16(AX), Z1
+	VINSERTI64X4 $0x01, Y1, Z0, Z0
+	VPBROADCASTQ 8(AX), Z1
+	VPBROADCASTQ 24(AX), Z2
+	VINSERTI64X4 $0x01, Y2, Z1, Z1
+	VPBROADCASTQ (CX), Z2
+	VPBROADCASTQ 16(CX), Z3
+	VINSERTI64X4 $0x01, Y3, Z2, Z2
+	VPBROADCASTQ 8(CX), Z3
+	VPBROADCASTQ 24(CX), Z4
+	VINSERTI64X4 $0x01, Y4, Z3, Z3
+	VPBROADCASTQ (DX), Z4
+	VPBROADCASTQ 16(DX), Z5
+	VINSERTI64X4 $0x01, Y5, Z4, Z4
+	VPBROADCASTQ 8(DX), Z5
+	VPBROADCASTQ 24(DX), Z6
+	VINSERTI64X4 $0x01, Y6, Z5, Z5
+	MOVQ         dist+24(FP), AX
+	MOVQ         work_base+0(FP), CX
+	MOVQ         8(CX), DX
+	XORQ         BX, BX
+	MOVQ         (CX)(BX*1), SI
+	ADDQ         AX, BX
+	MOVQ         (CX)(BX*1), DI
+	ADDQ         AX, BX
+	MOVQ         (CX)(BX*1), R8
+	ADDQ         AX, BX
+	MOVQ         (CX)(BX*1), AX
+
+loop_ifft4_gfni_avx512_0:
+	VMOVDQU64 (SI), Z6
+	VMOVDQU64 (DI), Z7
+	VPXORQ    Z6, Z7, Z7
+
+	// GFNI LEO_MULADD packed ZMM (combined tables)
+	VSHUFI64X2     $0x44, Z7, Z7, Z8
+	VSHUFI64X2     $0xee, Z7, Z7, Z9
+	VGF2P8AFFINEQB $0x00, Z0, Z8, Z8
+	VGF2P8AFFINEQB $0x00, Z1, Z9, Z9
+	VPTERNLOGD     $0x96, Z9, Z8, Z6
+	VMOVDQU64      (R8), Z8
+	VMOVDQU64      (AX), Z9
+	VPXORQ         Z8, Z9, Z9
+
+	// GFNI LEO_MULADD packed ZMM (combined tables)
+	VSHUFI64X2     $0x44, Z9, Z9, Z10
+	VSHUFI64X2     $0xee, Z9, Z9, Z11
+	VGF2P8AFFINEQB $0x00, Z2, Z10, Z10
+	VGF2P8AFFINEQB $0x00, Z3, Z11, Z11
+	VPTERNLOGD     $0x96, Z11, Z10, Z8
+	VPXORQ         Z6, Z8, Z8
+	VPXORQ         Z7, Z9, Z9
+
+	// GFNI LEO_MULADD packed ZMM (combined tables)
+	VSHUFI64X2     $0x44, Z8, Z8, Z10
+	VSHUFI64X2     $0xee, Z8, Z8, Z11
+	VGF2P8AFFINEQB $0x00, Z4, Z10, Z10
+	VGF2P8AFFINEQB $0x00, Z5, Z11, Z11
+	VPTERNLOGD     $0x96, Z11, Z10, Z6
+
+	// GFNI LEO_MULADD packed ZMM (combined tables)
+	VSHUFI64X2     $0x44, Z9, Z9, Z10
+	VSHUFI64X2     $0xee, Z9, Z9, Z11
+	VGF2P8AFFINEQB $0x00, Z4, Z10, Z10
+	VGF2P8AFFINEQB $0x00, Z5, Z11, Z11
+	VPTERNLOGD     $0x96, Z11, Z10, Z7
+	VMOVDQU64      Z6, (SI)
+	ADDQ           $0x40, SI
+	VMOVDQU64      Z7, (DI)
+	ADDQ           $0x40, DI
+	VMOVDQU64      Z8, (R8)
+	ADDQ           $0x40, R8
+	VMOVDQU64      Z9, (AX)
+	ADDQ           $0x40, AX
+	SUBQ           $0x40, DX
+	JNZ            loop_ifft4_gfni_avx512_0
+	VZEROUPPER
+	RET
+
+// func fftDIT4_gfni_avx512_0(work [][]byte, dist int, table01 *[4]uint64, table23 *[4]uint64, table02 *[4]uint64)
+// Requires: AVX, AVX512F, GFNI
+TEXT ·fftDIT4_gfni_avx512_0(SB), NOSPLIT, $0-56
+	// dist must be multiplied by 24 (size of slice header)
+	MOVQ         table01+32(FP), AX
+	MOVQ         table23+40(FP), CX
+	MOVQ         table02+48(FP), DX
+	VPBROADCASTQ (DX), Z0
+	VPBROADCASTQ 16(DX), Z1
+	VINSERTI64X4 $0x01, Y1, Z0, Z0
+	VPBROADCASTQ 8(DX), Z1
+	VPBROADCASTQ 24(DX), Z2
+	VINSERTI64X4 $0x01, Y2, Z1, Z1
+	VPBROADCASTQ (AX), Z2
+	VPBROADCASTQ 16(AX), Z3
+	VINSERTI64X4 $0x01, Y3, Z2, Z2
+	VPBROADCASTQ 8(AX), Z3
+	VPBROADCASTQ 24(AX), Z4
+	VINSERTI64X4 $0x01, Y4, Z3, Z3
+	VPBROADCASTQ (CX), Z4
+	VPBROADCASTQ 16(CX), Z5
+	VINSERTI64X4 $0x01, Y5, Z4, Z4
+	VPBROADCASTQ 8(CX), Z5
+	VPBROADCASTQ 24(CX), Z6
+	VINSERTI64X4 $0x01, Y6, Z5, Z5
+	MOVQ         dist+24(FP), AX
+	MOVQ         work_base+0(FP), CX
+	MOVQ         8(CX), DX
+	XORQ         BX, BX
+	MOVQ         (CX)(BX*1), SI
+	ADDQ         AX, BX
+	MOVQ         (CX)(BX*1), DI
+	ADDQ         AX, BX
+	MOVQ         (CX)(BX*1), R8
+	ADDQ         AX, BX
+	MOVQ         (CX)(BX*1), AX
+
+loop_fft4_gfni_avx512_0:
+	VMOVDQU64 (SI), Z6
+	VMOVDQU64 (DI), Z7
+	VMOVDQU64 (R8), Z8
+	VMOVDQU64 (AX), Z9
+
+	// GFNI LEO_MULADD packed ZMM (combined tables)
+	VSHUFI64X2     $0x44, Z8, Z8, Z10
+	VSHUFI64X2     $0xee, Z8, Z8, Z11
+	VGF2P8AFFINEQB $0x00, Z0, Z10, Z10
+	VGF2P8AFFINEQB $0x00, Z1, Z11, Z11
+	VPTERNLOGD     $0x96, Z11, Z10, Z6
+
+	// GFNI LEO_MULADD packed ZMM (combined tables)
+	VSHUFI64X2     $0x44, Z9, Z9, Z10
+	VSHUFI64X2     $0xee, Z9, Z9, Z11
+	VGF2P8AFFINEQB $0x00, Z0, Z10, Z10
+	VGF2P8AFFINEQB $0x00, Z1, Z11, Z11
+	VPTERNLOGD     $0x96, Z11, Z10, Z7
+	VPXORQ         Z6, Z8, Z8
+	VPXORQ         Z7, Z9, Z9
+
+	// GFNI LEO_MULADD packed ZMM (combined tables)
+	VSHUFI64X2     $0x44, Z7, Z7, Z10
+	VSHUFI64X2     $0xee, Z7, Z7, Z11
+	VGF2P8AFFINEQB $0x00, Z2, Z10, Z10
+	VGF2P8AFFINEQB $0x00, Z3, Z11, Z11
+	VPTERNLOGD     $0x96, Z11, Z10, Z6
+	VPXORQ         Z6, Z7, Z7
+	VMOVDQU64      Z6, (SI)
+	VMOVDQU64      Z7, (DI)
+	ADDQ           $0x40, SI
+	ADDQ           $0x40, DI
+
+	// GFNI LEO_MULADD packed ZMM (combined tables)
+	VSHUFI64X2     $0x44, Z9, Z9, Z6
+	VSHUFI64X2     $0xee, Z9, Z9, Z7
+	VGF2P8AFFINEQB $0x00, Z4, Z6, Z6
+	VGF2P8AFFINEQB $0x00, Z5, Z7, Z7
+	VPTERNLOGD     $0x96, Z7, Z6, Z8
+	VPXORQ         Z8, Z9, Z9
+	VMOVDQU64      Z8, (R8)
+	VMOVDQU64      Z9, (AX)
+	ADDQ           $0x40, R8
+	ADDQ           $0x40, AX
+	SUBQ           $0x40, DX
+	JNZ            loop_fft4_gfni_avx512_0
+	VZEROUPPER
+	RET
+
+// func ifftDIT4_gfni_avx512_1(work [][]byte, dist int, table01 *[4]uint64, table23 *[4]uint64, table02 *[4]uint64)
+// Requires: AVX, AVX512F, GFNI
+TEXT ·ifftDIT4_gfni_avx512_1(SB), NOSPLIT, $0-56
+	// dist must be multiplied by 24 (size of slice header)
+	MOVQ         table01+32(FP), AX
+	MOVQ         table23+40(FP), AX
+	MOVQ         table02+48(FP), CX
+	VPBROADCASTQ (AX), Z0
+	VPBROADCASTQ 16(AX), Z1
+	VINSERTI64X4 $0x01, Y1, Z0, Z0
+	VPBROADCASTQ 8(AX), Z1
+	VPBROADCASTQ 24(AX), Z2
+	VINSERTI64X4 $0x01, Y2, Z1, Z1
+	VPBROADCASTQ (CX), Z2
+	VPBROADCASTQ 16(CX), Z3
+	VINSERTI64X4 $0x01, Y3, Z2, Z2
+	VPBROADCASTQ 8(CX), Z3
+	VPBROADCASTQ 24(CX), Z4
+	VINSERTI64X4 $0x01, Y4, Z3, Z3
+	MOVQ         dist+24(FP), AX
+	MOVQ         work_base+0(FP), CX
+	MOVQ         8(CX), DX
+	XORQ         BX, BX
+	MOVQ         (CX)(BX*1), SI
+	ADDQ         AX, BX
+	MOVQ         (CX)(BX*1), DI
+	ADDQ         AX, BX
+	MOVQ         (CX)(BX*1), R8
+	ADDQ         AX, BX
+	MOVQ         (CX)(BX*1), AX
+
+loop_ifft4_gfni_avx512_1:
+	VMOVDQU64 (SI), Z4
+	VMOVDQU64 (DI), Z5
+	VPXORQ    Z4, Z5, Z5
+	VMOVDQU64 (R8), Z6
+	VMOVDQU64 (AX), Z7
+	VPXORQ    Z6, Z7, Z7
+
+	// GFNI LEO_MULADD packed ZMM (combined tables)
+	VSHUFI64X2     $0x44, Z7, Z7, Z8
+	VSHUFI64X2     $0xee, Z7, Z7, Z9
+	VGF2P8AFFINEQB $0x00, Z0, Z8, Z8
+	VGF2P8AFFINEQB $0x00, Z1, Z9, Z9
+	VPTERNLOGD     $0x96, Z9, Z8, Z6
+	VPXORQ         Z4, Z6, Z6
+	VPXORQ         Z5, Z7, Z7
+
+	// GFNI LEO_MULADD packed ZMM (combined tables)
+	VSHUFI64X2     $0x44, Z6, Z6, Z8
+	VSHUFI64X2     $0xee, Z6, Z6, Z9
+	VGF2P8AFFINEQB $0x00, Z2, Z8, Z8
+	VGF2P8AFFINEQB $0x00, Z3, Z9, Z9
+	VPTERNLOGD     $0x96, Z9, Z8, Z4
+
+	// GFNI LEO_MULADD packed ZMM (combined tables)
+	VSHUFI64X2     $0x44, Z7, Z7, Z8
+	VSHUFI64X2     $0xee, Z7, Z7, Z9
+	VGF2P8AFFINEQB $0x00, Z2, Z8, Z8
+	VGF2P8AFFINEQB $0x00, Z3, Z9, Z9
+	VPTERNLOGD     $0x96, Z9, Z8, Z5
+	VMOVDQU64      Z4, (SI)
+	ADDQ           $0x40, SI
+	VMOVDQU64      Z5, (DI)
+	ADDQ           $0x40, DI
+	VMOVDQU64      Z6, (R8)
+	ADDQ           $0x40, R8
+	VMOVDQU64      Z7, (AX)
+	ADDQ           $0x40, AX
+	SUBQ           $0x40, DX
+	JNZ            loop_ifft4_gfni_avx512_1
+	VZEROUPPER
+	RET
+
+// func fftDIT4_gfni_avx512_1(work [][]byte, dist int, table01 *[4]uint64, table23 *[4]uint64, table02 *[4]uint64)
+// Requires: AVX, AVX512F, GFNI
+TEXT ·fftDIT4_gfni_avx512_1(SB), NOSPLIT, $0-56
+	// dist must be multiplied by 24 (size of slice header)
+	MOVQ         table01+32(FP), AX
+	MOVQ         table23+40(FP), CX
+	MOVQ         table02+48(FP), DX
+	VPBROADCASTQ (AX), Z0
+	VPBROADCASTQ 16(AX), Z1
+	VINSERTI64X4 $0x01, Y1, Z0, Z0
+	VPBROADCASTQ 8(AX), Z1
+	VPBROADCASTQ 24(AX), Z2
+	VINSERTI64X4 $0x01, Y2, Z1, Z1
+	VPBROADCASTQ (CX), Z2
+	VPBROADCASTQ 16(CX), Z3
+	VINSERTI64X4 $0x01, Y3, Z2, Z2
+	VPBROADCASTQ 8(CX), Z3
+	VPBROADCASTQ 24(CX), Z4
+	VINSERTI64X4 $0x01, Y4, Z3, Z3
+	MOVQ         dist+24(FP), AX
+	MOVQ         work_base+0(FP), CX
+	MOVQ         8(CX), DX
+	XORQ         BX, BX
+	MOVQ         (CX)(BX*1), SI
+	ADDQ         AX, BX
+	MOVQ         (CX)(BX*1), DI
+	ADDQ         AX, BX
+	MOVQ         (CX)(BX*1), R8
+	ADDQ         AX, BX
+	MOVQ         (CX)(BX*1), AX
+
+loop_fft4_gfni_avx512_1:
+	VMOVDQU64 (SI), Z4
+	VMOVDQU64 (DI), Z5
+	VMOVDQU64 (R8), Z6
+	VMOVDQU64 (AX), Z7
+	VPXORQ    Z4, Z6, Z6
+	VPXORQ    Z5, Z7, Z7
+
+	// GFNI LEO_MULADD packed ZMM (combined tables)
+	VSHUFI64X2     $0x44, Z5, Z5, Z8
+	VSHUFI64X2     $0xee, Z5, Z5, Z9
+	VGF2P8AFFINEQB $0x00, Z0, Z8, Z8
+	VGF2P8AFFINEQB $0x00, Z1, Z9, Z9
+	VPTERNLOGD     $0x96, Z9, Z8, Z4
+	VPXORQ         Z4, Z5, Z5
+	VMOVDQU64      Z4, (SI)
+	VMOVDQU64      Z5, (DI)
+	ADDQ           $0x40, SI
+	ADDQ           $0x40, DI
+
+	// GFNI LEO_MULADD packed ZMM (combined tables)
+	VSHUFI64X2     $0x44, Z7, Z7, Z4
+	VSHUFI64X2     $0xee, Z7, Z7, Z5
+	VGF2P8AFFINEQB $0x00, Z2, Z4, Z4
+	VGF2P8AFFINEQB $0x00, Z3, Z5, Z5
+	VPTERNLOGD     $0x96, Z5, Z4, Z6
+	VPXORQ         Z6, Z7, Z7
+	VMOVDQU64      Z6, (R8)
+	VMOVDQU64      Z7, (AX)
+	ADDQ           $0x40, R8
+	ADDQ           $0x40, AX
+	SUBQ           $0x40, DX
+	JNZ            loop_fft4_gfni_avx512_1
+	VZEROUPPER
+	RET
+
+// func ifftDIT4_gfni_avx512_2(work [][]byte, dist int, table01 *[4]uint64, table23 *[4]uint64, table02 *[4]uint64)
+// Requires: AVX, AVX512F, GFNI
+TEXT ·ifftDIT4_gfni_avx512_2(SB), NOSPLIT, $0-56
+	// dist must be multiplied by 24 (size of slice header)
+	MOVQ         table01+32(FP), AX
+	MOVQ         table23+40(FP), CX
+	MOVQ         table02+48(FP), CX
+	VPBROADCASTQ (AX), Z0
+	VPBROADCASTQ 16(AX), Z1
+	VINSERTI64X4 $0x01, Y1, Z0, Z0
+	VPBROADCASTQ 8(AX), Z1
+	VPBROADCASTQ 24(AX), Z2
+	VINSERTI64X4 $0x01, Y2, Z1, Z1
+	VPBROADCASTQ (CX), Z2
+	VPBROADCASTQ 16(CX), Z3
+	VINSERTI64X4 $0x01, Y3, Z2, Z2
+	VPBROADCASTQ 8(CX), Z3
+	VPBROADCASTQ 24(CX), Z4
+	VINSERTI64X4 $0x01, Y4, Z3, Z3
+	MOVQ         dist+24(FP), AX
+	MOVQ         work_base+0(FP), CX
+	MOVQ         8(CX), DX
+	XORQ         BX, BX
+	MOVQ         (CX)(BX*1), SI
+	ADDQ         AX, BX
+	MOVQ         (CX)(BX*1), DI
+	ADDQ         AX, BX
+	MOVQ         (CX)(BX*1), R8
+	ADDQ         AX, BX
+	MOVQ         (CX)(BX*1), AX
+
+loop_ifft4_gfni_avx512_2:
+	VMOVDQU64 (SI), Z4
+	VMOVDQU64 (DI), Z5
+	VPXORQ    Z4, Z5, Z5
+
+	// GFNI LEO_MULADD packed ZMM (combined tables)
+	VSHUFI64X2     $0x44, Z5, Z5, Z6
+	VSHUFI64X2     $0xee, Z5, Z5, Z7
+	VGF2P8AFFINEQB $0x00, Z0, Z6, Z6
+	VGF2P8AFFINEQB $0x00, Z1, Z7, Z7
+	VPTERNLOGD     $0x96, Z7, Z6, Z4
+	VMOVDQU64      (R8), Z6
+	VMOVDQU64      (AX), Z7
+	VPXORQ         Z6, Z7, Z7
+	VPXORQ         Z4, Z6, Z6
+	VPXORQ         Z5, Z7, Z7
+
+	// GFNI LEO_MULADD packed ZMM (combined tables)
+	VSHUFI64X2     $0x44, Z6, Z6, Z8
+	VSHUFI64X2     $0xee, Z6, Z6, Z9
+	VGF2P8AFFINEQB $0x00, Z2, Z8, Z8
+	VGF2P8AFFINEQB $0x00, Z3, Z9, Z9
+	VPTERNLOGD     $0x96, Z9, Z8, Z4
+
+	// GFNI LEO_MULADD packed ZMM (combined tables)
+	VSHUFI64X2     $0x44, Z7, Z7, Z8
+	VSHUFI64X2     $0xee, Z7, Z7, Z9
+	VGF2P8AFFINEQB $0x00, Z2, Z8, Z8
+	VGF2P8AFFINEQB $0x00, Z3, Z9, Z9
+	VPTERNLOGD     $0x96, Z9, Z8, Z5
+	VMOVDQU64      Z4, (SI)
+	ADDQ           $0x40, SI
+	VMOVDQU64      Z5, (DI)
+	ADDQ           $0x40, DI
+	VMOVDQU64      Z6, (R8)
+	ADDQ           $0x40, R8
+	VMOVDQU64      Z7, (AX)
+	ADDQ           $0x40, AX
+	SUBQ           $0x40, DX
+	JNZ            loop_ifft4_gfni_avx512_2
+	VZEROUPPER
+	RET
+
+// func fftDIT4_gfni_avx512_2(work [][]byte, dist int, table01 *[4]uint64, table23 *[4]uint64, table02 *[4]uint64)
+// Requires: AVX, AVX512F, GFNI
+TEXT ·fftDIT4_gfni_avx512_2(SB), NOSPLIT, $0-56
+	// dist must be multiplied by 24 (size of slice header)
+	MOVQ         table01+32(FP), AX
+	MOVQ         table23+40(FP), AX
+	MOVQ         table02+48(FP), CX
+	VPBROADCASTQ (CX), Z0
+	VPBROADCASTQ 16(CX), Z1
+	VINSERTI64X4 $0x01, Y1, Z0, Z0
+	VPBROADCASTQ 8(CX), Z1
+	VPBROADCASTQ 24(CX), Z2
+	VINSERTI64X4 $0x01, Y2, Z1, Z1
+	VPBROADCASTQ (AX), Z2
+	VPBROADCASTQ 16(AX), Z3
+	VINSERTI64X4 $0x01, Y3, Z2, Z2
+	VPBROADCASTQ 8(AX), Z3
+	VPBROADCASTQ 24(AX), Z4
+	VINSERTI64X4 $0x01, Y4, Z3, Z3
+	MOVQ         dist+24(FP), AX
+	MOVQ         work_base+0(FP), CX
+	MOVQ         8(CX), DX
+	XORQ         BX, BX
+	MOVQ         (CX)(BX*1), SI
+	ADDQ         AX, BX
+	MOVQ         (CX)(BX*1), DI
+	ADDQ         AX, BX
+	MOVQ         (CX)(BX*1), R8
+	ADDQ         AX, BX
+	MOVQ         (CX)(BX*1), AX
+
+loop_fft4_gfni_avx512_2:
+	VMOVDQU64 (SI), Z4
+	VMOVDQU64 (DI), Z5
+	VMOVDQU64 (R8), Z6
+	VMOVDQU64 (AX), Z7
+
+	// GFNI LEO_MULADD packed ZMM (combined tables)
+	VSHUFI64X2     $0x44, Z6, Z6, Z8
+	VSHUFI64X2     $0xee, Z6, Z6, Z9
+	VGF2P8AFFINEQB $0x00, Z0, Z8, Z8
+	VGF2P8AFFINEQB $0x00, Z1, Z9, Z9
+	VPTERNLOGD     $0x96, Z9, Z8, Z4
+
+	// GFNI LEO_MULADD packed ZMM (combined tables)
+	VSHUFI64X2     $0x44, Z7, Z7, Z8
+	VSHUFI64X2     $0xee, Z7, Z7, Z9
+	VGF2P8AFFINEQB $0x00, Z0, Z8, Z8
+	VGF2P8AFFINEQB $0x00, Z1, Z9, Z9
+	VPTERNLOGD     $0x96, Z9, Z8, Z5
+	VPXORQ         Z4, Z6, Z6
+	VPXORQ         Z5, Z7, Z7
+	VPXORQ         Z4, Z5, Z5
+	VMOVDQU64      Z4, (SI)
+	VMOVDQU64      Z5, (DI)
+	ADDQ           $0x40, SI
+	ADDQ           $0x40, DI
+
+	// GFNI LEO_MULADD packed ZMM (combined tables)
+	VSHUFI64X2     $0x44, Z7, Z7, Z4
+	VSHUFI64X2     $0xee, Z7, Z7, Z5
+	VGF2P8AFFINEQB $0x00, Z2, Z4, Z4
+	VGF2P8AFFINEQB $0x00, Z3, Z5, Z5
+	VPTERNLOGD     $0x96, Z5, Z4, Z6
+	VPXORQ         Z6, Z7, Z7
+	VMOVDQU64      Z6, (R8)
+	VMOVDQU64      Z7, (AX)
+	ADDQ           $0x40, R8
+	ADDQ           $0x40, AX
+	SUBQ           $0x40, DX
+	JNZ            loop_fft4_gfni_avx512_2
+	VZEROUPPER
+	RET
+
+// func ifftDIT4_gfni_avx512_3(work [][]byte, dist int, table01 *[4]uint64, table23 *[4]uint64, table02 *[4]uint64)
+// Requires: AVX, AVX512F, GFNI
+TEXT ·ifftDIT4_gfni_avx512_3(SB), NOSPLIT, $0-56
+	// dist must be multiplied by 24 (size of slice header)
+	MOVQ         table01+32(FP), AX
+	MOVQ         table23+40(FP), AX
+	MOVQ         table02+48(FP), AX
+	VPBROADCASTQ (AX), Z0
+	VPBROADCASTQ 16(AX), Z1
+	VINSERTI64X4 $0x01, Y1, Z0, Z0
+	VPBROADCASTQ 8(AX), Z1
+	VPBROADCASTQ 24(AX), Z2
+	VINSERTI64X4 $0x01, Y2, Z1, Z1
+	MOVQ         dist+24(FP), AX
+	MOVQ         work_base+0(FP), CX
+	MOVQ         8(CX), DX
+	XORQ         BX, BX
+	MOVQ         (CX)(BX*1), SI
+	ADDQ         AX, BX
+	MOVQ         (CX)(BX*1), DI
+	ADDQ         AX, BX
+	MOVQ         (CX)(BX*1), R8
+	ADDQ         AX, BX
+	MOVQ         (CX)(BX*1), AX
+
+loop_ifft4_gfni_avx512_3:
+	VMOVDQU64 (SI), Z2
+	VMOVDQU64 (DI), Z3
+	VPXORQ    Z2, Z3, Z3
+	VMOVDQU64 (R8), Z4
+	VMOVDQU64 (AX), Z5
+	VPXORQ    Z4, Z5, Z5
+	VPXORQ    Z2, Z4, Z4
+	VPXORQ    Z3, Z5, Z5
+
+	// GFNI LEO_MULADD packed ZMM (combined tables)
+	VSHUFI64X2     $0x44, Z4, Z4, Z6
+	VSHUFI64X2     $0xee, Z4, Z4, Z7
+	VGF2P8AFFINEQB $0x00, Z0, Z6, Z6
+	VGF2P8AFFINEQB $0x00, Z1, Z7, Z7
+	VPTERNLOGD     $0x96, Z7, Z6, Z2
+
+	// GFNI LEO_MULADD packed ZMM (combined tables)
+	VSHUFI64X2     $0x44, Z5, Z5, Z6
+	VSHUFI64X2     $0xee, Z5, Z5, Z7
+	VGF2P8AFFINEQB $0x00, Z0, Z6, Z6
+	VGF2P8AFFINEQB $0x00, Z1, Z7, Z7
+	VPTERNLOGD     $0x96, Z7, Z6, Z3
+	VMOVDQU64      Z2, (SI)
+	ADDQ           $0x40, SI
+	VMOVDQU64      Z3, (DI)
+	ADDQ           $0x40, DI
+	VMOVDQU64      Z4, (R8)
+	ADDQ           $0x40, R8
+	VMOVDQU64      Z5, (AX)
+	ADDQ           $0x40, AX
+	SUBQ           $0x40, DX
+	JNZ            loop_ifft4_gfni_avx512_3
+	VZEROUPPER
+	RET
+
+// func fftDIT4_gfni_avx512_3(work [][]byte, dist int, table01 *[4]uint64, table23 *[4]uint64, table02 *[4]uint64)
+// Requires: AVX, AVX512F, GFNI
+TEXT ·fftDIT4_gfni_avx512_3(SB), NOSPLIT, $0-56
+	// dist must be multiplied by 24 (size of slice header)
+	MOVQ         table01+32(FP), AX
+	MOVQ         table23+40(FP), AX
+	MOVQ         table02+48(FP), CX
+	VPBROADCASTQ (AX), Z0
+	VPBROADCASTQ 16(AX), Z1
+	VINSERTI64X4 $0x01, Y1, Z0, Z0
+	VPBROADCASTQ 8(AX), Z1
+	VPBROADCASTQ 24(AX), Z2
+	VINSERTI64X4 $0x01, Y2, Z1, Z1
+	MOVQ         dist+24(FP), AX
+	MOVQ         work_base+0(FP), CX
+	MOVQ         8(CX), DX
+	XORQ         BX, BX
+	MOVQ         (CX)(BX*1), SI
+	ADDQ         AX, BX
+	MOVQ         (CX)(BX*1), DI
+	ADDQ         AX, BX
+	MOVQ         (CX)(BX*1), R8
+	ADDQ         AX, BX
+	MOVQ         (CX)(BX*1), AX
+
+loop_fft4_gfni_avx512_3:
+	VMOVDQU64 (SI), Z2
+	VMOVDQU64 (DI), Z3
+	VMOVDQU64 (R8), Z4
+	VMOVDQU64 (AX), Z5
+	VPXORQ    Z2, Z4, Z4
+	VPXORQ    Z3, Z5, Z5
+	VPXORQ    Z2, Z3, Z3
+	VMOVDQU64 Z2, (SI)
+	VMOVDQU64 Z3, (DI)
+	ADDQ      $0x40, SI
+	ADDQ      $0x40, DI
+
+	// GFNI LEO_MULADD packed ZMM (combined tables)
+	VSHUFI64X2     $0x44, Z5, Z5, Z2
+	VSHUFI64X2     $0xee, Z5, Z5, Z3
+	VGF2P8AFFINEQB $0x00, Z0, Z2, Z2
+	VGF2P8AFFINEQB $0x00, Z1, Z3, Z3
+	VPTERNLOGD     $0x96, Z3, Z2, Z4
+	VPXORQ         Z4, Z5, Z5
+	VMOVDQU64      Z4, (R8)
+	VMOVDQU64      Z5, (AX)
+	ADDQ           $0x40, R8
+	ADDQ           $0x40, AX
+	SUBQ           $0x40, DX
+	JNZ            loop_fft4_gfni_avx512_3
+	VZEROUPPER
+	RET
+
+// func ifftDIT4_gfni_avx512_4(work [][]byte, dist int, table01 *[4]uint64, table23 *[4]uint64, table02 *[4]uint64)
+// Requires: AVX, AVX512F, GFNI
+TEXT ·ifftDIT4_gfni_avx512_4(SB), NOSPLIT, $0-56
+	// dist must be multiplied by 24 (size of slice header)
+	MOVQ         table01+32(FP), AX
+	MOVQ         table23+40(FP), CX
+	MOVQ         table02+48(FP), DX
+	VPBROADCASTQ (AX), Z0
+	VPBROADCASTQ 16(AX), Z1
+	VINSERTI64X4 $0x01, Y1, Z0, Z0
+	VPBROADCASTQ 8(AX), Z1
+	VPBROADCASTQ 24(AX), Z2
+	VINSERTI64X4 $0x01, Y2, Z1, Z1
+	VPBROADCASTQ (CX), Z2
+	VPBROADCASTQ 16(CX), Z3
+	VINSERTI64X4 $0x01, Y3, Z2, Z2
+	VPBROADCASTQ 8(CX), Z3
+	VPBROADCASTQ 24(CX), Z4
+	VINSERTI64X4 $0x01, Y4, Z3, Z3
+	MOVQ         dist+24(FP), AX
+	MOVQ         work_base+0(FP), CX
+	MOVQ         8(CX), DX
+	XORQ         BX, BX
+	MOVQ         (CX)(BX*1), SI
+	ADDQ         AX, BX
+	MOVQ         (CX)(BX*1), DI
+	ADDQ         AX, BX
+	MOVQ         (CX)(BX*1), R8
+	ADDQ         AX, BX
+	MOVQ         (CX)(BX*1), AX
+
+loop_ifft4_gfni_avx512_4:
+	VMOVDQU64 (SI), Z4
+	VMOVDQU64 (DI), Z5
+	VPXORQ    Z4, Z5, Z5
+
+	// GFNI LEO_MULADD packed ZMM (combined tables)
+	VSHUFI64X2     $0x44, Z5, Z5, Z6
+	VSHUFI64X2     $0xee, Z5, Z5, Z7
+	VGF2P8AFFINEQB $0x00, Z0, Z6, Z6
+	VGF2P8AFFINEQB $0x00, Z1, Z7, Z7
+	VPTERNLOGD     $0x96, Z7, Z6, Z4
+	VMOVDQU64      (R8), Z6
+	VMOVDQU64      (AX), Z7
+	VPXORQ         Z6, Z7, Z7
+
+	// GFNI LEO_MULADD packed ZMM (combined tables)
+	VSHUFI64X2     $0x44, Z7, Z7, Z8
+	VSHUFI64X2     $0xee, Z7, Z7, Z9
+	VGF2P8AFFINEQB $0x00, Z2, Z8, Z8
+	VGF2P8AFFINEQB $0x00, Z3, Z9, Z9
+	VPTERNLOGD     $0x96, Z9, Z8, Z6
+	VPXORQ         Z4, Z6, Z6
+	VPXORQ         Z5, Z7, Z7
+	VMOVDQU64      Z4, (SI)
+	ADDQ           $0x40, SI
+	VMOVDQU64      Z5, (DI)
+	ADDQ           $0x40, DI
+	VMOVDQU64      Z6, (R8)
+	ADDQ           $0x40, R8
+	VMOVDQU64      Z7, (AX)
+	ADDQ           $0x40, AX
+	SUBQ           $0x40, DX
+	JNZ            loop_ifft4_gfni_avx512_4
+	VZEROUPPER
+	RET
+
+// func fftDIT4_gfni_avx512_4(work [][]byte, dist int, table01 *[4]uint64, table23 *[4]uint64, table02 *[4]uint64)
+// Requires: AVX, AVX512F, GFNI
+TEXT ·fftDIT4_gfni_avx512_4(SB), NOSPLIT, $0-56
+	// dist must be multiplied by 24 (size of slice header)
+	MOVQ         table01+32(FP), AX
+	MOVQ         table23+40(FP), CX
+	MOVQ         table02+48(FP), CX
+	VPBROADCASTQ (CX), Z0
+	VPBROADCASTQ 16(CX), Z1
+	VINSERTI64X4 $0x01, Y1, Z0, Z0
+	VPBROADCASTQ 8(CX), Z1
+	VPBROADCASTQ 24(CX), Z2
+	VINSERTI64X4 $0x01, Y2, Z1, Z1
+	VPBROADCASTQ (AX), Z2
+	VPBROADCASTQ 16(AX), Z3
+	VINSERTI64X4 $0x01, Y3, Z2, Z2
+	VPBROADCASTQ 8(AX), Z3
+	VPBROADCASTQ 24(AX), Z4
+	VINSERTI64X4 $0x01, Y4, Z3, Z3
+	MOVQ         dist+24(FP), AX
+	MOVQ         work_base+0(FP), CX
+	MOVQ         8(CX), DX
+	XORQ         BX, BX
+	MOVQ         (CX)(BX*1), SI
+	ADDQ         AX, BX
+	MOVQ         (CX)(BX*1), DI
+	ADDQ         AX, BX
+	MOVQ         (CX)(BX*1), R8
+	ADDQ         AX, BX
+	MOVQ         (CX)(BX*1), AX
+
+loop_fft4_gfni_avx512_4:
+	VMOVDQU64 (SI), Z4
+	VMOVDQU64 (DI), Z5
+	VMOVDQU64 (R8), Z6
+	VMOVDQU64 (AX), Z7
+
+	// GFNI LEO_MULADD packed ZMM (combined tables)
+	VSHUFI64X2     $0x44, Z6, Z6, Z8
+	VSHUFI64X2     $0xee, Z6, Z6, Z9
+	VGF2P8AFFINEQB $0x00, Z0, Z8, Z8
+	VGF2P8AFFINEQB $0x00, Z1, Z9, Z9
+	VPTERNLOGD     $0x96, Z9, Z8, Z4
+
+	// GFNI LEO_MULADD packed ZMM (combined tables)
+	VSHUFI64X2     $0x44, Z7, Z7, Z8
+	VSHUFI64X2     $0xee, Z7, Z7, Z9
+	VGF2P8AFFINEQB $0x00, Z0, Z8, Z8
+	VGF2P8AFFINEQB $0x00, Z1, Z9, Z9
+	VPTERNLOGD     $0x96, Z9, Z8, Z5
+	VPXORQ         Z4, Z6, Z6
+	VPXORQ         Z5, Z7, Z7
+
+	// GFNI LEO_MULADD packed ZMM (combined tables)
+	VSHUFI64X2     $0x44, Z5, Z5, Z8
+	VSHUFI64X2     $0xee, Z5, Z5, Z9
+	VGF2P8AFFINEQB $0x00, Z2, Z8, Z8
+	VGF2P8AFFINEQB $0x00, Z3, Z9, Z9
+	VPTERNLOGD     $0x96, Z9, Z8, Z4
+	VPXORQ         Z4, Z5, Z5
+	VMOVDQU64      Z4, (SI)
+	VMOVDQU64      Z5, (DI)
+	ADDQ           $0x40, SI
+	ADDQ           $0x40, DI
+	VPXORQ         Z6, Z7, Z7
+	VMOVDQU64      Z6, (R8)
+	VMOVDQU64      Z7, (AX)
+	ADDQ           $0x40, R8
+	ADDQ           $0x40, AX
+	SUBQ           $0x40, DX
+	JNZ            loop_fft4_gfni_avx512_4
+	VZEROUPPER
+	RET
+
+// func ifftDIT4_gfni_avx512_5(work [][]byte, dist int, table01 *[4]uint64, table23 *[4]uint64, table02 *[4]uint64)
+// Requires: AVX, AVX512F, GFNI
+TEXT ·ifftDIT4_gfni_avx512_5(SB), NOSPLIT, $0-56
+	// dist must be multiplied by 24 (size of slice header)
+	MOVQ         table01+32(FP), AX
+	MOVQ         table23+40(FP), AX
+	MOVQ         table02+48(FP), CX
+	VPBROADCASTQ (AX), Z0
+	VPBROADCASTQ 16(AX), Z1
+	VINSERTI64X4 $0x01, Y1, Z0, Z0
+	VPBROADCASTQ 8(AX), Z1
+	VPBROADCASTQ 24(AX), Z2
+	VINSERTI64X4 $0x01, Y2, Z1, Z1
+	MOVQ         dist+24(FP), AX
+	MOVQ         work_base+0(FP), CX
+	MOVQ         8(CX), DX
+	XORQ         BX, BX
+	MOVQ         (CX)(BX*1), SI
+	ADDQ         AX, BX
+	MOVQ         (CX)(BX*1), DI
+	ADDQ         AX, BX
+	MOVQ         (CX)(BX*1), R8
+	ADDQ         AX, BX
+	MOVQ         (CX)(BX*1), AX
+
+loop_ifft4_gfni_avx512_5:
+	VMOVDQU64 (SI), Z2
+	VMOVDQU64 (DI), Z3
+	VPXORQ    Z2, Z3, Z3
+	VMOVDQU64 (R8), Z4
+	VMOVDQU64 (AX), Z5
+	VPXORQ    Z4, Z5, Z5
+
+	// GFNI LEO_MULADD packed ZMM (combined tables)
+	VSHUFI64X2     $0x44, Z5, Z5, Z6
+	VSHUFI64X2     $0xee, Z5, Z5, Z7
+	VGF2P8AFFINEQB $0x00, Z0, Z6, Z6
+	VGF2P8AFFINEQB $0x00, Z1, Z7, Z7
+	VPTERNLOGD     $0x96, Z7, Z6, Z4
+	VPXORQ         Z2, Z4, Z4
+	VPXORQ         Z3, Z5, Z5
+	VMOVDQU64      Z2, (SI)
+	ADDQ           $0x40, SI
+	VMOVDQU64      Z3, (DI)
+	ADDQ           $0x40, DI
+	VMOVDQU64      Z4, (R8)
+	ADDQ           $0x40, R8
+	VMOVDQU64      Z5, (AX)
+	ADDQ           $0x40, AX
+	SUBQ           $0x40, DX
+	JNZ            loop_ifft4_gfni_avx512_5
+	VZEROUPPER
+	RET
+
+// func fftDIT4_gfni_avx512_5(work [][]byte, dist int, table01 *[4]uint64, table23 *[4]uint64, table02 *[4]uint64)
+// Requires: AVX, AVX512F, GFNI
+TEXT ·fftDIT4_gfni_avx512_5(SB), NOSPLIT, $0-56
+	// dist must be multiplied by 24 (size of slice header)
+	MOVQ         table01+32(FP), AX
+	MOVQ         table23+40(FP), CX
+	MOVQ         table02+48(FP), CX
+	VPBROADCASTQ (AX), Z0
+	VPBROADCASTQ 16(AX), Z1
+	VINSERTI64X4 $0x01, Y1, Z0, Z0
+	VPBROADCASTQ 8(AX), Z1
+	VPBROADCASTQ 24(AX), Z2
+	VINSERTI64X4 $0x01, Y2, Z1, Z1
+	MOVQ         dist+24(FP), AX
+	MOVQ         work_base+0(FP), CX
+	MOVQ         8(CX), DX
+	XORQ         BX, BX
+	MOVQ         (CX)(BX*1), SI
+	ADDQ         AX, BX
+	MOVQ         (CX)(BX*1), DI
+	ADDQ         AX, BX
+	MOVQ         (CX)(BX*1), R8
+	ADDQ         AX, BX
+	MOVQ         (CX)(BX*1), AX
+
+loop_fft4_gfni_avx512_5:
+	VMOVDQU64 (SI), Z2
+	VMOVDQU64 (DI), Z3
+	VMOVDQU64 (R8), Z4
+	VMOVDQU64 (AX), Z5
+	VPXORQ    Z2, Z4, Z4
+	VPXORQ    Z3, Z5, Z5
+
+	// GFNI LEO_MULADD packed ZMM (combined tables)
+	VSHUFI64X2     $0x44, Z3, Z3, Z6
+	VSHUFI64X2     $0xee, Z3, Z3, Z7
+	VGF2P8AFFINEQB $0x00, Z0, Z6, Z6
+	VGF2P8AFFINEQB $0x00, Z1, Z7, Z7
+	VPTERNLOGD     $0x96, Z7, Z6, Z2
+	VPXORQ         Z2, Z3, Z3
+	VMOVDQU64      Z2, (SI)
+	VMOVDQU64      Z3, (DI)
+	ADDQ           $0x40, SI
+	ADDQ           $0x40, DI
+	VPXORQ         Z4, Z5, Z5
+	VMOVDQU64      Z4, (R8)
+	VMOVDQU64      Z5, (AX)
+	ADDQ           $0x40, R8
+	ADDQ           $0x40, AX
+	SUBQ           $0x40, DX
+	JNZ            loop_fft4_gfni_avx512_5
+	VZEROUPPER
+	RET
+
+// func ifftDIT4_gfni_avx512_6(work [][]byte, dist int, table01 *[4]uint64, table23 *[4]uint64, table02 *[4]uint64)
+// Requires: AVX, AVX512F, GFNI
+TEXT ·ifftDIT4_gfni_avx512_6(SB), NOSPLIT, $0-56
+	// dist must be multiplied by 24 (size of slice header)
+	MOVQ         table01+32(FP), AX
+	MOVQ         table23+40(FP), CX
+	MOVQ         table02+48(FP), CX
+	VPBROADCASTQ (AX), Z0
+	VPBROADCASTQ 16(AX), Z1
+	VINSERTI64X4 $0x01, Y1, Z0, Z0
+	VPBROADCASTQ 8(AX), Z1
+	VPBROADCASTQ 24(AX), Z2
+	VINSERTI64X4 $0x01, Y2, Z1, Z1
+	MOVQ         dist+24(FP), AX
+	MOVQ         work_base+0(FP), CX
+	MOVQ         8(CX), DX
+	XORQ         BX, BX
+	MOVQ         (CX)(BX*1), SI
+	ADDQ         AX, BX
+	MOVQ         (CX)(BX*1), DI
+	ADDQ         AX, BX
+	MOVQ         (CX)(BX*1), R8
+	ADDQ         AX, BX
+	MOVQ         (CX)(BX*1), AX
+
+loop_ifft4_gfni_avx512_6:
+	VMOVDQU64 (SI), Z2
+	VMOVDQU64 (DI), Z3
+	VPXORQ    Z2, Z3, Z3
+
+	// GFNI LEO_MULADD packed ZMM (combined tables)
+	VSHUFI64X2     $0x44, Z3, Z3, Z4
+	VSHUFI64X2     $0xee, Z3, Z3, Z5
+	VGF2P8AFFINEQB $0x00, Z0, Z4, Z4
+	VGF2P8AFFINEQB $0x00, Z1, Z5, Z5
+	VPTERNLOGD     $0x96, Z5, Z4, Z2
+	VMOVDQU64      (R8), Z4
+	VMOVDQU64      (AX), Z5
+	VPXORQ         Z4, Z5, Z5
+	VPXORQ         Z2, Z4, Z4
+	VPXORQ         Z3, Z5, Z5
+	VMOVDQU64      Z2, (SI)
+	ADDQ           $0x40, SI
+	VMOVDQU64      Z3, (DI)
+	ADDQ           $0x40, DI
+	VMOVDQU64      Z4, (R8)
+	ADDQ           $0x40, R8
+	VMOVDQU64      Z5, (AX)
+	ADDQ           $0x40, AX
+	SUBQ           $0x40, DX
+	JNZ            loop_ifft4_gfni_avx512_6
+	VZEROUPPER
+	RET
+
+// func fftDIT4_gfni_avx512_6(work [][]byte, dist int, table01 *[4]uint64, table23 *[4]uint64, table02 *[4]uint64)
+// Requires: AVX, AVX512F, GFNI
+TEXT ·fftDIT4_gfni_avx512_6(SB), NOSPLIT, $0-56
+	// dist must be multiplied by 24 (size of slice header)
+	MOVQ         table01+32(FP), AX
+	MOVQ         table23+40(FP), AX
+	MOVQ         table02+48(FP), AX
+	VPBROADCASTQ (AX), Z0
+	VPBROADCASTQ 16(AX), Z1
+	VINSERTI64X4 $0x01, Y1, Z0, Z0
+	VPBROADCASTQ 8(AX), Z1
+	VPBROADCASTQ 24(AX), Z2
+	VINSERTI64X4 $0x01, Y2, Z1, Z1
+	MOVQ         dist+24(FP), AX
+	MOVQ         work_base+0(FP), CX
+	MOVQ         8(CX), DX
+	XORQ         BX, BX
+	MOVQ         (CX)(BX*1), SI
+	ADDQ         AX, BX
+	MOVQ         (CX)(BX*1), DI
+	ADDQ         AX, BX
+	MOVQ         (CX)(BX*1), R8
+	ADDQ         AX, BX
+	MOVQ         (CX)(BX*1), AX
+
+loop_fft4_gfni_avx512_6:
+	VMOVDQU64 (SI), Z2
+	VMOVDQU64 (DI), Z3
+	VMOVDQU64 (R8), Z4
+	VMOVDQU64 (AX), Z5
+
+	// GFNI LEO_MULADD packed ZMM (combined tables)
+	VSHUFI64X2     $0x44, Z4, Z4, Z6
+	VSHUFI64X2     $0xee, Z4, Z4, Z7
+	VGF2P8AFFINEQB $0x00, Z0, Z6, Z6
+	VGF2P8AFFINEQB $0x00, Z1, Z7, Z7
+	VPTERNLOGD     $0x96, Z7, Z6, Z2
+
+	// GFNI LEO_MULADD packed ZMM (combined tables)
+	VSHUFI64X2     $0x44, Z5, Z5, Z6
+	VSHUFI64X2     $0xee, Z5, Z5, Z7
+	VGF2P8AFFINEQB $0x00, Z0, Z6, Z6
+	VGF2P8AFFINEQB $0x00, Z1, Z7, Z7
+	VPTERNLOGD     $0x96, Z7, Z6, Z3
+	VPXORQ         Z2, Z4, Z4
+	VPXORQ         Z3, Z5, Z5
+	VPXORQ         Z2, Z3, Z3
+	VMOVDQU64      Z2, (SI)
+	VMOVDQU64      Z3, (DI)
+	ADDQ           $0x40, SI
+	ADDQ           $0x40, DI
+	VPXORQ         Z4, Z5, Z5
+	VMOVDQU64      Z4, (R8)
+	VMOVDQU64      Z5, (AX)
+	ADDQ           $0x40, R8
+	ADDQ           $0x40, AX
+	SUBQ           $0x40, DX
+	JNZ            loop_fft4_gfni_avx512_6
+	VZEROUPPER
+	RET
+
+// func ifftDIT4_gfni_avx512_7(work [][]byte, dist int, table01 *[4]uint64, table23 *[4]uint64, table02 *[4]uint64)
+// Requires: AVX, AVX512F
+TEXT ·ifftDIT4_gfni_avx512_7(SB), NOSPLIT, $0-56
+	// dist must be multiplied by 24 (size of slice header)
+	MOVQ table01+32(FP), AX
+	MOVQ table23+40(FP), AX
+	MOVQ table02+48(FP), AX
+	MOVQ dist+24(FP), AX
+	MOVQ work_base+0(FP), CX
+	MOVQ 8(CX), DX
+	XORQ BX, BX
+	MOVQ (CX)(BX*1), SI
+	ADDQ AX, BX
+	MOVQ (CX)(BX*1), DI
+	ADDQ AX, BX
+	MOVQ (CX)(BX*1), R8
+	ADDQ AX, BX
+	MOVQ (CX)(BX*1), AX
+
+loop_ifft4_gfni_avx512_7:
+	VMOVDQU64 (SI), Z0
+	VMOVDQU64 (DI), Z1
+	VPXORQ    Z0, Z1, Z1
+	VMOVDQU64 (R8), Z2
+	VMOVDQU64 (AX), Z3
+	VPXORQ    Z2, Z3, Z3
+	VPXORQ    Z0, Z2, Z2
+	VPXORQ    Z1, Z3, Z3
+	VMOVDQU64 Z0, (SI)
+	ADDQ      $0x40, SI
+	VMOVDQU64 Z1, (DI)
+	ADDQ      $0x40, DI
+	VMOVDQU64 Z2, (R8)
+	ADDQ      $0x40, R8
+	VMOVDQU64 Z3, (AX)
+	ADDQ      $0x40, AX
+	SUBQ      $0x40, DX
+	JNZ       loop_ifft4_gfni_avx512_7
+	VZEROUPPER
+	RET
+
+// func fftDIT4_gfni_avx512_7(work [][]byte, dist int, table01 *[4]uint64, table23 *[4]uint64, table02 *[4]uint64)
+// Requires: AVX, AVX512F
+TEXT ·fftDIT4_gfni_avx512_7(SB), NOSPLIT, $0-56
+	// dist must be multiplied by 24 (size of slice header)
+	MOVQ table01+32(FP), AX
+	MOVQ table23+40(FP), AX
+	MOVQ table02+48(FP), AX
+	MOVQ dist+24(FP), AX
+	MOVQ work_base+0(FP), CX
+	MOVQ 8(CX), DX
+	XORQ BX, BX
+	MOVQ (CX)(BX*1), SI
+	ADDQ AX, BX
+	MOVQ (CX)(BX*1), DI
+	ADDQ AX, BX
+	MOVQ (CX)(BX*1), R8
+	ADDQ AX, BX
+	MOVQ (CX)(BX*1), AX
+
+loop_fft4_gfni_avx512_7:
+	VMOVDQU64 (SI), Z0
+	VMOVDQU64 (DI), Z1
+	VMOVDQU64 (R8), Z2
+	VMOVDQU64 (AX), Z3
+	VPXORQ    Z0, Z2, Z2
+	VPXORQ    Z1, Z3, Z3
+	VPXORQ    Z0, Z1, Z1
+	VMOVDQU64 Z0, (SI)
+	VMOVDQU64 Z1, (DI)
+	ADDQ      $0x40, SI
+	ADDQ      $0x40, DI
+	VPXORQ    Z2, Z3, Z3
+	VMOVDQU64 Z2, (R8)
+	VMOVDQU64 Z3, (AX)
+	ADDQ      $0x40, R8
+	ADDQ      $0x40, AX
+	SUBQ      $0x40, DX
+	JNZ       loop_fft4_gfni_avx512_7
+	VZEROUPPER
+	RET
+
 // func ifftDIT2_ssse3(x []byte, y []byte, table *[128]uint8)
 // Requires: SSE, SSE2, SSSE3
 TEXT ·ifftDIT2_ssse3(SB), NOSPLIT, $0-56

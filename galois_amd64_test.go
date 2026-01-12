@@ -894,6 +894,213 @@ func TestCompareFftDIT4GF16GFNIvsAVX2(t *testing.T) {
 	}
 }
 
+func TestCompareIfftDIT4GF16GFNIAvx512vsAVX2(t *testing.T) {
+	if !cpuid.CPU.Supports(cpuid.GFNI, cpuid.AVX512VL) {
+		t.Skip("AVX512+GFNI not supported")
+	}
+
+	enc, err := New(300, 100, WithLeopardGF16(true))
+	if err != nil {
+		t.Fatal(err)
+	}
+	_ = enc
+
+	if gf2p811dMulMatrices16 == nil {
+		t.Skip("GFNI tables not initialized")
+	}
+
+	// Test variant 0 (all multiplications)
+	for variant := 0; variant < 8; variant++ {
+		t.Run(fmt.Sprintf("variant=%d", variant), func(t *testing.T) {
+			// Create work slices - 4 slices of 128 bytes each (64 x 16-bit elements)
+			work := make([][]byte, 4)
+			for i := range work {
+				work[i] = make([]byte, 128)
+				for j := range work[i] {
+					work[i][j] = byte(i*17 + j + 1)
+				}
+			}
+
+			// Make copies
+			avx512Work := make([][]byte, 4)
+			avx2Work := make([][]byte, 4)
+			for i := range work {
+				avx512Work[i] = make([]byte, len(work[i]))
+				avx2Work[i] = make([]byte, len(work[i]))
+				copy(avx512Work[i], work[i])
+				copy(avx2Work[i], work[i])
+			}
+
+			log_m01, log_m23, log_m02 := ffe(10), ffe(200), ffe(3000)
+			if variant&1 != 0 {
+				log_m01 = modulus
+			}
+			if variant&2 != 0 {
+				log_m23 = modulus
+			}
+			if variant&4 != 0 {
+				log_m02 = modulus
+			}
+
+			g01 := &gf2p811dMulMatrices16[log_m01]
+			g23 := &gf2p811dMulMatrices16[log_m23]
+			g02 := &gf2p811dMulMatrices16[log_m02]
+
+			// Call AVX-512 GFNI version
+			switch variant {
+			case 0:
+				ifftDIT4_gfni_avx512_0(avx512Work, 24, g01, g23, g02)
+			case 1:
+				ifftDIT4_gfni_avx512_1(avx512Work, 24, g01, g23, g02)
+			case 2:
+				ifftDIT4_gfni_avx512_2(avx512Work, 24, g01, g23, g02)
+			case 3:
+				ifftDIT4_gfni_avx512_3(avx512Work, 24, g01, g23, g02)
+			case 4:
+				ifftDIT4_gfni_avx512_4(avx512Work, 24, g01, g23, g02)
+			case 5:
+				ifftDIT4_gfni_avx512_5(avx512Work, 24, g01, g23, g02)
+			case 6:
+				ifftDIT4_gfni_avx512_6(avx512Work, 24, g01, g23, g02)
+			case 7:
+				ifftDIT4_gfni_avx512_7(avx512Work, 24, g01, g23, g02)
+			}
+
+			// Call AVX2 GFNI version twice (processes 64 bytes each)
+			switch variant {
+			case 0:
+				ifftDIT4_gfni_0(avx2Work, 24, g01, g23, g02)
+			case 1:
+				ifftDIT4_gfni_1(avx2Work, 24, g01, g23, g02)
+			case 2:
+				ifftDIT4_gfni_2(avx2Work, 24, g01, g23, g02)
+			case 3:
+				ifftDIT4_gfni_3(avx2Work, 24, g01, g23, g02)
+			case 4:
+				ifftDIT4_gfni_4(avx2Work, 24, g01, g23, g02)
+			case 5:
+				ifftDIT4_gfni_5(avx2Work, 24, g01, g23, g02)
+			case 6:
+				ifftDIT4_gfni_6(avx2Work, 24, g01, g23, g02)
+			case 7:
+				ifftDIT4_gfni_7(avx2Work, 24, g01, g23, g02)
+			}
+
+			// Compare results
+			match := true
+			for i := range work {
+				if !bytes.Equal(avx512Work[i], avx2Work[i]) {
+					match = false
+					t.Errorf("work[%d] mismatch for variant %d", i, variant)
+					for j := 0; j < len(avx512Work[i]) && j < 32; j++ {
+						if avx512Work[i][j] != avx2Work[i][j] {
+							t.Logf("  [%d][%d]: AVX512=0x%02x, AVX2=0x%02x", i, j, avx512Work[i][j], avx2Work[i][j])
+						}
+					}
+				}
+			}
+			if match {
+				t.Logf("ifftDIT4_gfni_avx512_%d: MATCH", variant)
+			}
+		})
+	}
+}
+
+func TestCompareFftDIT4GF16GFNIAvx512vsAVX2(t *testing.T) {
+	if !cpuid.CPU.Supports(cpuid.GFNI, cpuid.AVX512VL) {
+		t.Skip("AVX512+GFNI not supported")
+	}
+
+	enc, err := New(300, 100, WithLeopardGF16(true))
+	if err != nil {
+		t.Fatal(err)
+	}
+	_ = enc
+
+	if gf2p811dMulMatrices16 == nil {
+		t.Skip("GFNI tables not initialized")
+	}
+
+	for variant := 0; variant < 8; variant++ {
+		t.Run(fmt.Sprintf("variant=%d", variant), func(t *testing.T) {
+			work := make([][]byte, 4)
+			for i := range work {
+				work[i] = make([]byte, 128)
+				for j := range work[i] {
+					work[i][j] = byte(i*17 + j + 1)
+				}
+			}
+
+			avx512Work := make([][]byte, 4)
+			avx2Work := make([][]byte, 4)
+			for i := range work {
+				avx512Work[i] = make([]byte, len(work[i]))
+				avx2Work[i] = make([]byte, len(work[i]))
+				copy(avx512Work[i], work[i])
+				copy(avx2Work[i], work[i])
+			}
+
+			log_m01, log_m23, log_m02 := ffe(10), ffe(200), ffe(3000)
+			if variant&1 != 0 {
+				log_m02 = modulus
+			}
+			if variant&2 != 0 {
+				log_m01 = modulus
+			}
+			if variant&4 != 0 {
+				log_m23 = modulus
+			}
+
+			g01 := &gf2p811dMulMatrices16[log_m01]
+			g23 := &gf2p811dMulMatrices16[log_m23]
+			g02 := &gf2p811dMulMatrices16[log_m02]
+
+			switch variant {
+			case 0:
+				fftDIT4_gfni_avx512_0(avx512Work, 24, g01, g23, g02)
+				fftDIT4_gfni_0(avx2Work, 24, g01, g23, g02)
+			case 1:
+				fftDIT4_gfni_avx512_1(avx512Work, 24, g01, g23, g02)
+				fftDIT4_gfni_1(avx2Work, 24, g01, g23, g02)
+			case 2:
+				fftDIT4_gfni_avx512_2(avx512Work, 24, g01, g23, g02)
+				fftDIT4_gfni_2(avx2Work, 24, g01, g23, g02)
+			case 3:
+				fftDIT4_gfni_avx512_3(avx512Work, 24, g01, g23, g02)
+				fftDIT4_gfni_3(avx2Work, 24, g01, g23, g02)
+			case 4:
+				fftDIT4_gfni_avx512_4(avx512Work, 24, g01, g23, g02)
+				fftDIT4_gfni_4(avx2Work, 24, g01, g23, g02)
+			case 5:
+				fftDIT4_gfni_avx512_5(avx512Work, 24, g01, g23, g02)
+				fftDIT4_gfni_5(avx2Work, 24, g01, g23, g02)
+			case 6:
+				fftDIT4_gfni_avx512_6(avx512Work, 24, g01, g23, g02)
+				fftDIT4_gfni_6(avx2Work, 24, g01, g23, g02)
+			case 7:
+				fftDIT4_gfni_avx512_7(avx512Work, 24, g01, g23, g02)
+				fftDIT4_gfni_7(avx2Work, 24, g01, g23, g02)
+			}
+
+			match := true
+			for i := 0; i < 4; i++ {
+				if !bytes.Equal(avx512Work[i], avx2Work[i]) {
+					match = false
+					t.Errorf("fftDIT4_gfni_avx512_%d: work[%d] mismatch", variant, i)
+					for j := 0; j < len(avx512Work[i]) && j < 32; j++ {
+						if avx512Work[i][j] != avx2Work[i][j] {
+							t.Logf("  [%d][%d]: AVX512=0x%02x, AVX2=0x%02x", i, j, avx512Work[i][j], avx2Work[i][j])
+						}
+					}
+				}
+			}
+			if match {
+				t.Logf("fftDIT4_gfni_avx512_%d: MATCH", variant)
+			}
+		})
+	}
+}
+
 // TestGF16MulSimple tests a simple case of GFNI multiplication to debug
 func TestGF16MulSimple(t *testing.T) {
 	if !cpuid.CPU.Has(cpuid.GFNI) {
