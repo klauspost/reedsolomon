@@ -631,6 +631,25 @@ func TestCompareFftDIT2GF16GFNIvsAVX2(t *testing.T) {
 			copy(xAVX2, x)
 			copy(yAVX2, y)
 
+			// Compute Go reference (fftDIT2: x_new = x ^ mul(y, logM), y_new = x_new ^ y)
+			xRef := make([]byte, len(x))
+			yRef := make([]byte, len(y))
+			copy(xRef, x)
+			copy(yRef, y)
+			for chunk := 0; chunk < 2; chunk++ {
+				base := chunk * 64
+				for i := 0; i < 32; i++ {
+					xElem := ffe(x[base+i]) | (ffe(x[base+32+i]) << 8)
+					yElem := ffe(y[base+i]) | (ffe(y[base+32+i]) << 8)
+					xNew := xElem ^ mulLog(yElem, logM)
+					yNew := xNew ^ yElem
+					xRef[base+i] = byte(xNew)
+					xRef[base+32+i] = byte(xNew >> 8)
+					yRef[base+i] = byte(yNew)
+					yRef[base+32+i] = byte(yNew >> 8)
+				}
+			}
+
 			// Run GFNI version
 			gfniTable := &gf2p811dMulMatrices16[logM]
 			fftDIT2_gfni(xGFNI, yGFNI, gfniTable)
@@ -639,20 +658,17 @@ func TestCompareFftDIT2GF16GFNIvsAVX2(t *testing.T) {
 			avx2Table := &multiply256LUT[logM]
 			fftDIT2_avx2(xAVX2, yAVX2, avx2Table)
 
-			// Compare results
-			if !bytes.Equal(xGFNI, xAVX2) {
-				t.Errorf("x mismatch for logM=%d", logM)
-				for i := 0; i < len(xGFNI) && i < 32; i++ {
-					if xGFNI[i] != xAVX2[i] {
-						t.Logf("  x[%d]: GFNI=0x%02x, AVX2=0x%02x", i, xGFNI[i], xAVX2[i])
-					}
-				}
-			}
-			if !bytes.Equal(yGFNI, yAVX2) {
-				t.Errorf("y mismatch for logM=%d", logM)
-				for i := 0; i < len(yGFNI) && i < 32; i++ {
-					if yGFNI[i] != yAVX2[i] {
-						t.Logf("  y[%d]: GFNI=0x%02x, AVX2=0x%02x", i, yGFNI[i], yAVX2[i])
+			// Compare against reference
+			xGfniOK := bytes.Equal(xGFNI, xRef)
+			yGfniOK := bytes.Equal(yGFNI, yRef)
+			xAvx2OK := bytes.Equal(xAVX2, xRef)
+			yAvx2OK := bytes.Equal(yAVX2, yRef)
+
+			if !xGfniOK || !yGfniOK || !xAvx2OK || !yAvx2OK {
+				t.Errorf("logM=%d: GFNI x=%v y=%v, AVX2 x=%v y=%v", logM, xGfniOK, yGfniOK, xAvx2OK, yAvx2OK)
+				if !yGfniOK || !yAvx2OK {
+					for i := 0; i < 8; i++ {
+						t.Logf("  y[%d]: Ref=0x%02x, GFNI=0x%02x, AVX2=0x%02x", i, yRef[i], yGFNI[i], yAVX2[i])
 					}
 				}
 			}
@@ -1121,17 +1137,14 @@ func TestGF16MulSimple(t *testing.T) {
 	// For identity: mul(x, 0) = x (since exp(log(x) + 0) = x)
 	logM := ffe(0)
 
-	// Simple test: process 64 bytes (32 GF16 elements per half)
-	// Use element values 0x0001, 0x0002, etc.
+	// Simple test: process 64 bytes (32 GF16 elements)
+	// Split layout: [0:32] = lo bytes, [32:64] = hi bytes
 	y := make([]byte, 64)
 	for i := 0; i < 32; i++ {
-		y[i*2] = byte(i + 1) // lo byte
-		y[i*2+1] = byte(0)   // hi byte = 0, so element = i+1
+		y[i] = byte(i + 1) // lo bytes in [0:32]
+		y[32+i] = byte(0)  // hi bytes in [32:64]
 	}
 	x := make([]byte, 64)
-	for i := range x {
-		x[i] = 0 // x = 0
-	}
 
 	// Expected: y = x XOR y = y (since x=0)
 	// Expected: x = x XOR mul(y, 0) = mul(y, 0) = y
