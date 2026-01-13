@@ -28,7 +28,7 @@ import (
 )
 
 var (
-	blockSize  = flag.String("size", "10MiB", "Size of each input block. Prefix with 'each:' to set block size.")
+	blockSize  = flag.String("size", "10MiB", "Size of each input block. Prefix with 'each:' to set shard size.")
 	blocks     = flag.Int("blocks", 1, "Total number of blocks")
 	kShards    = flag.Int("k", 12, "Data shards")
 	mShards    = flag.Int("m", 4, "Parity shards")
