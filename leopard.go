@@ -112,6 +112,13 @@ type mul16LUT struct {
 // Stores lookup for avx2
 var multiply256LUT *[order][8 * 16]byte
 
+// Stores GFNI transformation matrices for GF16.
+// Each entry contains 4 uint64 matrices [A, B, C, D] representing:
+//
+//	[out_lo]   [A  B] [in_lo]
+//	[out_hi] = [C  D] [in_hi]
+var gf2p811dMulMatrices16 *[order][4]uint64
+
 func (r *leopardFF16) Encode(shards [][]byte) error {
 	if len(shards) != r.totalShards {
 		return ErrTooFewShards
@@ -1060,6 +1067,42 @@ func initMul16LUT() {
 				}
 				shift += 4
 			}
+		}
+	}
+	if cpuid.CPU.Has(cpuid.GFNI) {
+		gf2p811dMulMatrices16 = &[order][4]uint64{}
+		for logM := range gf2p811dMulMatrices16[:] {
+			var A, B, C, D uint64
+
+			// A, C: effect of input lo_byte bits on output
+			// VGF2P8AFFINEQB accesses byte (7-j) for output bit j, so we need:
+			// position = (7-outputBit)*8 + inputBit
+			for inputBit := 0; inputBit < 8; inputBit++ {
+				result := mulLog(ffe(1<<inputBit), ffe(logM))
+				for outputBit := 0; outputBit < 8; outputBit++ {
+					if (byte(result)>>outputBit)&1 == 1 {
+						A |= 1 << ((7-outputBit)*8 + inputBit)
+					}
+					if (byte(result>>8)>>outputBit)&1 == 1 {
+						C |= 1 << ((7-outputBit)*8 + inputBit)
+					}
+				}
+			}
+
+			// B, D: effect of input hi_byte bits on output
+			for inputBit := 0; inputBit < 8; inputBit++ {
+				result := mulLog(ffe(1<<(inputBit+8)), ffe(logM))
+				for outputBit := 0; outputBit < 8; outputBit++ {
+					if (byte(result)>>outputBit)&1 == 1 {
+						B |= 1 << ((7-outputBit)*8 + inputBit)
+					}
+					if (byte(result>>8)>>outputBit)&1 == 1 {
+						D |= 1 << ((7-outputBit)*8 + inputBit)
+					}
+				}
+			}
+
+			gf2p811dMulMatrices16[logM] = [4]uint64{A, B, C, D}
 		}
 	}
 }

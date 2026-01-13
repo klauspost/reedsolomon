@@ -211,6 +211,79 @@ func ifftDIT4(work [][]byte, dist int, log_m01, log_m23, log_m02 ffe, o *options
 	t01 := &multiply256LUT[log_m01]
 	t23 := &multiply256LUT[log_m23]
 	t02 := &multiply256LUT[log_m02]
+	if false && o.useAvx512GFNI && gf2p811dMulMatrices16 != nil {
+		// TODO: Disabled for now.
+		// Consistently slower on Zen4 than AVX2 + GFNI (encoding)
+		// Probably due to shuffling needed.
+		g01 := &gf2p811dMulMatrices16[log_m01]
+		g23 := &gf2p811dMulMatrices16[log_m23]
+		g02 := &gf2p811dMulMatrices16[log_m02]
+		if log_m01 == modulus {
+			if log_m23 == modulus {
+				if log_m02 == modulus {
+					ifftDIT4_gfni_avx512_7(work, dist*24, g01, g23, g02)
+				} else {
+					ifftDIT4_gfni_avx512_3(work, dist*24, g01, g23, g02)
+				}
+			} else {
+				if log_m02 == modulus {
+					ifftDIT4_gfni_avx512_5(work, dist*24, g01, g23, g02)
+				} else {
+					ifftDIT4_gfni_avx512_1(work, dist*24, g01, g23, g02)
+				}
+			}
+		} else {
+			if log_m23 == modulus {
+				if log_m02 == modulus {
+					ifftDIT4_gfni_avx512_6(work, dist*24, g01, g23, g02)
+				} else {
+					ifftDIT4_gfni_avx512_2(work, dist*24, g01, g23, g02)
+				}
+			} else {
+				if log_m02 == modulus {
+					ifftDIT4_gfni_avx512_4(work, dist*24, g01, g23, g02)
+				} else {
+					ifftDIT4_gfni_avx512_0(work, dist*24, g01, g23, g02)
+				}
+			}
+		}
+		return
+	}
+	if o.useAvxGNFI && gf2p811dMulMatrices16 != nil {
+		g01 := &gf2p811dMulMatrices16[log_m01]
+		g23 := &gf2p811dMulMatrices16[log_m23]
+		g02 := &gf2p811dMulMatrices16[log_m02]
+		if log_m01 == modulus {
+			if log_m23 == modulus {
+				if log_m02 == modulus {
+					ifftDIT4_gfni_7(work, dist*24, g01, g23, g02)
+				} else {
+					ifftDIT4_gfni_3(work, dist*24, g01, g23, g02)
+				}
+			} else {
+				if log_m02 == modulus {
+					ifftDIT4_gfni_5(work, dist*24, g01, g23, g02)
+				} else {
+					ifftDIT4_gfni_1(work, dist*24, g01, g23, g02)
+				}
+			}
+		} else {
+			if log_m23 == modulus {
+				if log_m02 == modulus {
+					ifftDIT4_gfni_6(work, dist*24, g01, g23, g02)
+				} else {
+					ifftDIT4_gfni_2(work, dist*24, g01, g23, g02)
+				}
+			} else {
+				if log_m02 == modulus {
+					ifftDIT4_gfni_4(work, dist*24, g01, g23, g02)
+				} else {
+					ifftDIT4_gfni_0(work, dist*24, g01, g23, g02)
+				}
+			}
+		}
+		return
+	}
 	if o.useAVX512 {
 		if log_m01 == modulus {
 			if log_m23 == modulus {
@@ -366,6 +439,78 @@ func fftDIT4(work [][]byte, dist int, log_m01, log_m23, log_m02 ffe, o *options)
 	t01 := &multiply256LUT[log_m01]
 	t23 := &multiply256LUT[log_m23]
 	t02 := &multiply256LUT[log_m02]
+	if false && o.useAvx512GFNI && gf2p811dMulMatrices16 != nil {
+		// TODO: Disabled for now.
+		// Consistently slower on Zen4 than AVX2 + GFNI (reconstruction)
+		g01 := &gf2p811dMulMatrices16[log_m01]
+		g23 := &gf2p811dMulMatrices16[log_m23]
+		g02 := &gf2p811dMulMatrices16[log_m02]
+		if log_m02 == modulus {
+			if log_m01 == modulus {
+				if log_m23 == modulus {
+					fftDIT4_gfni_avx512_7(work, dist*24, g01, g23, g02)
+				} else {
+					fftDIT4_gfni_avx512_3(work, dist*24, g01, g23, g02)
+				}
+			} else {
+				if log_m23 == modulus {
+					fftDIT4_gfni_avx512_5(work, dist*24, g01, g23, g02)
+				} else {
+					fftDIT4_gfni_avx512_1(work, dist*24, g01, g23, g02)
+				}
+			}
+		} else {
+			if log_m01 == modulus {
+				if log_m23 == modulus {
+					fftDIT4_gfni_avx512_6(work, dist*24, g01, g23, g02)
+				} else {
+					fftDIT4_gfni_avx512_2(work, dist*24, g01, g23, g02)
+				}
+			} else {
+				if log_m23 == modulus {
+					fftDIT4_gfni_avx512_4(work, dist*24, g01, g23, g02)
+				} else {
+					fftDIT4_gfni_avx512_0(work, dist*24, g01, g23, g02)
+				}
+			}
+		}
+		return
+	}
+	if o.useAvxGNFI && gf2p811dMulMatrices16 != nil {
+		g01 := &gf2p811dMulMatrices16[log_m01]
+		g23 := &gf2p811dMulMatrices16[log_m23]
+		g02 := &gf2p811dMulMatrices16[log_m02]
+		if log_m02 == modulus {
+			if log_m01 == modulus {
+				if log_m23 == modulus {
+					fftDIT4_gfni_7(work, dist*24, g01, g23, g02)
+				} else {
+					fftDIT4_gfni_3(work, dist*24, g01, g23, g02)
+				}
+			} else {
+				if log_m23 == modulus {
+					fftDIT4_gfni_5(work, dist*24, g01, g23, g02)
+				} else {
+					fftDIT4_gfni_1(work, dist*24, g01, g23, g02)
+				}
+			}
+		} else {
+			if log_m01 == modulus {
+				if log_m23 == modulus {
+					fftDIT4_gfni_6(work, dist*24, g01, g23, g02)
+				} else {
+					fftDIT4_gfni_2(work, dist*24, g01, g23, g02)
+				}
+			} else {
+				if log_m23 == modulus {
+					fftDIT4_gfni_4(work, dist*24, g01, g23, g02)
+				} else {
+					fftDIT4_gfni_0(work, dist*24, g01, g23, g02)
+				}
+			}
+		}
+		return
+	}
 	if o.useAVX512 {
 		if log_m02 == modulus {
 			if log_m01 == modulus {
@@ -518,7 +663,14 @@ func fftDIT2(x, y []byte, log_m ffe, o *options) {
 	if len(x) == 0 {
 		return
 	}
-	if o.useAVX2 {
+	if o.useAvxGNFI && gf2p811dMulMatrices16 != nil {
+		tmp := &gf2p811dMulMatrices16[log_m]
+		if raceEnabled {
+			raceReadSlice(y)
+			raceWriteSlice(x)
+		}
+		fftDIT2_gfni(x, y, tmp)
+	} else if o.useAVX2 {
 		tmp := &multiply256LUT[log_m]
 		if raceEnabled {
 			raceReadSlice(y)
@@ -615,7 +767,14 @@ func ifftDIT2(x, y []byte, log_m ffe, o *options) {
 	if len(x) == 0 {
 		return
 	}
-	if o.useAVX2 {
+	if o.useAvxGNFI && gf2p811dMulMatrices16 != nil {
+		tmp := &gf2p811dMulMatrices16[log_m]
+		if raceEnabled {
+			raceReadSlice(y)
+			raceWriteSlice(x)
+		}
+		ifftDIT2_gfni(x, y, tmp)
+	} else if o.useAVX2 {
 		tmp := &multiply256LUT[log_m]
 		if raceEnabled {
 			raceReadSlice(y)
@@ -642,7 +801,14 @@ func mulgf16(x, y []byte, log_m ffe, o *options) {
 	if len(x) == 0 {
 		return
 	}
-	if o.useAVX2 {
+	if o.useAvxGNFI && gf2p811dMulMatrices16 != nil {
+		tmp := &gf2p811dMulMatrices16[log_m]
+		if raceEnabled {
+			raceReadSlice(y)
+			raceWriteSlice(x)
+		}
+		mulgf16_gfni(x, y, tmp)
+	} else if o.useAVX2 {
 		tmp := &multiply256LUT[log_m]
 		if raceEnabled {
 			raceReadSlice(y)
