@@ -28,7 +28,7 @@ import (
 )
 
 var (
-	blockSize  = flag.String("size", "10MiB", "Size of each input block.")
+	blockSize  = flag.String("size", "10MiB", "Size of each input block. Prefix with 'each:' to set shard size.")
 	blocks     = flag.Int("blocks", 1, "Total number of blocks")
 	kShards    = flag.Int("k", 12, "Data shards")
 	mShards    = flag.Int("m", 4, "Parity shards")
@@ -77,11 +77,11 @@ func main() {
 	if *codecs {
 		printCodecs(0)
 	}
-	sz, err := toSize(*blockSize)
-	exitErr(err)
 	if *kShards <= 0 {
 		exitErr(errors.New("invalid k shard count"))
 	}
+	sz, err := toSize(*blockSize, *kShards)
+	exitErr(err)
 	if sz <= 0 {
 		exitErr(errors.New("invalid block size"))
 	}
@@ -476,8 +476,13 @@ func exitErr(err error) {
 }
 
 // toSize converts a size indication to bytes.
-func toSize(size string) (uint64, error) {
+func toSize(size string, dataBlocks int) (uint64, error) {
 	size = strings.ToUpper(strings.TrimSpace(size))
+	each := uint64(1)
+	if strings.HasPrefix(size, "EACH:") {
+		each = uint64(dataBlocks)
+		size = strings.TrimPrefix(size, "EACH:")
+	}
 	firstLetter := strings.IndexFunc(size, unicode.IsLetter)
 	if firstLetter == -1 {
 		firstLetter = len(size)
@@ -488,6 +493,7 @@ func toSize(size string) (uint64, error) {
 	if err != nil {
 		return 0, fmt.Errorf("unable to parse size: %v", err)
 	}
+	bytes *= each
 
 	switch multiple {
 	case "G", "GIB":
