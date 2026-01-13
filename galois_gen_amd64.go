@@ -3535,9 +3535,6 @@ func fftDIT2_gfni(x []byte, y []byte, table *[4]uint64)
 func mulgf16_gfni(x []byte, y []byte, table *[4]uint64)
 
 //go:noescape
-func mulgf16_gfni_avx512(x []byte, y []byte, table *[4]uint64)
-
-//go:noescape
 func ifftDIT28_avx2(x []byte, y []byte, table *[32]uint8)
 
 //go:noescape

@@ -578,6 +578,14 @@ func genGF16() {
 			table23Ptr := Load(Param("table23"), GP64())
 			table02Ptr := Load(Param("table02"), GP64())
 
+			var table02 [4]reg.VecVirtual
+			if (skipMask & 4) == 0 {
+				for i := range table02 {
+					table02[i] = YMM()
+					VBROADCASTSD(Mem{Base: table02Ptr, Disp: i * 8}, table02[i])
+				}
+			}
+
 			dist := Load(Param("dist"), GP64())
 
 			var work [4]reg.GPVirtual
@@ -637,8 +645,8 @@ func genGF16() {
 			VPXOR(workRegHi[1], workRegHi[3], workRegHi[3])
 
 			if (skipMask & 4) == 0 {
-				leoMulAdd256_gfni_mem(workRegLo[0], workRegHi[0], workRegLo[2], workRegHi[2], table02Ptr)
-				leoMulAdd256_gfni_mem(workRegLo[1], workRegHi[1], workRegLo[3], workRegHi[3], table02Ptr)
+				leoMulAdd256_gfni_avx2(workRegLo[0], workRegHi[0], workRegLo[2], workRegHi[2], table02)
+				leoMulAdd256_gfni_avx2(workRegLo[1], workRegHi[1], workRegLo[3], workRegHi[3], table02)
 			}
 
 			// Store + Next loop
@@ -665,6 +673,13 @@ func genGF16() {
 			table23Ptr := Load(Param("table23"), GP64())
 			table02Ptr := Load(Param("table02"), GP64())
 
+			var table02 [4]reg.VecVirtual
+			if (skipMask & 1) == 0 {
+				for i := range table02 {
+					table02[i] = YMM()
+					VBROADCASTSD(Mem{Base: table02Ptr, Disp: i * 8}, table02[i])
+				}
+			}
 			dist := Load(Param("dist"), GP64())
 
 			var work [4]reg.GPVirtual
@@ -704,8 +719,8 @@ func genGF16() {
 
 			// First layer
 			if (skipMask & 1) == 0 {
-				leoMulAdd256_gfni_mem(workRegLo[0], workRegHi[0], workRegLo[2], workRegHi[2], table02Ptr)
-				leoMulAdd256_gfni_mem(workRegLo[1], workRegHi[1], workRegLo[3], workRegHi[3], table02Ptr)
+				leoMulAdd256_gfni_avx2(workRegLo[0], workRegHi[0], workRegLo[2], workRegHi[2], table02)
+				leoMulAdd256_gfni_avx2(workRegLo[1], workRegHi[1], workRegLo[3], workRegHi[3], table02)
 			}
 
 			VPXOR(workRegLo[0], workRegLo[2], workRegLo[2])
@@ -1151,7 +1166,7 @@ func genGF16() {
 		VMOVDQU(yHi, Mem{Base: y, Disp: 32})
 
 		// x = x + leoMul(y, table) using GFNI
-		leoMulAdd256_gfni_split(xLo, xHi, yLo, yHi, tables)
+		leoMulAdd256_gfni_avx2(xLo, xHi, yLo, yHi, tables)
 
 		VMOVDQU(xLo, Mem{Base: x, Disp: 0})
 		VMOVDQU(xHi, Mem{Base: x, Disp: 32})
@@ -1192,7 +1207,7 @@ func genGF16() {
 		VMOVDQU(Mem{Base: y, Disp: 32}, yHi) // hi bytes of 32 elements
 
 		// x = x + leoMul(y, table) using GFNI
-		leoMulAdd256_gfni_split(xLo, xHi, yLo, yHi, tables)
+		leoMulAdd256_gfni_avx2(xLo, xHi, yLo, yHi, tables)
 
 		VMOVDQU(xLo, Mem{Base: x, Disp: 0})
 		VMOVDQU(xHi, Mem{Base: x, Disp: 32})
@@ -1252,58 +1267,6 @@ func genGF16() {
 		ADDQ(U8(64), y)
 		SUBQ(U8(64), bytes)
 		JNZ(LabelRef("loop_mulgf16_gfni"))
-
-		VZEROUPPER()
-		RET()
-	}
-
-	// AVX512+GFNI version of mulgf16
-	// x = y * table
-	// Data layout is PACKED: each 64-byte chunk is [lo_32bytes | hi_32bytes]
-	{
-		TEXT("mulgf16_gfni_avx512", attr.NOSPLIT, fmt.Sprintf("func(x, y []byte, table *[4]uint64)"))
-		Pragma("noescape")
-
-		tablePtr := Load(Param("table"), GP64())
-
-		// Build combined tables: [A|C] and [B|D]
-		tableAC := ZMM()
-		tableBD := ZMM()
-		tmpY := ZMM()
-		VPBROADCASTQ(Mem{Base: tablePtr, Disp: 0}, tableAC) // [A,A,A,A,A,A,A,A]
-		VPBROADCASTQ(Mem{Base: tablePtr, Disp: 16}, tmpY)   // [C,C,C,C,C,C,C,C]
-		VINSERTI64X4(U8(1), tmpY.AsY(), tableAC, tableAC)   // [A,A,A,A | C,C,C,C]
-		VPBROADCASTQ(Mem{Base: tablePtr, Disp: 8}, tableBD) // [B,B,B,B,B,B,B,B]
-		VPBROADCASTQ(Mem{Base: tablePtr, Disp: 24}, tmpY)   // [D,D,D,D,D,D,D,D]
-		VINSERTI64X4(U8(1), tmpY.AsY(), tableBD, tableBD)   // [B,B,B,B | D,D,D,D]
-
-		bytes := Load(Param("x").Len(), GP64())
-		x := Load(Param("x").Base(), GP64())
-		y := Load(Param("y").Base(), GP64())
-
-		yPacked := ZMM()
-
-		Label("loop_mulgf16_gfni_avx512")
-		VMOVDQU64(Mem{Base: y}, yPacked)
-
-		// Duplicate data halves: [lo|hi] -> [lo|lo] and [hi|hi]
-		yLoLo, yHiHi := ZMM(), ZMM()
-		VSHUFI64X2(U8(0x44), yPacked, yPacked, yLoLo)
-		VSHUFI64X2(U8(0xEE), yPacked, yPacked, yHiHi)
-
-		// Apply combined tables
-		tmp1, tmp2 := ZMM(), ZMM()
-		VGF2P8AFFINEQB(U8(0), tableAC, yLoLo, tmp1) // [A*lo | C*lo]
-		VGF2P8AFFINEQB(U8(0), tableBD, yHiHi, tmp2) // [B*hi | D*hi]
-
-		// XOR results: [A*lo^B*hi | C*lo^D*hi] = [outLo | outHi]
-		VPXORQ(tmp1, tmp2, tmp1)
-		VMOVDQU64(tmp1, Mem{Base: x})
-
-		ADDQ(U8(64), x)
-		ADDQ(U8(64), y)
-		SUBQ(U8(64), bytes)
-		JNZ(LabelRef("loop_mulgf16_gfni_avx512"))
 
 		VZEROUPPER()
 		RET()
@@ -1443,54 +1406,36 @@ func leoMul128(ctx gf16ctx, lo, hi reg.VecVirtual, table [4]table128) (prodLo, p
 	return
 }
 
-// leoMulAdd256_gfni_split multiplies y by the GFNI tables and XORs into x.
-// Uses SPLIT data layout: yLo = lo bytes of 32 elements, yHi = hi bytes of 32 elements.
-// tables contains 4 broadcast matrices [A, B, C, D].
-// outLo = A*yLo XOR B*yHi, outHi = C*yLo XOR D*yHi
-func leoMulAdd256_gfni_split(xLo, xHi, yLo, yHi reg.VecVirtual, tables [4]reg.VecVirtual) {
-	Comment("GFNI LEO_MULADD_256 (split layout)")
+// leoMulAdd256_gfni_avx2 loads tables from memory and multiplies y, XORs into x.
+// Loads tables on-demand to save YMM registers for DIT4 operations.
+func leoMulAdd256_gfni_mem(xLo, xHi, yLo, yHi reg.VecVirtual, tablePtr reg.Register) {
+	Comment("GFNI LEO_MULADD_256 (from memory)")
 
-	// Apply GFNI matrices directly - no shuffling needed with split layout!
-	// outLo[i] = A*yLo[i] XOR B*yHi[i]
-	// outHi[i] = C*yLo[i] XOR D*yHi[i]
+	// Apply GFNI transforms
+	tmpA, tmpB, tmpC, tmpD := YMM(), YMM(), YMM(), YMM()
+	VGF2P8AFFINEQB_BCST(U8(0), Mem{Base: tablePtr, Disp: 0}, yLo, tmpA)  // A * yLo
+	VGF2P8AFFINEQB_BCST(U8(0), Mem{Base: tablePtr, Disp: 8}, yHi, tmpB)  // B * yHi
+	VGF2P8AFFINEQB_BCST(U8(0), Mem{Base: tablePtr, Disp: 16}, yLo, tmpC) // C * yLo
+	VGF2P8AFFINEQB_BCST(U8(0), Mem{Base: tablePtr, Disp: 24}, yHi, tmpD) // D * yHi
+	// XOR into x
+	VPXOR3way(tmpA, tmpB, xLo)
+	VPXOR3way(tmpC, tmpD, xHi)
+}
+
+// leoMulAdd256_gfni_avx2 loads tables from registers and multiplies y, XORs into x.
+// Loads tables on-demand to save YMM registers for DIT4 operations.
+func leoMulAdd256_gfni_avx2(xLo, xHi, yLo, yHi reg.VecVirtual, tables [4]reg.VecVirtual) {
+	Comment("GFNI LEO_MULADD_256 (from register)")
+
+	// Apply GFNI transforms
 	tmpA, tmpB, tmpC, tmpD := YMM(), YMM(), YMM(), YMM()
 	VGF2P8AFFINEQB(U8(0), tables[0], yLo, tmpA) // A * yLo
 	VGF2P8AFFINEQB(U8(0), tables[1], yHi, tmpB) // B * yHi
 	VGF2P8AFFINEQB(U8(0), tables[2], yLo, tmpC) // C * yLo
 	VGF2P8AFFINEQB(U8(0), tables[3], yHi, tmpD) // D * yHi
-
-	// Combine and XOR into x
-	VPXOR(tmpA, tmpB, tmpA) // tmpA = A*yLo XOR B*yHi = outLo
-	VPXOR(tmpC, tmpD, tmpC) // tmpC = C*yLo XOR D*yHi = outHi
-	VPXOR(tmpA, xLo, xLo)   // xLo ^= outLo
-	VPXOR(tmpC, xHi, xHi)   // xHi ^= outHi
-}
-
-// leoMulAdd256_gfni_mem loads tables from memory and multiplies y, XORs into x.
-// Loads tables on-demand to save YMM registers for DIT4 operations.
-func leoMulAdd256_gfni_mem(xLo, xHi, yLo, yHi reg.VecVirtual, tablePtr reg.Register) {
-	Comment("GFNI LEO_MULADD_256 (from memory)")
-
-	// Load and broadcast tables, apply GFNI, all in temporary registers
-	tA, tB, tC, tD := YMM(), YMM(), YMM(), YMM()
-	VBROADCASTSD(Mem{Base: tablePtr, Disp: 0}, tA)
-	VBROADCASTSD(Mem{Base: tablePtr, Disp: 8}, tB)
-	VBROADCASTSD(Mem{Base: tablePtr, Disp: 16}, tC)
-	VBROADCASTSD(Mem{Base: tablePtr, Disp: 24}, tD)
-
-	// Apply GFNI transforms
-	tmpA, tmpB := YMM(), YMM()
-	VGF2P8AFFINEQB(U8(0), tA, yLo, tmpA) // A * yLo
-	VGF2P8AFFINEQB(U8(0), tB, yHi, tmpB) // B * yHi
-	VPXOR(tmpA, tmpB, tmpA)              // tmpA = outLo
-
-	VGF2P8AFFINEQB(U8(0), tC, yLo, tmpB) // C * yLo (reuse tmpB)
-	VGF2P8AFFINEQB(U8(0), tD, yHi, tA)   // D * yHi (reuse tA)
-	VPXOR(tmpB, tA, tmpB)                // tmpB = outHi
-
 	// XOR into x
-	VPXOR(tmpA, xLo, xLo)
-	VPXOR(tmpB, xHi, xHi)
+	VPXOR3way(tmpA, tmpB, xLo)
+	VPXOR3way(tmpC, tmpD, xHi)
 }
 
 // leoMulAddZMM_gfni multiplies packed y by GFNI tables and XORs into packed x.
