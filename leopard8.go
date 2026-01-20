@@ -796,7 +796,7 @@ func ifftDITEncoder8(data [][]byte, mtrunc int, work [][]byte, xorRes [][]byte, 
 	dist4 := 4
 
 	if dist4 <= m {
-		if o.useAVX2 || o.useAvx512GFNI {
+		if o.useAvx512GFNI || (pshufb && o.useAVX2) {
 			// SIMD path: fuse copy with first layer butterfly
 			fullGroups := mtrunc &^ 3
 			zb := zeroBufferPool[:]
@@ -919,9 +919,9 @@ func ifftDIT4Ref8(work [][]byte, dist int, log_m01, log_m23, log_m02 ffe8, o *op
 }
 
 func ifftDIT4DstRef8(dst, work [][]byte, dist int, log_m01, log_m23, log_m02 ffe8, o *options) {
-	// Copy to dst and use that.
-	for i := range dist {
-		copy(dst[i], work[i][:])
+	// Copy the 4 elements touched by the butterfly
+	for i := 0; i < 4; i++ {
+		copy(dst[i*dist], work[i*dist][:])
 	}
 	ifftDIT4Ref8(dst, dist, log_m01, log_m23, log_m02, o)
 }

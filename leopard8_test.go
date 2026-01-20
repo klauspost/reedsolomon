@@ -126,4 +126,3 @@ func TestGFNIMultiplication(t *testing.T) {
 	// NOTE: This test demonstrates the issue - it should be used to verify the fix
 	t.Logf("This test shows GFNI vs AVX2 differences - used for debugging VGF2P8AFFINEQB immediate values")
 }
-
