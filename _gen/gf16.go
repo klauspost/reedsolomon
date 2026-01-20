@@ -565,413 +565,257 @@ func genGF16() {
 
 	// GFNI versions of ifftDIT4 and fftDIT4
 	// Load tables on-demand in the loop to avoid running out of YMM registers
-	for skipMask := 0; skipMask < 8; skipMask++ {
-		suffix := "gfni_" + fmt.Sprint(skipMask)
+	for _, avx512 := range []bool{false, true} {
+		for skipMask := 0; skipMask < 8; skipMask++ {
+			suffix := "gfni_" + fmt.Sprint(skipMask)
+			if avx512 {
+				// AVX512 just uses the extra registers to avoid the load+broadcast
+				//
+				suffix = "gfni_avx512_" + fmt.Sprint(skipMask)
+			}
+			// ifftDIT4_gfni_*
+			{
+				TEXT("ifftDIT4_"+suffix, attr.NOSPLIT, fmt.Sprintf("func(work [][]byte, dist int, table01 *[4]uint64, table23 *[4]uint64, table02 *[4]uint64)"))
+				Pragma("noescape")
+				Comment("dist must be multiplied by 24 (size of slice header)")
 
-		// ifftDIT4_gfni_*
-		{
-			TEXT("ifftDIT4_"+suffix, attr.NOSPLIT, fmt.Sprintf("func(work [][]byte, dist int, table01 *[4]uint64, table23 *[4]uint64, table02 *[4]uint64)"))
-			Pragma("noescape")
-			Comment("dist must be multiplied by 24 (size of slice header)")
+				table01Ptr := Load(Param("table01"), GP64())
+				table23Ptr := Load(Param("table23"), GP64())
+				table02Ptr := Load(Param("table02"), GP64())
 
-			table01Ptr := Load(Param("table01"), GP64())
-			table23Ptr := Load(Param("table23"), GP64())
-			table02Ptr := Load(Param("table02"), GP64())
-
-			var table02 [4]reg.VecVirtual
-			if (skipMask & 4) == 0 {
-				for i := range table02 {
-					table02[i] = YMM()
-					VBROADCASTSD(Mem{Base: table02Ptr, Disp: i * 8}, table02[i])
+				var table02 [4]reg.Register
+				if skipMask&4 == 0 {
+					for i := range table02 {
+						table02[i] = YMM().AsY()
+						VBROADCASTSD(Mem{Base: table02Ptr, Disp: i * 8}, table02[i])
+					}
 				}
-			}
-
-			dist := Load(Param("dist"), GP64())
-
-			var work [4]reg.GPVirtual
-			workTable := Load(Param("work").Base(), GP64())
-			bytes := GP64()
-
-			MOVQ(Mem{Base: workTable, Disp: 8}, bytes)
-
-			offset := GP64()
-			XORQ(offset, offset)
-			for i := range work {
-				work[i] = GP64()
-				MOVQ(Mem{Base: workTable, Index: offset, Scale: 1}, work[i])
-				if i < len(work)-1 {
-					ADDQ(dist, offset)
+				var table01 [4]reg.Register
+				var table23 [4]reg.Register
+				if avx512 {
+					table01 = [4]reg.Register{reg.Z16.AsY(), reg.Z17.AsY(), reg.Z18.AsY(), reg.Z19.AsY()}
+					table23 = [4]reg.Register{reg.Z20.AsY(), reg.Z21.AsY(), reg.Z22.AsY(), reg.Z23.AsY()}
+					if skipMask&1 == 0 {
+						for i := range table01 {
+							VBROADCASTSD(Mem{Base: table01Ptr, Disp: i * 8}, table01[i])
+						}
+					}
+					if skipMask&2 == 0 {
+						for i := range table23 {
+							VBROADCASTSD(Mem{Base: table23Ptr, Disp: i * 8}, table23[i])
+						}
+					}
 				}
-			}
 
-			var workRegLo [4]reg.VecVirtual
-			var workRegHi [4]reg.VecVirtual
+				dist := Load(Param("dist"), GP64())
 
-			workRegLo[0], workRegHi[0] = YMM(), YMM()
-			workRegLo[1], workRegHi[1] = YMM(), YMM()
+				var work [4]reg.GPVirtual
+				workTable := Load(Param("work").Base(), GP64())
+				bytes := GP64()
 
-			Label("loop_ifft4_" + suffix)
-			VMOVDQU(Mem{Base: work[0], Disp: 0}, workRegLo[0])
-			VMOVDQU(Mem{Base: work[0], Disp: 32}, workRegHi[0])
-			VMOVDQU(Mem{Base: work[1], Disp: 0}, workRegLo[1])
-			VMOVDQU(Mem{Base: work[1], Disp: 32}, workRegHi[1])
+				MOVQ(Mem{Base: workTable, Disp: 8}, bytes)
 
-			// First layer: y = x XOR y
-			VPXOR(workRegLo[0], workRegLo[1], workRegLo[1])
-			VPXOR(workRegHi[0], workRegHi[1], workRegHi[1])
-
-			if (skipMask & 1) == 0 {
-				leoMulAdd256_gfni_mem(workRegLo[0], workRegHi[0], workRegLo[1], workRegHi[1], table01Ptr)
-			}
-
-			workRegLo[2], workRegHi[2] = YMM(), YMM()
-			workRegLo[3], workRegHi[3] = YMM(), YMM()
-			VMOVDQU(Mem{Base: work[2], Disp: 0}, workRegLo[2])
-			VMOVDQU(Mem{Base: work[2], Disp: 32}, workRegHi[2])
-			VMOVDQU(Mem{Base: work[3], Disp: 0}, workRegLo[3])
-			VMOVDQU(Mem{Base: work[3], Disp: 32}, workRegHi[3])
-
-			VPXOR(workRegLo[2], workRegLo[3], workRegLo[3])
-			VPXOR(workRegHi[2], workRegHi[3], workRegHi[3])
-
-			if (skipMask & 2) == 0 {
-				leoMulAdd256_gfni_mem(workRegLo[2], workRegHi[2], workRegLo[3], workRegHi[3], table23Ptr)
-			}
-
-			// Second layer
-			VPXOR(workRegLo[0], workRegLo[2], workRegLo[2])
-			VPXOR(workRegHi[0], workRegHi[2], workRegHi[2])
-			VPXOR(workRegLo[1], workRegLo[3], workRegLo[3])
-			VPXOR(workRegHi[1], workRegHi[3], workRegHi[3])
-
-			if (skipMask & 4) == 0 {
-				leoMulAdd256_gfni_avx2(workRegLo[0], workRegHi[0], workRegLo[2], workRegHi[2], table02)
-				leoMulAdd256_gfni_avx2(workRegLo[1], workRegHi[1], workRegLo[3], workRegHi[3], table02)
-			}
-
-			// Store + Next loop
-			for i := range work {
-				VMOVDQU(workRegLo[i], Mem{Base: work[i], Disp: 0})
-				VMOVDQU(workRegHi[i], Mem{Base: work[i], Disp: 32})
-				ADDQ(U8(64), work[i])
-			}
-
-			SUBQ(U8(64), bytes)
-			JNZ(LabelRef("loop_ifft4_" + suffix))
-
-			VZEROUPPER()
-			RET()
-		}
-
-		// fftDIT4_gfni_*
-		{
-			TEXT("fftDIT4_"+suffix, attr.NOSPLIT, fmt.Sprintf("func(work [][]byte, dist int, table01 *[4]uint64, table23 *[4]uint64, table02 *[4]uint64)"))
-			Pragma("noescape")
-			Comment("dist must be multiplied by 24 (size of slice header)")
-
-			table01Ptr := Load(Param("table01"), GP64())
-			table23Ptr := Load(Param("table23"), GP64())
-			table02Ptr := Load(Param("table02"), GP64())
-
-			var table02 [4]reg.VecVirtual
-			if (skipMask & 1) == 0 {
-				for i := range table02 {
-					table02[i] = YMM()
-					VBROADCASTSD(Mem{Base: table02Ptr, Disp: i * 8}, table02[i])
+				offset := GP64()
+				XORQ(offset, offset)
+				for i := range work {
+					work[i] = GP64()
+					MOVQ(Mem{Base: workTable, Index: offset, Scale: 1}, work[i])
+					if i < len(work)-1 {
+						ADDQ(dist, offset)
+					}
 				}
-			}
-			dist := Load(Param("dist"), GP64())
 
-			var work [4]reg.GPVirtual
-			workTable := Load(Param("work").Base(), GP64())
-			bytes := GP64()
+				var workRegLo [4]reg.VecVirtual
+				var workRegHi [4]reg.VecVirtual
 
-			MOVQ(Mem{Base: workTable, Disp: 8}, bytes)
+				workRegLo[0], workRegHi[0] = YMM(), YMM()
+				workRegLo[1], workRegHi[1] = YMM(), YMM()
 
-			offset := GP64()
-			XORQ(offset, offset)
-			for i := range work {
-				work[i] = GP64()
-				MOVQ(Mem{Base: workTable, Index: offset, Scale: 1}, work[i])
-				if i < len(work)-1 {
-					ADDQ(dist, offset)
+				Label("loop_ifft4_" + suffix)
+				VMOVDQU(Mem{Base: work[0], Disp: 0}, workRegLo[0])
+				VMOVDQU(Mem{Base: work[0], Disp: 32}, workRegHi[0])
+				VMOVDQU(Mem{Base: work[1], Disp: 0}, workRegLo[1])
+				VMOVDQU(Mem{Base: work[1], Disp: 32}, workRegHi[1])
+
+				// First layer: y = x XOR y
+				VPXOR(workRegLo[0], workRegLo[1], workRegLo[1])
+				VPXOR(workRegHi[0], workRegHi[1], workRegHi[1])
+
+				if (skipMask & 1) == 0 {
+					if avx512 {
+						leoMulAdd256_gfni_avx2(workRegLo[0], workRegHi[0], workRegLo[1], workRegHi[1], table01, true)
+					} else {
+						leoMulAdd256_gfni_mem(workRegLo[0], workRegHi[0], workRegLo[1], workRegHi[1], table01Ptr)
+					}
 				}
-			}
 
-			var workRegLo [4]reg.VecVirtual
-			var workRegHi [4]reg.VecVirtual
+				workRegLo[2], workRegHi[2] = YMM(), YMM()
+				workRegLo[3], workRegHi[3] = YMM(), YMM()
+				VMOVDQU(Mem{Base: work[2], Disp: 0}, workRegLo[2])
+				VMOVDQU(Mem{Base: work[2], Disp: 32}, workRegHi[2])
+				VMOVDQU(Mem{Base: work[3], Disp: 0}, workRegLo[3])
+				VMOVDQU(Mem{Base: work[3], Disp: 32}, workRegHi[3])
 
-			workRegLo[0], workRegHi[0] = YMM(), YMM()
-			workRegLo[1], workRegHi[1] = YMM(), YMM()
-			workRegLo[2], workRegHi[2] = YMM(), YMM()
-			workRegLo[3], workRegHi[3] = YMM(), YMM()
+				VPXOR(workRegLo[2], workRegLo[3], workRegLo[3])
+				VPXOR(workRegHi[2], workRegHi[3], workRegHi[3])
 
-			Label("loop_fft4_" + suffix)
-			VMOVDQU(Mem{Base: work[0], Disp: 0}, workRegLo[0])
-			VMOVDQU(Mem{Base: work[0], Disp: 32}, workRegHi[0])
-			VMOVDQU(Mem{Base: work[2], Disp: 0}, workRegLo[2])
-			VMOVDQU(Mem{Base: work[2], Disp: 32}, workRegHi[2])
-
-			VMOVDQU(Mem{Base: work[1], Disp: 0}, workRegLo[1])
-			VMOVDQU(Mem{Base: work[1], Disp: 32}, workRegHi[1])
-			VMOVDQU(Mem{Base: work[3], Disp: 0}, workRegLo[3])
-			VMOVDQU(Mem{Base: work[3], Disp: 32}, workRegHi[3])
-
-			// First layer
-			if (skipMask & 1) == 0 {
-				leoMulAdd256_gfni_avx2(workRegLo[0], workRegHi[0], workRegLo[2], workRegHi[2], table02)
-				leoMulAdd256_gfni_avx2(workRegLo[1], workRegHi[1], workRegLo[3], workRegHi[3], table02)
-			}
-
-			VPXOR(workRegLo[0], workRegLo[2], workRegLo[2])
-			VPXOR(workRegHi[0], workRegHi[2], workRegHi[2])
-			VPXOR(workRegLo[1], workRegLo[3], workRegLo[3])
-			VPXOR(workRegHi[1], workRegHi[3], workRegHi[3])
-
-			// Second layer
-			if (skipMask & 2) == 0 {
-				leoMulAdd256_gfni_mem(workRegLo[0], workRegHi[0], workRegLo[1], workRegHi[1], table01Ptr)
-			}
-			VPXOR(workRegLo[0], workRegLo[1], workRegLo[1])
-			VPXOR(workRegHi[0], workRegHi[1], workRegHi[1])
-
-			// Store work[0] and work[1]
-			for i := range work[:2] {
-				VMOVDQU(workRegLo[i], Mem{Base: work[i], Disp: 0})
-				VMOVDQU(workRegHi[i], Mem{Base: work[i], Disp: 32})
-				ADDQ(U8(64), work[i])
-			}
-
-			if (skipMask & 4) == 0 {
-				leoMulAdd256_gfni_mem(workRegLo[2], workRegHi[2], workRegLo[3], workRegHi[3], table23Ptr)
-			}
-			VPXOR(workRegLo[2], workRegLo[3], workRegLo[3])
-			VPXOR(workRegHi[2], workRegHi[3], workRegHi[3])
-
-			// Store work[2] and work[3] + Next loop
-			for i := range work[2:] {
-				i := i + 2
-				VMOVDQU(workRegLo[i], Mem{Base: work[i], Disp: 0})
-				VMOVDQU(workRegHi[i], Mem{Base: work[i], Disp: 32})
-				ADDQ(U8(64), work[i])
-			}
-
-			SUBQ(U8(64), bytes)
-			JNZ(LabelRef("loop_fft4_" + suffix))
-
-			VZEROUPPER()
-			RET()
-		}
-	}
-
-	// AVX-512 GFNI versions of ifftDIT4 and fftDIT4
-	// Uses packed ZMM format: each ZMM holds [lo_32bytes | hi_32bytes] for 32 elements
-	// Combined tables: [A|C] and [B|D] allow efficient shuffle-based GFNI multiplication
-
-	// Helper to build combined table [X|Y] from ptr offsets
-	buildCombinedTable := func(ptr reg.Register, xOff, yOff int) reg.VecVirtual {
-		tmp := ZMM()
-		tmpY := ZMM()
-		VPBROADCASTQ(Mem{Base: ptr, Disp: xOff}, tmp)  // [X,X,X,X,X,X,X,X]
-		VPBROADCASTQ(Mem{Base: ptr, Disp: yOff}, tmpY) // [Y,Y,Y,Y,Y,Y,Y,Y]
-		VINSERTI64X4(U8(1), tmpY.AsY(), tmp, tmp)      // [X,X,X,X | Y,Y,Y,Y]
-		return tmp
-	}
-
-	for skipMask := 0; skipMask < 8; skipMask++ {
-		suffix := "gfni_avx512_" + fmt.Sprint(skipMask)
-
-		// ifftDIT4_gfni_avx512_*
-		{
-			TEXT("ifftDIT4_"+suffix, attr.NOSPLIT, fmt.Sprintf("func(work [][]byte, dist int, table01 *[4]uint64, table23 *[4]uint64, table02 *[4]uint64)"))
-			Pragma("noescape")
-			Comment("dist must be multiplied by 24 (size of slice header)")
-
-			table01Ptr := Load(Param("table01"), GP64())
-			table23Ptr := Load(Param("table23"), GP64())
-			table02Ptr := Load(Param("table02"), GP64())
-
-			// Combined tables: [0] = [A|C], [1] = [B|D]
-			var table01 [2]reg.VecVirtual
-			var table23 [2]reg.VecVirtual
-			var table02 [2]reg.VecVirtual
-
-			if (skipMask & 1) == 0 {
-				table01[0] = buildCombinedTable(table01Ptr, 0, 16) // [A|C]
-				table01[1] = buildCombinedTable(table01Ptr, 8, 24) // [B|D]
-			}
-			if (skipMask & 2) == 0 {
-				table23[0] = buildCombinedTable(table23Ptr, 0, 16) // [A|C]
-				table23[1] = buildCombinedTable(table23Ptr, 8, 24) // [B|D]
-			}
-			if (skipMask & 4) == 0 {
-				table02[0] = buildCombinedTable(table02Ptr, 0, 16) // [A|C]
-				table02[1] = buildCombinedTable(table02Ptr, 8, 24) // [B|D]
-			}
-
-			dist := Load(Param("dist"), GP64())
-
-			var work [4]reg.GPVirtual
-			workTable := Load(Param("work").Base(), GP64())
-			bytes := GP64()
-
-			MOVQ(Mem{Base: workTable, Disp: 8}, bytes)
-
-			offset := GP64()
-			XORQ(offset, offset)
-			for i := range work {
-				work[i] = GP64()
-				MOVQ(Mem{Base: workTable, Index: offset, Scale: 1}, work[i])
-				if i < len(work)-1 {
-					ADDQ(dist, offset)
+				if (skipMask & 2) == 0 {
+					if avx512 {
+						leoMulAdd256_gfni_avx2(workRegLo[2], workRegHi[2], workRegLo[3], workRegHi[3], table23, true)
+					} else {
+						leoMulAdd256_gfni_mem(workRegLo[2], workRegHi[2], workRegLo[3], workRegHi[3], table23Ptr)
+					}
 				}
-			}
 
-			// Use packed ZMM: each holds [lo|hi] for one work buffer chunk
-			var workReg [4]reg.VecVirtual
-			workReg[0] = ZMM()
-			workReg[1] = ZMM()
+				// Second layer
+				VPXOR(workRegLo[0], workRegLo[2], workRegLo[2])
+				VPXOR(workRegHi[0], workRegHi[2], workRegHi[2])
+				VPXOR(workRegLo[1], workRegLo[3], workRegLo[3])
+				VPXOR(workRegHi[1], workRegHi[3], workRegHi[3])
 
-			Label("loop_ifft4_" + suffix)
-			VMOVDQU64(Mem{Base: work[0]}, workReg[0])
-			VMOVDQU64(Mem{Base: work[1]}, workReg[1])
-
-			// First layer: y = x XOR y (works on packed format)
-			VPXORQ(workReg[0], workReg[1], workReg[1])
-
-			workReg[2] = ZMM()
-			workReg[3] = ZMM()
-			VMOVDQU64(Mem{Base: work[2]}, workReg[2])
-			VMOVDQU64(Mem{Base: work[3]}, workReg[3])
-
-			if (skipMask & 1) == 0 {
-				leoMulAddZMM_gfni(workReg[0], workReg[1], table01)
-			}
-
-			VPXORQ(workReg[2], workReg[3], workReg[3])
-
-			if (skipMask & 2) == 0 {
-				leoMulAddZMM_gfni(workReg[2], workReg[3], table23)
-			}
-
-			// Second layer
-			VPXORQ(workReg[0], workReg[2], workReg[2])
-			VPXORQ(workReg[1], workReg[3], workReg[3])
-
-			if (skipMask & 4) == 0 {
-				leoMulAddZMM_gfni(workReg[0], workReg[2], table02)
-				leoMulAddZMM_gfni(workReg[1], workReg[3], table02)
-			}
-
-			// Store + Next loop
-			for i := range work {
-				VMOVDQU64(workReg[i], Mem{Base: work[i]})
-				ADDQ(U8(64), work[i])
-			}
-
-			SUBQ(U8(64), bytes)
-			JNZ(LabelRef("loop_ifft4_" + suffix))
-
-			VZEROUPPER()
-			RET()
-		}
-
-		// fftDIT4_gfni_avx512_*
-		{
-			TEXT("fftDIT4_"+suffix, attr.NOSPLIT, fmt.Sprintf("func(work [][]byte, dist int, table01 *[4]uint64, table23 *[4]uint64, table02 *[4]uint64)"))
-			Pragma("noescape")
-			Comment("dist must be multiplied by 24 (size of slice header)")
-
-			table01Ptr := Load(Param("table01"), GP64())
-			table23Ptr := Load(Param("table23"), GP64())
-			table02Ptr := Load(Param("table02"), GP64())
-
-			// Combined tables: [0] = [A|C], [1] = [B|D]
-			var table01 [2]reg.VecVirtual
-			var table23 [2]reg.VecVirtual
-			var table02 [2]reg.VecVirtual
-
-			// fftDIT4 uses different bit mapping for tables
-			if (skipMask & 1) == 0 {
-				table02[0] = buildCombinedTable(table02Ptr, 0, 16) // [A|C]
-				table02[1] = buildCombinedTable(table02Ptr, 8, 24) // [B|D]
-			}
-			if (skipMask & 2) == 0 {
-				table01[0] = buildCombinedTable(table01Ptr, 0, 16) // [A|C]
-				table01[1] = buildCombinedTable(table01Ptr, 8, 24) // [B|D]
-			}
-			if (skipMask & 4) == 0 {
-				table23[0] = buildCombinedTable(table23Ptr, 0, 16) // [A|C]
-				table23[1] = buildCombinedTable(table23Ptr, 8, 24) // [B|D]
-			}
-
-			dist := Load(Param("dist"), GP64())
-
-			var work [4]reg.GPVirtual
-			workTable := Load(Param("work").Base(), GP64())
-			bytes := GP64()
-
-			MOVQ(Mem{Base: workTable, Disp: 8}, bytes)
-
-			offset := GP64()
-			XORQ(offset, offset)
-			for i := range work {
-				work[i] = GP64()
-				MOVQ(Mem{Base: workTable, Index: offset, Scale: 1}, work[i])
-				if i < len(work)-1 {
-					ADDQ(dist, offset)
+				if (skipMask & 4) == 0 {
+					leoMulAdd256_gfni_avx2(workRegLo[0], workRegHi[0], workRegLo[2], workRegHi[2], table02, avx512)
+					leoMulAdd256_gfni_avx2(workRegLo[1], workRegHi[1], workRegLo[3], workRegHi[3], table02, avx512)
 				}
+
+				// Store + Next loop
+				for i := range work {
+					VMOVDQU(workRegLo[i], Mem{Base: work[i], Disp: 0})
+					VMOVDQU(workRegHi[i], Mem{Base: work[i], Disp: 32})
+					ADDQ(U8(64), work[i])
+				}
+
+				SUBQ(U8(64), bytes)
+				JNZ(LabelRef("loop_ifft4_" + suffix))
+
+				VZEROUPPER()
+				RET()
 			}
 
-			// Use packed ZMM: each holds [lo|hi] for one work buffer chunk
-			var workReg [4]reg.VecVirtual
-			for i := range workReg {
-				workReg[i] = ZMM()
+			// fftDIT4_gfni_*
+			{
+				TEXT("fftDIT4_"+suffix, attr.NOSPLIT, fmt.Sprintf("func(work [][]byte, dist int, table01 *[4]uint64, table23 *[4]uint64, table02 *[4]uint64)"))
+				Pragma("noescape")
+				Comment("dist must be multiplied by 24 (size of slice header)")
+
+				table01Ptr := Load(Param("table01"), GP64())
+				table23Ptr := Load(Param("table23"), GP64())
+				table02Ptr := Load(Param("table02"), GP64())
+
+				var table02 [4]reg.Register
+				if (skipMask & 1) == 0 {
+					for i := range table02 {
+						table02[i] = YMM().AsY()
+						VBROADCASTSD(Mem{Base: table02Ptr, Disp: i * 8}, table02[i])
+					}
+				}
+				var table01 [4]reg.Register
+				var table23 [4]reg.Register
+				if avx512 {
+					table01 = [4]reg.Register{reg.Z16.AsY(), reg.Z17.AsY(), reg.Z18.AsY(), reg.Z19.AsY()}
+					table23 = [4]reg.Register{reg.Z20.AsY(), reg.Z21.AsY(), reg.Z22.AsY(), reg.Z23.AsY()}
+
+					if skipMask&2 == 0 {
+						for i := range table01 {
+							VBROADCASTSD(Mem{Base: table01Ptr, Disp: i * 8}, table01[i])
+						}
+					}
+					if skipMask&4 == 0 {
+						for i := range table23 {
+							VBROADCASTSD(Mem{Base: table23Ptr, Disp: i * 8}, table23[i])
+						}
+					}
+				}
+				dist := Load(Param("dist"), GP64())
+
+				var work [4]reg.GPVirtual
+				workTable := Load(Param("work").Base(), GP64())
+				bytes := GP64()
+
+				MOVQ(Mem{Base: workTable, Disp: 8}, bytes)
+
+				offset := GP64()
+				XORQ(offset, offset)
+				for i := range work {
+					work[i] = GP64()
+					MOVQ(Mem{Base: workTable, Index: offset, Scale: 1}, work[i])
+					if i < len(work)-1 {
+						ADDQ(dist, offset)
+					}
+				}
+
+				var workRegLo [4]reg.VecVirtual
+				var workRegHi [4]reg.VecVirtual
+
+				workRegLo[0], workRegHi[0] = YMM(), YMM()
+				workRegLo[1], workRegHi[1] = YMM(), YMM()
+				workRegLo[2], workRegHi[2] = YMM(), YMM()
+				workRegLo[3], workRegHi[3] = YMM(), YMM()
+
+				Label("loop_fft4_" + suffix)
+				VMOVDQU(Mem{Base: work[0], Disp: 0}, workRegLo[0])
+				VMOVDQU(Mem{Base: work[0], Disp: 32}, workRegHi[0])
+				VMOVDQU(Mem{Base: work[2], Disp: 0}, workRegLo[2])
+				VMOVDQU(Mem{Base: work[2], Disp: 32}, workRegHi[2])
+
+				VMOVDQU(Mem{Base: work[1], Disp: 0}, workRegLo[1])
+				VMOVDQU(Mem{Base: work[1], Disp: 32}, workRegHi[1])
+				VMOVDQU(Mem{Base: work[3], Disp: 0}, workRegLo[3])
+				VMOVDQU(Mem{Base: work[3], Disp: 32}, workRegHi[3])
+
+				// First layer
+				if (skipMask & 1) == 0 {
+					leoMulAdd256_gfni_avx2(workRegLo[0], workRegHi[0], workRegLo[2], workRegHi[2], table02, avx512)
+					leoMulAdd256_gfni_avx2(workRegLo[1], workRegHi[1], workRegLo[3], workRegHi[3], table02, avx512)
+				}
+
+				VPXOR(workRegLo[0], workRegLo[2], workRegLo[2])
+				VPXOR(workRegHi[0], workRegHi[2], workRegHi[2])
+				VPXOR(workRegLo[1], workRegLo[3], workRegLo[3])
+				VPXOR(workRegHi[1], workRegHi[3], workRegHi[3])
+
+				// Second layer
+				if (skipMask & 2) == 0 {
+					if avx512 {
+						leoMulAdd256_gfni_avx2(workRegLo[0], workRegHi[0], workRegLo[1], workRegHi[1], table01, true)
+					} else {
+						leoMulAdd256_gfni_mem(workRegLo[0], workRegHi[0], workRegLo[1], workRegHi[1], table01Ptr)
+					}
+				}
+				VPXOR(workRegLo[0], workRegLo[1], workRegLo[1])
+				VPXOR(workRegHi[0], workRegHi[1], workRegHi[1])
+
+				// Store work[0] and work[1]
+				for i := range work[:2] {
+					VMOVDQU(workRegLo[i], Mem{Base: work[i], Disp: 0})
+					VMOVDQU(workRegHi[i], Mem{Base: work[i], Disp: 32})
+					ADDQ(U8(64), work[i])
+				}
+
+				if (skipMask & 4) == 0 {
+					if avx512 {
+						leoMulAdd256_gfni_avx2(workRegLo[2], workRegHi[2], workRegLo[3], workRegHi[3], table23, true)
+					} else {
+						leoMulAdd256_gfni_mem(workRegLo[2], workRegHi[2], workRegLo[3], workRegHi[3], table23Ptr)
+					}
+				}
+				VPXOR(workRegLo[2], workRegLo[3], workRegLo[3])
+				VPXOR(workRegHi[2], workRegHi[3], workRegHi[3])
+
+				// Store work[2] and work[3] + Next loop
+				for i := range work[2:] {
+					i := i + 2
+					VMOVDQU(workRegLo[i], Mem{Base: work[i], Disp: 0})
+					VMOVDQU(workRegHi[i], Mem{Base: work[i], Disp: 32})
+					ADDQ(U8(64), work[i])
+				}
+
+				SUBQ(U8(64), bytes)
+				JNZ(LabelRef("loop_fft4_" + suffix))
+
+				VZEROUPPER()
+				RET()
 			}
-
-			Label("loop_fft4_" + suffix)
-			VMOVDQU64(Mem{Base: work[0]}, workReg[0])
-			VMOVDQU64(Mem{Base: work[1]}, workReg[1])
-			VMOVDQU64(Mem{Base: work[2]}, workReg[2])
-			VMOVDQU64(Mem{Base: work[3]}, workReg[3])
-
-			// First layer
-			if (skipMask & 1) == 0 {
-				leoMulAddZMM_gfni(workReg[0], workReg[2], table02)
-				leoMulAddZMM_gfni(workReg[1], workReg[3], table02)
-			}
-
-			VPXORQ(workReg[0], workReg[2], workReg[2])
-			VPXORQ(workReg[1], workReg[3], workReg[3])
-
-			// Second layer
-			if (skipMask & 2) == 0 {
-				leoMulAddZMM_gfni(workReg[0], workReg[1], table01)
-			}
-			VPXORQ(workReg[0], workReg[1], workReg[1])
-
-			// Store work[0] and work[1]
-			VMOVDQU64(workReg[0], Mem{Base: work[0]})
-			VMOVDQU64(workReg[1], Mem{Base: work[1]})
-			ADDQ(U8(64), work[0])
-			ADDQ(U8(64), work[1])
-
-			if (skipMask & 4) == 0 {
-				leoMulAddZMM_gfni(workReg[2], workReg[3], table23)
-			}
-			VPXORQ(workReg[2], workReg[3], workReg[3])
-
-			// Store work[2] and work[3] + Next loop
-			VMOVDQU64(workReg[2], Mem{Base: work[2]})
-			VMOVDQU64(workReg[3], Mem{Base: work[3]})
-			ADDQ(U8(64), work[2])
-			ADDQ(U8(64), work[3])
-
-			SUBQ(U8(64), bytes)
-			JNZ(LabelRef("loop_fft4_" + suffix))
-
-			VZEROUPPER()
-			RET()
 		}
 	}
 
@@ -1141,9 +985,9 @@ func genGF16() {
 
 		// Load 4 GFNI matrices and broadcast to YMM registers
 		tablePtr := Load(Param("table"), GP64())
-		var tables [4]reg.VecVirtual
+		var tables [4]reg.Register
 		for i := range tables {
-			tables[i] = YMM()
+			tables[i] = YMM().AsY()
 			VBROADCASTSD(Mem{Base: tablePtr, Disp: i * 8}, tables[i])
 		}
 
@@ -1166,7 +1010,7 @@ func genGF16() {
 		VMOVDQU(yHi, Mem{Base: y, Disp: 32})
 
 		// x = x + leoMul(y, table) using GFNI
-		leoMulAdd256_gfni_avx2(xLo, xHi, yLo, yHi, tables)
+		leoMulAdd256_gfni_avx2(xLo, xHi, yLo, yHi, tables, false)
 
 		VMOVDQU(xLo, Mem{Base: x, Disp: 0})
 		VMOVDQU(xHi, Mem{Base: x, Disp: 32})
@@ -1188,9 +1032,9 @@ func genGF16() {
 
 		// Load 4 GFNI matrices and broadcast to YMM registers
 		tablePtr := Load(Param("table"), GP64())
-		var tables [4]reg.VecVirtual
+		var tables [4]reg.Register
 		for i := range tables {
-			tables[i] = YMM()
+			tables[i] = YMM().AsY()
 			VBROADCASTSD(Mem{Base: tablePtr, Disp: i * 8}, tables[i])
 		}
 
@@ -1207,7 +1051,7 @@ func genGF16() {
 		VMOVDQU(Mem{Base: y, Disp: 32}, yHi) // hi bytes of 32 elements
 
 		// x = x + leoMul(y, table) using GFNI
-		leoMulAdd256_gfni_avx2(xLo, xHi, yLo, yHi, tables)
+		leoMulAdd256_gfni_avx2(xLo, xHi, yLo, yHi, tables, false)
 
 		VMOVDQU(xLo, Mem{Base: x, Disp: 0})
 		VMOVDQU(xHi, Mem{Base: x, Disp: 32})
@@ -1424,7 +1268,7 @@ func leoMulAdd256_gfni_mem(xLo, xHi, yLo, yHi reg.VecVirtual, tablePtr reg.Regis
 
 // leoMulAdd256_gfni_avx2 loads tables from registers and multiplies y, XORs into x.
 // Loads tables on-demand to save YMM registers for DIT4 operations.
-func leoMulAdd256_gfni_avx2(xLo, xHi, yLo, yHi reg.VecVirtual, tables [4]reg.VecVirtual) {
+func leoMulAdd256_gfni_avx2(xLo, xHi, yLo, yHi reg.VecVirtual, tables [4]reg.Register, tern bool) {
 	Comment("GFNI LEO_MULADD_256 (from register)")
 
 	// Apply GFNI transforms
@@ -1434,8 +1278,13 @@ func leoMulAdd256_gfni_avx2(xLo, xHi, yLo, yHi reg.VecVirtual, tables [4]reg.Vec
 	VGF2P8AFFINEQB(U8(0), tables[2], yLo, tmpC) // C * yLo
 	VGF2P8AFFINEQB(U8(0), tables[3], yHi, tmpD) // D * yHi
 	// XOR into x
-	VPXOR3way(tmpA, tmpB, xLo)
-	VPXOR3way(tmpC, tmpD, xHi)
+	if tern {
+		VPTERNLOGD(U8(0x96), tmpA, tmpB, xLo)
+		VPTERNLOGD(U8(0x96), tmpC, tmpD, xHi)
+	} else {
+		VPXOR3way(tmpA, tmpB, xLo)
+		VPXOR3way(tmpC, tmpD, xHi)
+	}
 }
 
 // leoMulAddZMM_gfni multiplies packed y by GFNI tables and XORs into packed x.
