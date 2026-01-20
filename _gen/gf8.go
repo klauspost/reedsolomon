@@ -269,7 +269,8 @@ func genGF8() {
 				VZEROUPPER()
 				RET()
 			}
-			{
+			// No destination version needed at this point.
+			if !withDst {
 				var suffix = "avx2_" + dstSuf + fmt.Sprint(skipMask)
 				TEXT("fftDIT48_"+suffix, attr.NOSPLIT, fmt.Sprintf("func(%swork [][]byte, dist int, t01, t23, t02 *[2*16]uint8)", dstString))
 				Pragma("noescape")
@@ -511,7 +512,9 @@ func genGF8() {
 				VZEROUPPER()
 				RET()
 			}
-			{
+
+			// No destination version needed at this point.
+			if !withDst {
 				var suffix = "gfni_" + dstSuf + fmt.Sprint(skipMask)
 				TEXT("fftDIT48_"+suffix, attr.NOSPLIT, fmt.Sprintf("func(%swork [][]byte, dist int, t01, t23, t02 uint64)", dstString))
 				Pragma("noescape")
