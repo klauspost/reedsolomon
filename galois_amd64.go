@@ -211,7 +211,7 @@ func ifftDIT4(work [][]byte, dist int, log_m01, log_m23, log_m02 ffe, o *options
 	t01 := &multiply256LUT[log_m01]
 	t23 := &multiply256LUT[log_m23]
 	t02 := &multiply256LUT[log_m02]
-	if o.useAvx512GFNI && gf2p811dMulMatrices16 != nil {
+	if o.useAvx512GFNI && o.useAVX512 && gf2p811dMulMatrices16 != nil {
 		g01 := &gf2p811dMulMatrices16[log_m01]
 		g23 := &gf2p811dMulMatrices16[log_m23]
 		g02 := &gf2p811dMulMatrices16[log_m02]
@@ -436,7 +436,7 @@ func fftDIT4(work [][]byte, dist int, log_m01, log_m23, log_m02 ffe, o *options)
 	t01 := &multiply256LUT[log_m01]
 	t23 := &multiply256LUT[log_m23]
 	t02 := &multiply256LUT[log_m02]
-	if o.useAvx512GFNI && gf2p811dMulMatrices16 != nil {
+	if o.useAvx512GFNI && o.useAVX512 && gf2p811dMulMatrices16 != nil {
 		g01 := &gf2p811dMulMatrices16[log_m01]
 		g23 := &gf2p811dMulMatrices16[log_m23]
 		g02 := &gf2p811dMulMatrices16[log_m02]
