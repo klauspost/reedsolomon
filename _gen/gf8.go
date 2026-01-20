@@ -172,18 +172,19 @@ func genGF8() {
 				if withDst {
 					Load(Param("dst").Base(), dstTable) // &dst[0]
 				}
-				offset := GP64()
-				XORQ(offset, offset)
 				for i := range work {
 					work[i] = GP64()
 					// work[i] = &workTable[dist*i]
-					MOVQ(Mem{Base: workTable, Index: offset, Scale: 1}, work[i])
+					MOVQ(Mem{Base: workTable}, work[i])
+					if i < len(work)-1 {
+						ADDQ(dist, workTable)
+					}
 					if withDst {
 						dst[i] = GP64()
-						MOVQ(Mem{Base: dstTable, Index: offset, Scale: 1}, dst[i])
-					}
-					if i < len(work)-1 {
-						ADDQ(dist, offset)
+						MOVQ(Mem{Base: dstTable}, dst[i])
+						if i < len(work)-1 {
+							ADDQ(dist, dstTable)
+						}
 					}
 				}
 
@@ -315,18 +316,19 @@ func genGF8() {
 				if withDst {
 					Load(Param("dst").Base(), dstTable) // &dst[0]
 				}
-				offset := GP64()
-				XORQ(offset, offset)
 				for i := range work {
 					work[i] = GP64()
 					// work[i] = &workTable[dist*i]
-					MOVQ(Mem{Base: workTable, Index: offset, Scale: 1}, work[i])
+					MOVQ(Mem{Base: workTable}, work[i])
+					if i < len(work)-1 {
+						ADDQ(dist, workTable)
+					}
 					if withDst {
 						dst[i] = GP64()
-						MOVQ(Mem{Base: dstTable, Index: offset, Scale: 1}, dst[i])
-					}
-					if i < len(work)-1 {
-						ADDQ(dist, offset)
+						MOVQ(Mem{Base: dstTable}, dst[i])
+						if i < len(work)-1 {
+							ADDQ(dist, dstTable)
+						}
 					}
 				}
 
@@ -443,18 +445,19 @@ func genGF8() {
 				if withDst {
 					Load(Param("dst").Base(), dstTable) // &dst[0]
 				}
-				offset := GP64()
-				XORQ(offset, offset)
 				for i := range work {
 					work[i] = GP64()
 					// work[i] = &workTable[dist*i]
-					MOVQ(Mem{Base: workTable, Index: offset, Scale: 1}, work[i])
+					MOVQ(Mem{Base: workTable}, work[i])
+					if i < len(work)-1 {
+						ADDQ(dist, workTable)
+					}
 					if withDst {
 						dst[i] = GP64()
-						MOVQ(Mem{Base: dstTable, Index: offset, Scale: 1}, dst[i])
-					}
-					if i < len(work)-1 {
-						ADDQ(dist, offset)
+						MOVQ(Mem{Base: dstTable}, dst[i])
+						if i < len(work)-1 {
+							ADDQ(dist, dstTable)
+						}
 					}
 				}
 
@@ -539,18 +542,19 @@ func genGF8() {
 				if withDst {
 					Load(Param("dst").Base(), dstTable) // &dst[0]
 				}
-				offset := GP64()
-				XORQ(offset, offset)
 				for i := range work {
 					work[i] = GP64()
 					// work[i] = &workTable[dist*i]
-					MOVQ(Mem{Base: workTable, Index: offset, Scale: 1}, work[i])
+					MOVQ(Mem{Base: workTable}, work[i])
+					if i < len(work)-1 {
+						ADDQ(dist, workTable)
+					}
 					if withDst {
 						dst[i] = GP64()
-						MOVQ(Mem{Base: dstTable, Index: offset, Scale: 1}, dst[i])
-					}
-					if i < len(work)-1 {
-						ADDQ(dist, offset)
+						MOVQ(Mem{Base: dstTable}, dst[i])
+						if i < len(work)-1 {
+							ADDQ(dist, dstTable)
+						}
 					}
 				}
 
