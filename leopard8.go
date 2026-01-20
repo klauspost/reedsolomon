@@ -786,58 +786,100 @@ func fftDIT4Ref8(work [][]byte, dist int, log_m01, log_m23, log_m02 ffe8, o *opt
 	}
 }
 
+// zeroBufferPool returns a pointer to a zeroed array.
+// This should never be written to.
+var zeroBufferPool = &[workSize8]byte{}
+
 // Unrolled IFFT for encoder
 func ifftDITEncoder8(data [][]byte, mtrunc int, work [][]byte, xorRes [][]byte, m int, skewLUT []ffe8, o *options) {
-	// I tried rolling the memcpy/memset into the first layer of the FFT and
-	// found that it only yields a 4% performance improvement, which is not
-	// worth the extra complexity.
-	for i := range mtrunc {
-		copy(work[i], data[i])
-	}
-	for i := mtrunc; i < m; i++ {
-		clear(work[i])
-	}
-
-	// Decimation in time: Unroll 2 layers at a time
 	dist := 1
 	dist4 := 4
-	for dist4 <= m {
-		// For each set of dist*4 elements:
-		for r := 0; r < mtrunc; r += dist4 {
-			iend := r + dist
-			log_m01 := skewLUT[iend]
-			log_m02 := skewLUT[iend+dist]
-			log_m23 := skewLUT[iend+dist*2]
 
-			// For each set of dist elements:
-			for i := r; i < iend; i++ {
-				ifftDIT48(
-					work[i:],
-					dist,
-					log_m01,
-					log_m23,
-					log_m02,
-					o,
-				)
+	if dist4 <= m {
+		if o.useAVX2 || o.useAvx512GFNI {
+			// SIMD path: fuse copy with first layer butterfly
+			fullGroups := mtrunc &^ 3
+			zb := zeroBufferPool[:]
+
+			for r := 0; r < fullGroups; r += dist4 {
+				iend := r + dist
+				log_m01 := skewLUT[iend]
+				log_m02 := skewLUT[iend+dist]
+				log_m23 := skewLUT[iend+dist*2]
+				ifftDIT48Dst(work[r:], data[r:], dist, log_m01, log_m23, log_m02, o)
+			}
+
+			if fullGroups < mtrunc {
+				r := fullGroups
+				iend := r + dist
+				log_m01 := skewLUT[iend]
+				log_m02 := skewLUT[iend+dist]
+				log_m23 := skewLUT[iend+dist*2]
+
+				src := [4][]byte{zb, zb, zb, zb}
+				for i := 0; i < mtrunc-fullGroups; i++ {
+					src[i] = data[fullGroups+i]
+				}
+				ifftDIT48Dst(work[r:], src[:], dist, log_m01, log_m23, log_m02, o)
+			}
+
+			clearStart := (mtrunc + 3) &^ 3
+			for i := clearStart; i < m; i++ {
+				clear(work[i])
+			}
+		} else {
+			// Non-SIMD path: bulk copy + clear, then in-place butterfly
+			for i := range mtrunc {
+				copy(work[i], data[i])
+			}
+			for i := mtrunc; i < m; i++ {
+				clear(work[i])
+			}
+
+			for r := 0; r < mtrunc; r += dist4 {
+				iend := r + dist
+				log_m01 := skewLUT[iend]
+				log_m02 := skewLUT[iend+dist]
+				log_m23 := skewLUT[iend+dist*2]
+				for i := r; i < iend; i++ {
+					ifftDIT48(work[i:], dist, log_m01, log_m23, log_m02, o)
+				}
 			}
 		}
 
 		dist = dist4
 		dist4 <<= 2
-		// I tried alternating sweeps left->right and right->left to reduce cache misses.
-		// It provides about 1% performance boost when done for both FFT and IFFT, so it
-		// does not seem to be worth the extra complexity.
+
+		// Subsequent layers: in-place (same for both paths)
+		for dist4 <= m {
+			for r := 0; r < mtrunc; r += dist4 {
+				iend := r + dist
+				log_m01 := skewLUT[iend]
+				log_m02 := skewLUT[iend+dist]
+				log_m23 := skewLUT[iend+dist*2]
+				for i := r; i < iend; i++ {
+					ifftDIT48(work[i:], dist, log_m01, log_m23, log_m02, o)
+				}
+			}
+			dist = dist4
+			dist4 <<= 2
+		}
+	} else {
+		// m < 4: fallback
+		for i := range mtrunc {
+			copy(work[i], data[i])
+		}
+		for i := mtrunc; i < m; i++ {
+			clear(work[i])
+		}
 	}
 
-	// If there is one layer left:
+	// Final layer
 	if dist < m {
-		// Assuming that dist = m / 2
 		if dist*2 != m {
 			panic("internal error")
 		}
-
 		logm := skewLUT[dist]
-
 		if logm == modulus8 {
 			slicesXor(work[dist:dist*2], work[:dist], o)
 		} else {
@@ -847,8 +889,6 @@ func ifftDITEncoder8(data [][]byte, mtrunc int, work [][]byte, xorRes [][]byte, 
 		}
 	}
 
-	// I tried unrolling this but it does not provide more than 5% performance
-	// improvement for 16-bit finite fields, so it's not worth the complexity.
 	if xorRes != nil {
 		slicesXor(xorRes[:m], work[:m], o)
 	}
@@ -876,6 +916,14 @@ func ifftDIT4Ref8(work [][]byte, dist int, log_m01, log_m23, log_m02 ffe8, o *op
 		ifftDIT28(work[0], work[dist*2], log_m02, o)
 		ifftDIT28(work[dist], work[dist*3], log_m02, o)
 	}
+}
+
+func ifftDIT4DstRef8(dst, work [][]byte, dist int, log_m01, log_m23, log_m02 ffe8, o *options) {
+	// Copy to dst and use that.
+	for i := range dist {
+		copy(dst[i], work[i][:])
+	}
+	ifftDIT4Ref8(dst, dist, log_m01, log_m23, log_m02, o)
 }
 
 // Reference version of muladd: x[] ^= y[] * log_m
