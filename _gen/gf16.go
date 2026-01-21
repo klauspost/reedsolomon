@@ -319,14 +319,12 @@ func genGF16() {
 				// Load length of work[0]
 				MOVQ(Mem{Base: workTable, Disp: 8}, bytes)
 
-				offset := GP64()
-				XORQ(offset, offset)
 				for i := range work {
 					work[i] = GP64()
 					// work[i] = &workTable[dist*i]
-					MOVQ(Mem{Base: workTable, Index: offset, Scale: 1}, work[i])
+					MOVQ(Mem{Base: workTable}, work[i])
 					if i < len(work)-1 {
-						ADDQ(dist, offset)
+						ADDQ(dist, workTable)
 					}
 				}
 				var workRegLo [4]reg.VecVirtual
@@ -482,14 +480,12 @@ func genGF16() {
 				// Load length of work[0]
 				MOVQ(Mem{Base: workTable, Disp: 8}, bytes)
 
-				offset := GP64()
-				XORQ(offset, offset)
 				for i := range work {
 					work[i] = GP64()
 					// work[i] = &workTable[dist*i]
-					MOVQ(Mem{Base: workTable, Index: offset, Scale: 1}, work[i])
+					MOVQ(Mem{Base: workTable}, work[i])
 					if i < len(work)-1 {
-						ADDQ(dist, offset)
+						ADDQ(dist, workTable)
 					}
 				}
 				var workRegLo [4]reg.VecVirtual
@@ -615,13 +611,12 @@ func genGF16() {
 
 				MOVQ(Mem{Base: workTable, Disp: 8}, bytes)
 
-				offset := GP64()
-				XORQ(offset, offset)
 				for i := range work {
 					work[i] = GP64()
-					MOVQ(Mem{Base: workTable, Index: offset, Scale: 1}, work[i])
+					// work[i] = &workTable[dist*i]
+					MOVQ(Mem{Base: workTable}, work[i])
 					if i < len(work)-1 {
-						ADDQ(dist, offset)
+						ADDQ(dist, workTable)
 					}
 				}
 
@@ -734,13 +729,12 @@ func genGF16() {
 
 				MOVQ(Mem{Base: workTable, Disp: 8}, bytes)
 
-				offset := GP64()
-				XORQ(offset, offset)
 				for i := range work {
 					work[i] = GP64()
-					MOVQ(Mem{Base: workTable, Index: offset, Scale: 1}, work[i])
+					// work[i] = &workTable[dist*i]
+					MOVQ(Mem{Base: workTable}, work[i])
 					if i < len(work)-1 {
-						ADDQ(dist, offset)
+						ADDQ(dist, workTable)
 					}
 				}
 

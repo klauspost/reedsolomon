@@ -119,424 +119,497 @@ func genGF8() {
 	}
 
 	x := [8]int{}
-	for skipMask := range x[:] {
-		if !pshufb {
-			break
+	for _, withDst := range []bool{false, true} {
+		dstString := ""
+		dstSuf := ""
+		if withDst {
+			dstString = "dst, "
+			dstSuf = "dst_"
 		}
-		{
-			var suffix = "avx2_" + fmt.Sprint(skipMask)
-			TEXT("ifftDIT48_"+suffix, attr.NOSPLIT, fmt.Sprintf("func(work [][]byte, dist int, t01, t23, t02 *[2*16]uint8)"))
-			Pragma("noescape")
-			var t01, t23, t02 table256
-			// Load and expand tables
+		for skipMask := range x[:] {
+			if !pshufb {
+				break
+			}
+			{
+				var suffix = "avx2_" + dstSuf + fmt.Sprint(skipMask)
+				TEXT("ifftDIT48_"+suffix, attr.NOSPLIT, fmt.Sprintf("func(%swork [][]byte, dist int, t01, t23, t02 *[2*16]uint8)", dstString))
+				Pragma("noescape")
+				var t01, t23, t02 table256
+				// Load and expand tables
 
-			if (skipMask & 1) == 0 {
-				tablePtr := Load(Param("t01"), GP64())
-				t01.Lo, t01.Hi = YMM(), YMM()
-				// We need one register when loading all.
-				if skipMask == 0 {
-					t01.loadLo128 = &Mem{Base: tablePtr, Disp: 0}
-				} else {
-					VBROADCASTI128(Mem{Base: tablePtr, Disp: 0}, t01.Lo)
+				if (skipMask & 1) == 0 {
+					tablePtr := Load(Param("t01"), GP64())
+					t01.Lo, t01.Hi = YMM(), YMM()
+					// We need one register when loading all.
+					if skipMask == 0 {
+						t01.loadLo128 = &Mem{Base: tablePtr, Disp: 0}
+					} else {
+						VBROADCASTI128(Mem{Base: tablePtr, Disp: 0}, t01.Lo)
+					}
+					VBROADCASTI128(Mem{Base: tablePtr, Disp: 16}, t01.Hi)
 				}
-				VBROADCASTI128(Mem{Base: tablePtr, Disp: 16}, t01.Hi)
-			}
-			if (skipMask & 2) == 0 {
-				tablePtr := Load(Param("t23"), GP64())
-				t23.Lo, t23.Hi = YMM(), YMM()
-				VBROADCASTI128(Mem{Base: tablePtr, Disp: 0}, t23.Lo)
-				VBROADCASTI128(Mem{Base: tablePtr, Disp: 16}, t23.Hi)
-			}
-			if (skipMask & 4) == 0 {
-				tablePtr := Load(Param("t02"), GP64())
-				t02.Lo, t02.Hi = YMM(), YMM()
-				VBROADCASTI128(Mem{Base: tablePtr, Disp: 0}, t02.Lo)
-				VBROADCASTI128(Mem{Base: tablePtr, Disp: 16}, t02.Hi)
-			}
-			dist := Load(Param("dist"), GP64())
-
-			var work [4]reg.GPVirtual
-			workTable := Load(Param("work").Base(), GP64()) // &work[0]
-			bytes := GP64()
-			MOVQ(Mem{Base: workTable, Disp: 8}, bytes)
-
-			offset := GP64()
-			XORQ(offset, offset)
-			for i := range work {
-				work[i] = GP64()
-				// work[i] = &workTable[dist*i]
-				MOVQ(Mem{Base: workTable, Index: offset, Scale: 1}, work[i])
-				if i < len(work)-1 {
-					ADDQ(dist, offset)
-				}
-			}
-
-			// Generate mask
-			ctx.clrMask = YMM()
-			tmpMask := GP64()
-			MOVQ(U32(15), tmpMask)
-			MOVQ(tmpMask, ctx.clrMask.AsX())
-			VPBROADCASTB(ctx.clrMask.AsX(), ctx.clrMask)
-
-			Label("loop")
-			var workReg [4]reg.VecVirtual
-			var workReg2 [4]reg.VecVirtual
-
-			workReg[0] = YMM()
-			workReg[1] = YMM()
-			workReg2[0] = YMM()
-			workReg2[1] = YMM()
-
-			VMOVDQU(Mem{Base: work[0], Disp: 0}, workReg[0])
-			VMOVDQU(Mem{Base: work[1], Disp: 0}, workReg[1])
-			VMOVDQU(Mem{Base: work[0], Disp: 32}, workReg2[0])
-			VMOVDQU(Mem{Base: work[1], Disp: 32}, workReg2[1])
-
-			// work1_reg = _mm256_xor_si256(work0_reg, work1_reg);
-			VPXOR(workReg[1], workReg[0], workReg[1])
-			VPXOR(workReg2[1], workReg2[0], workReg2[1])
-			if (skipMask & 1) == 0 {
-				t01.prepare()
-				leo8MulAdd256(ctx, workReg[0], workReg[1], t01)
-				leo8MulAdd256(ctx, workReg2[0], workReg2[1], t01)
-			}
-
-			workReg[2] = YMM()
-			workReg[3] = YMM()
-			workReg2[2] = YMM()
-			workReg2[3] = YMM()
-			VMOVDQU(Mem{Base: work[2], Disp: 0}, workReg[2])
-			VMOVDQU(Mem{Base: work[3], Disp: 0}, workReg[3])
-			VMOVDQU(Mem{Base: work[2], Disp: 32}, workReg2[2])
-			VMOVDQU(Mem{Base: work[3], Disp: 32}, workReg2[3])
-
-			//work3_reg = _mm256_xor_si256(work2_reg, work3_reg)
-			VPXOR(workReg[2], workReg[3], workReg[3])
-			VPXOR(workReg2[2], workReg2[3], workReg2[3])
-			if (skipMask & 2) == 0 {
-				leo8MulAdd256(ctx, workReg[2], workReg[3], t23)
-				leo8MulAdd256(ctx, workReg2[2], workReg2[3], t23)
-			}
-
-			// Second layer:
-			// work2_reg = _mm256_xor_si256(work0_reg, work2_reg);
-			// work3_reg = _mm256_xor_si256(work1_reg, work3_reg);
-			VPXOR(workReg[0], workReg[2], workReg[2])
-			VPXOR(workReg[1], workReg[3], workReg[3])
-			VPXOR(workReg2[0], workReg2[2], workReg2[2])
-			VPXOR(workReg2[1], workReg2[3], workReg2[3])
-
-			if (skipMask & 4) == 0 {
-				leo8MulAdd256(ctx, workReg[0], workReg[2], t02)
-				leo8MulAdd256(ctx, workReg[1], workReg[3], t02)
-				leo8MulAdd256(ctx, workReg2[0], workReg2[2], t02)
-				leo8MulAdd256(ctx, workReg2[1], workReg2[3], t02)
-			}
-
-			// Store + Next loop:
-			for i := range work {
-				VMOVDQU(workReg[i], Mem{Base: work[i], Disp: 0})
-				VMOVDQU(workReg2[i], Mem{Base: work[i], Disp: 32})
-				ADDQ(U8(64), work[i])
-			}
-
-			SUBQ(U8(64), bytes)
-			JA(LabelRef("loop"))
-
-			VZEROUPPER()
-			RET()
-		}
-		{
-			var suffix = "avx2_" + fmt.Sprint(skipMask)
-			TEXT("fftDIT48_"+suffix, attr.NOSPLIT, fmt.Sprintf("func(work [][]byte, dist int, t01, t23, t02 *[2*16]uint8)"))
-			Pragma("noescape")
-			var t01, t23, t02 table256
-			// Load and expand tables
-
-			if (skipMask & 2) == 0 {
-				tablePtr := Load(Param("t01"), GP64())
-				t01.Lo, t01.Hi = YMM(), YMM()
-				if skipMask == 0 {
-					t01.loadLo128 = &Mem{Base: tablePtr, Disp: 0}
-				} else {
-					// We need additional registers
-					VBROADCASTI128(Mem{Base: tablePtr, Disp: 0}, t01.Lo)
-				}
-				VBROADCASTI128(Mem{Base: tablePtr, Disp: 16}, t01.Hi)
-			}
-			if (skipMask & 4) == 0 {
-				tablePtr := Load(Param("t23"), GP64())
-				t23.Lo, t23.Hi = YMM(), YMM()
-				if skipMask == 0 {
-					t23.loadLo128 = &Mem{Base: tablePtr, Disp: 0}
-				} else {
+				if (skipMask & 2) == 0 {
+					tablePtr := Load(Param("t23"), GP64())
+					t23.Lo, t23.Hi = YMM(), YMM()
 					VBROADCASTI128(Mem{Base: tablePtr, Disp: 0}, t23.Lo)
+					VBROADCASTI128(Mem{Base: tablePtr, Disp: 16}, t23.Hi)
 				}
-				VBROADCASTI128(Mem{Base: tablePtr, Disp: 16}, t23.Hi)
-			}
-			if (skipMask & 1) == 0 {
-				tablePtr := Load(Param("t02"), GP64())
-
-				t02.Lo, t02.Hi = YMM(), YMM()
-				VBROADCASTI128(Mem{Base: tablePtr, Disp: 0}, t02.Lo)
-				VBROADCASTI128(Mem{Base: tablePtr, Disp: 16}, t02.Hi)
-			}
-			dist := Load(Param("dist"), GP64())
-
-			var work [4]reg.GPVirtual
-			workTable := Load(Param("work").Base(), GP64()) // &work[0]
-			bytes := GP64()
-			MOVQ(Mem{Base: workTable, Disp: 8}, bytes)
-
-			offset := GP64()
-			XORQ(offset, offset)
-			for i := range work {
-				work[i] = GP64()
-				// work[i] = &workTable[dist*i]
-				MOVQ(Mem{Base: workTable, Index: offset, Scale: 1}, work[i])
-				if i < len(work)-1 {
-					ADDQ(dist, offset)
+				if (skipMask & 4) == 0 {
+					tablePtr := Load(Param("t02"), GP64())
+					t02.Lo, t02.Hi = YMM(), YMM()
+					VBROADCASTI128(Mem{Base: tablePtr, Disp: 0}, t02.Lo)
+					VBROADCASTI128(Mem{Base: tablePtr, Disp: 16}, t02.Hi)
 				}
+				dist := Load(Param("dist"), GP64())
+
+				var work [4]reg.GPVirtual
+				workTable := Load(Param("work").Base(), GP64()) // &work[0]
+				bytes := GP64()
+				MOVQ(Mem{Base: workTable, Disp: 8}, bytes)
+
+				var dst [4]reg.GPVirtual
+				dstTable := GP64()
+				if withDst {
+					Load(Param("dst").Base(), dstTable) // &dst[0]
+				}
+				for i := range work {
+					work[i] = GP64()
+					// work[i] = &workTable[dist*i]
+					MOVQ(Mem{Base: workTable}, work[i])
+					if i < len(work)-1 {
+						ADDQ(dist, workTable)
+					}
+					if withDst {
+						dst[i] = GP64()
+						MOVQ(Mem{Base: dstTable}, dst[i])
+						if i < len(work)-1 {
+							ADDQ(dist, dstTable)
+						}
+					}
+				}
+
+				// Generate mask
+				ctx.clrMask = YMM()
+				tmpMask := GP64()
+				MOVQ(U32(15), tmpMask)
+				MOVQ(tmpMask, ctx.clrMask.AsX())
+				VPBROADCASTB(ctx.clrMask.AsX(), ctx.clrMask)
+
+				Label("loop")
+				var workReg [4]reg.VecVirtual
+				var workReg2 [4]reg.VecVirtual
+
+				workReg[0] = YMM()
+				workReg[1] = YMM()
+				workReg2[0] = YMM()
+				workReg2[1] = YMM()
+
+				VMOVDQU(Mem{Base: work[0], Disp: 0}, workReg[0])
+				VMOVDQU(Mem{Base: work[1], Disp: 0}, workReg[1])
+				VMOVDQU(Mem{Base: work[0], Disp: 32}, workReg2[0])
+				VMOVDQU(Mem{Base: work[1], Disp: 32}, workReg2[1])
+
+				// work1_reg = _mm256_xor_si256(work0_reg, work1_reg);
+				VPXOR(workReg[1], workReg[0], workReg[1])
+				VPXOR(workReg2[1], workReg2[0], workReg2[1])
+				if (skipMask & 1) == 0 {
+					t01.prepare()
+					leo8MulAdd256(ctx, workReg[0], workReg[1], t01)
+					leo8MulAdd256(ctx, workReg2[0], workReg2[1], t01)
+				}
+
+				workReg[2] = YMM()
+				workReg[3] = YMM()
+				workReg2[2] = YMM()
+				workReg2[3] = YMM()
+				VMOVDQU(Mem{Base: work[2], Disp: 0}, workReg[2])
+				VMOVDQU(Mem{Base: work[3], Disp: 0}, workReg[3])
+				VMOVDQU(Mem{Base: work[2], Disp: 32}, workReg2[2])
+				VMOVDQU(Mem{Base: work[3], Disp: 32}, workReg2[3])
+
+				//work3_reg = _mm256_xor_si256(work2_reg, work3_reg)
+				VPXOR(workReg[2], workReg[3], workReg[3])
+				VPXOR(workReg2[2], workReg2[3], workReg2[3])
+				if (skipMask & 2) == 0 {
+					leo8MulAdd256(ctx, workReg[2], workReg[3], t23)
+					leo8MulAdd256(ctx, workReg2[2], workReg2[3], t23)
+				}
+
+				// Second layer:
+				// work2_reg = _mm256_xor_si256(work0_reg, work2_reg);
+				// work3_reg = _mm256_xor_si256(work1_reg, work3_reg);
+				VPXOR(workReg[0], workReg[2], workReg[2])
+				VPXOR(workReg[1], workReg[3], workReg[3])
+				VPXOR(workReg2[0], workReg2[2], workReg2[2])
+				VPXOR(workReg2[1], workReg2[3], workReg2[3])
+
+				if (skipMask & 4) == 0 {
+					leo8MulAdd256(ctx, workReg[0], workReg[2], t02)
+					leo8MulAdd256(ctx, workReg[1], workReg[3], t02)
+					leo8MulAdd256(ctx, workReg2[0], workReg2[2], t02)
+					leo8MulAdd256(ctx, workReg2[1], workReg2[3], t02)
+				}
+
+				// Store + Next loop:
+				for i := range work {
+					if withDst {
+						VMOVDQU(workReg[i], Mem{Base: dst[i], Disp: 0})
+						VMOVDQU(workReg2[i], Mem{Base: dst[i], Disp: 32})
+						ADDQ(U8(64), dst[i])
+					} else {
+						VMOVDQU(workReg[i], Mem{Base: work[i], Disp: 0})
+						VMOVDQU(workReg2[i], Mem{Base: work[i], Disp: 32})
+					}
+					ADDQ(U8(64), work[i])
+				}
+
+				SUBQ(U8(64), bytes)
+				JA(LabelRef("loop"))
+
+				VZEROUPPER()
+				RET()
 			}
+			// No destination version needed at this point.
+			if !withDst {
+				var suffix = "avx2_" + dstSuf + fmt.Sprint(skipMask)
+				TEXT("fftDIT48_"+suffix, attr.NOSPLIT, fmt.Sprintf("func(%swork [][]byte, dist int, t01, t23, t02 *[2*16]uint8)", dstString))
+				Pragma("noescape")
+				var t01, t23, t02 table256
+				// Load and expand tables
 
-			// Generate mask
-			ctx.clrMask = YMM()
-			tmpMask := GP64()
-			MOVQ(U32(15), tmpMask)
-			MOVQ(tmpMask, ctx.clrMask.AsX())
-			VPBROADCASTB(ctx.clrMask.AsX(), ctx.clrMask)
+				if (skipMask & 2) == 0 {
+					tablePtr := Load(Param("t01"), GP64())
+					t01.Lo, t01.Hi = YMM(), YMM()
+					if skipMask == 0 {
+						t01.loadLo128 = &Mem{Base: tablePtr, Disp: 0}
+					} else {
+						// We need additional registers
+						VBROADCASTI128(Mem{Base: tablePtr, Disp: 0}, t01.Lo)
+					}
+					VBROADCASTI128(Mem{Base: tablePtr, Disp: 16}, t01.Hi)
+				}
+				if (skipMask & 4) == 0 {
+					tablePtr := Load(Param("t23"), GP64())
+					t23.Lo, t23.Hi = YMM(), YMM()
+					if skipMask == 0 {
+						t23.loadLo128 = &Mem{Base: tablePtr, Disp: 0}
+					} else {
+						VBROADCASTI128(Mem{Base: tablePtr, Disp: 0}, t23.Lo)
+					}
+					VBROADCASTI128(Mem{Base: tablePtr, Disp: 16}, t23.Hi)
+				}
+				if (skipMask & 1) == 0 {
+					tablePtr := Load(Param("t02"), GP64())
 
-			Label("loop")
-			var workReg [4]reg.VecVirtual
-			var workReg2 [4]reg.VecVirtual
+					t02.Lo, t02.Hi = YMM(), YMM()
+					VBROADCASTI128(Mem{Base: tablePtr, Disp: 0}, t02.Lo)
+					VBROADCASTI128(Mem{Base: tablePtr, Disp: 16}, t02.Hi)
+				}
+				dist := Load(Param("dist"), GP64())
 
-			for i := range workReg {
-				workReg[i] = YMM()
-				workReg2[i] = YMM()
+				var work [4]reg.GPVirtual
+				workTable := Load(Param("work").Base(), GP64()) // &work[0]
+				bytes := GP64()
+				MOVQ(Mem{Base: workTable, Disp: 8}, bytes)
+
+				var dst [4]reg.GPVirtual
+				dstTable := GP64()
+				if withDst {
+					Load(Param("dst").Base(), dstTable) // &dst[0]
+				}
+				for i := range work {
+					work[i] = GP64()
+					// work[i] = &workTable[dist*i]
+					MOVQ(Mem{Base: workTable}, work[i])
+					if i < len(work)-1 {
+						ADDQ(dist, workTable)
+					}
+					if withDst {
+						dst[i] = GP64()
+						MOVQ(Mem{Base: dstTable}, dst[i])
+						if i < len(work)-1 {
+							ADDQ(dist, dstTable)
+						}
+					}
+				}
+
+				// Generate mask
+				ctx.clrMask = YMM()
+				tmpMask := GP64()
+				MOVQ(U32(15), tmpMask)
+				MOVQ(tmpMask, ctx.clrMask.AsX())
+				VPBROADCASTB(ctx.clrMask.AsX(), ctx.clrMask)
+
+				Label("loop")
+				var workReg [4]reg.VecVirtual
+				var workReg2 [4]reg.VecVirtual
+
+				for i := range workReg {
+					workReg[i] = YMM()
+					workReg2[i] = YMM()
+				}
+
+				VMOVDQU(Mem{Base: work[0], Disp: 0}, workReg[0])
+				VMOVDQU(Mem{Base: work[0], Disp: 32}, workReg2[0])
+				VMOVDQU(Mem{Base: work[2], Disp: 0}, workReg[2])
+				VMOVDQU(Mem{Base: work[2], Disp: 32}, workReg2[2])
+				VMOVDQU(Mem{Base: work[1], Disp: 0}, workReg[1])
+				VMOVDQU(Mem{Base: work[1], Disp: 32}, workReg2[1])
+				VMOVDQU(Mem{Base: work[3], Disp: 0}, workReg[3])
+				VMOVDQU(Mem{Base: work[3], Disp: 32}, workReg2[3])
+
+				// work1_reg = _mm256_xor_si256(work0_reg, work1_reg);
+				if (skipMask & 1) == 0 {
+					leo8MulAdd256(ctx, workReg[0], workReg[2], t02)
+					leo8MulAdd256(ctx, workReg2[0], workReg2[2], t02)
+
+					leo8MulAdd256(ctx, workReg[1], workReg[3], t02)
+					leo8MulAdd256(ctx, workReg2[1], workReg2[3], t02)
+				}
+				// work2_reg = _mm256_xor_si256(work0_reg, work2_reg);
+				// work3_reg = _mm256_xor_si256(work1_reg, work3_reg);
+				VPXOR(workReg[0], workReg[2], workReg[2])
+				VPXOR(workReg[1], workReg[3], workReg[3])
+				VPXOR(workReg2[0], workReg2[2], workReg2[2])
+				VPXOR(workReg2[1], workReg2[3], workReg2[3])
+
+				// Second layer:
+				if (skipMask & 2) == 0 {
+					t01.prepare()
+					leo8MulAdd256(ctx, workReg[0], workReg[1], t01)
+					leo8MulAdd256(ctx, workReg2[0], workReg2[1], t01)
+				}
+				//work1_reg = _mm256_xor_si256(work0_reg, work1_reg);
+				VPXOR(workReg[1], workReg[0], workReg[1])
+				VPXOR(workReg2[1], workReg2[0], workReg2[1])
+
+				if (skipMask & 4) == 0 {
+					t23.prepare()
+					leo8MulAdd256(ctx, workReg[2], workReg[3], t23)
+					leo8MulAdd256(ctx, workReg2[2], workReg2[3], t23)
+				}
+				// work3_reg = _mm256_xor_si256(work2_reg, work3_reg);
+				VPXOR(workReg[2], workReg[3], workReg[3])
+				VPXOR(workReg2[2], workReg2[3], workReg2[3])
+
+				// Store + Next loop:
+				for i := range work {
+					if withDst {
+						VMOVDQU(workReg[i], Mem{Base: dst[i], Disp: 0})
+						VMOVDQU(workReg2[i], Mem{Base: dst[i], Disp: 32})
+						ADDQ(U8(64), dst[i])
+					} else {
+						VMOVDQU(workReg[i], Mem{Base: work[i], Disp: 0})
+						VMOVDQU(workReg2[i], Mem{Base: work[i], Disp: 32})
+					}
+					ADDQ(U8(64), work[i])
+				}
+
+				SUBQ(U8(64), bytes)
+				JA(LabelRef("loop"))
+
+				VZEROUPPER()
+				RET()
 			}
-
-			VMOVDQU(Mem{Base: work[0], Disp: 0}, workReg[0])
-			VMOVDQU(Mem{Base: work[0], Disp: 32}, workReg2[0])
-			VMOVDQU(Mem{Base: work[2], Disp: 0}, workReg[2])
-			VMOVDQU(Mem{Base: work[2], Disp: 32}, workReg2[2])
-			VMOVDQU(Mem{Base: work[1], Disp: 0}, workReg[1])
-			VMOVDQU(Mem{Base: work[1], Disp: 32}, workReg2[1])
-			VMOVDQU(Mem{Base: work[3], Disp: 0}, workReg[3])
-			VMOVDQU(Mem{Base: work[3], Disp: 32}, workReg2[3])
-
-			// work1_reg = _mm256_xor_si256(work0_reg, work1_reg);
-			if (skipMask & 1) == 0 {
-				leo8MulAdd256(ctx, workReg[0], workReg[2], t02)
-				leo8MulAdd256(ctx, workReg2[0], workReg2[2], t02)
-
-				leo8MulAdd256(ctx, workReg[1], workReg[3], t02)
-				leo8MulAdd256(ctx, workReg2[1], workReg2[3], t02)
-			}
-			// work2_reg = _mm256_xor_si256(work0_reg, work2_reg);
-			// work3_reg = _mm256_xor_si256(work1_reg, work3_reg);
-			VPXOR(workReg[0], workReg[2], workReg[2])
-			VPXOR(workReg[1], workReg[3], workReg[3])
-			VPXOR(workReg2[0], workReg2[2], workReg2[2])
-			VPXOR(workReg2[1], workReg2[3], workReg2[3])
-
-			// Second layer:
-			if (skipMask & 2) == 0 {
-				t01.prepare()
-				leo8MulAdd256(ctx, workReg[0], workReg[1], t01)
-				leo8MulAdd256(ctx, workReg2[0], workReg2[1], t01)
-			}
-			//work1_reg = _mm256_xor_si256(work0_reg, work1_reg);
-			VPXOR(workReg[1], workReg[0], workReg[1])
-			VPXOR(workReg2[1], workReg2[0], workReg2[1])
-
-			if (skipMask & 4) == 0 {
-				t23.prepare()
-				leo8MulAdd256(ctx, workReg[2], workReg[3], t23)
-				leo8MulAdd256(ctx, workReg2[2], workReg2[3], t23)
-			}
-			// work3_reg = _mm256_xor_si256(work2_reg, work3_reg);
-			VPXOR(workReg[2], workReg[3], workReg[3])
-			VPXOR(workReg2[2], workReg2[3], workReg2[3])
-
-			// Store + Next loop:
-			for i := range work {
-				VMOVDQU(workReg[i], Mem{Base: work[i], Disp: 0})
-				VMOVDQU(workReg2[i], Mem{Base: work[i], Disp: 32})
-				ADDQ(U8(64), work[i])
-			}
-
-			SUBQ(U8(64), bytes)
-			JA(LabelRef("loop"))
-
-			VZEROUPPER()
-			RET()
 		}
-	}
 
-	// GFNI
-	for skipMask := range x[:] {
-		{
-			var suffix = "gfni_" + fmt.Sprint(skipMask)
-			TEXT("ifftDIT48_"+suffix, attr.NOSPLIT, fmt.Sprintf("func(work [][]byte, dist int, t01, t23, t02 uint64)"))
-			Pragma("noescape")
-			var t01, t23, t02 table512 = ZMM(), ZMM(), ZMM()
-			// Load and expand tables
+		// GFNI
+		for skipMask := range x[:] {
+			{
+				var suffix = "gfni_" + dstSuf + fmt.Sprint(skipMask)
+				TEXT("ifftDIT48_"+suffix, attr.NOSPLIT, fmt.Sprintf("func(%swork [][]byte, dist int, t01, t23, t02 uint64)", dstString))
+				Pragma("noescape")
+				var t01, t23, t02 table512 = ZMM(), ZMM(), ZMM()
+				// Load and expand tables
 
-			if (skipMask & 1) == 0 {
-				tablePtr, _ := Param("t01").Resolve()
-				VBROADCASTF32X2(tablePtr.Addr, t01)
-			}
-			if (skipMask & 2) == 0 {
-				tablePtr, _ := Param("t23").Resolve()
-				VBROADCASTF32X2(tablePtr.Addr, t23)
-			}
-			if (skipMask & 4) == 0 {
-				tablePtr, _ := Param("t02").Resolve()
-				VBROADCASTF32X2(tablePtr.Addr, t02)
-			}
-			dist := Load(Param("dist"), GP64())
-
-			var work [4]reg.GPVirtual
-			workTable := Load(Param("work").Base(), GP64()) // &work[0]
-			bytes := GP64()
-			MOVQ(Mem{Base: workTable, Disp: 8}, bytes)
-
-			offset := GP64()
-			XORQ(offset, offset)
-			for i := range work {
-				work[i] = GP64()
-				// work[i] = &workTable[dist*i]
-				MOVQ(Mem{Base: workTable, Index: offset, Scale: 1}, work[i])
-				if i < len(work)-1 {
-					ADDQ(dist, offset)
+				if (skipMask & 1) == 0 {
+					tablePtr, _ := Param("t01").Resolve()
+					VBROADCASTF32X2(tablePtr.Addr, t01)
 				}
+				if (skipMask & 2) == 0 {
+					tablePtr, _ := Param("t23").Resolve()
+					VBROADCASTF32X2(tablePtr.Addr, t23)
+				}
+				if (skipMask & 4) == 0 {
+					tablePtr, _ := Param("t02").Resolve()
+					VBROADCASTF32X2(tablePtr.Addr, t02)
+				}
+				dist := Load(Param("dist"), GP64())
+
+				var work [4]reg.GPVirtual
+				workTable := Load(Param("work").Base(), GP64()) // &work[0]
+				bytes := GP64()
+				MOVQ(Mem{Base: workTable, Disp: 8}, bytes)
+
+				var dst [4]reg.GPVirtual
+				dstTable := GP64()
+				if withDst {
+					Load(Param("dst").Base(), dstTable) // &dst[0]
+				}
+				for i := range work {
+					work[i] = GP64()
+					// work[i] = &workTable[dist*i]
+					MOVQ(Mem{Base: workTable}, work[i])
+					if i < len(work)-1 {
+						ADDQ(dist, workTable)
+					}
+					if withDst {
+						dst[i] = GP64()
+						MOVQ(Mem{Base: dstTable}, dst[i])
+						if i < len(work)-1 {
+							ADDQ(dist, dstTable)
+						}
+					}
+				}
+
+				Label("loop")
+				var workReg [4]reg.VecVirtual
+				for i := range workReg[:] {
+					workReg[i] = ZMM()
+					VMOVDQU64(Mem{Base: work[i], Disp: 0}, workReg[i])
+				}
+
+				// First layer:
+				// work1_reg = _mm256_xor_si256(work0_reg, work1_reg);
+				VXORPD(workReg[1], workReg[0], workReg[1])
+				if (skipMask & 1) == 0 {
+					leo8MulAdd512(ctx, workReg[0], workReg[1], t01, nil)
+				}
+
+				//work3_reg = _mm256_xor_si256(work2_reg, work3_reg)
+				VXORPD(workReg[2], workReg[3], workReg[3])
+				if (skipMask & 2) == 0 {
+					leo8MulAdd512(ctx, workReg[2], workReg[3], t23, workReg[0])
+				} else {
+					// Merged above when run...
+					VXORPD(workReg[0], workReg[2], workReg[2])
+				}
+
+				// Second layer:
+				// work2_reg = _mm256_xor_si256(work0_reg, work2_reg);
+				// work3_reg = _mm256_xor_si256(work1_reg, work3_reg);
+				VXORPD(workReg[1], workReg[3], workReg[3])
+
+				if (skipMask & 4) == 0 {
+					leo8MulAdd512(ctx, workReg[0], workReg[2], t02, nil)
+					leo8MulAdd512(ctx, workReg[1], workReg[3], t02, nil)
+				}
+
+				// Store + Next loop:
+				for i := range work {
+					if withDst {
+						VMOVDQU64(workReg[i], Mem{Base: dst[i], Disp: 0})
+						ADDQ(U8(64), dst[i])
+					} else {
+						VMOVDQU64(workReg[i], Mem{Base: work[i], Disp: 0})
+					}
+					ADDQ(U8(64), work[i])
+				}
+
+				SUBQ(U8(64), bytes)
+				JA(LabelRef("loop"))
+
+				VZEROUPPER()
+				RET()
 			}
 
-			Label("loop")
-			var workReg [4]reg.VecVirtual
-			for i := range workReg[:] {
-				workReg[i] = ZMM()
-				VMOVDQU64(Mem{Base: work[i], Disp: 0}, workReg[i])
-			}
+			// No destination version needed at this point.
+			if !withDst {
+				var suffix = "gfni_" + dstSuf + fmt.Sprint(skipMask)
+				TEXT("fftDIT48_"+suffix, attr.NOSPLIT, fmt.Sprintf("func(%swork [][]byte, dist int, t01, t23, t02 uint64)", dstString))
+				Pragma("noescape")
+				var t01, t23, t02 table512 = ZMM(), ZMM(), ZMM()
+				// Load and expand tables
 
-			// First layer:
-			// work1_reg = _mm256_xor_si256(work0_reg, work1_reg);
-			VXORPD(workReg[1], workReg[0], workReg[1])
-			if (skipMask & 1) == 0 {
-				leo8MulAdd512(ctx, workReg[0], workReg[1], t01, nil)
-			}
+				if (skipMask & 2) == 0 {
+					tablePtr, _ := Param("t01").Resolve()
+					VBROADCASTF32X2(tablePtr.Addr, t01)
+				}
+				if (skipMask & 4) == 0 {
+					tablePtr, _ := Param("t23").Resolve()
+					VBROADCASTF32X2(tablePtr.Addr, t23)
+				}
+				if (skipMask & 1) == 0 {
+					tablePtr, _ := Param("t02").Resolve()
+					VBROADCASTF32X2(tablePtr.Addr, t02)
+				}
+				dist := Load(Param("dist"), GP64())
 
-			//work3_reg = _mm256_xor_si256(work2_reg, work3_reg)
-			VXORPD(workReg[2], workReg[3], workReg[3])
-			if (skipMask & 2) == 0 {
-				leo8MulAdd512(ctx, workReg[2], workReg[3], t23, workReg[0])
-			} else {
-				// Merged above when run...
+				var work [4]reg.GPVirtual
+				workTable := Load(Param("work").Base(), GP64()) // &work[0]
+				bytes := GP64()
+				MOVQ(Mem{Base: workTable, Disp: 8}, bytes)
+
+				var dst [4]reg.GPVirtual
+				dstTable := GP64()
+				if withDst {
+					Load(Param("dst").Base(), dstTable) // &dst[0]
+				}
+				for i := range work {
+					work[i] = GP64()
+					// work[i] = &workTable[dist*i]
+					MOVQ(Mem{Base: workTable}, work[i])
+					if i < len(work)-1 {
+						ADDQ(dist, workTable)
+					}
+					if withDst {
+						dst[i] = GP64()
+						MOVQ(Mem{Base: dstTable}, dst[i])
+						if i < len(work)-1 {
+							ADDQ(dist, dstTable)
+						}
+					}
+				}
+
+				Label("loop")
+				var workReg [4]reg.VecVirtual
+
+				for i := range workReg {
+					workReg[i] = ZMM()
+					VMOVDQU64(Mem{Base: work[i], Disp: 0}, workReg[i])
+				}
+
+				// First layer:
+				if (skipMask & 1) == 0 {
+					leo8MulAdd512(ctx, workReg[0], workReg[2], t02, nil)
+					leo8MulAdd512(ctx, workReg[1], workReg[3], t02, nil)
+				}
+				// work2_reg = _mm256_xor_si256(work0_reg, work2_reg);
+				// work3_reg = _mm256_xor_si256(work1_reg, work3_reg);
 				VXORPD(workReg[0], workReg[2], workReg[2])
-			}
+				VXORPD(workReg[1], workReg[3], workReg[3])
 
-			// Second layer:
-			// work2_reg = _mm256_xor_si256(work0_reg, work2_reg);
-			// work3_reg = _mm256_xor_si256(work1_reg, work3_reg);
-			VXORPD(workReg[1], workReg[3], workReg[3])
-
-			if (skipMask & 4) == 0 {
-				leo8MulAdd512(ctx, workReg[0], workReg[2], t02, nil)
-				leo8MulAdd512(ctx, workReg[1], workReg[3], t02, nil)
-			}
-
-			// Store + Next loop:
-			for i := range work {
-				VMOVDQU64(workReg[i], Mem{Base: work[i], Disp: 0})
-				ADDQ(U8(64), work[i])
-			}
-
-			SUBQ(U8(64), bytes)
-			JA(LabelRef("loop"))
-
-			VZEROUPPER()
-			RET()
-		}
-		{
-			var suffix = "gfni_" + fmt.Sprint(skipMask)
-			TEXT("fftDIT48_"+suffix, attr.NOSPLIT, fmt.Sprintf("func(work [][]byte, dist int, t01, t23, t02 uint64)"))
-			Pragma("noescape")
-			var t01, t23, t02 table512 = ZMM(), ZMM(), ZMM()
-			// Load and expand tables
-
-			if (skipMask & 2) == 0 {
-				tablePtr, _ := Param("t01").Resolve()
-				VBROADCASTF32X2(tablePtr.Addr, t01)
-			}
-			if (skipMask & 4) == 0 {
-				tablePtr, _ := Param("t23").Resolve()
-				VBROADCASTF32X2(tablePtr.Addr, t23)
-			}
-			if (skipMask & 1) == 0 {
-				tablePtr, _ := Param("t02").Resolve()
-				VBROADCASTF32X2(tablePtr.Addr, t02)
-			}
-			dist := Load(Param("dist"), GP64())
-
-			var work [4]reg.GPVirtual
-			workTable := Load(Param("work").Base(), GP64()) // &work[0]
-			bytes := GP64()
-			MOVQ(Mem{Base: workTable, Disp: 8}, bytes)
-
-			offset := GP64()
-			XORQ(offset, offset)
-			for i := range work {
-				work[i] = GP64()
-				// work[i] = &workTable[dist*i]
-				MOVQ(Mem{Base: workTable, Index: offset, Scale: 1}, work[i])
-				if i < len(work)-1 {
-					ADDQ(dist, offset)
+				// Second layer:
+				if (skipMask & 2) == 0 {
+					leo8MulAdd512(ctx, workReg[0], workReg[1], t01, nil)
 				}
+				//work1_reg = _mm256_xor_si256(work0_reg, work1_reg);
+				VXORPD(workReg[1], workReg[0], workReg[1])
+
+				if (skipMask & 4) == 0 {
+					leo8MulAdd512(ctx, workReg[2], workReg[3], t23, nil)
+				}
+				// work3_reg = _mm256_xor_si256(work2_reg, work3_reg);
+				VXORPD(workReg[2], workReg[3], workReg[3])
+
+				// Store + Next loop:
+				for i := range work {
+					if withDst {
+						VMOVDQU64(workReg[i], Mem{Base: dst[i], Disp: 0})
+						ADDQ(U8(64), dst[i])
+					} else {
+						VMOVDQU64(workReg[i], Mem{Base: work[i], Disp: 0})
+					}
+					ADDQ(U8(64), work[i])
+				}
+
+				SUBQ(U8(64), bytes)
+				JA(LabelRef("loop"))
+
+				VZEROUPPER()
+				RET()
 			}
-
-			Label("loop")
-			var workReg [4]reg.VecVirtual
-
-			for i := range workReg {
-				workReg[i] = ZMM()
-				VMOVDQU64(Mem{Base: work[i], Disp: 0}, workReg[i])
-			}
-
-			// First layer:
-			if (skipMask & 1) == 0 {
-				leo8MulAdd512(ctx, workReg[0], workReg[2], t02, nil)
-				leo8MulAdd512(ctx, workReg[1], workReg[3], t02, nil)
-			}
-			// work2_reg = _mm256_xor_si256(work0_reg, work2_reg);
-			// work3_reg = _mm256_xor_si256(work1_reg, work3_reg);
-			VXORPD(workReg[0], workReg[2], workReg[2])
-			VXORPD(workReg[1], workReg[3], workReg[3])
-
-			// Second layer:
-			if (skipMask & 2) == 0 {
-				leo8MulAdd512(ctx, workReg[0], workReg[1], t01, nil)
-			}
-			//work1_reg = _mm256_xor_si256(work0_reg, work1_reg);
-			VXORPD(workReg[1], workReg[0], workReg[1])
-
-			if (skipMask & 4) == 0 {
-				leo8MulAdd512(ctx, workReg[2], workReg[3], t23, nil)
-			}
-			// work3_reg = _mm256_xor_si256(work2_reg, work3_reg);
-			VXORPD(workReg[2], workReg[3], workReg[3])
-
-			// Store + Next loop:
-			for i := range work {
-				VMOVDQU64(workReg[i], Mem{Base: work[i], Disp: 0})
-				ADDQ(U8(64), work[i])
-			}
-
-			SUBQ(U8(64), bytes)
-			JA(LabelRef("loop"))
-
-			VZEROUPPER()
-			RET()
-		}
+		} //end with_dst
 	}
 
 }

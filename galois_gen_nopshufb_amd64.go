@@ -2367,3 +2367,27 @@ func ifftDIT48_gfni_7(work [][]byte, dist int, t01 uint64, t23 uint64, t02 uint6
 
 //go:noescape
 func fftDIT48_gfni_7(work [][]byte, dist int, t01 uint64, t23 uint64, t02 uint64)
+
+//go:noescape
+func ifftDIT48_gfni_dst_0(dst [][]byte, work [][]byte, dist int, t01 uint64, t23 uint64, t02 uint64)
+
+//go:noescape
+func ifftDIT48_gfni_dst_1(dst [][]byte, work [][]byte, dist int, t01 uint64, t23 uint64, t02 uint64)
+
+//go:noescape
+func ifftDIT48_gfni_dst_2(dst [][]byte, work [][]byte, dist int, t01 uint64, t23 uint64, t02 uint64)
+
+//go:noescape
+func ifftDIT48_gfni_dst_3(dst [][]byte, work [][]byte, dist int, t01 uint64, t23 uint64, t02 uint64)
+
+//go:noescape
+func ifftDIT48_gfni_dst_4(dst [][]byte, work [][]byte, dist int, t01 uint64, t23 uint64, t02 uint64)
+
+//go:noescape
+func ifftDIT48_gfni_dst_5(dst [][]byte, work [][]byte, dist int, t01 uint64, t23 uint64, t02 uint64)
+
+//go:noescape
+func ifftDIT48_gfni_dst_6(dst [][]byte, work [][]byte, dist int, t01 uint64, t23 uint64, t02 uint64)
+
+//go:noescape
+func ifftDIT48_gfni_dst_7(dst [][]byte, work [][]byte, dist int, t01 uint64, t23 uint64, t02 uint64)

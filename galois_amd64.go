@@ -428,6 +428,87 @@ func ifftDIT48(work [][]byte, dist int, log_m01, log_m23, log_m02 ffe8, o *optio
 	ifftDIT4Ref8(work, dist, log_m01, log_m23, log_m02, o)
 }
 
+// 4-way butterfly
+func ifftDIT48Dst(dst, work [][]byte, dist int, log_m01, log_m23, log_m02 ffe8, o *options) {
+	if len(work[0]) == 0 {
+		return
+	}
+
+	if o.useAvx512GFNI {
+		// Note that these currently require that length is multiple of 64.
+		t01 := gf2p811dMulMatricesLeo8[log_m01]
+		t23 := gf2p811dMulMatricesLeo8[log_m23]
+		t02 := gf2p811dMulMatricesLeo8[log_m02]
+		if log_m01 == modulus8 {
+			if log_m23 == modulus8 {
+				if log_m02 == modulus8 {
+					ifftDIT48_gfni_dst_7(dst, work, dist*24, t01, t23, t02)
+				} else {
+					ifftDIT48_gfni_dst_3(dst, work, dist*24, t01, t23, t02)
+				}
+			} else {
+				if log_m02 == modulus8 {
+					ifftDIT48_gfni_dst_5(dst, work, dist*24, t01, t23, t02)
+				} else {
+					ifftDIT48_gfni_dst_1(dst, work, dist*24, t01, t23, t02)
+				}
+			}
+		} else {
+			if log_m23 == modulus8 {
+				if log_m02 == modulus8 {
+					ifftDIT48_gfni_dst_6(dst, work, dist*24, t01, t23, t02)
+				} else {
+					ifftDIT48_gfni_dst_2(dst, work, dist*24, t01, t23, t02)
+				}
+			} else {
+				if log_m02 == modulus8 {
+					ifftDIT48_gfni_dst_4(dst, work, dist*24, t01, t23, t02)
+				} else {
+					ifftDIT48_gfni_dst_0(dst, work, dist*24, t01, t23, t02)
+				}
+			}
+		}
+		return
+	}
+	if o.useAVX2 {
+		// Note that these currently require that length is multiple of 64.
+		t01 := &multiply256LUT8[log_m01]
+		t23 := &multiply256LUT8[log_m23]
+		t02 := &multiply256LUT8[log_m02]
+		if log_m01 == modulus8 {
+			if log_m23 == modulus8 {
+				if log_m02 == modulus8 {
+					ifftDIT48_avx2_dst_7(dst, work, dist*24, t01, t23, t02)
+				} else {
+					ifftDIT48_avx2_dst_3(dst, work, dist*24, t01, t23, t02)
+				}
+			} else {
+				if log_m02 == modulus8 {
+					ifftDIT48_avx2_dst_5(dst, work, dist*24, t01, t23, t02)
+				} else {
+					ifftDIT48_avx2_dst_1(dst, work, dist*24, t01, t23, t02)
+				}
+			}
+		} else {
+			if log_m23 == modulus8 {
+				if log_m02 == modulus8 {
+					ifftDIT48_avx2_dst_6(dst, work, dist*24, t01, t23, t02)
+				} else {
+					ifftDIT48_avx2_dst_2(dst, work, dist*24, t01, t23, t02)
+				}
+			} else {
+				if log_m02 == modulus8 {
+					ifftDIT48_avx2_dst_4(dst, work, dist*24, t01, t23, t02)
+				} else {
+					ifftDIT48_avx2_dst_0(dst, work, dist*24, t01, t23, t02)
+				}
+			}
+		}
+		return
+	}
+	ifftDIT4DstRef8(dst, work, dist, log_m01, log_m23, log_m02, o)
+}
+
 func fftDIT4(work [][]byte, dist int, log_m01, log_m23, log_m02 ffe, o *options) {
 	if len(work[0]) == 0 {
 		return
