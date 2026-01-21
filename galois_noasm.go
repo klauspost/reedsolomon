@@ -32,6 +32,11 @@ func galMulSlice(c byte, in, out []byte, o *options) {
 }
 
 // 4-way butterfly with separate destination
+func ifftDIT4Dst(dst, work [][]byte, dist int, log_m01, log_m23, log_m02 ffe, o *options) {
+	ifftDIT4DstRef(dst, work, dist, log_m01, log_m23, log_m02, o)
+}
+
+// 4-way butterfly with separate destination
 func ifftDIT48Dst(dst, work [][]byte, dist int, log_m01, log_m23, log_m02 ffe8, o *options) {
 	// Fall back. Should not be called.
 	ifftDIT4DstRef8(dst, work, dist, log_m01, log_m23, log_m02, o)

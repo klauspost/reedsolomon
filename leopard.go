@@ -20,6 +20,10 @@ import (
 	"github.com/klauspost/cpuid/v2"
 )
 
+const maxZeroBufferSize16 = 1 << 20 // 1MB
+
+var zeroBufferPool16 = &[maxZeroBufferSize16]byte{}
+
 // leopardFF16 is like reedSolomon but for more than 256 total shards.
 type leopardFF16 struct {
 	dataShards   int // Number of data shards, should not be modified.
@@ -678,49 +682,89 @@ func fftDIT4Ref(work [][]byte, dist int, log_m01, log_m23, log_m02 ffe, o *optio
 
 // Unrolled IFFT for encoder
 func ifftDITEncoder(data [][]byte, mtrunc int, work [][]byte, xorRes [][]byte, m int, skewLUT []ffe, o *options) {
-	// I tried rolling the memcpy/memset into the first layer of the FFT and
-	// found that it only yields a 4% performance improvement, which is not
-	// worth the extra complexity.
-	for i := range mtrunc {
-		copy(work[i], data[i])
-	}
-	for i := mtrunc; i < m; i++ {
-		clear(work[i])
-	}
-
-	// I tried splitting up the first few layers into L3-cache sized blocks but
-	// found that it only provides about 5% performance boost, which is not
-	// worth the extra complexity.
-
-	// Decimation in time: Unroll 2 layers at a time
 	dist := 1
 	dist4 := 4
-	for dist4 <= m {
-		// For each set of dist*4 elements:
-		for r := 0; r < mtrunc; r += dist4 {
-			iend := r + dist
-			log_m01 := skewLUT[iend]
-			log_m02 := skewLUT[iend+dist]
-			log_m23 := skewLUT[iend+dist*2]
 
-			// For each set of dist elements:
-			for i := r; i < iend; i++ {
-				ifftDIT4(
-					work[i:],
-					dist,
-					log_m01,
-					log_m23,
-					log_m02,
-					o,
-				)
+	if dist4 <= m {
+		shardSize := len(data[0])
+		canUseFused := (o.useAvx512GFNI || o.useAvxGNFI || o.useAVX512 || o.useAVX2) && shardSize <= maxZeroBufferSize16
+
+		if canUseFused {
+			// SIMD path: fuse copy with first layer butterfly
+			fullGroups := mtrunc &^ 3
+			zb := zeroBufferPool16[:shardSize]
+
+			for r := 0; r < fullGroups; r += dist4 {
+				iend := r + dist
+				log_m01 := skewLUT[iend]
+				log_m02 := skewLUT[iend+dist]
+				log_m23 := skewLUT[iend+dist*2]
+				ifftDIT4Dst(work[r:], data[r:], dist, log_m01, log_m23, log_m02, o)
+			}
+
+			if fullGroups < mtrunc {
+				r := fullGroups
+				iend := r + dist
+				log_m01 := skewLUT[iend]
+				log_m02 := skewLUT[iend+dist]
+				log_m23 := skewLUT[iend+dist*2]
+
+				src := [4][]byte{zb, zb, zb, zb}
+				for i := 0; i < mtrunc-fullGroups; i++ {
+					src[i] = data[fullGroups+i]
+				}
+				ifftDIT4Dst(work[r:], src[:], dist, log_m01, log_m23, log_m02, o)
+			}
+
+			clearStart := (mtrunc + 3) &^ 3
+			for i := clearStart; i < m; i++ {
+				clear(work[i])
+			}
+		} else {
+			// Non-SIMD or large shards: original approach
+			for i := range mtrunc {
+				copy(work[i], data[i])
+			}
+			for i := mtrunc; i < m; i++ {
+				clear(work[i])
+			}
+
+			for r := 0; r < mtrunc; r += dist4 {
+				iend := r + dist
+				log_m01 := skewLUT[iend]
+				log_m02 := skewLUT[iend+dist]
+				log_m23 := skewLUT[iend+dist*2]
+				for i := r; i < iend; i++ {
+					ifftDIT4(work[i:], dist, log_m01, log_m23, log_m02, o)
+				}
 			}
 		}
 
 		dist = dist4
 		dist4 <<= 2
-		// I tried alternating sweeps left->right and right->left to reduce cache misses.
-		// It provides about 1% performance boost when done for both FFT and IFFT, so it
-		// does not seem to be worth the extra complexity.
+
+		// Subsequent layers: in-place (same for both paths)
+		for dist4 <= m {
+			for r := 0; r < mtrunc; r += dist4 {
+				iend := r + dist
+				log_m01 := skewLUT[iend]
+				log_m02 := skewLUT[iend+dist]
+				log_m23 := skewLUT[iend+dist*2]
+				for i := r; i < iend; i++ {
+					ifftDIT4(work[i:], dist, log_m01, log_m23, log_m02, o)
+				}
+			}
+			dist = dist4
+			dist4 <<= 2
+		}
+	} else {
+		// m < 4: fallback
+		for i := range mtrunc {
+			copy(work[i], data[i])
+		}
+		for i := mtrunc; i < m; i++ {
+			clear(work[i])
+		}
 	}
 
 	// If there is one layer left:
@@ -770,6 +814,13 @@ func ifftDIT4Ref(work [][]byte, dist int, log_m01, log_m23, log_m02 ffe, o *opti
 		ifftDIT2(work[0], work[dist*2], log_m02, o)
 		ifftDIT2(work[dist], work[dist*3], log_m02, o)
 	}
+}
+
+func ifftDIT4DstRef(dst, work [][]byte, dist int, log_m01, log_m23, log_m02 ffe, o *options) {
+	for i := 0; i < 4; i++ {
+		copy(dst[i*dist], work[i*dist])
+	}
+	ifftDIT4Ref(dst, dist, log_m01, log_m23, log_m02, o)
 }
 
 // Reference version of muladd: x[] ^= y[] * log_m
