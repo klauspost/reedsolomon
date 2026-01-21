@@ -22,7 +22,14 @@ import (
 
 const maxZeroBufferSize16 = 1 << 20 // 1MB
 
-var zeroBufferPool16 = &[maxZeroBufferSize16]byte{}
+var zeroBufferPool16Once sync.Once
+var zeroBufferPool16Buf *[maxZeroBufferSize16]byte
+var zeroBufferPool16 = func() *[maxZeroBufferSize16]byte {
+	zeroBufferPool16Once.Do(func() {
+		zeroBufferPool16Buf = &[maxZeroBufferSize16]byte{}
+	})
+	return zeroBufferPool16Buf
+}
 
 // leopardFF16 is like reedSolomon but for more than 256 total shards.
 type leopardFF16 struct {
@@ -692,7 +699,7 @@ func ifftDITEncoder(data [][]byte, mtrunc int, work [][]byte, xorRes [][]byte, m
 		if canUseFused {
 			// SIMD path: fuse copy with first layer butterfly
 			fullGroups := mtrunc &^ 3
-			zb := zeroBufferPool16[:shardSize]
+			zb := zeroBufferPool16()[:shardSize]
 
 			for r := 0; r < fullGroups; r += dist4 {
 				iend := r + dist
