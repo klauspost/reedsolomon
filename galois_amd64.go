@@ -347,6 +347,151 @@ func ifftDIT4(work [][]byte, dist int, log_m01, log_m23, log_m02 ffe, o *options
 	ifftDIT4Ref(work, dist, log_m01, log_m23, log_m02, o)
 }
 
+// 4-way butterfly with separate destination
+func ifftDIT4Dst(dst, work [][]byte, dist int, log_m01, log_m23, log_m02 ffe, o *options) {
+	if len(work[0]) == 0 {
+		return
+	}
+
+	t01 := &multiply256LUT[log_m01]
+	t23 := &multiply256LUT[log_m23]
+	t02 := &multiply256LUT[log_m02]
+	if o.useAvx512GFNI && o.useAVX512 && gf2p811dMulMatrices16 != nil {
+		g01 := &gf2p811dMulMatrices16[log_m01]
+		g23 := &gf2p811dMulMatrices16[log_m23]
+		g02 := &gf2p811dMulMatrices16[log_m02]
+		if log_m01 == modulus {
+			if log_m23 == modulus {
+				if log_m02 == modulus {
+					ifftDIT4_gfni_avx512_dst_7(dst, work, dist*24, g01, g23, g02)
+				} else {
+					ifftDIT4_gfni_avx512_dst_3(dst, work, dist*24, g01, g23, g02)
+				}
+			} else {
+				if log_m02 == modulus {
+					ifftDIT4_gfni_avx512_dst_5(dst, work, dist*24, g01, g23, g02)
+				} else {
+					ifftDIT4_gfni_avx512_dst_1(dst, work, dist*24, g01, g23, g02)
+				}
+			}
+		} else {
+			if log_m23 == modulus {
+				if log_m02 == modulus {
+					ifftDIT4_gfni_avx512_dst_6(dst, work, dist*24, g01, g23, g02)
+				} else {
+					ifftDIT4_gfni_avx512_dst_2(dst, work, dist*24, g01, g23, g02)
+				}
+			} else {
+				if log_m02 == modulus {
+					ifftDIT4_gfni_avx512_dst_4(dst, work, dist*24, g01, g23, g02)
+				} else {
+					ifftDIT4_gfni_avx512_dst_0(dst, work, dist*24, g01, g23, g02)
+				}
+			}
+		}
+		return
+	}
+	if o.useAvxGNFI && gf2p811dMulMatrices16 != nil {
+		g01 := &gf2p811dMulMatrices16[log_m01]
+		g23 := &gf2p811dMulMatrices16[log_m23]
+		g02 := &gf2p811dMulMatrices16[log_m02]
+		if log_m01 == modulus {
+			if log_m23 == modulus {
+				if log_m02 == modulus {
+					ifftDIT4_gfni_dst_7(dst, work, dist*24, g01, g23, g02)
+				} else {
+					ifftDIT4_gfni_dst_3(dst, work, dist*24, g01, g23, g02)
+				}
+			} else {
+				if log_m02 == modulus {
+					ifftDIT4_gfni_dst_5(dst, work, dist*24, g01, g23, g02)
+				} else {
+					ifftDIT4_gfni_dst_1(dst, work, dist*24, g01, g23, g02)
+				}
+			}
+		} else {
+			if log_m23 == modulus {
+				if log_m02 == modulus {
+					ifftDIT4_gfni_dst_6(dst, work, dist*24, g01, g23, g02)
+				} else {
+					ifftDIT4_gfni_dst_2(dst, work, dist*24, g01, g23, g02)
+				}
+			} else {
+				if log_m02 == modulus {
+					ifftDIT4_gfni_dst_4(dst, work, dist*24, g01, g23, g02)
+				} else {
+					ifftDIT4_gfni_dst_0(dst, work, dist*24, g01, g23, g02)
+				}
+			}
+		}
+		return
+	}
+	if o.useAVX512 {
+		if log_m01 == modulus {
+			if log_m23 == modulus {
+				if log_m02 == modulus {
+					ifftDIT4_avx512_dst_7(dst, work, dist*24, t01, t23, t02)
+				} else {
+					ifftDIT4_avx512_dst_3(dst, work, dist*24, t01, t23, t02)
+				}
+			} else {
+				if log_m02 == modulus {
+					ifftDIT4_avx512_dst_5(dst, work, dist*24, t01, t23, t02)
+				} else {
+					ifftDIT4_avx512_dst_1(dst, work, dist*24, t01, t23, t02)
+				}
+			}
+		} else {
+			if log_m23 == modulus {
+				if log_m02 == modulus {
+					ifftDIT4_avx512_dst_6(dst, work, dist*24, t01, t23, t02)
+				} else {
+					ifftDIT4_avx512_dst_2(dst, work, dist*24, t01, t23, t02)
+				}
+			} else {
+				if log_m02 == modulus {
+					ifftDIT4_avx512_dst_4(dst, work, dist*24, t01, t23, t02)
+				} else {
+					ifftDIT4_avx512_dst_0(dst, work, dist*24, t01, t23, t02)
+				}
+			}
+		}
+		return
+	} else if o.useAVX2 {
+		if log_m01 == modulus {
+			if log_m23 == modulus {
+				if log_m02 == modulus {
+					ifftDIT4_avx2_dst_7(dst, work, dist*24, t01, t23, t02)
+				} else {
+					ifftDIT4_avx2_dst_3(dst, work, dist*24, t01, t23, t02)
+				}
+			} else {
+				if log_m02 == modulus {
+					ifftDIT4_avx2_dst_5(dst, work, dist*24, t01, t23, t02)
+				} else {
+					ifftDIT4_avx2_dst_1(dst, work, dist*24, t01, t23, t02)
+				}
+			}
+		} else {
+			if log_m23 == modulus {
+				if log_m02 == modulus {
+					ifftDIT4_avx2_dst_6(dst, work, dist*24, t01, t23, t02)
+				} else {
+					ifftDIT4_avx2_dst_2(dst, work, dist*24, t01, t23, t02)
+				}
+			} else {
+				if log_m02 == modulus {
+					ifftDIT4_avx2_dst_4(dst, work, dist*24, t01, t23, t02)
+				} else {
+					ifftDIT4_avx2_dst_0(dst, work, dist*24, t01, t23, t02)
+				}
+			}
+		}
+		return
+	}
+	ifftDIT4DstRef(dst, work, dist, log_m01, log_m23, log_m02, o)
+}
+
 // 4-way butterfly
 func ifftDIT48(work [][]byte, dist int, log_m01, log_m23, log_m02 ffe8, o *options) {
 	if len(work[0]) == 0 {

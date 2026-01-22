@@ -69550,6 +69550,1350 @@ loop_fft4_gfni_avx512_7:
 	VZEROUPPER
 	RET
 
+// func ifftDIT4_gfni_dst_0(dst [][]byte, work [][]byte, dist int, table01 *[4]uint64, table23 *[4]uint64, table02 *[4]uint64)
+// Requires: AVX, AVX2, AVX512F, AVX512VL, GFNI
+TEXT ·ifftDIT4_gfni_dst_0(SB), NOSPLIT, $0-80
+	// dist must be multiplied by 24 (size of slice header)
+	MOVQ         table01+56(FP), AX
+	MOVQ         table23+64(FP), CX
+	MOVQ         table02+72(FP), DX
+	VBROADCASTSD (DX), Y0
+	VBROADCASTSD 8(DX), Y1
+	VBROADCASTSD 16(DX), Y2
+	VBROADCASTSD 24(DX), Y3
+	MOVQ         dist+48(FP), DX
+	MOVQ         work_base+24(FP), BX
+	MOVQ         8(BX), SI
+	MOVQ         dst_base+0(FP), DI
+	MOVQ         (BX), R8
+	ADDQ         DX, BX
+	MOVQ         (DI), R9
+	ADDQ         DX, DI
+	MOVQ         (BX), R10
+	ADDQ         DX, BX
+	MOVQ         (DI), R11
+	ADDQ         DX, DI
+	MOVQ         (BX), R12
+	ADDQ         DX, BX
+	MOVQ         (DI), R13
+	ADDQ         DX, DI
+	MOVQ         (BX), DX
+	MOVQ         (DI), BX
+
+loop_ifft4_gfni_dst_0:
+	VMOVDQU (R8), Y4
+	VMOVDQU 32(R8), Y5
+	VMOVDQU (R10), Y6
+	VMOVDQU 32(R10), Y7
+	VPXOR   Y4, Y6, Y6
+	VPXOR   Y5, Y7, Y7
+
+	// GFNI LEO_MULADD_256 (from memory)
+	VGF2P8AFFINEQB.BCST $0x00, (AX), Y6, Y8
+	VGF2P8AFFINEQB.BCST $0x00, 8(AX), Y7, Y9
+	VGF2P8AFFINEQB.BCST $0x00, 16(AX), Y6, Y10
+	VGF2P8AFFINEQB.BCST $0x00, 24(AX), Y7, Y11
+	XOR3WAY(          $0x00, Y8, Y9, Y4)
+	XOR3WAY(          $0x00, Y10, Y11, Y5)
+	VMOVDQU             (R12), Y8
+	VMOVDQU             32(R12), Y9
+	VMOVDQU             (DX), Y10
+	VMOVDQU             32(DX), Y11
+	VPXOR               Y8, Y10, Y10
+	VPXOR               Y9, Y11, Y11
+
+	// GFNI LEO_MULADD_256 (from memory)
+	VGF2P8AFFINEQB.BCST $0x00, (CX), Y10, Y12
+	VGF2P8AFFINEQB.BCST $0x00, 8(CX), Y11, Y13
+	VGF2P8AFFINEQB.BCST $0x00, 16(CX), Y10, Y14
+	VGF2P8AFFINEQB.BCST $0x00, 24(CX), Y11, Y15
+	XOR3WAY(          $0x00, Y12, Y13, Y8)
+	XOR3WAY(          $0x00, Y14, Y15, Y9)
+	VPXOR               Y4, Y8, Y8
+	VPXOR               Y5, Y9, Y9
+	VPXOR               Y6, Y10, Y10
+	VPXOR               Y7, Y11, Y11
+
+	// GFNI LEO_MULADD_256 (from register)
+	VGF2P8AFFINEQB $0x00, Y0, Y8, Y12
+	VGF2P8AFFINEQB $0x00, Y1, Y9, Y13
+	VGF2P8AFFINEQB $0x00, Y2, Y8, Y14
+	VGF2P8AFFINEQB $0x00, Y3, Y9, Y15
+	XOR3WAY(     $0x00, Y12, Y13, Y4)
+	XOR3WAY(     $0x00, Y14, Y15, Y5)
+
+	// GFNI LEO_MULADD_256 (from register)
+	VGF2P8AFFINEQB $0x00, Y0, Y10, Y12
+	VGF2P8AFFINEQB $0x00, Y1, Y11, Y13
+	VGF2P8AFFINEQB $0x00, Y2, Y10, Y14
+	VGF2P8AFFINEQB $0x00, Y3, Y11, Y15
+	XOR3WAY(     $0x00, Y12, Y13, Y6)
+	XOR3WAY(     $0x00, Y14, Y15, Y7)
+	VMOVDQU        Y4, (R9)
+	VMOVDQU        Y5, 32(R9)
+	ADDQ           $0x40, R9
+	ADDQ           $0x40, R8
+	VMOVDQU        Y6, (R11)
+	VMOVDQU        Y7, 32(R11)
+	ADDQ           $0x40, R11
+	ADDQ           $0x40, R10
+	VMOVDQU        Y8, (R13)
+	VMOVDQU        Y9, 32(R13)
+	ADDQ           $0x40, R13
+	ADDQ           $0x40, R12
+	VMOVDQU        Y10, (BX)
+	VMOVDQU        Y11, 32(BX)
+	ADDQ           $0x40, BX
+	ADDQ           $0x40, DX
+	SUBQ           $0x40, SI
+	JNZ            loop_ifft4_gfni_dst_0
+	VZEROUPPER
+	RET
+
+// func ifftDIT4_gfni_dst_1(dst [][]byte, work [][]byte, dist int, table01 *[4]uint64, table23 *[4]uint64, table02 *[4]uint64)
+// Requires: AVX, AVX2, AVX512F, AVX512VL, GFNI
+TEXT ·ifftDIT4_gfni_dst_1(SB), NOSPLIT, $0-80
+	// dist must be multiplied by 24 (size of slice header)
+	MOVQ         table01+56(FP), AX
+	MOVQ         table23+64(FP), AX
+	MOVQ         table02+72(FP), CX
+	VBROADCASTSD (CX), Y0
+	VBROADCASTSD 8(CX), Y1
+	VBROADCASTSD 16(CX), Y2
+	VBROADCASTSD 24(CX), Y3
+	MOVQ         dist+48(FP), CX
+	MOVQ         work_base+24(FP), DX
+	MOVQ         8(DX), BX
+	MOVQ         dst_base+0(FP), SI
+	MOVQ         (DX), DI
+	ADDQ         CX, DX
+	MOVQ         (SI), R8
+	ADDQ         CX, SI
+	MOVQ         (DX), R9
+	ADDQ         CX, DX
+	MOVQ         (SI), R10
+	ADDQ         CX, SI
+	MOVQ         (DX), R11
+	ADDQ         CX, DX
+	MOVQ         (SI), R12
+	ADDQ         CX, SI
+	MOVQ         (DX), CX
+	MOVQ         (SI), DX
+
+loop_ifft4_gfni_dst_1:
+	VMOVDQU (DI), Y4
+	VMOVDQU 32(DI), Y5
+	VMOVDQU (R9), Y6
+	VMOVDQU 32(R9), Y7
+	VPXOR   Y4, Y6, Y6
+	VPXOR   Y5, Y7, Y7
+	VMOVDQU (R11), Y8
+	VMOVDQU 32(R11), Y9
+	VMOVDQU (CX), Y10
+	VMOVDQU 32(CX), Y11
+	VPXOR   Y8, Y10, Y10
+	VPXOR   Y9, Y11, Y11
+
+	// GFNI LEO_MULADD_256 (from memory)
+	VGF2P8AFFINEQB.BCST $0x00, (AX), Y10, Y12
+	VGF2P8AFFINEQB.BCST $0x00, 8(AX), Y11, Y13
+	VGF2P8AFFINEQB.BCST $0x00, 16(AX), Y10, Y14
+	VGF2P8AFFINEQB.BCST $0x00, 24(AX), Y11, Y15
+	XOR3WAY(          $0x00, Y12, Y13, Y8)
+	XOR3WAY(          $0x00, Y14, Y15, Y9)
+	VPXOR               Y4, Y8, Y8
+	VPXOR               Y5, Y9, Y9
+	VPXOR               Y6, Y10, Y10
+	VPXOR               Y7, Y11, Y11
+
+	// GFNI LEO_MULADD_256 (from register)
+	VGF2P8AFFINEQB $0x00, Y0, Y8, Y12
+	VGF2P8AFFINEQB $0x00, Y1, Y9, Y13
+	VGF2P8AFFINEQB $0x00, Y2, Y8, Y14
+	VGF2P8AFFINEQB $0x00, Y3, Y9, Y15
+	XOR3WAY(     $0x00, Y12, Y13, Y4)
+	XOR3WAY(     $0x00, Y14, Y15, Y5)
+
+	// GFNI LEO_MULADD_256 (from register)
+	VGF2P8AFFINEQB $0x00, Y0, Y10, Y12
+	VGF2P8AFFINEQB $0x00, Y1, Y11, Y13
+	VGF2P8AFFINEQB $0x00, Y2, Y10, Y14
+	VGF2P8AFFINEQB $0x00, Y3, Y11, Y15
+	XOR3WAY(     $0x00, Y12, Y13, Y6)
+	XOR3WAY(     $0x00, Y14, Y15, Y7)
+	VMOVDQU        Y4, (R8)
+	VMOVDQU        Y5, 32(R8)
+	ADDQ           $0x40, R8
+	ADDQ           $0x40, DI
+	VMOVDQU        Y6, (R10)
+	VMOVDQU        Y7, 32(R10)
+	ADDQ           $0x40, R10
+	ADDQ           $0x40, R9
+	VMOVDQU        Y8, (R12)
+	VMOVDQU        Y9, 32(R12)
+	ADDQ           $0x40, R12
+	ADDQ           $0x40, R11
+	VMOVDQU        Y10, (DX)
+	VMOVDQU        Y11, 32(DX)
+	ADDQ           $0x40, DX
+	ADDQ           $0x40, CX
+	SUBQ           $0x40, BX
+	JNZ            loop_ifft4_gfni_dst_1
+	VZEROUPPER
+	RET
+
+// func ifftDIT4_gfni_dst_2(dst [][]byte, work [][]byte, dist int, table01 *[4]uint64, table23 *[4]uint64, table02 *[4]uint64)
+// Requires: AVX, AVX2, AVX512F, AVX512VL, GFNI
+TEXT ·ifftDIT4_gfni_dst_2(SB), NOSPLIT, $0-80
+	// dist must be multiplied by 24 (size of slice header)
+	MOVQ         table01+56(FP), AX
+	MOVQ         table23+64(FP), CX
+	MOVQ         table02+72(FP), CX
+	VBROADCASTSD (CX), Y0
+	VBROADCASTSD 8(CX), Y1
+	VBROADCASTSD 16(CX), Y2
+	VBROADCASTSD 24(CX), Y3
+	MOVQ         dist+48(FP), CX
+	MOVQ         work_base+24(FP), DX
+	MOVQ         8(DX), BX
+	MOVQ         dst_base+0(FP), SI
+	MOVQ         (DX), DI
+	ADDQ         CX, DX
+	MOVQ         (SI), R8
+	ADDQ         CX, SI
+	MOVQ         (DX), R9
+	ADDQ         CX, DX
+	MOVQ         (SI), R10
+	ADDQ         CX, SI
+	MOVQ         (DX), R11
+	ADDQ         CX, DX
+	MOVQ         (SI), R12
+	ADDQ         CX, SI
+	MOVQ         (DX), CX
+	MOVQ         (SI), DX
+
+loop_ifft4_gfni_dst_2:
+	VMOVDQU (DI), Y4
+	VMOVDQU 32(DI), Y5
+	VMOVDQU (R9), Y6
+	VMOVDQU 32(R9), Y7
+	VPXOR   Y4, Y6, Y6
+	VPXOR   Y5, Y7, Y7
+
+	// GFNI LEO_MULADD_256 (from memory)
+	VGF2P8AFFINEQB.BCST $0x00, (AX), Y6, Y8
+	VGF2P8AFFINEQB.BCST $0x00, 8(AX), Y7, Y9
+	VGF2P8AFFINEQB.BCST $0x00, 16(AX), Y6, Y10
+	VGF2P8AFFINEQB.BCST $0x00, 24(AX), Y7, Y11
+	XOR3WAY(          $0x00, Y8, Y9, Y4)
+	XOR3WAY(          $0x00, Y10, Y11, Y5)
+	VMOVDQU             (R11), Y8
+	VMOVDQU             32(R11), Y9
+	VMOVDQU             (CX), Y10
+	VMOVDQU             32(CX), Y11
+	VPXOR               Y8, Y10, Y10
+	VPXOR               Y9, Y11, Y11
+	VPXOR               Y4, Y8, Y8
+	VPXOR               Y5, Y9, Y9
+	VPXOR               Y6, Y10, Y10
+	VPXOR               Y7, Y11, Y11
+
+	// GFNI LEO_MULADD_256 (from register)
+	VGF2P8AFFINEQB $0x00, Y0, Y8, Y12
+	VGF2P8AFFINEQB $0x00, Y1, Y9, Y13
+	VGF2P8AFFINEQB $0x00, Y2, Y8, Y14
+	VGF2P8AFFINEQB $0x00, Y3, Y9, Y15
+	XOR3WAY(     $0x00, Y12, Y13, Y4)
+	XOR3WAY(     $0x00, Y14, Y15, Y5)
+
+	// GFNI LEO_MULADD_256 (from register)
+	VGF2P8AFFINEQB $0x00, Y0, Y10, Y12
+	VGF2P8AFFINEQB $0x00, Y1, Y11, Y13
+	VGF2P8AFFINEQB $0x00, Y2, Y10, Y14
+	VGF2P8AFFINEQB $0x00, Y3, Y11, Y15
+	XOR3WAY(     $0x00, Y12, Y13, Y6)
+	XOR3WAY(     $0x00, Y14, Y15, Y7)
+	VMOVDQU        Y4, (R8)
+	VMOVDQU        Y5, 32(R8)
+	ADDQ           $0x40, R8
+	ADDQ           $0x40, DI
+	VMOVDQU        Y6, (R10)
+	VMOVDQU        Y7, 32(R10)
+	ADDQ           $0x40, R10
+	ADDQ           $0x40, R9
+	VMOVDQU        Y8, (R12)
+	VMOVDQU        Y9, 32(R12)
+	ADDQ           $0x40, R12
+	ADDQ           $0x40, R11
+	VMOVDQU        Y10, (DX)
+	VMOVDQU        Y11, 32(DX)
+	ADDQ           $0x40, DX
+	ADDQ           $0x40, CX
+	SUBQ           $0x40, BX
+	JNZ            loop_ifft4_gfni_dst_2
+	VZEROUPPER
+	RET
+
+// func ifftDIT4_gfni_dst_3(dst [][]byte, work [][]byte, dist int, table01 *[4]uint64, table23 *[4]uint64, table02 *[4]uint64)
+// Requires: AVX, AVX2, AVX512F, AVX512VL, GFNI
+TEXT ·ifftDIT4_gfni_dst_3(SB), NOSPLIT, $0-80
+	// dist must be multiplied by 24 (size of slice header)
+	MOVQ         table01+56(FP), AX
+	MOVQ         table23+64(FP), AX
+	MOVQ         table02+72(FP), AX
+	VBROADCASTSD (AX), Y0
+	VBROADCASTSD 8(AX), Y1
+	VBROADCASTSD 16(AX), Y2
+	VBROADCASTSD 24(AX), Y3
+	MOVQ         dist+48(FP), AX
+	MOVQ         work_base+24(FP), CX
+	MOVQ         8(CX), DX
+	MOVQ         dst_base+0(FP), BX
+	MOVQ         (CX), SI
+	ADDQ         AX, CX
+	MOVQ         (BX), DI
+	ADDQ         AX, BX
+	MOVQ         (CX), R8
+	ADDQ         AX, CX
+	MOVQ         (BX), R9
+	ADDQ         AX, BX
+	MOVQ         (CX), R10
+	ADDQ         AX, CX
+	MOVQ         (BX), R11
+	ADDQ         AX, BX
+	MOVQ         (CX), AX
+	MOVQ         (BX), CX
+
+loop_ifft4_gfni_dst_3:
+	VMOVDQU (SI), Y4
+	VMOVDQU 32(SI), Y5
+	VMOVDQU (R8), Y6
+	VMOVDQU 32(R8), Y7
+	VPXOR   Y4, Y6, Y6
+	VPXOR   Y5, Y7, Y7
+	VMOVDQU (R10), Y8
+	VMOVDQU 32(R10), Y9
+	VMOVDQU (AX), Y10
+	VMOVDQU 32(AX), Y11
+	VPXOR   Y8, Y10, Y10
+	VPXOR   Y9, Y11, Y11
+	VPXOR   Y4, Y8, Y8
+	VPXOR   Y5, Y9, Y9
+	VPXOR   Y6, Y10, Y10
+	VPXOR   Y7, Y11, Y11
+
+	// GFNI LEO_MULADD_256 (from register)
+	VGF2P8AFFINEQB $0x00, Y0, Y8, Y12
+	VGF2P8AFFINEQB $0x00, Y1, Y9, Y13
+	VGF2P8AFFINEQB $0x00, Y2, Y8, Y14
+	VGF2P8AFFINEQB $0x00, Y3, Y9, Y15
+	XOR3WAY(     $0x00, Y12, Y13, Y4)
+	XOR3WAY(     $0x00, Y14, Y15, Y5)
+
+	// GFNI LEO_MULADD_256 (from register)
+	VGF2P8AFFINEQB $0x00, Y0, Y10, Y12
+	VGF2P8AFFINEQB $0x00, Y1, Y11, Y13
+	VGF2P8AFFINEQB $0x00, Y2, Y10, Y14
+	VGF2P8AFFINEQB $0x00, Y3, Y11, Y15
+	XOR3WAY(     $0x00, Y12, Y13, Y6)
+	XOR3WAY(     $0x00, Y14, Y15, Y7)
+	VMOVDQU        Y4, (DI)
+	VMOVDQU        Y5, 32(DI)
+	ADDQ           $0x40, DI
+	ADDQ           $0x40, SI
+	VMOVDQU        Y6, (R9)
+	VMOVDQU        Y7, 32(R9)
+	ADDQ           $0x40, R9
+	ADDQ           $0x40, R8
+	VMOVDQU        Y8, (R11)
+	VMOVDQU        Y9, 32(R11)
+	ADDQ           $0x40, R11
+	ADDQ           $0x40, R10
+	VMOVDQU        Y10, (CX)
+	VMOVDQU        Y11, 32(CX)
+	ADDQ           $0x40, CX
+	ADDQ           $0x40, AX
+	SUBQ           $0x40, DX
+	JNZ            loop_ifft4_gfni_dst_3
+	VZEROUPPER
+	RET
+
+// func ifftDIT4_gfni_dst_4(dst [][]byte, work [][]byte, dist int, table01 *[4]uint64, table23 *[4]uint64, table02 *[4]uint64)
+// Requires: AVX, AVX2, AVX512F, AVX512VL, GFNI
+TEXT ·ifftDIT4_gfni_dst_4(SB), NOSPLIT, $0-80
+	// dist must be multiplied by 24 (size of slice header)
+	MOVQ table01+56(FP), AX
+	MOVQ table23+64(FP), CX
+	MOVQ table02+72(FP), DX
+	MOVQ dist+48(FP), DX
+	MOVQ work_base+24(FP), BX
+	MOVQ 8(BX), SI
+	MOVQ dst_base+0(FP), DI
+	MOVQ (BX), R8
+	ADDQ DX, BX
+	MOVQ (DI), R9
+	ADDQ DX, DI
+	MOVQ (BX), R10
+	ADDQ DX, BX
+	MOVQ (DI), R11
+	ADDQ DX, DI
+	MOVQ (BX), R12
+	ADDQ DX, BX
+	MOVQ (DI), R13
+	ADDQ DX, DI
+	MOVQ (BX), DX
+	MOVQ (DI), BX
+
+loop_ifft4_gfni_dst_4:
+	VMOVDQU (R8), Y0
+	VMOVDQU 32(R8), Y1
+	VMOVDQU (R10), Y2
+	VMOVDQU 32(R10), Y3
+	VPXOR   Y0, Y2, Y2
+	VPXOR   Y1, Y3, Y3
+
+	// GFNI LEO_MULADD_256 (from memory)
+	VGF2P8AFFINEQB.BCST $0x00, (AX), Y2, Y4
+	VGF2P8AFFINEQB.BCST $0x00, 8(AX), Y3, Y5
+	VGF2P8AFFINEQB.BCST $0x00, 16(AX), Y2, Y6
+	VGF2P8AFFINEQB.BCST $0x00, 24(AX), Y3, Y7
+	XOR3WAY(          $0x00, Y4, Y5, Y0)
+	XOR3WAY(          $0x00, Y6, Y7, Y1)
+	VMOVDQU             (R12), Y4
+	VMOVDQU             32(R12), Y5
+	VMOVDQU             (DX), Y6
+	VMOVDQU             32(DX), Y7
+	VPXOR               Y4, Y6, Y6
+	VPXOR               Y5, Y7, Y7
+
+	// GFNI LEO_MULADD_256 (from memory)
+	VGF2P8AFFINEQB.BCST $0x00, (CX), Y6, Y8
+	VGF2P8AFFINEQB.BCST $0x00, 8(CX), Y7, Y9
+	VGF2P8AFFINEQB.BCST $0x00, 16(CX), Y6, Y10
+	VGF2P8AFFINEQB.BCST $0x00, 24(CX), Y7, Y11
+	XOR3WAY(          $0x00, Y8, Y9, Y4)
+	XOR3WAY(          $0x00, Y10, Y11, Y5)
+	VPXOR               Y0, Y4, Y4
+	VPXOR               Y1, Y5, Y5
+	VPXOR               Y2, Y6, Y6
+	VPXOR               Y3, Y7, Y7
+	VMOVDQU             Y0, (R9)
+	VMOVDQU             Y1, 32(R9)
+	ADDQ                $0x40, R9
+	ADDQ                $0x40, R8
+	VMOVDQU             Y2, (R11)
+	VMOVDQU             Y3, 32(R11)
+	ADDQ                $0x40, R11
+	ADDQ                $0x40, R10
+	VMOVDQU             Y4, (R13)
+	VMOVDQU             Y5, 32(R13)
+	ADDQ                $0x40, R13
+	ADDQ                $0x40, R12
+	VMOVDQU             Y6, (BX)
+	VMOVDQU             Y7, 32(BX)
+	ADDQ                $0x40, BX
+	ADDQ                $0x40, DX
+	SUBQ                $0x40, SI
+	JNZ                 loop_ifft4_gfni_dst_4
+	VZEROUPPER
+	RET
+
+// func ifftDIT4_gfni_dst_5(dst [][]byte, work [][]byte, dist int, table01 *[4]uint64, table23 *[4]uint64, table02 *[4]uint64)
+// Requires: AVX, AVX2, AVX512F, AVX512VL, GFNI
+TEXT ·ifftDIT4_gfni_dst_5(SB), NOSPLIT, $0-80
+	// dist must be multiplied by 24 (size of slice header)
+	MOVQ table01+56(FP), AX
+	MOVQ table23+64(FP), AX
+	MOVQ table02+72(FP), CX
+	MOVQ dist+48(FP), CX
+	MOVQ work_base+24(FP), DX
+	MOVQ 8(DX), BX
+	MOVQ dst_base+0(FP), SI
+	MOVQ (DX), DI
+	ADDQ CX, DX
+	MOVQ (SI), R8
+	ADDQ CX, SI
+	MOVQ (DX), R9
+	ADDQ CX, DX
+	MOVQ (SI), R10
+	ADDQ CX, SI
+	MOVQ (DX), R11
+	ADDQ CX, DX
+	MOVQ (SI), R12
+	ADDQ CX, SI
+	MOVQ (DX), CX
+	MOVQ (SI), DX
+
+loop_ifft4_gfni_dst_5:
+	VMOVDQU (DI), Y0
+	VMOVDQU 32(DI), Y1
+	VMOVDQU (R9), Y2
+	VMOVDQU 32(R9), Y3
+	VPXOR   Y0, Y2, Y2
+	VPXOR   Y1, Y3, Y3
+	VMOVDQU (R11), Y4
+	VMOVDQU 32(R11), Y5
+	VMOVDQU (CX), Y6
+	VMOVDQU 32(CX), Y7
+	VPXOR   Y4, Y6, Y6
+	VPXOR   Y5, Y7, Y7
+
+	// GFNI LEO_MULADD_256 (from memory)
+	VGF2P8AFFINEQB.BCST $0x00, (AX), Y6, Y8
+	VGF2P8AFFINEQB.BCST $0x00, 8(AX), Y7, Y9
+	VGF2P8AFFINEQB.BCST $0x00, 16(AX), Y6, Y10
+	VGF2P8AFFINEQB.BCST $0x00, 24(AX), Y7, Y11
+	XOR3WAY(          $0x00, Y8, Y9, Y4)
+	XOR3WAY(          $0x00, Y10, Y11, Y5)
+	VPXOR               Y0, Y4, Y4
+	VPXOR               Y1, Y5, Y5
+	VPXOR               Y2, Y6, Y6
+	VPXOR               Y3, Y7, Y7
+	VMOVDQU             Y0, (R8)
+	VMOVDQU             Y1, 32(R8)
+	ADDQ                $0x40, R8
+	ADDQ                $0x40, DI
+	VMOVDQU             Y2, (R10)
+	VMOVDQU             Y3, 32(R10)
+	ADDQ                $0x40, R10
+	ADDQ                $0x40, R9
+	VMOVDQU             Y4, (R12)
+	VMOVDQU             Y5, 32(R12)
+	ADDQ                $0x40, R12
+	ADDQ                $0x40, R11
+	VMOVDQU             Y6, (DX)
+	VMOVDQU             Y7, 32(DX)
+	ADDQ                $0x40, DX
+	ADDQ                $0x40, CX
+	SUBQ                $0x40, BX
+	JNZ                 loop_ifft4_gfni_dst_5
+	VZEROUPPER
+	RET
+
+// func ifftDIT4_gfni_dst_6(dst [][]byte, work [][]byte, dist int, table01 *[4]uint64, table23 *[4]uint64, table02 *[4]uint64)
+// Requires: AVX, AVX2, AVX512F, AVX512VL, GFNI
+TEXT ·ifftDIT4_gfni_dst_6(SB), NOSPLIT, $0-80
+	// dist must be multiplied by 24 (size of slice header)
+	MOVQ table01+56(FP), AX
+	MOVQ table23+64(FP), CX
+	MOVQ table02+72(FP), CX
+	MOVQ dist+48(FP), CX
+	MOVQ work_base+24(FP), DX
+	MOVQ 8(DX), BX
+	MOVQ dst_base+0(FP), SI
+	MOVQ (DX), DI
+	ADDQ CX, DX
+	MOVQ (SI), R8
+	ADDQ CX, SI
+	MOVQ (DX), R9
+	ADDQ CX, DX
+	MOVQ (SI), R10
+	ADDQ CX, SI
+	MOVQ (DX), R11
+	ADDQ CX, DX
+	MOVQ (SI), R12
+	ADDQ CX, SI
+	MOVQ (DX), CX
+	MOVQ (SI), DX
+
+loop_ifft4_gfni_dst_6:
+	VMOVDQU (DI), Y0
+	VMOVDQU 32(DI), Y1
+	VMOVDQU (R9), Y2
+	VMOVDQU 32(R9), Y3
+	VPXOR   Y0, Y2, Y2
+	VPXOR   Y1, Y3, Y3
+
+	// GFNI LEO_MULADD_256 (from memory)
+	VGF2P8AFFINEQB.BCST $0x00, (AX), Y2, Y4
+	VGF2P8AFFINEQB.BCST $0x00, 8(AX), Y3, Y5
+	VGF2P8AFFINEQB.BCST $0x00, 16(AX), Y2, Y6
+	VGF2P8AFFINEQB.BCST $0x00, 24(AX), Y3, Y7
+	XOR3WAY(          $0x00, Y4, Y5, Y0)
+	XOR3WAY(          $0x00, Y6, Y7, Y1)
+	VMOVDQU             (R11), Y4
+	VMOVDQU             32(R11), Y5
+	VMOVDQU             (CX), Y6
+	VMOVDQU             32(CX), Y7
+	VPXOR               Y4, Y6, Y6
+	VPXOR               Y5, Y7, Y7
+	VPXOR               Y0, Y4, Y4
+	VPXOR               Y1, Y5, Y5
+	VPXOR               Y2, Y6, Y6
+	VPXOR               Y3, Y7, Y7
+	VMOVDQU             Y0, (R8)
+	VMOVDQU             Y1, 32(R8)
+	ADDQ                $0x40, R8
+	ADDQ                $0x40, DI
+	VMOVDQU             Y2, (R10)
+	VMOVDQU             Y3, 32(R10)
+	ADDQ                $0x40, R10
+	ADDQ                $0x40, R9
+	VMOVDQU             Y4, (R12)
+	VMOVDQU             Y5, 32(R12)
+	ADDQ                $0x40, R12
+	ADDQ                $0x40, R11
+	VMOVDQU             Y6, (DX)
+	VMOVDQU             Y7, 32(DX)
+	ADDQ                $0x40, DX
+	ADDQ                $0x40, CX
+	SUBQ                $0x40, BX
+	JNZ                 loop_ifft4_gfni_dst_6
+	VZEROUPPER
+	RET
+
+// func ifftDIT4_gfni_dst_7(dst [][]byte, work [][]byte, dist int, table01 *[4]uint64, table23 *[4]uint64, table02 *[4]uint64)
+// Requires: AVX, AVX2
+TEXT ·ifftDIT4_gfni_dst_7(SB), NOSPLIT, $0-80
+	// dist must be multiplied by 24 (size of slice header)
+	MOVQ table01+56(FP), AX
+	MOVQ table23+64(FP), AX
+	MOVQ table02+72(FP), AX
+	MOVQ dist+48(FP), AX
+	MOVQ work_base+24(FP), CX
+	MOVQ 8(CX), DX
+	MOVQ dst_base+0(FP), BX
+	MOVQ (CX), SI
+	ADDQ AX, CX
+	MOVQ (BX), DI
+	ADDQ AX, BX
+	MOVQ (CX), R8
+	ADDQ AX, CX
+	MOVQ (BX), R9
+	ADDQ AX, BX
+	MOVQ (CX), R10
+	ADDQ AX, CX
+	MOVQ (BX), R11
+	ADDQ AX, BX
+	MOVQ (CX), AX
+	MOVQ (BX), CX
+
+loop_ifft4_gfni_dst_7:
+	VMOVDQU (SI), Y0
+	VMOVDQU 32(SI), Y1
+	VMOVDQU (R8), Y2
+	VMOVDQU 32(R8), Y3
+	VPXOR   Y0, Y2, Y2
+	VPXOR   Y1, Y3, Y3
+	VMOVDQU (R10), Y4
+	VMOVDQU 32(R10), Y5
+	VMOVDQU (AX), Y6
+	VMOVDQU 32(AX), Y7
+	VPXOR   Y4, Y6, Y6
+	VPXOR   Y5, Y7, Y7
+	VPXOR   Y0, Y4, Y4
+	VPXOR   Y1, Y5, Y5
+	VPXOR   Y2, Y6, Y6
+	VPXOR   Y3, Y7, Y7
+	VMOVDQU Y0, (DI)
+	VMOVDQU Y1, 32(DI)
+	ADDQ    $0x40, DI
+	ADDQ    $0x40, SI
+	VMOVDQU Y2, (R9)
+	VMOVDQU Y3, 32(R9)
+	ADDQ    $0x40, R9
+	ADDQ    $0x40, R8
+	VMOVDQU Y4, (R11)
+	VMOVDQU Y5, 32(R11)
+	ADDQ    $0x40, R11
+	ADDQ    $0x40, R10
+	VMOVDQU Y6, (CX)
+	VMOVDQU Y7, 32(CX)
+	ADDQ    $0x40, CX
+	ADDQ    $0x40, AX
+	SUBQ    $0x40, DX
+	JNZ     loop_ifft4_gfni_dst_7
+	VZEROUPPER
+	RET
+
+// func ifftDIT4_gfni_avx512_dst_0(dst [][]byte, work [][]byte, dist int, table01 *[4]uint64, table23 *[4]uint64, table02 *[4]uint64)
+// Requires: AVX, AVX2, AVX512F, AVX512VL, GFNI
+TEXT ·ifftDIT4_gfni_avx512_dst_0(SB), NOSPLIT, $0-80
+	// dist must be multiplied by 24 (size of slice header)
+	MOVQ         table01+56(FP), AX
+	MOVQ         table23+64(FP), CX
+	MOVQ         table02+72(FP), DX
+	VBROADCASTSD (DX), Y0
+	VBROADCASTSD 8(DX), Y1
+	VBROADCASTSD 16(DX), Y2
+	VBROADCASTSD 24(DX), Y3
+	VBROADCASTSD (AX), Y16
+	VBROADCASTSD 8(AX), Y17
+	VBROADCASTSD 16(AX), Y18
+	VBROADCASTSD 24(AX), Y19
+	VBROADCASTSD (CX), Y20
+	VBROADCASTSD 8(CX), Y21
+	VBROADCASTSD 16(CX), Y22
+	VBROADCASTSD 24(CX), Y23
+	MOVQ         dist+48(FP), AX
+	MOVQ         work_base+24(FP), CX
+	MOVQ         8(CX), DX
+	MOVQ         dst_base+0(FP), BX
+	MOVQ         (CX), SI
+	ADDQ         AX, CX
+	MOVQ         (BX), DI
+	ADDQ         AX, BX
+	MOVQ         (CX), R8
+	ADDQ         AX, CX
+	MOVQ         (BX), R9
+	ADDQ         AX, BX
+	MOVQ         (CX), R10
+	ADDQ         AX, CX
+	MOVQ         (BX), R11
+	ADDQ         AX, BX
+	MOVQ         (CX), AX
+	MOVQ         (BX), CX
+
+loop_ifft4_gfni_avx512_dst_0:
+	VMOVDQU (SI), Y4
+	VMOVDQU 32(SI), Y5
+	VMOVDQU (R8), Y6
+	VMOVDQU 32(R8), Y7
+	VPXOR   Y4, Y6, Y6
+	VPXOR   Y5, Y7, Y7
+
+	// GFNI LEO_MULADD_256 (from register)
+	VGF2P8AFFINEQB $0x00, Y16, Y6, Y8
+	VGF2P8AFFINEQB $0x00, Y17, Y7, Y9
+	VGF2P8AFFINEQB $0x00, Y18, Y6, Y10
+	VGF2P8AFFINEQB $0x00, Y19, Y7, Y11
+	VPTERNLOGD     $0x96, Y8, Y9, Y4
+	VPTERNLOGD     $0x96, Y10, Y11, Y5
+	VMOVDQU        (R10), Y8
+	VMOVDQU        32(R10), Y9
+	VMOVDQU        (AX), Y10
+	VMOVDQU        32(AX), Y11
+	VPXOR          Y8, Y10, Y10
+	VPXOR          Y9, Y11, Y11
+
+	// GFNI LEO_MULADD_256 (from register)
+	VGF2P8AFFINEQB $0x00, Y20, Y10, Y12
+	VGF2P8AFFINEQB $0x00, Y21, Y11, Y13
+	VGF2P8AFFINEQB $0x00, Y22, Y10, Y14
+	VGF2P8AFFINEQB $0x00, Y23, Y11, Y15
+	VPTERNLOGD     $0x96, Y12, Y13, Y8
+	VPTERNLOGD     $0x96, Y14, Y15, Y9
+	VPXOR          Y4, Y8, Y8
+	VPXOR          Y5, Y9, Y9
+	VPXOR          Y6, Y10, Y10
+	VPXOR          Y7, Y11, Y11
+
+	// GFNI LEO_MULADD_256 (from register)
+	VGF2P8AFFINEQB $0x00, Y0, Y8, Y12
+	VGF2P8AFFINEQB $0x00, Y1, Y9, Y13
+	VGF2P8AFFINEQB $0x00, Y2, Y8, Y14
+	VGF2P8AFFINEQB $0x00, Y3, Y9, Y15
+	VPTERNLOGD     $0x96, Y12, Y13, Y4
+	VPTERNLOGD     $0x96, Y14, Y15, Y5
+
+	// GFNI LEO_MULADD_256 (from register)
+	VGF2P8AFFINEQB $0x00, Y0, Y10, Y12
+	VGF2P8AFFINEQB $0x00, Y1, Y11, Y13
+	VGF2P8AFFINEQB $0x00, Y2, Y10, Y14
+	VGF2P8AFFINEQB $0x00, Y3, Y11, Y15
+	VPTERNLOGD     $0x96, Y12, Y13, Y6
+	VPTERNLOGD     $0x96, Y14, Y15, Y7
+	VMOVDQU        Y4, (DI)
+	VMOVDQU        Y5, 32(DI)
+	ADDQ           $0x40, DI
+	ADDQ           $0x40, SI
+	VMOVDQU        Y6, (R9)
+	VMOVDQU        Y7, 32(R9)
+	ADDQ           $0x40, R9
+	ADDQ           $0x40, R8
+	VMOVDQU        Y8, (R11)
+	VMOVDQU        Y9, 32(R11)
+	ADDQ           $0x40, R11
+	ADDQ           $0x40, R10
+	VMOVDQU        Y10, (CX)
+	VMOVDQU        Y11, 32(CX)
+	ADDQ           $0x40, CX
+	ADDQ           $0x40, AX
+	SUBQ           $0x40, DX
+	JNZ            loop_ifft4_gfni_avx512_dst_0
+	VZEROUPPER
+	RET
+
+// func ifftDIT4_gfni_avx512_dst_1(dst [][]byte, work [][]byte, dist int, table01 *[4]uint64, table23 *[4]uint64, table02 *[4]uint64)
+// Requires: AVX, AVX2, AVX512F, AVX512VL, GFNI
+TEXT ·ifftDIT4_gfni_avx512_dst_1(SB), NOSPLIT, $0-80
+	// dist must be multiplied by 24 (size of slice header)
+	MOVQ         table01+56(FP), AX
+	MOVQ         table23+64(FP), AX
+	MOVQ         table02+72(FP), CX
+	VBROADCASTSD (CX), Y0
+	VBROADCASTSD 8(CX), Y1
+	VBROADCASTSD 16(CX), Y2
+	VBROADCASTSD 24(CX), Y3
+	VBROADCASTSD (AX), Y20
+	VBROADCASTSD 8(AX), Y21
+	VBROADCASTSD 16(AX), Y22
+	VBROADCASTSD 24(AX), Y23
+	MOVQ         dist+48(FP), AX
+	MOVQ         work_base+24(FP), CX
+	MOVQ         8(CX), DX
+	MOVQ         dst_base+0(FP), BX
+	MOVQ         (CX), SI
+	ADDQ         AX, CX
+	MOVQ         (BX), DI
+	ADDQ         AX, BX
+	MOVQ         (CX), R8
+	ADDQ         AX, CX
+	MOVQ         (BX), R9
+	ADDQ         AX, BX
+	MOVQ         (CX), R10
+	ADDQ         AX, CX
+	MOVQ         (BX), R11
+	ADDQ         AX, BX
+	MOVQ         (CX), AX
+	MOVQ         (BX), CX
+
+loop_ifft4_gfni_avx512_dst_1:
+	VMOVDQU (SI), Y4
+	VMOVDQU 32(SI), Y5
+	VMOVDQU (R8), Y6
+	VMOVDQU 32(R8), Y7
+	VPXOR   Y4, Y6, Y6
+	VPXOR   Y5, Y7, Y7
+	VMOVDQU (R10), Y8
+	VMOVDQU 32(R10), Y9
+	VMOVDQU (AX), Y10
+	VMOVDQU 32(AX), Y11
+	VPXOR   Y8, Y10, Y10
+	VPXOR   Y9, Y11, Y11
+
+	// GFNI LEO_MULADD_256 (from register)
+	VGF2P8AFFINEQB $0x00, Y20, Y10, Y12
+	VGF2P8AFFINEQB $0x00, Y21, Y11, Y13
+	VGF2P8AFFINEQB $0x00, Y22, Y10, Y14
+	VGF2P8AFFINEQB $0x00, Y23, Y11, Y15
+	VPTERNLOGD     $0x96, Y12, Y13, Y8
+	VPTERNLOGD     $0x96, Y14, Y15, Y9
+	VPXOR          Y4, Y8, Y8
+	VPXOR          Y5, Y9, Y9
+	VPXOR          Y6, Y10, Y10
+	VPXOR          Y7, Y11, Y11
+
+	// GFNI LEO_MULADD_256 (from register)
+	VGF2P8AFFINEQB $0x00, Y0, Y8, Y12
+	VGF2P8AFFINEQB $0x00, Y1, Y9, Y13
+	VGF2P8AFFINEQB $0x00, Y2, Y8, Y14
+	VGF2P8AFFINEQB $0x00, Y3, Y9, Y15
+	VPTERNLOGD     $0x96, Y12, Y13, Y4
+	VPTERNLOGD     $0x96, Y14, Y15, Y5
+
+	// GFNI LEO_MULADD_256 (from register)
+	VGF2P8AFFINEQB $0x00, Y0, Y10, Y12
+	VGF2P8AFFINEQB $0x00, Y1, Y11, Y13
+	VGF2P8AFFINEQB $0x00, Y2, Y10, Y14
+	VGF2P8AFFINEQB $0x00, Y3, Y11, Y15
+	VPTERNLOGD     $0x96, Y12, Y13, Y6
+	VPTERNLOGD     $0x96, Y14, Y15, Y7
+	VMOVDQU        Y4, (DI)
+	VMOVDQU        Y5, 32(DI)
+	ADDQ           $0x40, DI
+	ADDQ           $0x40, SI
+	VMOVDQU        Y6, (R9)
+	VMOVDQU        Y7, 32(R9)
+	ADDQ           $0x40, R9
+	ADDQ           $0x40, R8
+	VMOVDQU        Y8, (R11)
+	VMOVDQU        Y9, 32(R11)
+	ADDQ           $0x40, R11
+	ADDQ           $0x40, R10
+	VMOVDQU        Y10, (CX)
+	VMOVDQU        Y11, 32(CX)
+	ADDQ           $0x40, CX
+	ADDQ           $0x40, AX
+	SUBQ           $0x40, DX
+	JNZ            loop_ifft4_gfni_avx512_dst_1
+	VZEROUPPER
+	RET
+
+// func ifftDIT4_gfni_avx512_dst_2(dst [][]byte, work [][]byte, dist int, table01 *[4]uint64, table23 *[4]uint64, table02 *[4]uint64)
+// Requires: AVX, AVX2, AVX512F, AVX512VL, GFNI
+TEXT ·ifftDIT4_gfni_avx512_dst_2(SB), NOSPLIT, $0-80
+	// dist must be multiplied by 24 (size of slice header)
+	MOVQ         table01+56(FP), AX
+	MOVQ         table23+64(FP), CX
+	MOVQ         table02+72(FP), CX
+	VBROADCASTSD (CX), Y0
+	VBROADCASTSD 8(CX), Y1
+	VBROADCASTSD 16(CX), Y2
+	VBROADCASTSD 24(CX), Y3
+	VBROADCASTSD (AX), Y16
+	VBROADCASTSD 8(AX), Y17
+	VBROADCASTSD 16(AX), Y18
+	VBROADCASTSD 24(AX), Y19
+	MOVQ         dist+48(FP), AX
+	MOVQ         work_base+24(FP), CX
+	MOVQ         8(CX), DX
+	MOVQ         dst_base+0(FP), BX
+	MOVQ         (CX), SI
+	ADDQ         AX, CX
+	MOVQ         (BX), DI
+	ADDQ         AX, BX
+	MOVQ         (CX), R8
+	ADDQ         AX, CX
+	MOVQ         (BX), R9
+	ADDQ         AX, BX
+	MOVQ         (CX), R10
+	ADDQ         AX, CX
+	MOVQ         (BX), R11
+	ADDQ         AX, BX
+	MOVQ         (CX), AX
+	MOVQ         (BX), CX
+
+loop_ifft4_gfni_avx512_dst_2:
+	VMOVDQU (SI), Y4
+	VMOVDQU 32(SI), Y5
+	VMOVDQU (R8), Y6
+	VMOVDQU 32(R8), Y7
+	VPXOR   Y4, Y6, Y6
+	VPXOR   Y5, Y7, Y7
+
+	// GFNI LEO_MULADD_256 (from register)
+	VGF2P8AFFINEQB $0x00, Y16, Y6, Y8
+	VGF2P8AFFINEQB $0x00, Y17, Y7, Y9
+	VGF2P8AFFINEQB $0x00, Y18, Y6, Y10
+	VGF2P8AFFINEQB $0x00, Y19, Y7, Y11
+	VPTERNLOGD     $0x96, Y8, Y9, Y4
+	VPTERNLOGD     $0x96, Y10, Y11, Y5
+	VMOVDQU        (R10), Y8
+	VMOVDQU        32(R10), Y9
+	VMOVDQU        (AX), Y10
+	VMOVDQU        32(AX), Y11
+	VPXOR          Y8, Y10, Y10
+	VPXOR          Y9, Y11, Y11
+	VPXOR          Y4, Y8, Y8
+	VPXOR          Y5, Y9, Y9
+	VPXOR          Y6, Y10, Y10
+	VPXOR          Y7, Y11, Y11
+
+	// GFNI LEO_MULADD_256 (from register)
+	VGF2P8AFFINEQB $0x00, Y0, Y8, Y12
+	VGF2P8AFFINEQB $0x00, Y1, Y9, Y13
+	VGF2P8AFFINEQB $0x00, Y2, Y8, Y14
+	VGF2P8AFFINEQB $0x00, Y3, Y9, Y15
+	VPTERNLOGD     $0x96, Y12, Y13, Y4
+	VPTERNLOGD     $0x96, Y14, Y15, Y5
+
+	// GFNI LEO_MULADD_256 (from register)
+	VGF2P8AFFINEQB $0x00, Y0, Y10, Y12
+	VGF2P8AFFINEQB $0x00, Y1, Y11, Y13
+	VGF2P8AFFINEQB $0x00, Y2, Y10, Y14
+	VGF2P8AFFINEQB $0x00, Y3, Y11, Y15
+	VPTERNLOGD     $0x96, Y12, Y13, Y6
+	VPTERNLOGD     $0x96, Y14, Y15, Y7
+	VMOVDQU        Y4, (DI)
+	VMOVDQU        Y5, 32(DI)
+	ADDQ           $0x40, DI
+	ADDQ           $0x40, SI
+	VMOVDQU        Y6, (R9)
+	VMOVDQU        Y7, 32(R9)
+	ADDQ           $0x40, R9
+	ADDQ           $0x40, R8
+	VMOVDQU        Y8, (R11)
+	VMOVDQU        Y9, 32(R11)
+	ADDQ           $0x40, R11
+	ADDQ           $0x40, R10
+	VMOVDQU        Y10, (CX)
+	VMOVDQU        Y11, 32(CX)
+	ADDQ           $0x40, CX
+	ADDQ           $0x40, AX
+	SUBQ           $0x40, DX
+	JNZ            loop_ifft4_gfni_avx512_dst_2
+	VZEROUPPER
+	RET
+
+// func ifftDIT4_gfni_avx512_dst_3(dst [][]byte, work [][]byte, dist int, table01 *[4]uint64, table23 *[4]uint64, table02 *[4]uint64)
+// Requires: AVX, AVX2, AVX512F, AVX512VL, GFNI
+TEXT ·ifftDIT4_gfni_avx512_dst_3(SB), NOSPLIT, $0-80
+	// dist must be multiplied by 24 (size of slice header)
+	MOVQ         table01+56(FP), AX
+	MOVQ         table23+64(FP), AX
+	MOVQ         table02+72(FP), AX
+	VBROADCASTSD (AX), Y0
+	VBROADCASTSD 8(AX), Y1
+	VBROADCASTSD 16(AX), Y2
+	VBROADCASTSD 24(AX), Y3
+	MOVQ         dist+48(FP), AX
+	MOVQ         work_base+24(FP), CX
+	MOVQ         8(CX), DX
+	MOVQ         dst_base+0(FP), BX
+	MOVQ         (CX), SI
+	ADDQ         AX, CX
+	MOVQ         (BX), DI
+	ADDQ         AX, BX
+	MOVQ         (CX), R8
+	ADDQ         AX, CX
+	MOVQ         (BX), R9
+	ADDQ         AX, BX
+	MOVQ         (CX), R10
+	ADDQ         AX, CX
+	MOVQ         (BX), R11
+	ADDQ         AX, BX
+	MOVQ         (CX), AX
+	MOVQ         (BX), CX
+
+loop_ifft4_gfni_avx512_dst_3:
+	VMOVDQU (SI), Y4
+	VMOVDQU 32(SI), Y5
+	VMOVDQU (R8), Y6
+	VMOVDQU 32(R8), Y7
+	VPXOR   Y4, Y6, Y6
+	VPXOR   Y5, Y7, Y7
+	VMOVDQU (R10), Y8
+	VMOVDQU 32(R10), Y9
+	VMOVDQU (AX), Y10
+	VMOVDQU 32(AX), Y11
+	VPXOR   Y8, Y10, Y10
+	VPXOR   Y9, Y11, Y11
+	VPXOR   Y4, Y8, Y8
+	VPXOR   Y5, Y9, Y9
+	VPXOR   Y6, Y10, Y10
+	VPXOR   Y7, Y11, Y11
+
+	// GFNI LEO_MULADD_256 (from register)
+	VGF2P8AFFINEQB $0x00, Y0, Y8, Y12
+	VGF2P8AFFINEQB $0x00, Y1, Y9, Y13
+	VGF2P8AFFINEQB $0x00, Y2, Y8, Y14
+	VGF2P8AFFINEQB $0x00, Y3, Y9, Y15
+	VPTERNLOGD     $0x96, Y12, Y13, Y4
+	VPTERNLOGD     $0x96, Y14, Y15, Y5
+
+	// GFNI LEO_MULADD_256 (from register)
+	VGF2P8AFFINEQB $0x00, Y0, Y10, Y12
+	VGF2P8AFFINEQB $0x00, Y1, Y11, Y13
+	VGF2P8AFFINEQB $0x00, Y2, Y10, Y14
+	VGF2P8AFFINEQB $0x00, Y3, Y11, Y15
+	VPTERNLOGD     $0x96, Y12, Y13, Y6
+	VPTERNLOGD     $0x96, Y14, Y15, Y7
+	VMOVDQU        Y4, (DI)
+	VMOVDQU        Y5, 32(DI)
+	ADDQ           $0x40, DI
+	ADDQ           $0x40, SI
+	VMOVDQU        Y6, (R9)
+	VMOVDQU        Y7, 32(R9)
+	ADDQ           $0x40, R9
+	ADDQ           $0x40, R8
+	VMOVDQU        Y8, (R11)
+	VMOVDQU        Y9, 32(R11)
+	ADDQ           $0x40, R11
+	ADDQ           $0x40, R10
+	VMOVDQU        Y10, (CX)
+	VMOVDQU        Y11, 32(CX)
+	ADDQ           $0x40, CX
+	ADDQ           $0x40, AX
+	SUBQ           $0x40, DX
+	JNZ            loop_ifft4_gfni_avx512_dst_3
+	VZEROUPPER
+	RET
+
+// func ifftDIT4_gfni_avx512_dst_4(dst [][]byte, work [][]byte, dist int, table01 *[4]uint64, table23 *[4]uint64, table02 *[4]uint64)
+// Requires: AVX, AVX2, AVX512F, AVX512VL, GFNI
+TEXT ·ifftDIT4_gfni_avx512_dst_4(SB), NOSPLIT, $0-80
+	// dist must be multiplied by 24 (size of slice header)
+	MOVQ         table01+56(FP), AX
+	MOVQ         table23+64(FP), CX
+	MOVQ         table02+72(FP), DX
+	VBROADCASTSD (AX), Y16
+	VBROADCASTSD 8(AX), Y17
+	VBROADCASTSD 16(AX), Y18
+	VBROADCASTSD 24(AX), Y19
+	VBROADCASTSD (CX), Y20
+	VBROADCASTSD 8(CX), Y21
+	VBROADCASTSD 16(CX), Y22
+	VBROADCASTSD 24(CX), Y23
+	MOVQ         dist+48(FP), AX
+	MOVQ         work_base+24(FP), CX
+	MOVQ         8(CX), DX
+	MOVQ         dst_base+0(FP), BX
+	MOVQ         (CX), SI
+	ADDQ         AX, CX
+	MOVQ         (BX), DI
+	ADDQ         AX, BX
+	MOVQ         (CX), R8
+	ADDQ         AX, CX
+	MOVQ         (BX), R9
+	ADDQ         AX, BX
+	MOVQ         (CX), R10
+	ADDQ         AX, CX
+	MOVQ         (BX), R11
+	ADDQ         AX, BX
+	MOVQ         (CX), AX
+	MOVQ         (BX), CX
+
+loop_ifft4_gfni_avx512_dst_4:
+	VMOVDQU (SI), Y0
+	VMOVDQU 32(SI), Y1
+	VMOVDQU (R8), Y2
+	VMOVDQU 32(R8), Y3
+	VPXOR   Y0, Y2, Y2
+	VPXOR   Y1, Y3, Y3
+
+	// GFNI LEO_MULADD_256 (from register)
+	VGF2P8AFFINEQB $0x00, Y16, Y2, Y4
+	VGF2P8AFFINEQB $0x00, Y17, Y3, Y5
+	VGF2P8AFFINEQB $0x00, Y18, Y2, Y6
+	VGF2P8AFFINEQB $0x00, Y19, Y3, Y7
+	VPTERNLOGD     $0x96, Y4, Y5, Y0
+	VPTERNLOGD     $0x96, Y6, Y7, Y1
+	VMOVDQU        (R10), Y4
+	VMOVDQU        32(R10), Y5
+	VMOVDQU        (AX), Y6
+	VMOVDQU        32(AX), Y7
+	VPXOR          Y4, Y6, Y6
+	VPXOR          Y5, Y7, Y7
+
+	// GFNI LEO_MULADD_256 (from register)
+	VGF2P8AFFINEQB $0x00, Y20, Y6, Y8
+	VGF2P8AFFINEQB $0x00, Y21, Y7, Y9
+	VGF2P8AFFINEQB $0x00, Y22, Y6, Y10
+	VGF2P8AFFINEQB $0x00, Y23, Y7, Y11
+	VPTERNLOGD     $0x96, Y8, Y9, Y4
+	VPTERNLOGD     $0x96, Y10, Y11, Y5
+	VPXOR          Y0, Y4, Y4
+	VPXOR          Y1, Y5, Y5
+	VPXOR          Y2, Y6, Y6
+	VPXOR          Y3, Y7, Y7
+	VMOVDQU        Y0, (DI)
+	VMOVDQU        Y1, 32(DI)
+	ADDQ           $0x40, DI
+	ADDQ           $0x40, SI
+	VMOVDQU        Y2, (R9)
+	VMOVDQU        Y3, 32(R9)
+	ADDQ           $0x40, R9
+	ADDQ           $0x40, R8
+	VMOVDQU        Y4, (R11)
+	VMOVDQU        Y5, 32(R11)
+	ADDQ           $0x40, R11
+	ADDQ           $0x40, R10
+	VMOVDQU        Y6, (CX)
+	VMOVDQU        Y7, 32(CX)
+	ADDQ           $0x40, CX
+	ADDQ           $0x40, AX
+	SUBQ           $0x40, DX
+	JNZ            loop_ifft4_gfni_avx512_dst_4
+	VZEROUPPER
+	RET
+
+// func ifftDIT4_gfni_avx512_dst_5(dst [][]byte, work [][]byte, dist int, table01 *[4]uint64, table23 *[4]uint64, table02 *[4]uint64)
+// Requires: AVX, AVX2, AVX512F, AVX512VL, GFNI
+TEXT ·ifftDIT4_gfni_avx512_dst_5(SB), NOSPLIT, $0-80
+	// dist must be multiplied by 24 (size of slice header)
+	MOVQ         table01+56(FP), AX
+	MOVQ         table23+64(FP), AX
+	MOVQ         table02+72(FP), CX
+	VBROADCASTSD (AX), Y20
+	VBROADCASTSD 8(AX), Y21
+	VBROADCASTSD 16(AX), Y22
+	VBROADCASTSD 24(AX), Y23
+	MOVQ         dist+48(FP), AX
+	MOVQ         work_base+24(FP), CX
+	MOVQ         8(CX), DX
+	MOVQ         dst_base+0(FP), BX
+	MOVQ         (CX), SI
+	ADDQ         AX, CX
+	MOVQ         (BX), DI
+	ADDQ         AX, BX
+	MOVQ         (CX), R8
+	ADDQ         AX, CX
+	MOVQ         (BX), R9
+	ADDQ         AX, BX
+	MOVQ         (CX), R10
+	ADDQ         AX, CX
+	MOVQ         (BX), R11
+	ADDQ         AX, BX
+	MOVQ         (CX), AX
+	MOVQ         (BX), CX
+
+loop_ifft4_gfni_avx512_dst_5:
+	VMOVDQU (SI), Y0
+	VMOVDQU 32(SI), Y1
+	VMOVDQU (R8), Y2
+	VMOVDQU 32(R8), Y3
+	VPXOR   Y0, Y2, Y2
+	VPXOR   Y1, Y3, Y3
+	VMOVDQU (R10), Y4
+	VMOVDQU 32(R10), Y5
+	VMOVDQU (AX), Y6
+	VMOVDQU 32(AX), Y7
+	VPXOR   Y4, Y6, Y6
+	VPXOR   Y5, Y7, Y7
+
+	// GFNI LEO_MULADD_256 (from register)
+	VGF2P8AFFINEQB $0x00, Y20, Y6, Y8
+	VGF2P8AFFINEQB $0x00, Y21, Y7, Y9
+	VGF2P8AFFINEQB $0x00, Y22, Y6, Y10
+	VGF2P8AFFINEQB $0x00, Y23, Y7, Y11
+	VPTERNLOGD     $0x96, Y8, Y9, Y4
+	VPTERNLOGD     $0x96, Y10, Y11, Y5
+	VPXOR          Y0, Y4, Y4
+	VPXOR          Y1, Y5, Y5
+	VPXOR          Y2, Y6, Y6
+	VPXOR          Y3, Y7, Y7
+	VMOVDQU        Y0, (DI)
+	VMOVDQU        Y1, 32(DI)
+	ADDQ           $0x40, DI
+	ADDQ           $0x40, SI
+	VMOVDQU        Y2, (R9)
+	VMOVDQU        Y3, 32(R9)
+	ADDQ           $0x40, R9
+	ADDQ           $0x40, R8
+	VMOVDQU        Y4, (R11)
+	VMOVDQU        Y5, 32(R11)
+	ADDQ           $0x40, R11
+	ADDQ           $0x40, R10
+	VMOVDQU        Y6, (CX)
+	VMOVDQU        Y7, 32(CX)
+	ADDQ           $0x40, CX
+	ADDQ           $0x40, AX
+	SUBQ           $0x40, DX
+	JNZ            loop_ifft4_gfni_avx512_dst_5
+	VZEROUPPER
+	RET
+
+// func ifftDIT4_gfni_avx512_dst_6(dst [][]byte, work [][]byte, dist int, table01 *[4]uint64, table23 *[4]uint64, table02 *[4]uint64)
+// Requires: AVX, AVX2, AVX512F, AVX512VL, GFNI
+TEXT ·ifftDIT4_gfni_avx512_dst_6(SB), NOSPLIT, $0-80
+	// dist must be multiplied by 24 (size of slice header)
+	MOVQ         table01+56(FP), AX
+	MOVQ         table23+64(FP), CX
+	MOVQ         table02+72(FP), CX
+	VBROADCASTSD (AX), Y16
+	VBROADCASTSD 8(AX), Y17
+	VBROADCASTSD 16(AX), Y18
+	VBROADCASTSD 24(AX), Y19
+	MOVQ         dist+48(FP), AX
+	MOVQ         work_base+24(FP), CX
+	MOVQ         8(CX), DX
+	MOVQ         dst_base+0(FP), BX
+	MOVQ         (CX), SI
+	ADDQ         AX, CX
+	MOVQ         (BX), DI
+	ADDQ         AX, BX
+	MOVQ         (CX), R8
+	ADDQ         AX, CX
+	MOVQ         (BX), R9
+	ADDQ         AX, BX
+	MOVQ         (CX), R10
+	ADDQ         AX, CX
+	MOVQ         (BX), R11
+	ADDQ         AX, BX
+	MOVQ         (CX), AX
+	MOVQ         (BX), CX
+
+loop_ifft4_gfni_avx512_dst_6:
+	VMOVDQU (SI), Y0
+	VMOVDQU 32(SI), Y1
+	VMOVDQU (R8), Y2
+	VMOVDQU 32(R8), Y3
+	VPXOR   Y0, Y2, Y2
+	VPXOR   Y1, Y3, Y3
+
+	// GFNI LEO_MULADD_256 (from register)
+	VGF2P8AFFINEQB $0x00, Y16, Y2, Y4
+	VGF2P8AFFINEQB $0x00, Y17, Y3, Y5
+	VGF2P8AFFINEQB $0x00, Y18, Y2, Y6
+	VGF2P8AFFINEQB $0x00, Y19, Y3, Y7
+	VPTERNLOGD     $0x96, Y4, Y5, Y0
+	VPTERNLOGD     $0x96, Y6, Y7, Y1
+	VMOVDQU        (R10), Y4
+	VMOVDQU        32(R10), Y5
+	VMOVDQU        (AX), Y6
+	VMOVDQU        32(AX), Y7
+	VPXOR          Y4, Y6, Y6
+	VPXOR          Y5, Y7, Y7
+	VPXOR          Y0, Y4, Y4
+	VPXOR          Y1, Y5, Y5
+	VPXOR          Y2, Y6, Y6
+	VPXOR          Y3, Y7, Y7
+	VMOVDQU        Y0, (DI)
+	VMOVDQU        Y1, 32(DI)
+	ADDQ           $0x40, DI
+	ADDQ           $0x40, SI
+	VMOVDQU        Y2, (R9)
+	VMOVDQU        Y3, 32(R9)
+	ADDQ           $0x40, R9
+	ADDQ           $0x40, R8
+	VMOVDQU        Y4, (R11)
+	VMOVDQU        Y5, 32(R11)
+	ADDQ           $0x40, R11
+	ADDQ           $0x40, R10
+	VMOVDQU        Y6, (CX)
+	VMOVDQU        Y7, 32(CX)
+	ADDQ           $0x40, CX
+	ADDQ           $0x40, AX
+	SUBQ           $0x40, DX
+	JNZ            loop_ifft4_gfni_avx512_dst_6
+	VZEROUPPER
+	RET
+
+// func ifftDIT4_gfni_avx512_dst_7(dst [][]byte, work [][]byte, dist int, table01 *[4]uint64, table23 *[4]uint64, table02 *[4]uint64)
+// Requires: AVX, AVX2
+TEXT ·ifftDIT4_gfni_avx512_dst_7(SB), NOSPLIT, $0-80
+	// dist must be multiplied by 24 (size of slice header)
+	MOVQ table01+56(FP), AX
+	MOVQ table23+64(FP), AX
+	MOVQ table02+72(FP), AX
+	MOVQ dist+48(FP), AX
+	MOVQ work_base+24(FP), CX
+	MOVQ 8(CX), DX
+	MOVQ dst_base+0(FP), BX
+	MOVQ (CX), SI
+	ADDQ AX, CX
+	MOVQ (BX), DI
+	ADDQ AX, BX
+	MOVQ (CX), R8
+	ADDQ AX, CX
+	MOVQ (BX), R9
+	ADDQ AX, BX
+	MOVQ (CX), R10
+	ADDQ AX, CX
+	MOVQ (BX), R11
+	ADDQ AX, BX
+	MOVQ (CX), AX
+	MOVQ (BX), CX
+
+loop_ifft4_gfni_avx512_dst_7:
+	VMOVDQU (SI), Y0
+	VMOVDQU 32(SI), Y1
+	VMOVDQU (R8), Y2
+	VMOVDQU 32(R8), Y3
+	VPXOR   Y0, Y2, Y2
+	VPXOR   Y1, Y3, Y3
+	VMOVDQU (R10), Y4
+	VMOVDQU 32(R10), Y5
+	VMOVDQU (AX), Y6
+	VMOVDQU 32(AX), Y7
+	VPXOR   Y4, Y6, Y6
+	VPXOR   Y5, Y7, Y7
+	VPXOR   Y0, Y4, Y4
+	VPXOR   Y1, Y5, Y5
+	VPXOR   Y2, Y6, Y6
+	VPXOR   Y3, Y7, Y7
+	VMOVDQU Y0, (DI)
+	VMOVDQU Y1, 32(DI)
+	ADDQ    $0x40, DI
+	ADDQ    $0x40, SI
+	VMOVDQU Y2, (R9)
+	VMOVDQU Y3, 32(R9)
+	ADDQ    $0x40, R9
+	ADDQ    $0x40, R8
+	VMOVDQU Y4, (R11)
+	VMOVDQU Y5, 32(R11)
+	ADDQ    $0x40, R11
+	ADDQ    $0x40, R10
+	VMOVDQU Y6, (CX)
+	VMOVDQU Y7, 32(CX)
+	ADDQ    $0x40, CX
+	ADDQ    $0x40, AX
+	SUBQ    $0x40, DX
+	JNZ     loop_ifft4_gfni_avx512_dst_7
+	VZEROUPPER
+	RET
+
 // func ifftDIT2_gfni(x []byte, y []byte, table *[4]uint64)
 // Requires: AVX, AVX2, AVX512F, AVX512VL, GFNI
 TEXT ·ifftDIT2_gfni(SB), NOSPLIT, $0-56

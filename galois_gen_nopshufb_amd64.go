@@ -2312,6 +2312,54 @@ func ifftDIT4_gfni_avx512_7(work [][]byte, dist int, table01 *[4]uint64, table23
 func fftDIT4_gfni_avx512_7(work [][]byte, dist int, table01 *[4]uint64, table23 *[4]uint64, table02 *[4]uint64)
 
 //go:noescape
+func ifftDIT4_gfni_dst_0(dst [][]byte, work [][]byte, dist int, table01 *[4]uint64, table23 *[4]uint64, table02 *[4]uint64)
+
+//go:noescape
+func ifftDIT4_gfni_dst_1(dst [][]byte, work [][]byte, dist int, table01 *[4]uint64, table23 *[4]uint64, table02 *[4]uint64)
+
+//go:noescape
+func ifftDIT4_gfni_dst_2(dst [][]byte, work [][]byte, dist int, table01 *[4]uint64, table23 *[4]uint64, table02 *[4]uint64)
+
+//go:noescape
+func ifftDIT4_gfni_dst_3(dst [][]byte, work [][]byte, dist int, table01 *[4]uint64, table23 *[4]uint64, table02 *[4]uint64)
+
+//go:noescape
+func ifftDIT4_gfni_dst_4(dst [][]byte, work [][]byte, dist int, table01 *[4]uint64, table23 *[4]uint64, table02 *[4]uint64)
+
+//go:noescape
+func ifftDIT4_gfni_dst_5(dst [][]byte, work [][]byte, dist int, table01 *[4]uint64, table23 *[4]uint64, table02 *[4]uint64)
+
+//go:noescape
+func ifftDIT4_gfni_dst_6(dst [][]byte, work [][]byte, dist int, table01 *[4]uint64, table23 *[4]uint64, table02 *[4]uint64)
+
+//go:noescape
+func ifftDIT4_gfni_dst_7(dst [][]byte, work [][]byte, dist int, table01 *[4]uint64, table23 *[4]uint64, table02 *[4]uint64)
+
+//go:noescape
+func ifftDIT4_gfni_avx512_dst_0(dst [][]byte, work [][]byte, dist int, table01 *[4]uint64, table23 *[4]uint64, table02 *[4]uint64)
+
+//go:noescape
+func ifftDIT4_gfni_avx512_dst_1(dst [][]byte, work [][]byte, dist int, table01 *[4]uint64, table23 *[4]uint64, table02 *[4]uint64)
+
+//go:noescape
+func ifftDIT4_gfni_avx512_dst_2(dst [][]byte, work [][]byte, dist int, table01 *[4]uint64, table23 *[4]uint64, table02 *[4]uint64)
+
+//go:noescape
+func ifftDIT4_gfni_avx512_dst_3(dst [][]byte, work [][]byte, dist int, table01 *[4]uint64, table23 *[4]uint64, table02 *[4]uint64)
+
+//go:noescape
+func ifftDIT4_gfni_avx512_dst_4(dst [][]byte, work [][]byte, dist int, table01 *[4]uint64, table23 *[4]uint64, table02 *[4]uint64)
+
+//go:noescape
+func ifftDIT4_gfni_avx512_dst_5(dst [][]byte, work [][]byte, dist int, table01 *[4]uint64, table23 *[4]uint64, table02 *[4]uint64)
+
+//go:noescape
+func ifftDIT4_gfni_avx512_dst_6(dst [][]byte, work [][]byte, dist int, table01 *[4]uint64, table23 *[4]uint64, table02 *[4]uint64)
+
+//go:noescape
+func ifftDIT4_gfni_avx512_dst_7(dst [][]byte, work [][]byte, dist int, table01 *[4]uint64, table23 *[4]uint64, table02 *[4]uint64)
+
+//go:noescape
 func ifftDIT2_gfni(x []byte, y []byte, table *[4]uint64)
 
 //go:noescape
