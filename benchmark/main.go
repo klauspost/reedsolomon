@@ -275,6 +275,10 @@ func benchmarkDecoding(enc reedsolomon.Encoder, data [][][]byte) {
 	dataShards := ext.DataShards()
 	rng := rand.New(rand.NewSource(0))
 
+	const useReconstructSome = true
+	var required = make([]bool, parityShards+dataShards)
+	tmpShards := make([][]byte, parityShards+dataShards)
+
 	start := time.Now()
 	finished := int64(0)
 	lastUpdate := start
@@ -285,12 +289,13 @@ func benchmarkDecoding(enc reedsolomon.Encoder, data [][][]byte) {
 	if *corrupt == -1 {
 		mode = "Verified"
 	}
-	const useReconstructSome = true
-	var required = make([]bool, parityShards+dataShards)
 	for time.Now().Before(end) {
 		for _, shards := range data {
+			toClear := 0
 			if useReconstructSome {
 				clear(required)
+				toClear = parityShards
+				shards = append(tmpShards[:0], shards...)
 			}
 			// Corrupt random number of shards up to what we can allow
 			cor := *corrupt
@@ -304,12 +309,20 @@ func benchmarkDecoding(enc reedsolomon.Encoder, data [][][]byte) {
 						shards[idx] = shards[idx][:0]
 						required[idx] = true
 						cor--
+						toClear--
 					}
 				} else {
 					if len(shards[idx]) > 0 {
 						shards[idx] = shards[idx][:0]
 						cor--
 					}
+				}
+			}
+			for toClear > 0 {
+				idx := rng.Intn(len(shards))
+				if len(shards[idx]) > 0 {
+					shards[idx] = shards[idx][:0]
+					toClear--
 				}
 			}
 			var err = error(nil)
