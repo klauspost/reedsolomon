@@ -9,15 +9,19 @@ package reedsolomon
 
 import (
 	"bytes"
+	"crypto/rand"
+	"encoding/hex"
+	"fmt"
+	mathrand "math/rand"
 	"testing"
 )
 
 func TestAssociativity(t *testing.T) {
-	for i := 0; i < 256; i++ {
+	for i := range 256 {
 		a := byte(i)
-		for j := 0; j < 256; j++ {
+		for j := range 256 {
 			b := byte(j)
-			for k := 0; k < 256; k++ {
+			for k := range 256 {
 				c := byte(k)
 				x := galAdd(a, galAdd(b, c))
 				y := galAdd(galAdd(a, b), c)
@@ -35,7 +39,7 @@ func TestAssociativity(t *testing.T) {
 }
 
 func TestIdentity(t *testing.T) {
-	for i := 0; i < 256; i++ {
+	for i := range 256 {
 		a := byte(i)
 		b := galAdd(a, 0)
 		if a != b {
@@ -49,7 +53,7 @@ func TestIdentity(t *testing.T) {
 }
 
 func TestInverse(t *testing.T) {
-	for i := 0; i < 256; i++ {
+	for i := range 256 {
 		a := byte(i)
 		b := galAdd(0, a)
 		c := galAdd(a, b)
@@ -71,9 +75,9 @@ func TestInverse(t *testing.T) {
 }
 
 func TestCommutativity(t *testing.T) {
-	for i := 0; i < 256; i++ {
+	for i := range 256 {
 		a := byte(i)
-		for j := 0; j < 256; j++ {
+		for j := range 256 {
 			b := byte(j)
 			x := galAdd(a, b)
 			y := galAdd(b, a)
@@ -90,11 +94,11 @@ func TestCommutativity(t *testing.T) {
 }
 
 func TestDistributivity(t *testing.T) {
-	for i := 0; i < 256; i++ {
+	for i := range 256 {
 		a := byte(i)
-		for j := 0; j < 256; j++ {
+		for j := range 256 {
 			b := byte(j)
-			for k := 0; k < 256; k++ {
+			for k := range 256 {
 				c := byte(k)
 				x := galMultiply(a, galAdd(b, c))
 				y := galAdd(galMultiply(a, b), galMultiply(a, c))
@@ -107,10 +111,10 @@ func TestDistributivity(t *testing.T) {
 }
 
 func TestExp(t *testing.T) {
-	for i := 0; i < 256; i++ {
+	for i := range 256 {
 		a := byte(i)
 		power := byte(1)
-		for j := 0; j < 256; j++ {
+		for j := range 256 {
 			x := galExp(a, j)
 			if x != power {
 				t.Fatal(x, "!=", power)
@@ -210,11 +214,11 @@ func TestSliceGalAdd(t *testing.T) {
 		}
 	}
 
-	for i := 0; i < 256; i++ {
+	for i := range 256 {
 		a := byte(i)
-		for j := 0; j < 256; j++ {
+		for j := range 256 {
 			b := byte(j)
-			for k := 0; k < 256; k++ {
+			for k := range 256 {
 				c := byte(k)
 				x := galAdd(a, galAdd(b, c))
 				y := galAdd(galAdd(a, b), c)
@@ -225,6 +229,172 @@ func TestSliceGalAdd(t *testing.T) {
 				y = galMultiply(galMultiply(a, b), c)
 				if x != y {
 					t.Fatal("multiply does not match:", x, "!=", y)
+				}
+			}
+		}
+	}
+}
+
+func testGenGalois(t *testing.T, matrixRows [][]byte, size, start, stop int, f func(matrix []byte, in, out [][]byte, start, stop int) int, vectorLength int) {
+
+	// reference versions
+	galMulSliceRef := func(c byte, in, out []byte) {
+		out = out[:len(in)]
+		mt := mulTable[c][:256]
+		for n, input := range in {
+			out[n] = mt[input]
+		}
+	}
+	galMulSliceXorRef := func(c byte, in, out []byte) {
+		out = out[:len(in)]
+		mt := mulTable[c][:256]
+		for n, input := range in {
+			out[n] ^= mt[input]
+		}
+	}
+
+	outputs := make([][]byte, len(matrixRows))
+	for i := range outputs {
+		outputs[i] = make([]byte, size)
+		if _, err := rand.Read(outputs[i]); err != nil {
+			t.Fatalf("error: %v", err)
+			return
+		}
+	}
+	inputs := make([][]byte, len(matrixRows[0]))
+	for i := range inputs {
+		inputs[i] = make([]byte, size)
+		if _, err := rand.Read(inputs[i]); err != nil {
+			t.Fatalf("error: %v", err)
+			return
+		}
+	}
+
+	m := genCodeGenMatrix(matrixRows, len(inputs), 0, len(outputs), vectorLength, nil)
+
+	end := start + f(m, inputs, outputs, start, stop)
+	if end != stop {
+		t.Errorf("got %#v, expected %#v", end, stop)
+	}
+
+	wanteds := make([][]byte, len(outputs))
+	for i := range wanteds {
+		wanteds[i] = make([]byte, size)
+		galMulSliceRef(matrixRows[i][0], inputs[0], wanteds[i])
+		for j := 1; j < len(matrixRows[i]); j++ {
+			galMulSliceXorRef(matrixRows[i][j], inputs[j], wanteds[i])
+		}
+	}
+
+	for i := range outputs {
+		if !bytes.Equal(outputs[i][start:stop], wanteds[i][start:stop]) {
+			t.Errorf("testGenGalois(%dx%d): got %#v, expected %#v", len(inputs), len(outputs), outputs[i][start:stop], wanteds[i][start:stop])
+			fmt.Printf("output[%d]\n", i)
+			fmt.Print(hex.Dump(outputs[i][start:stop]))
+			fmt.Printf("wanted[%d]\n", i)
+			fmt.Print(hex.Dump(wanteds[i][start:stop]))
+		}
+	}
+}
+
+func testGenGaloisXor(t *testing.T, matrixRows [][]byte, size, start, stop int, f func(matrix []byte, in, out [][]byte, start, stop int) int, vectorLength int) {
+
+	// reference version
+	galMulSliceXorRef := func(c byte, in, out []byte) {
+		out = out[:len(in)]
+		mt := mulTable[c][:256]
+		for n, input := range in {
+			out[n] ^= mt[input]
+		}
+	}
+
+	outputs := make([][]byte, len(matrixRows))
+	wanteds := make([][]byte, len(outputs))
+	for i := range outputs {
+		outputs[i] = make([]byte, size)
+		wanteds[i] = make([]byte, size)
+
+		// For Xor tests, prefill both outputs and wanted with identical values
+		copy(outputs[i], bytes.Repeat([]byte{byte(i)}, size))
+		copy(wanteds[i], outputs[i])
+	}
+	inputs := make([][]byte, len(matrixRows[0]))
+	for i := range inputs {
+		inputs[i] = make([]byte, size)
+		if _, err := rand.Read(inputs[i]); err != nil {
+			t.Fatalf("error: %v", err)
+			return
+		}
+	}
+
+	m := genCodeGenMatrix(matrixRows, len(inputs), 0, len(outputs), vectorLength, nil)
+
+	end := start + f(m, inputs, outputs, start, stop)
+	if end != stop {
+		t.Errorf("got %#v, expected %#v", end, stop)
+	}
+
+	for i := range wanteds {
+		for j := 0; j < len(matrixRows[i]); j++ {
+			galMulSliceXorRef(matrixRows[i][j], inputs[j], wanteds[i])
+		}
+	}
+
+	for i := range outputs {
+		if !bytes.Equal(outputs[i][start:stop], wanteds[i][start:stop]) {
+			t.Errorf("testGenGaloisXor(%dx%d): got %#v, expected %#v", len(inputs), len(outputs), outputs[i][start:stop], wanteds[i][start:stop])
+			fmt.Printf("output[%d]\n", i)
+			fmt.Print(hex.Dump(outputs[i][start:stop]))
+			fmt.Printf("wanted[%d]\n", i)
+			fmt.Print(hex.Dump(wanteds[i][start:stop]))
+		}
+	}
+}
+
+// Test early abort for galMulARCH_?x?_* routines
+func testGenGaloisEarlyAbort(t *testing.T, matrixRows [][]byte, size int, f func(matrix []byte, in, out [][]byte, start, stop int) int) {
+	outputs := make([][]byte, len(matrixRows))
+	inputs := make([][]byte, len(matrixRows[0]))
+
+	start := 0
+	start += f(nil, inputs, outputs, 0, size)
+	if start != 0 {
+		t.Errorf("got %#v, expected %#v", start, 0)
+	}
+}
+
+func testGenGaloisUpto10x10(t *testing.T, f, fXor func(matrix []byte, in, out [][]byte, start, stop int) int, vectorLength int) {
+
+	for output := 1; output <= codeGenMaxOutputs; output++ {
+		for input := 1; input <= codeGenMaxInputs; input++ {
+			matrixRows := make([][]byte, input)
+			for i := range matrixRows {
+				matrixRows[i] = make([]byte, output)
+				for j := range matrixRows[i] {
+					matrixRows[i][j] = byte(mathrand.Intn(16))
+				}
+			}
+
+			size, stepsize := 32, 32
+			if input <= 3 {
+				size, stepsize = 64, 64 // 3x? are all _64 versions
+			}
+
+			// test early abort
+			testGenGaloisEarlyAbort(t, matrixRows, size-1, f)
+			testGenGaloisEarlyAbort(t, matrixRows, size-1, fXor)
+			const limit = 1024
+			for ; size < limit; size += stepsize {
+				// test full range
+				testGenGalois(t, matrixRows, size, 0, size, f, vectorLength)
+				testGenGaloisXor(t, matrixRows, size, 0, size, fXor, vectorLength)
+
+				if size >= stepsize*2 && size < limit-stepsize*2 {
+					start := stepsize
+					stop := size - start
+					// test partial range
+					testGenGalois(t, matrixRows, size, start, stop, f, vectorLength)
+					testGenGaloisXor(t, matrixRows, size, start, stop, fXor, vectorLength)
 				}
 			}
 		}

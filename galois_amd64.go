@@ -53,22 +53,45 @@ func galMulSlice(c byte, in, out []byte, o *options) {
 	}
 	if o.useAVX2 {
 		if len(in) >= bigSwitchover {
-			galMulAVX2_64(mulTableLow[c][:], mulTableHigh[c][:], in, out)
 			done := (len(in) >> 6) << 6
+			if raceEnabled {
+				raceReadSlice(in[:done])
+				raceWriteSlice(out[:done])
+			}
+			galMulAVX2_64(mulTableLow[c][:], mulTableHigh[c][:], in, out)
 			in = in[done:]
 			out = out[done:]
 		}
 		if len(in) > 32 {
-			galMulAVX2(mulTableLow[c][:], mulTableHigh[c][:], in, out)
 			done := (len(in) >> 5) << 5
+			if raceEnabled {
+				raceReadSlice(in[:done])
+				raceWriteSlice(out[:done])
+			}
+			galMulAVX2(mulTableLow[c][:], mulTableHigh[c][:], in, out)
 			in = in[done:]
 			out = out[done:]
 		}
 	} else if o.useSSSE3 {
-		galMulSSSE3(mulTableLow[c][:], mulTableHigh[c][:], in, out)
 		done := (len(in) >> 4) << 4
+		if raceEnabled {
+			raceReadSlice(in[:done])
+			raceWriteSlice(out[:done])
+		}
+		galMulSSSE3(mulTableLow[c][:], mulTableHigh[c][:], in, out)
 		in = in[done:]
 		out = out[done:]
+	} else if !o.skip2B {
+		mt16 := getMulTable16(c)
+		for len(in) >= 8 {
+			store16(out, mt16[load16(in, 0)], 0)
+			store16(out, mt16[load16(in, 2)], 2)
+			store16(out, mt16[load16(in, 4)], 4)
+			store16(out, mt16[load16(in, 6)], 6)
+
+			in = in[8:]
+			out = out[8:]
+		}
 	}
 	out = out[:len(in)]
 	mt := mulTable[c][:256]
@@ -85,22 +108,45 @@ func galMulSliceXor(c byte, in, out []byte, o *options) {
 
 	if o.useAVX2 {
 		if len(in) >= bigSwitchover {
-			galMulAVX2Xor_64(mulTableLow[c][:], mulTableHigh[c][:], in, out)
 			done := (len(in) >> 6) << 6
+			if raceEnabled {
+				raceReadSlice(in[:done])
+				raceWriteSlice(out[:done])
+			}
+			galMulAVX2Xor_64(mulTableLow[c][:], mulTableHigh[c][:], in, out)
 			in = in[done:]
 			out = out[done:]
 		}
 		if len(in) >= 32 {
-			galMulAVX2Xor(mulTableLow[c][:], mulTableHigh[c][:], in, out)
 			done := (len(in) >> 5) << 5
+			if raceEnabled {
+				raceReadSlice(in[:done])
+				raceWriteSlice(out[:done])
+			}
+			galMulAVX2Xor(mulTableLow[c][:], mulTableHigh[c][:], in, out)
 			in = in[done:]
 			out = out[done:]
 		}
 	} else if o.useSSSE3 {
-		galMulSSSE3Xor(mulTableLow[c][:], mulTableHigh[c][:], in, out)
 		done := (len(in) >> 4) << 4
+		if raceEnabled {
+			raceReadSlice(in[:done])
+			raceWriteSlice(out[:done])
+		}
+		galMulSSSE3Xor(mulTableLow[c][:], mulTableHigh[c][:], in, out)
 		in = in[done:]
 		out = out[done:]
+	} else if !o.skip2B {
+		mt16 := getMulTable16(c)
+		for len(in) >= 8 {
+			store16(out, load16(out, 0)^mt16[load16(in, 0)], 0)
+			store16(out, load16(out, 2)^mt16[load16(in, 2)], 2)
+			store16(out, load16(out, 4)^mt16[load16(in, 4)], 4)
+			store16(out, load16(out, 6)^mt16[load16(in, 6)], 6)
+
+			in = in[8:]
+			out = out[8:]
+		}
 	}
 	if len(in) == 0 {
 		return
@@ -117,20 +163,32 @@ func sliceXor(in, out []byte, o *options) {
 	if o.useSSE2 {
 		if len(in) >= bigSwitchover {
 			if o.useAVX2 {
-				avx2XorSlice_64(in, out)
 				done := (len(in) >> 6) << 6
+				if raceEnabled {
+					raceReadSlice(in[:done])
+					raceWriteSlice(out[:done])
+				}
+				avx2XorSlice_64(in, out)
 				in = in[done:]
 				out = out[done:]
 			} else {
-				sSE2XorSlice_64(in, out)
 				done := (len(in) >> 6) << 6
+				if raceEnabled {
+					raceReadSlice(in[:done])
+					raceWriteSlice(out[:done])
+				}
+				sSE2XorSlice_64(in, out)
 				in = in[done:]
 				out = out[done:]
 			}
 		}
 		if len(in) >= 16 {
-			sSE2XorSlice(in, out)
 			done := (len(in) >> 4) << 4
+			if raceEnabled {
+				raceReadSlice(in[:done])
+				raceWriteSlice(out[:done])
+			}
+			sSE2XorSlice(in, out)
 			in = in[done:]
 			out = out[done:]
 		}
@@ -153,6 +211,76 @@ func ifftDIT4(work [][]byte, dist int, log_m01, log_m23, log_m02 ffe, o *options
 	t01 := &multiply256LUT[log_m01]
 	t23 := &multiply256LUT[log_m23]
 	t02 := &multiply256LUT[log_m02]
+	if o.useAvx512GFNI && o.useAVX512 && gf2p811dMulMatrices16 != nil {
+		g01 := &gf2p811dMulMatrices16[log_m01]
+		g23 := &gf2p811dMulMatrices16[log_m23]
+		g02 := &gf2p811dMulMatrices16[log_m02]
+		if log_m01 == modulus {
+			if log_m23 == modulus {
+				if log_m02 == modulus {
+					ifftDIT4_gfni_avx512_7(work, dist*24, g01, g23, g02)
+				} else {
+					ifftDIT4_gfni_avx512_3(work, dist*24, g01, g23, g02)
+				}
+			} else {
+				if log_m02 == modulus {
+					ifftDIT4_gfni_avx512_5(work, dist*24, g01, g23, g02)
+				} else {
+					ifftDIT4_gfni_avx512_1(work, dist*24, g01, g23, g02)
+				}
+			}
+		} else {
+			if log_m23 == modulus {
+				if log_m02 == modulus {
+					ifftDIT4_gfni_avx512_6(work, dist*24, g01, g23, g02)
+				} else {
+					ifftDIT4_gfni_avx512_2(work, dist*24, g01, g23, g02)
+				}
+			} else {
+				if log_m02 == modulus {
+					ifftDIT4_gfni_avx512_4(work, dist*24, g01, g23, g02)
+				} else {
+					ifftDIT4_gfni_avx512_0(work, dist*24, g01, g23, g02)
+				}
+			}
+		}
+		return
+	}
+	if o.useAvxGNFI && gf2p811dMulMatrices16 != nil {
+		g01 := &gf2p811dMulMatrices16[log_m01]
+		g23 := &gf2p811dMulMatrices16[log_m23]
+		g02 := &gf2p811dMulMatrices16[log_m02]
+		if log_m01 == modulus {
+			if log_m23 == modulus {
+				if log_m02 == modulus {
+					ifftDIT4_gfni_7(work, dist*24, g01, g23, g02)
+				} else {
+					ifftDIT4_gfni_3(work, dist*24, g01, g23, g02)
+				}
+			} else {
+				if log_m02 == modulus {
+					ifftDIT4_gfni_5(work, dist*24, g01, g23, g02)
+				} else {
+					ifftDIT4_gfni_1(work, dist*24, g01, g23, g02)
+				}
+			}
+		} else {
+			if log_m23 == modulus {
+				if log_m02 == modulus {
+					ifftDIT4_gfni_6(work, dist*24, g01, g23, g02)
+				} else {
+					ifftDIT4_gfni_2(work, dist*24, g01, g23, g02)
+				}
+			} else {
+				if log_m02 == modulus {
+					ifftDIT4_gfni_4(work, dist*24, g01, g23, g02)
+				} else {
+					ifftDIT4_gfni_0(work, dist*24, g01, g23, g02)
+				}
+			}
+		}
+		return
+	}
 	if o.useAVX512 {
 		if log_m01 == modulus {
 			if log_m23 == modulus {
@@ -225,11 +353,11 @@ func ifftDIT48(work [][]byte, dist int, log_m01, log_m23, log_m02 ffe8, o *optio
 		return
 	}
 
-	if false && o.useAvx512GFNI {
+	if o.useAvx512GFNI {
 		// Note that these currently require that length is multiple of 64.
-		t01 := gf2p811dMulMatrices[log_m01]
-		t23 := gf2p811dMulMatrices[log_m23]
-		t02 := gf2p811dMulMatrices[log_m02]
+		t01 := gf2p811dMulMatricesLeo8[log_m01]
+		t23 := gf2p811dMulMatricesLeo8[log_m23]
+		t02 := gf2p811dMulMatricesLeo8[log_m02]
 		if log_m01 == modulus8 {
 			if log_m23 == modulus8 {
 				if log_m02 == modulus8 {
@@ -300,6 +428,87 @@ func ifftDIT48(work [][]byte, dist int, log_m01, log_m23, log_m02 ffe8, o *optio
 	ifftDIT4Ref8(work, dist, log_m01, log_m23, log_m02, o)
 }
 
+// 4-way butterfly
+func ifftDIT48Dst(dst, work [][]byte, dist int, log_m01, log_m23, log_m02 ffe8, o *options) {
+	if len(work[0]) == 0 {
+		return
+	}
+
+	if o.useAvx512GFNI {
+		// Note that these currently require that length is multiple of 64.
+		t01 := gf2p811dMulMatricesLeo8[log_m01]
+		t23 := gf2p811dMulMatricesLeo8[log_m23]
+		t02 := gf2p811dMulMatricesLeo8[log_m02]
+		if log_m01 == modulus8 {
+			if log_m23 == modulus8 {
+				if log_m02 == modulus8 {
+					ifftDIT48_gfni_dst_7(dst, work, dist*24, t01, t23, t02)
+				} else {
+					ifftDIT48_gfni_dst_3(dst, work, dist*24, t01, t23, t02)
+				}
+			} else {
+				if log_m02 == modulus8 {
+					ifftDIT48_gfni_dst_5(dst, work, dist*24, t01, t23, t02)
+				} else {
+					ifftDIT48_gfni_dst_1(dst, work, dist*24, t01, t23, t02)
+				}
+			}
+		} else {
+			if log_m23 == modulus8 {
+				if log_m02 == modulus8 {
+					ifftDIT48_gfni_dst_6(dst, work, dist*24, t01, t23, t02)
+				} else {
+					ifftDIT48_gfni_dst_2(dst, work, dist*24, t01, t23, t02)
+				}
+			} else {
+				if log_m02 == modulus8 {
+					ifftDIT48_gfni_dst_4(dst, work, dist*24, t01, t23, t02)
+				} else {
+					ifftDIT48_gfni_dst_0(dst, work, dist*24, t01, t23, t02)
+				}
+			}
+		}
+		return
+	}
+	if o.useAVX2 {
+		// Note that these currently require that length is multiple of 64.
+		t01 := &multiply256LUT8[log_m01]
+		t23 := &multiply256LUT8[log_m23]
+		t02 := &multiply256LUT8[log_m02]
+		if log_m01 == modulus8 {
+			if log_m23 == modulus8 {
+				if log_m02 == modulus8 {
+					ifftDIT48_avx2_dst_7(dst, work, dist*24, t01, t23, t02)
+				} else {
+					ifftDIT48_avx2_dst_3(dst, work, dist*24, t01, t23, t02)
+				}
+			} else {
+				if log_m02 == modulus8 {
+					ifftDIT48_avx2_dst_5(dst, work, dist*24, t01, t23, t02)
+				} else {
+					ifftDIT48_avx2_dst_1(dst, work, dist*24, t01, t23, t02)
+				}
+			}
+		} else {
+			if log_m23 == modulus8 {
+				if log_m02 == modulus8 {
+					ifftDIT48_avx2_dst_6(dst, work, dist*24, t01, t23, t02)
+				} else {
+					ifftDIT48_avx2_dst_2(dst, work, dist*24, t01, t23, t02)
+				}
+			} else {
+				if log_m02 == modulus8 {
+					ifftDIT48_avx2_dst_4(dst, work, dist*24, t01, t23, t02)
+				} else {
+					ifftDIT48_avx2_dst_0(dst, work, dist*24, t01, t23, t02)
+				}
+			}
+		}
+		return
+	}
+	ifftDIT4DstRef8(dst, work, dist, log_m01, log_m23, log_m02, o)
+}
+
 func fftDIT4(work [][]byte, dist int, log_m01, log_m23, log_m02 ffe, o *options) {
 	if len(work[0]) == 0 {
 		return
@@ -308,6 +517,76 @@ func fftDIT4(work [][]byte, dist int, log_m01, log_m23, log_m02 ffe, o *options)
 	t01 := &multiply256LUT[log_m01]
 	t23 := &multiply256LUT[log_m23]
 	t02 := &multiply256LUT[log_m02]
+	if o.useAvx512GFNI && o.useAVX512 && gf2p811dMulMatrices16 != nil {
+		g01 := &gf2p811dMulMatrices16[log_m01]
+		g23 := &gf2p811dMulMatrices16[log_m23]
+		g02 := &gf2p811dMulMatrices16[log_m02]
+		if log_m02 == modulus {
+			if log_m01 == modulus {
+				if log_m23 == modulus {
+					fftDIT4_gfni_avx512_7(work, dist*24, g01, g23, g02)
+				} else {
+					fftDIT4_gfni_avx512_3(work, dist*24, g01, g23, g02)
+				}
+			} else {
+				if log_m23 == modulus {
+					fftDIT4_gfni_avx512_5(work, dist*24, g01, g23, g02)
+				} else {
+					fftDIT4_gfni_avx512_1(work, dist*24, g01, g23, g02)
+				}
+			}
+		} else {
+			if log_m01 == modulus {
+				if log_m23 == modulus {
+					fftDIT4_gfni_avx512_6(work, dist*24, g01, g23, g02)
+				} else {
+					fftDIT4_gfni_avx512_2(work, dist*24, g01, g23, g02)
+				}
+			} else {
+				if log_m23 == modulus {
+					fftDIT4_gfni_avx512_4(work, dist*24, g01, g23, g02)
+				} else {
+					fftDIT4_gfni_avx512_0(work, dist*24, g01, g23, g02)
+				}
+			}
+		}
+		return
+	}
+	if o.useAvxGNFI && gf2p811dMulMatrices16 != nil {
+		g01 := &gf2p811dMulMatrices16[log_m01]
+		g23 := &gf2p811dMulMatrices16[log_m23]
+		g02 := &gf2p811dMulMatrices16[log_m02]
+		if log_m02 == modulus {
+			if log_m01 == modulus {
+				if log_m23 == modulus {
+					fftDIT4_gfni_7(work, dist*24, g01, g23, g02)
+				} else {
+					fftDIT4_gfni_3(work, dist*24, g01, g23, g02)
+				}
+			} else {
+				if log_m23 == modulus {
+					fftDIT4_gfni_5(work, dist*24, g01, g23, g02)
+				} else {
+					fftDIT4_gfni_1(work, dist*24, g01, g23, g02)
+				}
+			}
+		} else {
+			if log_m01 == modulus {
+				if log_m23 == modulus {
+					fftDIT4_gfni_6(work, dist*24, g01, g23, g02)
+				} else {
+					fftDIT4_gfni_2(work, dist*24, g01, g23, g02)
+				}
+			} else {
+				if log_m23 == modulus {
+					fftDIT4_gfni_4(work, dist*24, g01, g23, g02)
+				} else {
+					fftDIT4_gfni_0(work, dist*24, g01, g23, g02)
+				}
+			}
+		}
+		return
+	}
 	if o.useAVX512 {
 		if log_m02 == modulus {
 			if log_m01 == modulus {
@@ -380,10 +659,10 @@ func fftDIT48(work [][]byte, dist int, log_m01, log_m23, log_m02 ffe8, o *option
 		return
 	}
 
-	if false && o.useAvx512GFNI {
-		t01 := gf2p811dMulMatrices[log_m01]
-		t23 := gf2p811dMulMatrices[log_m23]
-		t02 := gf2p811dMulMatrices[log_m02]
+	if o.useAvx512GFNI {
+		t01 := gf2p811dMulMatricesLeo8[log_m01]
+		t23 := gf2p811dMulMatricesLeo8[log_m23]
+		t02 := gf2p811dMulMatricesLeo8[log_m02]
 		// Note that these currently require that length is multiple of 64.
 		if log_m02 == modulus8 {
 			if log_m01 == modulus8 {
@@ -460,11 +739,26 @@ func fftDIT2(x, y []byte, log_m ffe, o *options) {
 	if len(x) == 0 {
 		return
 	}
-	if o.useAVX2 {
+	if o.useAvxGNFI && gf2p811dMulMatrices16 != nil {
+		tmp := &gf2p811dMulMatrices16[log_m]
+		if raceEnabled {
+			raceReadSlice(y)
+			raceWriteSlice(x)
+		}
+		fftDIT2_gfni(x, y, tmp)
+	} else if o.useAVX2 {
 		tmp := &multiply256LUT[log_m]
+		if raceEnabled {
+			raceReadSlice(y)
+			raceWriteSlice(x)
+		}
 		fftDIT2_avx2(x, y, tmp)
 	} else if o.useSSSE3 {
 		tmp := &multiply256LUT[log_m]
+		if raceEnabled {
+			raceReadSlice(y)
+			raceWriteSlice(x)
+		}
 		fftDIT2_ssse3(x, y, tmp)
 	} else {
 		// Reference version:
@@ -480,11 +774,15 @@ func fftDIT28(x, y []byte, log_m ffe8, o *options) {
 	}
 
 	if o.useAVX2 {
+		done := (len(y) >> 6) << 6
+		if raceEnabled {
+			raceReadSlice(y[:done])
+			raceWriteSlice(x[:done])
+		}
 		fftDIT28_avx2(x, y, &multiply256LUT8[log_m])
 		if len(x)&63 == 0 {
 			return
 		}
-		done := (len(y) >> 6) << 6
 		y = y[done:]
 		x = x[done:]
 	}
@@ -499,11 +797,15 @@ func ifftDIT28(x, y []byte, log_m ffe8, o *options) {
 	}
 
 	if o.useAVX2 {
+		done := (len(y) >> 6) << 6
+		if raceEnabled {
+			raceReadSlice(y[:done])
+			raceWriteSlice(x[:done])
+		}
 		ifftDIT28_avx2(x, y, &multiply256LUT8[log_m])
 		if len(x)&63 == 0 {
 			return
 		}
-		done := (len(y) >> 6) << 6
 		y = y[done:]
 		x = x[done:]
 	}
@@ -514,14 +816,22 @@ func ifftDIT28(x, y []byte, log_m ffe8, o *options) {
 func mulAdd8(x, y []byte, log_m ffe8, o *options) {
 	if o.useAVX2 {
 		t := &multiply256LUT8[log_m]
-		galMulAVX2Xor_64(t[:16], t[16:32], y, x)
 		done := (len(y) >> 6) << 6
+		if raceEnabled {
+			raceReadSlice(y[:done])
+			raceWriteSlice(x[:done])
+		}
+		galMulAVX2Xor_64(t[:16], t[16:32], y, x)
 		y = y[done:]
 		x = x[done:]
 	} else if o.useSSSE3 {
 		t := &multiply256LUT8[log_m]
-		galMulSSSE3Xor(t[:16], t[16:32], y, x)
 		done := (len(y) >> 4) << 4
+		if raceEnabled {
+			raceReadSlice(y[:done])
+			raceWriteSlice(x[:done])
+		}
+		galMulSSSE3Xor(t[:16], t[16:32], y, x)
 		y = y[done:]
 		x = x[done:]
 	}
@@ -533,11 +843,28 @@ func ifftDIT2(x, y []byte, log_m ffe, o *options) {
 	if len(x) == 0 {
 		return
 	}
-	if o.useAVX2 {
+	if o.useAvxGNFI && gf2p811dMulMatrices16 != nil {
+		tmp := &gf2p811dMulMatrices16[log_m]
+		if raceEnabled {
+			raceReadSlice(y)
+			raceWriteSlice(x)
+		}
+		ifftDIT2_gfni(x, y, tmp)
+	} else if o.useAVX2 {
 		tmp := &multiply256LUT[log_m]
+		if raceEnabled {
+			raceReadSlice(y)
+			raceWriteSlice(x)
+		}
+
 		ifftDIT2_avx2(x, y, tmp)
 	} else if o.useSSSE3 {
 		tmp := &multiply256LUT[log_m]
+		if raceEnabled {
+			raceReadSlice(y)
+			raceWriteSlice(x)
+		}
+
 		ifftDIT2_ssse3(x, y, tmp)
 	} else {
 		// Reference version:
@@ -550,11 +877,26 @@ func mulgf16(x, y []byte, log_m ffe, o *options) {
 	if len(x) == 0 {
 		return
 	}
-	if o.useAVX2 {
+	if o.useAvxGNFI && gf2p811dMulMatrices16 != nil {
+		tmp := &gf2p811dMulMatrices16[log_m]
+		if raceEnabled {
+			raceReadSlice(y)
+			raceWriteSlice(x)
+		}
+		mulgf16_gfni(x, y, tmp)
+	} else if o.useAVX2 {
 		tmp := &multiply256LUT[log_m]
+		if raceEnabled {
+			raceReadSlice(y)
+			raceWriteSlice(x)
+		}
 		mulgf16_avx2(x, y, tmp)
 	} else if o.useSSSE3 {
 		tmp := &multiply256LUT[log_m]
+		if raceEnabled {
+			raceReadSlice(y)
+			raceWriteSlice(x)
+		}
 		mulgf16_ssse3(x, y, tmp)
 	} else {
 		refMul(x, y, log_m)
@@ -564,14 +906,23 @@ func mulgf16(x, y []byte, log_m ffe, o *options) {
 func mulgf8(out, in []byte, log_m ffe8, o *options) {
 	if o.useAVX2 {
 		t := &multiply256LUT8[log_m]
-		galMulAVX2_64(t[:16], t[16:32], in, out)
 		done := (len(in) >> 6) << 6
+		if raceEnabled {
+			raceReadSlice(in[:done])
+			raceWriteSlice(out[:done])
+		}
+
+		galMulAVX2_64(t[:16], t[16:32], in, out)
 		in = in[done:]
 		out = out[done:]
 	} else if o.useSSSE3 {
 		t := &multiply256LUT8[log_m]
-		galMulSSSE3(t[:16], t[16:32], in, out)
 		done := (len(in) >> 4) << 4
+		if raceEnabled {
+			raceReadSlice(in[:done])
+			raceWriteSlice(out[:done])
+		}
+		galMulSSSE3(t[:16], t[16:32], in, out)
 		in = in[done:]
 		out = out[done:]
 	}

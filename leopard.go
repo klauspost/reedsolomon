@@ -74,6 +74,10 @@ func (r *leopardFF16) AllocAligned(each int) [][]byte {
 	return AllocAligned(r.totalShards, each)
 }
 
+func (r *leopardFF16) DecodeIdx(dst [][]byte, expectInput []bool, input [][]byte) error {
+	return ErrNotSupported
+}
+
 type ffe uint16
 
 const (
@@ -107,6 +111,13 @@ type mul16LUT struct {
 
 // Stores lookup for avx2
 var multiply256LUT *[order][8 * 16]byte
+
+// Stores GFNI transformation matrices for GF16.
+// Each entry contains 4 uint64 matrices [A, B, C, D] representing:
+//
+//	[out_lo]   [A  B] [in_lo]
+//	[out_hi] = [C  D] [in_hi]
+var gf2p811dMulMatrices16 *[order][4]uint64
 
 func (r *leopardFF16) Encode(shards [][]byte) error {
 	if len(shards) != r.totalShards {
@@ -144,10 +155,7 @@ func (r *leopardFF16) encode(shards [][]byte) error {
 	}
 	defer r.workPool.Put(work)
 
-	mtrunc := m
-	if r.dataShards < mtrunc {
-		mtrunc = r.dataShards
-	}
+	mtrunc := min(r.dataShards, m)
 
 	skewLUT := fftSkew[m-1:]
 
@@ -287,10 +295,7 @@ func (r *leopardFF16) Split(data []byte) ([][]byte, error) {
 		} else {
 			data = data[:cap(data)]
 		}
-		clear := data[dataLen:]
-		for i := range clear {
-			clear[i] = 0
-		}
+		clear(data[dataLen:])
 	}
 
 	// Only allocate memory if necessary
@@ -310,10 +315,7 @@ func (r *leopardFF16) Split(data []byte) ([][]byte, error) {
 			}
 		}
 	} else {
-		zero := data[dataLen : r.totalShards*perShard]
-		for i := range zero {
-			zero[i] = 0
-		}
+		clear(data[dataLen : r.totalShards*perShard])
 	}
 
 	// Split into equal-length shards.
@@ -452,13 +454,13 @@ func (r *leopardFF16) reconstruct(shards [][]byte, recoverAll bool, required []b
 	}
 
 	// Evaluate error locator polynomial
-	fwht(&errLocs, order, m+r.dataShards)
+	fwht(&errLocs, m+r.dataShards)
 
-	for i := 0; i < order; i++ {
+	for i := range order {
 		errLocs[i] = ffe((uint(errLocs[i]) * uint(logWalsh[i])) % modulus)
 	}
 
-	fwht(&errLocs, order, order)
+	fwht(&errLocs, order)
 
 	var work [][]byte
 	if w, ok := r.workPool.Get().([][]byte); ok {
@@ -484,11 +486,11 @@ func (r *leopardFF16) reconstruct(shards [][]byte, recoverAll bool, required []b
 		if len(shards[i+r.dataShards]) != 0 {
 			mulgf16(work[i], shards[i+r.dataShards], errLocs[i], &r.o)
 		} else {
-			memclr(work[i])
+			clear(work[i])
 		}
 	}
 	for i := r.parityShards; i < m; i++ {
-		memclr(work[i])
+		clear(work[i])
 	}
 
 	// work <- original data
@@ -497,11 +499,11 @@ func (r *leopardFF16) reconstruct(shards [][]byte, recoverAll bool, required []b
 		if len(shards[i]) != 0 {
 			mulgf16(work[m+i], shards[i], errLocs[m+i], &r.o)
 		} else {
-			memclr(work[m+i])
+			clear(work[m+i])
 		}
 	}
 	for i := m + r.dataShards; i < n; i++ {
-		memclr(work[i])
+		clear(work[i])
 	}
 
 	// work <- IFFT(work, n, 0)
@@ -680,11 +682,11 @@ func ifftDITEncoder(data [][]byte, mtrunc int, work [][]byte, xorRes [][]byte, m
 	// I tried rolling the memcpy/memset into the first layer of the FFT and
 	// found that it only yields a 4% performance improvement, which is not
 	// worth the extra complexity.
-	for i := 0; i < mtrunc; i++ {
+	for i := range mtrunc {
 		copy(work[i], data[i])
 	}
 	for i := mtrunc; i < m; i++ {
-		memclr(work[i])
+		clear(work[i])
 	}
 
 	// I tried splitting up the first few layers into L3-cache sized blocks but
@@ -792,12 +794,6 @@ func refMulAdd(x, y []byte, log_m ffe) {
 	}
 }
 
-func memclr(s []byte) {
-	for i := range s {
-		s[i] = 0
-	}
-}
-
 // slicesXor calls xor for every slice pair in v1, v2.
 func slicesXor(v1, v2 [][]byte, o *options) {
 	for i, v := range v1 {
@@ -839,11 +835,12 @@ func mulLog(a, log_b ffe) ffe {
 	return expLUT[addMod(logLUT[a], log_b)]
 }
 
-// z = x + y (mod kModulus)
+// addMod returns the sum of a and b modulo modulus. This can return modulus but
+// it is expected that callers will convert modulus to 0.
 func addMod(a, b ffe) ffe {
 	sum := uint(a) + uint(b)
 
-	// Partial reduction step, allowing for kModulus to be returned
+	// Partial reduction step which allows for modulus to be returned.
 	return ffe(sum + sum>>bitwidth)
 }
 
@@ -864,18 +861,18 @@ func ceilPow2(n int) int {
 // Decimation in time (DIT) Fast Walsh-Hadamard Transform
 // Unrolls pairs of layers to perform cross-layer operations in registers
 // mtrunc: Number of elements that are non-zero at the front of data
-func fwht(data *[order]ffe, m, mtrunc int) {
+func fwht(data *[order]ffe, mtrunc int) {
 	// Decimation in time: Unroll 2 layers at a time
 	dist := 1
 	dist4 := 4
-	for dist4 <= m {
+	for dist4 <= order {
 		// For each set of dist*4 elements:
 		for r := 0; r < mtrunc; r += dist4 {
 			// For each set of dist elements:
 			// Use 16 bit indices to avoid bounds check on [65536]ffe.
 			dist := uint16(dist)
 			off := uint16(r)
-			for i := uint16(0); i < dist; i++ {
+			for range dist {
 				// fwht4(data[i:], dist) inlined...
 				// Reading values appear faster than updating pointers.
 				// Casting to uint is not faster.
@@ -898,14 +895,6 @@ func fwht(data *[order]ffe, m, mtrunc int) {
 		}
 		dist = dist4
 		dist4 <<= 2
-	}
-
-	// If there is one layer left:
-	if dist < m {
-		dist := uint16(dist)
-		for i := uint16(0); i < dist; i++ {
-			fwht2(&data[i], &data[i+dist])
-		}
 	}
 }
 
@@ -960,7 +949,7 @@ func initLUTs() {
 
 	// LFSR table generation:
 	state := 1
-	for i := ffe(0); i < modulus; i++ {
+	for i := range ffe(modulus) {
 		expLUT[state] = i
 		state <<= 1
 		if state >= order {
@@ -972,20 +961,20 @@ func initLUTs() {
 	// Conversion to Cantor basis:
 
 	logLUT[0] = 0
-	for i := 0; i < bitwidth; i++ {
+	for i := range bitwidth {
 		basis := cantorBasis[i]
 		width := 1 << i
 
-		for j := 0; j < width; j++ {
+		for j := range width {
 			logLUT[j+width] = logLUT[j] ^ basis
 		}
 	}
 
-	for i := 0; i < order; i++ {
+	for i := range order {
 		logLUT[i] = expLUT[logLUT[i]]
 	}
 
-	for i := 0; i < order; i++ {
+	for i := range order {
 		expLUT[logLUT[i]] = ffe(i)
 	}
 
@@ -1005,7 +994,7 @@ func initFFTSkew() {
 	fftSkew = &[modulus]ffe{}
 	logWalsh = &[order]ffe{}
 
-	for m := 0; m < bitwidth-1; m++ {
+	for m := range bitwidth - 1 {
 		step := 1 << (m + 1)
 
 		fftSkew[1<<m-1] = 0
@@ -1026,30 +1015,30 @@ func initFFTSkew() {
 		}
 	}
 
-	for i := 0; i < modulus; i++ {
+	for i := range modulus {
 		fftSkew[i] = logLUT[fftSkew[i]]
 	}
 
 	// Precalculate FWHT(Log[i]):
 
-	for i := 0; i < order; i++ {
+	for i := range order {
 		logWalsh[i] = logLUT[i]
 	}
 	logWalsh[0] = 0
 
-	fwht(logWalsh, order, order)
+	fwht(logWalsh, order)
 }
 
 func initMul16LUT() {
 	mul16LUTs = &[order]mul16LUT{}
 
 	// For each log_m multiplicand:
-	for log_m := 0; log_m < order; log_m++ {
+	for log_m := range order {
 		var tmp [64]ffe
 		for nibble, shift := 0, 0; nibble < 4; {
 			nibble_lut := tmp[nibble*16:]
 
-			for xnibble := 0; xnibble < 16; xnibble++ {
+			for xnibble := range 16 {
 				prod := mulLog(ffe(xnibble<<shift), ffe(log_m))
 				nibble_lut[xnibble] = prod
 			}
@@ -1068,7 +1057,7 @@ func initMul16LUT() {
 		for logM := range multiply256LUT[:] {
 			// For each 4 bits of the finite field width in bits:
 			shift := 0
-			for i := 0; i < 4; i++ {
+			for i := range 4 {
 				// Construct 16 entry LUT for PSHUFB
 				prodLo := multiply256LUT[logM][i*16 : i*16+16]
 				prodHi := multiply256LUT[logM][4*16+i*16 : 4*16+i*16+16]
@@ -1079,6 +1068,42 @@ func initMul16LUT() {
 				}
 				shift += 4
 			}
+		}
+	}
+	if cpuid.CPU.Has(cpuid.GFNI) {
+		gf2p811dMulMatrices16 = &[order][4]uint64{}
+		for logM := range gf2p811dMulMatrices16[:] {
+			var A, B, C, D uint64
+
+			// A, C: effect of input lo_byte bits on output
+			// VGF2P8AFFINEQB accesses byte (7-j) for output bit j, so we need:
+			// position = (7-outputBit)*8 + inputBit
+			for inputBit := 0; inputBit < 8; inputBit++ {
+				result := mulLog(ffe(1<<inputBit), ffe(logM))
+				for outputBit := 0; outputBit < 8; outputBit++ {
+					if (byte(result)>>outputBit)&1 == 1 {
+						A |= 1 << ((7-outputBit)*8 + inputBit)
+					}
+					if (byte(result>>8)>>outputBit)&1 == 1 {
+						C |= 1 << ((7-outputBit)*8 + inputBit)
+					}
+				}
+			}
+
+			// B, D: effect of input hi_byte bits on output
+			for inputBit := 0; inputBit < 8; inputBit++ {
+				result := mulLog(ffe(1<<(inputBit+8)), ffe(logM))
+				for outputBit := 0; outputBit < 8; outputBit++ {
+					if (byte(result)>>outputBit)&1 == 1 {
+						B |= 1 << ((7-outputBit)*8 + inputBit)
+					}
+					if (byte(result>>8)>>outputBit)&1 == 1 {
+						D |= 1 << ((7-outputBit)*8 + inputBit)
+					}
+				}
+			}
+
+			gf2p811dMulMatrices16[logM] = [4]uint64{A, B, C, D}
 		}
 	}
 }
@@ -1155,7 +1180,7 @@ var kHiMasks = [5]uint64{
 
 func (e *errorBitfield) prepare() {
 	// First mip level is for final layer of FFT: pairs of data
-	for i := 0; i < kWords; i++ {
+	for i := range kWords {
 		w_i := e.Words[0][i]
 		hi2lo0 := w_i | ((w_i & kHiMasks[0]) >> 1)
 		lo2hi0 := (w_i & (kHiMasks[0] >> 1)) << 1
@@ -1172,7 +1197,7 @@ func (e *errorBitfield) prepare() {
 		}
 	}
 
-	for i := 0; i < kBigWords; i++ {
+	for i := range kBigWords {
 		w_i := uint64(0)
 		bit := uint64(1)
 		src := e.Words[kWordMips-1][i*64 : i*64+64]

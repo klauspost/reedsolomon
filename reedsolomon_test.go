@@ -110,7 +110,7 @@ func findSingularSubMatrix(m matrix) (matrix, error) {
 	for incrementIndicesUntilIncreasingAndContainsDataRow(rowIndices, rows) {
 		subMatrix, _ := newMatrix(cols, cols)
 		for i, r := range rowIndices {
-			for c := 0; c < cols; c++ {
+			for c := range cols {
 				subMatrix[i][c] = m[r][c]
 			}
 		}
@@ -139,15 +139,15 @@ func TestBuildMatrixJerasure(t *testing.T) {
 		{1, 39, 217, 161, 92, 60, 172, 90},
 		{1, 172, 70, 235, 143, 34, 200, 101},
 	}
-	for i := 0; i < 8; i++ {
-		for j := 0; j < 8; j++ {
+	for i := range 8 {
+		for j := range 8 {
 			if i != j && m[i][j] != 0 || i == j && m[i][j] != 1 {
 				t.Fatal("Top part of the matrix is not identity")
 			}
 		}
 	}
-	for i := 0; i < 4; i++ {
-		for j := 0; j < 8; j++ {
+	for i := range 4 {
+		for j := range 8 {
 			if m[8+i][j] != refMatrix[i][j] {
 				t.Fatal("Coding matrix for EC 8+4 differs from Jerasure")
 			}
@@ -343,7 +343,7 @@ func testEncoding(t *testing.T, o ...Option) {
 						shards[s] = make([]byte, perShard)
 					}
 
-					for s := 0; s < len(shards); s++ {
+					for s := range shards {
 						rng.Read(shards[s])
 					}
 
@@ -441,10 +441,7 @@ func testEncodingIdx(t *testing.T, o ...Option) {
 
 				t.Run(fmt.Sprint(perShard), func(t *testing.T) {
 
-					shards := make([][]byte, data+parity)
-					for s := range shards {
-						shards[s] = make([]byte, perShard)
-					}
+					shards := AllocAligned(data+parity, perShard)
 					shuffle := make([]int, data)
 					for i := range shuffle {
 						shuffle[i] = i
@@ -452,7 +449,7 @@ func testEncodingIdx(t *testing.T, o ...Option) {
 					rng.Shuffle(len(shuffle), func(i, j int) { shuffle[i], shuffle[j] = shuffle[j], shuffle[i] })
 
 					// Send shards in random order.
-					for s := 0; s < data; s++ {
+					for s := range data {
 						s := shuffle[s]
 						rng.Read(shards[s])
 						err = r.EncodeIdx(shards[s], s, shards[data:])
@@ -675,7 +672,7 @@ func testReconstruct(t *testing.T, o ...Option) {
 		shards[s] = make([]byte, perShard)
 	}
 
-	for s := 0; s < 13; s++ {
+	for s := range 13 {
 		fillRandom(shards[s])
 	}
 
@@ -750,7 +747,7 @@ func TestReconstructCustom(t *testing.T) {
 		shards[s] = make([]byte, perShard)
 	}
 
-	for s := 0; s < len(shards); s++ {
+	for s := range shards {
 		fillRandom(shards[s])
 	}
 
@@ -821,7 +818,7 @@ func testReconstructData(t *testing.T, o ...Option) {
 		shards[s] = make([]byte, perShard)
 	}
 
-	for s := 0; s < 13; s++ {
+	for s := range 13 {
 		fillRandom(shards[s], int64(s))
 	}
 
@@ -838,7 +835,7 @@ func testReconstructData(t *testing.T, o ...Option) {
 
 	// Reconstruct parity shards from data
 	shardsCopy := make([][]byte, 13)
-	for i := 0; i < 8; i++ {
+	for i := range 8 {
 		shardsCopy[i] = shards[i]
 	}
 
@@ -1032,7 +1029,7 @@ func TestReconstructPAR1Singular(t *testing.T) {
 		shards[s] = make([]byte, perShard)
 	}
 
-	for s := 0; s < 8; s++ {
+	for s := range 8 {
 		fillRandom(shards[s])
 	}
 
@@ -1081,7 +1078,7 @@ func testVerify(t *testing.T, o ...Option) {
 		shards[s] = make([]byte, perShard)
 	}
 
-	for s := 0; s < 10; s++ {
+	for s := range 10 {
 		fillRandom(shards[s], 0)
 	}
 
@@ -1208,7 +1205,7 @@ func benchmarkEncode(b *testing.B, dataShards, parityShards, shardSize int, opts
 	}
 
 	shards := r.(Extensions).AllocAligned(shardSize)
-	for s := 0; s < dataShards; s++ {
+	for s := range dataShards {
 		fillRandom(shards[s])
 	}
 	// Warm up so initialization is eliminated.
@@ -1236,7 +1233,7 @@ func benchmarkDecode(b *testing.B, dataShards, parityShards, shardSize, deleteSh
 	}
 
 	shards := r.(Extensions).AllocAligned(shardSize)
-	for s := 0; s < dataShards; s++ {
+	for s := range dataShards {
 		fillRandom(shards[s])
 	}
 	if err := r.Encode(shards); err != nil {
@@ -1248,7 +1245,7 @@ func benchmarkDecode(b *testing.B, dataShards, parityShards, shardSize, deleteSh
 	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
 		// Clear maximum number of data shards.
-		for s := 0; s < deleteShards; s++ {
+		for s := range deleteShards {
 			shards[s] = nil
 		}
 
@@ -1413,7 +1410,7 @@ func benchmarkVerify(b *testing.B, dataShards, parityShards, shardSize int) {
 	}
 	shards := r.(Extensions).AllocAligned(shardSize)
 
-	for s := 0; s < dataShards; s++ {
+	for s := range dataShards {
 		fillRandom(shards[s])
 	}
 	err = r.Encode(shards)
@@ -1478,7 +1475,7 @@ func BenchmarkVerify10x4x16M(b *testing.B) {
 
 func corruptRandom(shards [][]byte, dataShards, parityShards int) {
 	shardsToCorrupt := rand.Intn(parityShards) + 1
-	for i := 0; i < shardsToCorrupt; i++ {
+	for range shardsToCorrupt {
 		n := rand.Intn(dataShards + parityShards)
 		shards[n] = shards[n][:0]
 	}
@@ -1493,7 +1490,7 @@ func benchmarkReconstruct(b *testing.B, dataShards, parityShards, shardSize int,
 	}
 	shards := r.(Extensions).AllocAligned(shardSize)
 
-	for s := 0; s < dataShards; s++ {
+	for s := range dataShards {
 		fillRandom(shards[s])
 	}
 	err = r.Encode(shards)
@@ -1578,7 +1575,7 @@ func benchmarkReconstructData(b *testing.B, dataShards, parityShards, shardSize 
 	}
 	shards := r.(Extensions).AllocAligned(shardSize)
 
-	for s := 0; s < dataShards; s++ {
+	for s := range dataShards {
 		fillRandom(shards[s])
 	}
 	err = r.Encode(shards)
@@ -1656,7 +1653,7 @@ func benchmarkReconstructP(b *testing.B, dataShards, parityShards, shardSize int
 	b.RunParallel(func(pb *testing.PB) {
 		shards := r.(Extensions).AllocAligned(shardSize)
 
-		for s := 0; s < dataShards; s++ {
+		for s := range dataShards {
 			fillRandom(shards[s])
 		}
 		err = r.Encode(shards)
@@ -1858,11 +1855,11 @@ func TestCodeSomeShards(t *testing.T) {
 	shards, _ := enc.Split(data)
 
 	old := runtime.GOMAXPROCS(1)
-	r.codeSomeShards(r.parity, shards[:r.dataShards], shards[r.dataShards:r.dataShards+r.parityShards], len(shards[0]))
+	r.codeSomeShards(r.parity, shards[:r.dataShards], shards[r.dataShards:r.dataShards+r.parityShards], len(shards[0]), true)
 
 	// hopefully more than 1 CPU
 	runtime.GOMAXPROCS(runtime.NumCPU())
-	r.codeSomeShards(r.parity, shards[:r.dataShards], shards[r.dataShards:r.dataShards+r.parityShards], len(shards[0]))
+	r.codeSomeShards(r.parity, shards[:r.dataShards], shards[r.dataShards:r.dataShards+r.parityShards], len(shards[0]), true)
 
 	// reset MAXPROCS, otherwise testing complains
 	runtime.GOMAXPROCS(old)
@@ -2160,10 +2157,10 @@ func benchmarkParallel(b *testing.B, dataShards, parityShards, shardSize int) {
 	}
 	// Create independent shards
 	shardsCh := make(chan [][]byte, c)
-	for i := 0; i < c; i++ {
+	for range c {
 		shards := r.(Extensions).AllocAligned(shardSize)
 
-		for s := 0; s < dataShards; s++ {
+		for s := range dataShards {
 			fillRandom(shards[s])
 		}
 		shardsCh <- shards
@@ -2199,105 +2196,217 @@ func BenchmarkParallel_8x5x1M(b *testing.B) { benchmarkParallel(b, 8, 5, 1<<20) 
 
 func TestReentrant(t *testing.T) {
 	for optN, o := range testOpts() {
-		for _, size := range testSizes() {
-			data, parity := size[0], size[1]
-			rng := rand.New(rand.NewSource(0xabadc0cac01a))
-			t.Run(fmt.Sprintf("opt-%d-%dx%d", optN, data, parity), func(t *testing.T) {
-				perShard := 16384 + 1
-				if testing.Short() {
-					perShard = 1024 + 1
-				}
-				r, err := New(data, parity, testOptions(o...)...)
-				if err != nil {
-					t.Fatal(err)
-				}
-				x := r.(Extensions)
-				if want, got := data, x.DataShards(); want != got {
-					t.Errorf("DataShards returned %d, want %d", got, want)
-				}
-				if want, got := parity, x.ParityShards(); want != got {
-					t.Errorf("ParityShards returned %d, want %d", got, want)
-				}
-				if want, got := parity+data, x.TotalShards(); want != got {
-					t.Errorf("TotalShards returned %d, want %d", got, want)
-				}
-				mul := x.ShardSizeMultiple()
-				if mul <= 0 {
-					t.Fatalf("Got unexpected ShardSizeMultiple: %d", mul)
-				}
-				perShard = ((perShard + mul - 1) / mul) * mul
-				runs := 10
-				if testing.Short() {
-					runs = 2
-				}
-				for i := 0; i < runs; i++ {
-					shards := AllocAligned(data+parity, perShard)
-
-					err = r.Encode(shards)
+		t.Run(fmt.Sprintf("opt-%d", optN), func(t *testing.T) {
+			parallelIfNotShort(t)
+			for _, size := range testSizes() {
+				data, parity := size[0], size[1]
+				rng := rand.New(rand.NewSource(0xabadc0cac01a))
+				t.Run(fmt.Sprintf("size-%dx%d", data, parity), func(t *testing.T) {
+					perShard := 1024 + 1
+					if testing.Short() {
+						perShard = 256 + 1
+					}
+					r, err := New(data, parity, testOptions(o...)...)
 					if err != nil {
 						t.Fatal(err)
 					}
-					ok, err := r.Verify(shards)
-					if err != nil {
-						t.Fatal(err)
+					x := r.(Extensions)
+					if want, got := data, x.DataShards(); want != got {
+						t.Errorf("DataShards returned %d, want %d", got, want)
 					}
-					if !ok {
-						t.Fatal("Verification failed")
+					if want, got := parity, x.ParityShards(); want != got {
+						t.Errorf("ParityShards returned %d, want %d", got, want)
 					}
+					if want, got := parity+data, x.TotalShards(); want != got {
+						t.Errorf("TotalShards returned %d, want %d", got, want)
+					}
+					mul := x.ShardSizeMultiple()
+					if mul <= 0 {
+						t.Fatalf("Got unexpected ShardSizeMultiple: %d", mul)
+					}
+					perShard = ((perShard + mul - 1) / mul) * mul
+					runs := 10
+					if testing.Short() {
+						runs = 2
+					}
+					for i := 0; i < runs; i++ {
+						shards := AllocAligned(data+parity, perShard)
+						for s := 0; s < data; s++ {
+							rng.Read(shards[s])
+						}
+						err = r.Encode(shards)
+						if err != nil {
+							t.Fatal(err)
+						}
+						ok, err := r.Verify(shards)
+						if err != nil {
+							t.Fatal(err)
+						}
+						if !ok {
+							t.Fatal("Verification failed")
+						}
 
-					if parity == 0 {
-						// Check that Reconstruct and ReconstructData do nothing
+						if parity == 0 {
+							// Check that Reconstruct and ReconstructData do nothing
+							err = r.ReconstructData(shards)
+							if err != nil {
+								t.Fatal(err)
+							}
+							err = r.Reconstruct(shards)
+							if err != nil {
+								t.Fatal(err)
+							}
+
+							// Skip integrity checks
+							continue
+						}
+
+						// Delete one in data
+						idx := rng.Intn(data)
+						want := shards[idx]
+						shards[idx] = nil
+
 						err = r.ReconstructData(shards)
 						if err != nil {
 							t.Fatal(err)
 						}
+						if !bytes.Equal(shards[idx], want) {
+							t.Fatal("did not ReconstructData correctly")
+						}
+
+						// Delete one randomly
+						idx = rng.Intn(data + parity)
+						want = shards[idx]
+						shards[idx] = nil
 						err = r.Reconstruct(shards)
 						if err != nil {
 							t.Fatal(err)
 						}
+						if !bytes.Equal(shards[idx], want) {
+							t.Fatal("did not Reconstruct correctly")
+						}
 
-						// Skip integrity checks
+						err = r.Encode(make([][]byte, 1))
+						if err != ErrTooFewShards {
+							t.Errorf("expected %v, got %v", ErrTooFewShards, err)
+						}
+
+						// Make one too short.
+						shards[idx] = shards[idx][:perShard-1]
+						err = r.Encode(shards)
+						if err != ErrShardSize {
+							t.Errorf("expected %v, got %v", ErrShardSize, err)
+						}
+					}
+				})
+			}
+		})
+	}
+}
+
+func TestRSReconstructSome(t *testing.T) {
+	const (
+		dataShards   = 3
+		parityShards = 2
+		sectorSize   = 1 << 20 // 1 MiB
+	)
+	stripedSplit := func(data []byte, dataShards [][]byte) {
+		const leafSize = 64
+		buf := bytes.NewBuffer(data)
+		for off := 0; buf.Len() > 0; off += leafSize {
+			for _, shard := range dataShards {
+				copy(shard[off:], buf.Next(leafSize))
+			}
+		}
+	}
+
+	// prepare random data
+	buf := make([]byte, sectorSize*dataShards)
+	rand.Read(buf)
+
+	// prepare shards
+	shards := make([][]byte, dataShards+parityShards)
+	for i := range shards {
+		shards[i] = make([]byte, sectorSize)
+	}
+
+	for i, o := range testOpts() {
+		toFill := []int{0, 1, 2, 3, 4}
+		t.Run(fmt.Sprintf("options %d", i), func(t *testing.T) {
+			// Shuffle the indices to fill
+			rand.Shuffle(len(toFill), func(i, j int) {
+				toFill[i], toFill[j] = toFill[j], toFill[i]
+			})
+			stripedSplit(buf, shards[:dataShards])
+			// encode shards
+			enc, err := New(dataShards, parityShards, o...)
+			if err != nil {
+				t.Fatal(err)
+			}
+			err = enc.Encode(shards)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			for _, required := range [][]bool{
+				{false, false, false, false, true},
+				{false, false, false, true, true},
+				{false, false, true, false, true},
+				{false, false, true, true, true},
+				{false, true, false, false, true},
+				{false, true, false, true, true},
+				{false, true, true, false, true},
+				{false, true, true, true, true},
+				{true, false, false, false, true},
+				{true, false, false, true, true},
+				{true, false, true, false, true},
+				{true, false, true, true, true},
+				{true, true, false, false, true},
+				{true, true, false, true, true},
+				{true, true, true, false, true},
+				{true, true, true, true, true},
+
+				{false, false, false, false, false},
+				{false, false, false, true, false},
+				{false, false, true, false, false},
+				{false, false, true, true, false},
+				{false, true, false, false, false},
+				{false, true, false, true, false},
+				{false, true, true, false, false},
+				{false, true, true, true, false},
+				{true, false, false, false, false},
+				{true, false, false, true, false},
+				{true, false, true, false, false},
+				{true, false, true, true, false},
+				{true, true, false, false, false},
+				{true, true, false, true, false},
+				{true, true, true, false, false},
+				{true, true, true, true, false},
+			} {
+				downloaded := make([][]byte, len(shards))
+				downloaded[toFill[0]] = append([]byte{}, shards[toFill[0]]...)
+				downloaded[toFill[1]] = append([]byte{}, shards[toFill[1]]...)
+				downloaded[toFill[2]] = append([]byte{}, shards[toFill[2]]...)
+				err = enc.ReconstructSome(downloaded, required)
+				if err != nil {
+					t.Fatal(err)
+				}
+				for i, shard := range downloaded {
+					if shard == nil && required[i] {
+						t.Errorf("shard idx %d should not be nil", i)
+					}
+					if !required[i] && shard == nil {
+						// Ignore, if it wasn't reconstructed
 						continue
 					}
-
-					// Delete one in data
-					idx := rng.Intn(data)
-					want := shards[idx]
-					shards[idx] = nil
-
-					err = r.ReconstructData(shards)
-					if err != nil {
-						t.Fatal(err)
+					if len(shard) != sectorSize {
+						t.Errorf("shard idx %d has wrong size: %d, want %d", i, len(shard), sectorSize)
 					}
-					if !bytes.Equal(shards[idx], want) {
-						t.Fatal("did not ReconstructData correctly")
-					}
-
-					// Delete one randomly
-					idx = rng.Intn(data + parity)
-					want = shards[idx]
-					shards[idx] = nil
-					err = r.Reconstruct(shards)
-					if err != nil {
-						t.Fatal(err)
-					}
-					if !bytes.Equal(shards[idx], want) {
-						t.Fatal("did not Reconstruct correctly")
-					}
-
-					err = r.Encode(make([][]byte, 1))
-					if err != ErrTooFewShards {
-						t.Errorf("expected %v, got %v", ErrTooFewShards, err)
-					}
-
-					// Make one too short.
-					shards[idx] = shards[idx][:perShard-1]
-					err = r.Encode(shards)
-					if err != ErrShardSize {
-						t.Errorf("expected %v, got %v", ErrShardSize, err)
+					if !bytes.Equal(shard, shards[i]) {
+						t.Errorf("shard idx %d does not match original", i)
 					}
 				}
-			})
-		}
+			}
+		})
 	}
 }

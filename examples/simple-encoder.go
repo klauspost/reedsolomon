@@ -39,7 +39,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 
@@ -79,7 +78,7 @@ func main() {
 	checkErr(err)
 
 	fmt.Println("Opening", fname)
-	b, err := ioutil.ReadFile(fname)
+	b, err := os.ReadFile(fname)
 	checkErr(err)
 
 	// Split the file into equally sized shards.
@@ -100,7 +99,7 @@ func main() {
 		outfn := fmt.Sprintf("%s.%d", file, i)
 
 		fmt.Println("Writing to", outfn)
-		err = ioutil.WriteFile(filepath.Join(dir, outfn), shard, 0644)
+		err = os.WriteFile(filepath.Join(dir, outfn), shard, 0644)
 		checkErr(err)
 	}
 }

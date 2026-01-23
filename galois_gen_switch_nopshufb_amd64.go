@@ -10,17 +10,45 @@ import (
 )
 
 const (
-	avx2CodeGen    = true
-	maxAvx2Inputs  = 10
-	maxAvx2Outputs = 10
-	minAvx2Size    = 64
+	codeGen              = true
+	codeGenMaxGoroutines = 8
+	codeGenMaxInputs     = 10
+	codeGenMaxOutputs    = 10
+	minCodeGenSize       = 64
 )
+
+var (
+	fGFNI       = galMulSlicesGFNI
+	fGFNIXor    = galMulSlicesGFNIXor
+	fAvxGFNI    = galMulSlicesAvxGFNI
+	fAvxGFNIXor = galMulSlicesAvxGFNIXor
+)
+
+func (r *reedSolomon) hasCodeGen(byteCount int, inputs, outputs int) (_, _ *func(matrix []byte, in, out [][]byte, start, stop int) int, ok bool) {
+	return nil, nil, false // no code generation for generic case (only GFNI cases)
+}
+
+func (r *reedSolomon) canGFNI(byteCount int, inputs, outputs int) (_, _ *func(matrix []uint64, in, out [][]byte, start, stop int) int, ok bool) {
+	if r.o.useAvx512GFNI {
+		return &fGFNI, &fGFNIXor, codeGen &&
+			byteCount >= codeGenMinSize && inputs+outputs >= codeGenMinShards &&
+			inputs <= codeGenMaxInputs && outputs <= codeGenMaxOutputs
+	}
+	return &fAvxGFNI, &fAvxGFNIXor, codeGen && r.o.useAvxGNFI &&
+		byteCount >= codeGenMinSize && inputs+outputs >= codeGenMinShards &&
+		inputs <= codeGenMaxInputs && outputs <= codeGenMaxOutputs
+}
 
 func galMulSlicesAvx2(matrix []byte, in, out [][]byte, start, stop int) int    { panic(`no pshufb`) }
 func galMulSlicesAvx2Xor(matrix []byte, in, out [][]byte, start, stop int) int { panic(`no pshufb`) }
 
 func galMulSlicesGFNI(matrix []uint64, in, out [][]byte, start, stop int) int {
 	n := (stop - start) & (maxInt - (64 - 1))
+
+	if raceEnabled {
+		raceReadSlices(in, start, n)
+		raceWriteSlices(out, start, n)
+	}
 
 	switch len(in) {
 	case 1:
@@ -360,6 +388,11 @@ func galMulSlicesGFNI(matrix []uint64, in, out [][]byte, start, stop int) int {
 func galMulSlicesGFNIXor(matrix []uint64, in, out [][]byte, start, stop int) int {
 	n := (stop - start) & (maxInt - (64 - 1))
 
+	if raceEnabled {
+		raceReadSlices(in, start, n)
+		raceWriteSlices(out, start, n)
+	}
+
 	switch len(in) {
 	case 1:
 		switch len(out) {
@@ -698,6 +731,11 @@ func galMulSlicesGFNIXor(matrix []uint64, in, out [][]byte, start, stop int) int
 func galMulSlicesAvxGFNI(matrix []uint64, in, out [][]byte, start, stop int) int {
 	n := (stop - start) & (maxInt - (32 - 1))
 
+	if raceEnabled {
+		raceReadSlices(in, start, n)
+		raceWriteSlices(out, start, n)
+	}
+
 	switch len(in) {
 	case 1:
 		switch len(out) {
@@ -1035,6 +1073,11 @@ func galMulSlicesAvxGFNI(matrix []uint64, in, out [][]byte, start, stop int) int
 
 func galMulSlicesAvxGFNIXor(matrix []uint64, in, out [][]byte, start, stop int) int {
 	n := (stop - start) & (maxInt - (32 - 1))
+
+	if raceEnabled {
+		raceReadSlices(in, start, n)
+		raceWriteSlices(out, start, n)
+	}
 
 	switch len(in) {
 	case 1:

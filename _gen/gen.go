@@ -89,6 +89,12 @@ func main() {
 	genSwitch()
 	genGF16()
 	genGF8()
+
+	if pshufb {
+		genArmSve()
+		genArmNeon()
+		genArmSveAllVl()
+	}
 	Generate()
 }
 
@@ -121,12 +127,48 @@ import (
 )
 
 `)
+	avx2funcs := string(`	fAvx2       = galMulSlicesAvx2
+	fAvx2Xor    = galMulSlicesAvx2Xor
+`)
+
+	hasCodeGenImpl := string(`	return &fAvx2, &fAvx2Xor, codeGen && pshufb && r.o.useAVX2 &&
+	byteCount >= codeGenMinSize && inputs+outputs >= codeGenMinShards &&
+	inputs <= codeGenMaxInputs && outputs <= codeGenMaxOutputs`)
+
+	if !pshufb {
+		avx2funcs = ""
+		hasCodeGenImpl = `	return nil, nil, false // no code generation for generic case (only GFNI cases)	`
+	}
+
 	w.WriteString(fmt.Sprintf(`const (
-avx2CodeGen = true
-maxAvx2Inputs = %d
-maxAvx2Outputs = %d
-minAvx2Size = 64
-)`, inputMax, outputMax))
+codeGen              = true
+codeGenMaxGoroutines = 8
+codeGenMaxInputs     = %d
+codeGenMaxOutputs    = %d
+minCodeGenSize       = 64
+)
+
+var (
+%s	fGFNI       = galMulSlicesGFNI
+	fGFNIXor    = galMulSlicesGFNIXor
+	fAvxGFNI    = galMulSlicesAvxGFNI
+	fAvxGFNIXor = galMulSlicesAvxGFNIXor
+)
+
+func (r *reedSolomon) hasCodeGen(byteCount int, inputs, outputs int) (_, _ *func(matrix []byte, in, out [][]byte, start, stop int) int, ok bool) {
+%s
+}
+
+func (r *reedSolomon) canGFNI(byteCount int, inputs, outputs int) (_, _ *func(matrix []uint64, in, out [][]byte, start, stop int) int, ok bool) {
+	if r.o.useAvx512GFNI {
+		return &fGFNI, &fGFNIXor, codeGen &&
+			byteCount >= codeGenMinSize && inputs+outputs >= codeGenMinShards &&
+			inputs <= codeGenMaxInputs && outputs <= codeGenMaxOutputs
+	}
+	return &fAvxGFNI, &fAvxGFNIXor, codeGen && r.o.useAvxGNFI &&
+		byteCount >= codeGenMinSize && inputs+outputs >= codeGenMinShards &&
+		inputs <= codeGenMaxInputs && outputs <= codeGenMaxOutputs
+}`, inputMax, outputMax, avx2funcs, hasCodeGenImpl))
 
 	if !pshufb {
 		w.WriteString("\n\nfunc galMulSlicesAvx2(matrix []byte, in, out [][]byte, start, stop int) int { panic(`no pshufb`)}\n")
@@ -136,8 +178,14 @@ minAvx2Size = 64
 	if pshufb {
 		w.WriteString(`
 
-func galMulSlicesAvx2(matrix []byte, in, out [][]byte, start, stop int) int {
-	 n := stop-start
+func galMulSlicesAvx2(matrix []byte, in, out [][]byte, start, stop int) (n int) {
+	n = stop - start
+	if raceEnabled {
+		defer func() {
+			raceReadSlices(in, start, n)
+			raceWriteSlices(out, start, n)
+		}()
+	}
 
 `)
 
@@ -155,8 +203,14 @@ func galMulSlicesAvx2(matrix []byte, in, out [][]byte, start, stop int) int {
 	panic(fmt.Sprintf("unhandled size: %dx%d", len(in), len(out)))
 }
 
-func galMulSlicesAvx2Xor(matrix []byte, in, out [][]byte, start, stop int) int {
-	n := (stop-start)
+func galMulSlicesAvx2Xor(matrix []byte, in, out [][]byte, start, stop int) (n int) {
+	n = stop - start
+	if raceEnabled {
+		defer func() {
+			raceReadSlices(in, start, n)
+			raceWriteSlices(out, start, n)
+		}()
+	}
 
 `)
 
@@ -181,6 +235,11 @@ func galMulSlicesAvx2Xor(matrix []byte, in, out [][]byte, start, stop int) int {
 func galMulSlicesGFNI(matrix []uint64, in, out [][]byte, start, stop int) int {
 	n := (stop-start) & (maxInt - (64 - 1))
 
+	if raceEnabled {
+		raceReadSlices(in, start, n)
+		raceWriteSlices(out, start, n)
+	}
+
 `)
 
 	w.WriteString(`switch len(in) {
@@ -199,6 +258,11 @@ func galMulSlicesGFNI(matrix []uint64, in, out [][]byte, start, stop int) int {
 
 func galMulSlicesGFNIXor(matrix []uint64, in, out [][]byte, start, stop int) int {
 	n := (stop-start) & (maxInt - (64 - 1))
+
+	if raceEnabled {
+		raceReadSlices(in, start, n)
+		raceWriteSlices(out, start, n)
+	}
 
 `)
 
@@ -222,6 +286,11 @@ func galMulSlicesGFNIXor(matrix []uint64, in, out [][]byte, start, stop int) int
 func galMulSlicesAvxGFNI(matrix []uint64, in, out [][]byte, start, stop int) int {
 	n := (stop-start) & (maxInt - (32 - 1))
 
+	if raceEnabled {
+		raceReadSlices(in, start, n)
+		raceWriteSlices(out, start, n)
+	}
+
 `)
 
 	w.WriteString(`switch len(in) {
@@ -240,6 +309,11 @@ func galMulSlicesAvxGFNI(matrix []uint64, in, out [][]byte, start, stop int) int
 
 func galMulSlicesAvxGFNIXor(matrix []uint64, in, out [][]byte, start, stop int) int {
 	n := (stop-start) & (maxInt - (32 - 1))
+
+	if raceEnabled {
+		raceReadSlices(in, start, n)
+		raceWriteSlices(out, start, n)
+	}
 
 `)
 
@@ -413,7 +487,7 @@ func genMulAvx2(name string, inputs int, outputs int, xor bool) {
 	for _, ptr := range inPtrs {
 		ADDQ(offset, ptr)
 	}
-	// Offset no longer needed unless not regdst
+	// Offset no longer needed unless not regDst
 
 	tmpMask := GP64()
 	MOVQ(U32(15), tmpMask)
@@ -644,7 +718,6 @@ func genMulAvx2Sixty64(name string, inputs int, outputs int, xor bool) {
 	}
 	outBase := addr.Addr
 	outSlicePtr := GP64()
-	MOVQ(addr.Addr, outSlicePtr)
 	MOVQ(outBase, outSlicePtr)
 	for i := range dst {
 		dst[i] = YMM()

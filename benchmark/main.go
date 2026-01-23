@@ -6,11 +6,15 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"io"
+	"log"
 	"math"
 	"math/rand"
 	"os"
 	"runtime"
 	"runtime/debug"
+	"runtime/pprof"
+	"runtime/trace"
 	"sort"
 	"strconv"
 	"strings"
@@ -24,19 +28,20 @@ import (
 )
 
 var (
-	blockSize  = flag.String("size", "10MiB", "Size of each input block.")
+	blockSize  = flag.String("size", "10MiB", "Size of each input block. Prefix with 'each:' to set shard size.")
 	blocks     = flag.Int("blocks", 1, "Total number of blocks")
 	kShards    = flag.Int("k", 12, "Data shards")
 	mShards    = flag.Int("m", 4, "Parity shards")
 	codec      = flag.String("codec", "vandermonde", "Encoder Algorithm")
 	codecs     = flag.Bool("codecs", false, "Display codecs and exit")
 	invCache   = flag.Bool("cache", true, "Enable inversion cache")
-	corrupt    = flag.Int("corrupt", 0, "Corrupt 1 to n shards. 0 means up to m shards.")
+	corrupt    = flag.Int("corrupt", 0, "Corrupt 1 to n shards. 0 means up to m shards. -1 means: verify, don't reconstruct")
 	duration   = flag.Int("duration", 10, "Minimum number of seconds to run.")
 	progress   = flag.Bool("progress", true, "Display progress while running")
 	concurrent = flag.Bool("concurrent", false, "Run blocks in parallel")
 	cpu        = flag.Int("cpu", 16, "Set maximum number of cores to use")
 	csv        = flag.Bool("csv", false, "Output as CSV")
+	fast1      = flag.Bool("fast1", false, "Use fast 1 parity encoder (if available)")
 
 	sSE2     = flag.Bool("sse2", cpuid.CPU.Has(cpuid.SSE2), "Use SSE2")
 	sSSE3    = flag.Bool("ssse3", cpuid.CPU.Has(cpuid.SSSE3), "Use SSSE3")
@@ -44,6 +49,8 @@ var (
 	aVX512   = flag.Bool("avx512", cpuid.CPU.Supports(cpuid.AVX512F, cpuid.AVX512BW, cpuid.AVX512VL), "Use AVX512")
 	gNFI     = flag.Bool("gfni", cpuid.CPU.Supports(cpuid.AVX512F, cpuid.GFNI, cpuid.AVX512DQ), "Use AVX512+GFNI")
 	avx2GNFI = flag.Bool("avx-gfni", cpuid.CPU.Supports(cpuid.AVX2, cpuid.GFNI), "Use AVX+GFNI")
+
+	cpuprofile, memprofile, traceprofile string
 )
 
 var codecDefinitions = map[string]struct {
@@ -63,21 +70,27 @@ var codecDefinitions = map[string]struct {
 }
 
 func main() {
+	flag.StringVar(&cpuprofile, "cpu.profile", "", "write cpu profile to file")
+	flag.StringVar(&memprofile, "mem.profile", "", "write mem profile to file")
+	flag.StringVar(&traceprofile, "trace.profile", "", "write trace profile to file")
 	flag.Parse()
 	if *codecs {
 		printCodecs(0)
 	}
-	sz, err := toSize(*blockSize)
-	exitErr(err)
 	if *kShards <= 0 {
 		exitErr(errors.New("invalid k shard count"))
 	}
+	sz, err := toSize(*blockSize, *kShards)
+	exitErr(err)
 	if sz <= 0 {
 		exitErr(errors.New("invalid block size"))
 	}
 	runtime.GOMAXPROCS(*cpu)
 	if sz > math.MaxInt || sz < 0 {
 		exitErr(errors.New("block size invalid"))
+	}
+	if *csv {
+		fmt.Printf("op\t%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\n", "k", "m", "bsize", "blocks", "concurrency", "codec", "processed bytes", "duration (μs)", "speed ("+sizeUint+"/s)")
 	}
 	dataSz := int(sz)
 	each := (dataSz + *kShards - 1) / *kShards
@@ -100,10 +113,45 @@ func main() {
 		fmt.Printf("Benchmarking %d block(s) of %d data (K) and %d parity shards (M), each %d bytes using %d threads. Total %d bytes.\n\n", *blocks, *kShards, *mShards, each, *cpu, *blocks*each*total)
 	}
 
+	if cpuprofile != "" {
+		f, err := os.Create(cpuprofile)
+		if err != nil {
+			log.Fatal(err)
+		}
+		pprof.StartCPUProfile(f)
+		defer pprof.StopCPUProfile()
+	}
+	if memprofile != "" {
+		f, err := os.Create(memprofile)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer f.Close()
+		defer pprof.WriteHeapProfile(f)
+	}
+	if traceprofile != "" {
+		f, err := os.Create(traceprofile)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer f.Close()
+		err = trace.Start(f)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer trace.Stop()
+	}
+
 	// Reduce GC overhead
 	debug.SetGCPercent(25)
+	rng := rand.New(rand.NewSource(0))
 	for i := range data {
 		data[i] = reedsolomon.AllocAligned(total, each)
+		for j := range data[i] {
+			// We fill with random data, otherwise lookups may not use the full tables
+			_, err := io.ReadFull(rng, data[i][j])
+			exitErr(err)
+		}
 	}
 	if *concurrent {
 		benchmarkEncodingConcurrent(enc, data)
@@ -157,7 +205,7 @@ func benchmarkEncoding(enc reedsolomon.Encoder, data [][][]byte) {
 	encGB := float64(finished) * (1 / speedDivisor)
 	speed := encGB / (float64(time.Since(start)) / float64(time.Second))
 	if *csv {
-		fmt.Printf("encode\t%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\n", *kShards, *mShards, *blockSize, *blocks, *cpu, *codec, finished, time.Since(start).Microseconds(), speed)
+		fmt.Printf("encode\t%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\n", *kShards, *mShards, *blockSize, *blocks, *cpu, *codec, finished, time.Since(start).Microseconds(), speed*speedBitMul)
 	} else {
 		fmt.Printf("\r * Encoded %.00f %s in %v. Speed: %.02f %s (%d+%d:%d)\n", encGB, sizeUint, time.Since(start).Round(time.Millisecond), speedBitMul*speed, speedUnit, dataShards, parityShards, len(data[0][0]))
 	}
@@ -210,7 +258,7 @@ func benchmarkEncodingConcurrent(enc reedsolomon.Encoder, data [][][]byte) {
 	encGB := float64(finished) * (1 / speedDivisor)
 	speed := encGB / (float64(time.Since(start)) / float64(time.Second))
 	if *csv {
-		fmt.Printf("encode conc\t%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\n", *kShards, *mShards, *blockSize, *blocks, *cpu, *codec, finished, time.Since(start).Microseconds(), speed)
+		fmt.Printf("encode conc\t%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\n", *kShards, *mShards, *blockSize, *blocks, *cpu, *codec, finished, time.Since(start).Microseconds(), speed*speedBitMul)
 	} else {
 		fmt.Printf("\r * Encoded concurrent %.00f %s in %v. Speed: %.02f %s (%d+%d:%d/%d)\n", encGB, sizeUint, time.Since(start).Round(time.Millisecond), speedBitMul*speed, speedUnit, dataShards, parityShards, len(data[0][0]), len(data))
 	}
@@ -232,6 +280,12 @@ func benchmarkDecoding(enc reedsolomon.Encoder, data [][][]byte) {
 	lastUpdate := start
 	end := start.Add(time.Second * time.Duration(*duration))
 	spinIdx := 0
+
+	var mode = "Repaired"
+	if *corrupt == -1 {
+		mode = "Verified"
+	}
+
 	for time.Now().Before(end) {
 		for _, shards := range data {
 			// Corrupt random number of shards up to what we can allow
@@ -246,13 +300,18 @@ func benchmarkDecoding(enc reedsolomon.Encoder, data [][][]byte) {
 					cor--
 				}
 			}
-			err := enc.Reconstruct(shards)
+			var err = error(nil)
+			if cor == -1 {
+				_, err = enc.Verify(shards)
+			} else {
+				err = enc.Reconstruct(shards)
+			}
 			exitErr(err)
 			finished += int64(len(shards[0]) * len(shards))
 			if *progress && time.Since(lastUpdate) > updateFreq {
 				encGB := float64(finished) * (1 / speedDivisor)
 				speed := encGB / (float64(time.Since(start)) / float64(time.Second))
-				fmt.Printf("\r %s Repaired: %.02f %s @%.02f %s.", string(spin[spinIdx]), encGB, sizeUint, speed*speedBitMul, speedUnit)
+				fmt.Printf("\r %s %s: %.02f %s @%.02f %s.", string(spin[spinIdx]), mode, encGB, sizeUint, speed*speedBitMul, speedUnit)
 				spinIdx = (spinIdx + 1) % len(spin)
 				lastUpdate = time.Now()
 			}
@@ -263,7 +322,7 @@ func benchmarkDecoding(enc reedsolomon.Encoder, data [][][]byte) {
 	if *csv {
 		fmt.Printf("decode\t%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\n", *kShards, *mShards, *blockSize, *blocks, *cpu, *codec, finished, time.Since(start).Microseconds(), speed)
 	} else {
-		fmt.Printf("\r * Repaired %.00f %s in %v. Speed: %.02f %s (%d+%d:%d)\n", encGB, sizeUint, time.Since(start).Round(time.Millisecond), speedBitMul*speed, speedUnit, dataShards, parityShards, len(data[0][0]))
+		fmt.Printf("\r * %s %.00f %s in %v. Speed: %.02f %s (%d+%d:%d)\n", mode, encGB, sizeUint, time.Since(start).Round(time.Millisecond), speedBitMul*speed, speedUnit, dataShards, parityShards, len(data[0][0]))
 	}
 }
 
@@ -306,7 +365,12 @@ func benchmarkDecodingConcurrent(enc reedsolomon.Encoder, data [][][]byte) {
 						cor--
 					}
 				}
-				err := enc.Reconstruct(shards)
+				var err = error(nil)
+				if cor == -1 {
+					_, err = enc.Verify(shards)
+				} else {
+					err = enc.Reconstruct(shards)
+				}
 				exitErr(err)
 				atomic.AddInt64(&finished, int64(len(shards[0])*len(shards)))
 			}
@@ -397,6 +461,9 @@ func getOptions(shardSize int) []reedsolomon.Option {
 	if !*invCache {
 		o = append(o, reedsolomon.WithInversionCache(false))
 	}
+	if *fast1 {
+		o = append(o, reedsolomon.WithFastOneParityMatrix())
+	}
 	o = append(o, reedsolomon.WithAutoGoroutines(shardSize))
 	return o
 }
@@ -409,8 +476,13 @@ func exitErr(err error) {
 }
 
 // toSize converts a size indication to bytes.
-func toSize(size string) (uint64, error) {
+func toSize(size string, dataBlocks int) (uint64, error) {
 	size = strings.ToUpper(strings.TrimSpace(size))
+	each := uint64(1)
+	if strings.HasPrefix(size, "EACH:") {
+		each = uint64(dataBlocks)
+		size = strings.TrimPrefix(size, "EACH:")
+	}
 	firstLetter := strings.IndexFunc(size, unicode.IsLetter)
 	if firstLetter == -1 {
 		firstLetter = len(size)
@@ -421,6 +493,7 @@ func toSize(size string) (uint64, error) {
 	if err != nil {
 		return 0, fmt.Errorf("unable to parse size: %v", err)
 	}
+	bytes *= each
 
 	switch multiple {
 	case "G", "GIB":
