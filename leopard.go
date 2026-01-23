@@ -921,7 +921,11 @@ func fwht2(a, b *ffe) {
 
 // fwht2alt is as fwht2, but returns result.
 func fwht2alt(a, b ffe) (ffe, ffe) {
-	return addMod(a, b), subMod(a, b)
+	sum := uint(a) + uint(b)
+	dif := uint(a) - uint(b)
+	sum = sum + sum>>bitwidth
+	dif = dif + dif>>bitwidth
+	return ffe(sum), ffe(dif)
 }
 
 var initOnce sync.Once
