@@ -67277,30 +67277,38 @@ loop_ifft4_gfni_0:
 	VPXOR   Y5, Y7, Y7
 
 	// GFNI LEO_MULADD_256 (from memory)
-	VGF2P8AFFINEQB.BCST $0x00, (AX), Y6, Y8
-	VGF2P8AFFINEQB.BCST $0x00, 8(AX), Y7, Y9
-	VGF2P8AFFINEQB.BCST $0x00, 16(AX), Y6, Y10
-	VGF2P8AFFINEQB.BCST $0x00, 24(AX), Y7, Y11
-	XOR3WAY(          $0x00, Y8, Y9, Y4)
-	XOR3WAY(          $0x00, Y10, Y11, Y5)
-	VMOVDQU             (R9), Y8
-	VMOVDQU             32(R9), Y9
-	VMOVDQU             (DX), Y10
-	VMOVDQU             32(DX), Y11
-	VPXOR               Y8, Y10, Y10
-	VPXOR               Y9, Y11, Y11
+	VPBROADCASTQ   (AX), Y8
+	VPBROADCASTQ   8(AX), Y9
+	VPBROADCASTQ   16(AX), Y10
+	VPBROADCASTQ   24(AX), Y11
+	VGF2P8AFFINEQB $0x00, Y8, Y6, Y8
+	VGF2P8AFFINEQB $0x00, Y9, Y7, Y9
+	VGF2P8AFFINEQB $0x00, Y10, Y6, Y10
+	VGF2P8AFFINEQB $0x00, Y11, Y7, Y11
+	XOR3WAY(     $0x00, Y8, Y9, Y4)
+	XOR3WAY(     $0x00, Y10, Y11, Y5)
+	VMOVDQU        (R9), Y8
+	VMOVDQU        32(R9), Y9
+	VMOVDQU        (DX), Y10
+	VMOVDQU        32(DX), Y11
+	VPXOR          Y8, Y10, Y10
+	VPXOR          Y9, Y11, Y11
 
 	// GFNI LEO_MULADD_256 (from memory)
-	VGF2P8AFFINEQB.BCST $0x00, (CX), Y10, Y12
-	VGF2P8AFFINEQB.BCST $0x00, 8(CX), Y11, Y13
-	VGF2P8AFFINEQB.BCST $0x00, 16(CX), Y10, Y14
-	VGF2P8AFFINEQB.BCST $0x00, 24(CX), Y11, Y15
-	XOR3WAY(          $0x00, Y12, Y13, Y8)
-	XOR3WAY(          $0x00, Y14, Y15, Y9)
-	VPXOR               Y4, Y8, Y8
-	VPXOR               Y5, Y9, Y9
-	VPXOR               Y6, Y10, Y10
-	VPXOR               Y7, Y11, Y11
+	VPBROADCASTQ   (CX), Y12
+	VPBROADCASTQ   8(CX), Y13
+	VPBROADCASTQ   16(CX), Y14
+	VPBROADCASTQ   24(CX), Y15
+	VGF2P8AFFINEQB $0x00, Y12, Y10, Y12
+	VGF2P8AFFINEQB $0x00, Y13, Y11, Y13
+	VGF2P8AFFINEQB $0x00, Y14, Y10, Y14
+	VGF2P8AFFINEQB $0x00, Y15, Y11, Y15
+	XOR3WAY(     $0x00, Y12, Y13, Y8)
+	XOR3WAY(     $0x00, Y14, Y15, Y9)
+	VPXOR          Y4, Y8, Y8
+	VPXOR          Y5, Y9, Y9
+	VPXOR          Y6, Y10, Y10
+	VPXOR          Y7, Y11, Y11
 
 	// GFNI LEO_MULADD_256 (from register)
 	VGF2P8AFFINEQB $0x00, Y0, Y8, Y12
@@ -67387,38 +67395,46 @@ loop_fft4_gfni_0:
 	VPXOR          Y7, Y11, Y11
 
 	// GFNI LEO_MULADD_256 (from memory)
-	VGF2P8AFFINEQB.BCST $0x00, (AX), Y6, Y12
-	VGF2P8AFFINEQB.BCST $0x00, 8(AX), Y7, Y13
-	VGF2P8AFFINEQB.BCST $0x00, 16(AX), Y6, Y14
-	VGF2P8AFFINEQB.BCST $0x00, 24(AX), Y7, Y15
-	XOR3WAY(          $0x00, Y12, Y13, Y4)
-	XOR3WAY(          $0x00, Y14, Y15, Y5)
-	VPXOR               Y4, Y6, Y6
-	VPXOR               Y5, Y7, Y7
-	VMOVDQU             Y4, (DI)
-	VMOVDQU             Y5, 32(DI)
-	ADDQ                $0x40, DI
-	VMOVDQU             Y6, (R8)
-	VMOVDQU             Y7, 32(R8)
-	ADDQ                $0x40, R8
+	VPBROADCASTQ   (AX), Y12
+	VPBROADCASTQ   8(AX), Y13
+	VPBROADCASTQ   16(AX), Y14
+	VPBROADCASTQ   24(AX), Y15
+	VGF2P8AFFINEQB $0x00, Y12, Y6, Y12
+	VGF2P8AFFINEQB $0x00, Y13, Y7, Y13
+	VGF2P8AFFINEQB $0x00, Y14, Y6, Y14
+	VGF2P8AFFINEQB $0x00, Y15, Y7, Y15
+	XOR3WAY(     $0x00, Y12, Y13, Y4)
+	XOR3WAY(     $0x00, Y14, Y15, Y5)
+	VPXOR          Y4, Y6, Y6
+	VPXOR          Y5, Y7, Y7
+	VMOVDQU        Y4, (DI)
+	VMOVDQU        Y5, 32(DI)
+	ADDQ           $0x40, DI
+	VMOVDQU        Y6, (R8)
+	VMOVDQU        Y7, 32(R8)
+	ADDQ           $0x40, R8
 
 	// GFNI LEO_MULADD_256 (from memory)
-	VGF2P8AFFINEQB.BCST $0x00, (CX), Y10, Y4
-	VGF2P8AFFINEQB.BCST $0x00, 8(CX), Y11, Y5
-	VGF2P8AFFINEQB.BCST $0x00, 16(CX), Y10, Y6
-	VGF2P8AFFINEQB.BCST $0x00, 24(CX), Y11, Y7
-	XOR3WAY(          $0x00, Y4, Y5, Y8)
-	XOR3WAY(          $0x00, Y6, Y7, Y9)
-	VPXOR               Y8, Y10, Y10
-	VPXOR               Y9, Y11, Y11
-	VMOVDQU             Y8, (R9)
-	VMOVDQU             Y9, 32(R9)
-	ADDQ                $0x40, R9
-	VMOVDQU             Y10, (DX)
-	VMOVDQU             Y11, 32(DX)
-	ADDQ                $0x40, DX
-	SUBQ                $0x40, SI
-	JNZ                 loop_fft4_gfni_0
+	VPBROADCASTQ   (CX), Y4
+	VPBROADCASTQ   8(CX), Y5
+	VPBROADCASTQ   16(CX), Y6
+	VPBROADCASTQ   24(CX), Y7
+	VGF2P8AFFINEQB $0x00, Y4, Y10, Y4
+	VGF2P8AFFINEQB $0x00, Y5, Y11, Y5
+	VGF2P8AFFINEQB $0x00, Y6, Y10, Y6
+	VGF2P8AFFINEQB $0x00, Y7, Y11, Y7
+	XOR3WAY(     $0x00, Y4, Y5, Y8)
+	XOR3WAY(     $0x00, Y6, Y7, Y9)
+	VPXOR          Y8, Y10, Y10
+	VPXOR          Y9, Y11, Y11
+	VMOVDQU        Y8, (R9)
+	VMOVDQU        Y9, 32(R9)
+	ADDQ           $0x40, R9
+	VMOVDQU        Y10, (DX)
+	VMOVDQU        Y11, 32(DX)
+	ADDQ           $0x40, DX
+	SUBQ           $0x40, SI
+	JNZ            loop_fft4_gfni_0
 	VZEROUPPER
 	RET
 
@@ -67459,16 +67475,20 @@ loop_ifft4_gfni_1:
 	VPXOR   Y9, Y11, Y11
 
 	// GFNI LEO_MULADD_256 (from memory)
-	VGF2P8AFFINEQB.BCST $0x00, (AX), Y10, Y12
-	VGF2P8AFFINEQB.BCST $0x00, 8(AX), Y11, Y13
-	VGF2P8AFFINEQB.BCST $0x00, 16(AX), Y10, Y14
-	VGF2P8AFFINEQB.BCST $0x00, 24(AX), Y11, Y15
-	XOR3WAY(          $0x00, Y12, Y13, Y8)
-	XOR3WAY(          $0x00, Y14, Y15, Y9)
-	VPXOR               Y4, Y8, Y8
-	VPXOR               Y5, Y9, Y9
-	VPXOR               Y6, Y10, Y10
-	VPXOR               Y7, Y11, Y11
+	VPBROADCASTQ   (AX), Y12
+	VPBROADCASTQ   8(AX), Y13
+	VPBROADCASTQ   16(AX), Y14
+	VPBROADCASTQ   24(AX), Y15
+	VGF2P8AFFINEQB $0x00, Y12, Y10, Y12
+	VGF2P8AFFINEQB $0x00, Y13, Y11, Y13
+	VGF2P8AFFINEQB $0x00, Y14, Y10, Y14
+	VGF2P8AFFINEQB $0x00, Y15, Y11, Y15
+	XOR3WAY(     $0x00, Y12, Y13, Y8)
+	XOR3WAY(     $0x00, Y14, Y15, Y9)
+	VPXOR          Y4, Y8, Y8
+	VPXOR          Y5, Y9, Y9
+	VPXOR          Y6, Y10, Y10
+	VPXOR          Y7, Y11, Y11
 
 	// GFNI LEO_MULADD_256 (from register)
 	VGF2P8AFFINEQB $0x00, Y0, Y8, Y12
@@ -67535,38 +67555,46 @@ loop_fft4_gfni_1:
 	VPXOR   Y3, Y7, Y7
 
 	// GFNI LEO_MULADD_256 (from memory)
-	VGF2P8AFFINEQB.BCST $0x00, (AX), Y2, Y8
-	VGF2P8AFFINEQB.BCST $0x00, 8(AX), Y3, Y9
-	VGF2P8AFFINEQB.BCST $0x00, 16(AX), Y2, Y10
-	VGF2P8AFFINEQB.BCST $0x00, 24(AX), Y3, Y11
-	XOR3WAY(          $0x00, Y8, Y9, Y0)
-	XOR3WAY(          $0x00, Y10, Y11, Y1)
-	VPXOR               Y0, Y2, Y2
-	VPXOR               Y1, Y3, Y3
-	VMOVDQU             Y0, (DI)
-	VMOVDQU             Y1, 32(DI)
-	ADDQ                $0x40, DI
-	VMOVDQU             Y2, (R8)
-	VMOVDQU             Y3, 32(R8)
-	ADDQ                $0x40, R8
+	VPBROADCASTQ   (AX), Y8
+	VPBROADCASTQ   8(AX), Y9
+	VPBROADCASTQ   16(AX), Y10
+	VPBROADCASTQ   24(AX), Y11
+	VGF2P8AFFINEQB $0x00, Y8, Y2, Y8
+	VGF2P8AFFINEQB $0x00, Y9, Y3, Y9
+	VGF2P8AFFINEQB $0x00, Y10, Y2, Y10
+	VGF2P8AFFINEQB $0x00, Y11, Y3, Y11
+	XOR3WAY(     $0x00, Y8, Y9, Y0)
+	XOR3WAY(     $0x00, Y10, Y11, Y1)
+	VPXOR          Y0, Y2, Y2
+	VPXOR          Y1, Y3, Y3
+	VMOVDQU        Y0, (DI)
+	VMOVDQU        Y1, 32(DI)
+	ADDQ           $0x40, DI
+	VMOVDQU        Y2, (R8)
+	VMOVDQU        Y3, 32(R8)
+	ADDQ           $0x40, R8
 
 	// GFNI LEO_MULADD_256 (from memory)
-	VGF2P8AFFINEQB.BCST $0x00, (CX), Y6, Y0
-	VGF2P8AFFINEQB.BCST $0x00, 8(CX), Y7, Y1
-	VGF2P8AFFINEQB.BCST $0x00, 16(CX), Y6, Y2
-	VGF2P8AFFINEQB.BCST $0x00, 24(CX), Y7, Y3
-	XOR3WAY(          $0x00, Y0, Y1, Y4)
-	XOR3WAY(          $0x00, Y2, Y3, Y5)
-	VPXOR               Y4, Y6, Y6
-	VPXOR               Y5, Y7, Y7
-	VMOVDQU             Y4, (R9)
-	VMOVDQU             Y5, 32(R9)
-	ADDQ                $0x40, R9
-	VMOVDQU             Y6, (DX)
-	VMOVDQU             Y7, 32(DX)
-	ADDQ                $0x40, DX
-	SUBQ                $0x40, SI
-	JNZ                 loop_fft4_gfni_1
+	VPBROADCASTQ   (CX), Y0
+	VPBROADCASTQ   8(CX), Y1
+	VPBROADCASTQ   16(CX), Y2
+	VPBROADCASTQ   24(CX), Y3
+	VGF2P8AFFINEQB $0x00, Y0, Y6, Y0
+	VGF2P8AFFINEQB $0x00, Y1, Y7, Y1
+	VGF2P8AFFINEQB $0x00, Y2, Y6, Y2
+	VGF2P8AFFINEQB $0x00, Y3, Y7, Y3
+	XOR3WAY(     $0x00, Y0, Y1, Y4)
+	XOR3WAY(     $0x00, Y2, Y3, Y5)
+	VPXOR          Y4, Y6, Y6
+	VPXOR          Y5, Y7, Y7
+	VMOVDQU        Y4, (R9)
+	VMOVDQU        Y5, 32(R9)
+	ADDQ           $0x40, R9
+	VMOVDQU        Y6, (DX)
+	VMOVDQU        Y7, 32(DX)
+	ADDQ           $0x40, DX
+	SUBQ           $0x40, SI
+	JNZ            loop_fft4_gfni_1
 	VZEROUPPER
 	RET
 
@@ -67601,22 +67629,26 @@ loop_ifft4_gfni_2:
 	VPXOR   Y5, Y7, Y7
 
 	// GFNI LEO_MULADD_256 (from memory)
-	VGF2P8AFFINEQB.BCST $0x00, (AX), Y6, Y8
-	VGF2P8AFFINEQB.BCST $0x00, 8(AX), Y7, Y9
-	VGF2P8AFFINEQB.BCST $0x00, 16(AX), Y6, Y10
-	VGF2P8AFFINEQB.BCST $0x00, 24(AX), Y7, Y11
-	XOR3WAY(          $0x00, Y8, Y9, Y4)
-	XOR3WAY(          $0x00, Y10, Y11, Y5)
-	VMOVDQU             (R8), Y8
-	VMOVDQU             32(R8), Y9
-	VMOVDQU             (CX), Y10
-	VMOVDQU             32(CX), Y11
-	VPXOR               Y8, Y10, Y10
-	VPXOR               Y9, Y11, Y11
-	VPXOR               Y4, Y8, Y8
-	VPXOR               Y5, Y9, Y9
-	VPXOR               Y6, Y10, Y10
-	VPXOR               Y7, Y11, Y11
+	VPBROADCASTQ   (AX), Y8
+	VPBROADCASTQ   8(AX), Y9
+	VPBROADCASTQ   16(AX), Y10
+	VPBROADCASTQ   24(AX), Y11
+	VGF2P8AFFINEQB $0x00, Y8, Y6, Y8
+	VGF2P8AFFINEQB $0x00, Y9, Y7, Y9
+	VGF2P8AFFINEQB $0x00, Y10, Y6, Y10
+	VGF2P8AFFINEQB $0x00, Y11, Y7, Y11
+	XOR3WAY(     $0x00, Y8, Y9, Y4)
+	XOR3WAY(     $0x00, Y10, Y11, Y5)
+	VMOVDQU        (R8), Y8
+	VMOVDQU        32(R8), Y9
+	VMOVDQU        (CX), Y10
+	VMOVDQU        32(CX), Y11
+	VPXOR          Y8, Y10, Y10
+	VPXOR          Y9, Y11, Y11
+	VPXOR          Y4, Y8, Y8
+	VPXOR          Y5, Y9, Y9
+	VPXOR          Y6, Y10, Y10
+	VPXOR          Y7, Y11, Y11
 
 	// GFNI LEO_MULADD_256 (from register)
 	VGF2P8AFFINEQB $0x00, Y0, Y8, Y12
@@ -67711,22 +67743,26 @@ loop_fft4_gfni_2:
 	ADDQ           $0x40, DI
 
 	// GFNI LEO_MULADD_256 (from memory)
-	VGF2P8AFFINEQB.BCST $0x00, (AX), Y10, Y4
-	VGF2P8AFFINEQB.BCST $0x00, 8(AX), Y11, Y5
-	VGF2P8AFFINEQB.BCST $0x00, 16(AX), Y10, Y6
-	VGF2P8AFFINEQB.BCST $0x00, 24(AX), Y11, Y7
-	XOR3WAY(          $0x00, Y4, Y5, Y8)
-	XOR3WAY(          $0x00, Y6, Y7, Y9)
-	VPXOR               Y8, Y10, Y10
-	VPXOR               Y9, Y11, Y11
-	VMOVDQU             Y8, (R8)
-	VMOVDQU             Y9, 32(R8)
-	ADDQ                $0x40, R8
-	VMOVDQU             Y10, (CX)
-	VMOVDQU             Y11, 32(CX)
-	ADDQ                $0x40, CX
-	SUBQ                $0x40, BX
-	JNZ                 loop_fft4_gfni_2
+	VPBROADCASTQ   (AX), Y4
+	VPBROADCASTQ   8(AX), Y5
+	VPBROADCASTQ   16(AX), Y6
+	VPBROADCASTQ   24(AX), Y7
+	VGF2P8AFFINEQB $0x00, Y4, Y10, Y4
+	VGF2P8AFFINEQB $0x00, Y5, Y11, Y5
+	VGF2P8AFFINEQB $0x00, Y6, Y10, Y6
+	VGF2P8AFFINEQB $0x00, Y7, Y11, Y7
+	XOR3WAY(     $0x00, Y4, Y5, Y8)
+	XOR3WAY(     $0x00, Y6, Y7, Y9)
+	VPXOR          Y8, Y10, Y10
+	VPXOR          Y9, Y11, Y11
+	VMOVDQU        Y8, (R8)
+	VMOVDQU        Y9, 32(R8)
+	ADDQ           $0x40, R8
+	VMOVDQU        Y10, (CX)
+	VMOVDQU        Y11, 32(CX)
+	ADDQ           $0x40, CX
+	SUBQ           $0x40, BX
+	JNZ            loop_fft4_gfni_2
 	VZEROUPPER
 	RET
 
@@ -67843,22 +67879,26 @@ loop_fft4_gfni_3:
 	ADDQ    $0x40, DI
 
 	// GFNI LEO_MULADD_256 (from memory)
-	VGF2P8AFFINEQB.BCST $0x00, (AX), Y6, Y0
-	VGF2P8AFFINEQB.BCST $0x00, 8(AX), Y7, Y1
-	VGF2P8AFFINEQB.BCST $0x00, 16(AX), Y6, Y2
-	VGF2P8AFFINEQB.BCST $0x00, 24(AX), Y7, Y3
-	XOR3WAY(          $0x00, Y0, Y1, Y4)
-	XOR3WAY(          $0x00, Y2, Y3, Y5)
-	VPXOR               Y4, Y6, Y6
-	VPXOR               Y5, Y7, Y7
-	VMOVDQU             Y4, (R8)
-	VMOVDQU             Y5, 32(R8)
-	ADDQ                $0x40, R8
-	VMOVDQU             Y6, (CX)
-	VMOVDQU             Y7, 32(CX)
-	ADDQ                $0x40, CX
-	SUBQ                $0x40, BX
-	JNZ                 loop_fft4_gfni_3
+	VPBROADCASTQ   (AX), Y0
+	VPBROADCASTQ   8(AX), Y1
+	VPBROADCASTQ   16(AX), Y2
+	VPBROADCASTQ   24(AX), Y3
+	VGF2P8AFFINEQB $0x00, Y0, Y6, Y0
+	VGF2P8AFFINEQB $0x00, Y1, Y7, Y1
+	VGF2P8AFFINEQB $0x00, Y2, Y6, Y2
+	VGF2P8AFFINEQB $0x00, Y3, Y7, Y3
+	XOR3WAY(     $0x00, Y0, Y1, Y4)
+	XOR3WAY(     $0x00, Y2, Y3, Y5)
+	VPXOR          Y4, Y6, Y6
+	VPXOR          Y5, Y7, Y7
+	VMOVDQU        Y4, (R8)
+	VMOVDQU        Y5, 32(R8)
+	ADDQ           $0x40, R8
+	VMOVDQU        Y6, (CX)
+	VMOVDQU        Y7, 32(CX)
+	ADDQ           $0x40, CX
+	SUBQ           $0x40, BX
+	JNZ            loop_fft4_gfni_3
 	VZEROUPPER
 	RET
 
@@ -67889,44 +67929,52 @@ loop_ifft4_gfni_4:
 	VPXOR   Y1, Y3, Y3
 
 	// GFNI LEO_MULADD_256 (from memory)
-	VGF2P8AFFINEQB.BCST $0x00, (AX), Y2, Y4
-	VGF2P8AFFINEQB.BCST $0x00, 8(AX), Y3, Y5
-	VGF2P8AFFINEQB.BCST $0x00, 16(AX), Y2, Y6
-	VGF2P8AFFINEQB.BCST $0x00, 24(AX), Y3, Y7
-	XOR3WAY(          $0x00, Y4, Y5, Y0)
-	XOR3WAY(          $0x00, Y6, Y7, Y1)
-	VMOVDQU             (R9), Y4
-	VMOVDQU             32(R9), Y5
-	VMOVDQU             (DX), Y6
-	VMOVDQU             32(DX), Y7
-	VPXOR               Y4, Y6, Y6
-	VPXOR               Y5, Y7, Y7
+	VPBROADCASTQ   (AX), Y4
+	VPBROADCASTQ   8(AX), Y5
+	VPBROADCASTQ   16(AX), Y6
+	VPBROADCASTQ   24(AX), Y7
+	VGF2P8AFFINEQB $0x00, Y4, Y2, Y4
+	VGF2P8AFFINEQB $0x00, Y5, Y3, Y5
+	VGF2P8AFFINEQB $0x00, Y6, Y2, Y6
+	VGF2P8AFFINEQB $0x00, Y7, Y3, Y7
+	XOR3WAY(     $0x00, Y4, Y5, Y0)
+	XOR3WAY(     $0x00, Y6, Y7, Y1)
+	VMOVDQU        (R9), Y4
+	VMOVDQU        32(R9), Y5
+	VMOVDQU        (DX), Y6
+	VMOVDQU        32(DX), Y7
+	VPXOR          Y4, Y6, Y6
+	VPXOR          Y5, Y7, Y7
 
 	// GFNI LEO_MULADD_256 (from memory)
-	VGF2P8AFFINEQB.BCST $0x00, (CX), Y6, Y8
-	VGF2P8AFFINEQB.BCST $0x00, 8(CX), Y7, Y9
-	VGF2P8AFFINEQB.BCST $0x00, 16(CX), Y6, Y10
-	VGF2P8AFFINEQB.BCST $0x00, 24(CX), Y7, Y11
-	XOR3WAY(          $0x00, Y8, Y9, Y4)
-	XOR3WAY(          $0x00, Y10, Y11, Y5)
-	VPXOR               Y0, Y4, Y4
-	VPXOR               Y1, Y5, Y5
-	VPXOR               Y2, Y6, Y6
-	VPXOR               Y3, Y7, Y7
-	VMOVDQU             Y0, (DI)
-	VMOVDQU             Y1, 32(DI)
-	ADDQ                $0x40, DI
-	VMOVDQU             Y2, (R8)
-	VMOVDQU             Y3, 32(R8)
-	ADDQ                $0x40, R8
-	VMOVDQU             Y4, (R9)
-	VMOVDQU             Y5, 32(R9)
-	ADDQ                $0x40, R9
-	VMOVDQU             Y6, (DX)
-	VMOVDQU             Y7, 32(DX)
-	ADDQ                $0x40, DX
-	SUBQ                $0x40, SI
-	JNZ                 loop_ifft4_gfni_4
+	VPBROADCASTQ   (CX), Y8
+	VPBROADCASTQ   8(CX), Y9
+	VPBROADCASTQ   16(CX), Y10
+	VPBROADCASTQ   24(CX), Y11
+	VGF2P8AFFINEQB $0x00, Y8, Y6, Y8
+	VGF2P8AFFINEQB $0x00, Y9, Y7, Y9
+	VGF2P8AFFINEQB $0x00, Y10, Y6, Y10
+	VGF2P8AFFINEQB $0x00, Y11, Y7, Y11
+	XOR3WAY(     $0x00, Y8, Y9, Y4)
+	XOR3WAY(     $0x00, Y10, Y11, Y5)
+	VPXOR          Y0, Y4, Y4
+	VPXOR          Y1, Y5, Y5
+	VPXOR          Y2, Y6, Y6
+	VPXOR          Y3, Y7, Y7
+	VMOVDQU        Y0, (DI)
+	VMOVDQU        Y1, 32(DI)
+	ADDQ           $0x40, DI
+	VMOVDQU        Y2, (R8)
+	VMOVDQU        Y3, 32(R8)
+	ADDQ           $0x40, R8
+	VMOVDQU        Y4, (R9)
+	VMOVDQU        Y5, 32(R9)
+	ADDQ           $0x40, R9
+	VMOVDQU        Y6, (DX)
+	VMOVDQU        Y7, 32(DX)
+	ADDQ           $0x40, DX
+	SUBQ           $0x40, SI
+	JNZ            loop_ifft4_gfni_4
 	VZEROUPPER
 	RET
 
@@ -67983,30 +68031,34 @@ loop_fft4_gfni_4:
 	VPXOR          Y7, Y11, Y11
 
 	// GFNI LEO_MULADD_256 (from memory)
-	VGF2P8AFFINEQB.BCST $0x00, (AX), Y6, Y12
-	VGF2P8AFFINEQB.BCST $0x00, 8(AX), Y7, Y13
-	VGF2P8AFFINEQB.BCST $0x00, 16(AX), Y6, Y14
-	VGF2P8AFFINEQB.BCST $0x00, 24(AX), Y7, Y15
-	XOR3WAY(          $0x00, Y12, Y13, Y4)
-	XOR3WAY(          $0x00, Y14, Y15, Y5)
-	VPXOR               Y4, Y6, Y6
-	VPXOR               Y5, Y7, Y7
-	VMOVDQU             Y4, (SI)
-	VMOVDQU             Y5, 32(SI)
-	ADDQ                $0x40, SI
-	VMOVDQU             Y6, (DI)
-	VMOVDQU             Y7, 32(DI)
-	ADDQ                $0x40, DI
-	VPXOR               Y8, Y10, Y10
-	VPXOR               Y9, Y11, Y11
-	VMOVDQU             Y8, (R8)
-	VMOVDQU             Y9, 32(R8)
-	ADDQ                $0x40, R8
-	VMOVDQU             Y10, (CX)
-	VMOVDQU             Y11, 32(CX)
-	ADDQ                $0x40, CX
-	SUBQ                $0x40, BX
-	JNZ                 loop_fft4_gfni_4
+	VPBROADCASTQ   (AX), Y12
+	VPBROADCASTQ   8(AX), Y13
+	VPBROADCASTQ   16(AX), Y14
+	VPBROADCASTQ   24(AX), Y15
+	VGF2P8AFFINEQB $0x00, Y12, Y6, Y12
+	VGF2P8AFFINEQB $0x00, Y13, Y7, Y13
+	VGF2P8AFFINEQB $0x00, Y14, Y6, Y14
+	VGF2P8AFFINEQB $0x00, Y15, Y7, Y15
+	XOR3WAY(     $0x00, Y12, Y13, Y4)
+	XOR3WAY(     $0x00, Y14, Y15, Y5)
+	VPXOR          Y4, Y6, Y6
+	VPXOR          Y5, Y7, Y7
+	VMOVDQU        Y4, (SI)
+	VMOVDQU        Y5, 32(SI)
+	ADDQ           $0x40, SI
+	VMOVDQU        Y6, (DI)
+	VMOVDQU        Y7, 32(DI)
+	ADDQ           $0x40, DI
+	VPXOR          Y8, Y10, Y10
+	VPXOR          Y9, Y11, Y11
+	VMOVDQU        Y8, (R8)
+	VMOVDQU        Y9, 32(R8)
+	ADDQ           $0x40, R8
+	VMOVDQU        Y10, (CX)
+	VMOVDQU        Y11, 32(CX)
+	ADDQ           $0x40, CX
+	SUBQ           $0x40, BX
+	JNZ            loop_fft4_gfni_4
 	VZEROUPPER
 	RET
 
@@ -68043,30 +68095,34 @@ loop_ifft4_gfni_5:
 	VPXOR   Y5, Y7, Y7
 
 	// GFNI LEO_MULADD_256 (from memory)
-	VGF2P8AFFINEQB.BCST $0x00, (AX), Y6, Y8
-	VGF2P8AFFINEQB.BCST $0x00, 8(AX), Y7, Y9
-	VGF2P8AFFINEQB.BCST $0x00, 16(AX), Y6, Y10
-	VGF2P8AFFINEQB.BCST $0x00, 24(AX), Y7, Y11
-	XOR3WAY(          $0x00, Y8, Y9, Y4)
-	XOR3WAY(          $0x00, Y10, Y11, Y5)
-	VPXOR               Y0, Y4, Y4
-	VPXOR               Y1, Y5, Y5
-	VPXOR               Y2, Y6, Y6
-	VPXOR               Y3, Y7, Y7
-	VMOVDQU             Y0, (SI)
-	VMOVDQU             Y1, 32(SI)
-	ADDQ                $0x40, SI
-	VMOVDQU             Y2, (DI)
-	VMOVDQU             Y3, 32(DI)
-	ADDQ                $0x40, DI
-	VMOVDQU             Y4, (R8)
-	VMOVDQU             Y5, 32(R8)
-	ADDQ                $0x40, R8
-	VMOVDQU             Y6, (CX)
-	VMOVDQU             Y7, 32(CX)
-	ADDQ                $0x40, CX
-	SUBQ                $0x40, BX
-	JNZ                 loop_ifft4_gfni_5
+	VPBROADCASTQ   (AX), Y8
+	VPBROADCASTQ   8(AX), Y9
+	VPBROADCASTQ   16(AX), Y10
+	VPBROADCASTQ   24(AX), Y11
+	VGF2P8AFFINEQB $0x00, Y8, Y6, Y8
+	VGF2P8AFFINEQB $0x00, Y9, Y7, Y9
+	VGF2P8AFFINEQB $0x00, Y10, Y6, Y10
+	VGF2P8AFFINEQB $0x00, Y11, Y7, Y11
+	XOR3WAY(     $0x00, Y8, Y9, Y4)
+	XOR3WAY(     $0x00, Y10, Y11, Y5)
+	VPXOR          Y0, Y4, Y4
+	VPXOR          Y1, Y5, Y5
+	VPXOR          Y2, Y6, Y6
+	VPXOR          Y3, Y7, Y7
+	VMOVDQU        Y0, (SI)
+	VMOVDQU        Y1, 32(SI)
+	ADDQ           $0x40, SI
+	VMOVDQU        Y2, (DI)
+	VMOVDQU        Y3, 32(DI)
+	ADDQ           $0x40, DI
+	VMOVDQU        Y4, (R8)
+	VMOVDQU        Y5, 32(R8)
+	ADDQ           $0x40, R8
+	VMOVDQU        Y6, (CX)
+	VMOVDQU        Y7, 32(CX)
+	ADDQ           $0x40, CX
+	SUBQ           $0x40, BX
+	JNZ            loop_ifft4_gfni_5
 	VZEROUPPER
 	RET
 
@@ -68103,30 +68159,34 @@ loop_fft4_gfni_5:
 	VPXOR   Y3, Y7, Y7
 
 	// GFNI LEO_MULADD_256 (from memory)
-	VGF2P8AFFINEQB.BCST $0x00, (AX), Y2, Y8
-	VGF2P8AFFINEQB.BCST $0x00, 8(AX), Y3, Y9
-	VGF2P8AFFINEQB.BCST $0x00, 16(AX), Y2, Y10
-	VGF2P8AFFINEQB.BCST $0x00, 24(AX), Y3, Y11
-	XOR3WAY(          $0x00, Y8, Y9, Y0)
-	XOR3WAY(          $0x00, Y10, Y11, Y1)
-	VPXOR               Y0, Y2, Y2
-	VPXOR               Y1, Y3, Y3
-	VMOVDQU             Y0, (SI)
-	VMOVDQU             Y1, 32(SI)
-	ADDQ                $0x40, SI
-	VMOVDQU             Y2, (DI)
-	VMOVDQU             Y3, 32(DI)
-	ADDQ                $0x40, DI
-	VPXOR               Y4, Y6, Y6
-	VPXOR               Y5, Y7, Y7
-	VMOVDQU             Y4, (R8)
-	VMOVDQU             Y5, 32(R8)
-	ADDQ                $0x40, R8
-	VMOVDQU             Y6, (CX)
-	VMOVDQU             Y7, 32(CX)
-	ADDQ                $0x40, CX
-	SUBQ                $0x40, BX
-	JNZ                 loop_fft4_gfni_5
+	VPBROADCASTQ   (AX), Y8
+	VPBROADCASTQ   8(AX), Y9
+	VPBROADCASTQ   16(AX), Y10
+	VPBROADCASTQ   24(AX), Y11
+	VGF2P8AFFINEQB $0x00, Y8, Y2, Y8
+	VGF2P8AFFINEQB $0x00, Y9, Y3, Y9
+	VGF2P8AFFINEQB $0x00, Y10, Y2, Y10
+	VGF2P8AFFINEQB $0x00, Y11, Y3, Y11
+	XOR3WAY(     $0x00, Y8, Y9, Y0)
+	XOR3WAY(     $0x00, Y10, Y11, Y1)
+	VPXOR          Y0, Y2, Y2
+	VPXOR          Y1, Y3, Y3
+	VMOVDQU        Y0, (SI)
+	VMOVDQU        Y1, 32(SI)
+	ADDQ           $0x40, SI
+	VMOVDQU        Y2, (DI)
+	VMOVDQU        Y3, 32(DI)
+	ADDQ           $0x40, DI
+	VPXOR          Y4, Y6, Y6
+	VPXOR          Y5, Y7, Y7
+	VMOVDQU        Y4, (R8)
+	VMOVDQU        Y5, 32(R8)
+	ADDQ           $0x40, R8
+	VMOVDQU        Y6, (CX)
+	VMOVDQU        Y7, 32(CX)
+	ADDQ           $0x40, CX
+	SUBQ           $0x40, BX
+	JNZ            loop_fft4_gfni_5
 	VZEROUPPER
 	RET
 
@@ -68157,36 +68217,40 @@ loop_ifft4_gfni_6:
 	VPXOR   Y1, Y3, Y3
 
 	// GFNI LEO_MULADD_256 (from memory)
-	VGF2P8AFFINEQB.BCST $0x00, (AX), Y2, Y4
-	VGF2P8AFFINEQB.BCST $0x00, 8(AX), Y3, Y5
-	VGF2P8AFFINEQB.BCST $0x00, 16(AX), Y2, Y6
-	VGF2P8AFFINEQB.BCST $0x00, 24(AX), Y3, Y7
-	XOR3WAY(          $0x00, Y4, Y5, Y0)
-	XOR3WAY(          $0x00, Y6, Y7, Y1)
-	VMOVDQU             (R8), Y4
-	VMOVDQU             32(R8), Y5
-	VMOVDQU             (CX), Y6
-	VMOVDQU             32(CX), Y7
-	VPXOR               Y4, Y6, Y6
-	VPXOR               Y5, Y7, Y7
-	VPXOR               Y0, Y4, Y4
-	VPXOR               Y1, Y5, Y5
-	VPXOR               Y2, Y6, Y6
-	VPXOR               Y3, Y7, Y7
-	VMOVDQU             Y0, (SI)
-	VMOVDQU             Y1, 32(SI)
-	ADDQ                $0x40, SI
-	VMOVDQU             Y2, (DI)
-	VMOVDQU             Y3, 32(DI)
-	ADDQ                $0x40, DI
-	VMOVDQU             Y4, (R8)
-	VMOVDQU             Y5, 32(R8)
-	ADDQ                $0x40, R8
-	VMOVDQU             Y6, (CX)
-	VMOVDQU             Y7, 32(CX)
-	ADDQ                $0x40, CX
-	SUBQ                $0x40, BX
-	JNZ                 loop_ifft4_gfni_6
+	VPBROADCASTQ   (AX), Y4
+	VPBROADCASTQ   8(AX), Y5
+	VPBROADCASTQ   16(AX), Y6
+	VPBROADCASTQ   24(AX), Y7
+	VGF2P8AFFINEQB $0x00, Y4, Y2, Y4
+	VGF2P8AFFINEQB $0x00, Y5, Y3, Y5
+	VGF2P8AFFINEQB $0x00, Y6, Y2, Y6
+	VGF2P8AFFINEQB $0x00, Y7, Y3, Y7
+	XOR3WAY(     $0x00, Y4, Y5, Y0)
+	XOR3WAY(     $0x00, Y6, Y7, Y1)
+	VMOVDQU        (R8), Y4
+	VMOVDQU        32(R8), Y5
+	VMOVDQU        (CX), Y6
+	VMOVDQU        32(CX), Y7
+	VPXOR          Y4, Y6, Y6
+	VPXOR          Y5, Y7, Y7
+	VPXOR          Y0, Y4, Y4
+	VPXOR          Y1, Y5, Y5
+	VPXOR          Y2, Y6, Y6
+	VPXOR          Y3, Y7, Y7
+	VMOVDQU        Y0, (SI)
+	VMOVDQU        Y1, 32(SI)
+	ADDQ           $0x40, SI
+	VMOVDQU        Y2, (DI)
+	VMOVDQU        Y3, 32(DI)
+	ADDQ           $0x40, DI
+	VMOVDQU        Y4, (R8)
+	VMOVDQU        Y5, 32(R8)
+	ADDQ           $0x40, R8
+	VMOVDQU        Y6, (CX)
+	VMOVDQU        Y7, 32(CX)
+	ADDQ           $0x40, CX
+	SUBQ           $0x40, BX
+	JNZ            loop_ifft4_gfni_6
 	VZEROUPPER
 	RET
 
@@ -69589,30 +69653,38 @@ loop_ifft4_gfni_dst_0:
 	VPXOR   Y5, Y7, Y7
 
 	// GFNI LEO_MULADD_256 (from memory)
-	VGF2P8AFFINEQB.BCST $0x00, (AX), Y6, Y8
-	VGF2P8AFFINEQB.BCST $0x00, 8(AX), Y7, Y9
-	VGF2P8AFFINEQB.BCST $0x00, 16(AX), Y6, Y10
-	VGF2P8AFFINEQB.BCST $0x00, 24(AX), Y7, Y11
-	XOR3WAY(          $0x00, Y8, Y9, Y4)
-	XOR3WAY(          $0x00, Y10, Y11, Y5)
-	VMOVDQU             (R12), Y8
-	VMOVDQU             32(R12), Y9
-	VMOVDQU             (DX), Y10
-	VMOVDQU             32(DX), Y11
-	VPXOR               Y8, Y10, Y10
-	VPXOR               Y9, Y11, Y11
+	VPBROADCASTQ   (AX), Y8
+	VPBROADCASTQ   8(AX), Y9
+	VPBROADCASTQ   16(AX), Y10
+	VPBROADCASTQ   24(AX), Y11
+	VGF2P8AFFINEQB $0x00, Y8, Y6, Y8
+	VGF2P8AFFINEQB $0x00, Y9, Y7, Y9
+	VGF2P8AFFINEQB $0x00, Y10, Y6, Y10
+	VGF2P8AFFINEQB $0x00, Y11, Y7, Y11
+	XOR3WAY(     $0x00, Y8, Y9, Y4)
+	XOR3WAY(     $0x00, Y10, Y11, Y5)
+	VMOVDQU        (R12), Y8
+	VMOVDQU        32(R12), Y9
+	VMOVDQU        (DX), Y10
+	VMOVDQU        32(DX), Y11
+	VPXOR          Y8, Y10, Y10
+	VPXOR          Y9, Y11, Y11
 
 	// GFNI LEO_MULADD_256 (from memory)
-	VGF2P8AFFINEQB.BCST $0x00, (CX), Y10, Y12
-	VGF2P8AFFINEQB.BCST $0x00, 8(CX), Y11, Y13
-	VGF2P8AFFINEQB.BCST $0x00, 16(CX), Y10, Y14
-	VGF2P8AFFINEQB.BCST $0x00, 24(CX), Y11, Y15
-	XOR3WAY(          $0x00, Y12, Y13, Y8)
-	XOR3WAY(          $0x00, Y14, Y15, Y9)
-	VPXOR               Y4, Y8, Y8
-	VPXOR               Y5, Y9, Y9
-	VPXOR               Y6, Y10, Y10
-	VPXOR               Y7, Y11, Y11
+	VPBROADCASTQ   (CX), Y12
+	VPBROADCASTQ   8(CX), Y13
+	VPBROADCASTQ   16(CX), Y14
+	VPBROADCASTQ   24(CX), Y15
+	VGF2P8AFFINEQB $0x00, Y12, Y10, Y12
+	VGF2P8AFFINEQB $0x00, Y13, Y11, Y13
+	VGF2P8AFFINEQB $0x00, Y14, Y10, Y14
+	VGF2P8AFFINEQB $0x00, Y15, Y11, Y15
+	XOR3WAY(     $0x00, Y12, Y13, Y8)
+	XOR3WAY(     $0x00, Y14, Y15, Y9)
+	VPXOR          Y4, Y8, Y8
+	VPXOR          Y5, Y9, Y9
+	VPXOR          Y6, Y10, Y10
+	VPXOR          Y7, Y11, Y11
 
 	// GFNI LEO_MULADD_256 (from register)
 	VGF2P8AFFINEQB $0x00, Y0, Y8, Y12
@@ -69695,16 +69767,20 @@ loop_ifft4_gfni_dst_1:
 	VPXOR   Y9, Y11, Y11
 
 	// GFNI LEO_MULADD_256 (from memory)
-	VGF2P8AFFINEQB.BCST $0x00, (AX), Y10, Y12
-	VGF2P8AFFINEQB.BCST $0x00, 8(AX), Y11, Y13
-	VGF2P8AFFINEQB.BCST $0x00, 16(AX), Y10, Y14
-	VGF2P8AFFINEQB.BCST $0x00, 24(AX), Y11, Y15
-	XOR3WAY(          $0x00, Y12, Y13, Y8)
-	XOR3WAY(          $0x00, Y14, Y15, Y9)
-	VPXOR               Y4, Y8, Y8
-	VPXOR               Y5, Y9, Y9
-	VPXOR               Y6, Y10, Y10
-	VPXOR               Y7, Y11, Y11
+	VPBROADCASTQ   (AX), Y12
+	VPBROADCASTQ   8(AX), Y13
+	VPBROADCASTQ   16(AX), Y14
+	VPBROADCASTQ   24(AX), Y15
+	VGF2P8AFFINEQB $0x00, Y12, Y10, Y12
+	VGF2P8AFFINEQB $0x00, Y13, Y11, Y13
+	VGF2P8AFFINEQB $0x00, Y14, Y10, Y14
+	VGF2P8AFFINEQB $0x00, Y15, Y11, Y15
+	XOR3WAY(     $0x00, Y12, Y13, Y8)
+	XOR3WAY(     $0x00, Y14, Y15, Y9)
+	VPXOR          Y4, Y8, Y8
+	VPXOR          Y5, Y9, Y9
+	VPXOR          Y6, Y10, Y10
+	VPXOR          Y7, Y11, Y11
 
 	// GFNI LEO_MULADD_256 (from register)
 	VGF2P8AFFINEQB $0x00, Y0, Y8, Y12
@@ -69781,22 +69857,26 @@ loop_ifft4_gfni_dst_2:
 	VPXOR   Y5, Y7, Y7
 
 	// GFNI LEO_MULADD_256 (from memory)
-	VGF2P8AFFINEQB.BCST $0x00, (AX), Y6, Y8
-	VGF2P8AFFINEQB.BCST $0x00, 8(AX), Y7, Y9
-	VGF2P8AFFINEQB.BCST $0x00, 16(AX), Y6, Y10
-	VGF2P8AFFINEQB.BCST $0x00, 24(AX), Y7, Y11
-	XOR3WAY(          $0x00, Y8, Y9, Y4)
-	XOR3WAY(          $0x00, Y10, Y11, Y5)
-	VMOVDQU             (R11), Y8
-	VMOVDQU             32(R11), Y9
-	VMOVDQU             (CX), Y10
-	VMOVDQU             32(CX), Y11
-	VPXOR               Y8, Y10, Y10
-	VPXOR               Y9, Y11, Y11
-	VPXOR               Y4, Y8, Y8
-	VPXOR               Y5, Y9, Y9
-	VPXOR               Y6, Y10, Y10
-	VPXOR               Y7, Y11, Y11
+	VPBROADCASTQ   (AX), Y8
+	VPBROADCASTQ   8(AX), Y9
+	VPBROADCASTQ   16(AX), Y10
+	VPBROADCASTQ   24(AX), Y11
+	VGF2P8AFFINEQB $0x00, Y8, Y6, Y8
+	VGF2P8AFFINEQB $0x00, Y9, Y7, Y9
+	VGF2P8AFFINEQB $0x00, Y10, Y6, Y10
+	VGF2P8AFFINEQB $0x00, Y11, Y7, Y11
+	XOR3WAY(     $0x00, Y8, Y9, Y4)
+	XOR3WAY(     $0x00, Y10, Y11, Y5)
+	VMOVDQU        (R11), Y8
+	VMOVDQU        32(R11), Y9
+	VMOVDQU        (CX), Y10
+	VMOVDQU        32(CX), Y11
+	VPXOR          Y8, Y10, Y10
+	VPXOR          Y9, Y11, Y11
+	VPXOR          Y4, Y8, Y8
+	VPXOR          Y5, Y9, Y9
+	VPXOR          Y6, Y10, Y10
+	VPXOR          Y7, Y11, Y11
 
 	// GFNI LEO_MULADD_256 (from register)
 	VGF2P8AFFINEQB $0x00, Y0, Y8, Y12
@@ -69953,48 +70033,56 @@ loop_ifft4_gfni_dst_4:
 	VPXOR   Y1, Y3, Y3
 
 	// GFNI LEO_MULADD_256 (from memory)
-	VGF2P8AFFINEQB.BCST $0x00, (AX), Y2, Y4
-	VGF2P8AFFINEQB.BCST $0x00, 8(AX), Y3, Y5
-	VGF2P8AFFINEQB.BCST $0x00, 16(AX), Y2, Y6
-	VGF2P8AFFINEQB.BCST $0x00, 24(AX), Y3, Y7
-	XOR3WAY(          $0x00, Y4, Y5, Y0)
-	XOR3WAY(          $0x00, Y6, Y7, Y1)
-	VMOVDQU             (R12), Y4
-	VMOVDQU             32(R12), Y5
-	VMOVDQU             (DX), Y6
-	VMOVDQU             32(DX), Y7
-	VPXOR               Y4, Y6, Y6
-	VPXOR               Y5, Y7, Y7
+	VPBROADCASTQ   (AX), Y4
+	VPBROADCASTQ   8(AX), Y5
+	VPBROADCASTQ   16(AX), Y6
+	VPBROADCASTQ   24(AX), Y7
+	VGF2P8AFFINEQB $0x00, Y4, Y2, Y4
+	VGF2P8AFFINEQB $0x00, Y5, Y3, Y5
+	VGF2P8AFFINEQB $0x00, Y6, Y2, Y6
+	VGF2P8AFFINEQB $0x00, Y7, Y3, Y7
+	XOR3WAY(     $0x00, Y4, Y5, Y0)
+	XOR3WAY(     $0x00, Y6, Y7, Y1)
+	VMOVDQU        (R12), Y4
+	VMOVDQU        32(R12), Y5
+	VMOVDQU        (DX), Y6
+	VMOVDQU        32(DX), Y7
+	VPXOR          Y4, Y6, Y6
+	VPXOR          Y5, Y7, Y7
 
 	// GFNI LEO_MULADD_256 (from memory)
-	VGF2P8AFFINEQB.BCST $0x00, (CX), Y6, Y8
-	VGF2P8AFFINEQB.BCST $0x00, 8(CX), Y7, Y9
-	VGF2P8AFFINEQB.BCST $0x00, 16(CX), Y6, Y10
-	VGF2P8AFFINEQB.BCST $0x00, 24(CX), Y7, Y11
-	XOR3WAY(          $0x00, Y8, Y9, Y4)
-	XOR3WAY(          $0x00, Y10, Y11, Y5)
-	VPXOR               Y0, Y4, Y4
-	VPXOR               Y1, Y5, Y5
-	VPXOR               Y2, Y6, Y6
-	VPXOR               Y3, Y7, Y7
-	VMOVDQU             Y0, (R9)
-	VMOVDQU             Y1, 32(R9)
-	ADDQ                $0x40, R9
-	ADDQ                $0x40, R8
-	VMOVDQU             Y2, (R11)
-	VMOVDQU             Y3, 32(R11)
-	ADDQ                $0x40, R11
-	ADDQ                $0x40, R10
-	VMOVDQU             Y4, (R13)
-	VMOVDQU             Y5, 32(R13)
-	ADDQ                $0x40, R13
-	ADDQ                $0x40, R12
-	VMOVDQU             Y6, (BX)
-	VMOVDQU             Y7, 32(BX)
-	ADDQ                $0x40, BX
-	ADDQ                $0x40, DX
-	SUBQ                $0x40, SI
-	JNZ                 loop_ifft4_gfni_dst_4
+	VPBROADCASTQ   (CX), Y8
+	VPBROADCASTQ   8(CX), Y9
+	VPBROADCASTQ   16(CX), Y10
+	VPBROADCASTQ   24(CX), Y11
+	VGF2P8AFFINEQB $0x00, Y8, Y6, Y8
+	VGF2P8AFFINEQB $0x00, Y9, Y7, Y9
+	VGF2P8AFFINEQB $0x00, Y10, Y6, Y10
+	VGF2P8AFFINEQB $0x00, Y11, Y7, Y11
+	XOR3WAY(     $0x00, Y8, Y9, Y4)
+	XOR3WAY(     $0x00, Y10, Y11, Y5)
+	VPXOR          Y0, Y4, Y4
+	VPXOR          Y1, Y5, Y5
+	VPXOR          Y2, Y6, Y6
+	VPXOR          Y3, Y7, Y7
+	VMOVDQU        Y0, (R9)
+	VMOVDQU        Y1, 32(R9)
+	ADDQ           $0x40, R9
+	ADDQ           $0x40, R8
+	VMOVDQU        Y2, (R11)
+	VMOVDQU        Y3, 32(R11)
+	ADDQ           $0x40, R11
+	ADDQ           $0x40, R10
+	VMOVDQU        Y4, (R13)
+	VMOVDQU        Y5, 32(R13)
+	ADDQ           $0x40, R13
+	ADDQ           $0x40, R12
+	VMOVDQU        Y6, (BX)
+	VMOVDQU        Y7, 32(BX)
+	ADDQ           $0x40, BX
+	ADDQ           $0x40, DX
+	SUBQ           $0x40, SI
+	JNZ            loop_ifft4_gfni_dst_4
 	VZEROUPPER
 	RET
 
@@ -70039,34 +70127,38 @@ loop_ifft4_gfni_dst_5:
 	VPXOR   Y5, Y7, Y7
 
 	// GFNI LEO_MULADD_256 (from memory)
-	VGF2P8AFFINEQB.BCST $0x00, (AX), Y6, Y8
-	VGF2P8AFFINEQB.BCST $0x00, 8(AX), Y7, Y9
-	VGF2P8AFFINEQB.BCST $0x00, 16(AX), Y6, Y10
-	VGF2P8AFFINEQB.BCST $0x00, 24(AX), Y7, Y11
-	XOR3WAY(          $0x00, Y8, Y9, Y4)
-	XOR3WAY(          $0x00, Y10, Y11, Y5)
-	VPXOR               Y0, Y4, Y4
-	VPXOR               Y1, Y5, Y5
-	VPXOR               Y2, Y6, Y6
-	VPXOR               Y3, Y7, Y7
-	VMOVDQU             Y0, (R8)
-	VMOVDQU             Y1, 32(R8)
-	ADDQ                $0x40, R8
-	ADDQ                $0x40, DI
-	VMOVDQU             Y2, (R10)
-	VMOVDQU             Y3, 32(R10)
-	ADDQ                $0x40, R10
-	ADDQ                $0x40, R9
-	VMOVDQU             Y4, (R12)
-	VMOVDQU             Y5, 32(R12)
-	ADDQ                $0x40, R12
-	ADDQ                $0x40, R11
-	VMOVDQU             Y6, (DX)
-	VMOVDQU             Y7, 32(DX)
-	ADDQ                $0x40, DX
-	ADDQ                $0x40, CX
-	SUBQ                $0x40, BX
-	JNZ                 loop_ifft4_gfni_dst_5
+	VPBROADCASTQ   (AX), Y8
+	VPBROADCASTQ   8(AX), Y9
+	VPBROADCASTQ   16(AX), Y10
+	VPBROADCASTQ   24(AX), Y11
+	VGF2P8AFFINEQB $0x00, Y8, Y6, Y8
+	VGF2P8AFFINEQB $0x00, Y9, Y7, Y9
+	VGF2P8AFFINEQB $0x00, Y10, Y6, Y10
+	VGF2P8AFFINEQB $0x00, Y11, Y7, Y11
+	XOR3WAY(     $0x00, Y8, Y9, Y4)
+	XOR3WAY(     $0x00, Y10, Y11, Y5)
+	VPXOR          Y0, Y4, Y4
+	VPXOR          Y1, Y5, Y5
+	VPXOR          Y2, Y6, Y6
+	VPXOR          Y3, Y7, Y7
+	VMOVDQU        Y0, (R8)
+	VMOVDQU        Y1, 32(R8)
+	ADDQ           $0x40, R8
+	ADDQ           $0x40, DI
+	VMOVDQU        Y2, (R10)
+	VMOVDQU        Y3, 32(R10)
+	ADDQ           $0x40, R10
+	ADDQ           $0x40, R9
+	VMOVDQU        Y4, (R12)
+	VMOVDQU        Y5, 32(R12)
+	ADDQ           $0x40, R12
+	ADDQ           $0x40, R11
+	VMOVDQU        Y6, (DX)
+	VMOVDQU        Y7, 32(DX)
+	ADDQ           $0x40, DX
+	ADDQ           $0x40, CX
+	SUBQ           $0x40, BX
+	JNZ            loop_ifft4_gfni_dst_5
 	VZEROUPPER
 	RET
 
@@ -70105,40 +70197,44 @@ loop_ifft4_gfni_dst_6:
 	VPXOR   Y1, Y3, Y3
 
 	// GFNI LEO_MULADD_256 (from memory)
-	VGF2P8AFFINEQB.BCST $0x00, (AX), Y2, Y4
-	VGF2P8AFFINEQB.BCST $0x00, 8(AX), Y3, Y5
-	VGF2P8AFFINEQB.BCST $0x00, 16(AX), Y2, Y6
-	VGF2P8AFFINEQB.BCST $0x00, 24(AX), Y3, Y7
-	XOR3WAY(          $0x00, Y4, Y5, Y0)
-	XOR3WAY(          $0x00, Y6, Y7, Y1)
-	VMOVDQU             (R11), Y4
-	VMOVDQU             32(R11), Y5
-	VMOVDQU             (CX), Y6
-	VMOVDQU             32(CX), Y7
-	VPXOR               Y4, Y6, Y6
-	VPXOR               Y5, Y7, Y7
-	VPXOR               Y0, Y4, Y4
-	VPXOR               Y1, Y5, Y5
-	VPXOR               Y2, Y6, Y6
-	VPXOR               Y3, Y7, Y7
-	VMOVDQU             Y0, (R8)
-	VMOVDQU             Y1, 32(R8)
-	ADDQ                $0x40, R8
-	ADDQ                $0x40, DI
-	VMOVDQU             Y2, (R10)
-	VMOVDQU             Y3, 32(R10)
-	ADDQ                $0x40, R10
-	ADDQ                $0x40, R9
-	VMOVDQU             Y4, (R12)
-	VMOVDQU             Y5, 32(R12)
-	ADDQ                $0x40, R12
-	ADDQ                $0x40, R11
-	VMOVDQU             Y6, (DX)
-	VMOVDQU             Y7, 32(DX)
-	ADDQ                $0x40, DX
-	ADDQ                $0x40, CX
-	SUBQ                $0x40, BX
-	JNZ                 loop_ifft4_gfni_dst_6
+	VPBROADCASTQ   (AX), Y4
+	VPBROADCASTQ   8(AX), Y5
+	VPBROADCASTQ   16(AX), Y6
+	VPBROADCASTQ   24(AX), Y7
+	VGF2P8AFFINEQB $0x00, Y4, Y2, Y4
+	VGF2P8AFFINEQB $0x00, Y5, Y3, Y5
+	VGF2P8AFFINEQB $0x00, Y6, Y2, Y6
+	VGF2P8AFFINEQB $0x00, Y7, Y3, Y7
+	XOR3WAY(     $0x00, Y4, Y5, Y0)
+	XOR3WAY(     $0x00, Y6, Y7, Y1)
+	VMOVDQU        (R11), Y4
+	VMOVDQU        32(R11), Y5
+	VMOVDQU        (CX), Y6
+	VMOVDQU        32(CX), Y7
+	VPXOR          Y4, Y6, Y6
+	VPXOR          Y5, Y7, Y7
+	VPXOR          Y0, Y4, Y4
+	VPXOR          Y1, Y5, Y5
+	VPXOR          Y2, Y6, Y6
+	VPXOR          Y3, Y7, Y7
+	VMOVDQU        Y0, (R8)
+	VMOVDQU        Y1, 32(R8)
+	ADDQ           $0x40, R8
+	ADDQ           $0x40, DI
+	VMOVDQU        Y2, (R10)
+	VMOVDQU        Y3, 32(R10)
+	ADDQ           $0x40, R10
+	ADDQ           $0x40, R9
+	VMOVDQU        Y4, (R12)
+	VMOVDQU        Y5, 32(R12)
+	ADDQ           $0x40, R12
+	ADDQ           $0x40, R11
+	VMOVDQU        Y6, (DX)
+	VMOVDQU        Y7, 32(DX)
+	ADDQ           $0x40, DX
+	ADDQ           $0x40, CX
+	SUBQ           $0x40, BX
+	JNZ            loop_ifft4_gfni_dst_6
 	VZEROUPPER
 	RET
 

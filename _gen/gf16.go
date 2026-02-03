@@ -1297,17 +1297,22 @@ func leoMul128(ctx gf16ctx, lo, hi reg.VecVirtual, table [4]table128) (prodLo, p
 	return
 }
 
-// leoMulAdd256_gfni_avx2 loads tables from memory and multiplies y, XORs into x.
+// leoMulAdd256_gfni_mem loads tables from memory and multiplies y, XORs into x.
 // Loads tables on-demand to save YMM registers for DIT4 operations.
 func leoMulAdd256_gfni_mem(xLo, xHi, yLo, yHi reg.VecVirtual, tablePtr reg.Register) {
 	Comment("GFNI LEO_MULADD_256 (from memory)")
 
-	// Apply GFNI transforms
 	tmpA, tmpB, tmpC, tmpD := YMM(), YMM(), YMM(), YMM()
-	VGF2P8AFFINEQB_BCST(U8(0), Mem{Base: tablePtr, Disp: 0}, yLo, tmpA)  // A * yLo
-	VGF2P8AFFINEQB_BCST(U8(0), Mem{Base: tablePtr, Disp: 8}, yHi, tmpB)  // B * yHi
-	VGF2P8AFFINEQB_BCST(U8(0), Mem{Base: tablePtr, Disp: 16}, yLo, tmpC) // C * yLo
-	VGF2P8AFFINEQB_BCST(U8(0), Mem{Base: tablePtr, Disp: 24}, yHi, tmpD) // D * yHi
+	VPBROADCASTQ(Mem{Base: tablePtr, Disp: 0}, tmpA)
+	VPBROADCASTQ(Mem{Base: tablePtr, Disp: 8}, tmpB)
+	VPBROADCASTQ(Mem{Base: tablePtr, Disp: 16}, tmpC)
+	VPBROADCASTQ(Mem{Base: tablePtr, Disp: 24}, tmpD)
+
+	VGF2P8AFFINEQB(U8(0), tmpA, yLo, tmpA)
+	VGF2P8AFFINEQB(U8(0), tmpB, yHi, tmpB)
+	VGF2P8AFFINEQB(U8(0), tmpC, yLo, tmpC)
+	VGF2P8AFFINEQB(U8(0), tmpD, yHi, tmpD)
+
 	// XOR into x
 	VPXOR3way(tmpA, tmpB, xLo)
 	VPXOR3way(tmpC, tmpD, xHi)
