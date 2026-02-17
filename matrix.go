@@ -251,7 +251,7 @@ func (m matrix) gaussianElimination() error {
 
 	// Now clear the part above the main diagonal.
 	for d := range rows {
-		for rowAbove := 0; rowAbove < d; rowAbove++ {
+		for rowAbove := range d {
 			if m[rowAbove][d] != 0 {
 				scale := m[rowAbove][d]
 				for c := range columns {

@@ -2173,7 +2173,7 @@ func TestReentrant(t *testing.T) {
 					}
 					for i := 0; i < runs; i++ {
 						shards := AllocAligned(data+parity, perShard)
-						for s := 0; s < data; s++ {
+						for s := range data {
 							rng.Read(shards[s])
 						}
 						err = r.Encode(shards)

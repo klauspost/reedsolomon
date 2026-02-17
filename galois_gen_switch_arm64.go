@@ -1,5 +1,4 @@
 //go:build !appengine && !noasm && gc && !nogen && !nopshufb
-// +build !appengine,!noasm,gc,!nogen,!nopshufb
 
 package reedsolomon
 

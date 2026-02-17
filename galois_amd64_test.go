@@ -44,14 +44,14 @@ func TestGenerateFinalMatrices(t *testing.T) {
 	// Generate first few matrices to verify they work
 	t.Logf("Generating and testing first 8 matrices...")
 
-	for logValue := 0; logValue < 8; logValue++ {
+	for logValue := range 8 {
 		var matrix uint64
 
 		// Use the proven working method
-		for inputBit := 0; inputBit < 8; inputBit++ {
+		for inputBit := range 8 {
 			testInput := ffe8(1 << inputBit)
 			result := mulLog8(testInput, ffe8(logValue))
-			for outputBit := 0; outputBit < 8; outputBit++ {
+			for outputBit := range 8 {
 				if (result>>outputBit)&1 == 1 {
 					matrixBitPos := outputBit*8 + inputBit
 					matrix |= 1 << matrixBitPos
@@ -67,13 +67,13 @@ func TestGenerateFinalMatrices(t *testing.T) {
 	fmt.Printf("\n// Complete corrected gf2p811dMulMatricesLeo8 array:\n")
 	fmt.Printf("var gf2p811dMulMatricesLeo8 = [256]uint64{\n")
 
-	for logValue := 0; logValue < 256; logValue++ {
+	for logValue := range 256 {
 		var matrix uint64
 
-		for inputBit := 0; inputBit < 8; inputBit++ {
+		for inputBit := range 8 {
 			testInput := ffe8(1 << inputBit)
 			result := mulLog8(testInput, ffe8(logValue))
-			for outputBit := 0; outputBit < 8; outputBit++ {
+			for outputBit := range 8 {
 				if (result>>outputBit)&1 == 1 {
 					matrixBitPos := outputBit*8 + inputBit
 					matrix |= 1 << matrixBitPos
@@ -121,7 +121,7 @@ func TestCompareIfftDIT48GFNIvsAVX2(t *testing.T) {
 
 	// Test each variant
 	results := make(map[int]string)
-	for variant := 0; variant < 8; variant++ {
+	for variant := range 8 {
 		// Create copies for GFNI and AVX2
 		gfniWork := make([][]byte, len(work))
 		avx2Work := make([][]byte, len(work))
@@ -225,7 +225,7 @@ func TestCompareIfftDIT48GFNIvsAVX2(t *testing.T) {
 
 	// Summary
 	t.Logf("\n=== ifftDIT48 SUMMARY ===")
-	for variant := 0; variant < 8; variant++ {
+	for variant := range 8 {
 		t.Logf("Variant %d: %s", variant, results[variant])
 	}
 }
@@ -253,7 +253,7 @@ func TestCompareFftDIT48GFNIvsAVX2(t *testing.T) {
 
 	// Test each variant
 	results := make(map[int]string)
-	for variant := 0; variant < 8; variant++ {
+	for variant := range 8 {
 		// Create copies for GFNI and AVX2
 		gfniWork := make([][]byte, len(work))
 		avx2Work := make([][]byte, len(work))
@@ -335,7 +335,7 @@ func TestCompareFftDIT48GFNIvsAVX2(t *testing.T) {
 
 	// Summary
 	t.Logf("\n=== fftDIT48 SUMMARY ===")
-	for variant := 0; variant < 8; variant++ {
+	for variant := range 8 {
 		t.Logf("Variant %d: %s", variant, results[variant])
 	}
 }
@@ -413,10 +413,7 @@ func TestDebugGFNI(t *testing.T) {
 			if start > 2 {
 				start = firstDiff - 2
 			}
-			end := firstDiff + 5
-			if end > len(work[i]) {
-				end = len(work[i])
-			}
+			end := min(firstDiff+5, len(work[i]))
 
 			t.Logf("First difference at byte %d:", firstDiff)
 			t.Logf("  Original: %v", work[i][start:end])
@@ -491,12 +488,12 @@ func TestDebugGFNI(t *testing.T) {
 func applyGFNIMatrixDebug(input byte, matrix uint64) byte {
 	result := byte(0)
 	// Apply 8x8 matrix transformation according to VGF2P8AFFINEQB spec
-	for resultBit := 0; resultBit < 8; resultBit++ {
+	for resultBit := range 8 {
 		// Get the matrix row for this result bit (byte 0 controls bit 7, etc.)
 		row := byte((matrix >> (8 * (7 - resultBit))) & 0xff)
 		// Compute dot product of input with this row
 		dotProduct := byte(0)
-		for inputBit := 0; inputBit < 8; inputBit++ {
+		for inputBit := range 8 {
 			if (input>>inputBit)&1 == 1 && (row>>inputBit)&1 == 1 {
 				dotProduct ^= 1
 			}
@@ -555,9 +552,9 @@ func TestCompareIfftDIT2GF16GFNIvsAVX2(t *testing.T) {
 			copy(xRef, x)
 			copy(yRef, y)
 			// Process 64 bytes at a time (32 elements)
-			for chunk := 0; chunk < 2; chunk++ {
+			for chunk := range 2 {
 				base := chunk * 64
-				for i := 0; i < 32; i++ {
+				for i := range 32 {
 					xElem := ffe(x[base+i]) | (ffe(x[base+32+i]) << 8)
 					yElem := ffe(y[base+i]) | (ffe(y[base+32+i]) << 8)
 					yNew := xElem ^ yElem
@@ -583,7 +580,7 @@ func TestCompareIfftDIT2GF16GFNIvsAVX2(t *testing.T) {
 
 			if !gfniOK || !avx2OK {
 				t.Errorf("logM=%d: GFNI correct=%v, AVX2 correct=%v", logM, gfniOK, avx2OK)
-				for i := 0; i < 8; i++ {
+				for i := range 8 {
 					t.Logf("  x[%d]: Ref=0x%02x, GFNI=0x%02x, AVX2=0x%02x", i*2, xRef[i*2], xGFNI[i*2], xAVX2[i*2])
 				}
 			}
@@ -636,9 +633,9 @@ func TestCompareFftDIT2GF16GFNIvsAVX2(t *testing.T) {
 			yRef := make([]byte, len(y))
 			copy(xRef, x)
 			copy(yRef, y)
-			for chunk := 0; chunk < 2; chunk++ {
+			for chunk := range 2 {
 				base := chunk * 64
-				for i := 0; i < 32; i++ {
+				for i := range 32 {
 					xElem := ffe(x[base+i]) | (ffe(x[base+32+i]) << 8)
 					yElem := ffe(y[base+i]) | (ffe(y[base+32+i]) << 8)
 					xNew := xElem ^ mulLog(yElem, logM)
@@ -667,7 +664,7 @@ func TestCompareFftDIT2GF16GFNIvsAVX2(t *testing.T) {
 			if !xGfniOK || !yGfniOK || !xAvx2OK || !yAvx2OK {
 				t.Errorf("logM=%d: GFNI x=%v y=%v, AVX2 x=%v y=%v", logM, xGfniOK, yGfniOK, xAvx2OK, yAvx2OK)
 				if !yGfniOK || !yAvx2OK {
-					for i := 0; i < 8; i++ {
+					for i := range 8 {
 						t.Logf("  y[%d]: Ref=0x%02x, GFNI=0x%02x, AVX2=0x%02x", i, yRef[i], yGFNI[i], yAVX2[i])
 					}
 				}
@@ -693,7 +690,7 @@ func TestCompareIfftDIT4GF16GFNIvsAVX2(t *testing.T) {
 
 	// Test all 8 variants (skipMask 0-7)
 	results := make([]bool, 8)
-	for variant := 0; variant < 8; variant++ {
+	for variant := range 8 {
 		t.Run(fmt.Sprintf("variant=%d", variant), func(t *testing.T) {
 			// Create work slices - 4 slices of 64 bytes each (32 x 16-bit elements)
 			work := make([][]byte, 4)
@@ -810,7 +807,7 @@ func TestCompareFftDIT4GF16GFNIvsAVX2(t *testing.T) {
 
 	// Test all 8 variants (skipMask 0-7)
 	results := make([]bool, 8)
-	for variant := 0; variant < 8; variant++ {
+	for variant := range 8 {
 		t.Run(fmt.Sprintf("variant=%d", variant), func(t *testing.T) {
 			// Create work slices - 4 slices of 64 bytes each (32 x 16-bit elements)
 			work := make([][]byte, 4)
@@ -926,7 +923,7 @@ func TestCompareIfftDIT4GF16GFNIAvx512vsAVX2(t *testing.T) {
 	}
 
 	// Test variant 0 (all multiplications)
-	for variant := 0; variant < 8; variant++ {
+	for variant := range 8 {
 		t.Run(fmt.Sprintf("variant=%d", variant), func(t *testing.T) {
 			// Create work slices - 4 slices of 128 bytes each (64 x 16-bit elements)
 			work := make([][]byte, 4)
@@ -1037,7 +1034,7 @@ func TestCompareFftDIT4GF16GFNIAvx512vsAVX2(t *testing.T) {
 		t.Skip("GFNI tables not initialized")
 	}
 
-	for variant := 0; variant < 8; variant++ {
+	for variant := range 8 {
 		t.Run(fmt.Sprintf("variant=%d", variant), func(t *testing.T) {
 			work := make([][]byte, 4)
 			for i := range work {
@@ -1099,7 +1096,7 @@ func TestCompareFftDIT4GF16GFNIAvx512vsAVX2(t *testing.T) {
 			}
 
 			match := true
-			for i := 0; i < 4; i++ {
+			for i := range 4 {
 				if !bytes.Equal(avx512Work[i], avx2Work[i]) {
 					match = false
 					t.Errorf("fftDIT4_gfni_avx512_%d: work[%d] mismatch", variant, i)
@@ -1140,7 +1137,7 @@ func TestGF16MulSimple(t *testing.T) {
 	// Simple test: process 64 bytes (32 GF16 elements)
 	// Split layout: [0:32] = lo bytes, [32:64] = hi bytes
 	y := make([]byte, 64)
-	for i := 0; i < 32; i++ {
+	for i := range 32 {
 		y[i] = byte(i + 1) // lo bytes in [0:32]
 		y[32+i] = byte(0)  // hi bytes in [32:64]
 	}
@@ -1157,14 +1154,14 @@ func TestGF16MulSimple(t *testing.T) {
 	ifftDIT2_gfni(xGFNI, yGFNI, gfniTable)
 
 	// Check yGFNI should equal original y (since x was 0)
-	for i := 0; i < 64; i++ {
+	for i := range 64 {
 		if yGFNI[i] != y[i] {
 			t.Errorf("y[%d]: got 0x%02x, expected 0x%02x", i, yGFNI[i], y[i])
 		}
 	}
 
 	// Check xGFNI should equal original y (x = 0 XOR mul(y, identity) = y)
-	for i := 0; i < 64; i++ {
+	for i := range 64 {
 		if xGFNI[i] != y[i] {
 			t.Errorf("x[%d]: got 0x%02x, expected 0x%02x (y[%d])", i, xGFNI[i], y[i], i)
 		}
@@ -1230,7 +1227,7 @@ func TestGF16MulNonIdentity(t *testing.T) {
 		y[i] = 0
 	}
 	// Set elements 0-31 to 1, 2, 3, ..., 32 in split layout
-	for i := 0; i < 32; i++ {
+	for i := range 32 {
 		y[i] = byte(i + 1) // lo bytes
 		y[32+i] = 0        // hi bytes
 	}
@@ -1244,7 +1241,7 @@ func TestGF16MulNonIdentity(t *testing.T) {
 
 	// Check each element (split layout)
 	errors := 0
-	for i := 0; i < 32; i++ {
+	for i := range 32 {
 		elem := ffe(i + 1)
 		expected := mulLog(elem, logM)
 		got := ffe(xGFNI[i]) | (ffe(xGFNI[32+i]) << 8)
@@ -1280,9 +1277,9 @@ func TestGF16MatrixGeneration(t *testing.T) {
 	// VGF2P8AFFINEQB: for output bit j, uses matrix byte (7-j), XORs bits where matrix[k] AND input[k]
 	applyMatrix := func(matrix uint64, input byte) byte {
 		var result byte
-		for outBit := 0; outBit < 8; outBit++ {
+		for outBit := range 8 {
 			parity := byte(0)
-			for inBit := 0; inBit < 8; inBit++ {
+			for inBit := range 8 {
 				// VGF2P8AFFINEQB uses byte (7-outBit), bit inBit
 				matrixBit := (matrix >> ((7-outBit)*8 + inBit)) & 1
 				inputBit := (input >> inBit) & 1
@@ -1357,7 +1354,7 @@ func TestCompareMulgf16GFNIvsAVX2(t *testing.T) {
 
 			if !bytes.Equal(xGFNI, xAVX2) {
 				t.Errorf("mulgf16_gfni mismatch for logM=%d", logM)
-				for i := 0; i < len(xAVX2); i++ {
+				for i := range xAVX2 {
 					if xGFNI[i] != xAVX2[i] {
 						t.Errorf("  byte %d: GFNI=0x%02x AVX2=0x%02x", i, xGFNI[i], xAVX2[i])
 						if i > 10 {
