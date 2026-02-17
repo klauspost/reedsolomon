@@ -920,7 +920,7 @@ func ifftDIT4Ref8(work [][]byte, dist int, log_m01, log_m23, log_m02 ffe8, o *op
 
 func ifftDIT4DstRef8(dst, work [][]byte, dist int, log_m01, log_m23, log_m02 ffe8, o *options) {
 	// Copy the 4 elements touched by the butterfly
-	for i := 0; i < 4; i++ {
+	for i := range 4 {
 		copy(dst[i*dist], work[i*dist][:])
 	}
 	ifftDIT4Ref8(dst, dist, log_m01, log_m23, log_m02, o)

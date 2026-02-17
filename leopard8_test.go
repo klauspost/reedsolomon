@@ -80,12 +80,12 @@ func TestGFNIMultiplication(t *testing.T) {
 		// Apply 8x8 matrix transformation according to VGF2P8AFFINEQB spec
 		// The matrix is stored with byte 0 controlling bit 7, byte 1 controlling bit 6, etc.
 		matrix := gfniMatrix
-		for resultBit := 0; resultBit < 8; resultBit++ {
+		for resultBit := range 8 {
 			// Get the matrix row for this result bit (note: bit 7-i indexing)
 			row := byte((matrix >> (8 * (7 - resultBit))) & 0xff)
 			// Compute dot product of input with this row
 			dotProduct := byte(0)
-			for inputBit := 0; inputBit < 8; inputBit++ {
+			for inputBit := range 8 {
 				if (input>>inputBit)&1 == 1 && (row>>inputBit)&1 == 1 {
 					dotProduct ^= 1
 				}
@@ -115,7 +115,7 @@ func TestGFNIMultiplication(t *testing.T) {
 		}
 
 		// Show first few bytes for debugging
-		for i := 0; i < 8; i++ {
+		for i := range 8 {
 			t.Logf("Byte %d: AVX2=%02x GFNI=%02x", i, avx2Result[i], gfniResult[i])
 		}
 

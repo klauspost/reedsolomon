@@ -990,11 +990,11 @@ func getMulTable16(c byte) *[65536]uint16 {
 	mulTable16Init.Do(func() {
 		mulTable16 = &[256][65536]uint16{}
 		// Generate two byte lookup table for multiplication
-		for i := 0; i < 256; i++ {
+		for i := range 256 {
 			t0 := &mulTable[i]
 			t1 := &mulTable16[i]
-			for j := 0; j < 256; j++ {
-				for k := 0; k < 256; k++ {
+			for j := range 256 {
+				for k := range 256 {
 					dst := j*256 + k
 					t1[dst] = uint16(t0[j])<<8 | uint16(t0[k])
 				}

@@ -86,7 +86,7 @@ func ExampleEncoder_Reconstruct() {
 	}
 
 	// Fill in data slices with random data, leaving parity slices as zero.
-	for i := 0; i < 5; i++ {
+	for i := range 5 {
 		fillRandom(data[i])
 	}
 
@@ -161,7 +161,7 @@ func ExampleEncoder_Verify() {
 	}
 
 	// Fill in data slices with random data, leaving parity slices as zero.
-	for i := 0; i < 5; i++ {
+	for i := range 5 {
 		fillRandom(data[i])
 	}
 
@@ -256,7 +256,7 @@ func ExampleEncoder_EncodeIdx() {
 	shards[4] = bytes.Repeat([]byte{4}, shardSize)
 
 	// Encode parity, one data shard at the time using EncodeIdx.
-	for i := 0; i < dataShards; i++ {
+	for i := range dataShards {
 		err = enc.EncodeIdx(shards[i], i, shards[dataShards:])
 		if err != nil {
 			log.Fatal(err)

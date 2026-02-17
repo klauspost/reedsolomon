@@ -824,7 +824,7 @@ func ifftDIT4Ref(work [][]byte, dist int, log_m01, log_m23, log_m02 ffe, o *opti
 }
 
 func ifftDIT4DstRef(dst, work [][]byte, dist int, log_m01, log_m23, log_m02 ffe, o *options) {
-	for i := 0; i < 4; i++ {
+	for i := range 4 {
 		copy(dst[i*dist], work[i*dist])
 	}
 	ifftDIT4Ref(dst, dist, log_m01, log_m23, log_m02, o)
@@ -1139,9 +1139,9 @@ func initMul16LUT() {
 			// A, C: effect of input lo_byte bits on output
 			// VGF2P8AFFINEQB accesses byte (7-j) for output bit j, so we need:
 			// position = (7-outputBit)*8 + inputBit
-			for inputBit := 0; inputBit < 8; inputBit++ {
+			for inputBit := range 8 {
 				result := mulLog(ffe(1<<inputBit), ffe(logM))
-				for outputBit := 0; outputBit < 8; outputBit++ {
+				for outputBit := range 8 {
 					if (byte(result)>>outputBit)&1 == 1 {
 						A |= 1 << ((7-outputBit)*8 + inputBit)
 					}
@@ -1152,9 +1152,9 @@ func initMul16LUT() {
 			}
 
 			// B, D: effect of input hi_byte bits on output
-			for inputBit := 0; inputBit < 8; inputBit++ {
+			for inputBit := range 8 {
 				result := mulLog(ffe(1<<(inputBit+8)), ffe(logM))
-				for outputBit := 0; outputBit < 8; outputBit++ {
+				for outputBit := range 8 {
 					if (byte(result)>>outputBit)&1 == 1 {
 						B |= 1 << ((7-outputBit)*8 + inputBit)
 					}

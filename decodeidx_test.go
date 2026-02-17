@@ -43,7 +43,7 @@ func TestDecodeIdx_WrongSliceLengths(t *testing.T) {
 	r := enc.(*reedSolomon)
 
 	expectInput := make([]bool, 8)
-	for i := 0; i < 5; i++ {
+	for i := range 5 {
 		expectInput[i] = true
 	}
 
@@ -82,7 +82,7 @@ func TestDecodeIdx_DestinationAlreadyFilled(t *testing.T) {
 	dst := make([][]byte, 8)
 	input := make([][]byte, 8)
 	expectInput := make([]bool, 8)
-	for i := 0; i < 5; i++ {
+	for i := range 5 {
 		expectInput[i] = true
 	}
 
@@ -114,7 +114,7 @@ func TestDecodeIdx_UnexpectedInput(t *testing.T) {
 	dst := make([][]byte, 8)
 	input := make([][]byte, 8)
 	expectInput := make([]bool, 8)
-	for i := 0; i < 5; i++ {
+	for i := range 5 {
 		expectInput[i] = true
 	}
 
@@ -148,7 +148,7 @@ func TestDecodeIdx_TooFewShards(t *testing.T) {
 	input := make([][]byte, 8)
 	expectInput := make([]bool, 8)
 	// Only mark 4 shards as expected (need at least 5)
-	for i := 0; i < 4; i++ {
+	for i := range 4 {
 		expectInput[i] = true
 	}
 
@@ -170,7 +170,7 @@ func TestDecodeIdx_MismatchedBufferSizes(t *testing.T) {
 	dst := make([][]byte, 8)
 	input := make([][]byte, 8)
 	expectInput := make([]bool, 8)
-	for i := 0; i < 5; i++ {
+	for i := range 5 {
 		expectInput[i] = true
 	}
 
@@ -230,7 +230,7 @@ func TestDecodeIdx_ProgressiveDecode(t *testing.T) {
 
 	// Create and encode data
 	shards := make([][]byte, 8)
-	for i := 0; i < 5; i++ {
+	for i := range 5 {
 		shards[i] = make([]byte, 100)
 		fillRandom(shards[i])
 	}
@@ -337,7 +337,7 @@ func TestDecodeIdx_IntegrationWithFullCycle(t *testing.T) {
 			}
 
 			// Test reconstruction of ALL shards (both data and parity)
-			for targetShard := 0; targetShard < totalShards; targetShard++ {
+			for targetShard := range totalShards {
 				// Prepare dst with only the target shard to reconstruct
 				dst := make([][]byte, totalShards)
 				dst[targetShard] = make([]byte, shardSize)
@@ -354,7 +354,7 @@ func TestDecodeIdx_IntegrationWithFullCycle(t *testing.T) {
 
 				// Provide all expected inputs in one call
 				input := make([][]byte, totalShards)
-				for i := 0; i < totalShards; i++ {
+				for i := range totalShards {
 					if expectInput[i] {
 						input[i] = shards[i]
 					}
@@ -384,7 +384,7 @@ func TestDecodeIdx_MultipleShards(t *testing.T) {
 
 	// Create and encode data
 	shards := make([][]byte, 8)
-	for i := 0; i < 5; i++ {
+	for i := range 5 {
 		shards[i] = make([]byte, 100)
 		fillRandom(shards[i])
 	}
@@ -451,7 +451,7 @@ func TestDecodeIdx_MergeTwoPartialDecodings(t *testing.T) {
 
 	// Create and encode data
 	shards := make([][]byte, 8)
-	for i := 0; i < 5; i++ {
+	for i := range 5 {
 		shards[i] = make([]byte, 100)
 		fillRandom(shards[i])
 	}
@@ -694,10 +694,7 @@ func TestDecodeIdx_AllOptions(t *testing.T) {
 					// First call - provide half the inputs (but at least 1)
 					input1 := make([][]byte, totalShards)
 					provided1 := 0
-					target1 := tc.dataShards / 2
-					if target1 < 1 {
-						target1 = 1
-					}
+					target1 := max(tc.dataShards/2, 1)
 					for i := 0; i < totalShards && provided1 < target1; i++ {
 						if expectInput[i] {
 							input1[i] = shards[i]
@@ -761,7 +758,7 @@ func TestDecodeIdx_ExcessValidShards(t *testing.T) {
 	}
 
 	// Fill data shards with random data
-	for i := 0; i < dataShards; i++ {
+	for i := range dataShards {
 		fillRandom(shards[i])
 	}
 
@@ -962,7 +959,7 @@ func benchmarkDecodeIdx(b *testing.B, dataShards, parityShards, shardSize int) {
 		shards[s] = make([]byte, shardSize)
 	}
 
-	for s := 0; s < dataShards; s++ {
+	for s := range dataShards {
 		fillRandom(shards[s])
 	}
 
@@ -1025,7 +1022,7 @@ func benchmarkDecodeIdxSingle(b *testing.B, dataShards, parityShards, shardSize 
 		shards[s] = make([]byte, shardSize)
 	}
 
-	for s := 0; s < dataShards; s++ {
+	for s := range dataShards {
 		fillRandom(shards[s])
 	}
 
@@ -1089,7 +1086,7 @@ func benchmarkDecodeIdxMultiple(b *testing.B, dataShards, parityShards, shardSiz
 		shards[s] = make([]byte, shardSize)
 	}
 
-	for s := 0; s < dataShards; s++ {
+	for s := range dataShards {
 		fillRandom(shards[s])
 	}
 
@@ -1102,7 +1099,7 @@ func benchmarkDecodeIdxMultiple(b *testing.B, dataShards, parityShards, shardSiz
 	inputs := make([][]byte, totalShards)
 	dst := make([][]byte, totalShards)
 
-	for j := 0; j < numLost; j++ {
+	for j := range numLost {
 		dst[j] = make([]byte, shardSize)
 	}
 
@@ -1150,7 +1147,7 @@ func benchmarkDecodeIdxProgressive(b *testing.B, dataShards, parityShards, shard
 		shards[s] = make([]byte, shardSize)
 	}
 
-	for s := 0; s < dataShards; s++ {
+	for s := range dataShards {
 		fillRandom(shards[s])
 	}
 
@@ -1225,7 +1222,7 @@ func benchmarkDecodeIdxVsReconstruct(b *testing.B, dataShards, parityShards, sha
 		shards[s] = make([]byte, shardSize)
 	}
 
-	for s := 0; s < dataShards; s++ {
+	for s := range dataShards {
 		fillRandom(shards[s])
 	}
 
@@ -1309,7 +1306,7 @@ func benchmarkDecodeIdxParityOnly(b *testing.B, dataShards, parityShards, shardS
 		shards[s] = make([]byte, shardSize)
 	}
 
-	for s := 0; s < dataShards; s++ {
+	for s := range dataShards {
 		fillRandom(shards[s])
 	}
 
@@ -1322,11 +1319,11 @@ func benchmarkDecodeIdxParityOnly(b *testing.B, dataShards, parityShards, shardS
 	inputs := make([][]byte, totalShards)
 	dst := make([][]byte, totalShards)
 
-	for j := 0; j < parityShards; j++ {
+	for j := range parityShards {
 		dst[dataShards+j] = make([]byte, shardSize)
 	}
 
-	for j := 0; j < dataShards; j++ {
+	for j := range dataShards {
 		expectInput[j] = true
 		inputs[j] = shards[j]
 	}
