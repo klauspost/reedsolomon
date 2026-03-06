@@ -1,10 +1,8 @@
 package reedsolomon
 
-
 // GF16Mul multiplies two GF(2^16) elements.
 // Uses GF(2^16) with polynomial 0x1002D.
-// GF16Init() may be called beforehand to amortize initialization cost;
-// otherwise GF16Mul initializes lazily on first use.
+// Initializes lazily on first use.
 func (l LowLevel) GF16Mul(a, b uint16) uint16 {
 	initConstants()
 	if a == 0 || b == 0 {
