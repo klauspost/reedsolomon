@@ -14,6 +14,7 @@ const (
 	codeGenMaxInputs     = 10
 	codeGenMaxOutputs    = 10
 	minCodeGenSize       = 64
+	codeGenPadInputs     = 1
 )
 
 var (

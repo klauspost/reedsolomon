@@ -142,6 +142,7 @@ codeGenMaxGoroutines = 8
 codeGenMaxInputs     = %d
 codeGenMaxOutputs    = %d
 minCodeGenSize       = 64
+codeGenPadInputs     = 1
 )
 
 var (

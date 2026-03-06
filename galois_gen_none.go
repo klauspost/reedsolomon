@@ -8,6 +8,7 @@ const (
 	codeGenMaxInputs     = 1
 	codeGenMaxOutputs    = 1
 	minCodeGenSize       = 1
+	codeGenPadInputs     = 1
 )
 
 func (r *reedSolomon) hasCodeGen(int, int, int) (_, _ *func(matrix []byte, in, out [][]byte, start, stop int) int, ok bool) {
