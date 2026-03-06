@@ -1,7 +1,8 @@
 package reedsolomon
 
 // GF16Init initializes the GF(2^16) lookup tables.
-// This must be called before using GF16Mul.
+// Optional: may be called to amortize initialization at a known point.
+// If not called, GF16Mul will initialize lazily on first use.
 func GF16Init() {
 	initConstants()
 }
