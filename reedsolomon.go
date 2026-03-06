@@ -584,7 +584,11 @@ func New(dataShards, parityShards int, opts ...Option) (Encoder, error) {
 	}
 
 	if codeGen /* && r.o.useAVX2 */ {
-		sz := r.dataShards * r.parityShards * 2 * 32
+		paddedDS := r.dataShards
+		if codeGenPadInputs > 1 {
+			paddedDS = ((paddedDS + codeGenPadInputs - 1) / codeGenPadInputs) * codeGenPadInputs
+		}
+		sz := paddedDS * r.parityShards * 2 * 32
 		r.mPool.New = func() any {
 			return AllocAligned(1, sz)[0]
 		}

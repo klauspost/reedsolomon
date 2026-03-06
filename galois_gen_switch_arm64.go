@@ -12,6 +12,8 @@ const (
 	codeGenMaxInputs     = 10
 	codeGenMaxOutputs    = 10
 	minCodeGenSize       = 64
+	// ARM64 asm always reads 10 inputs; pad matrix and in-slice to this minimum.
+	codeGenPadInputs = codeGenMaxInputs
 )
 
 var (
@@ -36,7 +38,6 @@ func (r *reedSolomon) canGFNI(byteCount int, inputs, outputs int) (_, _ *func(ma
 	return nil, nil, false
 }
 
-// galMulSlicesSve
 func galMulSlicesSve(matrix []byte, in, out [][]byte, start, stop int) (n int) {
 	n = stop - start
 
@@ -46,7 +47,14 @@ func galMulSlicesSve(matrix []byte, in, out [][]byte, start, stop int) (n int) {
 			raceWriteSlices(out, start, n)
 		}()
 	}
-	// fmt.Println(len(in), len(out))
+	if len(in) < codeGenMaxInputs {
+		var padded [codeGenMaxInputs][]byte
+		copy(padded[:], in)
+		for i := len(in); i < codeGenMaxInputs; i++ {
+			padded[i] = in[0]
+		}
+		in = padded[:]
+	}
 	switch len(out) {
 	case 1:
 		mulSve_10x1_64(matrix, in, out, start, n)
@@ -82,7 +90,6 @@ func galMulSlicesSve(matrix []byte, in, out [][]byte, start, stop int) (n int) {
 	panic(fmt.Sprintf("ARM SVE: unhandled size: %dx%d", len(in), len(out)))
 }
 
-// galMulSlicesSveXor
 func galMulSlicesSveXor(matrix []byte, in, out [][]byte, start, stop int) (n int) {
 	n = (stop - start)
 
@@ -92,7 +99,14 @@ func galMulSlicesSveXor(matrix []byte, in, out [][]byte, start, stop int) (n int
 			raceWriteSlices(out, start, n)
 		}()
 	}
-
+	if len(in) < codeGenMaxInputs {
+		var padded [codeGenMaxInputs][]byte
+		copy(padded[:], in)
+		for i := len(in); i < codeGenMaxInputs; i++ {
+			padded[i] = in[0]
+		}
+		in = padded[:]
+	}
 	switch len(out) {
 	case 1:
 		mulSve_10x1_64Xor(matrix, in, out, start, n)
@@ -128,7 +142,6 @@ func galMulSlicesSveXor(matrix []byte, in, out [][]byte, start, stop int) (n int
 	panic(fmt.Sprintf("ARM SVE: unhandled size: %dx%d", len(in), len(out)))
 }
 
-// galMulSlicesNeon
 func galMulSlicesNeon(matrix []byte, in, out [][]byte, start, stop int) (n int) {
 	n = stop - start
 	if raceEnabled {
@@ -137,7 +150,14 @@ func galMulSlicesNeon(matrix []byte, in, out [][]byte, start, stop int) (n int) 
 			raceWriteSlices(out, start, n)
 		}()
 	}
-
+	if len(in) < codeGenMaxInputs {
+		var padded [codeGenMaxInputs][]byte
+		copy(padded[:], in)
+		for i := len(in); i < codeGenMaxInputs; i++ {
+			padded[i] = in[0]
+		}
+		in = padded[:]
+	}
 	switch len(out) {
 	case 1:
 		mulNeon_10x1_64(matrix, in, out, start, n)
@@ -173,7 +193,6 @@ func galMulSlicesNeon(matrix []byte, in, out [][]byte, start, stop int) (n int) 
 	panic(fmt.Sprintf("ARM NEON: unhandled size: %dx%d", len(in), len(out)))
 }
 
-// galMulSlicesNeonXor
 func galMulSlicesNeonXor(matrix []byte, in, out [][]byte, start, stop int) (n int) {
 	n = (stop - start)
 	if raceEnabled {
@@ -181,6 +200,14 @@ func galMulSlicesNeonXor(matrix []byte, in, out [][]byte, start, stop int) (n in
 			raceReadSlices(in, start, n)
 			raceWriteSlices(out, start, n)
 		}()
+	}
+	if len(in) < codeGenMaxInputs {
+		var padded [codeGenMaxInputs][]byte
+		copy(padded[:], in)
+		for i := len(in); i < codeGenMaxInputs; i++ {
+			padded[i] = in[0]
+		}
+		in = padded[:]
 	}
 	switch len(out) {
 	case 1:

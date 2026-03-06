@@ -10,6 +10,7 @@ const (
 	codeGenMaxInputs     = 10
 	codeGenMaxOutputs    = 10
 	minCodeGenSize       = 64
+	codeGenPadInputs     = 1
 )
 
 func (r *reedSolomon) hasCodeGen(byteCount int, inputs, outputs int) (_, _ *func(matrix []byte, in, out [][]byte, start, stop int) int, ok bool) {

@@ -915,14 +915,21 @@ func genCodeGenMatrix(matrixRows [][]byte, inputs, inIdx, outputs, vectorLength 
 	if !codeGen {
 		panic("codegen not enabled")
 	}
-	total := inputs * outputs
+	paddedInputs := inputs
+	if codeGenPadInputs > paddedInputs {
+		paddedInputs = codeGenPadInputs
+	}
+	total := paddedInputs * outputs
 
-	// Duplicated in+out
 	wantBytes := total * vectorLength * 2
 	if cap(dst) < wantBytes {
 		dst = AllocAligned(1, wantBytes)[0]
 	} else {
 		dst = dst[:wantBytes]
+	}
+	// Zero padding region — reused pool buffers may have stale coefficients.
+	if paddedInputs > inputs {
+		clear(dst[inputs*outputs*vectorLength*2 : wantBytes])
 	}
 	for i, row := range matrixRows[:outputs] {
 		for j, idx := range row[inIdx : inIdx+inputs] {
