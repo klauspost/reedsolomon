@@ -404,26 +404,30 @@ func testGenGaloisUpto10x10(t *testing.T, f, fXor func(matrix []byte, in, out []
 // testGenGalois10xN tests ARM64 assembly which only has 10xN variants.
 func testGenGalois10xN(t *testing.T, f, fXor func(matrix []byte, in, out [][]byte, start, stop int) int, vectorLength int) {
 	for output := 1; output <= codeGenMaxOutputs; output++ {
-		input := codeGenMaxInputs
-		matrixRows := make([][]byte, output)
-		for i := range matrixRows {
-			matrixRows[i] = make([]byte, input)
-			for j := range matrixRows[i] {
-				matrixRows[i][j] = byte(mathrand.Intn(16))
+		for input := 1; input <= codeGenMaxInputs; input++ {
+			matrixRows := make([][]byte, output)
+			for i := range matrixRows {
+				matrixRows[i] = make([]byte, input)
+				for j := range matrixRows[i] {
+					matrixRows[i][j] = byte(mathrand.Intn(16))
+				}
 			}
-		}
-		size, stepsize := 64, 64 // 10x? with <=3 outputs uses _64 variants
-		testGenGaloisEarlyAbort(t, matrixRows, size-1, f)
-		testGenGaloisEarlyAbort(t, matrixRows, size-1, fXor)
-		const limit = 1024
-		for ; size < limit; size += stepsize {
-			testGenGalois(t, matrixRows, size, 0, size, f, vectorLength)
-			testGenGaloisXor(t, matrixRows, size, 0, size, fXor, vectorLength)
-			if size >= stepsize*2 && size < limit-stepsize*2 {
-				start := stepsize
-				stop := size - start
-				testGenGalois(t, matrixRows, size, start, stop, f, vectorLength)
-				testGenGaloisXor(t, matrixRows, size, start, stop, fXor, vectorLength)
+			size, stepsize := 32, 32
+			if output <= 3 {
+				size, stepsize = 64, 64
+			}
+			testGenGaloisEarlyAbort(t, matrixRows, size-1, f)
+			testGenGaloisEarlyAbort(t, matrixRows, size-1, fXor)
+			const limit = 1024
+			for ; size < limit; size += stepsize {
+				testGenGalois(t, matrixRows, size, 0, size, f, vectorLength)
+				testGenGaloisXor(t, matrixRows, size, 0, size, fXor, vectorLength)
+				if size >= stepsize*2 && size < limit-stepsize*2 {
+					start := stepsize
+					stop := size - start
+					testGenGalois(t, matrixRows, size, start, stop, f, vectorLength)
+					testGenGaloisXor(t, matrixRows, size, start, stop, fXor, vectorLength)
+				}
 			}
 		}
 	}
