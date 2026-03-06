@@ -1,0 +1,23 @@
+package reedsolomon
+
+// GF16Init initializes the GF(2^16) lookup tables.
+// This must be called before using GF16Mul.
+func GF16Init() {
+	initConstants()
+}
+
+// GF16Mul multiplies two GF(2^16) elements.
+// Uses GF(2^16) with polynomial 0x1002D.
+// GF16Init() may be called beforehand to amortize initialization cost;
+// otherwise GF16Mul initializes lazily on first use.
+func GF16Mul(a, b uint16) uint16 {
+	initConstants()
+	if a == 0 || b == 0 {
+		return 0
+	}
+	logSum := addMod(logLUT[ffe(a)], logLUT[ffe(b)])
+	if logSum >= modulus {
+		logSum -= modulus
+	}
+	return uint16(expLUT[logSum])
+}
