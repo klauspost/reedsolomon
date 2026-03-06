@@ -5,7 +5,7 @@ package reedsolomon
 // Uses GF(2^16) with polynomial 0x1002D.
 // GF16Init() may be called beforehand to amortize initialization cost;
 // otherwise GF16Mul initializes lazily on first use.
-func GF16Mul(a, b uint16) uint16 {
+func (l LowLevel) GF16Mul(a, b uint16) uint16 {
 	initConstants()
 	if a == 0 || b == 0 {
 		return 0
