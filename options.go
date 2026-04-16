@@ -35,6 +35,7 @@ type options struct {
 	forcedInversionCache bool
 	customMatrix         [][]byte
 	withLeopard          leopardMode
+	workAlloc            WorkAllocator
 
 	// stream options
 	concReads  bool
@@ -300,6 +301,17 @@ func WithLeopardGF(enabled bool) Option {
 		} else {
 			o.withLeopard = leopardAsNeeded
 		}
+	}
+}
+
+// WithWorkAllocator sets an external allocator for the leopard encoder's
+// temporary work buffers. When provided, the encoder calls [WorkAllocator.Get]
+// and [WorkAllocator.Put] instead of using its internal sync.Pool.
+//
+// This has no effect on non-leopard encoders.
+func WithWorkAllocator(alloc WorkAllocator) Option {
+	return func(o *options) {
+		o.workAlloc = alloc
 	}
 }
 
