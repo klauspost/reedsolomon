@@ -37,7 +37,7 @@ type leopardFF16 struct {
 	parityShards int // Number of parity shards, should not be modified.
 	totalShards  int // Total number of shards. Calculated, and should not be modified.
 
-	workPool sync.Pool
+	workAlloc WorkAllocator
 
 	o options
 }
@@ -58,6 +58,7 @@ func newFF16(dataShards, parityShards int, opt options) (*leopardFF16, error) {
 		dataShards:   dataShards,
 		parityShards: parityShards,
 		totalShards:  dataShards + parityShards,
+		workAlloc:    opt.workAlloc,
 		o:            opt,
 	}
 	return r, nil
@@ -148,23 +149,8 @@ func (r *leopardFF16) encode(shards [][]byte) error {
 	}
 
 	m := ceilPow2(r.parityShards)
-	var work [][]byte
-	if w, ok := r.workPool.Get().([][]byte); ok {
-		work = w
-	}
-	if cap(work) >= m*2 {
-		work = work[:m*2]
-	} else {
-		work = AllocAligned(m*2, shardSize)
-	}
-	for i := range work {
-		if cap(work[i]) < shardSize {
-			work[i] = AllocAligned(1, shardSize)[0]
-		} else {
-			work[i] = work[i][:shardSize]
-		}
-	}
-	defer r.workPool.Put(work)
+	work := r.workAlloc.Get(m*2, shardSize)
+	defer r.workAlloc.Put(work)
 
 	mtrunc := min(r.dataShards, m)
 
@@ -472,23 +458,8 @@ func (r *leopardFF16) reconstruct(shards [][]byte, recoverAll bool) error {
 
 	fwht(&errLocs, order)
 
-	var work [][]byte
-	if w, ok := r.workPool.Get().([][]byte); ok {
-		work = w
-	}
-	if cap(work) >= n {
-		work = work[:n]
-	} else {
-		work = make([][]byte, n)
-	}
-	for i := range work {
-		if cap(work[i]) < shardSize {
-			work[i] = make([]byte, shardSize)
-		} else {
-			work[i] = work[i][:shardSize]
-		}
-	}
-	defer r.workPool.Put(work)
+	work := r.workAlloc.Get(n, shardSize)
+	defer r.workAlloc.Put(work)
 
 	// work <- recovery data
 

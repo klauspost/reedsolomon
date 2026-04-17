@@ -24,7 +24,7 @@ type leopardFF8 struct {
 	parityShards int // Number of parity shards, should not be modified.
 	totalShards  int // Total number of shards. Calculated, and should not be modified.
 
-	workPool    sync.Pool
+	workAlloc   WorkAllocator
 	inversion   map[[inversion8Bytes]byte]leopardGF8cache
 	inversionMu sync.Mutex
 
@@ -54,6 +54,7 @@ func newFF8(dataShards, parityShards int, opt options) (*leopardFF8, error) {
 		dataShards:   dataShards,
 		parityShards: parityShards,
 		totalShards:  dataShards + parityShards,
+		workAlloc:    opt.workAlloc,
 		o:            opt,
 	}
 	if opt.inversionCache && (r.totalShards <= 64 || opt.forcedInversionCache) {
@@ -142,28 +143,8 @@ func (r *leopardFF8) encode(shards [][]byte) error {
 	}
 
 	m := ceilPow2(r.parityShards)
-	var work [][]byte
-	if w, ok := r.workPool.Get().([][]byte); ok {
-		work = w
-	} else {
-		work = AllocAligned(m*2, workSize8)
-	}
-	if cap(work) >= m*2 {
-		work = work[:m*2]
-		for i := range work {
-			if i >= r.parityShards {
-				if cap(work[i]) < workSize8 {
-					work[i] = AllocAligned(1, workSize8)[0]
-				} else {
-					work[i] = work[i][:workSize8]
-				}
-			}
-		}
-	} else {
-		work = AllocAligned(m*2, workSize8)
-	}
-
-	defer r.workPool.Put(work)
+	work := r.workAlloc.Get(m*2, workSize8)
+	defer r.workAlloc.Put(work)
 
 	mtrunc := min(r.dataShards, m)
 
@@ -531,28 +512,8 @@ func (r *leopardFF8) reconstruct(shards [][]byte, recoverAll bool) error {
 		}
 	}
 
-	var work [][]byte
-	if w, ok := r.workPool.Get().([][]byte); ok {
-		work = w
-	}
-	if cap(work) >= n {
-		work = work[:n]
-		for i := range work {
-			if cap(work[i]) < workSize8 {
-				work[i] = make([]byte, workSize8)
-			} else {
-				work[i] = work[i][:workSize8]
-			}
-		}
-
-	} else {
-		work = make([][]byte, n)
-		all := make([]byte, n*workSize8)
-		for i := range work {
-			work[i] = all[i*workSize8 : i*workSize8+workSize8]
-		}
-	}
-	defer r.workPool.Put(work)
+	work := r.workAlloc.Get(n, workSize8)
+	defer r.workAlloc.Put(work)
 
 	// work <- recovery data
 
