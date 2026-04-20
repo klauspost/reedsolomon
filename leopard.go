@@ -147,16 +147,17 @@ func (r *leopardFF16) Encode(shards [][]byte) error {
 	return r.encode(shards)
 }
 
-// encodeChunkSize returns the chunk size for the given shard size and m.
-// It tries to keep the working set in L3 cache, capped at maxWorkSize16.
-func encodeChunkSize(shardSize, m int) int {
+// encodeChunkSize returns the chunk size for the given shard size and
+// number of work buffers. It tries to keep the working set in L3 cache,
+// capped at maxWorkSize16.
+func encodeChunkSize(shardSize, workBufs int) int {
 	l3 := cpuid.CPU.Cache.L3
 	if l3 <= 0 {
 		// Assume 16MB L3 if not detected.
 		l3 = 16 << 20
 	}
-	// Target: m*2 work buffers fit in ~2/3 of L3.
-	chunkSize := l3 * 2 / (m * 2 * 3)
+	// Target: workBufs * chunkSize fits in ~2/3 of L3.
+	chunkSize := l3 * 2 / (workBufs * 3)
 	chunkSize = min(chunkSize, maxWorkSize16)
 	chunkSize &^= 63 // 64-byte alignment
 	if chunkSize < 4<<10 {
@@ -174,7 +175,7 @@ func (r *leopardFF16) encode(shards [][]byte) error {
 	m := ceilPow2(r.parityShards)
 	mtrunc := min(r.dataShards, m)
 	lastCount := r.dataShards % m
-	chunkSize := encodeChunkSize(shardSize, m)
+	chunkSize := encodeChunkSize(shardSize, m*2)
 
 	work := r.workAlloc.Get(m*2, chunkSize)
 	defer r.workAlloc.Put(work)
@@ -529,7 +530,7 @@ func (r *leopardFF16) reconstruct(shards [][]byte, recoverAll bool) error {
 	}
 
 	if chunkSize >= shardSize {
-		r.reconstructChunk(sh, shards, work, m, n, errLocs, useBits, &errorBits, recoverAll)
+		r.reconstructChunk(sh, shards, work, m, n, &errLocs, useBits, &errorBits, recoverAll)
 		return nil
 	}
 
@@ -563,7 +564,7 @@ func (r *leopardFF16) reconstruct(shards [][]byte, recoverAll bool) error {
 			}
 		}
 
-		r.reconstructChunk(shChunk, outChunk, work, m, n, errLocs, useBits, &errorBits, recoverAll)
+		r.reconstructChunk(shChunk, outChunk, work, m, n, &errLocs, useBits, &errorBits, recoverAll)
 	}
 	return nil
 }
@@ -571,7 +572,7 @@ func (r *leopardFF16) reconstruct(shards [][]byte, recoverAll bool) error {
 // reconstructChunk processes one chunk of the reconstruct pipeline.
 // sh has nil entries for missing shards (used for presence checks).
 // out has allocated entries for all shards (used for writing output).
-func (r *leopardFF16) reconstructChunk(sh, out [][]byte, work [][]byte, m, n int, errLocs [order]ffe, useBits bool, errorBits *errorBitfield, recoverAll bool) {
+func (r *leopardFF16) reconstructChunk(sh, out [][]byte, work [][]byte, m, n int, errLocs *[order]ffe, useBits bool, errorBits *errorBitfield, recoverAll bool) {
 	const LEO_ERROR_BITFIELD_OPT = true
 	outputCount := m + r.dataShards
 
