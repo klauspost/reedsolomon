@@ -489,7 +489,7 @@ func (r *leopardFF16) reconstruct(shards [][]byte, recoverAll bool) error {
 	}
 
 	if LEO_ERROR_BITFIELD_OPT && useBits {
-		errorBits.prepare()
+		errorBits.prepare(n)
 	}
 
 	// Evaluate error locator polynomial
@@ -1301,6 +1301,10 @@ type errorBitfield struct {
 	Words        [kWordMips][kWords]uint64
 	BigWords     [kBigMips][kBigWords]uint64
 	BiggestWords [kBiggestMips]uint64
+	// neededFns holds pre-computed needed-check functions indexed sequentially
+	// for each FFT layer, allocated once in prepare to avoid per-call closure allocs.
+	// Max 9 entries: mipLevel 16 down to 0 by 2.
+	neededFns [9]func(int) bool
 }
 
 func (e *errorBitfield) set(i int) {
@@ -1359,8 +1363,7 @@ var kHiMasks = [5]uint64{
 	0xFFFF0000FFFF0000,
 }
 
-func (e *errorBitfield) prepare() {
-	// First mip level is for final layer of FFT: pairs of data
+func (e *errorBitfield) prepare(m int) {
 	for i := range kWords {
 		w_i := e.Words[0][i]
 		hi2lo0 := w_i | ((w_i & kHiMasks[0]) >> 1)
@@ -1388,13 +1391,13 @@ func (e *errorBitfield) prepare() {
 		}
 		e.BigWords[0][i] = w_i
 
-		bits := 1
+		shift := 1
 		for j := 1; j < kBigMips; j++ {
-			hi2lo_j := w_i | ((w_i & kHiMasks[j-1]) >> bits)
-			lo2hi_j := (w_i & (kHiMasks[j-1] >> bits)) << bits
+			hi2lo_j := w_i | ((w_i & kHiMasks[j-1]) >> shift)
+			lo2hi_j := (w_i & (kHiMasks[j-1] >> shift)) << shift
 			w_i = hi2lo_j | lo2hi_j
 			e.BigWords[j][i] = w_i
-			bits <<= 1
+			shift <<= 1
 		}
 	}
 
@@ -1406,24 +1409,33 @@ func (e *errorBitfield) prepare() {
 	}
 	e.BiggestWords[0] = w_i
 
-	bits := uint64(1)
+	shift := uint64(1)
 	for j := 1; j < kBiggestMips; j++ {
-		hi2lo_j := w_i | ((w_i & kHiMasks[j-1]) >> bits)
-		lo2hi_j := (w_i & (kHiMasks[j-1] >> bits)) << bits
+		hi2lo_j := w_i | ((w_i & kHiMasks[j-1]) >> shift)
+		lo2hi_j := (w_i & (kHiMasks[j-1] >> shift)) << shift
 		w_i = hi2lo_j | lo2hi_j
 		e.BiggestWords[j] = w_i
-		bits <<= 1
+		shift <<= 1
+	}
+
+	// Pre-compute needed-check functions for used mip levels.
+	// fftDIT starts at bits.Len32(n)-1 and decrements by 2.
+	// We store them sequentially from index 0.
+	startLevel := bits.Len32(uint32(m)) - 1
+	for i, ml := 0, startLevel; ml >= 0; i, ml = i+1, ml-2 {
+		e.neededFns[i] = e.isNeededFn(ml)
 	}
 }
 
 func (e *errorBitfield) fftDIT(work [][]byte, mtrunc, m int, skewLUT []ffe, o *options) {
 	// Decimation in time: Unroll 2 layers at a time
-	mipLevel := bits.Len32(uint32(m)) - 1
+	fnIdx := 0
 
 	dist4 := m
 	dist := m >> 2
-	needed := e.isNeededFn(mipLevel)
 	for dist != 0 {
+		needed := e.neededFns[fnIdx]
+		fnIdx++
 		// For each set of dist*4 elements:
 		for r := 0; r < mtrunc; r += dist4 {
 			if !needed(r) {
@@ -1447,12 +1459,11 @@ func (e *errorBitfield) fftDIT(work [][]byte, mtrunc, m int, skewLUT []ffe, o *o
 		}
 		dist4 = dist
 		dist >>= 2
-		mipLevel -= 2
-		needed = e.isNeededFn(mipLevel)
 	}
 
 	// If there is one layer left:
 	if dist4 == 2 {
+		needed := e.neededFns[fnIdx]
 		for r := 0; r < mtrunc; r += 2 {
 			if !needed(r) {
 				continue
