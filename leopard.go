@@ -142,6 +142,25 @@ func (r *leopardFF16) Encode(shards [][]byte) error {
 	return r.encode(shards)
 }
 
+// encodeChunkSize returns the chunk size for the given shard size and m.
+// It tries to keep the working set in L3 cache.
+func encodeChunkSize(shardSize, m int) int {
+	l3 := cpuid.CPU.Cache.L3
+	if l3 <= 0 {
+		l3 = 16 << 20
+	}
+	// Target: m*2 work buffers fit in ~2/3 of L3.
+	chunkSize := l3 * 2 / (m * 2 * 3)
+	chunkSize &^= 63 // 64-byte alignment
+	if chunkSize < 4<<10 {
+		return shardSize
+	}
+	if chunkSize >= shardSize {
+		return shardSize
+	}
+	return chunkSize
+}
+
 func (r *leopardFF16) encode(shards [][]byte) error {
 	shardSize := shardSize(shards)
 	if shardSize%64 != 0 {
@@ -149,80 +168,118 @@ func (r *leopardFF16) encode(shards [][]byte) error {
 	}
 
 	m := ceilPow2(r.parityShards)
-	work := r.workAlloc.Get(m*2, shardSize)
-	defer r.workAlloc.Put(work)
-
 	mtrunc := min(r.dataShards, m)
+	lastCount := r.dataShards % m
+
+	chunkSize := encodeChunkSize(shardSize, m)
+
+	work := r.workAlloc.Get(m*2, chunkSize)
+	defer r.workAlloc.Put(work)
 
 	skewLUT := fftSkew[m-1:]
 
-	sh := shards
+	if chunkSize >= shardSize {
+		// No chunking — zero-overhead path.
+		r.encodeChunk(shards[:r.dataShards], shards, mtrunc, lastCount, m, work, skewLUT)
+
+		for i, w := range work[:r.parityShards] {
+			sh := shards[i+r.dataShards]
+			if cap(sh) >= shardSize {
+				sh = append(sh[:0], w...)
+			} else {
+				sh = w
+			}
+			shards[i+r.dataShards] = sh
+		}
+		return nil
+	}
+
+	// Process in cache-friendly chunks.
+	// wMod is a copy of the work slice headers we can safely modify.
+	// The original work retains allocator-owned pointers for Put.
+	sh := make([][]byte, len(shards))
+	wMod := make([][]byte, len(work))
+	copy(wMod, work)
+	for off := 0; off < shardSize; off += chunkSize {
+		work := wMod
+		sh := sh
+		end := off + chunkSize
+		if end > shardSize {
+			end = shardSize
+			sz := end - off
+			for i := range work {
+				work[i] = work[i][:sz]
+			}
+		}
+		for i := range shards {
+			sh[i] = shards[i][off:end]
+		}
+
+		// Write parity directly into output slices.
+		res := shards[r.dataShards:r.totalShards]
+		for i := range res {
+			work[i] = res[i][off:end]
+		}
+
+		r.encodeChunk(sh[:r.dataShards], sh, mtrunc, lastCount, m, work, skewLUT)
+	}
+	return nil
+}
+
+func (r *leopardFF16) encodeChunk(data [][]byte, sh [][]byte, mtrunc, lastCount, m int, work [][]byte, skewLUT []ffe) {
 	ifftDITEncoder(
-		sh[:r.dataShards],
+		data,
 		mtrunc,
 		work,
-		nil, // No xor output
+		nil,
 		m,
 		skewLUT,
 		&r.o,
 	)
 
-	lastCount := r.dataShards % m
 	if m >= r.dataShards {
 		goto skip_body
 	}
 
-	// For sets of m data pieces:
-	for i := m; i+m <= r.dataShards; i += m {
-		sh = sh[m:]
-		skewLUT = skewLUT[m:]
+	{
+		sh := sh
+		skewLUT := skewLUT
+		// For sets of m data pieces:
+		for i := m; i+m <= r.dataShards; i += m {
+			sh = sh[m:]
+			skewLUT = skewLUT[m:]
 
-		// work <- work xor IFFT(data + i, m, m + i)
+			// work <- work xor IFFT(data + i, m, m + i)
+			ifftDITEncoder(
+				sh,
+				m,
+				work[m:],
+				work,
+				m,
+				skewLUT,
+				&r.o,
+			)
+		}
 
-		ifftDITEncoder(
-			sh, // data source
-			m,
-			work[m:], // temporary workspace
-			work,     // xor destination
-			m,
-			skewLUT,
-			&r.o,
-		)
-	}
+		// Handle final partial set of m pieces:
+		if lastCount != 0 {
+			sh = sh[m:]
+			skewLUT = skewLUT[m:]
 
-	// Handle final partial set of m pieces:
-	if lastCount != 0 {
-		sh = sh[m:]
-		skewLUT = skewLUT[m:]
-
-		// work <- work xor IFFT(data + i, m, m + i)
-
-		ifftDITEncoder(
-			sh, // data source
-			lastCount,
-			work[m:], // temporary workspace
-			work,     // xor destination
-			m,
-			skewLUT,
-			&r.o,
-		)
+			ifftDITEncoder(
+				sh,
+				lastCount,
+				work[m:],
+				work,
+				m,
+				skewLUT,
+				&r.o,
+			)
+		}
 	}
 
 skip_body:
-	// work <- FFT(work, m, 0)
 	fftDIT(work, r.parityShards, m, fftSkew[:], &r.o)
-
-	for i, w := range work[:r.parityShards] {
-		sh := shards[i+r.dataShards]
-		if cap(sh) >= shardSize {
-			sh = append(sh[:0], w...)
-		} else {
-			sh = w
-		}
-		shards[i+r.dataShards] = sh
-	}
-
-	return nil
 }
 
 func (r *leopardFF16) EncodeIdx(dataShard []byte, idx int, parity [][]byte) error {
