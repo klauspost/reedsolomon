@@ -20,7 +20,8 @@ import (
 	"github.com/klauspost/cpuid/v2"
 )
 
-const maxZeroBufferSize16 = 1 << 20 // 1MB
+const maxWorkSize16 = 64 << 10 // Cap for GF16 chunk size.
+const maxZeroBufferSize16 = maxWorkSize16
 
 var zeroBufferPool16Once sync.Once
 var zeroBufferPool16Buf *[maxZeroBufferSize16]byte
@@ -38,6 +39,10 @@ type leopardFF16 struct {
 	totalShards  int // Total number of shards. Calculated, and should not be modified.
 
 	workAlloc WorkAllocator
+
+	// Pools for slice header arrays, avoiding per-call allocations.
+	shardSlicePool sync.Pool // [][]byte of len totalShards
+	workSlicePool  sync.Pool // [][]byte — sized at first use
 
 	o options
 }
@@ -143,22 +148,21 @@ func (r *leopardFF16) Encode(shards [][]byte) error {
 }
 
 // encodeChunkSize returns the chunk size for the given shard size and m.
-// It tries to keep the working set in L3 cache.
+// It tries to keep the working set in L3 cache, capped at maxWorkSize16.
 func encodeChunkSize(shardSize, m int) int {
 	l3 := cpuid.CPU.Cache.L3
 	if l3 <= 0 {
+		// Assume 16MB L3 if not detected.
 		l3 = 16 << 20
 	}
 	// Target: m*2 work buffers fit in ~2/3 of L3.
 	chunkSize := l3 * 2 / (m * 2 * 3)
+	chunkSize = min(chunkSize, maxWorkSize16)
 	chunkSize &^= 63 // 64-byte alignment
 	if chunkSize < 4<<10 {
-		return shardSize
+		chunkSize = 4 << 10
 	}
-	if chunkSize >= shardSize {
-		return shardSize
-	}
-	return chunkSize
+	return min(chunkSize, shardSize)
 }
 
 func (r *leopardFF16) encode(shards [][]byte) error {
@@ -170,7 +174,6 @@ func (r *leopardFF16) encode(shards [][]byte) error {
 	m := ceilPow2(r.parityShards)
 	mtrunc := min(r.dataShards, m)
 	lastCount := r.dataShards % m
-
 	chunkSize := encodeChunkSize(shardSize, m)
 
 	work := r.workAlloc.Get(m*2, chunkSize)
@@ -178,27 +181,10 @@ func (r *leopardFF16) encode(shards [][]byte) error {
 
 	skewLUT := fftSkew[m-1:]
 
-	if chunkSize >= shardSize {
-		// No chunking — zero-overhead path.
-		r.encodeChunk(shards[:r.dataShards], shards, mtrunc, lastCount, m, work, skewLUT)
-
-		for i, w := range work[:r.parityShards] {
-			sh := shards[i+r.dataShards]
-			if cap(sh) >= shardSize {
-				sh = append(sh[:0], w...)
-			} else {
-				sh = w
-			}
-			shards[i+r.dataShards] = sh
-		}
-		return nil
-	}
-
-	// Process in cache-friendly chunks.
-	// wMod is a copy of the work slice headers we can safely modify.
-	// The original work retains allocator-owned pointers for Put.
-	sh := make([][]byte, len(shards))
-	wMod := make([][]byte, len(work))
+	sh := r.getShardSlice()
+	defer r.putShardSlice(sh)
+	wMod := r.getWorkSlice(len(work))
+	defer r.putWorkSlice(wMod)
 	copy(wMod, work)
 	for off := 0; off < shardSize; off += chunkSize {
 		work := wMod
@@ -515,68 +501,18 @@ func (r *leopardFF16) reconstruct(shards [][]byte, recoverAll bool) error {
 
 	fwht(&errLocs, order)
 
-	work := r.workAlloc.Get(n, shardSize)
+	chunkSize := encodeChunkSize(shardSize, n)
+
+	work := r.workAlloc.Get(n, chunkSize)
 	defer r.workAlloc.Put(work)
 
-	// work <- recovery data
+	// sh preserves the original nil entries so reconstructChunk can
+	// distinguish present vs missing shards after pre-allocation.
+	sh := r.getShardSlice()
+	defer r.putShardSlice(sh)
+	copy(sh, shards)
 
-	for i := 0; i < r.parityShards; i++ {
-		if len(shards[i+r.dataShards]) != 0 {
-			mulgf16(work[i], shards[i+r.dataShards], errLocs[i], &r.o)
-		} else {
-			clear(work[i])
-		}
-	}
-	for i := r.parityShards; i < m; i++ {
-		clear(work[i])
-	}
-
-	// work <- original data
-
-	for i := 0; i < r.dataShards; i++ {
-		if len(shards[i]) != 0 {
-			mulgf16(work[m+i], shards[i], errLocs[m+i], &r.o)
-		} else {
-			clear(work[m+i])
-		}
-	}
-	for i := m + r.dataShards; i < n; i++ {
-		clear(work[i])
-	}
-
-	// work <- IFFT(work, n, 0)
-
-	ifftDITDecoder(
-		m+r.dataShards,
-		work,
-		n,
-		fftSkew[:],
-		&r.o,
-	)
-
-	// work <- FormalDerivative(work, n)
-
-	for i := 1; i < n; i++ {
-		width := ((i ^ (i - 1)) + 1) >> 1
-		slicesXor(work[i-width:i], work[i:i+width], &r.o)
-	}
-
-	// work <- FFT(work, n, 0) truncated to m + dataShards
-
-	outputCount := m + r.dataShards
-
-	if LEO_ERROR_BITFIELD_OPT && useBits {
-		errorBits.fftDIT(work, outputCount, n, fftSkew[:], &r.o)
-	} else {
-		fftDIT(work, outputCount, n, fftSkew[:], &r.o)
-	}
-
-	// Reveal erasures
-	//
-	//  Original = -ErrLocator * FFT( Derivative( IFFT( ErrLocator * ReceivedData ) ) )
-	//  mul_mem(x, y, log_m, ) equals x[] = y[] * log_m
-	//
-	// mem layout: [Recovery Data (Power of Two = M)] [Original Data (K)] [Zero Padding out to N]
+	// Pre-allocate missing output shards.
 	end := r.dataShards
 	if recoverAll {
 		end = r.totalShards
@@ -590,15 +526,116 @@ func (r *leopardFF16) reconstruct(shards [][]byte, recoverAll bool) error {
 		} else {
 			shards[i] = make([]byte, shardSize)
 		}
-		if i >= r.dataShards {
-			// Parity shard.
-			mulgf16(shards[i], work[i-r.dataShards], modulus-errLocs[i-r.dataShards], &r.o)
-		} else {
-			// Data shard.
-			mulgf16(shards[i], work[i+m], modulus-errLocs[i+m], &r.o)
+	}
+
+	if chunkSize >= shardSize {
+		r.reconstructChunk(sh, shards, work, m, n, errLocs, useBits, &errorBits, recoverAll)
+		return nil
+	}
+
+	// Process in cache-friendly chunks.
+	wMod := r.getWorkSlice(len(work))
+	defer r.putWorkSlice(wMod)
+	copy(wMod, work)
+	shChunk := r.getShardSlice()
+	defer r.putShardSlice(shChunk)
+	copy(shChunk, sh)
+	outChunk := r.getShardSlice()
+	defer r.putShardSlice(outChunk)
+	for off := 0; off < shardSize; off += chunkSize {
+		work := wMod
+		shChunk := shChunk
+		outChunk := outChunk
+		endSlice := off + chunkSize
+		if endSlice > shardSize {
+			endSlice = shardSize
+			sz := endSlice - off
+			for i := range work {
+				work[i] = work[i][:sz]
+			}
 		}
+		for i := range shards {
+			if len(sh[i]) != 0 {
+				shChunk[i] = shards[i][off:endSlice]
+			}
+			if len(shards[i]) != 0 {
+				outChunk[i] = shards[i][off:endSlice]
+			}
+		}
+
+		r.reconstructChunk(shChunk, outChunk, work, m, n, errLocs, useBits, &errorBits, recoverAll)
 	}
 	return nil
+}
+
+// reconstructChunk processes one chunk of the reconstruct pipeline.
+// sh has nil entries for missing shards (used for presence checks).
+// out has allocated entries for all shards (used for writing output).
+func (r *leopardFF16) reconstructChunk(sh, out [][]byte, work [][]byte, m, n int, errLocs [order]ffe, useBits bool, errorBits *errorBitfield, recoverAll bool) {
+	const LEO_ERROR_BITFIELD_OPT = true
+	outputCount := m + r.dataShards
+
+	// work <- recovery data
+	for i := 0; i < r.parityShards; i++ {
+		if len(sh[i+r.dataShards]) != 0 {
+			mulgf16(work[i], sh[i+r.dataShards], errLocs[i], &r.o)
+		} else {
+			clear(work[i])
+		}
+	}
+	for i := r.parityShards; i < m; i++ {
+		clear(work[i])
+	}
+
+	// work <- original data
+	for i := 0; i < r.dataShards; i++ {
+		if len(sh[i]) != 0 {
+			mulgf16(work[m+i], sh[i], errLocs[m+i], &r.o)
+		} else {
+			clear(work[m+i])
+		}
+	}
+	for i := m + r.dataShards; i < n; i++ {
+		clear(work[i])
+	}
+
+	// work <- IFFT(work, n, 0)
+	ifftDITDecoder(
+		m+r.dataShards,
+		work,
+		n,
+		fftSkew[:],
+		&r.o,
+	)
+
+	// work <- FormalDerivative(work, n)
+	for i := 1; i < n; i++ {
+		width := ((i ^ (i - 1)) + 1) >> 1
+		slicesXor(work[i-width:i], work[i:i+width], &r.o)
+	}
+
+	// work <- FFT(work, n, 0) truncated to m + dataShards
+	if LEO_ERROR_BITFIELD_OPT && useBits {
+		errorBits.fftDIT(work, outputCount, n, fftSkew[:], &r.o)
+	} else {
+		fftDIT(work, outputCount, n, fftSkew[:], &r.o)
+	}
+
+	// Reveal erasures
+	end := r.dataShards
+	if recoverAll {
+		end = r.totalShards
+	}
+	for i := 0; i < end; i++ {
+		if len(sh[i]) != 0 {
+			continue
+		}
+		if i >= r.dataShards {
+			mulgf16(out[i], work[i-r.dataShards], modulus-errLocs[i-r.dataShards], &r.o)
+		} else {
+			mulgf16(out[i], work[i+m], modulus-errLocs[i+m], &r.o)
+		}
+	}
 }
 
 // Basic no-frills version for decoder
@@ -1226,6 +1263,28 @@ func initMul16LUT() {
 			gf2p811dMulMatrices16[logM] = [4]uint64{A, B, C, D}
 		}
 	}
+}
+
+func (r *leopardFF16) getShardSlice() [][]byte {
+	if s, ok := r.shardSlicePool.Get().([][]byte); ok {
+		return s[:r.totalShards]
+	}
+	return make([][]byte, r.totalShards)
+}
+
+func (r *leopardFF16) putShardSlice(s [][]byte) {
+	r.shardSlicePool.Put(s)
+}
+
+func (r *leopardFF16) getWorkSlice(n int) [][]byte {
+	if s, ok := r.workSlicePool.Get().([][]byte); ok && cap(s) >= n {
+		return s[:n]
+	}
+	return make([][]byte, n)
+}
+
+func (r *leopardFF16) putWorkSlice(s [][]byte) {
+	r.workSlicePool.Put(s)
 }
 
 const kWordMips = 5
