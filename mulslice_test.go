@@ -53,27 +53,59 @@ func TestGF16MulSliceXor8(t *testing.T) {
 // TestGF16MulSliceXor8PanicsOnLengthMismatch checks that the precondition
 // (every outs[k] has len(in)) is enforced at the entry of the function, so
 // callers that violate it get a clear panic instead of memory corruption in
-// the asm kernel.
+// the asm kernel.  It also verifies that no output buffer is mutated before
+// the panic (the validation must happen before any work).
 func TestGF16MulSliceXor8PanicsOnLengthMismatch(t *testing.T) {
 	var ll LowLevel
 	initConstants()
 
 	sz := 64
 	in := make([]byte, sz)
+	for i := range in {
+		in[i] = 0xAA
+	}
 	scalars := [8]uint16{1, 2, 3, 4, 5, 6, 7, 8}
 
 	var outs [8][]byte
 	for k := 0; k < 8; k++ {
 		outs[k] = make([]byte, sz)
+		for i := range outs[k] {
+			outs[k][i] = byte(k + 1)
+		}
 	}
 	outs[3] = outs[3][:sz-1] // wrong length
 
-	defer func() {
-		if r := recover(); r == nil {
-			t.Fatal("expected panic on mismatched outs length, got nil")
-		}
+	// Snapshot every buffer except the shortened one.
+	var snap [8][]byte
+	for k := 0; k < 8; k++ {
+		snap[k] = make([]byte, len(outs[k]))
+		copy(snap[k], outs[k])
+	}
+
+	panicked := false
+	func() {
+		defer func() {
+			if r := recover(); r != nil {
+				panicked = true
+			}
+		}()
+		ll.GF16MulSliceXor8(&scalars, in, &outs)
 	}()
-	ll.GF16MulSliceXor8(&scalars, in, &outs)
+
+	if !panicked {
+		t.Fatal("expected panic on mismatched outs length, got nil")
+	}
+
+	for k := 0; k < 8; k++ {
+		if len(outs[k]) != len(snap[k]) {
+			continue // outs[3] was shortened intentionally
+		}
+		for i := range outs[k] {
+			if outs[k][i] != snap[k][i] {
+				t.Fatalf("outs[%d][%d] mutated: got=%02x want=%02x", k, i, outs[k][i], snap[k][i])
+			}
+		}
+	}
 }
 
 // TestMulgf16Xor exercises both internal paths of the mulgf16Xor kernel
@@ -94,7 +126,7 @@ func TestMulgf16Xor(t *testing.T) {
 			if tc.useAVX2 && !defaultOptions.useAVX2 {
 				t.Skip("host does not support AVX2")
 			}
-			opts := defaultOptions
+			var opts options
 			opts.useAVX2 = tc.useAVX2
 
 			r := rand.New(rand.NewPCG(9, 11))

@@ -47,10 +47,10 @@ func Inv(e byte) byte {
 //
 //	out_k[i] ^= scalars[k] * in[i]   for k in [0, 8)
 //
-// All 8 destination slices must share length with in, a non-zero multiple
-// of 64 bytes (Leopard's chunk size: 32 low bytes + 32 high bytes per chunk).
-// A zero scalar contributes nothing and is treated normally; callers do not
-// need to filter them.
+// All 8 destination slices must share length with in, which must be a
+// multiple of 64 bytes (Leopard's chunk size: 32 low bytes + 32 high bytes
+// per chunk). A zero-length input is valid and returns immediately.
+// A zero scalar contributes nothing; callers do not need to filter them.
 func (l LowLevel) GF16MulSliceXor8(scalars *[8]uint16, in []byte, outs *[8][]byte) {
 	if len(in) == 0 {
 		return
@@ -72,8 +72,9 @@ func (l LowLevel) GF16MulSliceXor8(scalars *[8]uint16, in []byte, outs *[8][]byt
 //
 //	out[i] ^= scalar * in[i]
 //
-// Both slices must have equal length, a non-zero multiple of 64 bytes
+// Both slices must have equal length, which must be a multiple of 64 bytes
 // (Leopard's chunk size: 32 low bytes + 32 high bytes per chunk).
+// A zero-length input is valid and returns immediately.
 // A zero scalar is a no-op.
 func (l LowLevel) GF16MulSliceXor(scalar uint16, in []byte, out []byte) {
 	if len(in) == 0 {
