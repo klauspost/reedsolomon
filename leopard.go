@@ -1273,7 +1273,7 @@ func (r *leopardFF16) getShardSlice() [][]byte {
 }
 
 func (r *leopardFF16) putShardSlice(s [][]byte) {
-	clear(s)
+	clear(s[:cap(s)])
 	r.shardSlicePool.Put(s)
 }
 
@@ -1285,7 +1285,7 @@ func (r *leopardFF16) getWorkSlice(n int) [][]byte {
 }
 
 func (r *leopardFF16) putWorkSlice(s [][]byte) {
-	clear(s)
+	clear(s[:cap(s)])
 	r.workSlicePool.Put(s)
 }
 
