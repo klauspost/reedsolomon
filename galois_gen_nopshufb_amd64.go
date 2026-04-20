@@ -2369,6 +2369,15 @@ func fftDIT2_gfni(x []byte, y []byte, table *[4]uint64)
 func mulgf16_gfni(x []byte, y []byte, table *[4]uint64)
 
 //go:noescape
+func mulgf16Xor_gfni(x []byte, y []byte, table *[4]uint64)
+
+//go:noescape
+func mulgf16Xor8_gfni(in []byte, outs *[8][]byte, tables *[8][4]uint64)
+
+//go:noescape
+func mulgf16Xor8_avx512gfni(in []byte, outs *[8][]byte, tables *[8][4]uint64)
+
+//go:noescape
 func ifftDIT48_gfni_0(work [][]byte, dist int, t01 uint64, t23 uint64, t02 uint64)
 
 //go:noescape

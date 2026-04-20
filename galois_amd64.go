@@ -1048,6 +1048,91 @@ func mulgf16(x, y []byte, log_m ffe, o *options) {
 	}
 }
 
+func mulgf16Xor8(scalars *[8]uint16, in []byte, outs *[8][]byte, o *options) {
+	if len(in) == 0 {
+		return
+	}
+	if o.useAvx512GFNI && gf2p811dMulMatrices16 != nil {
+		var tables [8][4]uint64
+		for k, c := range scalars {
+			if c != 0 {
+				tables[k] = gf2p811dMulMatrices16[logLUT[ffe(c)]]
+			}
+		}
+		if raceEnabled {
+			raceReadSlice(in)
+			for k := range outs {
+				raceWriteSlice(outs[k])
+			}
+		}
+		mulgf16Xor8_avx512gfni(in, outs, &tables)
+		return
+	}
+	if o.useAvxGNFI && gf2p811dMulMatrices16 != nil {
+		var tables [8][4]uint64
+		for k, c := range scalars {
+			if c != 0 {
+				tables[k] = gf2p811dMulMatrices16[logLUT[ffe(c)]]
+			}
+		}
+		if raceEnabled {
+			raceReadSlice(in)
+			for k := range outs {
+				raceWriteSlice(outs[k])
+			}
+		}
+		mulgf16Xor8_gfni(in, outs, &tables)
+		return
+	}
+	if o.useAVX2 {
+		var tables [8][8 * 16]byte
+		for k, c := range scalars {
+			if c != 0 {
+				tables[k] = multiply256LUT[logLUT[ffe(c)]]
+			}
+		}
+		if raceEnabled {
+			raceReadSlice(in)
+			for k := range outs {
+				raceWriteSlice(outs[k])
+			}
+		}
+		mulgf16Xor8_avx2(in, outs, &tables)
+		return
+	}
+	refMulAdd8x(scalars, in, outs)
+}
+
+func mulgf16Xor(x, y []byte, log_m ffe, o *options) {
+	if len(x) == 0 {
+		return
+	}
+	if o.useAvxGNFI && gf2p811dMulMatrices16 != nil {
+		tmp := &gf2p811dMulMatrices16[log_m]
+		if raceEnabled {
+			raceReadSlice(y)
+			raceWriteSlice(x)
+		}
+		mulgf16Xor_gfni(x, y, tmp)
+	} else if o.useAVX2 {
+		tmp := &multiply256LUT[log_m]
+		if raceEnabled {
+			raceReadSlice(y)
+			raceWriteSlice(x)
+		}
+		mulgf16Xor_avx2(x, y, tmp)
+	} else if o.useSSSE3 {
+		tmp := &multiply256LUT[log_m]
+		if raceEnabled {
+			raceReadSlice(y)
+			raceWriteSlice(x)
+		}
+		mulgf16Xor_ssse3(x, y, tmp)
+	} else {
+		refMulAdd(x, y, log_m)
+	}
+}
+
 func mulgf8(out, in []byte, log_m ffe8, o *options) {
 	if o.useAVX2 {
 		t := &multiply256LUT8[log_m]

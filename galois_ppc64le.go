@@ -119,6 +119,14 @@ func mulgf16(x, y []byte, log_m ffe, o *options) {
 	refMul(x, y, log_m)
 }
 
+func mulgf16Xor8(scalars *[8]uint16, in []byte, outs *[8][]byte, o *options) {
+	refMulAdd8x(scalars, in, outs)
+}
+
+func mulgf16Xor(x, y []byte, log_m ffe, o *options) {
+	refMulAdd(x, y, log_m)
+}
+
 func mulAdd8(out, in []byte, log_m ffe8, o *options) {
 	t := &multiply256LUT8[log_m]
 	galMulPpcXor(t[:16], t[16:32], in, out)
