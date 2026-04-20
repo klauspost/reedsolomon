@@ -212,6 +212,47 @@ func genGF16() {
 		VZEROUPPER()
 		RET()
 	}
+
+	if pshufb {
+		TEXT("mulgf16Xor_avx2", attr.NOSPLIT, fmt.Sprintf("func(x, y []byte, table  *[8*16]uint8)"))
+		Pragma("noescape")
+		tablePtr := Load(Param("table"), GP64())
+		tables := [4]table256{}
+		for i, t := range tables {
+			t.Lo, t.Hi = YMM(), YMM()
+			VBROADCASTI128(Mem{Base: tablePtr, Disp: i * 16}, t.Lo)
+			VBROADCASTI128(Mem{Base: tablePtr, Disp: i*16 + 16*4}, t.Hi)
+			tables[i] = t
+		}
+		bytes := Load(Param("x").Len(), GP64())
+		x := Load(Param("x").Base(), GP64())
+		y := Load(Param("y").Base(), GP64())
+		ctx.clrMask = YMM()
+		tmpMask := GP64()
+		MOVQ(U32(15), tmpMask)
+		MOVQ(tmpMask, ctx.clrMask.AsX())
+		VPBROADCASTB(ctx.clrMask.AsX(), ctx.clrMask)
+
+		xLo, xHi, dataLo, dataHi := YMM(), YMM(), YMM(), YMM()
+		Label("loop")
+		VMOVDQU(Mem{Base: x, Disp: 0}, xLo)
+		VMOVDQU(Mem{Base: x, Disp: 32}, xHi)
+		VMOVDQU(Mem{Base: y, Disp: 0}, dataLo)
+		VMOVDQU(Mem{Base: y, Disp: 32}, dataHi)
+
+		leoMulAdd256(ctx, xLo, xHi, dataLo, dataHi, tables)
+		VMOVDQU(xLo, Mem{Base: x, Disp: 0})
+		VMOVDQU(xHi, Mem{Base: x, Disp: 32})
+
+		ADDQ(U8(64), x)
+		ADDQ(U8(64), y)
+		SUBQ(U8(64), bytes)
+		JNZ(LabelRef("loop"))
+
+		VZEROUPPER()
+		RET()
+	}
+
 	for _, withDst := range []bool{false, true} {
 		dstString := ""
 		dstSuf := ""
@@ -1024,6 +1065,56 @@ func genGF16() {
 		RET()
 	}
 
+	if pshufb {
+		TEXT("mulgf16Xor_ssse3", attr.NOSPLIT, fmt.Sprintf("func(x, y []byte, table  *[8*16]uint8)"))
+		Pragma("noescape")
+		tablePtr := Load(Param("table"), GP64())
+		tables := [4]table128{}
+		for i, t := range tables {
+			// Keep tables 2-3 in memory to reduce register pressure
+			// (xLo/xHi need live regs alongside leoMulAdd128 temps).
+			if i >= 2 {
+				t.Lo, t.Hi = Mem{Base: tablePtr, Disp: i * 16}, Mem{Base: tablePtr, Disp: i*16 + 16*4}
+			} else {
+				t.Lo, t.Hi = XMM(), XMM()
+				MOVUPS(Mem{Base: tablePtr, Disp: i * 16}, t.Lo)
+				MOVUPS(Mem{Base: tablePtr, Disp: i*16 + 16*4}, t.Hi)
+			}
+			tables[i] = t
+		}
+		bytes := Load(Param("x").Len(), GP64())
+		x := Load(Param("x").Base(), GP64())
+		y := Load(Param("y").Base(), GP64())
+		zero := XMM()
+		XORPS(zero, zero)
+		fifteen, mask := GP64(), XMM()
+		MOVQ(U32(0xf), fifteen)
+		MOVQ(fifteen, mask)
+		PSHUFB(zero, mask)
+		ctx.clrMask128 = mask
+
+		Label("loop")
+		for i := 0; i < 2; i++ {
+			xLo, xHi := XMM(), XMM()
+			MOVUPS(Mem{Base: x, Disp: i*16 + 0}, xLo)
+			MOVUPS(Mem{Base: x, Disp: i*16 + 32}, xHi)
+			dataLo, dataHi := XMM(), XMM()
+			MOVUPS(Mem{Base: y, Disp: i*16 + 0}, dataLo)
+			MOVUPS(Mem{Base: y, Disp: i*16 + 32}, dataHi)
+
+			leoMulAdd128(ctx, xLo, xHi, dataLo, dataHi, tables)
+			MOVUPS(xLo, Mem{Base: x, Disp: i*16 + 0})
+			MOVUPS(xHi, Mem{Base: x, Disp: i*16 + 32})
+		}
+
+		ADDQ(U8(64), x)
+		ADDQ(U8(64), y)
+		SUBQ(U8(64), bytes)
+		JNZ(LabelRef("loop"))
+
+		RET()
+	}
+
 	// GFNI version of ifftDIT2
 	// Data layout is SPLIT: x[0:32] = lo bytes, x[32:64] = hi bytes of 32 elements
 	{
@@ -1158,6 +1249,275 @@ func genGF16() {
 		ADDQ(U8(64), y)
 		SUBQ(U8(64), bytes)
 		JNZ(LabelRef("loop_mulgf16_gfni"))
+
+		VZEROUPPER()
+		RET()
+	}
+
+	// mulgf16Xor_gfni: x[] ^= y[] * table (GFNI mul-add)
+	{
+		TEXT("mulgf16Xor_gfni", attr.NOSPLIT, fmt.Sprintf("func(x, y []byte, table *[4]uint64)"))
+		Pragma("noescape")
+
+		tablePtr := Load(Param("table"), GP64())
+		var tables [4]reg.VecVirtual
+		for i := range tables {
+			tables[i] = YMM()
+			VBROADCASTSD(Mem{Base: tablePtr, Disp: i * 8}, tables[i])
+		}
+
+		bytes := Load(Param("x").Len(), GP64())
+		x := Load(Param("x").Base(), GP64())
+		y := Load(Param("y").Base(), GP64())
+
+		xLo, xHi, yLo, yHi := YMM(), YMM(), YMM(), YMM()
+
+		Label("loop_mulgf16Xor_gfni")
+		VMOVDQU(Mem{Base: x, Disp: 0}, xLo)
+		VMOVDQU(Mem{Base: x, Disp: 32}, xHi)
+		VMOVDQU(Mem{Base: y, Disp: 0}, yLo)
+		VMOVDQU(Mem{Base: y, Disp: 32}, yHi)
+
+		tmpA, tmpB, tmpC, tmpD := YMM(), YMM(), YMM(), YMM()
+		VGF2P8AFFINEQB(U8(0), tables[0], yLo, tmpA)
+		VGF2P8AFFINEQB(U8(0), tables[1], yHi, tmpB)
+		VGF2P8AFFINEQB(U8(0), tables[2], yLo, tmpC)
+		VGF2P8AFFINEQB(U8(0), tables[3], yHi, tmpD)
+		VPXOR3way(tmpA, tmpB, xLo)
+		VPXOR3way(tmpC, tmpD, xHi)
+
+		VMOVDQU(xLo, Mem{Base: x, Disp: 0})
+		VMOVDQU(xHi, Mem{Base: x, Disp: 32})
+
+		ADDQ(U8(64), x)
+		ADDQ(U8(64), y)
+		SUBQ(U8(64), bytes)
+		JNZ(LabelRef("loop_mulgf16Xor_gfni"))
+
+		VZEROUPPER()
+		RET()
+	}
+
+	// Fused 8-output GFNI: reads input once, scatters mul-add to 8 outputs.
+	{
+		TEXT("mulgf16Xor8_gfni", attr.NOSPLIT, fmt.Sprintf("func(in []byte, outs *[8][]byte, tables *[8][4]uint64)"))
+		Pragma("noescape")
+
+		inPtr := Load(Param("in").Base(), GP64())
+		bytes := Load(Param("in").Len(), GP64())
+		outsPtr := Load(Param("outs"), GP64())
+		tablesPtr := Load(Param("tables"), GP64())
+
+		// Pre-load 8 output base pointers. Slice header = 24 bytes; ptr at offset 0.
+		var outPtrs [8]reg.GPVirtual
+		for k := range outPtrs {
+			outPtrs[k] = GP64()
+			MOVQ(Mem{Base: outsPtr, Disp: k * 24}, outPtrs[k])
+		}
+		// outsPtr is now dead.
+
+		Label("loop_mulgf16Xor8_gfni")
+		yLo, yHi := YMM(), YMM()
+		VMOVDQU(Mem{Base: inPtr, Disp: 0}, yLo)
+		VMOVDQU(Mem{Base: inPtr, Disp: 32}, yHi)
+
+		for k := 0; k < 8; k++ {
+			xLo, xHi := YMM(), YMM()
+			VMOVDQU(Mem{Base: outPtrs[k], Disp: 0}, xLo)
+			VMOVDQU(Mem{Base: outPtrs[k], Disp: 32}, xHi)
+
+			tA, tB, tC, tD := YMM(), YMM(), YMM(), YMM()
+			VBROADCASTSD(Mem{Base: tablesPtr, Disp: k*32 + 0}, tA)
+			VBROADCASTSD(Mem{Base: tablesPtr, Disp: k*32 + 8}, tB)
+			VBROADCASTSD(Mem{Base: tablesPtr, Disp: k*32 + 16}, tC)
+			VBROADCASTSD(Mem{Base: tablesPtr, Disp: k*32 + 24}, tD)
+
+			VGF2P8AFFINEQB(U8(0), tA, yLo, tA)
+			VGF2P8AFFINEQB(U8(0), tB, yHi, tB)
+			VGF2P8AFFINEQB(U8(0), tC, yLo, tC)
+			VGF2P8AFFINEQB(U8(0), tD, yHi, tD)
+			VPXOR3way(tA, tB, xLo)
+			VPXOR3way(tC, tD, xHi)
+
+			VMOVDQU(xLo, Mem{Base: outPtrs[k], Disp: 0})
+			VMOVDQU(xHi, Mem{Base: outPtrs[k], Disp: 32})
+		}
+
+		ADDQ(U8(64), inPtr)
+		for k := range outPtrs {
+			ADDQ(U8(64), outPtrs[k])
+		}
+		SUBQ(U8(64), bytes)
+		JNZ(LabelRef("loop_mulgf16Xor8_gfni"))
+
+		VZEROUPPER()
+		RET()
+	}
+
+	// Fused 8-output AVX-512 GFNI: 3 tables per scalar in Z8-Z31, VPTERNLOGD.
+	{
+		TEXT("mulgf16Xor8_avx512gfni", attr.NOSPLIT, fmt.Sprintf("func(in []byte, outs *[8][]byte, tables *[8][4]uint64)"))
+		Pragma("noescape")
+
+		inPtr := Load(Param("in").Base(), GP64())
+		bytes := Load(Param("in").Len(), GP64())
+		outsPtr := Load(Param("outs"), GP64())
+		tablesPtr := Load(Param("tables"), GP64())
+
+		var outPtrs [8]reg.GPVirtual
+		for k := range outPtrs {
+			outPtrs[k] = GP64()
+			MOVQ(Mem{Base: outsPtr, Disp: k * 24}, outPtrs[k])
+		}
+
+		// Physical registers:
+		//   Y0: yLo, Y1: yHi, Y2: xLo, Y3: xHi
+		//   Y4: tmpA, Y5: tmpB, Y6: tmpC, Y7: tD
+		//   Z8-Z31: 3 tables (A,B,C) x 8 scalars
+		yLo, yHi := reg.Z0.AsY(), reg.Z1.AsY()
+		xLo, xHi := reg.Z2.AsY(), reg.Z3.AsY()
+		tmpA, tmpB := reg.Z4.AsY(), reg.Z5.AsY()
+		tmpC, tD := reg.Z6.AsY(), reg.Z7.AsY()
+
+		tableZMMs := []reg.VecPhysical{
+			reg.Z8, reg.Z9, reg.Z10, reg.Z11, reg.Z12, reg.Z13,
+			reg.Z14, reg.Z15, reg.Z16, reg.Z17, reg.Z18, reg.Z19,
+			reg.Z20, reg.Z21, reg.Z22, reg.Z23, reg.Z24, reg.Z25,
+			reg.Z26, reg.Z27, reg.Z28, reg.Z29, reg.Z30, reg.Z31,
+		}
+
+		// Pre-load tables A, B, C for all 8 scalars into ZMM registers.
+		for k := 0; k < 8; k++ {
+			for t := 0; t < 3; t++ {
+				zr := tableZMMs[k*3+t]
+				VBROADCASTSD(Mem{Base: tablesPtr, Disp: k*32 + t*8}, zr.AsY())
+			}
+		}
+
+		Label("loop_mulgf16Xor8_avx512gfni")
+		VMOVDQU(Mem{Base: inPtr, Disp: 0}, yLo)
+		VMOVDQU(Mem{Base: inPtr, Disp: 32}, yHi)
+
+		for k := 0; k < 8; k++ {
+			VMOVDQU(Mem{Base: outPtrs[k], Disp: 0}, xLo)
+			VMOVDQU(Mem{Base: outPtrs[k], Disp: 32}, xHi)
+
+			tA := tableZMMs[k*3].AsY()
+			tB := tableZMMs[k*3+1].AsY()
+			tC := tableZMMs[k*3+2].AsY()
+
+			VGF2P8AFFINEQB(U8(0), tA, yLo, tmpA)
+			VGF2P8AFFINEQB(U8(0), tB, yHi, tmpB)
+			VPTERNLOGD(U8(0x96), tmpA, tmpB, xLo)
+
+			VGF2P8AFFINEQB(U8(0), tC, yLo, tmpC)
+			VBROADCASTSD(Mem{Base: tablesPtr, Disp: k*32 + 24}, tD)
+			VGF2P8AFFINEQB(U8(0), tD, yHi, tD)
+			VPTERNLOGD(U8(0x96), tmpC, tD, xHi)
+
+			VMOVDQU(xLo, Mem{Base: outPtrs[k], Disp: 0})
+			VMOVDQU(xHi, Mem{Base: outPtrs[k], Disp: 32})
+		}
+
+		ADDQ(U8(64), inPtr)
+		for k := range outPtrs {
+			ADDQ(U8(64), outPtrs[k])
+		}
+		SUBQ(U8(64), bytes)
+		JNZ(LabelRef("loop_mulgf16Xor8_avx512gfni"))
+
+		VZEROUPPER()
+		RET()
+	}
+
+	// Fused 8-output AVX2 PSHUFB: reads input once, scatters mul-add to 8 outputs.
+	if pshufb {
+		TEXT("mulgf16Xor8_avx2", attr.NOSPLIT, fmt.Sprintf("func(in []byte, outs *[8][]byte, tables *[8][8*16]uint8)"))
+		Pragma("noescape")
+
+		inPtr := Load(Param("in").Base(), GP64())
+		bytes := Load(Param("in").Len(), GP64())
+		outsPtr := Load(Param("outs"), GP64())
+		tablesPtr := Load(Param("tables"), GP64())
+
+		var outPtrs [8]reg.GPVirtual
+		for k := range outPtrs {
+			outPtrs[k] = GP64()
+			MOVQ(Mem{Base: outsPtr, Disp: k * 24}, outPtrs[k])
+		}
+
+		ctx.clrMask = YMM()
+		tmpMask := GP64()
+		MOVQ(U32(15), tmpMask)
+		MOVQ(tmpMask, ctx.clrMask.AsX())
+		VPBROADCASTB(ctx.clrMask.AsX(), ctx.clrMask)
+
+		Label("loop_mulgf16Xor8_avx2")
+		// Load input and extract nibbles (shared across all 8 scalars).
+		yLo, yHi := YMM(), YMM()
+		VMOVDQU(Mem{Base: inPtr, Disp: 0}, yLo)
+		VMOVDQU(Mem{Base: inPtr, Disp: 32}, yHi)
+
+		data0Lo, data1Lo := YMM(), YMM()
+		VPAND(ctx.clrMask, yLo, data0Lo)
+		VPSRLQ(U8(4), yLo, data1Lo)
+		VPAND(ctx.clrMask, data1Lo, data1Lo)
+
+		data0Hi, data1Hi := YMM(), YMM()
+		VPAND(ctx.clrMask, yHi, data0Hi)
+		VPSRLQ(U8(4), yHi, data1Hi)
+		VPAND(ctx.clrMask, data1Hi, data1Hi)
+		// yLo, yHi now dead.
+
+		for k := 0; k < 8; k++ {
+			tableOff := k * 128
+			xLo, xHi := YMM(), YMM()
+			VMOVDQU(Mem{Base: outPtrs[k], Disp: 0}, xLo)
+			VMOVDQU(Mem{Base: outPtrs[k], Disp: 32}, xHi)
+
+			// tables layout per scalar: [Lo0 Lo1 Lo2 Lo3 Hi0 Hi1 Hi2 Hi3] each 16 bytes.
+			prodLo, prodHi, tLo, tHi, tmpLo, tmpHi := YMM(), YMM(), YMM(), YMM(), YMM(), YMM()
+
+			// table[0]: data0Lo nibbles
+			VBROADCASTI128(Mem{Base: tablesPtr, Disp: tableOff + 0}, tLo)
+			VBROADCASTI128(Mem{Base: tablesPtr, Disp: tableOff + 64}, tHi)
+			VPSHUFB(data0Lo, tLo, prodLo)
+			VPSHUFB(data0Lo, tHi, prodHi)
+
+			// table[1]: data1Lo nibbles
+			VBROADCASTI128(Mem{Base: tablesPtr, Disp: tableOff + 16}, tLo)
+			VBROADCASTI128(Mem{Base: tablesPtr, Disp: tableOff + 80}, tHi)
+			VPSHUFB(data1Lo, tLo, tmpLo)
+			VPSHUFB(data1Lo, tHi, tmpHi)
+			VPXOR(prodLo, tmpLo, prodLo)
+			VPXOR(prodHi, tmpHi, prodHi)
+
+			// table[2]: data0Hi nibbles
+			VBROADCASTI128(Mem{Base: tablesPtr, Disp: tableOff + 32}, tLo)
+			VBROADCASTI128(Mem{Base: tablesPtr, Disp: tableOff + 96}, tHi)
+			VPSHUFB(data0Hi, tLo, tmpLo)
+			VPSHUFB(data0Hi, tHi, tmpHi)
+			VPXOR(prodLo, tmpLo, prodLo)
+			VPXOR(prodHi, tmpHi, prodHi)
+
+			// table[3]: data1Hi nibbles, final accumulate
+			VBROADCASTI128(Mem{Base: tablesPtr, Disp: tableOff + 48}, tLo)
+			VBROADCASTI128(Mem{Base: tablesPtr, Disp: tableOff + 112}, tHi)
+			VPSHUFB(data1Hi, tLo, tmpLo)
+			VPSHUFB(data1Hi, tHi, tmpHi)
+			VPXOR3way(prodLo, tmpLo, xLo)
+			VPXOR3way(prodHi, tmpHi, xHi)
+
+			VMOVDQU(xLo, Mem{Base: outPtrs[k], Disp: 0})
+			VMOVDQU(xHi, Mem{Base: outPtrs[k], Disp: 32})
+		}
+
+		ADDQ(U8(64), inPtr)
+		for k := range outPtrs {
+			ADDQ(U8(64), outPtrs[k])
+		}
+		SUBQ(U8(64), bytes)
+		JNZ(LabelRef("loop_mulgf16Xor8_avx2"))
 
 		VZEROUPPER()
 		RET()

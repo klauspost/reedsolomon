@@ -3325,6 +3325,9 @@ func fftDIT2_avx2(x []byte, y []byte, table *[128]uint8)
 func mulgf16_avx2(x []byte, y []byte, table *[128]uint8)
 
 //go:noescape
+func mulgf16Xor_avx2(x []byte, y []byte, table *[128]uint8)
+
+//go:noescape
 func ifftDIT4_avx512_0(work [][]byte, dist int, table01 *[128]uint8, table23 *[128]uint8, table02 *[128]uint8)
 
 //go:noescape
@@ -3622,6 +3625,9 @@ func fftDIT2_ssse3(x []byte, y []byte, table *[128]uint8)
 func mulgf16_ssse3(x []byte, y []byte, table *[128]uint8)
 
 //go:noescape
+func mulgf16Xor_ssse3(x []byte, y []byte, table *[128]uint8)
+
+//go:noescape
 func ifftDIT2_gfni(x []byte, y []byte, table *[4]uint64)
 
 //go:noescape
@@ -3629,6 +3635,18 @@ func fftDIT2_gfni(x []byte, y []byte, table *[4]uint64)
 
 //go:noescape
 func mulgf16_gfni(x []byte, y []byte, table *[4]uint64)
+
+//go:noescape
+func mulgf16Xor_gfni(x []byte, y []byte, table *[4]uint64)
+
+//go:noescape
+func mulgf16Xor8_gfni(in []byte, outs *[8][]byte, tables *[8][4]uint64)
+
+//go:noescape
+func mulgf16Xor8_avx512gfni(in []byte, outs *[8][]byte, tables *[8][4]uint64)
+
+//go:noescape
+func mulgf16Xor8_avx2(in []byte, outs *[8][]byte, tables *[8][128]uint8)
 
 //go:noescape
 func ifftDIT28_avx2(x []byte, y []byte, table *[32]uint8)

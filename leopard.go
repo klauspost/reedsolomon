@@ -822,6 +822,37 @@ func refMulAdd(x, y []byte, log_m ffe) {
 	}
 }
 
+// refMulAdd8x performs 8 mul-add accumulates sharing the same input,
+// reading in once per 64-byte chunk. Pure Go fallback for mulgf16Xor8.
+func refMulAdd8x(scalars *[8]uint16, in []byte, outs *[8][]byte) {
+	var luts [8]*mul16LUT
+	for k, c := range scalars {
+		if c != 0 {
+			luts[k] = &mul16LUTs[logLUT[ffe(c)]]
+		}
+	}
+	out := *outs // local copy so we can re-slice without mutating caller
+	for len(in) >= 64 {
+		hiIn := in[32:64]
+		loIn := in[:32]
+		for i, lo := range loIn {
+			hi := hiIn[i]
+			for k := 0; k < 8; k++ {
+				if luts[k] == nil {
+					continue
+				}
+				prod := luts[k].Lo[lo] ^ luts[k].Hi[hi]
+				out[k][i] ^= byte(prod)
+				out[k][i+32] ^= byte(prod >> 8)
+			}
+		}
+		in = in[64:]
+		for k := range out {
+			out[k] = out[k][64:]
+		}
+	}
+}
+
 // slicesXor calls xor for every slice pair in v1, v2.
 func slicesXor(v1, v2 [][]byte, o *options) {
 	for i, v := range v1 {
