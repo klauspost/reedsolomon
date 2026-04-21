@@ -20,7 +20,8 @@ import (
 	"github.com/klauspost/cpuid/v2"
 )
 
-const maxZeroBufferSize16 = 1 << 20 // 1MB
+const maxWorkSize16 = 64 << 10 // Cap for GF16 chunk size.
+const maxZeroBufferSize16 = maxWorkSize16
 
 var zeroBufferPool16Once sync.Once
 var zeroBufferPool16Buf *[maxZeroBufferSize16]byte
@@ -38,6 +39,10 @@ type leopardFF16 struct {
 	totalShards  int // Total number of shards. Calculated, and should not be modified.
 
 	workAlloc WorkAllocator
+
+	// Pools for slice header arrays, avoiding per-call allocations.
+	shardSlicePool sync.Pool // [][]byte of len totalShards
+	workSlicePool  sync.Pool // [][]byte — sized at first use
 
 	o options
 }
@@ -142,6 +147,25 @@ func (r *leopardFF16) Encode(shards [][]byte) error {
 	return r.encode(shards)
 }
 
+// encodeChunkSize returns the chunk size for the given shard size and
+// number of work buffers. It tries to keep the working set in L3 cache,
+// capped at maxWorkSize16.
+func encodeChunkSize(shardSize, workBufs int) int {
+	l3 := cpuid.CPU.Cache.L3
+	if l3 <= 0 {
+		// Assume 16MB L3 if not detected.
+		l3 = 16 << 20
+	}
+	// Target: workBufs * chunkSize fits in ~2/3 of L3.
+	chunkSize := l3 * 2 / (workBufs * 3)
+	chunkSize = min(chunkSize, maxWorkSize16)
+	chunkSize &^= 63 // 64-byte alignment
+	if chunkSize < 4<<10 {
+		chunkSize = 4 << 10
+	}
+	return min(chunkSize, shardSize)
+}
+
 func (r *leopardFF16) encode(shards [][]byte) error {
 	shardSize := shardSize(shards)
 	if shardSize%64 != 0 {
@@ -149,80 +173,100 @@ func (r *leopardFF16) encode(shards [][]byte) error {
 	}
 
 	m := ceilPow2(r.parityShards)
-	work := r.workAlloc.Get(m*2, shardSize)
-	defer r.workAlloc.Put(work)
-
 	mtrunc := min(r.dataShards, m)
+	lastCount := r.dataShards % m
+	chunkSize := encodeChunkSize(shardSize, m*2)
+
+	work := r.workAlloc.Get(m*2, chunkSize)
+	defer r.workAlloc.Put(work)
 
 	skewLUT := fftSkew[m-1:]
 
-	sh := shards
+	sh := r.getShardSlice()
+	defer r.putShardSlice(sh)
+	wMod := r.getWorkSlice(len(work))
+	defer r.putWorkSlice(wMod)
+	copy(wMod, work)
+	for off := 0; off < shardSize; off += chunkSize {
+		work := wMod
+		sh := sh
+		end := off + chunkSize
+		if end > shardSize {
+			end = shardSize
+			sz := end - off
+			for i := range work {
+				work[i] = work[i][:sz]
+			}
+		}
+		for i := range shards {
+			sh[i] = shards[i][off:end]
+		}
+
+		// Write parity directly into output slices.
+		res := shards[r.dataShards:r.totalShards]
+		for i := range res {
+			work[i] = res[i][off:end]
+		}
+
+		r.encodeChunk(sh[:r.dataShards], sh, mtrunc, lastCount, m, work, skewLUT)
+	}
+	return nil
+}
+
+func (r *leopardFF16) encodeChunk(data [][]byte, sh [][]byte, mtrunc, lastCount, m int, work [][]byte, skewLUT []ffe) {
 	ifftDITEncoder(
-		sh[:r.dataShards],
+		data,
 		mtrunc,
 		work,
-		nil, // No xor output
+		nil,
 		m,
 		skewLUT,
 		&r.o,
 	)
 
-	lastCount := r.dataShards % m
 	if m >= r.dataShards {
 		goto skip_body
 	}
 
-	// For sets of m data pieces:
-	for i := m; i+m <= r.dataShards; i += m {
-		sh = sh[m:]
-		skewLUT = skewLUT[m:]
+	{
+		sh := sh
+		skewLUT := skewLUT
+		// For sets of m data pieces:
+		for i := m; i+m <= r.dataShards; i += m {
+			sh = sh[m:]
+			skewLUT = skewLUT[m:]
 
-		// work <- work xor IFFT(data + i, m, m + i)
+			// work <- work xor IFFT(data + i, m, m + i)
+			ifftDITEncoder(
+				sh,
+				m,
+				work[m:],
+				work,
+				m,
+				skewLUT,
+				&r.o,
+			)
+		}
 
-		ifftDITEncoder(
-			sh, // data source
-			m,
-			work[m:], // temporary workspace
-			work,     // xor destination
-			m,
-			skewLUT,
-			&r.o,
-		)
-	}
+		// Handle final partial set of m pieces:
+		if lastCount != 0 {
+			sh = sh[m:]
+			skewLUT = skewLUT[m:]
 
-	// Handle final partial set of m pieces:
-	if lastCount != 0 {
-		sh = sh[m:]
-		skewLUT = skewLUT[m:]
-
-		// work <- work xor IFFT(data + i, m, m + i)
-
-		ifftDITEncoder(
-			sh, // data source
-			lastCount,
-			work[m:], // temporary workspace
-			work,     // xor destination
-			m,
-			skewLUT,
-			&r.o,
-		)
+			ifftDITEncoder(
+				sh,
+				lastCount,
+				work[m:],
+				work,
+				m,
+				skewLUT,
+				&r.o,
+			)
+		}
 	}
 
 skip_body:
-	// work <- FFT(work, m, 0)
 	fftDIT(work, r.parityShards, m, fftSkew[:], &r.o)
-
-	for i, w := range work[:r.parityShards] {
-		sh := shards[i+r.dataShards]
-		if cap(sh) >= shardSize {
-			sh = append(sh[:0], w...)
-		} else {
-			sh = w
-		}
-		shards[i+r.dataShards] = sh
-	}
-
-	return nil
 }
 
 func (r *leopardFF16) EncodeIdx(dataShard []byte, idx int, parity [][]byte) error {
@@ -446,7 +490,7 @@ func (r *leopardFF16) reconstruct(shards [][]byte, recoverAll bool) error {
 	}
 
 	if LEO_ERROR_BITFIELD_OPT && useBits {
-		errorBits.prepare()
+		errorBits.prepare(n)
 	}
 
 	// Evaluate error locator polynomial
@@ -458,68 +502,18 @@ func (r *leopardFF16) reconstruct(shards [][]byte, recoverAll bool) error {
 
 	fwht(&errLocs, order)
 
-	work := r.workAlloc.Get(n, shardSize)
+	chunkSize := encodeChunkSize(shardSize, n)
+
+	work := r.workAlloc.Get(n, chunkSize)
 	defer r.workAlloc.Put(work)
 
-	// work <- recovery data
+	// sh preserves the original nil entries so reconstructChunk can
+	// distinguish present vs missing shards after pre-allocation.
+	sh := r.getShardSlice()
+	defer r.putShardSlice(sh)
+	copy(sh, shards)
 
-	for i := 0; i < r.parityShards; i++ {
-		if len(shards[i+r.dataShards]) != 0 {
-			mulgf16(work[i], shards[i+r.dataShards], errLocs[i], &r.o)
-		} else {
-			clear(work[i])
-		}
-	}
-	for i := r.parityShards; i < m; i++ {
-		clear(work[i])
-	}
-
-	// work <- original data
-
-	for i := 0; i < r.dataShards; i++ {
-		if len(shards[i]) != 0 {
-			mulgf16(work[m+i], shards[i], errLocs[m+i], &r.o)
-		} else {
-			clear(work[m+i])
-		}
-	}
-	for i := m + r.dataShards; i < n; i++ {
-		clear(work[i])
-	}
-
-	// work <- IFFT(work, n, 0)
-
-	ifftDITDecoder(
-		m+r.dataShards,
-		work,
-		n,
-		fftSkew[:],
-		&r.o,
-	)
-
-	// work <- FormalDerivative(work, n)
-
-	for i := 1; i < n; i++ {
-		width := ((i ^ (i - 1)) + 1) >> 1
-		slicesXor(work[i-width:i], work[i:i+width], &r.o)
-	}
-
-	// work <- FFT(work, n, 0) truncated to m + dataShards
-
-	outputCount := m + r.dataShards
-
-	if LEO_ERROR_BITFIELD_OPT && useBits {
-		errorBits.fftDIT(work, outputCount, n, fftSkew[:], &r.o)
-	} else {
-		fftDIT(work, outputCount, n, fftSkew[:], &r.o)
-	}
-
-	// Reveal erasures
-	//
-	//  Original = -ErrLocator * FFT( Derivative( IFFT( ErrLocator * ReceivedData ) ) )
-	//  mul_mem(x, y, log_m, ) equals x[] = y[] * log_m
-	//
-	// mem layout: [Recovery Data (Power of Two = M)] [Original Data (K)] [Zero Padding out to N]
+	// Pre-allocate missing output shards.
 	end := r.dataShards
 	if recoverAll {
 		end = r.totalShards
@@ -533,15 +527,116 @@ func (r *leopardFF16) reconstruct(shards [][]byte, recoverAll bool) error {
 		} else {
 			shards[i] = make([]byte, shardSize)
 		}
-		if i >= r.dataShards {
-			// Parity shard.
-			mulgf16(shards[i], work[i-r.dataShards], modulus-errLocs[i-r.dataShards], &r.o)
-		} else {
-			// Data shard.
-			mulgf16(shards[i], work[i+m], modulus-errLocs[i+m], &r.o)
+	}
+
+	if chunkSize >= shardSize {
+		r.reconstructChunk(sh, shards, work, m, n, &errLocs, useBits, &errorBits, recoverAll)
+		return nil
+	}
+
+	// Process in cache-friendly chunks.
+	wMod := r.getWorkSlice(len(work))
+	defer r.putWorkSlice(wMod)
+	copy(wMod, work)
+	shChunk := r.getShardSlice()
+	defer r.putShardSlice(shChunk)
+	copy(shChunk, sh)
+	outChunk := r.getShardSlice()
+	defer r.putShardSlice(outChunk)
+	for off := 0; off < shardSize; off += chunkSize {
+		work := wMod
+		shChunk := shChunk
+		outChunk := outChunk
+		endSlice := off + chunkSize
+		if endSlice > shardSize {
+			endSlice = shardSize
+			sz := endSlice - off
+			for i := range work {
+				work[i] = work[i][:sz]
+			}
 		}
+		for i := range shards {
+			if len(sh[i]) != 0 {
+				shChunk[i] = shards[i][off:endSlice]
+			}
+			if len(shards[i]) != 0 {
+				outChunk[i] = shards[i][off:endSlice]
+			}
+		}
+
+		r.reconstructChunk(shChunk, outChunk, work, m, n, &errLocs, useBits, &errorBits, recoverAll)
 	}
 	return nil
+}
+
+// reconstructChunk processes one chunk of the reconstruct pipeline.
+// sh has nil entries for missing shards (used for presence checks).
+// out has allocated entries for all shards (used for writing output).
+func (r *leopardFF16) reconstructChunk(sh, out [][]byte, work [][]byte, m, n int, errLocs *[order]ffe, useBits bool, errorBits *errorBitfield, recoverAll bool) {
+	const LEO_ERROR_BITFIELD_OPT = true
+	outputCount := m + r.dataShards
+
+	// work <- recovery data
+	for i := 0; i < r.parityShards; i++ {
+		if len(sh[i+r.dataShards]) != 0 {
+			mulgf16(work[i], sh[i+r.dataShards], errLocs[i], &r.o)
+		} else {
+			clear(work[i])
+		}
+	}
+	for i := r.parityShards; i < m; i++ {
+		clear(work[i])
+	}
+
+	// work <- original data
+	for i := 0; i < r.dataShards; i++ {
+		if len(sh[i]) != 0 {
+			mulgf16(work[m+i], sh[i], errLocs[m+i], &r.o)
+		} else {
+			clear(work[m+i])
+		}
+	}
+	for i := m + r.dataShards; i < n; i++ {
+		clear(work[i])
+	}
+
+	// work <- IFFT(work, n, 0)
+	ifftDITDecoder(
+		m+r.dataShards,
+		work,
+		n,
+		fftSkew[:],
+		&r.o,
+	)
+
+	// work <- FormalDerivative(work, n)
+	for i := 1; i < n; i++ {
+		width := ((i ^ (i - 1)) + 1) >> 1
+		slicesXor(work[i-width:i], work[i:i+width], &r.o)
+	}
+
+	// work <- FFT(work, n, 0) truncated to m + dataShards
+	if LEO_ERROR_BITFIELD_OPT && useBits {
+		errorBits.fftDIT(work, outputCount, n, fftSkew[:], &r.o)
+	} else {
+		fftDIT(work, outputCount, n, fftSkew[:], &r.o)
+	}
+
+	// Reveal erasures
+	end := r.dataShards
+	if recoverAll {
+		end = r.totalShards
+	}
+	for i := 0; i < end; i++ {
+		if len(sh[i]) != 0 {
+			continue
+		}
+		if i >= r.dataShards {
+			mulgf16(out[i], work[i-r.dataShards], modulus-errLocs[i-r.dataShards], &r.o)
+		} else {
+			mulgf16(out[i], work[i+m], modulus-errLocs[i+m], &r.o)
+		}
+	}
 }
 
 // Basic no-frills version for decoder
@@ -1171,6 +1266,30 @@ func initMul16LUT() {
 	}
 }
 
+func (r *leopardFF16) getShardSlice() [][]byte {
+	if s, ok := r.shardSlicePool.Get().([][]byte); ok {
+		return s[:r.totalShards]
+	}
+	return make([][]byte, r.totalShards)
+}
+
+func (r *leopardFF16) putShardSlice(s [][]byte) {
+	clear(s[:cap(s)])
+	r.shardSlicePool.Put(s)
+}
+
+func (r *leopardFF16) getWorkSlice(n int) [][]byte {
+	if s, ok := r.workSlicePool.Get().([][]byte); ok && cap(s) >= n {
+		return s[:n]
+	}
+	return make([][]byte, n)
+}
+
+func (r *leopardFF16) putWorkSlice(s [][]byte) {
+	clear(s[:cap(s)])
+	r.workSlicePool.Put(s)
+}
+
 const kWordMips = 5
 const kWords = order / 64
 const kBigMips = 6
@@ -1183,6 +1302,10 @@ type errorBitfield struct {
 	Words        [kWordMips][kWords]uint64
 	BigWords     [kBigMips][kBigWords]uint64
 	BiggestWords [kBiggestMips]uint64
+	// neededFns holds pre-computed needed-check functions indexed sequentially
+	// for each FFT layer, allocated once in prepare to avoid per-call closure allocs.
+	// Max 9 entries: mipLevel 16 down to 0 by 2.
+	neededFns [9]func(int) bool
 }
 
 func (e *errorBitfield) set(i int) {
@@ -1241,8 +1364,7 @@ var kHiMasks = [5]uint64{
 	0xFFFF0000FFFF0000,
 }
 
-func (e *errorBitfield) prepare() {
-	// First mip level is for final layer of FFT: pairs of data
+func (e *errorBitfield) prepare(m int) {
 	for i := range kWords {
 		w_i := e.Words[0][i]
 		hi2lo0 := w_i | ((w_i & kHiMasks[0]) >> 1)
@@ -1270,13 +1392,13 @@ func (e *errorBitfield) prepare() {
 		}
 		e.BigWords[0][i] = w_i
 
-		bits := 1
+		shift := 1
 		for j := 1; j < kBigMips; j++ {
-			hi2lo_j := w_i | ((w_i & kHiMasks[j-1]) >> bits)
-			lo2hi_j := (w_i & (kHiMasks[j-1] >> bits)) << bits
+			hi2lo_j := w_i | ((w_i & kHiMasks[j-1]) >> shift)
+			lo2hi_j := (w_i & (kHiMasks[j-1] >> shift)) << shift
 			w_i = hi2lo_j | lo2hi_j
 			e.BigWords[j][i] = w_i
-			bits <<= 1
+			shift <<= 1
 		}
 	}
 
@@ -1288,24 +1410,33 @@ func (e *errorBitfield) prepare() {
 	}
 	e.BiggestWords[0] = w_i
 
-	bits := uint64(1)
+	shift := uint64(1)
 	for j := 1; j < kBiggestMips; j++ {
-		hi2lo_j := w_i | ((w_i & kHiMasks[j-1]) >> bits)
-		lo2hi_j := (w_i & (kHiMasks[j-1] >> bits)) << bits
+		hi2lo_j := w_i | ((w_i & kHiMasks[j-1]) >> shift)
+		lo2hi_j := (w_i & (kHiMasks[j-1] >> shift)) << shift
 		w_i = hi2lo_j | lo2hi_j
 		e.BiggestWords[j] = w_i
-		bits <<= 1
+		shift <<= 1
+	}
+
+	// Pre-compute needed-check functions for used mip levels.
+	// fftDIT starts at bits.Len32(n)-1 and decrements by 2.
+	// We store them sequentially from index 0.
+	startLevel := bits.Len32(uint32(m)) - 1
+	for i, ml := 0, startLevel; ml >= 0; i, ml = i+1, ml-2 {
+		e.neededFns[i] = e.isNeededFn(ml)
 	}
 }
 
 func (e *errorBitfield) fftDIT(work [][]byte, mtrunc, m int, skewLUT []ffe, o *options) {
 	// Decimation in time: Unroll 2 layers at a time
-	mipLevel := bits.Len32(uint32(m)) - 1
+	fnIdx := 0
 
 	dist4 := m
 	dist := m >> 2
-	needed := e.isNeededFn(mipLevel)
 	for dist != 0 {
+		needed := e.neededFns[fnIdx]
+		fnIdx++
 		// For each set of dist*4 elements:
 		for r := 0; r < mtrunc; r += dist4 {
 			if !needed(r) {
@@ -1329,12 +1460,11 @@ func (e *errorBitfield) fftDIT(work [][]byte, mtrunc, m int, skewLUT []ffe, o *o
 		}
 		dist4 = dist
 		dist >>= 2
-		mipLevel -= 2
-		needed = e.isNeededFn(mipLevel)
 	}
 
 	// If there is one layer left:
 	if dist4 == 2 {
+		needed := e.neededFns[fnIdx]
 		for r := 0; r < mtrunc; r += 2 {
 			if !needed(r) {
 				continue

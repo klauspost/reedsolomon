@@ -1345,6 +1345,32 @@ func BenchmarkEncode_8x8x32M(b *testing.B) { benchmarkEncode(b, 8, 8, 32*1024*10
 func BenchmarkEncode_24x8x24M(b *testing.B) { benchmarkEncode(b, 24, 8, 24*1024*1024) }
 func BenchmarkEncode_24x8x48M(b *testing.B) { benchmarkEncode(b, 24, 8, 48*1024*1024) }
 
+func BenchmarkEncodeLeopardGF16Chunking(b *testing.B) {
+	// Tests GF16 encoder across shard sizes where L3 cache chunking matters.
+	for _, tc := range []struct {
+		data, parity int
+	}{
+		{800, 200},
+		{500, 500},
+		{50, 20},
+	} {
+		const maxBytes = 1 << 30
+		for _, sz := range []int{
+			64 << 10, 256 << 10, 1 << 20, 4 << 20, 16 << 20,
+		} {
+			sz = min(sz, maxBytes/(tc.data+tc.parity))
+			sz = sz / 64 * 64
+			if sz == 0 {
+				continue
+			}
+			name := fmt.Sprintf("%dx%d/%dK", tc.data, tc.parity, sz>>10)
+			b.Run(name, func(b *testing.B) {
+				benchmarkEncode(b, tc.data, tc.parity, sz, WithLeopardGF16(true))
+			})
+		}
+	}
+}
+
 func benchmarkVerify(b *testing.B, dataShards, parityShards, shardSize int) {
 	r, err := New(dataShards, parityShards, testOptions(WithAutoGoroutines(shardSize))...)
 	if err != nil {
