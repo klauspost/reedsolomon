@@ -132043,8 +132043,8 @@ loop_mulgf16Xor8_gfni:
 	VGF2P8AFFINEQB $0x00, Y7, Y1, Y7
 	XOR3WAY(     $0x00, Y2, Y4, Y5)
 	XOR3WAY(     $0x00, Y3, Y6, Y7)
-	VMOVDQU        (SI), Y2
-	VMOVDQU        32(SI), Y3
+	VMOVDQU        (DI), Y2
+	VMOVDQU        32(DI), Y3
 	VMOVDQU        Y5, (SI)
 	VMOVDQU        Y7, 32(SI)
 	VBROADCASTSD   32(BX), Y4
@@ -132057,8 +132057,8 @@ loop_mulgf16Xor8_gfni:
 	VGF2P8AFFINEQB $0x00, Y7, Y1, Y7
 	XOR3WAY(     $0x00, Y2, Y4, Y5)
 	XOR3WAY(     $0x00, Y3, Y6, Y7)
-	VMOVDQU        (SI), Y2
-	VMOVDQU        32(SI), Y3
+	VMOVDQU        (R8), Y2
+	VMOVDQU        32(R8), Y3
 	VMOVDQU        Y5, (DI)
 	VMOVDQU        Y7, 32(DI)
 	VBROADCASTSD   64(BX), Y4
@@ -132071,8 +132071,8 @@ loop_mulgf16Xor8_gfni:
 	VGF2P8AFFINEQB $0x00, Y7, Y1, Y7
 	XOR3WAY(     $0x00, Y2, Y4, Y5)
 	XOR3WAY(     $0x00, Y3, Y6, Y7)
-	VMOVDQU        (SI), Y2
-	VMOVDQU        32(SI), Y3
+	VMOVDQU        (R9), Y2
+	VMOVDQU        32(R9), Y3
 	VMOVDQU        Y5, (R8)
 	VMOVDQU        Y7, 32(R8)
 	VBROADCASTSD   96(BX), Y4
@@ -132085,8 +132085,8 @@ loop_mulgf16Xor8_gfni:
 	VGF2P8AFFINEQB $0x00, Y7, Y1, Y7
 	XOR3WAY(     $0x00, Y2, Y4, Y5)
 	XOR3WAY(     $0x00, Y3, Y6, Y7)
-	VMOVDQU        (SI), Y2
-	VMOVDQU        32(SI), Y3
+	VMOVDQU        (R10), Y2
+	VMOVDQU        32(R10), Y3
 	VMOVDQU        Y5, (R9)
 	VMOVDQU        Y7, 32(R9)
 	VBROADCASTSD   128(BX), Y4
@@ -132099,8 +132099,8 @@ loop_mulgf16Xor8_gfni:
 	VGF2P8AFFINEQB $0x00, Y7, Y1, Y7
 	XOR3WAY(     $0x00, Y2, Y4, Y5)
 	XOR3WAY(     $0x00, Y3, Y6, Y7)
-	VMOVDQU        (SI), Y2
-	VMOVDQU        32(SI), Y3
+	VMOVDQU        (R11), Y2
+	VMOVDQU        32(R11), Y3
 	VMOVDQU        Y5, (R10)
 	VMOVDQU        Y7, 32(R10)
 	VBROADCASTSD   160(BX), Y4
@@ -132113,8 +132113,8 @@ loop_mulgf16Xor8_gfni:
 	VGF2P8AFFINEQB $0x00, Y7, Y1, Y7
 	XOR3WAY(     $0x00, Y2, Y4, Y5)
 	XOR3WAY(     $0x00, Y3, Y6, Y7)
-	VMOVDQU        (SI), Y2
-	VMOVDQU        32(SI), Y3
+	VMOVDQU        (R12), Y2
+	VMOVDQU        32(R12), Y3
 	VMOVDQU        Y5, (R11)
 	VMOVDQU        Y7, 32(R11)
 	VBROADCASTSD   192(BX), Y4
@@ -132127,8 +132127,8 @@ loop_mulgf16Xor8_gfni:
 	VGF2P8AFFINEQB $0x00, Y7, Y1, Y7
 	XOR3WAY(     $0x00, Y2, Y4, Y5)
 	XOR3WAY(     $0x00, Y3, Y6, Y7)
-	VMOVDQU        (SI), Y2
-	VMOVDQU        32(SI), Y3
+	VMOVDQU        (DX), Y2
+	VMOVDQU        32(DX), Y3
 	VMOVDQU        Y5, (R12)
 	VMOVDQU        Y7, 32(R12)
 	VBROADCASTSD   224(BX), Y4

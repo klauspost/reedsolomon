@@ -1340,8 +1340,8 @@ func genGF16() {
 			VPXOR3way(xHi, tC, tD)
 
 			if k < 7 {
-				VMOVDQU(Mem{Base: outPtrs[0], Disp: 0}, xLo)
-				VMOVDQU(Mem{Base: outPtrs[0], Disp: 32}, xHi)
+				VMOVDQU(Mem{Base: outPtrs[k+1], Disp: 0}, xLo)
+				VMOVDQU(Mem{Base: outPtrs[k+1], Disp: 32}, xHi)
 			}
 
 			VMOVDQU(tB, Mem{Base: outPtrs[k], Disp: 0})
