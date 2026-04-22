@@ -28,25 +28,29 @@ func TestGF16MulSliceXor8(t *testing.T) {
 	var ll LowLevel
 	initConstants()
 
-	sizes := []int{64, 128, 256, 2048}
-	r := rand.New(rand.NewPCG(7, 42))
+	sizes := []int{64, 128, 256, 512, 2048, 8192}
 
-	for _, sz := range sizes {
-		in := make([]byte, sz)
-		for i := range in {
-			in[i] = byte(r.IntN(256))
-		}
-		// Include at least one zero scalar to cover the no-op short-circuit.
-		var scalars [8]uint16
-		for k := range scalars {
-			scalars[k] = uint16(r.IntN(65536))
-		}
-		scalars[3] = 0
+	scalarSets := [][8]uint16{
+		{0x1234, 0, 0xFFFF, 1, 2, 0xABCD, 0x5555, 0xAAAA},
+		{0, 0, 0, 0, 0, 0, 0, 0},
+		{0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF},
+		{1, 1, 1, 1, 1, 1, 1, 1},
+		{0, 1, 0, 1, 0, 1, 0, 1},
+	}
 
-		outs, ref := newOutputPair(sz, r)
-		ll.GF16MulSliceXor8(&scalars, in, &outs)
-		naiveGF16MulSliceXor8(ll, &scalars, in, &ref)
-		assertOutputsEqual(t, sz, outs, ref)
+	for si, scalars := range scalarSets {
+		for _, sz := range sizes {
+			r := rand.New(rand.NewPCG(uint64(si*1000+sz), 42))
+			in := make([]byte, sz)
+			for i := range in {
+				in[i] = byte(r.IntN(256))
+			}
+
+			outs, ref := newOutputPair(sz, r)
+			ll.GF16MulSliceXor8(&scalars, in, &outs)
+			naiveGF16MulSliceXor8(ll, &scalars, in, &ref)
+			assertOutputsEqual(t, sz, outs, ref)
+		}
 	}
 }
 
@@ -108,6 +112,142 @@ func TestGF16MulSliceXor8PanicsOnLengthMismatch(t *testing.T) {
 	}
 }
 
+// TestMulgf16Xor8 exercises each internal implementation of the fused 8-output
+// mulgf16Xor8 kernel: AVX2, GFNI (AVX+GFNI), AVX512+GFNI, and pure-Go
+// reference. Each path is compared against the scalar naiveGF16MulSliceXor8
+// oracle. This is the test that would have caught the load-from-wrong-output
+// bug in the GFNI assembly.
+func TestMulgf16Xor8(t *testing.T) {
+	initConstants()
+
+	type impl struct {
+		name string
+		opts options
+	}
+	impls := []impl{
+		{"pure_go", options{}},
+	}
+	if defaultOptions.useAVX2 {
+		impls = append(impls, impl{"avx2", options{useAVX2: true}})
+	}
+	if defaultOptions.useAvxGNFI {
+		impls = append(impls, impl{"gfni", options{useAvxGNFI: true}})
+	}
+	if defaultOptions.useAvx512GFNI {
+		impls = append(impls, impl{"avx512gfni", options{useAvx512GFNI: true, useAVX512: true}})
+	}
+
+	sizes := []int{64, 128, 256, 512, 2048, 8192}
+
+	scalarSets := [][8]uint16{
+		{0x1234, 0, 0xFFFF, 1, 2, 0xABCD, 0x5555, 0xAAAA},
+		{0, 0, 0, 0, 0, 0, 0, 0},
+		{0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF},
+		{1, 1, 1, 1, 1, 1, 1, 1},
+		{0, 1, 0, 1, 0, 1, 0, 1},
+	}
+
+	for _, im := range impls {
+		t.Run(im.name, func(t *testing.T) {
+			for si, scalars := range scalarSets {
+				for _, sz := range sizes {
+					t.Run(fmt.Sprintf("scalars%d/sz%d", si, sz), func(t *testing.T) {
+						r := rand.New(rand.NewPCG(uint64(si*1000+sz), 99))
+						in := make([]byte, sz)
+						for i := range in {
+							in[i] = byte(r.IntN(256))
+						}
+
+						outs, ref := newOutputPair(sz, r)
+						o := im.opts
+						mulgf16Xor8(&scalars, in, &outs, &o)
+
+						var ll LowLevel
+						naiveGF16MulSliceXor8(ll, &scalars, in, &ref)
+						assertOutputsEqual(t, sz, outs, ref)
+					})
+				}
+			}
+		})
+	}
+}
+
+// TestMulgf16Xor8CrossValidate runs all available implementations on the
+// same inputs and verifies they produce identical results.
+func TestMulgf16Xor8CrossValidate(t *testing.T) {
+	initConstants()
+
+	type impl struct {
+		name string
+		opts options
+	}
+	impls := []impl{
+		{"pure_go", options{}},
+	}
+	if defaultOptions.useAVX2 {
+		impls = append(impls, impl{"avx2", options{useAVX2: true}})
+	}
+	if defaultOptions.useAvxGNFI {
+		impls = append(impls, impl{"gfni", options{useAvxGNFI: true}})
+	}
+	if defaultOptions.useAvx512GFNI {
+		impls = append(impls, impl{"avx512gfni", options{useAvx512GFNI: true, useAVX512: true}})
+	}
+	if len(impls) < 2 {
+		t.Skip("need at least 2 implementations to cross-validate")
+	}
+
+	r := rand.New(rand.NewPCG(31, 71))
+	sizes := []int{64, 128, 512, 4096}
+
+	for _, sz := range sizes {
+		in := make([]byte, sz)
+		for i := range in {
+			in[i] = byte(r.IntN(256))
+		}
+		var scalars [8]uint16
+		for k := range scalars {
+			scalars[k] = uint16(r.IntN(65536))
+		}
+		scalars[5] = 0
+
+		// Build identical starting output sets for each impl.
+		base := make([][8][]byte, len(impls))
+		var seedOuts [8][]byte
+		for k := 0; k < 8; k++ {
+			seedOuts[k] = make([]byte, sz)
+			for i := range seedOuts[k] {
+				seedOuts[k][i] = byte(r.IntN(256))
+			}
+		}
+		for idx := range impls {
+			for k := 0; k < 8; k++ {
+				base[idx][k] = make([]byte, sz)
+				copy(base[idx][k], seedOuts[k])
+			}
+		}
+
+		// Run each impl.
+		for idx := range impls {
+			o := impls[idx].opts
+			mulgf16Xor8(&scalars, in, &base[idx], &o)
+		}
+
+		// Compare all against the first.
+		for idx := 1; idx < len(impls); idx++ {
+			for k := 0; k < 8; k++ {
+				for i := 0; i < sz; i++ {
+					if base[0][k][i] != base[idx][k][i] {
+						t.Fatalf("sz=%d %s vs %s: outs[%d][%d] got=%02x want=%02x",
+							sz, impls[idx].name, impls[0].name,
+							k, i, base[idx][k][i], base[0][k][i])
+					}
+				}
+			}
+		}
+	}
+}
+
 // TestMulgf16Xor exercises both internal paths of the mulgf16Xor kernel
 // that GF16MulSliceXor8 relies on when the fused GFNI kernel is not taken:
 // the AVX2 scalar-broadcast path (useAVX2=true) and the pure-Go refMulAdd
@@ -115,19 +255,33 @@ func TestGF16MulSliceXor8PanicsOnLengthMismatch(t *testing.T) {
 func TestMulgf16Xor(t *testing.T) {
 	initConstants()
 
-	for _, tc := range []struct {
-		name    string
-		useAVX2 bool
-	}{
-		{"avx2", true},
-		{"scalar", false},
-	} {
+	type impl struct {
+		name string
+		opts options
+	}
+	impls := []impl{
+		{"scalar", options{}},
+		{"avx2", options{useAVX2: true}},
+		{"ssse3", options{useSSSE3: true}},
+		{"gfni", options{useAvxGNFI: true}},
+	}
+
+	for _, tc := range impls {
 		t.Run(tc.name, func(t *testing.T) {
-			if tc.useAVX2 && !defaultOptions.useAVX2 {
-				t.Skip("host does not support AVX2")
+			switch tc.name {
+			case "avx2":
+				if !defaultOptions.useAVX2 {
+					t.Skip("host does not support AVX2")
+				}
+			case "ssse3":
+				if !defaultOptions.useSSSE3 {
+					t.Skip("host does not support SSSE3")
+				}
+			case "gfni":
+				if !defaultOptions.useAvxGNFI {
+					t.Skip("host does not support AVX+GFNI")
+				}
 			}
-			var opts options
-			opts.useAVX2 = tc.useAVX2
 
 			r := rand.New(rand.NewPCG(9, 11))
 			sz := 256
@@ -138,6 +292,7 @@ func TestMulgf16Xor(t *testing.T) {
 			scalars := [8]uint16{0x1234, 0, 0xFFFF, 1, 2, 0xABCD, 0x5555, 0xAAAA}
 
 			outs, ref := newOutputPair(sz, r)
+			opts := tc.opts
 			for k, c := range scalars {
 				if c == 0 {
 					continue
