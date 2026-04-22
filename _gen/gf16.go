@@ -1321,11 +1321,11 @@ func genGF16() {
 		VMOVDQU(Mem{Base: inPtr, Disp: 0}, yLo)
 		VMOVDQU(Mem{Base: inPtr, Disp: 32}, yHi)
 
-		for k := 0; k < 8; k++ {
-			xLo, xHi := YMM(), YMM()
-			VMOVDQU(Mem{Base: outPtrs[k], Disp: 0}, xLo)
-			VMOVDQU(Mem{Base: outPtrs[k], Disp: 32}, xHi)
+		xLo, xHi := YMM(), YMM()
+		VMOVDQU(Mem{Base: outPtrs[0], Disp: 0}, xLo)
+		VMOVDQU(Mem{Base: outPtrs[0], Disp: 32}, xHi)
 
+		for k := 0; k < 8; k++ {
 			tA, tB, tC, tD := YMM(), YMM(), YMM(), YMM()
 			VBROADCASTSD(Mem{Base: tablesPtr, Disp: k*32 + 0}, tA)
 			VBROADCASTSD(Mem{Base: tablesPtr, Disp: k*32 + 8}, tB)
@@ -1336,11 +1336,16 @@ func genGF16() {
 			VGF2P8AFFINEQB(U8(0), tB, yHi, tB)
 			VGF2P8AFFINEQB(U8(0), tC, yLo, tC)
 			VGF2P8AFFINEQB(U8(0), tD, yHi, tD)
-			VPXOR3way(tA, tB, xLo)
-			VPXOR3way(tC, tD, xHi)
+			VPXOR3way(xLo, tA, tB)
+			VPXOR3way(xHi, tC, tD)
 
-			VMOVDQU(xLo, Mem{Base: outPtrs[k], Disp: 0})
-			VMOVDQU(xHi, Mem{Base: outPtrs[k], Disp: 32})
+			if k < 7 {
+				VMOVDQU(Mem{Base: outPtrs[k+1], Disp: 0}, xLo)
+				VMOVDQU(Mem{Base: outPtrs[k+1], Disp: 32}, xHi)
+			}
+
+			VMOVDQU(tB, Mem{Base: outPtrs[k], Disp: 0})
+			VMOVDQU(tD, Mem{Base: outPtrs[k], Disp: 32})
 		}
 
 		ADDQ(U8(64), inPtr)
@@ -1397,26 +1402,30 @@ func genGF16() {
 		Label("loop_mulgf16Xor8_avx512gfni")
 		VMOVDQU(Mem{Base: inPtr, Disp: 0}, yLo)
 		VMOVDQU(Mem{Base: inPtr, Disp: 32}, yHi)
+		VMOVDQU(Mem{Base: outPtrs[0], Disp: 0}, xLo)
+		VMOVDQU(Mem{Base: outPtrs[0], Disp: 32}, xHi)
 
 		for k := 0; k < 8; k++ {
-			VMOVDQU(Mem{Base: outPtrs[k], Disp: 0}, xLo)
-			VMOVDQU(Mem{Base: outPtrs[k], Disp: 32}, xHi)
-
 			tA := tableZMMs[k*3].AsY()
 			tB := tableZMMs[k*3+1].AsY()
 			tC := tableZMMs[k*3+2].AsY()
 
 			VGF2P8AFFINEQB(U8(0), tA, yLo, tmpA)
 			VGF2P8AFFINEQB(U8(0), tB, yHi, tmpB)
-			VPTERNLOGD(U8(0x96), tmpA, tmpB, xLo)
-
+			VPTERNLOGD(U8(0x96), xLo, tmpB, tmpA)
+			dstLo := tmpA
 			VGF2P8AFFINEQB(U8(0), tC, yLo, tmpC)
 			VBROADCASTSD(Mem{Base: tablesPtr, Disp: k*32 + 24}, tD)
 			VGF2P8AFFINEQB(U8(0), tD, yHi, tD)
-			VPTERNLOGD(U8(0x96), tmpC, tD, xHi)
+			VPTERNLOGD(U8(0x96), tD, xHi, tmpC)
+			dstHi := tmpC
 
-			VMOVDQU(xLo, Mem{Base: outPtrs[k], Disp: 0})
-			VMOVDQU(xHi, Mem{Base: outPtrs[k], Disp: 32})
+			if k < 7 {
+				VMOVDQU(Mem{Base: outPtrs[k+1], Disp: 0}, xLo)
+				VMOVDQU(Mem{Base: outPtrs[k+1], Disp: 32}, xHi)
+			}
+			VMOVDQU(dstLo, Mem{Base: outPtrs[k], Disp: 0})
+			VMOVDQU(dstHi, Mem{Base: outPtrs[k], Disp: 32})
 		}
 
 		ADDQ(U8(64), inPtr)
