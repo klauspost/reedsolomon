@@ -142,6 +142,28 @@ func galMulSlicesSveXor(matrix []byte, in, out [][]byte, start, stop int) (n int
 	panic(fmt.Sprintf("ARM SVE: unhandled size: %dx%d", len(in), len(out)))
 }
 
+// isFirstParityRowAllOne checks if the first parity row (first output) has all
+// coefficients equal to 1 in the generator matrix.
+//
+// In Jerasure matrix, the first parity row is always all-ones, enabling XOR-only
+// optimization for the first output. Subsequent parity rows typically have non-unity
+// coefficients and require full GF multiplication.
+//
+// The matrix layout in memory is: (input * outputs + output_index) * 64
+// This function checks only output_index=0 (first parity row).
+func isFirstParityRowAllOne(matrix []byte, inputs, outputs int) bool {
+	for i := 0; i < inputs; i++ {
+		checkIndex := (i*outputs+0)*64 + 1
+		if checkIndex >= len(matrix) {
+			return false
+		}
+		if matrix[checkIndex] != 0x1 {
+			return false
+		}
+	}
+	return true
+}
+
 func galMulSlicesNeon(matrix []byte, in, out [][]byte, start, stop int) (n int) {
 	n = stop - start
 	if raceEnabled {
@@ -150,6 +172,7 @@ func galMulSlicesNeon(matrix []byte, in, out [][]byte, start, stop int) (n int) 
 			raceWriteSlices(out, start, n)
 		}()
 	}
+	actualInputs := len(in)
 	if len(in) < codeGenMaxInputs {
 		var padded [codeGenMaxInputs][]byte
 		copy(padded[:], in)
@@ -157,6 +180,23 @@ func galMulSlicesNeon(matrix []byte, in, out [][]byte, start, stop int) (n int) 
 			padded[i] = in[0]
 		}
 		in = padded[:]
+	}
+	if 0 < len(out) && len(out) <= 4 && isFirstParityRowAllOne(matrix, actualInputs, len(out)) {
+		eorIn := in[:actualInputs]
+		switch len(out) {
+		case 1:
+			mulNeon_10x1_64eor(matrix, eorIn, out, start, n)
+			return n & (maxInt - 63)
+		case 2:
+			mulNeon_10x2_64eor(matrix, eorIn, out, start, n)
+			return n & (maxInt - 63)
+		case 3:
+			mulNeon_10x3_64eor(matrix, eorIn, out, start, n)
+			return n & (maxInt - 63)
+		case 4:
+			mulNeon_10x4eor(matrix, eorIn, out, start, n)
+			return n & (maxInt - 31)
+		}
 	}
 	switch len(out) {
 	case 1:
