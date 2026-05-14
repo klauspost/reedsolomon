@@ -336,6 +336,146 @@ func fixPostIncrementNeon(asmBuf *bytes.Buffer, lines []string) {
 	}
 }
 
+var neonLoadProcessRE = regexp.MustCompile(`// Load and process (32|64) bytes from input ([0-9]+) to ([0-9]+) outputs`)
+
+func neonVectorRegs(line string) (regs []string) {
+	start := strings.Index(line, "[")
+	end := strings.Index(line, "]")
+	if start == -1 || end == -1 || end <= start {
+		return nil
+	}
+	for _, f := range strings.Split(line[start+1:end], ",") {
+		f = strings.TrimSpace(f)
+		if strings.HasPrefix(f, "V") && strings.Contains(f, ".B16") {
+			regs = append(regs, strings.TrimSuffix(f, ".B16"))
+		}
+	}
+	return regs
+}
+
+func addNeonFirstOutputEorBlock(processed *[]string, block []string, finalBlock bool) {
+	if len(block) == 0 {
+		return
+	}
+	matches := neonLoadProcessRE.FindStringSubmatch(block[0])
+	if len(matches) != 4 {
+		*processed = append(*processed, block...)
+		return
+	}
+
+	bytesPerLoop, err := strconv.Atoi(matches[1])
+	if err != nil {
+		panic(err)
+	}
+	inputIdx, err := strconv.Atoi(matches[2])
+	if err != nil {
+		panic(err)
+	}
+	outputs, err := strconv.Atoi(matches[3])
+	if err != nil {
+		panic(err)
+	}
+	outputRegs := 2
+	if bytesPerLoop == 64 {
+		outputRegs = 4
+	}
+
+	*processed = append(*processed, block[0])
+
+	i := 1
+	inputRegs := make([]string, 0, outputRegs)
+	preTable := make([]string, 0, len(block))
+	for ; i < len(block); i++ {
+		line := block[i]
+		if strings.Contains(line, "VLD1.P") && strings.Contains(line, "(R2)") {
+			break
+		}
+		if strings.Contains(line, "VLD1.P") {
+			*processed = append(*processed, line)
+			inputRegs = append(inputRegs, neonVectorRegs(line)...)
+		} else {
+			preTable = append(preTable, line)
+		}
+	}
+	if len(inputRegs) != outputRegs {
+		panic(fmt.Sprintf("unexpected NEON input registers in eor block: got %d, want %d", len(inputRegs), outputRegs))
+	}
+
+	if inputIdx == 0 {
+		*processed = append(*processed, "    MOVD   $0, R27")
+		*processed = append(*processed, "    VMOV   R27, V20.B16")
+		for regIdx, src := range inputRegs {
+			*processed = append(*processed, fmt.Sprintf("    VEOR   %s.B16, V20.B16, V%d.B16", src, regIdx))
+		}
+	} else {
+		for regIdx, src := range inputRegs {
+			*processed = append(*processed, fmt.Sprintf("    VEOR   %s.B16, V%d.B16, V%d.B16", src, regIdx, regIdx))
+		}
+	}
+
+	if outputs == 1 {
+		if finalBlock || len(preTable) > 0 && preTable[len(preTable)-1] == "" {
+			*processed = append(*processed, "")
+		}
+		return
+	}
+
+	*processed = append(*processed, "    ADD    $64, R2")
+	*processed = append(*processed, preTable...)
+
+	skippingFirstOutput := false
+	skippedFirstOutput := false
+	sawSkippedVEOR := false
+	for ; i < len(block); i++ {
+		line := block[i]
+		if !skippedFirstOutput && strings.Contains(line, "VLD1.P") && strings.Contains(line, "(R2)") {
+			if !skippingFirstOutput {
+				skippingFirstOutput = true
+				continue
+			}
+			if sawSkippedVEOR {
+				*processed = append(*processed, line)
+				skippingFirstOutput = false
+				skippedFirstOutput = true
+				continue
+			}
+		}
+		if skippingFirstOutput {
+			if strings.Contains(line, "VEOR") {
+				sawSkippedVEOR = true
+			}
+			continue
+		}
+		*processed = append(*processed, line)
+	}
+}
+
+func addNeonFirstOutputEor(lines []string, baseName, eorName string) []string {
+	processed := make([]string, 0, len(lines))
+	for i := 0; i < len(lines); {
+		line := lines[i]
+		if neonLoadProcessRE.MatchString(line) {
+			block := []string{line}
+			i++
+			for i < len(lines) &&
+				!strings.Contains(lines[i], "// Check for early termination") &&
+				!strings.Contains(lines[i], "_store:") {
+				block = append(block, lines[i])
+				i++
+			}
+			finalBlock := i < len(lines) && strings.Contains(lines[i], "_store:")
+			addNeonFirstOutputEorBlock(&processed, block, finalBlock)
+			continue
+		}
+		processed = append(processed, line)
+		i++
+	}
+	for i := range processed {
+		processed[i] = strings.ReplaceAll(processed[i], baseName, eorName)
+	}
+	return processed
+}
+
 func genArmNeon() {
 	const SVE_CODE = "../galois_gen_arm64.s"
 
@@ -357,9 +497,11 @@ func genArmNeon() {
 
 	// Processing 64 bytes variants
 	for output := 1; output <= 3; output++ {
+		var baseRoutine []string
 		for op := ""; len(op) <= 3; op += "Xor" {
 			templName := fmt.Sprintf("mulSve_%dx%d_64%s", input, output, op)
-			funcDef := fmt.Sprintf("func %s(matrix []byte, in [][]byte, out [][]byte, start int, n int)", strings.ReplaceAll(templName, "Sve", "Neon"))
+			neonName := strings.ReplaceAll(templName, "Sve", "Neon")
+			funcDef := fmt.Sprintf("func %s(matrix []byte, in [][]byte, out [][]byte, start int, n int)", neonName)
 
 			lines, err := extractRoutine(SVE_CODE, fmt.Sprintf("TEXT ·%s(SB)", templName))
 			if err != nil {
@@ -373,19 +515,36 @@ func genArmNeon() {
 			{
 				asmTemp := &bytes.Buffer{}
 				convert2Neon(asmTemp, lines)
-				fixPostIncrementNeon(asmOut, strings.Split(string(asmTemp.Bytes()), "\n"))
+				fixed := &bytes.Buffer{}
+				fixPostIncrementNeon(fixed, strings.Split(string(asmTemp.Bytes()), "\n"))
+				if op == "" {
+					baseRoutine = strings.Split(strings.TrimSuffix(fixed.String(), "\n"), "\n")
+				}
+				asmOut.Write(fixed.Bytes())
 			}
 
 			// golang declaration
 			goOut.WriteString(fmt.Sprintf("//go:noescape\n%s\n\n", funcDef))
+			if op == "Xor" {
+				baseName := fmt.Sprintf("mulNeon_%dx%d_64", input, output)
+				eorName := baseName + "eor"
+				eorDef := fmt.Sprintf("func %s(matrix []byte, in [][]byte, out [][]byte, start int, n int)", eorName)
+				asmOut.WriteString(fmt.Sprintf("// %s\n", eorDef))
+				asmOut.WriteString("// Requires: NEON\n")
+				asmOut.WriteString(strings.Join(addNeonFirstOutputEor(baseRoutine, baseName, eorName), "\n"))
+				asmOut.WriteString("\n")
+				goOut.WriteString(fmt.Sprintf("//go:noescape\n%s\n\n", eorDef))
+			}
 		}
 	}
 
 	// Processing 32 bytes variants
 	for output := 4; output <= 10; output++ {
+		var baseRoutine []string
 		for op := ""; len(op) <= 3; op += "Xor" {
 			templName := fmt.Sprintf("mulSve_%dx%d%s", input, output, op)
-			funcDef := fmt.Sprintf("func %s(matrix []byte, in [][]byte, out [][]byte, start int, n int)", strings.ReplaceAll(templName, "Sve", "Neon"))
+			neonName := strings.ReplaceAll(templName, "Sve", "Neon")
+			funcDef := fmt.Sprintf("func %s(matrix []byte, in [][]byte, out [][]byte, start int, n int)", neonName)
 
 			lines, err := extractRoutine(SVE_CODE, fmt.Sprintf("TEXT ·%s(SB)", templName))
 			if err != nil {
@@ -399,11 +558,26 @@ func genArmNeon() {
 			{
 				asmTemp := &bytes.Buffer{}
 				convert2Neon(asmTemp, lines)
-				fixPostIncrementNeon(asmOut, strings.Split(string(asmTemp.Bytes()), "\n"))
+				fixed := &bytes.Buffer{}
+				fixPostIncrementNeon(fixed, strings.Split(string(asmTemp.Bytes()), "\n"))
+				if op == "" {
+					baseRoutine = strings.Split(strings.TrimSuffix(fixed.String(), "\n"), "\n")
+				}
+				asmOut.Write(fixed.Bytes())
 			}
 
 			// golang declaration
 			goOut.WriteString(fmt.Sprintf("//go:noescape\n%s\n", funcDef))
+			if output == 4 && op == "Xor" {
+				baseName := fmt.Sprintf("mulNeon_%dx%d", input, output)
+				eorName := baseName + "eor"
+				eorDef := fmt.Sprintf("func %s(matrix []byte, in [][]byte, out [][]byte, start int, n int)", eorName)
+				asmOut.WriteString(fmt.Sprintf("// %s\n", eorDef))
+				asmOut.WriteString("// Requires: NEON\n")
+				asmOut.WriteString(strings.Join(addNeonFirstOutputEor(baseRoutine, baseName, eorName), "\n"))
+				asmOut.WriteString("\n")
+				goOut.WriteString(fmt.Sprintf("\n//go:noescape\n%s\n", eorDef))
+			}
 
 			if !(output == 10 && op == "Xor") {
 				goOut.WriteString("\n")

@@ -11666,6 +11666,175 @@ mulNeon_10x1_64Xor_store:
 mulNeon_10x1_64Xor_end:
     RET
 
+// func mulNeon_10x1_64eor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+// Requires: NEON
+TEXT ·mulNeon_10x1_64eor(SB), $0-88
+    // Loading no tables to registers
+    // Destination kept in GP registers
+    // Full registers estimated 46 YMM used
+    MOVD n+80(FP), R0
+    LSR  $6, R0
+    TST  R0, R0
+    BEQ    mulNeon_10x1_64eor_end
+    MOVD in_base+24(FP), R3
+    MOVD (R3), R1
+    MOVD 24(R3), R4
+    MOVD 48(R3), R5
+    MOVD 72(R3), R8
+    MOVD 96(R3), R9
+    MOVD 120(R3), R10
+    MOVD 144(R3), R11
+    MOVD 168(R3), R12
+    MOVD 192(R3), R13
+    MOVD 216(R3), R3
+    MOVD out_base+48(FP), R14
+    MOVD (R14), R14
+    MOVD start+72(FP), R15
+
+    // Add start offset to output
+    ADD    R15, R14
+
+    // Add start offset to input
+    ADD    R15, R1
+    ADD    R15, R4
+    ADD    R15, R5
+    ADD    R15, R8
+    ADD    R15, R9
+    ADD    R15, R10
+    ADD    R15, R11
+    ADD    R15, R12
+    ADD    R15, R13
+    ADD    R15, R3
+    MOVD   $15, R15
+    VMOV   R15, V4.B[0]
+    VDUP   V4.B[0], V4.B16
+
+    // Load number of input shards
+    MOVD   in_len+32(FP), R16
+
+mulNeon_10x1_64eor_loop:
+    MOVD matrix_base+0(FP), R2
+    // Load and process 64 bytes from input 0 to 1 outputs
+    VLD1.P 32(R1), [V12.B16, V13.B16]
+    VLD1.P 32(R1), [V10.B16, V11.B16]
+    MOVD   $0, R27
+    VMOV   R27, V20.B16
+    VEOR   V12.B16, V20.B16, V0.B16
+    VEOR   V13.B16, V20.B16, V1.B16
+    VEOR   V10.B16, V20.B16, V2.B16
+    VEOR   V11.B16, V20.B16, V3.B16
+    // Check for early termination
+    CMP    $1, R16
+    BEQ    mulNeon_10x1_64eor_store
+
+    // Load and process 64 bytes from input 1 to 1 outputs
+    VLD1.P 32(R4), [V12.B16, V13.B16]
+    VLD1.P 32(R4), [V10.B16, V11.B16]
+    VEOR   V12.B16, V0.B16, V0.B16
+    VEOR   V13.B16, V1.B16, V1.B16
+    VEOR   V10.B16, V2.B16, V2.B16
+    VEOR   V11.B16, V3.B16, V3.B16
+    // Check for early termination
+    CMP    $2, R16
+    BEQ    mulNeon_10x1_64eor_store
+
+    // Load and process 64 bytes from input 2 to 1 outputs
+    VLD1.P 32(R5), [V12.B16, V13.B16]
+    VLD1.P 32(R5), [V10.B16, V11.B16]
+    VEOR   V12.B16, V0.B16, V0.B16
+    VEOR   V13.B16, V1.B16, V1.B16
+    VEOR   V10.B16, V2.B16, V2.B16
+    VEOR   V11.B16, V3.B16, V3.B16
+    // Check for early termination
+    CMP    $3, R16
+    BEQ    mulNeon_10x1_64eor_store
+
+    // Load and process 64 bytes from input 3 to 1 outputs
+    VLD1.P 32(R8), [V12.B16, V13.B16]
+    VLD1.P 32(R8), [V10.B16, V11.B16]
+    VEOR   V12.B16, V0.B16, V0.B16
+    VEOR   V13.B16, V1.B16, V1.B16
+    VEOR   V10.B16, V2.B16, V2.B16
+    VEOR   V11.B16, V3.B16, V3.B16
+    // Check for early termination
+    CMP    $4, R16
+    BEQ    mulNeon_10x1_64eor_store
+
+    // Load and process 64 bytes from input 4 to 1 outputs
+    VLD1.P 32(R9), [V12.B16, V13.B16]
+    VLD1.P 32(R9), [V10.B16, V11.B16]
+    VEOR   V12.B16, V0.B16, V0.B16
+    VEOR   V13.B16, V1.B16, V1.B16
+    VEOR   V10.B16, V2.B16, V2.B16
+    VEOR   V11.B16, V3.B16, V3.B16
+    // Check for early termination
+    CMP    $5, R16
+    BEQ    mulNeon_10x1_64eor_store
+
+    // Load and process 64 bytes from input 5 to 1 outputs
+    VLD1.P 32(R10), [V12.B16, V13.B16]
+    VLD1.P 32(R10), [V10.B16, V11.B16]
+    VEOR   V12.B16, V0.B16, V0.B16
+    VEOR   V13.B16, V1.B16, V1.B16
+    VEOR   V10.B16, V2.B16, V2.B16
+    VEOR   V11.B16, V3.B16, V3.B16
+    // Check for early termination
+    CMP    $6, R16
+    BEQ    mulNeon_10x1_64eor_store
+
+    // Load and process 64 bytes from input 6 to 1 outputs
+    VLD1.P 32(R11), [V12.B16, V13.B16]
+    VLD1.P 32(R11), [V10.B16, V11.B16]
+    VEOR   V12.B16, V0.B16, V0.B16
+    VEOR   V13.B16, V1.B16, V1.B16
+    VEOR   V10.B16, V2.B16, V2.B16
+    VEOR   V11.B16, V3.B16, V3.B16
+    // Check for early termination
+    CMP    $7, R16
+    BEQ    mulNeon_10x1_64eor_store
+
+    // Load and process 64 bytes from input 7 to 1 outputs
+    VLD1.P 32(R12), [V12.B16, V13.B16]
+    VLD1.P 32(R12), [V10.B16, V11.B16]
+    VEOR   V12.B16, V0.B16, V0.B16
+    VEOR   V13.B16, V1.B16, V1.B16
+    VEOR   V10.B16, V2.B16, V2.B16
+    VEOR   V11.B16, V3.B16, V3.B16
+    // Check for early termination
+    CMP    $8, R16
+    BEQ    mulNeon_10x1_64eor_store
+
+    // Load and process 64 bytes from input 8 to 1 outputs
+    VLD1.P 32(R13), [V12.B16, V13.B16]
+    VLD1.P 32(R13), [V10.B16, V11.B16]
+    VEOR   V12.B16, V0.B16, V0.B16
+    VEOR   V13.B16, V1.B16, V1.B16
+    VEOR   V10.B16, V2.B16, V2.B16
+    VEOR   V11.B16, V3.B16, V3.B16
+    // Check for early termination
+    CMP    $9, R16
+    BEQ    mulNeon_10x1_64eor_store
+
+    // Load and process 64 bytes from input 9 to 1 outputs
+    VLD1.P 32(R3), [V12.B16, V13.B16]
+    VLD1.P 32(R3), [V10.B16, V11.B16]
+    VEOR   V12.B16, V0.B16, V0.B16
+    VEOR   V13.B16, V1.B16, V1.B16
+    VEOR   V10.B16, V2.B16, V2.B16
+    VEOR   V11.B16, V3.B16, V3.B16
+
+mulNeon_10x1_64eor_store:
+    // Store 1 outputs
+    VST1.P [V0.D2, V1.D2], 32(R14)
+    VST1.P [V2.D2, V3.D2], 32(R14)
+
+    // Prepare for next loop
+    SUBS $1, R0
+    BNE  mulNeon_10x1_64eor_loop
+
+mulNeon_10x1_64eor_end:
+    RET
+
 // func mulNeon_10x2_64(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // Requires: NEON
 TEXT ·mulNeon_10x2_64(SB), $8-88
@@ -12886,6 +13055,485 @@ mulNeon_10x2_64Xor_store:
     BNE  mulNeon_10x2_64Xor_loop
 
 mulNeon_10x2_64Xor_end:
+    RET
+
+// func mulNeon_10x2_64eor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+// Requires: NEON
+TEXT ·mulNeon_10x2_64eor(SB), $8-88
+    // Loading no tables to registers
+    // Destination kept in GP registers
+    // Full registers estimated 89 YMM used
+    MOVD n+80(FP), R0
+    LSR  $6, R0
+    TST  R0, R0
+    BEQ    mulNeon_10x2_64eor_end
+    MOVD in_base+24(FP), R3
+    MOVD (R3), R1
+    MOVD 24(R3), R4
+    MOVD 48(R3), R5
+    MOVD 72(R3), R8
+    MOVD 96(R3), R9
+    MOVD 120(R3), R10
+    MOVD 144(R3), R11
+    MOVD 168(R3), R12
+    MOVD 192(R3), R13
+    MOVD 216(R3), R3
+    MOVD out_base+48(FP), R14
+    MOVD (R14), R15
+    MOVD 24(R14), R14
+    MOVD start+72(FP), R6
+
+    // Add start offset to output
+    ADD    R6, R15
+    ADD    R6, R14
+
+    // Add start offset to input
+    ADD    R6, R1
+    ADD    R6, R4
+    ADD    R6, R5
+    ADD    R6, R8
+    ADD    R6, R9
+    ADD    R6, R10
+    ADD    R6, R11
+    ADD    R6, R12
+    ADD    R6, R13
+    ADD    R6, R3
+    MOVD   $15, R6
+    VMOV   R6, V8.B[0]
+    VDUP   V8.B[0], V8.B16
+
+    // Load number of input shards
+    MOVD   in_len+32(FP), R16
+
+mulNeon_10x2_64eor_loop:
+    MOVD matrix_base+0(FP), R2
+    // Load and process 64 bytes from input 0 to 2 outputs
+    VLD1.P 32(R1), [V18.B16, V19.B16]
+    VLD1.P 32(R1), [V22.B16, V23.B16]
+    MOVD   $0, R27
+    VMOV   R27, V20.B16
+    VEOR   V18.B16, V20.B16, V0.B16
+    VEOR   V19.B16, V20.B16, V1.B16
+    VEOR   V22.B16, V20.B16, V2.B16
+    VEOR   V23.B16, V20.B16, V3.B16
+    ADD    $64, R2
+    VUSHR  $4, V18.B16, V20.B16
+    VUSHR  $4, V19.B16, V21.B16
+    VUSHR  $4, V22.B16, V24.B16
+    VUSHR  $4, V23.B16, V25.B16
+    VAND   V8.B16, V18.B16, V18.B16
+    VAND   V8.B16, V19.B16, V19.B16
+    VAND   V8.B16, V22.B16, V22.B16
+    VAND   V8.B16, V23.B16, V23.B16
+    VAND   V8.B16, V20.B16, V20.B16
+    VAND   V8.B16, V21.B16, V21.B16
+    VAND   V8.B16, V24.B16, V24.B16
+    VAND   V8.B16, V25.B16, V25.B16
+    VLD1.P 32(R2), [V10.B16, V11.B16]
+    VLD1.P 32(R2), [V12.B16, V13.B16]
+    VTBL   V22.B16, [V10.B16], V14.B16
+    VTBL   V23.B16, [V11.B16], V15.B16
+    VTBL   V18.B16, [V10.B16], V10.B16
+    VTBL   V19.B16, [V11.B16], V11.B16
+    VTBL   V24.B16, [V12.B16], V16.B16
+    VTBL   V25.B16, [V13.B16], V17.B16
+    VTBL   V20.B16, [V12.B16], V12.B16
+    VTBL   V21.B16, [V13.B16], V13.B16
+    VEOR   V10.B16, V12.B16, V4.B16
+    VEOR   V11.B16, V13.B16, V5.B16
+    VEOR   V14.B16, V16.B16, V6.B16
+    VEOR   V15.B16, V17.B16, V7.B16
+    // Check for early termination
+    CMP    $1, R16
+    BEQ    mulNeon_10x2_64eor_store
+
+    // Load and process 64 bytes from input 1 to 2 outputs
+    VLD1.P 32(R4), [V18.B16, V19.B16]
+    VLD1.P 32(R4), [V22.B16, V23.B16]
+    VEOR   V18.B16, V0.B16, V0.B16
+    VEOR   V19.B16, V1.B16, V1.B16
+    VEOR   V22.B16, V2.B16, V2.B16
+    VEOR   V23.B16, V3.B16, V3.B16
+    ADD    $64, R2
+    VUSHR  $4, V18.B16, V20.B16
+    VUSHR  $4, V19.B16, V21.B16
+    VUSHR  $4, V22.B16, V24.B16
+    VUSHR  $4, V23.B16, V25.B16
+    VAND   V8.B16, V18.B16, V18.B16
+    VAND   V8.B16, V19.B16, V19.B16
+    VAND   V8.B16, V22.B16, V22.B16
+    VAND   V8.B16, V23.B16, V23.B16
+    VAND   V8.B16, V20.B16, V20.B16
+    VAND   V8.B16, V21.B16, V21.B16
+    VAND   V8.B16, V24.B16, V24.B16
+    VAND   V8.B16, V25.B16, V25.B16
+    VLD1.P 32(R2), [V10.B16, V11.B16]
+    VLD1.P 32(R2), [V12.B16, V13.B16]
+    VTBL   V22.B16, [V10.B16], V14.B16
+    VTBL   V23.B16, [V11.B16], V15.B16
+    VTBL   V18.B16, [V10.B16], V10.B16
+    VTBL   V19.B16, [V11.B16], V11.B16
+    VTBL   V24.B16, [V12.B16], V16.B16
+    VTBL   V25.B16, [V13.B16], V17.B16
+    VTBL   V20.B16, [V12.B16], V12.B16
+    VTBL   V21.B16, [V13.B16], V13.B16
+    VEOR   V10.B16, V4.B16, V4.B16
+    VEOR   V11.B16, V5.B16, V5.B16
+    VEOR   V12.B16, V4.B16, V4.B16
+    VEOR   V13.B16, V5.B16, V5.B16
+    VEOR   V14.B16, V6.B16, V6.B16
+    VEOR   V15.B16, V7.B16, V7.B16
+    VEOR   V16.B16, V6.B16, V6.B16
+    VEOR   V17.B16, V7.B16, V7.B16
+    // Check for early termination
+    CMP    $2, R16
+    BEQ    mulNeon_10x2_64eor_store
+
+    // Load and process 64 bytes from input 2 to 2 outputs
+    VLD1.P 32(R5), [V18.B16, V19.B16]
+    VLD1.P 32(R5), [V22.B16, V23.B16]
+    VEOR   V18.B16, V0.B16, V0.B16
+    VEOR   V19.B16, V1.B16, V1.B16
+    VEOR   V22.B16, V2.B16, V2.B16
+    VEOR   V23.B16, V3.B16, V3.B16
+    ADD    $64, R2
+    VUSHR  $4, V18.B16, V20.B16
+    VUSHR  $4, V19.B16, V21.B16
+    VUSHR  $4, V22.B16, V24.B16
+    VUSHR  $4, V23.B16, V25.B16
+    VAND   V8.B16, V18.B16, V18.B16
+    VAND   V8.B16, V19.B16, V19.B16
+    VAND   V8.B16, V22.B16, V22.B16
+    VAND   V8.B16, V23.B16, V23.B16
+    VAND   V8.B16, V20.B16, V20.B16
+    VAND   V8.B16, V21.B16, V21.B16
+    VAND   V8.B16, V24.B16, V24.B16
+    VAND   V8.B16, V25.B16, V25.B16
+    VLD1.P 32(R2), [V10.B16, V11.B16]
+    VLD1.P 32(R2), [V12.B16, V13.B16]
+    VTBL   V22.B16, [V10.B16], V14.B16
+    VTBL   V23.B16, [V11.B16], V15.B16
+    VTBL   V18.B16, [V10.B16], V10.B16
+    VTBL   V19.B16, [V11.B16], V11.B16
+    VTBL   V24.B16, [V12.B16], V16.B16
+    VTBL   V25.B16, [V13.B16], V17.B16
+    VTBL   V20.B16, [V12.B16], V12.B16
+    VTBL   V21.B16, [V13.B16], V13.B16
+    VEOR   V10.B16, V4.B16, V4.B16
+    VEOR   V11.B16, V5.B16, V5.B16
+    VEOR   V12.B16, V4.B16, V4.B16
+    VEOR   V13.B16, V5.B16, V5.B16
+    VEOR   V14.B16, V6.B16, V6.B16
+    VEOR   V15.B16, V7.B16, V7.B16
+    VEOR   V16.B16, V6.B16, V6.B16
+    VEOR   V17.B16, V7.B16, V7.B16
+    // Check for early termination
+    CMP    $3, R16
+    BEQ    mulNeon_10x2_64eor_store
+
+    // Load and process 64 bytes from input 3 to 2 outputs
+    VLD1.P 32(R8), [V18.B16, V19.B16]
+    VLD1.P 32(R8), [V22.B16, V23.B16]
+    VEOR   V18.B16, V0.B16, V0.B16
+    VEOR   V19.B16, V1.B16, V1.B16
+    VEOR   V22.B16, V2.B16, V2.B16
+    VEOR   V23.B16, V3.B16, V3.B16
+    ADD    $64, R2
+    VUSHR  $4, V18.B16, V20.B16
+    VUSHR  $4, V19.B16, V21.B16
+    VUSHR  $4, V22.B16, V24.B16
+    VUSHR  $4, V23.B16, V25.B16
+    VAND   V8.B16, V18.B16, V18.B16
+    VAND   V8.B16, V19.B16, V19.B16
+    VAND   V8.B16, V22.B16, V22.B16
+    VAND   V8.B16, V23.B16, V23.B16
+    VAND   V8.B16, V20.B16, V20.B16
+    VAND   V8.B16, V21.B16, V21.B16
+    VAND   V8.B16, V24.B16, V24.B16
+    VAND   V8.B16, V25.B16, V25.B16
+    VLD1.P 32(R2), [V10.B16, V11.B16]
+    VLD1.P 32(R2), [V12.B16, V13.B16]
+    VTBL   V22.B16, [V10.B16], V14.B16
+    VTBL   V23.B16, [V11.B16], V15.B16
+    VTBL   V18.B16, [V10.B16], V10.B16
+    VTBL   V19.B16, [V11.B16], V11.B16
+    VTBL   V24.B16, [V12.B16], V16.B16
+    VTBL   V25.B16, [V13.B16], V17.B16
+    VTBL   V20.B16, [V12.B16], V12.B16
+    VTBL   V21.B16, [V13.B16], V13.B16
+    VEOR   V10.B16, V4.B16, V4.B16
+    VEOR   V11.B16, V5.B16, V5.B16
+    VEOR   V12.B16, V4.B16, V4.B16
+    VEOR   V13.B16, V5.B16, V5.B16
+    VEOR   V14.B16, V6.B16, V6.B16
+    VEOR   V15.B16, V7.B16, V7.B16
+    VEOR   V16.B16, V6.B16, V6.B16
+    VEOR   V17.B16, V7.B16, V7.B16
+    // Check for early termination
+    CMP    $4, R16
+    BEQ    mulNeon_10x2_64eor_store
+
+    // Load and process 64 bytes from input 4 to 2 outputs
+    VLD1.P 32(R9), [V18.B16, V19.B16]
+    VLD1.P 32(R9), [V22.B16, V23.B16]
+    VEOR   V18.B16, V0.B16, V0.B16
+    VEOR   V19.B16, V1.B16, V1.B16
+    VEOR   V22.B16, V2.B16, V2.B16
+    VEOR   V23.B16, V3.B16, V3.B16
+    ADD    $64, R2
+    VUSHR  $4, V18.B16, V20.B16
+    VUSHR  $4, V19.B16, V21.B16
+    VUSHR  $4, V22.B16, V24.B16
+    VUSHR  $4, V23.B16, V25.B16
+    VAND   V8.B16, V18.B16, V18.B16
+    VAND   V8.B16, V19.B16, V19.B16
+    VAND   V8.B16, V22.B16, V22.B16
+    VAND   V8.B16, V23.B16, V23.B16
+    VAND   V8.B16, V20.B16, V20.B16
+    VAND   V8.B16, V21.B16, V21.B16
+    VAND   V8.B16, V24.B16, V24.B16
+    VAND   V8.B16, V25.B16, V25.B16
+    VLD1.P 32(R2), [V10.B16, V11.B16]
+    VLD1.P 32(R2), [V12.B16, V13.B16]
+    VTBL   V22.B16, [V10.B16], V14.B16
+    VTBL   V23.B16, [V11.B16], V15.B16
+    VTBL   V18.B16, [V10.B16], V10.B16
+    VTBL   V19.B16, [V11.B16], V11.B16
+    VTBL   V24.B16, [V12.B16], V16.B16
+    VTBL   V25.B16, [V13.B16], V17.B16
+    VTBL   V20.B16, [V12.B16], V12.B16
+    VTBL   V21.B16, [V13.B16], V13.B16
+    VEOR   V10.B16, V4.B16, V4.B16
+    VEOR   V11.B16, V5.B16, V5.B16
+    VEOR   V12.B16, V4.B16, V4.B16
+    VEOR   V13.B16, V5.B16, V5.B16
+    VEOR   V14.B16, V6.B16, V6.B16
+    VEOR   V15.B16, V7.B16, V7.B16
+    VEOR   V16.B16, V6.B16, V6.B16
+    VEOR   V17.B16, V7.B16, V7.B16
+    // Check for early termination
+    CMP    $5, R16
+    BEQ    mulNeon_10x2_64eor_store
+
+    // Load and process 64 bytes from input 5 to 2 outputs
+    VLD1.P 32(R10), [V18.B16, V19.B16]
+    VLD1.P 32(R10), [V22.B16, V23.B16]
+    VEOR   V18.B16, V0.B16, V0.B16
+    VEOR   V19.B16, V1.B16, V1.B16
+    VEOR   V22.B16, V2.B16, V2.B16
+    VEOR   V23.B16, V3.B16, V3.B16
+    ADD    $64, R2
+    VUSHR  $4, V18.B16, V20.B16
+    VUSHR  $4, V19.B16, V21.B16
+    VUSHR  $4, V22.B16, V24.B16
+    VUSHR  $4, V23.B16, V25.B16
+    VAND   V8.B16, V18.B16, V18.B16
+    VAND   V8.B16, V19.B16, V19.B16
+    VAND   V8.B16, V22.B16, V22.B16
+    VAND   V8.B16, V23.B16, V23.B16
+    VAND   V8.B16, V20.B16, V20.B16
+    VAND   V8.B16, V21.B16, V21.B16
+    VAND   V8.B16, V24.B16, V24.B16
+    VAND   V8.B16, V25.B16, V25.B16
+    VLD1.P 32(R2), [V10.B16, V11.B16]
+    VLD1.P 32(R2), [V12.B16, V13.B16]
+    VTBL   V22.B16, [V10.B16], V14.B16
+    VTBL   V23.B16, [V11.B16], V15.B16
+    VTBL   V18.B16, [V10.B16], V10.B16
+    VTBL   V19.B16, [V11.B16], V11.B16
+    VTBL   V24.B16, [V12.B16], V16.B16
+    VTBL   V25.B16, [V13.B16], V17.B16
+    VTBL   V20.B16, [V12.B16], V12.B16
+    VTBL   V21.B16, [V13.B16], V13.B16
+    VEOR   V10.B16, V4.B16, V4.B16
+    VEOR   V11.B16, V5.B16, V5.B16
+    VEOR   V12.B16, V4.B16, V4.B16
+    VEOR   V13.B16, V5.B16, V5.B16
+    VEOR   V14.B16, V6.B16, V6.B16
+    VEOR   V15.B16, V7.B16, V7.B16
+    VEOR   V16.B16, V6.B16, V6.B16
+    VEOR   V17.B16, V7.B16, V7.B16
+    // Check for early termination
+    CMP    $6, R16
+    BEQ    mulNeon_10x2_64eor_store
+
+    // Load and process 64 bytes from input 6 to 2 outputs
+    VLD1.P 32(R11), [V18.B16, V19.B16]
+    VLD1.P 32(R11), [V22.B16, V23.B16]
+    VEOR   V18.B16, V0.B16, V0.B16
+    VEOR   V19.B16, V1.B16, V1.B16
+    VEOR   V22.B16, V2.B16, V2.B16
+    VEOR   V23.B16, V3.B16, V3.B16
+    ADD    $64, R2
+    VUSHR  $4, V18.B16, V20.B16
+    VUSHR  $4, V19.B16, V21.B16
+    VUSHR  $4, V22.B16, V24.B16
+    VUSHR  $4, V23.B16, V25.B16
+    VAND   V8.B16, V18.B16, V18.B16
+    VAND   V8.B16, V19.B16, V19.B16
+    VAND   V8.B16, V22.B16, V22.B16
+    VAND   V8.B16, V23.B16, V23.B16
+    VAND   V8.B16, V20.B16, V20.B16
+    VAND   V8.B16, V21.B16, V21.B16
+    VAND   V8.B16, V24.B16, V24.B16
+    VAND   V8.B16, V25.B16, V25.B16
+    VLD1.P 32(R2), [V10.B16, V11.B16]
+    VLD1.P 32(R2), [V12.B16, V13.B16]
+    VTBL   V22.B16, [V10.B16], V14.B16
+    VTBL   V23.B16, [V11.B16], V15.B16
+    VTBL   V18.B16, [V10.B16], V10.B16
+    VTBL   V19.B16, [V11.B16], V11.B16
+    VTBL   V24.B16, [V12.B16], V16.B16
+    VTBL   V25.B16, [V13.B16], V17.B16
+    VTBL   V20.B16, [V12.B16], V12.B16
+    VTBL   V21.B16, [V13.B16], V13.B16
+    VEOR   V10.B16, V4.B16, V4.B16
+    VEOR   V11.B16, V5.B16, V5.B16
+    VEOR   V12.B16, V4.B16, V4.B16
+    VEOR   V13.B16, V5.B16, V5.B16
+    VEOR   V14.B16, V6.B16, V6.B16
+    VEOR   V15.B16, V7.B16, V7.B16
+    VEOR   V16.B16, V6.B16, V6.B16
+    VEOR   V17.B16, V7.B16, V7.B16
+    // Check for early termination
+    CMP    $7, R16
+    BEQ    mulNeon_10x2_64eor_store
+
+    // Load and process 64 bytes from input 7 to 2 outputs
+    VLD1.P 32(R12), [V18.B16, V19.B16]
+    VLD1.P 32(R12), [V22.B16, V23.B16]
+    VEOR   V18.B16, V0.B16, V0.B16
+    VEOR   V19.B16, V1.B16, V1.B16
+    VEOR   V22.B16, V2.B16, V2.B16
+    VEOR   V23.B16, V3.B16, V3.B16
+    ADD    $64, R2
+    VUSHR  $4, V18.B16, V20.B16
+    VUSHR  $4, V19.B16, V21.B16
+    VUSHR  $4, V22.B16, V24.B16
+    VUSHR  $4, V23.B16, V25.B16
+    VAND   V8.B16, V18.B16, V18.B16
+    VAND   V8.B16, V19.B16, V19.B16
+    VAND   V8.B16, V22.B16, V22.B16
+    VAND   V8.B16, V23.B16, V23.B16
+    VAND   V8.B16, V20.B16, V20.B16
+    VAND   V8.B16, V21.B16, V21.B16
+    VAND   V8.B16, V24.B16, V24.B16
+    VAND   V8.B16, V25.B16, V25.B16
+    VLD1.P 32(R2), [V10.B16, V11.B16]
+    VLD1.P 32(R2), [V12.B16, V13.B16]
+    VTBL   V22.B16, [V10.B16], V14.B16
+    VTBL   V23.B16, [V11.B16], V15.B16
+    VTBL   V18.B16, [V10.B16], V10.B16
+    VTBL   V19.B16, [V11.B16], V11.B16
+    VTBL   V24.B16, [V12.B16], V16.B16
+    VTBL   V25.B16, [V13.B16], V17.B16
+    VTBL   V20.B16, [V12.B16], V12.B16
+    VTBL   V21.B16, [V13.B16], V13.B16
+    VEOR   V10.B16, V4.B16, V4.B16
+    VEOR   V11.B16, V5.B16, V5.B16
+    VEOR   V12.B16, V4.B16, V4.B16
+    VEOR   V13.B16, V5.B16, V5.B16
+    VEOR   V14.B16, V6.B16, V6.B16
+    VEOR   V15.B16, V7.B16, V7.B16
+    VEOR   V16.B16, V6.B16, V6.B16
+    VEOR   V17.B16, V7.B16, V7.B16
+    // Check for early termination
+    CMP    $8, R16
+    BEQ    mulNeon_10x2_64eor_store
+
+    // Load and process 64 bytes from input 8 to 2 outputs
+    VLD1.P 32(R13), [V18.B16, V19.B16]
+    VLD1.P 32(R13), [V22.B16, V23.B16]
+    VEOR   V18.B16, V0.B16, V0.B16
+    VEOR   V19.B16, V1.B16, V1.B16
+    VEOR   V22.B16, V2.B16, V2.B16
+    VEOR   V23.B16, V3.B16, V3.B16
+    ADD    $64, R2
+    VUSHR  $4, V18.B16, V20.B16
+    VUSHR  $4, V19.B16, V21.B16
+    VUSHR  $4, V22.B16, V24.B16
+    VUSHR  $4, V23.B16, V25.B16
+    VAND   V8.B16, V18.B16, V18.B16
+    VAND   V8.B16, V19.B16, V19.B16
+    VAND   V8.B16, V22.B16, V22.B16
+    VAND   V8.B16, V23.B16, V23.B16
+    VAND   V8.B16, V20.B16, V20.B16
+    VAND   V8.B16, V21.B16, V21.B16
+    VAND   V8.B16, V24.B16, V24.B16
+    VAND   V8.B16, V25.B16, V25.B16
+    VLD1.P 32(R2), [V10.B16, V11.B16]
+    VLD1.P 32(R2), [V12.B16, V13.B16]
+    VTBL   V22.B16, [V10.B16], V14.B16
+    VTBL   V23.B16, [V11.B16], V15.B16
+    VTBL   V18.B16, [V10.B16], V10.B16
+    VTBL   V19.B16, [V11.B16], V11.B16
+    VTBL   V24.B16, [V12.B16], V16.B16
+    VTBL   V25.B16, [V13.B16], V17.B16
+    VTBL   V20.B16, [V12.B16], V12.B16
+    VTBL   V21.B16, [V13.B16], V13.B16
+    VEOR   V10.B16, V4.B16, V4.B16
+    VEOR   V11.B16, V5.B16, V5.B16
+    VEOR   V12.B16, V4.B16, V4.B16
+    VEOR   V13.B16, V5.B16, V5.B16
+    VEOR   V14.B16, V6.B16, V6.B16
+    VEOR   V15.B16, V7.B16, V7.B16
+    VEOR   V16.B16, V6.B16, V6.B16
+    VEOR   V17.B16, V7.B16, V7.B16
+    // Check for early termination
+    CMP    $9, R16
+    BEQ    mulNeon_10x2_64eor_store
+
+    // Load and process 64 bytes from input 9 to 2 outputs
+    VLD1.P 32(R3), [V18.B16, V19.B16]
+    VLD1.P 32(R3), [V22.B16, V23.B16]
+    VEOR   V18.B16, V0.B16, V0.B16
+    VEOR   V19.B16, V1.B16, V1.B16
+    VEOR   V22.B16, V2.B16, V2.B16
+    VEOR   V23.B16, V3.B16, V3.B16
+    ADD    $64, R2
+    VUSHR  $4, V18.B16, V20.B16
+    VUSHR  $4, V19.B16, V21.B16
+    VUSHR  $4, V22.B16, V24.B16
+    VUSHR  $4, V23.B16, V25.B16
+    VAND   V8.B16, V18.B16, V18.B16
+    VAND   V8.B16, V19.B16, V19.B16
+    VAND   V8.B16, V22.B16, V22.B16
+    VAND   V8.B16, V23.B16, V23.B16
+    VAND   V8.B16, V20.B16, V20.B16
+    VAND   V8.B16, V21.B16, V21.B16
+    VAND   V8.B16, V24.B16, V24.B16
+    VAND   V8.B16, V25.B16, V25.B16
+    VLD1.P 32(R2), [V10.B16, V11.B16]
+    VLD1.P 32(R2), [V12.B16, V13.B16]
+    VTBL   V22.B16, [V10.B16], V14.B16
+    VTBL   V23.B16, [V11.B16], V15.B16
+    VTBL   V18.B16, [V10.B16], V10.B16
+    VTBL   V19.B16, [V11.B16], V11.B16
+    VTBL   V24.B16, [V12.B16], V16.B16
+    VTBL   V25.B16, [V13.B16], V17.B16
+    VTBL   V20.B16, [V12.B16], V12.B16
+    VTBL   V21.B16, [V13.B16], V13.B16
+    VEOR   V10.B16, V4.B16, V4.B16
+    VEOR   V11.B16, V5.B16, V5.B16
+    VEOR   V12.B16, V4.B16, V4.B16
+    VEOR   V13.B16, V5.B16, V5.B16
+    VEOR   V14.B16, V6.B16, V6.B16
+    VEOR   V15.B16, V7.B16, V7.B16
+    VEOR   V16.B16, V6.B16, V6.B16
+    VEOR   V17.B16, V7.B16, V7.B16
+
+mulNeon_10x2_64eor_store:
+    // Store 2 outputs
+    VST1.P [V0.D2, V1.D2], 32(R15)
+    VST1.P [V2.D2, V3.D2], 32(R15)
+    VST1.P [V4.D2, V5.D2], 32(R14)
+    VST1.P [V6.D2, V7.D2], 32(R14)
+
+    // Prepare for next loop
+    SUBS $1, R0
+    BNE  mulNeon_10x2_64eor_loop
+
+mulNeon_10x2_64eor_end:
     RET
 
 // func mulNeon_10x3_64(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -14485,6 +15133,669 @@ mulNeon_10x3_64Xor_store:
 mulNeon_10x3_64Xor_end:
     RET
 
+// func mulNeon_10x3_64eor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+// Requires: NEON
+TEXT ·mulNeon_10x3_64eor(SB), $8-88
+    // Loading no tables to registers
+    // Destination kept in GP registers
+    // Full registers estimated 130 YMM used
+    MOVD n+80(FP), R0
+    LSR  $6, R0
+    TST  R0, R0
+    BEQ    mulNeon_10x3_64eor_end
+    MOVD in_base+24(FP), R0
+    MOVD (R0), R3
+    MOVD 24(R0), R1
+    MOVD 48(R0), R4
+    MOVD 72(R0), R5
+    MOVD 96(R0), R8
+    MOVD 120(R0), R9
+    MOVD 144(R0), R10
+    MOVD 168(R0), R11
+    MOVD 192(R0), R12
+    MOVD 216(R0), R0
+    MOVD out_base+48(FP), R13
+    MOVD (R13), R14
+    MOVD 24(R13), R15
+    MOVD 48(R13), R13
+    MOVD start+72(FP), R6
+
+    // Add start offset to output
+    ADD    R6, R14
+    ADD    R6, R15
+    ADD    R6, R13
+
+    // Add start offset to input
+    ADD    R6, R3
+    ADD    R6, R1
+    ADD    R6, R4
+    ADD    R6, R5
+    ADD    R6, R8
+    ADD    R6, R9
+    ADD    R6, R10
+    ADD    R6, R11
+    ADD    R6, R12
+    ADD    R6, R0
+    MOVD   $15, R6
+    VMOV   R6, V12.B[0]
+    VDUP   V12.B[0], V12.B16
+
+    // Reload length to save a register
+    MOVD n+80(FP), R6
+    LSR  $6, R6
+
+    // Load number of input shards
+    MOVD   in_len+32(FP), R16
+
+mulNeon_10x3_64eor_loop:
+    MOVD matrix_base+0(FP), R2
+    // Load and process 64 bytes from input 0 to 3 outputs
+    VLD1.P 32(R3), [V22.B16, V23.B16]
+    VLD1.P 32(R3), [V26.B16, V27.B16]
+    MOVD   $0, R27
+    VMOV   R27, V20.B16
+    VEOR   V22.B16, V20.B16, V0.B16
+    VEOR   V23.B16, V20.B16, V1.B16
+    VEOR   V26.B16, V20.B16, V2.B16
+    VEOR   V27.B16, V20.B16, V3.B16
+    ADD    $64, R2
+    VUSHR  $4, V22.B16, V24.B16
+    VUSHR  $4, V23.B16, V25.B16
+    VUSHR  $4, V26.B16, V28.B16
+    VUSHR  $4, V27.B16, V29.B16
+    VAND   V12.B16, V22.B16, V22.B16
+    VAND   V12.B16, V23.B16, V23.B16
+    VAND   V12.B16, V26.B16, V26.B16
+    VAND   V12.B16, V27.B16, V27.B16
+    VAND   V12.B16, V24.B16, V24.B16
+    VAND   V12.B16, V25.B16, V25.B16
+    VAND   V12.B16, V28.B16, V28.B16
+    VAND   V12.B16, V29.B16, V29.B16
+    VLD1.P 32(R2), [V14.B16, V15.B16]
+    VLD1.P 32(R2), [V16.B16, V17.B16]
+    VTBL   V26.B16, [V14.B16], V18.B16
+    VTBL   V27.B16, [V15.B16], V19.B16
+    VTBL   V22.B16, [V14.B16], V14.B16
+    VTBL   V23.B16, [V15.B16], V15.B16
+    VTBL   V28.B16, [V16.B16], V20.B16
+    VTBL   V29.B16, [V17.B16], V21.B16
+    VTBL   V24.B16, [V16.B16], V16.B16
+    VTBL   V25.B16, [V17.B16], V17.B16
+    VEOR   V14.B16, V16.B16, V4.B16
+    VEOR   V15.B16, V17.B16, V5.B16
+    VEOR   V18.B16, V20.B16, V6.B16
+    VEOR   V19.B16, V21.B16, V7.B16
+    VLD1.P 32(R2), [V14.B16, V15.B16]
+    VLD1.P 32(R2), [V16.B16, V17.B16]
+    VTBL   V26.B16, [V14.B16], V18.B16
+    VTBL   V27.B16, [V15.B16], V19.B16
+    VTBL   V22.B16, [V14.B16], V14.B16
+    VTBL   V23.B16, [V15.B16], V15.B16
+    VTBL   V28.B16, [V16.B16], V20.B16
+    VTBL   V29.B16, [V17.B16], V21.B16
+    VTBL   V24.B16, [V16.B16], V16.B16
+    VTBL   V25.B16, [V17.B16], V17.B16
+    VEOR   V14.B16, V16.B16, V8.B16
+    VEOR   V15.B16, V17.B16, V9.B16
+    VEOR   V18.B16, V20.B16, V10.B16
+    VEOR   V19.B16, V21.B16, V11.B16
+    // Check for early termination
+    CMP    $1, R16
+    BEQ    mulNeon_10x3_64eor_store
+
+    // Load and process 64 bytes from input 1 to 3 outputs
+    VLD1.P 32(R1), [V22.B16, V23.B16]
+    VLD1.P 32(R1), [V26.B16, V27.B16]
+    VEOR   V22.B16, V0.B16, V0.B16
+    VEOR   V23.B16, V1.B16, V1.B16
+    VEOR   V26.B16, V2.B16, V2.B16
+    VEOR   V27.B16, V3.B16, V3.B16
+    ADD    $64, R2
+    VUSHR  $4, V22.B16, V24.B16
+    VUSHR  $4, V23.B16, V25.B16
+    VUSHR  $4, V26.B16, V28.B16
+    VUSHR  $4, V27.B16, V29.B16
+    VAND   V12.B16, V22.B16, V22.B16
+    VAND   V12.B16, V23.B16, V23.B16
+    VAND   V12.B16, V26.B16, V26.B16
+    VAND   V12.B16, V27.B16, V27.B16
+    VAND   V12.B16, V24.B16, V24.B16
+    VAND   V12.B16, V25.B16, V25.B16
+    VAND   V12.B16, V28.B16, V28.B16
+    VAND   V12.B16, V29.B16, V29.B16
+    VLD1.P 32(R2), [V14.B16, V15.B16]
+    VLD1.P 32(R2), [V16.B16, V17.B16]
+    VTBL   V26.B16, [V14.B16], V18.B16
+    VTBL   V27.B16, [V15.B16], V19.B16
+    VTBL   V22.B16, [V14.B16], V14.B16
+    VTBL   V23.B16, [V15.B16], V15.B16
+    VTBL   V28.B16, [V16.B16], V20.B16
+    VTBL   V29.B16, [V17.B16], V21.B16
+    VTBL   V24.B16, [V16.B16], V16.B16
+    VTBL   V25.B16, [V17.B16], V17.B16
+    VEOR   V14.B16, V4.B16, V4.B16
+    VEOR   V15.B16, V5.B16, V5.B16
+    VEOR   V16.B16, V4.B16, V4.B16
+    VEOR   V17.B16, V5.B16, V5.B16
+    VEOR   V18.B16, V6.B16, V6.B16
+    VEOR   V19.B16, V7.B16, V7.B16
+    VEOR   V20.B16, V6.B16, V6.B16
+    VEOR   V21.B16, V7.B16, V7.B16
+    VLD1.P 32(R2), [V14.B16, V15.B16]
+    VLD1.P 32(R2), [V16.B16, V17.B16]
+    VTBL   V26.B16, [V14.B16], V18.B16
+    VTBL   V27.B16, [V15.B16], V19.B16
+    VTBL   V22.B16, [V14.B16], V14.B16
+    VTBL   V23.B16, [V15.B16], V15.B16
+    VTBL   V28.B16, [V16.B16], V20.B16
+    VTBL   V29.B16, [V17.B16], V21.B16
+    VTBL   V24.B16, [V16.B16], V16.B16
+    VTBL   V25.B16, [V17.B16], V17.B16
+    VEOR   V14.B16, V8.B16, V8.B16
+    VEOR   V15.B16, V9.B16, V9.B16
+    VEOR   V16.B16, V8.B16, V8.B16
+    VEOR   V17.B16, V9.B16, V9.B16
+    VEOR   V18.B16, V10.B16, V10.B16
+    VEOR   V19.B16, V11.B16, V11.B16
+    VEOR   V20.B16, V10.B16, V10.B16
+    VEOR   V21.B16, V11.B16, V11.B16
+    // Check for early termination
+    CMP    $2, R16
+    BEQ    mulNeon_10x3_64eor_store
+
+    // Load and process 64 bytes from input 2 to 3 outputs
+    VLD1.P 32(R4), [V22.B16, V23.B16]
+    VLD1.P 32(R4), [V26.B16, V27.B16]
+    VEOR   V22.B16, V0.B16, V0.B16
+    VEOR   V23.B16, V1.B16, V1.B16
+    VEOR   V26.B16, V2.B16, V2.B16
+    VEOR   V27.B16, V3.B16, V3.B16
+    ADD    $64, R2
+    VUSHR  $4, V22.B16, V24.B16
+    VUSHR  $4, V23.B16, V25.B16
+    VUSHR  $4, V26.B16, V28.B16
+    VUSHR  $4, V27.B16, V29.B16
+    VAND   V12.B16, V22.B16, V22.B16
+    VAND   V12.B16, V23.B16, V23.B16
+    VAND   V12.B16, V26.B16, V26.B16
+    VAND   V12.B16, V27.B16, V27.B16
+    VAND   V12.B16, V24.B16, V24.B16
+    VAND   V12.B16, V25.B16, V25.B16
+    VAND   V12.B16, V28.B16, V28.B16
+    VAND   V12.B16, V29.B16, V29.B16
+    VLD1.P 32(R2), [V14.B16, V15.B16]
+    VLD1.P 32(R2), [V16.B16, V17.B16]
+    VTBL   V26.B16, [V14.B16], V18.B16
+    VTBL   V27.B16, [V15.B16], V19.B16
+    VTBL   V22.B16, [V14.B16], V14.B16
+    VTBL   V23.B16, [V15.B16], V15.B16
+    VTBL   V28.B16, [V16.B16], V20.B16
+    VTBL   V29.B16, [V17.B16], V21.B16
+    VTBL   V24.B16, [V16.B16], V16.B16
+    VTBL   V25.B16, [V17.B16], V17.B16
+    VEOR   V14.B16, V4.B16, V4.B16
+    VEOR   V15.B16, V5.B16, V5.B16
+    VEOR   V16.B16, V4.B16, V4.B16
+    VEOR   V17.B16, V5.B16, V5.B16
+    VEOR   V18.B16, V6.B16, V6.B16
+    VEOR   V19.B16, V7.B16, V7.B16
+    VEOR   V20.B16, V6.B16, V6.B16
+    VEOR   V21.B16, V7.B16, V7.B16
+    VLD1.P 32(R2), [V14.B16, V15.B16]
+    VLD1.P 32(R2), [V16.B16, V17.B16]
+    VTBL   V26.B16, [V14.B16], V18.B16
+    VTBL   V27.B16, [V15.B16], V19.B16
+    VTBL   V22.B16, [V14.B16], V14.B16
+    VTBL   V23.B16, [V15.B16], V15.B16
+    VTBL   V28.B16, [V16.B16], V20.B16
+    VTBL   V29.B16, [V17.B16], V21.B16
+    VTBL   V24.B16, [V16.B16], V16.B16
+    VTBL   V25.B16, [V17.B16], V17.B16
+    VEOR   V14.B16, V8.B16, V8.B16
+    VEOR   V15.B16, V9.B16, V9.B16
+    VEOR   V16.B16, V8.B16, V8.B16
+    VEOR   V17.B16, V9.B16, V9.B16
+    VEOR   V18.B16, V10.B16, V10.B16
+    VEOR   V19.B16, V11.B16, V11.B16
+    VEOR   V20.B16, V10.B16, V10.B16
+    VEOR   V21.B16, V11.B16, V11.B16
+    // Check for early termination
+    CMP    $3, R16
+    BEQ    mulNeon_10x3_64eor_store
+
+    // Load and process 64 bytes from input 3 to 3 outputs
+    VLD1.P 32(R5), [V22.B16, V23.B16]
+    VLD1.P 32(R5), [V26.B16, V27.B16]
+    VEOR   V22.B16, V0.B16, V0.B16
+    VEOR   V23.B16, V1.B16, V1.B16
+    VEOR   V26.B16, V2.B16, V2.B16
+    VEOR   V27.B16, V3.B16, V3.B16
+    ADD    $64, R2
+    VUSHR  $4, V22.B16, V24.B16
+    VUSHR  $4, V23.B16, V25.B16
+    VUSHR  $4, V26.B16, V28.B16
+    VUSHR  $4, V27.B16, V29.B16
+    VAND   V12.B16, V22.B16, V22.B16
+    VAND   V12.B16, V23.B16, V23.B16
+    VAND   V12.B16, V26.B16, V26.B16
+    VAND   V12.B16, V27.B16, V27.B16
+    VAND   V12.B16, V24.B16, V24.B16
+    VAND   V12.B16, V25.B16, V25.B16
+    VAND   V12.B16, V28.B16, V28.B16
+    VAND   V12.B16, V29.B16, V29.B16
+    VLD1.P 32(R2), [V14.B16, V15.B16]
+    VLD1.P 32(R2), [V16.B16, V17.B16]
+    VTBL   V26.B16, [V14.B16], V18.B16
+    VTBL   V27.B16, [V15.B16], V19.B16
+    VTBL   V22.B16, [V14.B16], V14.B16
+    VTBL   V23.B16, [V15.B16], V15.B16
+    VTBL   V28.B16, [V16.B16], V20.B16
+    VTBL   V29.B16, [V17.B16], V21.B16
+    VTBL   V24.B16, [V16.B16], V16.B16
+    VTBL   V25.B16, [V17.B16], V17.B16
+    VEOR   V14.B16, V4.B16, V4.B16
+    VEOR   V15.B16, V5.B16, V5.B16
+    VEOR   V16.B16, V4.B16, V4.B16
+    VEOR   V17.B16, V5.B16, V5.B16
+    VEOR   V18.B16, V6.B16, V6.B16
+    VEOR   V19.B16, V7.B16, V7.B16
+    VEOR   V20.B16, V6.B16, V6.B16
+    VEOR   V21.B16, V7.B16, V7.B16
+    VLD1.P 32(R2), [V14.B16, V15.B16]
+    VLD1.P 32(R2), [V16.B16, V17.B16]
+    VTBL   V26.B16, [V14.B16], V18.B16
+    VTBL   V27.B16, [V15.B16], V19.B16
+    VTBL   V22.B16, [V14.B16], V14.B16
+    VTBL   V23.B16, [V15.B16], V15.B16
+    VTBL   V28.B16, [V16.B16], V20.B16
+    VTBL   V29.B16, [V17.B16], V21.B16
+    VTBL   V24.B16, [V16.B16], V16.B16
+    VTBL   V25.B16, [V17.B16], V17.B16
+    VEOR   V14.B16, V8.B16, V8.B16
+    VEOR   V15.B16, V9.B16, V9.B16
+    VEOR   V16.B16, V8.B16, V8.B16
+    VEOR   V17.B16, V9.B16, V9.B16
+    VEOR   V18.B16, V10.B16, V10.B16
+    VEOR   V19.B16, V11.B16, V11.B16
+    VEOR   V20.B16, V10.B16, V10.B16
+    VEOR   V21.B16, V11.B16, V11.B16
+    // Check for early termination
+    CMP    $4, R16
+    BEQ    mulNeon_10x3_64eor_store
+
+    // Load and process 64 bytes from input 4 to 3 outputs
+    VLD1.P 32(R8), [V22.B16, V23.B16]
+    VLD1.P 32(R8), [V26.B16, V27.B16]
+    VEOR   V22.B16, V0.B16, V0.B16
+    VEOR   V23.B16, V1.B16, V1.B16
+    VEOR   V26.B16, V2.B16, V2.B16
+    VEOR   V27.B16, V3.B16, V3.B16
+    ADD    $64, R2
+    VUSHR  $4, V22.B16, V24.B16
+    VUSHR  $4, V23.B16, V25.B16
+    VUSHR  $4, V26.B16, V28.B16
+    VUSHR  $4, V27.B16, V29.B16
+    VAND   V12.B16, V22.B16, V22.B16
+    VAND   V12.B16, V23.B16, V23.B16
+    VAND   V12.B16, V26.B16, V26.B16
+    VAND   V12.B16, V27.B16, V27.B16
+    VAND   V12.B16, V24.B16, V24.B16
+    VAND   V12.B16, V25.B16, V25.B16
+    VAND   V12.B16, V28.B16, V28.B16
+    VAND   V12.B16, V29.B16, V29.B16
+    VLD1.P 32(R2), [V14.B16, V15.B16]
+    VLD1.P 32(R2), [V16.B16, V17.B16]
+    VTBL   V26.B16, [V14.B16], V18.B16
+    VTBL   V27.B16, [V15.B16], V19.B16
+    VTBL   V22.B16, [V14.B16], V14.B16
+    VTBL   V23.B16, [V15.B16], V15.B16
+    VTBL   V28.B16, [V16.B16], V20.B16
+    VTBL   V29.B16, [V17.B16], V21.B16
+    VTBL   V24.B16, [V16.B16], V16.B16
+    VTBL   V25.B16, [V17.B16], V17.B16
+    VEOR   V14.B16, V4.B16, V4.B16
+    VEOR   V15.B16, V5.B16, V5.B16
+    VEOR   V16.B16, V4.B16, V4.B16
+    VEOR   V17.B16, V5.B16, V5.B16
+    VEOR   V18.B16, V6.B16, V6.B16
+    VEOR   V19.B16, V7.B16, V7.B16
+    VEOR   V20.B16, V6.B16, V6.B16
+    VEOR   V21.B16, V7.B16, V7.B16
+    VLD1.P 32(R2), [V14.B16, V15.B16]
+    VLD1.P 32(R2), [V16.B16, V17.B16]
+    VTBL   V26.B16, [V14.B16], V18.B16
+    VTBL   V27.B16, [V15.B16], V19.B16
+    VTBL   V22.B16, [V14.B16], V14.B16
+    VTBL   V23.B16, [V15.B16], V15.B16
+    VTBL   V28.B16, [V16.B16], V20.B16
+    VTBL   V29.B16, [V17.B16], V21.B16
+    VTBL   V24.B16, [V16.B16], V16.B16
+    VTBL   V25.B16, [V17.B16], V17.B16
+    VEOR   V14.B16, V8.B16, V8.B16
+    VEOR   V15.B16, V9.B16, V9.B16
+    VEOR   V16.B16, V8.B16, V8.B16
+    VEOR   V17.B16, V9.B16, V9.B16
+    VEOR   V18.B16, V10.B16, V10.B16
+    VEOR   V19.B16, V11.B16, V11.B16
+    VEOR   V20.B16, V10.B16, V10.B16
+    VEOR   V21.B16, V11.B16, V11.B16
+    // Check for early termination
+    CMP    $5, R16
+    BEQ    mulNeon_10x3_64eor_store
+
+    // Load and process 64 bytes from input 5 to 3 outputs
+    VLD1.P 32(R9), [V22.B16, V23.B16]
+    VLD1.P 32(R9), [V26.B16, V27.B16]
+    VEOR   V22.B16, V0.B16, V0.B16
+    VEOR   V23.B16, V1.B16, V1.B16
+    VEOR   V26.B16, V2.B16, V2.B16
+    VEOR   V27.B16, V3.B16, V3.B16
+    ADD    $64, R2
+    VUSHR  $4, V22.B16, V24.B16
+    VUSHR  $4, V23.B16, V25.B16
+    VUSHR  $4, V26.B16, V28.B16
+    VUSHR  $4, V27.B16, V29.B16
+    VAND   V12.B16, V22.B16, V22.B16
+    VAND   V12.B16, V23.B16, V23.B16
+    VAND   V12.B16, V26.B16, V26.B16
+    VAND   V12.B16, V27.B16, V27.B16
+    VAND   V12.B16, V24.B16, V24.B16
+    VAND   V12.B16, V25.B16, V25.B16
+    VAND   V12.B16, V28.B16, V28.B16
+    VAND   V12.B16, V29.B16, V29.B16
+    VLD1.P 32(R2), [V14.B16, V15.B16]
+    VLD1.P 32(R2), [V16.B16, V17.B16]
+    VTBL   V26.B16, [V14.B16], V18.B16
+    VTBL   V27.B16, [V15.B16], V19.B16
+    VTBL   V22.B16, [V14.B16], V14.B16
+    VTBL   V23.B16, [V15.B16], V15.B16
+    VTBL   V28.B16, [V16.B16], V20.B16
+    VTBL   V29.B16, [V17.B16], V21.B16
+    VTBL   V24.B16, [V16.B16], V16.B16
+    VTBL   V25.B16, [V17.B16], V17.B16
+    VEOR   V14.B16, V4.B16, V4.B16
+    VEOR   V15.B16, V5.B16, V5.B16
+    VEOR   V16.B16, V4.B16, V4.B16
+    VEOR   V17.B16, V5.B16, V5.B16
+    VEOR   V18.B16, V6.B16, V6.B16
+    VEOR   V19.B16, V7.B16, V7.B16
+    VEOR   V20.B16, V6.B16, V6.B16
+    VEOR   V21.B16, V7.B16, V7.B16
+    VLD1.P 32(R2), [V14.B16, V15.B16]
+    VLD1.P 32(R2), [V16.B16, V17.B16]
+    VTBL   V26.B16, [V14.B16], V18.B16
+    VTBL   V27.B16, [V15.B16], V19.B16
+    VTBL   V22.B16, [V14.B16], V14.B16
+    VTBL   V23.B16, [V15.B16], V15.B16
+    VTBL   V28.B16, [V16.B16], V20.B16
+    VTBL   V29.B16, [V17.B16], V21.B16
+    VTBL   V24.B16, [V16.B16], V16.B16
+    VTBL   V25.B16, [V17.B16], V17.B16
+    VEOR   V14.B16, V8.B16, V8.B16
+    VEOR   V15.B16, V9.B16, V9.B16
+    VEOR   V16.B16, V8.B16, V8.B16
+    VEOR   V17.B16, V9.B16, V9.B16
+    VEOR   V18.B16, V10.B16, V10.B16
+    VEOR   V19.B16, V11.B16, V11.B16
+    VEOR   V20.B16, V10.B16, V10.B16
+    VEOR   V21.B16, V11.B16, V11.B16
+    // Check for early termination
+    CMP    $6, R16
+    BEQ    mulNeon_10x3_64eor_store
+
+    // Load and process 64 bytes from input 6 to 3 outputs
+    VLD1.P 32(R10), [V22.B16, V23.B16]
+    VLD1.P 32(R10), [V26.B16, V27.B16]
+    VEOR   V22.B16, V0.B16, V0.B16
+    VEOR   V23.B16, V1.B16, V1.B16
+    VEOR   V26.B16, V2.B16, V2.B16
+    VEOR   V27.B16, V3.B16, V3.B16
+    ADD    $64, R2
+    VUSHR  $4, V22.B16, V24.B16
+    VUSHR  $4, V23.B16, V25.B16
+    VUSHR  $4, V26.B16, V28.B16
+    VUSHR  $4, V27.B16, V29.B16
+    VAND   V12.B16, V22.B16, V22.B16
+    VAND   V12.B16, V23.B16, V23.B16
+    VAND   V12.B16, V26.B16, V26.B16
+    VAND   V12.B16, V27.B16, V27.B16
+    VAND   V12.B16, V24.B16, V24.B16
+    VAND   V12.B16, V25.B16, V25.B16
+    VAND   V12.B16, V28.B16, V28.B16
+    VAND   V12.B16, V29.B16, V29.B16
+    VLD1.P 32(R2), [V14.B16, V15.B16]
+    VLD1.P 32(R2), [V16.B16, V17.B16]
+    VTBL   V26.B16, [V14.B16], V18.B16
+    VTBL   V27.B16, [V15.B16], V19.B16
+    VTBL   V22.B16, [V14.B16], V14.B16
+    VTBL   V23.B16, [V15.B16], V15.B16
+    VTBL   V28.B16, [V16.B16], V20.B16
+    VTBL   V29.B16, [V17.B16], V21.B16
+    VTBL   V24.B16, [V16.B16], V16.B16
+    VTBL   V25.B16, [V17.B16], V17.B16
+    VEOR   V14.B16, V4.B16, V4.B16
+    VEOR   V15.B16, V5.B16, V5.B16
+    VEOR   V16.B16, V4.B16, V4.B16
+    VEOR   V17.B16, V5.B16, V5.B16
+    VEOR   V18.B16, V6.B16, V6.B16
+    VEOR   V19.B16, V7.B16, V7.B16
+    VEOR   V20.B16, V6.B16, V6.B16
+    VEOR   V21.B16, V7.B16, V7.B16
+    VLD1.P 32(R2), [V14.B16, V15.B16]
+    VLD1.P 32(R2), [V16.B16, V17.B16]
+    VTBL   V26.B16, [V14.B16], V18.B16
+    VTBL   V27.B16, [V15.B16], V19.B16
+    VTBL   V22.B16, [V14.B16], V14.B16
+    VTBL   V23.B16, [V15.B16], V15.B16
+    VTBL   V28.B16, [V16.B16], V20.B16
+    VTBL   V29.B16, [V17.B16], V21.B16
+    VTBL   V24.B16, [V16.B16], V16.B16
+    VTBL   V25.B16, [V17.B16], V17.B16
+    VEOR   V14.B16, V8.B16, V8.B16
+    VEOR   V15.B16, V9.B16, V9.B16
+    VEOR   V16.B16, V8.B16, V8.B16
+    VEOR   V17.B16, V9.B16, V9.B16
+    VEOR   V18.B16, V10.B16, V10.B16
+    VEOR   V19.B16, V11.B16, V11.B16
+    VEOR   V20.B16, V10.B16, V10.B16
+    VEOR   V21.B16, V11.B16, V11.B16
+    // Check for early termination
+    CMP    $7, R16
+    BEQ    mulNeon_10x3_64eor_store
+
+    // Load and process 64 bytes from input 7 to 3 outputs
+    VLD1.P 32(R11), [V22.B16, V23.B16]
+    VLD1.P 32(R11), [V26.B16, V27.B16]
+    VEOR   V22.B16, V0.B16, V0.B16
+    VEOR   V23.B16, V1.B16, V1.B16
+    VEOR   V26.B16, V2.B16, V2.B16
+    VEOR   V27.B16, V3.B16, V3.B16
+    ADD    $64, R2
+    VUSHR  $4, V22.B16, V24.B16
+    VUSHR  $4, V23.B16, V25.B16
+    VUSHR  $4, V26.B16, V28.B16
+    VUSHR  $4, V27.B16, V29.B16
+    VAND   V12.B16, V22.B16, V22.B16
+    VAND   V12.B16, V23.B16, V23.B16
+    VAND   V12.B16, V26.B16, V26.B16
+    VAND   V12.B16, V27.B16, V27.B16
+    VAND   V12.B16, V24.B16, V24.B16
+    VAND   V12.B16, V25.B16, V25.B16
+    VAND   V12.B16, V28.B16, V28.B16
+    VAND   V12.B16, V29.B16, V29.B16
+    VLD1.P 32(R2), [V14.B16, V15.B16]
+    VLD1.P 32(R2), [V16.B16, V17.B16]
+    VTBL   V26.B16, [V14.B16], V18.B16
+    VTBL   V27.B16, [V15.B16], V19.B16
+    VTBL   V22.B16, [V14.B16], V14.B16
+    VTBL   V23.B16, [V15.B16], V15.B16
+    VTBL   V28.B16, [V16.B16], V20.B16
+    VTBL   V29.B16, [V17.B16], V21.B16
+    VTBL   V24.B16, [V16.B16], V16.B16
+    VTBL   V25.B16, [V17.B16], V17.B16
+    VEOR   V14.B16, V4.B16, V4.B16
+    VEOR   V15.B16, V5.B16, V5.B16
+    VEOR   V16.B16, V4.B16, V4.B16
+    VEOR   V17.B16, V5.B16, V5.B16
+    VEOR   V18.B16, V6.B16, V6.B16
+    VEOR   V19.B16, V7.B16, V7.B16
+    VEOR   V20.B16, V6.B16, V6.B16
+    VEOR   V21.B16, V7.B16, V7.B16
+    VLD1.P 32(R2), [V14.B16, V15.B16]
+    VLD1.P 32(R2), [V16.B16, V17.B16]
+    VTBL   V26.B16, [V14.B16], V18.B16
+    VTBL   V27.B16, [V15.B16], V19.B16
+    VTBL   V22.B16, [V14.B16], V14.B16
+    VTBL   V23.B16, [V15.B16], V15.B16
+    VTBL   V28.B16, [V16.B16], V20.B16
+    VTBL   V29.B16, [V17.B16], V21.B16
+    VTBL   V24.B16, [V16.B16], V16.B16
+    VTBL   V25.B16, [V17.B16], V17.B16
+    VEOR   V14.B16, V8.B16, V8.B16
+    VEOR   V15.B16, V9.B16, V9.B16
+    VEOR   V16.B16, V8.B16, V8.B16
+    VEOR   V17.B16, V9.B16, V9.B16
+    VEOR   V18.B16, V10.B16, V10.B16
+    VEOR   V19.B16, V11.B16, V11.B16
+    VEOR   V20.B16, V10.B16, V10.B16
+    VEOR   V21.B16, V11.B16, V11.B16
+    // Check for early termination
+    CMP    $8, R16
+    BEQ    mulNeon_10x3_64eor_store
+
+    // Load and process 64 bytes from input 8 to 3 outputs
+    VLD1.P 32(R12), [V22.B16, V23.B16]
+    VLD1.P 32(R12), [V26.B16, V27.B16]
+    VEOR   V22.B16, V0.B16, V0.B16
+    VEOR   V23.B16, V1.B16, V1.B16
+    VEOR   V26.B16, V2.B16, V2.B16
+    VEOR   V27.B16, V3.B16, V3.B16
+    ADD    $64, R2
+    VUSHR  $4, V22.B16, V24.B16
+    VUSHR  $4, V23.B16, V25.B16
+    VUSHR  $4, V26.B16, V28.B16
+    VUSHR  $4, V27.B16, V29.B16
+    VAND   V12.B16, V22.B16, V22.B16
+    VAND   V12.B16, V23.B16, V23.B16
+    VAND   V12.B16, V26.B16, V26.B16
+    VAND   V12.B16, V27.B16, V27.B16
+    VAND   V12.B16, V24.B16, V24.B16
+    VAND   V12.B16, V25.B16, V25.B16
+    VAND   V12.B16, V28.B16, V28.B16
+    VAND   V12.B16, V29.B16, V29.B16
+    VLD1.P 32(R2), [V14.B16, V15.B16]
+    VLD1.P 32(R2), [V16.B16, V17.B16]
+    VTBL   V26.B16, [V14.B16], V18.B16
+    VTBL   V27.B16, [V15.B16], V19.B16
+    VTBL   V22.B16, [V14.B16], V14.B16
+    VTBL   V23.B16, [V15.B16], V15.B16
+    VTBL   V28.B16, [V16.B16], V20.B16
+    VTBL   V29.B16, [V17.B16], V21.B16
+    VTBL   V24.B16, [V16.B16], V16.B16
+    VTBL   V25.B16, [V17.B16], V17.B16
+    VEOR   V14.B16, V4.B16, V4.B16
+    VEOR   V15.B16, V5.B16, V5.B16
+    VEOR   V16.B16, V4.B16, V4.B16
+    VEOR   V17.B16, V5.B16, V5.B16
+    VEOR   V18.B16, V6.B16, V6.B16
+    VEOR   V19.B16, V7.B16, V7.B16
+    VEOR   V20.B16, V6.B16, V6.B16
+    VEOR   V21.B16, V7.B16, V7.B16
+    VLD1.P 32(R2), [V14.B16, V15.B16]
+    VLD1.P 32(R2), [V16.B16, V17.B16]
+    VTBL   V26.B16, [V14.B16], V18.B16
+    VTBL   V27.B16, [V15.B16], V19.B16
+    VTBL   V22.B16, [V14.B16], V14.B16
+    VTBL   V23.B16, [V15.B16], V15.B16
+    VTBL   V28.B16, [V16.B16], V20.B16
+    VTBL   V29.B16, [V17.B16], V21.B16
+    VTBL   V24.B16, [V16.B16], V16.B16
+    VTBL   V25.B16, [V17.B16], V17.B16
+    VEOR   V14.B16, V8.B16, V8.B16
+    VEOR   V15.B16, V9.B16, V9.B16
+    VEOR   V16.B16, V8.B16, V8.B16
+    VEOR   V17.B16, V9.B16, V9.B16
+    VEOR   V18.B16, V10.B16, V10.B16
+    VEOR   V19.B16, V11.B16, V11.B16
+    VEOR   V20.B16, V10.B16, V10.B16
+    VEOR   V21.B16, V11.B16, V11.B16
+    // Check for early termination
+    CMP    $9, R16
+    BEQ    mulNeon_10x3_64eor_store
+
+    // Load and process 64 bytes from input 9 to 3 outputs
+    VLD1.P 32(R0), [V22.B16, V23.B16]
+    VLD1.P 32(R0), [V26.B16, V27.B16]
+    VEOR   V22.B16, V0.B16, V0.B16
+    VEOR   V23.B16, V1.B16, V1.B16
+    VEOR   V26.B16, V2.B16, V2.B16
+    VEOR   V27.B16, V3.B16, V3.B16
+    ADD    $64, R2
+    VUSHR  $4, V22.B16, V24.B16
+    VUSHR  $4, V23.B16, V25.B16
+    VUSHR  $4, V26.B16, V28.B16
+    VUSHR  $4, V27.B16, V29.B16
+    VAND   V12.B16, V22.B16, V22.B16
+    VAND   V12.B16, V23.B16, V23.B16
+    VAND   V12.B16, V26.B16, V26.B16
+    VAND   V12.B16, V27.B16, V27.B16
+    VAND   V12.B16, V24.B16, V24.B16
+    VAND   V12.B16, V25.B16, V25.B16
+    VAND   V12.B16, V28.B16, V28.B16
+    VAND   V12.B16, V29.B16, V29.B16
+    VLD1.P 32(R2), [V14.B16, V15.B16]
+    VLD1.P 32(R2), [V16.B16, V17.B16]
+    VTBL   V26.B16, [V14.B16], V18.B16
+    VTBL   V27.B16, [V15.B16], V19.B16
+    VTBL   V22.B16, [V14.B16], V14.B16
+    VTBL   V23.B16, [V15.B16], V15.B16
+    VTBL   V28.B16, [V16.B16], V20.B16
+    VTBL   V29.B16, [V17.B16], V21.B16
+    VTBL   V24.B16, [V16.B16], V16.B16
+    VTBL   V25.B16, [V17.B16], V17.B16
+    VEOR   V14.B16, V4.B16, V4.B16
+    VEOR   V15.B16, V5.B16, V5.B16
+    VEOR   V16.B16, V4.B16, V4.B16
+    VEOR   V17.B16, V5.B16, V5.B16
+    VEOR   V18.B16, V6.B16, V6.B16
+    VEOR   V19.B16, V7.B16, V7.B16
+    VEOR   V20.B16, V6.B16, V6.B16
+    VEOR   V21.B16, V7.B16, V7.B16
+    VLD1.P 32(R2), [V14.B16, V15.B16]
+    VLD1.P 32(R2), [V16.B16, V17.B16]
+    VTBL   V26.B16, [V14.B16], V18.B16
+    VTBL   V27.B16, [V15.B16], V19.B16
+    VTBL   V22.B16, [V14.B16], V14.B16
+    VTBL   V23.B16, [V15.B16], V15.B16
+    VTBL   V28.B16, [V16.B16], V20.B16
+    VTBL   V29.B16, [V17.B16], V21.B16
+    VTBL   V24.B16, [V16.B16], V16.B16
+    VTBL   V25.B16, [V17.B16], V17.B16
+    VEOR   V14.B16, V8.B16, V8.B16
+    VEOR   V15.B16, V9.B16, V9.B16
+    VEOR   V16.B16, V8.B16, V8.B16
+    VEOR   V17.B16, V9.B16, V9.B16
+    VEOR   V18.B16, V10.B16, V10.B16
+    VEOR   V19.B16, V11.B16, V11.B16
+    VEOR   V20.B16, V10.B16, V10.B16
+    VEOR   V21.B16, V11.B16, V11.B16
+
+mulNeon_10x3_64eor_store:
+    // Store 3 outputs
+    VST1.P [V0.D2, V1.D2], 32(R14)
+    VST1.P [V2.D2, V3.D2], 32(R14)
+    VST1.P [V4.D2, V5.D2], 32(R15)
+    VST1.P [V6.D2, V7.D2], 32(R15)
+    VST1.P [V8.D2, V9.D2], 32(R13)
+    VST1.P [V10.D2, V11.D2], 32(R13)
+
+    // Prepare for next loop
+    SUBS $1, R6
+    BNE  mulNeon_10x3_64eor_loop
+
+mulNeon_10x3_64eor_end:
+    RET
+
 // func mulNeon_10x4(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 // Requires: NEON
 TEXT ·mulNeon_10x4(SB), NOSPLIT, $8-88
@@ -15657,6 +16968,517 @@ mulNeon_10x4Xor_store:
     BNE  mulNeon_10x4Xor_loop
 
 mulNeon_10x4Xor_end:
+    RET
+
+// func mulNeon_10x4eor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+// Requires: NEON
+TEXT ·mulNeon_10x4eor(SB), NOSPLIT, $8-88
+    // Loading no tables to registers
+    // Destination kept on stack
+    // Full registers estimated 89 YMM used
+    MOVD n+80(FP), R0
+    LSR  $5, R0
+    TST  R0, R0
+    BEQ    mulNeon_10x4eor_end
+    MOVD in_base+24(FP), R3
+    MOVD (R3), R1
+    MOVD 24(R3), R4
+    MOVD 48(R3), R5
+    MOVD 72(R3), R8
+    MOVD 96(R3), R9
+    MOVD 120(R3), R10
+    MOVD 144(R3), R11
+    MOVD 168(R3), R12
+    MOVD 192(R3), R13
+    MOVD 216(R3), R3
+    MOVD out_base+48(FP), R14
+    MOVD start+72(FP), R15
+
+    // Add start offset to input
+    ADD    R15, R1
+    ADD    R15, R4
+    ADD    R15, R5
+    ADD    R15, R8
+    ADD    R15, R9
+    ADD    R15, R10
+    ADD    R15, R11
+    ADD    R15, R12
+    ADD    R15, R13
+    ADD    R15, R3
+    LSR  $3, R15
+    MOVD   $15, R6
+    VMOV   R6, V8.B[0]
+    VDUP   V8.B[0], V8.B16
+
+    // Load number of input shards
+    MOVD   in_len+32(FP), R16
+
+mulNeon_10x4eor_loop:
+    MOVD matrix_base+0(FP), R2
+    // Load and process 32 bytes from input 0 to 4 outputs
+    VLD1.P 32(R1), [V14.B16, V15.B16]
+    MOVD   $0, R27
+    VMOV   R27, V20.B16
+    VEOR   V14.B16, V20.B16, V0.B16
+    VEOR   V15.B16, V20.B16, V1.B16
+    ADD    $64, R2
+    VUSHR  $4, V14.B16, V16.B16
+    VUSHR  $4, V15.B16, V17.B16
+    VAND   V8.B16, V14.B16, V14.B16
+    VAND   V8.B16, V15.B16, V15.B16
+    VAND   V8.B16, V16.B16, V16.B16
+    VAND   V8.B16, V17.B16, V17.B16
+    VLD1.P 32(R2), [V10.B16, V11.B16]
+    VLD1.P 32(R2), [V12.B16, V13.B16]
+    VTBL   V14.B16, [V10.B16], V10.B16
+    VTBL   V15.B16, [V11.B16], V11.B16
+    VTBL   V16.B16, [V12.B16], V12.B16
+    VTBL   V17.B16, [V13.B16], V13.B16
+    VEOR   V10.B16, V12.B16, V2.B16
+    VEOR   V11.B16, V13.B16, V3.B16
+    VLD1.P 32(R2), [V10.B16, V11.B16]
+    VLD1.P 32(R2), [V12.B16, V13.B16]
+    VTBL   V14.B16, [V10.B16], V10.B16
+    VTBL   V15.B16, [V11.B16], V11.B16
+    VTBL   V16.B16, [V12.B16], V12.B16
+    VTBL   V17.B16, [V13.B16], V13.B16
+    VEOR   V10.B16, V12.B16, V4.B16
+    VEOR   V11.B16, V13.B16, V5.B16
+    VLD1.P 32(R2), [V10.B16, V11.B16]
+    VLD1.P 32(R2), [V12.B16, V13.B16]
+    VTBL   V14.B16, [V10.B16], V10.B16
+    VTBL   V15.B16, [V11.B16], V11.B16
+    VTBL   V16.B16, [V12.B16], V12.B16
+    VTBL   V17.B16, [V13.B16], V13.B16
+    VEOR   V10.B16, V12.B16, V6.B16
+    VEOR   V11.B16, V13.B16, V7.B16
+    // Check for early termination
+    CMP    $1, R16
+    BEQ    mulNeon_10x4eor_store
+
+    // Load and process 32 bytes from input 1 to 4 outputs
+    VLD1.P 32(R4), [V14.B16, V15.B16]
+    VEOR   V14.B16, V0.B16, V0.B16
+    VEOR   V15.B16, V1.B16, V1.B16
+    ADD    $64, R2
+    VUSHR  $4, V14.B16, V16.B16
+    VUSHR  $4, V15.B16, V17.B16
+    VAND   V8.B16, V14.B16, V14.B16
+    VAND   V8.B16, V15.B16, V15.B16
+    VAND   V8.B16, V16.B16, V16.B16
+    VAND   V8.B16, V17.B16, V17.B16
+    VLD1.P 32(R2), [V10.B16, V11.B16]
+    VLD1.P 32(R2), [V12.B16, V13.B16]
+    VTBL   V14.B16, [V10.B16], V10.B16
+    VTBL   V15.B16, [V11.B16], V11.B16
+    VTBL   V16.B16, [V12.B16], V12.B16
+    VTBL   V17.B16, [V13.B16], V13.B16
+    VEOR   V10.B16, V2.B16, V2.B16
+    VEOR   V11.B16, V3.B16, V3.B16
+    VEOR   V12.B16, V2.B16, V2.B16
+    VEOR   V13.B16, V3.B16, V3.B16
+    VLD1.P 32(R2), [V10.B16, V11.B16]
+    VLD1.P 32(R2), [V12.B16, V13.B16]
+    VTBL   V14.B16, [V10.B16], V10.B16
+    VTBL   V15.B16, [V11.B16], V11.B16
+    VTBL   V16.B16, [V12.B16], V12.B16
+    VTBL   V17.B16, [V13.B16], V13.B16
+    VEOR   V10.B16, V4.B16, V4.B16
+    VEOR   V11.B16, V5.B16, V5.B16
+    VEOR   V12.B16, V4.B16, V4.B16
+    VEOR   V13.B16, V5.B16, V5.B16
+    VLD1.P 32(R2), [V10.B16, V11.B16]
+    VLD1.P 32(R2), [V12.B16, V13.B16]
+    VTBL   V14.B16, [V10.B16], V10.B16
+    VTBL   V15.B16, [V11.B16], V11.B16
+    VTBL   V16.B16, [V12.B16], V12.B16
+    VTBL   V17.B16, [V13.B16], V13.B16
+    VEOR   V10.B16, V6.B16, V6.B16
+    VEOR   V11.B16, V7.B16, V7.B16
+    VEOR   V12.B16, V6.B16, V6.B16
+    VEOR   V13.B16, V7.B16, V7.B16
+    // Check for early termination
+    CMP    $2, R16
+    BEQ    mulNeon_10x4eor_store
+
+    // Load and process 32 bytes from input 2 to 4 outputs
+    VLD1.P 32(R5), [V14.B16, V15.B16]
+    VEOR   V14.B16, V0.B16, V0.B16
+    VEOR   V15.B16, V1.B16, V1.B16
+    ADD    $64, R2
+    VUSHR  $4, V14.B16, V16.B16
+    VUSHR  $4, V15.B16, V17.B16
+    VAND   V8.B16, V14.B16, V14.B16
+    VAND   V8.B16, V15.B16, V15.B16
+    VAND   V8.B16, V16.B16, V16.B16
+    VAND   V8.B16, V17.B16, V17.B16
+    VLD1.P 32(R2), [V10.B16, V11.B16]
+    VLD1.P 32(R2), [V12.B16, V13.B16]
+    VTBL   V14.B16, [V10.B16], V10.B16
+    VTBL   V15.B16, [V11.B16], V11.B16
+    VTBL   V16.B16, [V12.B16], V12.B16
+    VTBL   V17.B16, [V13.B16], V13.B16
+    VEOR   V10.B16, V2.B16, V2.B16
+    VEOR   V11.B16, V3.B16, V3.B16
+    VEOR   V12.B16, V2.B16, V2.B16
+    VEOR   V13.B16, V3.B16, V3.B16
+    VLD1.P 32(R2), [V10.B16, V11.B16]
+    VLD1.P 32(R2), [V12.B16, V13.B16]
+    VTBL   V14.B16, [V10.B16], V10.B16
+    VTBL   V15.B16, [V11.B16], V11.B16
+    VTBL   V16.B16, [V12.B16], V12.B16
+    VTBL   V17.B16, [V13.B16], V13.B16
+    VEOR   V10.B16, V4.B16, V4.B16
+    VEOR   V11.B16, V5.B16, V5.B16
+    VEOR   V12.B16, V4.B16, V4.B16
+    VEOR   V13.B16, V5.B16, V5.B16
+    VLD1.P 32(R2), [V10.B16, V11.B16]
+    VLD1.P 32(R2), [V12.B16, V13.B16]
+    VTBL   V14.B16, [V10.B16], V10.B16
+    VTBL   V15.B16, [V11.B16], V11.B16
+    VTBL   V16.B16, [V12.B16], V12.B16
+    VTBL   V17.B16, [V13.B16], V13.B16
+    VEOR   V10.B16, V6.B16, V6.B16
+    VEOR   V11.B16, V7.B16, V7.B16
+    VEOR   V12.B16, V6.B16, V6.B16
+    VEOR   V13.B16, V7.B16, V7.B16
+    // Check for early termination
+    CMP    $3, R16
+    BEQ    mulNeon_10x4eor_store
+
+    // Load and process 32 bytes from input 3 to 4 outputs
+    VLD1.P 32(R8), [V14.B16, V15.B16]
+    VEOR   V14.B16, V0.B16, V0.B16
+    VEOR   V15.B16, V1.B16, V1.B16
+    ADD    $64, R2
+    VUSHR  $4, V14.B16, V16.B16
+    VUSHR  $4, V15.B16, V17.B16
+    VAND   V8.B16, V14.B16, V14.B16
+    VAND   V8.B16, V15.B16, V15.B16
+    VAND   V8.B16, V16.B16, V16.B16
+    VAND   V8.B16, V17.B16, V17.B16
+    VLD1.P 32(R2), [V10.B16, V11.B16]
+    VLD1.P 32(R2), [V12.B16, V13.B16]
+    VTBL   V14.B16, [V10.B16], V10.B16
+    VTBL   V15.B16, [V11.B16], V11.B16
+    VTBL   V16.B16, [V12.B16], V12.B16
+    VTBL   V17.B16, [V13.B16], V13.B16
+    VEOR   V10.B16, V2.B16, V2.B16
+    VEOR   V11.B16, V3.B16, V3.B16
+    VEOR   V12.B16, V2.B16, V2.B16
+    VEOR   V13.B16, V3.B16, V3.B16
+    VLD1.P 32(R2), [V10.B16, V11.B16]
+    VLD1.P 32(R2), [V12.B16, V13.B16]
+    VTBL   V14.B16, [V10.B16], V10.B16
+    VTBL   V15.B16, [V11.B16], V11.B16
+    VTBL   V16.B16, [V12.B16], V12.B16
+    VTBL   V17.B16, [V13.B16], V13.B16
+    VEOR   V10.B16, V4.B16, V4.B16
+    VEOR   V11.B16, V5.B16, V5.B16
+    VEOR   V12.B16, V4.B16, V4.B16
+    VEOR   V13.B16, V5.B16, V5.B16
+    VLD1.P 32(R2), [V10.B16, V11.B16]
+    VLD1.P 32(R2), [V12.B16, V13.B16]
+    VTBL   V14.B16, [V10.B16], V10.B16
+    VTBL   V15.B16, [V11.B16], V11.B16
+    VTBL   V16.B16, [V12.B16], V12.B16
+    VTBL   V17.B16, [V13.B16], V13.B16
+    VEOR   V10.B16, V6.B16, V6.B16
+    VEOR   V11.B16, V7.B16, V7.B16
+    VEOR   V12.B16, V6.B16, V6.B16
+    VEOR   V13.B16, V7.B16, V7.B16
+    // Check for early termination
+    CMP    $4, R16
+    BEQ    mulNeon_10x4eor_store
+
+    // Load and process 32 bytes from input 4 to 4 outputs
+    VLD1.P 32(R9), [V14.B16, V15.B16]
+    VEOR   V14.B16, V0.B16, V0.B16
+    VEOR   V15.B16, V1.B16, V1.B16
+    ADD    $64, R2
+    VUSHR  $4, V14.B16, V16.B16
+    VUSHR  $4, V15.B16, V17.B16
+    VAND   V8.B16, V14.B16, V14.B16
+    VAND   V8.B16, V15.B16, V15.B16
+    VAND   V8.B16, V16.B16, V16.B16
+    VAND   V8.B16, V17.B16, V17.B16
+    VLD1.P 32(R2), [V10.B16, V11.B16]
+    VLD1.P 32(R2), [V12.B16, V13.B16]
+    VTBL   V14.B16, [V10.B16], V10.B16
+    VTBL   V15.B16, [V11.B16], V11.B16
+    VTBL   V16.B16, [V12.B16], V12.B16
+    VTBL   V17.B16, [V13.B16], V13.B16
+    VEOR   V10.B16, V2.B16, V2.B16
+    VEOR   V11.B16, V3.B16, V3.B16
+    VEOR   V12.B16, V2.B16, V2.B16
+    VEOR   V13.B16, V3.B16, V3.B16
+    VLD1.P 32(R2), [V10.B16, V11.B16]
+    VLD1.P 32(R2), [V12.B16, V13.B16]
+    VTBL   V14.B16, [V10.B16], V10.B16
+    VTBL   V15.B16, [V11.B16], V11.B16
+    VTBL   V16.B16, [V12.B16], V12.B16
+    VTBL   V17.B16, [V13.B16], V13.B16
+    VEOR   V10.B16, V4.B16, V4.B16
+    VEOR   V11.B16, V5.B16, V5.B16
+    VEOR   V12.B16, V4.B16, V4.B16
+    VEOR   V13.B16, V5.B16, V5.B16
+    VLD1.P 32(R2), [V10.B16, V11.B16]
+    VLD1.P 32(R2), [V12.B16, V13.B16]
+    VTBL   V14.B16, [V10.B16], V10.B16
+    VTBL   V15.B16, [V11.B16], V11.B16
+    VTBL   V16.B16, [V12.B16], V12.B16
+    VTBL   V17.B16, [V13.B16], V13.B16
+    VEOR   V10.B16, V6.B16, V6.B16
+    VEOR   V11.B16, V7.B16, V7.B16
+    VEOR   V12.B16, V6.B16, V6.B16
+    VEOR   V13.B16, V7.B16, V7.B16
+    // Check for early termination
+    CMP    $5, R16
+    BEQ    mulNeon_10x4eor_store
+
+    // Load and process 32 bytes from input 5 to 4 outputs
+    VLD1.P 32(R10), [V14.B16, V15.B16]
+    VEOR   V14.B16, V0.B16, V0.B16
+    VEOR   V15.B16, V1.B16, V1.B16
+    ADD    $64, R2
+    VUSHR  $4, V14.B16, V16.B16
+    VUSHR  $4, V15.B16, V17.B16
+    VAND   V8.B16, V14.B16, V14.B16
+    VAND   V8.B16, V15.B16, V15.B16
+    VAND   V8.B16, V16.B16, V16.B16
+    VAND   V8.B16, V17.B16, V17.B16
+    VLD1.P 32(R2), [V10.B16, V11.B16]
+    VLD1.P 32(R2), [V12.B16, V13.B16]
+    VTBL   V14.B16, [V10.B16], V10.B16
+    VTBL   V15.B16, [V11.B16], V11.B16
+    VTBL   V16.B16, [V12.B16], V12.B16
+    VTBL   V17.B16, [V13.B16], V13.B16
+    VEOR   V10.B16, V2.B16, V2.B16
+    VEOR   V11.B16, V3.B16, V3.B16
+    VEOR   V12.B16, V2.B16, V2.B16
+    VEOR   V13.B16, V3.B16, V3.B16
+    VLD1.P 32(R2), [V10.B16, V11.B16]
+    VLD1.P 32(R2), [V12.B16, V13.B16]
+    VTBL   V14.B16, [V10.B16], V10.B16
+    VTBL   V15.B16, [V11.B16], V11.B16
+    VTBL   V16.B16, [V12.B16], V12.B16
+    VTBL   V17.B16, [V13.B16], V13.B16
+    VEOR   V10.B16, V4.B16, V4.B16
+    VEOR   V11.B16, V5.B16, V5.B16
+    VEOR   V12.B16, V4.B16, V4.B16
+    VEOR   V13.B16, V5.B16, V5.B16
+    VLD1.P 32(R2), [V10.B16, V11.B16]
+    VLD1.P 32(R2), [V12.B16, V13.B16]
+    VTBL   V14.B16, [V10.B16], V10.B16
+    VTBL   V15.B16, [V11.B16], V11.B16
+    VTBL   V16.B16, [V12.B16], V12.B16
+    VTBL   V17.B16, [V13.B16], V13.B16
+    VEOR   V10.B16, V6.B16, V6.B16
+    VEOR   V11.B16, V7.B16, V7.B16
+    VEOR   V12.B16, V6.B16, V6.B16
+    VEOR   V13.B16, V7.B16, V7.B16
+    // Check for early termination
+    CMP    $6, R16
+    BEQ    mulNeon_10x4eor_store
+
+    // Load and process 32 bytes from input 6 to 4 outputs
+    VLD1.P 32(R11), [V14.B16, V15.B16]
+    VEOR   V14.B16, V0.B16, V0.B16
+    VEOR   V15.B16, V1.B16, V1.B16
+    ADD    $64, R2
+    VUSHR  $4, V14.B16, V16.B16
+    VUSHR  $4, V15.B16, V17.B16
+    VAND   V8.B16, V14.B16, V14.B16
+    VAND   V8.B16, V15.B16, V15.B16
+    VAND   V8.B16, V16.B16, V16.B16
+    VAND   V8.B16, V17.B16, V17.B16
+    VLD1.P 32(R2), [V10.B16, V11.B16]
+    VLD1.P 32(R2), [V12.B16, V13.B16]
+    VTBL   V14.B16, [V10.B16], V10.B16
+    VTBL   V15.B16, [V11.B16], V11.B16
+    VTBL   V16.B16, [V12.B16], V12.B16
+    VTBL   V17.B16, [V13.B16], V13.B16
+    VEOR   V10.B16, V2.B16, V2.B16
+    VEOR   V11.B16, V3.B16, V3.B16
+    VEOR   V12.B16, V2.B16, V2.B16
+    VEOR   V13.B16, V3.B16, V3.B16
+    VLD1.P 32(R2), [V10.B16, V11.B16]
+    VLD1.P 32(R2), [V12.B16, V13.B16]
+    VTBL   V14.B16, [V10.B16], V10.B16
+    VTBL   V15.B16, [V11.B16], V11.B16
+    VTBL   V16.B16, [V12.B16], V12.B16
+    VTBL   V17.B16, [V13.B16], V13.B16
+    VEOR   V10.B16, V4.B16, V4.B16
+    VEOR   V11.B16, V5.B16, V5.B16
+    VEOR   V12.B16, V4.B16, V4.B16
+    VEOR   V13.B16, V5.B16, V5.B16
+    VLD1.P 32(R2), [V10.B16, V11.B16]
+    VLD1.P 32(R2), [V12.B16, V13.B16]
+    VTBL   V14.B16, [V10.B16], V10.B16
+    VTBL   V15.B16, [V11.B16], V11.B16
+    VTBL   V16.B16, [V12.B16], V12.B16
+    VTBL   V17.B16, [V13.B16], V13.B16
+    VEOR   V10.B16, V6.B16, V6.B16
+    VEOR   V11.B16, V7.B16, V7.B16
+    VEOR   V12.B16, V6.B16, V6.B16
+    VEOR   V13.B16, V7.B16, V7.B16
+    // Check for early termination
+    CMP    $7, R16
+    BEQ    mulNeon_10x4eor_store
+
+    // Load and process 32 bytes from input 7 to 4 outputs
+    VLD1.P 32(R12), [V14.B16, V15.B16]
+    VEOR   V14.B16, V0.B16, V0.B16
+    VEOR   V15.B16, V1.B16, V1.B16
+    ADD    $64, R2
+    VUSHR  $4, V14.B16, V16.B16
+    VUSHR  $4, V15.B16, V17.B16
+    VAND   V8.B16, V14.B16, V14.B16
+    VAND   V8.B16, V15.B16, V15.B16
+    VAND   V8.B16, V16.B16, V16.B16
+    VAND   V8.B16, V17.B16, V17.B16
+    VLD1.P 32(R2), [V10.B16, V11.B16]
+    VLD1.P 32(R2), [V12.B16, V13.B16]
+    VTBL   V14.B16, [V10.B16], V10.B16
+    VTBL   V15.B16, [V11.B16], V11.B16
+    VTBL   V16.B16, [V12.B16], V12.B16
+    VTBL   V17.B16, [V13.B16], V13.B16
+    VEOR   V10.B16, V2.B16, V2.B16
+    VEOR   V11.B16, V3.B16, V3.B16
+    VEOR   V12.B16, V2.B16, V2.B16
+    VEOR   V13.B16, V3.B16, V3.B16
+    VLD1.P 32(R2), [V10.B16, V11.B16]
+    VLD1.P 32(R2), [V12.B16, V13.B16]
+    VTBL   V14.B16, [V10.B16], V10.B16
+    VTBL   V15.B16, [V11.B16], V11.B16
+    VTBL   V16.B16, [V12.B16], V12.B16
+    VTBL   V17.B16, [V13.B16], V13.B16
+    VEOR   V10.B16, V4.B16, V4.B16
+    VEOR   V11.B16, V5.B16, V5.B16
+    VEOR   V12.B16, V4.B16, V4.B16
+    VEOR   V13.B16, V5.B16, V5.B16
+    VLD1.P 32(R2), [V10.B16, V11.B16]
+    VLD1.P 32(R2), [V12.B16, V13.B16]
+    VTBL   V14.B16, [V10.B16], V10.B16
+    VTBL   V15.B16, [V11.B16], V11.B16
+    VTBL   V16.B16, [V12.B16], V12.B16
+    VTBL   V17.B16, [V13.B16], V13.B16
+    VEOR   V10.B16, V6.B16, V6.B16
+    VEOR   V11.B16, V7.B16, V7.B16
+    VEOR   V12.B16, V6.B16, V6.B16
+    VEOR   V13.B16, V7.B16, V7.B16
+    // Check for early termination
+    CMP    $8, R16
+    BEQ    mulNeon_10x4eor_store
+
+    // Load and process 32 bytes from input 8 to 4 outputs
+    VLD1.P 32(R13), [V14.B16, V15.B16]
+    VEOR   V14.B16, V0.B16, V0.B16
+    VEOR   V15.B16, V1.B16, V1.B16
+    ADD    $64, R2
+    VUSHR  $4, V14.B16, V16.B16
+    VUSHR  $4, V15.B16, V17.B16
+    VAND   V8.B16, V14.B16, V14.B16
+    VAND   V8.B16, V15.B16, V15.B16
+    VAND   V8.B16, V16.B16, V16.B16
+    VAND   V8.B16, V17.B16, V17.B16
+    VLD1.P 32(R2), [V10.B16, V11.B16]
+    VLD1.P 32(R2), [V12.B16, V13.B16]
+    VTBL   V14.B16, [V10.B16], V10.B16
+    VTBL   V15.B16, [V11.B16], V11.B16
+    VTBL   V16.B16, [V12.B16], V12.B16
+    VTBL   V17.B16, [V13.B16], V13.B16
+    VEOR   V10.B16, V2.B16, V2.B16
+    VEOR   V11.B16, V3.B16, V3.B16
+    VEOR   V12.B16, V2.B16, V2.B16
+    VEOR   V13.B16, V3.B16, V3.B16
+    VLD1.P 32(R2), [V10.B16, V11.B16]
+    VLD1.P 32(R2), [V12.B16, V13.B16]
+    VTBL   V14.B16, [V10.B16], V10.B16
+    VTBL   V15.B16, [V11.B16], V11.B16
+    VTBL   V16.B16, [V12.B16], V12.B16
+    VTBL   V17.B16, [V13.B16], V13.B16
+    VEOR   V10.B16, V4.B16, V4.B16
+    VEOR   V11.B16, V5.B16, V5.B16
+    VEOR   V12.B16, V4.B16, V4.B16
+    VEOR   V13.B16, V5.B16, V5.B16
+    VLD1.P 32(R2), [V10.B16, V11.B16]
+    VLD1.P 32(R2), [V12.B16, V13.B16]
+    VTBL   V14.B16, [V10.B16], V10.B16
+    VTBL   V15.B16, [V11.B16], V11.B16
+    VTBL   V16.B16, [V12.B16], V12.B16
+    VTBL   V17.B16, [V13.B16], V13.B16
+    VEOR   V10.B16, V6.B16, V6.B16
+    VEOR   V11.B16, V7.B16, V7.B16
+    VEOR   V12.B16, V6.B16, V6.B16
+    VEOR   V13.B16, V7.B16, V7.B16
+    // Check for early termination
+    CMP    $9, R16
+    BEQ    mulNeon_10x4eor_store
+
+    // Load and process 32 bytes from input 9 to 4 outputs
+    VLD1.P 32(R3), [V14.B16, V15.B16]
+    VEOR   V14.B16, V0.B16, V0.B16
+    VEOR   V15.B16, V1.B16, V1.B16
+    ADD    $64, R2
+    VUSHR  $4, V14.B16, V16.B16
+    VUSHR  $4, V15.B16, V17.B16
+    VAND   V8.B16, V14.B16, V14.B16
+    VAND   V8.B16, V15.B16, V15.B16
+    VAND   V8.B16, V16.B16, V16.B16
+    VAND   V8.B16, V17.B16, V17.B16
+    VLD1.P 32(R2), [V10.B16, V11.B16]
+    VLD1.P 32(R2), [V12.B16, V13.B16]
+    VTBL   V14.B16, [V10.B16], V10.B16
+    VTBL   V15.B16, [V11.B16], V11.B16
+    VTBL   V16.B16, [V12.B16], V12.B16
+    VTBL   V17.B16, [V13.B16], V13.B16
+    VEOR   V10.B16, V2.B16, V2.B16
+    VEOR   V11.B16, V3.B16, V3.B16
+    VEOR   V12.B16, V2.B16, V2.B16
+    VEOR   V13.B16, V3.B16, V3.B16
+    VLD1.P 32(R2), [V10.B16, V11.B16]
+    VLD1.P 32(R2), [V12.B16, V13.B16]
+    VTBL   V14.B16, [V10.B16], V10.B16
+    VTBL   V15.B16, [V11.B16], V11.B16
+    VTBL   V16.B16, [V12.B16], V12.B16
+    VTBL   V17.B16, [V13.B16], V13.B16
+    VEOR   V10.B16, V4.B16, V4.B16
+    VEOR   V11.B16, V5.B16, V5.B16
+    VEOR   V12.B16, V4.B16, V4.B16
+    VEOR   V13.B16, V5.B16, V5.B16
+    VLD1.P 32(R2), [V10.B16, V11.B16]
+    VLD1.P 32(R2), [V12.B16, V13.B16]
+    VTBL   V14.B16, [V10.B16], V10.B16
+    VTBL   V15.B16, [V11.B16], V11.B16
+    VTBL   V16.B16, [V12.B16], V12.B16
+    VTBL   V17.B16, [V13.B16], V13.B16
+    VEOR   V10.B16, V6.B16, V6.B16
+    VEOR   V11.B16, V7.B16, V7.B16
+    VEOR   V12.B16, V6.B16, V6.B16
+    VEOR   V13.B16, V7.B16, V7.B16
+
+mulNeon_10x4eor_store:
+    // Store 4 outputs
+    MOVD (R14), R6
+    ADD    R15<<3, R6
+    VST1   [V0.D2, V1.D2], (R6)
+    MOVD 24(R14), R6
+    ADD    R15<<3, R6
+    VST1   [V2.D2, V3.D2], (R6)
+    MOVD 48(R14), R6
+    ADD    R15<<3, R6
+    VST1   [V4.D2, V5.D2], (R6)
+    MOVD 72(R14), R6
+    ADD    R15<<3, R6
+    VST1   [V6.D2, V7.D2], (R6)
+
+    // Prepare for next loop
+    ADD    $4, R15
+    SUBS $1, R0
+    BNE  mulNeon_10x4eor_loop
+
+mulNeon_10x4eor_end:
     RET
 
 // func mulNeon_10x5(matrix []byte, in [][]byte, out [][]byte, start int, n int)

@@ -71,10 +71,16 @@ func mulNeon_10x1_64(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 func mulNeon_10x1_64Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
 //go:noescape
+func mulNeon_10x1_64eor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+//go:noescape
 func mulNeon_10x2_64(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
 //go:noescape
 func mulNeon_10x2_64Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+//go:noescape
+func mulNeon_10x2_64eor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
 //go:noescape
 func mulNeon_10x3_64(matrix []byte, in [][]byte, out [][]byte, start int, n int)
@@ -83,10 +89,16 @@ func mulNeon_10x3_64(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 func mulNeon_10x3_64Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
 //go:noescape
+func mulNeon_10x3_64eor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+//go:noescape
 func mulNeon_10x4(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
 //go:noescape
 func mulNeon_10x4Xor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
+
+//go:noescape
+func mulNeon_10x4eor(matrix []byte, in [][]byte, out [][]byte, start int, n int)
 
 //go:noescape
 func mulNeon_10x5(matrix []byte, in [][]byte, out [][]byte, start int, n int)
