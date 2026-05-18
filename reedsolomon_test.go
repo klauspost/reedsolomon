@@ -1523,6 +1523,12 @@ func BenchmarkReconstructLeopard50x20x1M(b *testing.B) {
 	benchmarkReconstruct(b, 50, 20, 1024*1024, WithLeopardGF(true), WithInversionCache(true))
 }
 
+func BenchmarkReconstructDataLeopardGF16(b *testing.B) {
+	b.Run("sparse-data-only", func(b *testing.B) {
+		benchmarkReconstructDataSparse(b, 1024, 3072, 4096, WithLeopardGF16(true))
+	})
+}
+
 // Benchmark 10 data slices with 4 parity slices holding 16MB bytes each
 func BenchmarkReconstruct10x4x16M(b *testing.B) {
 	benchmarkReconstruct(b, 10, 4, 16*1024*1024)
@@ -1559,6 +1565,44 @@ func benchmarkReconstructData(b *testing.B, dataShards, parityShards, shardSize 
 
 		err = r.ReconstructData(shards)
 		if err != nil {
+			b.Fatal(err)
+		}
+	}
+}
+
+func benchmarkReconstructDataSparse(b *testing.B, dataShards, parityShards, shardSize int, opts ...Option) {
+	o := []Option{WithAutoGoroutines(shardSize)}
+	o = append(o, opts...)
+	r, err := New(dataShards, parityShards, testOptions(o...)...)
+	if err != nil {
+		b.Fatal(err)
+	}
+	shards := r.(Extensions).AllocAligned(shardSize)
+
+	for s := range dataShards {
+		fillRandom(shards[s])
+	}
+	if err := r.Encode(shards); err != nil {
+		b.Fatal(err)
+	}
+
+	presentData := dataShards / 4
+	presentParity := dataShards - presentData
+	if presentParity > parityShards {
+		b.Fatalf("need %d parity shards, have %d", presentParity, parityShards)
+	}
+	for s := dataShards + presentParity; s < dataShards+parityShards; s++ {
+		shards[s] = nil
+	}
+
+	b.SetBytes(int64(shardSize * (dataShards + parityShards)))
+	b.ResetTimer()
+	b.ReportAllocs()
+	for i := 0; i < b.N; i++ {
+		for s := presentData; s < dataShards; s++ {
+			shards[s] = shards[s][:0]
+		}
+		if err := r.ReconstructData(shards); err != nil {
 			b.Fatal(err)
 		}
 	}

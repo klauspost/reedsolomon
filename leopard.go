@@ -445,8 +445,12 @@ func (r *leopardFF16) reconstruct(shards [][]byte, recoverAll bool) error {
 		return nil
 	}
 
-	// Use only if we are missing less than 1/4 parity.
-	useBits := r.totalShards-numberPresent <= r.parityShards/4
+	// Use only if the requested reconstruction set is sparse. ReconstructData
+	// ignores missing parity shards, so gating this on total missing shards
+	// disables the sparse FFT path for data-only recovery with many absent
+	// parity shards. Data-only recovery computes at most dataShards outputs
+	// from m+dataShards possible FFT outputs, so use the sparse path there.
+	useBits := !recoverAll || r.totalShards-numberPresent <= r.parityShards/4
 
 	// Check if we have enough to reconstruct.
 	if numberPresent < r.dataShards {
@@ -466,6 +470,7 @@ func (r *leopardFF16) reconstruct(shards [][]byte, recoverAll bool) error {
 	// Fill in error locations.
 	var errorBits errorBitfield
 	var errLocs [order]ffe
+	inputCount := r.parityShards
 	for i := 0; i < r.parityShards; i++ {
 		if len(shards[i+r.dataShards]) == 0 {
 			errLocs[i] = 1
@@ -486,6 +491,8 @@ func (r *leopardFF16) reconstruct(shards [][]byte, recoverAll bool) error {
 			if LEO_ERROR_BITFIELD_OPT {
 				errorBits.set(i + m)
 			}
+		} else {
+			inputCount = m + i + 1
 		}
 	}
 
@@ -530,7 +537,7 @@ func (r *leopardFF16) reconstruct(shards [][]byte, recoverAll bool) error {
 	}
 
 	if chunkSize >= shardSize {
-		r.reconstructChunk(sh, shards, work, m, n, &errLocs, useBits, &errorBits, recoverAll)
+		r.reconstructChunk(sh, shards, work, m, n, inputCount, &errLocs, useBits, &errorBits, recoverAll)
 		return nil
 	}
 
@@ -564,7 +571,7 @@ func (r *leopardFF16) reconstruct(shards [][]byte, recoverAll bool) error {
 			}
 		}
 
-		r.reconstructChunk(shChunk, outChunk, work, m, n, &errLocs, useBits, &errorBits, recoverAll)
+		r.reconstructChunk(shChunk, outChunk, work, m, n, inputCount, &errLocs, useBits, &errorBits, recoverAll)
 	}
 	return nil
 }
@@ -572,7 +579,7 @@ func (r *leopardFF16) reconstruct(shards [][]byte, recoverAll bool) error {
 // reconstructChunk processes one chunk of the reconstruct pipeline.
 // sh has nil entries for missing shards (used for presence checks).
 // out has allocated entries for all shards (used for writing output).
-func (r *leopardFF16) reconstructChunk(sh, out [][]byte, work [][]byte, m, n int, errLocs *[order]ffe, useBits bool, errorBits *errorBitfield, recoverAll bool) {
+func (r *leopardFF16) reconstructChunk(sh, out [][]byte, work [][]byte, m, n, inputCount int, errLocs *[order]ffe, useBits bool, errorBits *errorBitfield, recoverAll bool) {
 	const LEO_ERROR_BITFIELD_OPT = true
 	outputCount := m + r.dataShards
 
@@ -602,7 +609,7 @@ func (r *leopardFF16) reconstructChunk(sh, out [][]byte, work [][]byte, m, n int
 
 	// work <- IFFT(work, n, 0)
 	ifftDITDecoder(
-		m+r.dataShards,
+		inputCount,
 		work,
 		n,
 		fftSkew[:],
