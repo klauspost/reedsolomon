@@ -445,8 +445,12 @@ func (r *leopardFF16) reconstruct(shards [][]byte, recoverAll bool) error {
 		return nil
 	}
 
-	// Use only if we are missing less than 1/4 parity.
-	useBits := r.totalShards-numberPresent <= r.parityShards/4
+	// Use only if the requested reconstruction set is sparse. ReconstructData
+	// ignores missing parity shards, so gating this on total missing shards
+	// disables the sparse FFT path for data-only recovery with many absent
+	// parity shards. Data-only recovery computes at most dataShards outputs
+	// from m+dataShards possible FFT outputs, so use the sparse path there.
+	useBits := !recoverAll || r.totalShards-numberPresent <= r.parityShards/4
 
 	// Check if we have enough to reconstruct.
 	if numberPresent < r.dataShards {
