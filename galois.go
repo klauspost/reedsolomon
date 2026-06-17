@@ -915,10 +915,7 @@ func genCodeGenMatrix(matrixRows [][]byte, inputs, inIdx, outputs, vectorLength 
 	if !codeGen {
 		panic("codegen not enabled")
 	}
-	paddedInputs := inputs
-	if codeGenPadInputs > paddedInputs {
-		paddedInputs = codeGenPadInputs
-	}
+	paddedInputs := max(codeGenPadInputs, inputs)
 	total := paddedInputs * outputs
 
 	wantBytes := total * vectorLength * 2

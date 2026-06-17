@@ -939,7 +939,7 @@ func refMulAdd8x(scalars *[8]uint16, in []byte, outs *[8][]byte) {
 		loIn := in[:32]
 		for i, lo := range loIn {
 			hi := hiIn[i]
-			for k := 0; k < 8; k++ {
+			for k := range 8 {
 				if luts[k] == nil {
 					continue
 				}
