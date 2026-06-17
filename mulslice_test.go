@@ -11,9 +11,9 @@ import (
 // oracle for GF16MulSliceXor8.
 func naiveGF16MulSliceXor8(ll LowLevel, scalars *[8]uint16, in []byte, outs *[8][]byte) {
 	for off := 0; off < len(in); off += 64 {
-		for j := 0; j < 32; j++ {
+		for j := range 32 {
 			inSym := uint16(in[off+32+j])<<8 | uint16(in[off+j])
-			for k := 0; k < 8; k++ {
+			for k := range 8 {
 				dst := outs[k]
 				outSym := uint16(dst[off+32+j])<<8 | uint16(dst[off+j])
 				res := outSym ^ ll.GF16Mul(scalars[k], inSym)
@@ -71,7 +71,7 @@ func TestGF16MulSliceXor8PanicsOnLengthMismatch(t *testing.T) {
 	scalars := [8]uint16{1, 2, 3, 4, 5, 6, 7, 8}
 
 	var outs [8][]byte
-	for k := 0; k < 8; k++ {
+	for k := range 8 {
 		outs[k] = make([]byte, sz)
 		for i := range outs[k] {
 			outs[k][i] = byte(k + 1)
@@ -81,7 +81,7 @@ func TestGF16MulSliceXor8PanicsOnLengthMismatch(t *testing.T) {
 
 	// Snapshot every buffer except the shortened one.
 	var snap [8][]byte
-	for k := 0; k < 8; k++ {
+	for k := range 8 {
 		snap[k] = make([]byte, len(outs[k]))
 		copy(snap[k], outs[k])
 	}
@@ -100,7 +100,7 @@ func TestGF16MulSliceXor8PanicsOnLengthMismatch(t *testing.T) {
 		t.Fatal("expected panic on mismatched outs length, got nil")
 	}
 
-	for k := 0; k < 8; k++ {
+	for k := range 8 {
 		if len(outs[k]) != len(snap[k]) {
 			continue // outs[3] was shortened intentionally
 		}
@@ -214,14 +214,14 @@ func TestMulgf16Xor8CrossValidate(t *testing.T) {
 		// Build identical starting output sets for each impl.
 		base := make([][8][]byte, len(impls))
 		var seedOuts [8][]byte
-		for k := 0; k < 8; k++ {
+		for k := range 8 {
 			seedOuts[k] = make([]byte, sz)
 			for i := range seedOuts[k] {
 				seedOuts[k][i] = byte(r.IntN(256))
 			}
 		}
 		for idx := range impls {
-			for k := 0; k < 8; k++ {
+			for k := range 8 {
 				base[idx][k] = make([]byte, sz)
 				copy(base[idx][k], seedOuts[k])
 			}
@@ -235,8 +235,8 @@ func TestMulgf16Xor8CrossValidate(t *testing.T) {
 
 		// Compare all against the first.
 		for idx := 1; idx < len(impls); idx++ {
-			for k := 0; k < 8; k++ {
-				for i := 0; i < sz; i++ {
+			for k := range 8 {
+				for i := range sz {
 					if base[0][k][i] != base[idx][k][i] {
 						t.Fatalf("sz=%d %s vs %s: outs[%d][%d] got=%02x want=%02x",
 							sz, impls[idx].name, impls[0].name,
@@ -310,10 +310,10 @@ func TestMulgf16Xor(t *testing.T) {
 // newOutputPair returns two identical pairs of 8 destination buffers of the
 // requested size, each pre-filled with random bytes.
 func newOutputPair(sz int, r *rand.Rand) (a, b [8][]byte) {
-	for k := 0; k < 8; k++ {
+	for k := range 8 {
 		a[k] = make([]byte, sz)
 		b[k] = make([]byte, sz)
-		for i := 0; i < sz; i++ {
+		for i := range sz {
 			v := byte(r.IntN(256))
 			a[k][i] = v
 			b[k][i] = v
@@ -461,7 +461,7 @@ func TestGF16MulSliceXor(t *testing.T) {
 
 			// Compute reference: ref[i] ^= scalar * in[i]
 			for off := 0; off < sz; off += 64 {
-				for j := 0; j < 32; j++ {
+				for j := range 32 {
 					inSym := uint16(in[off+32+j])<<8 | uint16(in[off+j])
 					outSym := uint16(ref[off+32+j])<<8 | uint16(ref[off+j])
 					res := outSym ^ ll.GF16Mul(scalar, inSym)
@@ -529,8 +529,8 @@ func BenchmarkGF16MulSliceXor(b *testing.B) {
 
 func assertOutputsEqual(t *testing.T, sz int, got, want [8][]byte) {
 	t.Helper()
-	for k := 0; k < 8; k++ {
-		for i := 0; i < sz; i++ {
+	for k := range 8 {
+		for i := range sz {
 			if got[k][i] != want[k][i] {
 				t.Fatalf("size=%d k=%d byte %d: got=%02x want=%02x",
 					sz, k, i, got[k][i], want[k][i])
