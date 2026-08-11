@@ -168,18 +168,20 @@ func WithStreamBlockSize(n int) Option {
 
 // WithSSSE3 allows to enable/disable SSSE3 instructions.
 // If not set, SSSE3 will be turned on or off automatically based on CPU ID information.
+// Enabling has no effect if the CPU does not support it.
 func WithSSSE3(enabled bool) Option {
 	return func(o *options) {
-		o.useSSSE3 = enabled
+		o.useSSSE3 = enabled && defaultOptions.useSSSE3
 	}
 }
 
 // WithAVX2 allows to enable/disable AVX2 instructions.
 // If not set, AVX will be turned on or off automatically based on CPU ID information.
 // This will also disable AVX GFNI instructions.
+// Enabling has no effect if the CPU does not support it.
 func WithAVX2(enabled bool) Option {
 	return func(o *options) {
-		o.useAVX2 = enabled
+		o.useAVX2 = enabled && defaultOptions.useAVX2
 		if o.useAvxGNFI {
 			o.useAvxGNFI = enabled
 		}
@@ -188,33 +190,68 @@ func WithAVX2(enabled bool) Option {
 
 // WithSSE2 allows to enable/disable SSE2 instructions.
 // If not set, SSE2 will be turned on or off automatically based on CPU ID information.
+// Enabling has no effect if the CPU does not support it.
 func WithSSE2(enabled bool) Option {
 	return func(o *options) {
-		o.useSSE2 = enabled
+		o.useSSE2 = enabled && defaultOptions.useSSE2
 	}
 }
 
 // WithAVX512 allows to enable/disable AVX512 (and GFNI) instructions.
+// Enabling has no effect if the CPU does not support it.
+// AVX512 and GFNI are separate CPU features, so this will only enable
+// GFNI if the CPU supports it as well.
 func WithAVX512(enabled bool) Option {
 	return func(o *options) {
-		o.useAVX512 = enabled
-		o.useAvx512GFNI = enabled
+		o.useAVX512 = enabled && defaultOptions.useAVX512
+		o.useAvx512GFNI = enabled && defaultOptions.useAvx512GFNI
 	}
 }
 
 // WithGFNI allows to enable/disable AVX512+GFNI instructions.
 // If not set, GFNI will be turned on or off automatically based on CPU ID information.
+// Enabling has no effect if the CPU does not support it.
 func WithGFNI(enabled bool) Option {
 	return func(o *options) {
-		o.useAvx512GFNI = enabled
+		o.useAvx512GFNI = enabled && defaultOptions.useAvx512GFNI
 	}
 }
 
 // WithAVXGFNI allows to enable/disable GFNI with AVX instructions.
 // If not set, GFNI will be turned on or off automatically based on CPU ID information.
+// Enabling has no effect if the CPU does not support it.
 func WithAVXGFNI(enabled bool) Option {
 	return func(o *options) {
-		o.useAvxGNFI = enabled
+		o.useAvxGNFI = enabled && defaultOptions.useAvxGNFI
+	}
+}
+
+// WithNEON allows to enable/disable NEON instructions.
+// If not set, NEON will be turned on or off automatically based on CPU ID information.
+// This will also disable SVE instructions.
+// Enabling has no effect if the CPU does not support it.
+func WithNEON(enabled bool) Option {
+	return func(o *options) {
+		o.useNEON = enabled && defaultOptions.useNEON
+		if !o.useNEON {
+			o.useSVE = false
+			o.vectorLength = 32
+		}
+	}
+}
+
+// WithSVE allows to enable/disable SVE instructions.
+// If not set, SVE will be turned on or off automatically based on CPU ID information.
+// Enabling has no effect if the CPU does not support it.
+func WithSVE(enabled bool) Option {
+	return func(o *options) {
+		o.useSVE = enabled && defaultOptions.useSVE
+		// SVE uses the hardware vector length, everything else wants 32 byte tables.
+		if o.useSVE {
+			o.vectorLength = defaultOptions.vectorLength
+		} else {
+			o.vectorLength = 32
+		}
 	}
 }
 

@@ -15,6 +15,7 @@ import (
 	"math/rand"
 	"os"
 	"runtime"
+	"slices"
 	"strconv"
 	"testing"
 	"time"
@@ -26,6 +27,8 @@ var noAVX2 = flag.Bool("no-avx2", !defaultOptions.useAVX2, "Disable AVX2")
 var noAVX512 = flag.Bool("no-avx512", !defaultOptions.useAVX512, "Disable AVX512")
 var noGNFI = flag.Bool("no-gfni", !defaultOptions.useAvx512GFNI, "Disable AVX512+GFNI")
 var noAVX2GNFI = flag.Bool("no-avx-gfni", !defaultOptions.useAvxGNFI, "Disable AVX+GFNI")
+var noNEON = flag.Bool("no-neon", !defaultOptions.useNEON, "Disable NEON")
+var noSVE = flag.Bool("no-sve", !defaultOptions.useSVE, "Disable SVE")
 
 func TestMain(m *testing.M) {
 	flag.Parse()
@@ -38,8 +41,10 @@ func TestMain(m *testing.M) {
 	os.Exit(m.Run())
 }
 
-func testOptions(o ...Option) []Option {
-	o = append(o, WithFastOneParityMatrix())
+// isaOptions returns the instruction set overrides requested with -no-* flags.
+// These must be applied last, so they win over any explicitly enabled set.
+func isaOptions() []Option {
+	var o []Option
 	if *noSSSE3 {
 		o = append(o, WithSSSE3(false))
 	}
@@ -58,7 +63,18 @@ func testOptions(o ...Option) []Option {
 	if *noAVX2GNFI {
 		o = append(o, WithAVXGFNI(false))
 	}
+	if *noNEON {
+		o = append(o, WithNEON(false))
+	}
+	if *noSVE {
+		o = append(o, WithSVE(false))
+	}
 	return o
+}
+
+func testOptions(o ...Option) []Option {
+	o = append(o, WithFastOneParityMatrix())
+	return append(o, isaOptions()...)
 }
 
 func isIncreasingAndContainsDataRow(indices []int) bool {
@@ -175,19 +191,68 @@ func TestBuildMatrixPAR1Singular(t *testing.T) {
 	t.Logf("matrix %s has singular sub-matrix %s", m, singularSubMatrix)
 }
 
-func testOpts() [][]Option {
-	if testing.Short() {
-		return [][]Option{
-			{WithCauchyMatrix()}, {WithLeopardGF16(true)}, {WithLeopardGF(true)},
+// withISA appends the -no-* overrides to every set. The base sets inherit
+// whatever was detected, so the flags only take effect if applied to all of them.
+func withISA(opts [][]Option) [][]Option {
+	isa := isaOptions()
+	if len(isa) == 0 {
+		return opts
+	}
+	for i, o := range opts {
+		opts[i] = append(slices.Clone(o), isa...)
+	}
+	return opts
+}
+
+// isaSets are the instruction sets ordered weakest to strongest, each with the
+// option that turns it off. The amd64 and arm64 sets are independent; levels for
+// the other architecture collapse into pure Go and get dropped.
+var isaSets = []Option{
+	WithSSE2(false),
+	WithSSSE3(false),
+	WithAVX2(false),
+	WithAVX512(false),
+	WithAVXGFNI(false),
+	WithGFNI(false),
+	WithNEON(false),
+	WithSVE(false),
+}
+
+// isaLadder returns instruction set configurations from pure Go up to everything
+// the CPU supports. Level i disables every set from i upwards, so the result
+// never depends on what was detected and never enables something the CPU lacks.
+// Levels that collapse into another one - unsupported, or turned off with a
+// -no-* flag - are dropped.
+func isaLadder() [][]Option {
+	var out [][]Option
+	seen := map[string]bool{}
+	for i := range len(isaSets) + 1 {
+		level := slices.Clone(isaSets[i:])
+		o := defaultOptions
+		for _, f := range append(slices.Clone(level), isaOptions()...) {
+			f(&o)
+		}
+		if k := o.cpuOptions(); !seen[k] {
+			seen[k] = true
+			out = append(out, level)
 		}
 	}
-	opts := [][]Option{
+	return out
+}
+
+func testOpts() [][]Option {
+	if testing.Short() {
+		return withISA([][]Option{
+			{WithCauchyMatrix()}, {WithLeopardGF16(true)}, {WithLeopardGF(true)},
+		})
+	}
+	base := [][]Option{
 		{WithPAR1Matrix()}, {WithCauchyMatrix()},
 		{WithFastOneParityMatrix()}, {WithPAR1Matrix(), WithFastOneParityMatrix()}, {WithCauchyMatrix(), WithFastOneParityMatrix()},
-		{WithMaxGoroutines(1), WithMinSplitSize(500), WithSSSE3(false), WithAVX2(false), WithAVX512(false)},
-		{WithMaxGoroutines(5000), WithMinSplitSize(50), WithSSSE3(false), WithAVX2(false), WithAVX512(false)},
-		{WithMaxGoroutines(5000), WithMinSplitSize(500000), WithSSSE3(false), WithAVX2(false), WithAVX512(false)},
-		{WithMaxGoroutines(1), WithMinSplitSize(500000), WithSSSE3(false), WithAVX2(false), WithAVX512(false)},
+		{WithMaxGoroutines(1), WithMinSplitSize(500)},
+		{WithMaxGoroutines(5000), WithMinSplitSize(50)},
+		{WithMaxGoroutines(5000), WithMinSplitSize(500000)},
+		{WithMaxGoroutines(1), WithMinSplitSize(500000)},
 		{WithAutoGoroutines(50000), WithMinSplitSize(500)},
 		{WithInversionCache(false)},
 		{WithJerasureMatrix()},
@@ -195,33 +260,14 @@ func testOpts() [][]Option {
 		{WithLeopardGF(true)},
 	}
 
-	for _, o := range opts[:] {
-		if defaultOptions.useSSSE3 {
-			n := make([]Option, len(o), len(o)+1)
-			copy(n, o)
-			n = append(n, WithSSSE3(true))
-			opts = append(opts, n)
-		}
-		if defaultOptions.useAVX2 {
-			n := make([]Option, len(o), len(o)+1)
-			copy(n, o)
-			n = append(n, WithAVX2(true))
-			opts = append(opts, n)
-		}
-		if defaultOptions.useAVX512 {
-			n := make([]Option, len(o), len(o)+1)
-			copy(n, o)
-			n = append(n, WithAVX512(true))
-			opts = append(opts, n)
-		}
-		if defaultOptions.useAvx512GFNI {
-			n := make([]Option, len(o), len(o)+1)
-			copy(n, o)
-			n = append(n, WithGFNI(false))
-			opts = append(opts, n)
+	ladder := isaLadder()
+	opts := make([][]Option, 0, len(base)*len(ladder))
+	for _, b := range base {
+		for _, isa := range ladder {
+			opts = append(opts, append(slices.Clone(b), isa...))
 		}
 	}
-	return opts
+	return withISA(opts)
 }
 
 func parallelIfNotShort(t *testing.T) {
