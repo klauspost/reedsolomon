@@ -235,8 +235,19 @@ var ErrInvShardCombo = errors.New("data and parity shard combination not support
 // leopardFits reports whether the FFT skew table covers the layout for the
 // given shard counts in a field with fieldOrder elements.
 func leopardFits(dataShards, parityShards, fieldOrder int) bool {
+	// Reject before ceilPow2: it returns 0 for non-positive input, and counts
+	// beyond the field would overflow the rounding below.
+	if dataShards <= 0 || parityShards <= 0 ||
+		dataShards > fieldOrder || parityShards > fieldOrder {
+		return false
+	}
 	m := ceilPow2(parityShards)
-	return ((dataShards+m-1)/m)*m <= fieldOrder-m
+	blocks := dataShards / m
+	if dataShards%m != 0 {
+		blocks++
+	}
+	// blocks*m <= dataShards+m-1 <= 2*fieldOrder, so this cannot overflow.
+	return blocks*m <= fieldOrder-m
 }
 
 // buildMatrix creates the matrix to use for encoding, given the

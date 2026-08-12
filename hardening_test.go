@@ -3,6 +3,7 @@ package reedsolomon
 import (
 	"bytes"
 	"errors"
+	"math"
 	"testing"
 )
 
@@ -133,6 +134,73 @@ func TestUpdateEmptyNewDataShard(t *testing.T) {
 				}
 			}
 		})
+	}
+}
+
+// The platform mulAdd8 wrappers run a SIMD prefix (64/32/16 byte granularity)
+// and hand the remainder to refMulAdd8, so it must finish sub-block tails
+// rather than dropping them. Leopard only ever passes multiples of 64 today.
+func TestRefMulAdd8Tail(t *testing.T) {
+	initConstants8()
+	for _, n := range []int{0, 1, 15, 16, 31, 63, 64, 65, 100, 127, 128, 191} {
+		x := make([]byte, n)
+		y := make([]byte, n)
+		want := make([]byte, n)
+		for i := range y {
+			x[i] = byte(i * 3)
+			y[i] = byte(i*7 + 1)
+			want[i] = x[i] ^ byte(mul8LUTs[3].Value[y[i]])
+		}
+		refMulAdd8(x, y, 3)
+		if !bytes.Equal(x, want) {
+			t.Errorf("len %d: refMulAdd8 did not process the whole slice", n)
+		}
+	}
+}
+
+// leopardFits must not reach ceilPow2 (which returns 0 for non-positive input)
+// or overflow its rounding, and must decide identically for in-range counts.
+func TestLeopardFitsBounds(t *testing.T) {
+	for _, tc := range [][2]int{
+		{10, 0}, {10, -1}, {0, 10}, {-1, 10},
+		{math.MaxInt, 10}, {10, math.MaxInt}, {math.MaxInt, math.MaxInt},
+		{order + 1, 10}, {10, order + 1},
+	} {
+		for _, fieldOrder := range []int{order8, order} {
+			if leopardFits(tc[0], tc[1], fieldOrder) {
+				t.Errorf("leopardFits(%d, %d, %d) = true, want false", tc[0], tc[1], fieldOrder)
+			}
+		}
+	}
+
+	// In-range counts must match the original rounding expression.
+	check := func(fieldOrder, step int) {
+		for d := 1; d <= fieldOrder; d += step {
+			for p := 1; p <= fieldOrder; p += step {
+				m := ceilPow2(p)
+				want := ((d+m-1)/m)*m <= fieldOrder-m
+				if got := leopardFits(d, p, fieldOrder); got != want {
+					t.Fatalf("leopardFits(%d, %d, %d) = %v, want %v", d, p, fieldOrder, got, want)
+				}
+			}
+		}
+	}
+	check(order8, 1)
+	check(order, 97)
+}
+
+// New must not hand back an encoder for shard counts that overflow its checks.
+func TestNewOverflowingShardCounts(t *testing.T) {
+	for _, tc := range [][2]int{
+		{math.MaxInt - 5, 10}, {math.MaxInt, math.MaxInt},
+		{math.MaxInt/2 + 1, math.MaxInt/2 + 1}, // sum overflows to negative
+	} {
+		for _, opt := range []Option{WithLeopardGF16(true), WithLeopardGF(true)} {
+			enc, err := New(tc[0], tc[1], opt)
+			if err == nil {
+				t.Errorf("New(%d, %d) returned encoder %v, want error", tc[0], tc[1], enc)
+			}
+		}
 	}
 }
 

@@ -911,6 +911,12 @@ func refMulAdd8(x, y []byte, log_m ffe8) {
 		x = x[64:]
 		y = y[64:]
 	}
+	// Callers pair a SIMD prefix with this call, so the remainder can be
+	// shorter than a block. GF(2^8) maps byte for byte, so finish it here.
+	y = y[:len(x)]
+	for i, y1 := range y {
+		x[i] ^= byte(lut.Value[y1])
+	}
 }
 
 // Reference version of mul: x[] = y[] * log_m
