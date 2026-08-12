@@ -458,7 +458,15 @@ func New(dataShards, parityShards int, opts ...Option) (Encoder, error) {
 		o.workAlloc = &defaultWorkAllocator{}
 	}
 
+	// Validate before picking a backend: every check below, here and in the
+	// leopard constructors, compares against a total that must not have wrapped.
+	if dataShards <= 0 || parityShards < 0 {
+		return nil, ErrInvShardNum
+	}
 	totShards := dataShards + parityShards
+	if totShards < dataShards {
+		return nil, ErrMaxShardNum
+	}
 	switch {
 	case o.withLeopard == leopardGF16 && parityShards > 0 || totShards > 256:
 		return newFF16(dataShards, parityShards, o)
@@ -474,10 +482,6 @@ func New(dataShards, parityShards int, opts ...Option) (Encoder, error) {
 		parityShards: parityShards,
 		totalShards:  dataShards + parityShards,
 		o:            o,
-	}
-
-	if dataShards <= 0 || parityShards < 0 {
-		return nil, ErrInvShardNum
 	}
 
 	if parityShards == 0 {

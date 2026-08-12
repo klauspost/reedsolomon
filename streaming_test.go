@@ -689,8 +689,8 @@ func TestNewStream(t *testing.T) {
 		{1, -1, ErrInvShardNum},
 		{257, 1, ErrMaxShardNum},
 
-		// overflow causes r.Shards to be negative
-		{256, int(^uint(0) >> 1), errInvalidRowSize},
+		// shard total overflows int
+		{256, int(^uint(0) >> 1), ErrMaxShardNum},
 	}
 	for _, test := range tests {
 		_, err := NewStream(test.data, test.parity, testOptions()...)

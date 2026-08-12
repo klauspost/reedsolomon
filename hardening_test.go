@@ -189,16 +189,27 @@ func TestLeopardFitsBounds(t *testing.T) {
 	check(order, 97)
 }
 
-// New must not hand back an encoder for shard counts that overflow its checks.
+// New must not hand back an encoder, or panic, for shard counts that are
+// invalid or that overflow when summed. The overflowed total slipped past the
+// shard count limits and reached make([][]byte, negative) with a custom matrix.
 func TestNewOverflowingShardCounts(t *testing.T) {
+	customMatrix := [][]byte{{1, 2, 3}, {4, 5, 6}}
 	for _, tc := range [][2]int{
-		{math.MaxInt - 5, 10}, {math.MaxInt, math.MaxInt},
+		{math.MaxInt, 1}, {math.MaxInt - 5, 10}, {math.MaxInt, math.MaxInt},
 		{math.MaxInt/2 + 1, math.MaxInt/2 + 1}, // sum overflows to negative
+		{-1, 5}, {5, -1}, {-1, -1}, {0, 0},
 	} {
-		for _, opt := range []Option{WithLeopardGF16(true), WithLeopardGF(true)} {
-			enc, err := New(tc[0], tc[1], opt)
+		for _, opts := range [][]Option{
+			nil,
+			{WithLeopardGF16(true)},
+			{WithLeopardGF(true)},
+			{WithCustomMatrix(customMatrix)},
+			{WithJerasureMatrix()},
+			{WithFastOneParityMatrix()},
+		} {
+			enc, err := New(tc[0], tc[1], opts...)
 			if err == nil {
-				t.Errorf("New(%d, %d) returned encoder %v, want error", tc[0], tc[1], enc)
+				t.Errorf("New(%d, %d, %d opts) returned encoder %T, want error", tc[0], tc[1], len(opts), enc)
 			}
 		}
 	}
