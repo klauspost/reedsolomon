@@ -223,6 +223,22 @@ var ErrMaxShardNum = errors.New("cannot create Encoder with more than 256 data+p
 // ErrNotSupported is returned when an operation is not supported.
 var ErrNotSupported = errors.New("operation not supported")
 
+// ErrInvShardCombo will be returned by New if the requested combination of
+// data and parity shards cannot be represented by the Leopard encoder.
+// Leopard rounds the parity shard count up to a power of two, m, and walks the
+// FFT skew table in steps of m for every m data shards. The combination is
+// usable only when roundUp(dataShards, m)+m fits the field, i.e. 256 for
+// GF(2^8) and 65536 for GF(2^16). Lowering the parity shard count to the
+// nearest power of two, or lowering the data shard count, resolves it.
+var ErrInvShardCombo = errors.New("data and parity shard combination not supported by leopard encoder")
+
+// leopardFits reports whether the FFT skew table covers the layout for the
+// given shard counts in a field with fieldOrder elements.
+func leopardFits(dataShards, parityShards, fieldOrder int) bool {
+	m := ceilPow2(parityShards)
+	return ((dataShards+m-1)/m)*m <= fieldOrder-m
+}
+
 // buildMatrix creates the matrix to use for encoding, given the
 // number of data shards and the number of total shards.
 //
@@ -468,7 +484,7 @@ func New(dataShards, parityShards int, opts ...Option) (Encoder, error) {
 			r.m[i] = make([]byte, dataShards)
 			r.m[i][i] = 1
 		}
-		for k, row := range r.o.customMatrix {
+		for k, row := range r.o.customMatrix[:parityShards] {
 			if len(row) < dataShards {
 				return nil, errors.New("coding matrix must contain at least dataShards columns")
 			}
@@ -778,18 +794,26 @@ func (r *reedSolomon) Update(shards [][]byte, newDatashards [][]byte) error {
 		return err
 	}
 
-	for i := range newDatashards {
-		if newDatashards[i] != nil && shards[i] == nil {
+	shardSize := shardSize(shards)
+
+	// Every shard handed to the kernels must be exactly shardSize long,
+	// since neither the assembly nor the Go loops re-check the lengths.
+	for i, ns := range newDatashards {
+		if len(ns) == 0 {
+			continue
+		}
+		if len(ns) != shardSize {
+			return ErrShardSize
+		}
+		if len(shards[i]) != shardSize {
 			return ErrInvalidInput
 		}
 	}
 	for _, p := range shards[r.dataShards:] {
-		if p == nil {
+		if len(p) != shardSize {
 			return ErrInvalidInput
 		}
 	}
-
-	shardSize := shardSize(shards)
 
 	// Get the slice of output buffers.
 	output := shards[r.dataShards:]
@@ -811,7 +835,7 @@ func (r *reedSolomon) updateParityShards(matrixRows, oldinputs, newinputs, outpu
 
 	for c := 0; c < r.dataShards; c++ {
 		in := newinputs[c]
-		if in == nil {
+		if len(in) == 0 {
 			continue
 		}
 		oldin := oldinputs[c]
@@ -835,7 +859,7 @@ func (r *reedSolomon) updateParityShardsP(matrixRows, oldinputs, newinputs, outp
 		go func(start, stop int) {
 			for c := 0; c < r.dataShards; c++ {
 				in := newinputs[c]
-				if in == nil {
+				if len(in) == 0 {
 					continue
 				}
 				oldin := oldinputs[c]
@@ -1086,6 +1110,19 @@ func (r *reedSolomon) codeSomeShardsAVXP(matrixRows, inputs, outputs [][]byte, b
 	tmp := r.getTmpSlice()
 	defer r.putTmpSlice(tmp)
 
+	// The pool buffer is sized for dataShards x parityShards. Callers may supply
+	// more inputs than that, so hand out what is left and let genCodeGenMatrix
+	// allocate once the buffer is exhausted.
+	genMatrix := func(rows [][]byte, inputs, inIdx, outputs int) []byte {
+		m := genCodeGenMatrix(rows, inputs, inIdx, outputs, r.o.vectorLength, tmp)
+		if len(m) <= len(tmp) {
+			tmp = tmp[len(m):]
+		} else {
+			tmp = nil
+		}
+		return m
+	}
+
 	// Flips between input first to output first.
 	// We put the smallest data load in the inner loop.
 	if len(inputs) > len(outputs) {
@@ -1104,8 +1141,7 @@ func (r *reedSolomon) codeSomeShardsAVXP(matrixRows, inputs, outputs [][]byte, b
 					outPer = outPer[:codeGenMaxOutputs]
 				}
 				// Generate local matrix
-				m := genCodeGenMatrix(matrixRows[outIdx:], len(inPer), inIdx, len(outPer), r.o.vectorLength, tmp)
-				tmp = tmp[len(m):]
+				m := genMatrix(matrixRows[outIdx:], len(inPer), inIdx, len(outPer))
 				plan = append(plan, state{
 					input:  inPer,
 					output: outPer,
@@ -1135,8 +1171,7 @@ func (r *reedSolomon) codeSomeShardsAVXP(matrixRows, inputs, outputs [][]byte, b
 					inPer = inPer[:codeGenMaxInputs]
 				}
 				// Generate local matrix
-				m := genCodeGenMatrix(matrixRows[outIdx:], len(inPer), inIdx, len(outPer), r.o.vectorLength, tmp)
-				tmp = tmp[len(m):]
+				m := genMatrix(matrixRows[outIdx:], len(inPer), inIdx, len(outPer))
 				//fmt.Println("bytes:", len(inPer)*r.o.perRound, "out:", len(outPer)*r.o.perRound)
 				plan = append(plan, state{
 					input:  inPer,
@@ -1531,12 +1566,14 @@ func (r *reedSolomon) DecodeIdx(dst [][]byte, expectInput []bool, input [][]byte
 		return err
 	}
 
-	// Verify shard sizes are consistent
+	// Verify shard sizes are consistent.
+	// Tracked separately from the size, so a zero-length input cannot pass as "unset".
 	shardSize := 0
+	sizeKnown := false
 	for i := range input {
 		if input[i] != nil {
-			if shardSize == 0 {
-				shardSize = len(input[i])
+			if !sizeKnown {
+				shardSize, sizeKnown = len(input[i]), true
 			} else if len(input[i]) != shardSize {
 				return errors.Join(ErrInvalidShardSize, fmt.Errorf("input[%d] size %d != expected size %d", i, len(input[i]), shardSize))
 			}
@@ -1691,7 +1728,9 @@ func (r *reedSolomon) reconstruct(shards [][]byte, dataOnly bool, required []boo
 				dataPresent++
 			}
 		} else if required != nil {
-			if required[i] {
+			// required may only cover the data shards, in which case any
+			// missing parity shard is by definition not required.
+			if i < len(required) && required[i] {
 				missingRequired++
 			}
 		}

@@ -11,6 +11,9 @@ const pshufb = false
 
 // simple slice xor
 func sliceXor(in, out []byte, o *options) {
+	// The kernels below write len(in) bytes to out without consulting its
+	// length. Fail here rather than past the end of out.
+	out = out[:len(in)]
 	if o.useSSE2 {
 		if len(in) >= bigSwitchover {
 			if o.useAVX2 {

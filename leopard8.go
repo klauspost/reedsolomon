@@ -50,6 +50,10 @@ func newFF8(dataShards, parityShards int, opt options) (*leopardFF8, error) {
 		return nil, ErrMaxShardNum
 	}
 
+	if !leopardFits(dataShards, parityShards, order8) {
+		return nil, ErrInvShardCombo
+	}
+
 	r := &leopardFF8{
 		dataShards:   dataShards,
 		parityShards: parityShards,
@@ -143,7 +147,10 @@ func (r *leopardFF8) encode(shards [][]byte) error {
 	}
 
 	m := ceilPow2(r.parityShards)
-	work := r.workAlloc.Get(m*2, workSize8)
+	work, err := getWork(r.workAlloc, m*2, workSize8)
+	if err != nil {
+		return err
+	}
 	defer r.workAlloc.Put(work)
 
 	mtrunc := min(r.dataShards, m)
@@ -512,7 +519,10 @@ func (r *leopardFF8) reconstruct(shards [][]byte, recoverAll bool) error {
 		}
 	}
 
-	work := r.workAlloc.Get(n, workSize8)
+	work, err := getWork(r.workAlloc, n, workSize8)
+	if err != nil {
+		return err
+	}
 	defer r.workAlloc.Put(work)
 
 	// work <- recovery data

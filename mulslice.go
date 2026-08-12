@@ -18,6 +18,7 @@ func (l *LowLevel) WithOptions(opts ...Option) {
 	for _, opt := range opts {
 		opt(&o)
 	}
+	l.o = &o
 }
 
 func (l LowLevel) options() *options {
@@ -27,12 +28,18 @@ func (l LowLevel) options() *options {
 // GalMulSlice multiplies the elements of in by c, writing the result to out: out[i] = c * in[i].
 // out must be at least as long as in.
 func (l LowLevel) GalMulSlice(c byte, in, out []byte) {
+	if len(out) < len(in) {
+		panic(fmt.Sprintf("reedsolomon: GalMulSlice: len(out)=%d, must be >= len(in)=%d", len(out), len(in)))
+	}
 	galMulSlice(c, in, out, l.options())
 }
 
 // GalMulSliceXor multiplies the elements of in by c, and adds the result to out: out[i] ^= c * in[i].
 // out must be at least as long as in.
 func (l LowLevel) GalMulSliceXor(c byte, in, out []byte) {
+	if len(out) < len(in) {
+		panic(fmt.Sprintf("reedsolomon: GalMulSliceXor: len(out)=%d, must be >= len(in)=%d", len(out), len(in)))
+	}
 	galMulSliceXor(c, in, out, l.options())
 }
 

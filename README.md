@@ -453,6 +453,10 @@ This allows encoding up to 65536 shards (data+parity) with the following limitat
 * The shard size *must*  each be a multiple of 64 bytes.
 * Each buffer should have the same number of bytes.
 * Even the last shard must be rounded up to the block size.
+* Let `m` be the number of recovery pieces rounded up to a power of two.
+  Then `roundUp(data, m) + m` must fit the field, meaning 65536 for GF16 and 256 for GF8.
+  `New` returns `ErrInvShardCombo` otherwise; reducing the recovery piece count to a
+  power of two, or reducing the data piece count, resolves it.
 
 |                 | Regular | Leopard |
 |-----------------|---------|---------|

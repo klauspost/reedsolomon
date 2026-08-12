@@ -7,6 +7,9 @@ func xorSliceNEON(in, out []byte)
 
 // simple slice xor
 func sliceXor(in, out []byte, o *options) {
+	// The kernel below writes len(in) bytes to out without consulting its
+	// length. Fail here rather than past the end of out.
+	out = out[:len(in)]
 	done := (len(in) >> 5) << 5
 	if raceEnabled {
 		raceWriteSlice(out[:done])

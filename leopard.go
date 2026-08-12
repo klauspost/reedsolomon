@@ -59,6 +59,10 @@ func newFF16(dataShards, parityShards int, opt options) (*leopardFF16, error) {
 		return nil, ErrMaxShardNum
 	}
 
+	if !leopardFits(dataShards, parityShards, order) {
+		return nil, ErrInvShardCombo
+	}
+
 	r := &leopardFF16{
 		dataShards:   dataShards,
 		parityShards: parityShards,
@@ -177,7 +181,10 @@ func (r *leopardFF16) encode(shards [][]byte) error {
 	lastCount := r.dataShards % m
 	chunkSize := encodeChunkSize(shardSize, m*2)
 
-	work := r.workAlloc.Get(m*2, chunkSize)
+	work, err := getWork(r.workAlloc, m*2, chunkSize)
+	if err != nil {
+		return err
+	}
 	defer r.workAlloc.Put(work)
 
 	skewLUT := fftSkew[m-1:]
@@ -511,7 +518,10 @@ func (r *leopardFF16) reconstruct(shards [][]byte, recoverAll bool) error {
 
 	chunkSize := encodeChunkSize(shardSize, n)
 
-	work := r.workAlloc.Get(n, chunkSize)
+	work, err := getWork(r.workAlloc, n, chunkSize)
+	if err != nil {
+		return err
+	}
 	defer r.workAlloc.Put(work)
 
 	// sh preserves the original nil entries so reconstructChunk can

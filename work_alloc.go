@@ -1,6 +1,9 @@
 package reedsolomon
 
-import "sync"
+import (
+	"fmt"
+	"sync"
+)
 
 // WorkAllocator provides external work buffer management for the leopard
 // Reed-Solomon encoder (both GF(2^8) and GF(2^16) variants). When set via
@@ -22,6 +25,25 @@ import "sync"
 type WorkAllocator interface {
 	Get(n, size int) [][]byte
 	Put([][]byte)
+}
+
+// getWork returns n buffers of at least size bytes from a.
+// The buffers go straight to the SIMD kernels, which do not re-check lengths,
+// so a WorkAllocator breaking its contract is reported instead of corrupting memory.
+func getWork(a WorkAllocator, n, size int) ([][]byte, error) {
+	work := a.Get(n, size)
+	if len(work) < n {
+		a.Put(work)
+		return nil, fmt.Errorf("%w: WorkAllocator returned %d buffers, need %d", ErrInvalidInput, len(work), n)
+	}
+	work = work[:n]
+	for i, w := range work {
+		if len(w) < size {
+			a.Put(work)
+			return nil, fmt.Errorf("%w: WorkAllocator buffer %d has %d bytes, need %d", ErrInvalidInput, i, len(w), size)
+		}
+	}
+	return work, nil
 }
 
 // defaultWorkAllocator is the default WorkAllocator backed by sync.Pool.

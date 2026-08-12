@@ -32,6 +32,9 @@ func galMulPpcXor(low, high, in, out []byte) {
 */
 
 func galMulSlice(c byte, in, out []byte, o *options) {
+	// The kernels below write len(in) bytes to out without consulting its
+	// length. Fail here rather than past the end of out.
+	out = out[:len(in)]
 	if c == 1 {
 		copy(out, in)
 		return
@@ -50,6 +53,7 @@ func galMulSlice(c byte, in, out []byte, o *options) {
 }
 
 func galMulSliceXor(c byte, in, out []byte, o *options) {
+	out = out[:len(in)]
 	if c == 1 {
 		sliceXor(in, out, o)
 		return
@@ -134,7 +138,7 @@ func mulAdd8(out, in []byte, log_m ffe8, o *options) {
 	in = in[done:]
 	if len(in) > 0 {
 		out = out[done:]
-		refMulAdd8(in, out, log_m)
+		refMulAdd8(out, in, log_m)
 	}
 }
 
@@ -148,7 +152,7 @@ func mulgf8(out, in []byte, log_m ffe8, o *options) {
 	if remain > 0 {
 		mt := mul8LUTs[log_m].Value[:]
 		for i := done; i < len(in); i++ {
-			out[i] ^= byte(mt[in[i]])
+			out[i] = byte(mt[in[i]])
 		}
 	}
 }
