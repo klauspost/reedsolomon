@@ -1,8 +1,6 @@
 module github.com/klauspost/reedsolomon/_gen
 
-go 1.22.0
-
-toolchain go1.24.2
+go 1.25
 
 require (
 	github.com/fwessels/avxTwo2sve v0.0.0-20240611172111-6b8528700471

@@ -91,7 +91,7 @@ func expandHashDefines(instructions []string) (processed []string) {
 
 func convertRoutine(asmBuf *bytes.Buffer, instructions []string) {
 
-	asmF := func(format string, args ...interface{}) {
+	asmF := func(format string, args ...any) {
 		(*asmBuf).WriteString(fmt.Sprintf(format, args...))
 	}
 

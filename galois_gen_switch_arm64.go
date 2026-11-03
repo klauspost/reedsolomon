@@ -152,7 +152,7 @@ func galMulSlicesSveXor(matrix []byte, in, out [][]byte, start, stop int) (n int
 // The matrix layout in memory is: (input * outputs + output_index) * 64
 // This function checks only output_index=0 (first parity row).
 func isFirstParityRowAllOne(matrix []byte, inputs, outputs int) bool {
-	for i := 0; i < inputs; i++ {
+	for i := range inputs {
 		checkIndex := (i*outputs+0)*64 + 1
 		if checkIndex >= len(matrix) {
 			return false

@@ -14,7 +14,7 @@ import (
 
 func convert2Neon(asmBuf *bytes.Buffer, lines []string) {
 
-	asmF := func(format string, args ...interface{}) {
+	asmF := func(format string, args ...any) {
 		(*asmBuf).WriteString(fmt.Sprintf(format, args...))
 	}
 
@@ -92,7 +92,7 @@ func convert2Neon(asmBuf *bytes.Buffer, lines []string) {
 				zd := getZregister(f[len(f)-2])
 				var am string
 				{ // HACK: ignore offset since we're fixating it at 32
-					baseReg := strings.Split(matches[0][0], ",")[0]
+					baseReg, _, _ := strings.Cut(matches[0][0], ",")
 					am = parseAddrModeMulVl(baseReg)
 				}
 				asmF("    VLD1.P 32%s, [V%d.B16, V%d.B16]\n", am, zd*2, zd*2+1)
@@ -106,7 +106,7 @@ func convert2Neon(asmBuf *bytes.Buffer, lines []string) {
 				zd := getZregister(f[len(f)-2])
 				var am string
 				{ // HACK: ignore offset since we're fixating it at 32
-					baseReg := strings.Split(matches[0][0], ",")[0]
+					baseReg, _, _ := strings.Cut(matches[0][0], ",")
 					am = parseAddrModeMulVl(baseReg)
 				}
 				asmF("    VST1.P [V%d.D2, V%d.D2], 32%s\n", zd*2, zd*2+1, am)
@@ -238,7 +238,7 @@ func convert2Neon(asmBuf *bytes.Buffer, lines []string) {
 
 func fixPostIncrementNeon(asmBuf *bytes.Buffer, lines []string) {
 
-	asmF := func(format string, args ...interface{}) {
+	asmF := func(format string, args ...any) {
 		(*asmBuf).WriteString(fmt.Sprintf(format, args...))
 	}
 
@@ -344,7 +344,7 @@ func neonVectorRegs(line string) (regs []string) {
 	if start == -1 || end == -1 || end <= start {
 		return nil
 	}
-	for _, f := range strings.Split(line[start+1:end], ",") {
+	for f := range strings.SplitSeq(line[start+1:end], ",") {
 		f = strings.TrimSpace(f)
 		if strings.HasPrefix(f, "V") && strings.Contains(f, ".B16") {
 			regs = append(regs, strings.TrimSuffix(f, ".B16"))
