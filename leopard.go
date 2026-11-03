@@ -154,7 +154,7 @@ func (r *leopardFF16) Encode(shards [][]byte) error {
 // encodeChunkSize returns the chunk size for the given shard size and
 // number of work buffers. It tries to keep the working set in L3 cache,
 // capped at maxWorkSize16.
-func encodeChunkSize(shardSize, workBufs int) int {
+func encodeChunkSize(shardSize, workBufs int, o *options) int {
 	l3 := cpuid.CPU.Cache.L3
 	if l3 <= 0 {
 		// Assume 16MB L3 if not detected.
@@ -164,9 +164,12 @@ func encodeChunkSize(shardSize, workBufs int) int {
 	chunkSize := l3 * 2 / (workBufs * 3)
 	chunkSize = min(chunkSize, maxWorkSize16)
 	chunkSize &^= 63 // 64-byte alignment
-	if chunkSize < 4<<10 {
-		chunkSize = 4 << 10
+	minChunkSize := 4 << 10
+	if o.useNEON && pshufb {
+		// Amortize NEON butterfly setup over larger chunks.
+		minChunkSize = 16 << 10
 	}
+	chunkSize = max(chunkSize, minChunkSize)
 	return min(chunkSize, shardSize)
 }
 
@@ -179,7 +182,7 @@ func (r *leopardFF16) encode(shards [][]byte) error {
 	m := ceilPow2(r.parityShards)
 	mtrunc := min(r.dataShards, m)
 	lastCount := r.dataShards % m
-	chunkSize := encodeChunkSize(shardSize, m*2)
+	chunkSize := encodeChunkSize(shardSize, m*2, &r.o)
 
 	work, err := getWork(r.workAlloc, m*2, chunkSize)
 	if err != nil {
@@ -516,7 +519,7 @@ func (r *leopardFF16) reconstruct(shards [][]byte, recoverAll bool) error {
 
 	fwht(&errLocs, order)
 
-	chunkSize := encodeChunkSize(shardSize, n)
+	chunkSize := encodeChunkSize(shardSize, n, &r.o)
 
 	work, err := getWork(r.workAlloc, n, chunkSize)
 	if err != nil {
@@ -1226,7 +1229,7 @@ func initMul16LUT() {
 			lut.Hi[i] = tmp[((i&15)+32)] ^ tmp[((i>>4)+48)]
 		}
 	}
-	if cpuid.CPU.Has(cpuid.SSSE3) || cpuid.CPU.Has(cpuid.AVX2) || cpuid.CPU.Has(cpuid.AVX512F) {
+	if cpuid.CPU.Has(cpuid.SSSE3) || cpuid.CPU.Has(cpuid.AVX2) || cpuid.CPU.Has(cpuid.AVX512F) || cpuid.CPU.Has(cpuid.ASIMD) {
 		multiply256LUT = &[order][16 * 8]byte{}
 
 		for logM := range multiply256LUT[:] {

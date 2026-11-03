@@ -5,6 +5,8 @@
 
 package reedsolomon
 
+import "unsafe"
+
 const pshufb = true
 
 //go:noescape
@@ -12,6 +14,37 @@ func galMulNEON(low, high, in, out []byte)
 
 //go:noescape
 func galMulXorNEON(low, high, in, out []byte)
+
+//go:noescape
+func ifftDIT2NEON(x, y []byte, table *[128]uint8)
+
+//go:noescape
+func fftDIT2NEON(x, y []byte, table *[128]uint8)
+
+//go:noescape
+func mulgf16NEON(x, y []byte, table *[128]uint8)
+
+//go:noescape
+func mulgf16XorNEON(x, y []byte, table *[128]uint8)
+
+//go:noescape
+func ifftDIT2NEON3(x, y []byte, table *[128]uint8)
+
+//go:noescape
+func fftDIT2NEON3(x, y []byte, table *[128]uint8)
+
+//go:noescape
+func mulgf16XorNEON3(x, y []byte, table *[128]uint8)
+
+//go:noescape
+func mulgf16NEON3(x, y []byte, table *[128]uint8)
+
+// leopardNEON reports whether the GF(2^16) NEON kernels can be used. They
+// consume whole 64-byte blocks; callers pass the remainder to the reference
+// code, which handles the same block granularity.
+func leopardNEON(o *options) bool {
+	return o.useNEON && multiply256LUT != nil
+}
 
 func getVectorLength() (vl, pl uint64)
 
@@ -96,6 +129,22 @@ func fftDIT48(work [][]byte, dist int, log_m01, log_m23, log_m02 ffe8, o *option
 
 // 2-way butterfly forward
 func fftDIT2(x, y []byte, log_m ffe, o *options) {
+	if leopardNEON(o) {
+		done := len(x) &^ 63
+		if raceEnabled {
+			raceWriteSlice(x[:done])
+			raceWriteSlice(y[:done])
+		}
+		if o.useSHA3 {
+			fftDIT2NEON3(x[:done], y[:done], &multiply256LUT[log_m])
+		} else {
+			fftDIT2NEON(x[:done], y[:done], &multiply256LUT[log_m])
+		}
+		if done == len(x) {
+			return
+		}
+		x, y = x[done:], y[done:]
+	}
 	// Reference version:
 	refMulAdd(x, y, log_m)
 	// 64 byte aligned, always full.
@@ -111,6 +160,22 @@ func fftDIT28(x, y []byte, log_m ffe8, o *options) {
 
 // 2-way butterfly
 func ifftDIT2(x, y []byte, log_m ffe, o *options) {
+	if leopardNEON(o) {
+		done := len(x) &^ 63
+		if raceEnabled {
+			raceWriteSlice(x[:done])
+			raceWriteSlice(y[:done])
+		}
+		if o.useSHA3 {
+			ifftDIT2NEON3(x[:done], y[:done], &multiply256LUT[log_m])
+		} else {
+			ifftDIT2NEON(x[:done], y[:done], &multiply256LUT[log_m])
+		}
+		if done == len(x) {
+			return
+		}
+		x, y = x[done:], y[done:]
+	}
 	// 64 byte aligned, always full.
 	xorSliceNEON(x, y)
 	// Reference version:
@@ -125,14 +190,80 @@ func ifftDIT28(x, y []byte, log_m ffe8, o *options) {
 }
 
 func mulgf16(x, y []byte, log_m ffe, o *options) {
+	if leopardNEON(o) {
+		done := len(x) &^ 63
+		if raceEnabled {
+			raceReadSlice(y[:done])
+			raceWriteSlice(x[:done])
+		}
+		if o.useSHA3 {
+			mulgf16NEON3(x[:done], y[:done], &multiply256LUT[log_m])
+		} else {
+			mulgf16NEON(x[:done], y[:done], &multiply256LUT[log_m])
+		}
+		if done == len(x) {
+			return
+		}
+		x, y = x[done:], y[done:]
+	}
 	refMul(x, y, log_m)
 }
 
 func mulgf16Xor8(scalars *[8]uint16, in []byte, outs *[8][]byte, o *options) {
+	if leopardNEON(o) && !mulgf16Xor8Overlap(in, outs) {
+		// Each output is accumulated from in over the whole slice, so the
+		// per-scalar loop only matches refMulAdd8x when no output aliases in.
+		// Otherwise an earlier output would mutate in before later scalars
+		// read it; fall back to the reference so results stay byte-identical
+		// with the pure-Go and amd64 paths.
+		for k, c := range scalars {
+			if c != 0 {
+				mulgf16Xor(outs[k], in, logLUT[ffe(c)], o)
+			}
+		}
+		return
+	}
 	refMulAdd8x(scalars, in, outs)
 }
 
+// mulgf16Xor8Overlap reports whether any output shares memory with in, in
+// which case the per-scalar NEON loop would diverge from refMulAdd8x.
+func mulgf16Xor8Overlap(in []byte, outs *[8][]byte) bool {
+	if len(in) == 0 {
+		return false
+	}
+	inStart := uintptr(unsafe.Pointer(unsafe.SliceData(in)))
+	inEnd := inStart + uintptr(len(in))
+	for k := range outs {
+		if len(outs[k]) == 0 {
+			continue
+		}
+		outStart := uintptr(unsafe.Pointer(unsafe.SliceData(outs[k])))
+		outEnd := outStart + uintptr(len(outs[k]))
+		if outStart < inEnd && inStart < outEnd {
+			return true
+		}
+	}
+	return false
+}
+
 func mulgf16Xor(x, y []byte, log_m ffe, o *options) {
+	if leopardNEON(o) {
+		done := len(x) &^ 63
+		if raceEnabled {
+			raceReadSlice(y[:done])
+			raceWriteSlice(x[:done])
+		}
+		if o.useSHA3 {
+			mulgf16XorNEON3(x[:done], y[:done], &multiply256LUT[log_m])
+		} else {
+			mulgf16XorNEON(x[:done], y[:done], &multiply256LUT[log_m])
+		}
+		if done == len(x) {
+			return
+		}
+		x, y = x[done:], y[done:]
+	}
 	refMulAdd(x, y, log_m)
 }
 
