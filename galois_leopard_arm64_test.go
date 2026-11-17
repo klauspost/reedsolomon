@@ -163,6 +163,11 @@ func TestLeopardNEONEncodeMatchesReference(t *testing.T) {
 		{4096, 12288, 25664},
 	}
 	for _, sh := range shapes {
+		if testing.Short() && (sh.data+sh.parity)*sh.size > 16<<20 {
+			// 16384 shards of 25664 bytes through the reference code take minutes
+			// with the race detector.
+			continue
+		}
 		neon, err := New(sh.data, sh.parity, WithLeopardGF16(true))
 		if err != nil {
 			t.Fatal(err)
@@ -351,7 +356,7 @@ func withSHA3(enabled bool) Option {
 }
 
 func init() {
-	goldenArchVariants = append(goldenArchVariants, goldenVariant{"noSHA3", []Option{withSHA3(false)}, true})
+	goldenArchVariants = append(goldenArchVariants, goldenVariant{"noSHA3", []Option{withSHA3(false)}})
 }
 
 type gf16Kernel struct {

@@ -212,11 +212,9 @@ var goldenShapes = []struct {
 }
 
 // goldenVariant is a set of options the golden test runs under.
-// fast marks the variants that are quick enough for every shape in short mode.
 type goldenVariant struct {
 	name string
 	opts []Option
-	fast bool
 }
 
 // goldenArchVariants are the variants that only exist on some platforms.
@@ -244,15 +242,16 @@ func goldenDigest(t *testing.T, shards [][]byte, data int) string {
 
 func TestLeopardGF16Golden(t *testing.T) {
 	variants := []goldenVariant{
-		{"default", nil, true},
-		{"noNEON", []Option{WithNEON(false)}, false},
+		{"default", nil},
+		{"noNEON", []Option{WithNEON(false)}},
 	}
 	variants = append(variants, goldenArchVariants...)
 	for _, sh := range goldenShapes {
+		if testing.Short() && (sh.data+sh.parity)*sh.size > 16<<20 {
+			// The two shapes of 16384 shards take seconds a variant.
+			continue
+		}
 		for _, v := range variants {
-			if testing.Short() && sh.size > 4096 && !v.fast {
-				continue
-			}
 			for _, dirty := range []bool{false, true} {
 				enc, err := New(sh.data, sh.parity, append([]Option{WithLeopardGF16(true)}, v.opts...)...)
 				if err != nil {
