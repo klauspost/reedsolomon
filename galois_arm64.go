@@ -5,8 +5,6 @@
 
 package reedsolomon
 
-import "unsafe"
-
 const pshufb = true
 
 //go:noescape
@@ -229,18 +227,8 @@ func mulgf16Xor8(scalars *[8]uint16, in []byte, outs *[8][]byte, o *options) {
 // mulgf16Xor8Overlap reports whether any output shares memory with in, in
 // which case the per-scalar NEON loop would diverge from refMulAdd8x.
 func mulgf16Xor8Overlap(in []byte, outs *[8][]byte) bool {
-	if len(in) == 0 {
-		return false
-	}
-	inStart := uintptr(unsafe.Pointer(unsafe.SliceData(in)))
-	inEnd := inStart + uintptr(len(in))
 	for k := range outs {
-		if len(outs[k]) == 0 {
-			continue
-		}
-		outStart := uintptr(unsafe.Pointer(unsafe.SliceData(outs[k])))
-		outEnd := outStart + uintptr(len(outs[k]))
-		if outStart < inEnd && inStart < outEnd {
+		if overlaps(in, outs[k]) {
 			return true
 		}
 	}
