@@ -350,18 +350,8 @@ func withSHA3(enabled bool) Option {
 	}
 }
 
-func goldenArchVariants() []struct {
-	name string
-	opts []Option
-	fast bool
-} {
-	return []struct {
-		name string
-		opts []Option
-		fast bool
-	}{
-		{"noSHA3", []Option{withSHA3(false)}, true},
-	}
+func init() {
+	goldenArchVariants = append(goldenArchVariants, goldenVariant{"noSHA3", []Option{withSHA3(false)}, true})
 }
 
 type gf16Kernel struct {
