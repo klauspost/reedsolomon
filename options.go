@@ -23,6 +23,7 @@ type options struct {
 	useSSSE3,
 	useSSE2,
 	useNEON,
+	useSHA3,
 	useSVE bool
 	vectorLength int
 	skip2B       bool
@@ -57,6 +58,7 @@ var defaultOptions = options{
 	useAvx512GFNI: cpuid.CPU.Supports(cpuid.AVX512F, cpuid.GFNI, cpuid.AVX512DQ),
 	useAvxGNFI:    cpuid.CPU.Supports(cpuid.AVX, cpuid.GFNI),
 	useNEON:       cpuid.CPU.Supports(cpuid.ASIMD),
+	useSHA3:       cpuid.CPU.Supports(cpuid.ASIMD, cpuid.SHA3),
 	useSVE:        cpuid.CPU.Supports(cpuid.SVE),
 	vectorLength:  32, // default vector length is 32 bytes (256 bits) for AVX2 code gen
 }
@@ -234,6 +236,7 @@ func WithNEON(enabled bool) Option {
 	return func(o *options) {
 		o.useNEON = enabled && defaultOptions.useNEON
 		if !o.useNEON {
+			o.useSHA3 = false
 			o.useSVE = false
 			o.vectorLength = 32
 		}
@@ -376,6 +379,9 @@ func (o *options) cpuOptions() string {
 		res = append(res, "ARM+SVE")
 	} else if o.useNEON {
 		res = append(res, "ARM+NEON")
+	}
+	if o.useSHA3 {
+		res = append(res, "ARM+SHA3")
 	}
 	if len(res) == 0 {
 		return "pure Go"

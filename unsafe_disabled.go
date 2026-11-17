@@ -26,6 +26,13 @@ func AllocAligned(shards, each int) [][]byte {
 	return res
 }
 
+// overlaps reports whether a and b may share memory.
+// The addresses cannot be compared without "unsafe",
+// so two non-empty slices are assumed to overlap.
+func overlaps(a, b []byte) bool {
+	return len(a) > 0 && len(b) > 0
+}
+
 // load64 will load from b at index i.
 func load64[I indexer](b []byte, i I) uint64 {
 	return binary.LittleEndian.Uint64(b[i:])
