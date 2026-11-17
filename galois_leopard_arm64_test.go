@@ -4,6 +4,7 @@ package reedsolomon
 
 import (
 	"bytes"
+	"fmt"
 	"math/rand"
 	"testing"
 )
@@ -270,6 +271,27 @@ func BenchmarkLeopardGF16EncodeGoroutineOpts(b *testing.B) {
 				}
 			}
 		})
+	}
+}
+
+// BenchmarkLeopardGF16EncodeEOR3 compares the plain NEON kernels with the
+// EOR3 ones on a CPU that has SHA3; it is skipped elsewhere.
+func BenchmarkLeopardGF16EncodeEOR3(b *testing.B) {
+	if !defaultOptions.useSHA3 {
+		b.Skip("SHA3 not available")
+	}
+	for _, v := range []struct {
+		name string
+		sha3 bool
+	}{
+		{"neon", false},
+		{"eor3", true},
+	} {
+		for _, size := range []int{1 << 10, 64 << 10, 1 << 20} {
+			b.Run(fmt.Sprintf("%s/800x200/%d", v.name, size), func(b *testing.B) {
+				benchmarkEncode(b, 800, 200, size, WithLeopardGF16(true), withSHA3(v.sha3))
+			})
+		}
 	}
 }
 
