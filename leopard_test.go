@@ -221,7 +221,7 @@ type goldenVariant struct {
 var goldenArchVariants []goldenVariant
 
 func goldenShards(data, parity, size int, dirty bool) [][]byte {
-	rng := rand.New(rand.NewSource(int64(data*1000003 + parity*1009 + size)))
+	rng := rand.New(rand.NewSource(int64(data)*1000003 + int64(parity)*1009 + int64(size)))
 	shards := AllocAligned(data+parity, size)
 	for i := range shards {
 		if i < data || dirty {
