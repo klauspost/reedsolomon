@@ -12,6 +12,9 @@
 //go:generate go fmt ../galois_gen_amd64.go
 //go:generate go run cleanup.go ../galois_gen_amd64.s
 
+//go:generate go run -tags=armgen .
+//go:generate go fmt ../galois_gen_arm64.go
+
 package main
 
 import (
@@ -90,11 +93,6 @@ func main() {
 	genGF16()
 	genGF8()
 
-	if pshufb {
-		genArmSve()
-		genArmNeon()
-		genArmSveAllVl()
-	}
 	Generate()
 }
 
